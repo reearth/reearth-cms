@@ -3,6 +3,7 @@
 package gqlmodel
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/url"
@@ -37,6 +38,11 @@ type SchemaFieldTypeProperty interface {
 
 type WorkspaceMember interface {
 	IsWorkspaceMember()
+}
+
+type APIKeyPayload struct {
+	APIKey *ProjectAPIKey       `json:"apiKey"`
+	Public *PublicationSettings `json:"public"`
 }
 
 type AddCommentInput struct {
@@ -84,12 +90,15 @@ type Asset struct {
 	Items                   []*AssetItem             `json:"items,omitempty"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType,omitempty"`
+	ContentEncoding         *string                  `json:"contentEncoding,omitempty"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread,omitempty"`
-	ThreadID                ID                       `json:"threadId"`
+	ThreadID                *ID                      `json:"threadId,omitempty"`
 	URL                     string                   `json:"url"`
 	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
+	Public                  bool                     `json:"public"`
+	ContentType             *string                  `json:"contentType,omitempty"`
 }
 
 func (Asset) IsNode()        {}
@@ -108,16 +117,23 @@ type AssetEdge struct {
 }
 
 type AssetFile struct {
-	Name        string   `json:"name"`
-	Size        int64    `json:"size"`
-	ContentType *string  `json:"contentType,omitempty"`
-	Path        string   `json:"path"`
-	FilePaths   []string `json:"filePaths,omitempty"`
+	Name            string   `json:"name"`
+	Size            int64    `json:"size"`
+	ContentType     *string  `json:"contentType,omitempty"`
+	ContentEncoding *string  `json:"contentEncoding,omitempty"`
+	Path            string   `json:"path"`
+	FilePaths       []string `json:"filePaths,omitempty"`
 }
 
 type AssetItem struct {
 	ItemID  ID `json:"itemId"`
 	ModelID ID `json:"modelId"`
+}
+
+type AssetQueryInput struct {
+	Project      ID                 `json:"project"`
+	Keyword      *string            `json:"keyword,omitempty"`
+	ContentTypes []ContentTypesEnum `json:"contentTypes,omitempty"`
 }
 
 type AssetSort struct {
@@ -215,12 +231,20 @@ type CorrespondingFieldInput struct {
 	Required    bool   `json:"required"`
 }
 
+type CreateAPIKeyInput struct {
+	ProjectID   ID                              `json:"projectId"`
+	Name        string                          `json:"name"`
+	Description string                          `json:"description"`
+	Publication *UpdatePublicationSettingsInput `json:"publication"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
 	URL               *string         `json:"url,omitempty"`
 	Token             *string         `json:"token,omitempty"`
 	SkipDecompression *bool           `json:"skipDecompression,omitempty"`
+	ContentEncoding   *string         `json:"contentEncoding,omitempty"`
 }
 
 type CreateAssetPayload struct {
@@ -228,18 +252,20 @@ type CreateAssetPayload struct {
 }
 
 type CreateAssetUploadInput struct {
-	ProjectID     ID      `json:"projectId"`
-	Filename      *string `json:"filename,omitempty"`
-	ContentLength *int    `json:"contentLength,omitempty"`
-	Cursor        *string `json:"cursor,omitempty"`
+	ProjectID       ID      `json:"projectId"`
+	Filename        *string `json:"filename,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	Cursor          *string `json:"cursor,omitempty"`
 }
 
 type CreateAssetUploadPayload struct {
-	Token         string  `json:"token"`
-	URL           string  `json:"url"`
-	ContentType   *string `json:"contentType,omitempty"`
-	ContentLength int     `json:"contentLength"`
-	Next          *string `json:"next,omitempty"`
+	Token           string  `json:"token"`
+	URL             string  `json:"url"`
+	ContentType     *string `json:"contentType,omitempty"`
+	ContentLength   int     `json:"contentLength"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	Next            *string `json:"next,omitempty"`
 }
 
 type CreateFieldInput struct {
@@ -287,11 +313,14 @@ type CreateModelInput struct {
 }
 
 type CreateProjectInput struct {
-	WorkspaceID  ID      `json:"workspaceId"`
-	Name         *string `json:"name,omitempty"`
-	Description  *string `json:"description,omitempty"`
-	Alias        *string `json:"alias,omitempty"`
-	RequestRoles []Role  `json:"requestRoles,omitempty"`
+	WorkspaceID  ID                 `json:"workspaceId"`
+	Name         *string            `json:"name,omitempty"`
+	Description  *string            `json:"description,omitempty"`
+	License      *string            `json:"license,omitempty"`
+	Readme       *string            `json:"readme,omitempty"`
+	Alias        *string            `json:"alias,omitempty"`
+	Visibility   *ProjectVisibility `json:"visibility,omitempty"`
+	RequestRoles []Role             `json:"requestRoles,omitempty"`
 }
 
 type CreateRequestInput struct {
@@ -303,8 +332,11 @@ type CreateRequestInput struct {
 	Items       []*RequestItemInput `json:"items"`
 }
 
-type CreateThreadInput struct {
-	WorkspaceID ID `json:"workspaceId"`
+type CreateThreadWithCommentInput struct {
+	WorkspaceID  ID           `json:"workspaceId"`
+	ResourceID   ID           `json:"resourceId"`
+	ResourceType ResourceType `json:"resourceType"`
+	Content      string       `json:"content"`
 }
 
 type CreateViewInput struct {
@@ -341,12 +373,29 @@ type DecompressAssetPayload struct {
 	Asset *Asset `json:"asset"`
 }
 
+type DeleteAPIKeyInput struct {
+	ProjectID ID `json:"projectId"`
+	ID        ID `json:"id"`
+}
+
+type DeleteAPIKeyPayload struct {
+	APIKeyID ID `json:"apiKeyId"`
+}
+
 type DeleteAssetInput struct {
 	AssetID ID `json:"assetId"`
 }
 
 type DeleteAssetPayload struct {
 	AssetID ID `json:"assetId"`
+}
+
+type DeleteAssetsInput struct {
+	AssetIds []ID `json:"assetIds"`
+}
+
+type DeleteAssetsPayload struct {
+	AssetIds []ID `json:"assetIds,omitempty"`
 }
 
 type DeleteCommentInput struct {
@@ -386,12 +435,28 @@ type DeleteIntegrationPayload struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
+type DeleteIntegrationsInput struct {
+	IntegrationIDs []ID `json:"integrationIDs"`
+}
+
+type DeleteIntegrationsPayload struct {
+	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
+}
+
 type DeleteItemInput struct {
 	ItemID ID `json:"itemId"`
 }
 
 type DeleteItemPayload struct {
 	ItemID ID `json:"itemId"`
+}
+
+type DeleteItemsInput struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
+type DeleteItemsPayload struct {
+	ItemIds []ID `json:"itemIds"`
 }
 
 type DeleteMeInput struct {
@@ -452,6 +517,25 @@ type DeleteWorkspacePayload struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
+type ExportModelInput struct {
+	ModelID ID           `json:"modelId"`
+	Format  ExportFormat `json:"format"`
+}
+
+type ExportModelPayload struct {
+	ModelID ID      `json:"modelId"`
+	URL     url.URL `json:"url"`
+}
+
+type ExportModelSchemaInput struct {
+	ModelID ID `json:"modelId"`
+}
+
+type ExportModelSchemaPayload struct {
+	ModelID ID      `json:"modelId"`
+	URL     url.URL `json:"url"`
+}
+
 type FieldPayload struct {
 	Field *SchemaField `json:"field"`
 }
@@ -494,6 +578,40 @@ type GroupsPayload struct {
 	Groups []*Group `json:"groups"`
 }
 
+type GuessSchemaField struct {
+	Key  string `json:"key"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+type GuessSchemaFieldResult struct {
+	TotalCount int                 `json:"total_count"`
+	Fields     []*GuessSchemaField `json:"fields"`
+}
+
+type GuessSchemaFieldsInput struct {
+	AssetID ID `json:"assetId"`
+	ModelID ID `json:"modelId"`
+}
+
+type ImportItemsAsyncPayload struct {
+	Job *Job `json:"job"`
+}
+
+type ImportItemsInput struct {
+	ModelID  ID             `json:"modelId"`
+	File     graphql.Upload `json:"file"`
+	GeoField *string        `json:"geoField,omitempty"`
+}
+
+type ImportItemsPayload struct {
+	ModelID       ID  `json:"modelId"`
+	TotalCount    int `json:"totalCount"`
+	InsertedCount int `json:"insertedCount"`
+	UpdatedCount  int `json:"updatedCount"`
+	IgnoredCount  int `json:"ignoredCount"`
+}
+
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`
@@ -524,7 +642,7 @@ type IntegrationPayload struct {
 type Item struct {
 	ID                     ID           `json:"id"`
 	SchemaID               ID           `json:"schemaId"`
-	ThreadID               ID           `json:"threadId"`
+	ThreadID               *ID          `json:"threadId,omitempty"`
 	ModelID                ID           `json:"modelId"`
 	ProjectID              ID           `json:"projectId"`
 	IntegrationID          *ID          `json:"integrationId,omitempty"`
@@ -539,7 +657,7 @@ type Item struct {
 	Model                  *Model       `json:"model"`
 	Status                 ItemStatus   `json:"status"`
 	Project                *Project     `json:"project"`
-	Thread                 *Thread      `json:"thread"`
+	Thread                 *Thread      `json:"thread,omitempty"`
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
 	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`
@@ -603,23 +721,52 @@ type ItemSortInput struct {
 	Direction *SortDirection      `json:"direction,omitempty"`
 }
 
+type Job struct {
+	ID          ID           `json:"id"`
+	Type        JobType      `json:"type"`
+	ProjectID   ID           `json:"projectId"`
+	Status      JobStatus    `json:"status"`
+	Progress    *JobProgress `json:"progress"`
+	Error       *string      `json:"error,omitempty"`
+	CreatedAt   time.Time    `json:"createdAt"`
+	UpdatedAt   time.Time    `json:"updatedAt"`
+	StartedAt   *time.Time   `json:"startedAt,omitempty"`
+	CompletedAt *time.Time   `json:"completedAt,omitempty"`
+}
+
+func (Job) IsNode()        {}
+func (this Job) GetID() ID { return this.ID }
+
+type JobProgress struct {
+	Processed  int     `json:"processed"`
+	Total      int     `json:"total"`
+	Percentage float64 `json:"percentage"`
+}
+
+type JobState struct {
+	Status   JobStatus    `json:"status"`
+	Progress *JobProgress `json:"progress,omitempty"`
+	Error    *string      `json:"error,omitempty"`
+}
+
 type KeyAvailability struct {
 	Key       string `json:"key"`
 	Available bool   `json:"available"`
 }
 
 type Me struct {
-	ID            ID             `json:"id"`
-	Name          string         `json:"name"`
-	Email         string         `json:"email"`
-	Lang          language.Tag   `json:"lang"`
-	Theme         Theme          `json:"theme"`
-	Host          *string        `json:"host,omitempty"`
-	MyWorkspaceID ID             `json:"myWorkspaceId"`
-	Auths         []string       `json:"auths"`
-	Workspaces    []*Workspace   `json:"workspaces"`
-	MyWorkspace   *Workspace     `json:"myWorkspace,omitempty"`
-	Integrations  []*Integration `json:"integrations"`
+	ID                ID             `json:"id"`
+	Name              string         `json:"name"`
+	Email             string         `json:"email"`
+	Lang              language.Tag   `json:"lang"`
+	Theme             Theme          `json:"theme"`
+	Host              *string        `json:"host,omitempty"`
+	ProfilePictureURL *string        `json:"profilePictureUrl,omitempty"`
+	MyWorkspaceID     ID             `json:"myWorkspaceId"`
+	Auths             []string       `json:"auths"`
+	Workspaces        []*Workspace   `json:"workspaces"`
+	MyWorkspace       *Workspace     `json:"myWorkspace,omitempty"`
+	Integrations      []*Integration `json:"integrations"`
 }
 
 type MemberInput struct {
@@ -638,7 +785,6 @@ type Model struct {
 	Project          *Project  `json:"project"`
 	Schema           *Schema   `json:"schema"`
 	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
-	Public           bool      `json:"public"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 	Order            *int      `json:"order,omitempty"`
@@ -745,20 +891,36 @@ type Pagination struct {
 }
 
 type Project struct {
-	ID           ID                  `json:"id"`
-	Name         string              `json:"name"`
-	Description  string              `json:"description"`
-	Alias        string              `json:"alias"`
-	WorkspaceID  ID                  `json:"workspaceId"`
-	Workspace    *Workspace          `json:"workspace,omitempty"`
-	CreatedAt    time.Time           `json:"createdAt"`
-	UpdatedAt    time.Time           `json:"updatedAt"`
-	Publication  *ProjectPublication `json:"publication,omitempty"`
-	RequestRoles []Role              `json:"requestRoles,omitempty"`
+	ID            ID                    `json:"id"`
+	Name          string                `json:"name"`
+	Description   string                `json:"description"`
+	License       string                `json:"license"`
+	Readme        string                `json:"readme"`
+	Alias         string                `json:"alias"`
+	WorkspaceID   ID                    `json:"workspaceId"`
+	Workspace     *Workspace            `json:"workspace,omitempty"`
+	CreatedAt     time.Time             `json:"createdAt"`
+	UpdatedAt     time.Time             `json:"updatedAt"`
+	Accessibility *ProjectAccessibility `json:"accessibility"`
+	RequestRoles  []Role                `json:"requestRoles,omitempty"`
 }
 
 func (Project) IsNode()        {}
 func (this Project) GetID() ID { return this.ID }
+
+type ProjectAPIKey struct {
+	ID          ID                   `json:"id"`
+	Name        string               `json:"name"`
+	Description string               `json:"description"`
+	Key         string               `json:"key"`
+	Publication *PublicationSettings `json:"publication"`
+}
+
+type ProjectAccessibility struct {
+	Visibility  ProjectVisibility    `json:"visibility"`
+	Publication *PublicationSettings `json:"publication,omitempty"`
+	APIKeys     []*ProjectAPIKey     `json:"apiKeys,omitempty"`
+}
 
 type ProjectAliasAvailability struct {
 	Alias     string `json:"alias"`
@@ -781,9 +943,9 @@ type ProjectPayload struct {
 	Project *Project `json:"project"`
 }
 
-type ProjectPublication struct {
-	Scope       ProjectPublicationScope `json:"scope"`
-	AssetPublic bool                    `json:"assetPublic"`
+type PublicationSettings struct {
+	PublicModels []ID `json:"publicModels"`
+	PublicAssets bool `json:"publicAssets"`
 }
 
 type PublishItemInput struct {
@@ -794,20 +956,15 @@ type PublishItemPayload struct {
 	Items []*Item `json:"items"`
 }
 
-type PublishModelInput struct {
-	ModelID ID   `json:"modelId"`
-	Status  bool `json:"status"`
-}
-
-type PublishModelPayload struct {
-	ModelID ID   `json:"modelId"`
-	Status  bool `json:"status"`
-}
-
 type Query struct {
 }
 
-type RegenerateTokenInput struct {
+type RegenerateAPIKeyInput struct {
+	ProjectID ID `json:"projectId"`
+	ID        ID `json:"id"`
+}
+
+type RegenerateIntegrationTokenInput struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
@@ -816,17 +973,30 @@ type RemoveIntegrationFromWorkspaceInput struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
-type RemoveMemberFromWorkspacePayload struct {
+type RemoveIntegrationFromWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
+}
+
+type RemoveIntegrationsFromWorkspaceInput struct {
+	WorkspaceID    ID   `json:"workspaceId"`
+	IntegrationIds []ID `json:"integrationIds"`
+}
+
+type RemoveIntegrationsFromWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
+}
+
+type RemoveMultipleMembersFromWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserIds     []ID `json:"userIds"`
+}
+
+type RemoveMultipleMembersFromWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
-}
-
-type RemoveUserFromWorkspaceInput struct {
-	WorkspaceID ID `json:"workspaceId"`
-	UserID      ID `json:"userId"`
 }
 
 type Request struct {
@@ -837,7 +1007,7 @@ type Request struct {
 	CreatedByID ID             `json:"createdById"`
 	WorkspaceID ID             `json:"workspaceId"`
 	ProjectID   ID             `json:"projectId"`
-	ThreadID    ID             `json:"threadId"`
+	ThreadID    *ID            `json:"threadId,omitempty"`
 	ReviewersID []ID           `json:"reviewersId"`
 	State       RequestState   `json:"state"`
 	CreatedAt   time.Time      `json:"createdAt"`
@@ -1167,6 +1337,12 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
+type SearchAssetsInput struct {
+	Query      *AssetQueryInput `json:"query"`
+	Sort       *AssetSort       `json:"sort,omitempty"`
+	Pagination *Pagination      `json:"pagination,omitempty"`
+}
+
 type SearchItemInput struct {
 	Query      *ItemQueryInput `json:"query"`
 	Sort       *ItemSortInput  `json:"sort,omitempty"`
@@ -1193,6 +1369,9 @@ type StringFieldConditionInput struct {
 	Value    string              `json:"value"`
 }
 
+type Subscription struct {
+}
+
 type TerrainResource struct {
 	ID    ID                   `json:"id"`
 	Type  TerrainType          `json:"type"`
@@ -1212,10 +1391,6 @@ type Thread struct {
 	Workspace   *Workspace `json:"workspace,omitempty"`
 	WorkspaceID ID         `json:"workspaceId"`
 	Comments    []*Comment `json:"comments"`
-}
-
-type ThreadPayload struct {
-	Thread *Thread `json:"thread"`
 }
 
 type TileResource struct {
@@ -1252,6 +1427,14 @@ type UnpublishItemInput struct {
 
 type UnpublishItemPayload struct {
 	Items []*Item `json:"items"`
+}
+
+type UpdateAPIKeyInput struct {
+	ID          ID                              `json:"id"`
+	ProjectID   ID                              `json:"projectId"`
+	Name        *string                         `json:"name,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Publication *UpdatePublicationSettingsInput `json:"publication,omitempty"`
 }
 
 type UpdateAssetInput struct {
@@ -1339,25 +1522,31 @@ type UpdateModelInput struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
-	Public      bool    `json:"public"`
 }
 
 type UpdateModelsOrderInput struct {
 	ModelIds []ID `json:"modelIds"`
 }
 
-type UpdateProjectInput struct {
-	ProjectID    ID                             `json:"projectId"`
-	Name         *string                        `json:"name,omitempty"`
-	Description  *string                        `json:"description,omitempty"`
-	Alias        *string                        `json:"alias,omitempty"`
-	Publication  *UpdateProjectPublicationInput `json:"publication,omitempty"`
-	RequestRoles []Role                         `json:"requestRoles,omitempty"`
+type UpdateProjectAccessibilityInput struct {
+	Visibility  *ProjectVisibility              `json:"visibility,omitempty"`
+	Publication *UpdatePublicationSettingsInput `json:"publication,omitempty"`
 }
 
-type UpdateProjectPublicationInput struct {
-	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
-	AssetPublic *bool                    `json:"assetPublic,omitempty"`
+type UpdateProjectInput struct {
+	ProjectID     ID                               `json:"projectId"`
+	Name          *string                          `json:"name,omitempty"`
+	Description   *string                          `json:"description,omitempty"`
+	License       *string                          `json:"license,omitempty"`
+	Readme        *string                          `json:"readme,omitempty"`
+	Alias         *string                          `json:"alias,omitempty"`
+	Accessibility *UpdateProjectAccessibilityInput `json:"accessibility,omitempty"`
+	RequestRoles  []Role                           `json:"requestRoles,omitempty"`
+}
+
+type UpdatePublicationSettingsInput struct {
+	PublicModels []ID `json:"publicModels"`
+	PublicAssets bool `json:"publicAssets"`
 }
 
 type UpdateRequestInput struct {
@@ -1509,6 +1698,7 @@ type WebhookTriggerInput struct {
 type Workspace struct {
 	ID       ID                `json:"id"`
 	Name     string            `json:"name"`
+	Alias    *string           `json:"alias,omitempty"`
 	Members  []WorkspaceMember `json:"members"`
 	Personal bool              `json:"personal"`
 }
@@ -1526,6 +1716,11 @@ type WorkspaceIntegrationMember struct {
 }
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
+
+type WorkspaceProjectLimits struct {
+	PublicProjectsAllowed  bool `json:"publicProjectsAllowed"`
+	PrivateProjectsAllowed bool `json:"privateProjectsAllowed"`
+}
 
 type WorkspaceSettings struct {
 	ID       ID            `json:"id"`
@@ -1575,7 +1770,7 @@ func (e ArchiveExtractionStatus) String() string {
 	return string(e)
 }
 
-func (e *ArchiveExtractionStatus) UnmarshalGQL(v interface{}) error {
+func (e *ArchiveExtractionStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1590,6 +1785,20 @@ func (e *ArchiveExtractionStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ArchiveExtractionStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ArchiveExtractionStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ArchiveExtractionStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type AssetSortType string
@@ -1618,7 +1827,7 @@ func (e AssetSortType) String() string {
 	return string(e)
 }
 
-func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
+func (e *AssetSortType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1633,6 +1842,20 @@ func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
 
 func (e AssetSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AssetSortType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AssetSortType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type BasicOperator string
@@ -1659,7 +1882,7 @@ func (e BasicOperator) String() string {
 	return string(e)
 }
 
-func (e *BasicOperator) UnmarshalGQL(v interface{}) error {
+func (e *BasicOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1674,6 +1897,20 @@ func (e *BasicOperator) UnmarshalGQL(v interface{}) error {
 
 func (e BasicOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *BasicOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e BasicOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type BoolOperator string
@@ -1700,7 +1937,7 @@ func (e BoolOperator) String() string {
 	return string(e)
 }
 
-func (e *BoolOperator) UnmarshalGQL(v interface{}) error {
+func (e *BoolOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1715,6 +1952,142 @@ func (e *BoolOperator) UnmarshalGQL(v interface{}) error {
 
 func (e BoolOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *BoolOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e BoolOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ContentTypesEnum string
+
+const (
+	ContentTypesEnumJSON    ContentTypesEnum = "JSON"
+	ContentTypesEnumGeojson ContentTypesEnum = "GEOJSON"
+	ContentTypesEnumCSV     ContentTypesEnum = "CSV"
+	ContentTypesEnumHTML    ContentTypesEnum = "HTML"
+	ContentTypesEnumXML     ContentTypesEnum = "XML"
+	ContentTypesEnumPDF     ContentTypesEnum = "PDF"
+	ContentTypesEnumPlain   ContentTypesEnum = "PLAIN"
+)
+
+var AllContentTypesEnum = []ContentTypesEnum{
+	ContentTypesEnumJSON,
+	ContentTypesEnumGeojson,
+	ContentTypesEnumCSV,
+	ContentTypesEnumHTML,
+	ContentTypesEnumXML,
+	ContentTypesEnumPDF,
+	ContentTypesEnumPlain,
+}
+
+func (e ContentTypesEnum) IsValid() bool {
+	switch e {
+	case ContentTypesEnumJSON, ContentTypesEnumGeojson, ContentTypesEnumCSV, ContentTypesEnumHTML, ContentTypesEnumXML, ContentTypesEnumPDF, ContentTypesEnumPlain:
+		return true
+	}
+	return false
+}
+
+func (e ContentTypesEnum) String() string {
+	return string(e)
+}
+
+func (e *ContentTypesEnum) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContentTypesEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContentTypesEnum", str)
+	}
+	return nil
+}
+
+func (e ContentTypesEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ContentTypesEnum) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ContentTypesEnum) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ExportFormat string
+
+const (
+	ExportFormatJSON    ExportFormat = "JSON"
+	ExportFormatCSV     ExportFormat = "CSV"
+	ExportFormatGeojson ExportFormat = "GEOJSON"
+)
+
+var AllExportFormat = []ExportFormat{
+	ExportFormatJSON,
+	ExportFormatCSV,
+	ExportFormatGeojson,
+}
+
+func (e ExportFormat) IsValid() bool {
+	switch e {
+	case ExportFormatJSON, ExportFormatCSV, ExportFormatGeojson:
+		return true
+	}
+	return false
+}
+
+func (e ExportFormat) String() string {
+	return string(e)
+}
+
+func (e *ExportFormat) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExportFormat(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExportFormat", str)
+	}
+	return nil
+}
+
+func (e ExportFormat) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ExportFormat) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExportFormat) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type FieldType string
@@ -1753,7 +2126,7 @@ func (e FieldType) String() string {
 	return string(e)
 }
 
-func (e *FieldType) UnmarshalGQL(v interface{}) error {
+func (e *FieldType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1768,6 +2141,20 @@ func (e *FieldType) UnmarshalGQL(v interface{}) error {
 
 func (e FieldType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *FieldType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e FieldType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type GeometryEditorSupportedType string
@@ -1798,7 +2185,7 @@ func (e GeometryEditorSupportedType) String() string {
 	return string(e)
 }
 
-func (e *GeometryEditorSupportedType) UnmarshalGQL(v interface{}) error {
+func (e *GeometryEditorSupportedType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1813,6 +2200,20 @@ func (e *GeometryEditorSupportedType) UnmarshalGQL(v interface{}) error {
 
 func (e GeometryEditorSupportedType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GeometryEditorSupportedType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GeometryEditorSupportedType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type GeometryObjectSupportedType string
@@ -1849,7 +2250,7 @@ func (e GeometryObjectSupportedType) String() string {
 	return string(e)
 }
 
-func (e *GeometryObjectSupportedType) UnmarshalGQL(v interface{}) error {
+func (e *GeometryObjectSupportedType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1864,6 +2265,20 @@ func (e *GeometryObjectSupportedType) UnmarshalGQL(v interface{}) error {
 
 func (e GeometryObjectSupportedType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GeometryObjectSupportedType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GeometryObjectSupportedType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type IntegrationType string
@@ -1890,7 +2305,7 @@ func (e IntegrationType) String() string {
 	return string(e)
 }
 
-func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
+func (e *IntegrationType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1905,6 +2320,20 @@ func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
 
 func (e IntegrationType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IntegrationType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IntegrationType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type ItemStatus string
@@ -1937,7 +2366,7 @@ func (e ItemStatus) String() string {
 	return string(e)
 }
 
-func (e *ItemStatus) UnmarshalGQL(v interface{}) error {
+func (e *ItemStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1952,6 +2381,134 @@ func (e *ItemStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ItemStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ItemStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ItemStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type JobStatus string
+
+const (
+	JobStatusPending    JobStatus = "PENDING"
+	JobStatusInProgress JobStatus = "IN_PROGRESS"
+	JobStatusCompleted  JobStatus = "COMPLETED"
+	JobStatusFailed     JobStatus = "FAILED"
+	JobStatusCancelled  JobStatus = "CANCELLED"
+)
+
+var AllJobStatus = []JobStatus{
+	JobStatusPending,
+	JobStatusInProgress,
+	JobStatusCompleted,
+	JobStatusFailed,
+	JobStatusCancelled,
+}
+
+func (e JobStatus) IsValid() bool {
+	switch e {
+	case JobStatusPending, JobStatusInProgress, JobStatusCompleted, JobStatusFailed, JobStatusCancelled:
+		return true
+	}
+	return false
+}
+
+func (e JobStatus) String() string {
+	return string(e)
+}
+
+func (e *JobStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobStatus", str)
+	}
+	return nil
+}
+
+func (e JobStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *JobStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e JobStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type JobType string
+
+const (
+	JobTypeImport JobType = "IMPORT"
+)
+
+var AllJobType = []JobType{
+	JobTypeImport,
+}
+
+func (e JobType) IsValid() bool {
+	switch e {
+	case JobTypeImport:
+		return true
+	}
+	return false
+}
+
+func (e JobType) String() string {
+	return string(e)
+}
+
+func (e *JobType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobType", str)
+	}
+	return nil
+}
+
+func (e JobType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *JobType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e JobType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type MultipleOperator string
@@ -1982,7 +2539,7 @@ func (e MultipleOperator) String() string {
 	return string(e)
 }
 
-func (e *MultipleOperator) UnmarshalGQL(v interface{}) error {
+func (e *MultipleOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1997,6 +2554,20 @@ func (e *MultipleOperator) UnmarshalGQL(v interface{}) error {
 
 func (e MultipleOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *MultipleOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MultipleOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type NodeType string
@@ -2043,7 +2614,7 @@ func (e NodeType) String() string {
 	return string(e)
 }
 
-func (e *NodeType) UnmarshalGQL(v interface{}) error {
+func (e *NodeType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2058,6 +2629,20 @@ func (e *NodeType) UnmarshalGQL(v interface{}) error {
 
 func (e NodeType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NodeType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NodeType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type NullableOperator string
@@ -2084,7 +2669,7 @@ func (e NullableOperator) String() string {
 	return string(e)
 }
 
-func (e *NullableOperator) UnmarshalGQL(v interface{}) error {
+func (e *NullableOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2099,6 +2684,20 @@ func (e *NullableOperator) UnmarshalGQL(v interface{}) error {
 
 func (e NullableOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NullableOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NullableOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type NumberOperator string
@@ -2129,7 +2728,7 @@ func (e NumberOperator) String() string {
 	return string(e)
 }
 
-func (e *NumberOperator) UnmarshalGQL(v interface{}) error {
+func (e *NumberOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2144,6 +2743,20 @@ func (e *NumberOperator) UnmarshalGQL(v interface{}) error {
 
 func (e NumberOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NumberOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NumberOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type OperatorType string
@@ -2170,7 +2783,7 @@ func (e OperatorType) String() string {
 	return string(e)
 }
 
-func (e *OperatorType) UnmarshalGQL(v interface{}) error {
+func (e *OperatorType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2185,6 +2798,20 @@ func (e *OperatorType) UnmarshalGQL(v interface{}) error {
 
 func (e OperatorType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *OperatorType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e OperatorType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type PreviewType string
@@ -2223,7 +2850,7 @@ func (e PreviewType) String() string {
 	return string(e)
 }
 
-func (e *PreviewType) UnmarshalGQL(v interface{}) error {
+func (e *PreviewType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2240,47 +2867,73 @@ func (e PreviewType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type ProjectPublicationScope string
-
-const (
-	ProjectPublicationScopePublic  ProjectPublicationScope = "PUBLIC"
-	ProjectPublicationScopeLimited ProjectPublicationScope = "LIMITED"
-	ProjectPublicationScopePrivate ProjectPublicationScope = "PRIVATE"
-)
-
-var AllProjectPublicationScope = []ProjectPublicationScope{
-	ProjectPublicationScopePublic,
-	ProjectPublicationScopeLimited,
-	ProjectPublicationScopePrivate,
+func (e *PreviewType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
 }
 
-func (e ProjectPublicationScope) IsValid() bool {
+func (e PreviewType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ProjectVisibility string
+
+const (
+	ProjectVisibilityPublic  ProjectVisibility = "PUBLIC"
+	ProjectVisibilityPrivate ProjectVisibility = "PRIVATE"
+)
+
+var AllProjectVisibility = []ProjectVisibility{
+	ProjectVisibilityPublic,
+	ProjectVisibilityPrivate,
+}
+
+func (e ProjectVisibility) IsValid() bool {
 	switch e {
-	case ProjectPublicationScopePublic, ProjectPublicationScopeLimited, ProjectPublicationScopePrivate:
+	case ProjectVisibilityPublic, ProjectVisibilityPrivate:
 		return true
 	}
 	return false
 }
 
-func (e ProjectPublicationScope) String() string {
+func (e ProjectVisibility) String() string {
 	return string(e)
 }
 
-func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
+func (e *ProjectVisibility) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ProjectPublicationScope(str)
+	*e = ProjectVisibility(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ProjectPublicationScope", str)
+		return fmt.Errorf("%s is not a valid ProjectVisibility", str)
 	}
 	return nil
 }
 
-func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
+func (e ProjectVisibility) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProjectVisibility) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProjectVisibility) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type RequestState string
@@ -2311,7 +2964,7 @@ func (e RequestState) String() string {
 	return string(e)
 }
 
-func (e *RequestState) UnmarshalGQL(v interface{}) error {
+func (e *RequestState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2326,6 +2979,77 @@ func (e *RequestState) UnmarshalGQL(v interface{}) error {
 
 func (e RequestState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RequestState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RequestState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ResourceType string
+
+const (
+	ResourceTypeItem    ResourceType = "ITEM"
+	ResourceTypeAsset   ResourceType = "ASSET"
+	ResourceTypeRequest ResourceType = "REQUEST"
+)
+
+var AllResourceType = []ResourceType{
+	ResourceTypeItem,
+	ResourceTypeAsset,
+	ResourceTypeRequest,
+}
+
+func (e ResourceType) IsValid() bool {
+	switch e {
+	case ResourceTypeItem, ResourceTypeAsset, ResourceTypeRequest:
+		return true
+	}
+	return false
+}
+
+func (e ResourceType) String() string {
+	return string(e)
+}
+
+func (e *ResourceType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceType", str)
+	}
+	return nil
+}
+
+func (e ResourceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type Role string
@@ -2356,7 +3080,7 @@ func (e Role) String() string {
 	return string(e)
 }
 
-func (e *Role) UnmarshalGQL(v interface{}) error {
+func (e *Role) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2371,6 +3095,20 @@ func (e *Role) UnmarshalGQL(v interface{}) error {
 
 func (e Role) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Role) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Role) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type SchemaFieldTagColor string
@@ -2415,7 +3153,7 @@ func (e SchemaFieldTagColor) String() string {
 	return string(e)
 }
 
-func (e *SchemaFieldTagColor) UnmarshalGQL(v interface{}) error {
+func (e *SchemaFieldTagColor) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2430,6 +3168,20 @@ func (e *SchemaFieldTagColor) UnmarshalGQL(v interface{}) error {
 
 func (e SchemaFieldTagColor) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SchemaFieldTagColor) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SchemaFieldTagColor) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type SchemaFieldType string
@@ -2486,7 +3238,7 @@ func (e SchemaFieldType) String() string {
 	return string(e)
 }
 
-func (e *SchemaFieldType) UnmarshalGQL(v interface{}) error {
+func (e *SchemaFieldType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2501,6 +3253,20 @@ func (e *SchemaFieldType) UnmarshalGQL(v interface{}) error {
 
 func (e SchemaFieldType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SchemaFieldType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SchemaFieldType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type SortDirection string
@@ -2527,7 +3293,7 @@ func (e SortDirection) String() string {
 	return string(e)
 }
 
-func (e *SortDirection) UnmarshalGQL(v interface{}) error {
+func (e *SortDirection) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2542,6 +3308,20 @@ func (e *SortDirection) UnmarshalGQL(v interface{}) error {
 
 func (e SortDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SortDirection) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SortDirection) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type StringOperator string
@@ -2576,7 +3356,7 @@ func (e StringOperator) String() string {
 	return string(e)
 }
 
-func (e *StringOperator) UnmarshalGQL(v interface{}) error {
+func (e *StringOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2591,6 +3371,20 @@ func (e *StringOperator) UnmarshalGQL(v interface{}) error {
 
 func (e StringOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StringOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StringOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type TerrainType string
@@ -2619,7 +3413,7 @@ func (e TerrainType) String() string {
 	return string(e)
 }
 
-func (e *TerrainType) UnmarshalGQL(v interface{}) error {
+func (e *TerrainType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2634,6 +3428,20 @@ func (e *TerrainType) UnmarshalGQL(v interface{}) error {
 
 func (e TerrainType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TerrainType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TerrainType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type Theme string
@@ -2662,7 +3470,7 @@ func (e Theme) String() string {
 	return string(e)
 }
 
-func (e *Theme) UnmarshalGQL(v interface{}) error {
+func (e *Theme) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2677,6 +3485,20 @@ func (e *Theme) UnmarshalGQL(v interface{}) error {
 
 func (e Theme) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Theme) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Theme) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type TileType string
@@ -2715,7 +3537,7 @@ func (e TileType) String() string {
 	return string(e)
 }
 
-func (e *TileType) UnmarshalGQL(v interface{}) error {
+func (e *TileType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2730,6 +3552,20 @@ func (e *TileType) UnmarshalGQL(v interface{}) error {
 
 func (e TileType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TileType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TileType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type TimeOperator string
@@ -2766,7 +3602,7 @@ func (e TimeOperator) String() string {
 	return string(e)
 }
 
-func (e *TimeOperator) UnmarshalGQL(v interface{}) error {
+func (e *TimeOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2781,4 +3617,18 @@ func (e *TimeOperator) UnmarshalGQL(v interface{}) error {
 
 func (e TimeOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TimeOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TimeOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

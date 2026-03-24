@@ -12,19 +12,20 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: changed files for web
         id: web
-        uses: tj-actions/changed-files@v45
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
         with:
           files: |
             web/**
             .github/workflows/ci.yml
             .github/workflows/ci_web.yml
+            .github/workflows/build_web.yml
 
       - name: changed files for server
         id: server
-        uses: tj-actions/changed-files@v45
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
         with:
           files: |
             server/**
@@ -34,7 +35,7 @@ jobs:
 
       - name: changed files for worker
         id: worker
-        uses: tj-actions/changed-files@v45
+        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
         with:
           files: |
             worker/**
@@ -43,19 +44,16 @@ jobs:
             .github/workflows/build_worker.yml
 
   ci-web:
-    name: web
     needs: prepare
     if: needs.prepare.outputs.web == 'true'
     uses: ./.github/workflows/ci_web.yml
 
   ci-server:
-    name: server
     needs: prepare
     if: needs.prepare.outputs.server == 'true'
     uses: ./.github/workflows/ci_server.yml
 
   ci-worker:
-    name: worker
     needs: prepare
     if: needs.prepare.outputs.worker == 'true'
     uses: ./.github/workflows/ci_worker.yml
@@ -69,3 +67,117 @@ jobs:
     if: '!failure()'
     steps:
       - run: echo OK
+
+  build-prepare:
+    needs: prepare
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.prepare.outputs.build }}
+      sha_short: ${{ steps.prepare.outputs.sha_short }}
+      new_tag: ${{ steps.prepare.outputs.new_tag }}
+      new_tag_short: ${{ steps.prepare.outputs.new_tag_short }}
+      name: ${{ steps.prepare.outputs.name }}
+    steps:
+      - uses: reearth/actions/prepare-build@4a7719ea2bfbcf3841b58eaedb01e91d3520227a # main
+        id: prepare
+        with:
+          repo: ${{ github.repository }}
+
+  build-web:
+    needs: [prepare, build-prepare]
+    if: ${{ needs.prepare.outputs.web == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/build_web.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-web-pr:
+    needs: [build-prepare, ci-web]
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && (github.event.action == 'opened' || github.event.action == 'synchronize') }}
+    uses: ./.github/workflows/build_web.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.sha_short }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-server:
+    needs: [prepare, build-prepare]
+    if: needs.prepare.outputs.server == 'true'
+    uses: ./.github/workflows/build_server.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-worker:
+    needs: [prepare, build-prepare]
+    if: needs.prepare.outputs.worker == 'true'
+    uses: ./.github/workflows/build_worker.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy-web:
+    needs: [build-web, ci-web]
+    if: needs.ci-web.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: web
+    secrets: inherit
+
+  deploy-web-pr:
+    needs: [build-web-pr, build-prepare]
+    runs-on: ubuntu-latest
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: reearth/actions/deploy-cloud-run-with-tag@4a7719ea2bfbcf3841b58eaedb01e91d3520227a # main
+        id: deploy
+        with:
+          image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
+          image_internal: '${{ secrets.WEB_IMAGE_GC_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
+          region: ${{ secrets.GC_REGION }}
+          service: reearth-cms-web
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          tag: pr-${{ github.event.pull_request.number }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+
+  deploy-server:
+    needs: [build-server, ci-server]
+    if: needs.ci-server.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: server
+    secrets: inherit
+
+  deploy-worker:
+    needs: [build-worker, ci-worker]
+    if: needs.ci-worker.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: worker
+    secrets: inherit
+

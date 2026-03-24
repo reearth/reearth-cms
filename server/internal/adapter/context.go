@@ -3,6 +3,9 @@ package adapter
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"golang.org/x/text/language"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -16,27 +19,87 @@ type ContextKey string
 const (
 	contextUser     ContextKey = "user"
 	contextOperator ContextKey = "operator"
-	ContextAuthInfo ContextKey = "authinfo"
+	contextAPIKeyId ContextKey = "api-key-id"
+	ContextAuthInfo ContextKey = "auth-info"
 	contextUsecases ContextKey = "usecases"
+	contextGateways ContextKey = "gateways"
+	contextAcRepos  ContextKey = "ac-repos"
+	contextJWTToken ContextKey = "jwtToken"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
 	return context.WithValue(ctx, contextUser, u)
 }
 
-func AttachOperator(ctx context.Context, o *usecase.Operator) context.Context {
-	return context.WithValue(ctx, contextOperator, o)
-}
-
-func AttachUsecases(ctx context.Context, u *interfaces.Container) context.Context {
-	ctx = context.WithValue(ctx, contextUsecases, u)
-	return ctx
-}
-
 func User(ctx context.Context) *user.User {
 	if v := ctx.Value(contextUser); v != nil {
 		if u, ok := v.(*user.User); ok {
 			return u
+		}
+	}
+	return nil
+}
+
+func AttachOperator(ctx context.Context, o *usecase.Operator) context.Context {
+	return context.WithValue(ctx, contextOperator, o)
+}
+
+func Operator(ctx context.Context) *usecase.Operator {
+	if v := ctx.Value(contextOperator); v != nil {
+		if op, ok := v.(*usecase.Operator); ok {
+			return op
+		}
+	}
+	return nil
+}
+
+func AttachUsecases(ctx context.Context, u *interfaces.Container) context.Context {
+	return context.WithValue(ctx, contextUsecases, u)
+}
+
+func Usecases(ctx context.Context) *interfaces.Container {
+	if v := ctx.Value(contextUsecases); v != nil {
+		if uc, ok := v.(*interfaces.Container); ok {
+			return uc
+		}
+	}
+	return nil
+}
+
+func AttachGateways(ctx context.Context, g *gateway.Container) context.Context {
+	return context.WithValue(ctx, contextGateways, g)
+}
+
+func Gateways(ctx context.Context) *gateway.Container {
+	if v := ctx.Value(contextGateways); v != nil {
+		if g, ok := v.(*gateway.Container); ok {
+			return g
+		}
+	}
+	return nil
+}
+
+func AttachAcRepos(ctx context.Context, r *accountrepo.Container) context.Context {
+	return context.WithValue(ctx, contextAcRepos, r)
+}
+
+func AcRepos(ctx context.Context) *accountrepo.Container {
+	if v := ctx.Value(contextAcRepos); v != nil {
+		if r, ok := v.(*accountrepo.Container); ok {
+			return r
+		}
+	}
+	return nil
+}
+
+func AttachAPIKeyId(ctx context.Context, a *project.APIKeyID) context.Context {
+	return context.WithValue(ctx, contextAPIKeyId, a)
+}
+
+func APIKeyId(ctx context.Context) *project.APIKeyID {
+	if v := ctx.Value(contextAPIKeyId); v != nil {
+		if a, ok := v.(*project.APIKeyID); ok {
+			return a
 		}
 	}
 	return nil
@@ -52,21 +115,13 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 		return "en" // default language
 	}
 
-	l := u.Lang()
-	if l.IsRoot() {
-		return "en" // default language
-	}
-
-	return l.String()
-}
-
-func Operator(ctx context.Context) *usecase.Operator {
-	if v := ctx.Value(contextOperator); v != nil {
-		if v2, ok := v.(*usecase.Operator); ok {
-			return v2
+	if metadata := u.Metadata(); metadata != nil {
+		if l := metadata.Lang(); !l.IsRoot() {
+			return l.String()
 		}
 	}
-	return nil
+
+	return "en" // default language
 }
 
 func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
@@ -78,6 +133,9 @@ func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
 	return nil
 }
 
-func Usecases(ctx context.Context) *interfaces.Container {
-	return ctx.Value(contextUsecases).(*interfaces.Container)
+func GetJWTToken(ctx context.Context) string {
+	if token, ok := ctx.Value(contextJWTToken).(string); ok {
+		return token
+	}
+	return ""
 }

@@ -1,49 +1,46 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
 
 type Props = {
   isMeta?: boolean;
+  isGroup?: boolean;
   fields?: Field[];
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
+  hasCreateRight: boolean;
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
+  onSchemaImport?: () => void;
 };
 
-const { confirm } = Modal;
 const ModelFieldList: React.FC<Props> = ({
   fields,
   isMeta,
+  isGroup,
+  hasUpdateRight,
+  hasDeleteRight,
+  hasCreateRight,
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
+  onSchemaImport,
 }) => {
   const t = useT();
-
-  const handleFieldDeleteConfirmation = useCallback(
-    (fieldId: string, name: string) => {
-      confirm({
-        content: <Trans i18nKey="Are you sure you want to delete this field?" values={{ name }} />,
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
-        maskClosable: true,
-        async onOk() {
-          await onFieldDelete(fieldId);
-        },
-      });
-    },
-    [onFieldDelete, t],
-  );
 
   const [data, setData] = useState(fields);
 
@@ -51,23 +48,35 @@ const ModelFieldList: React.FC<Props> = ({
     setData(fields);
   }, [fields]);
 
-  const reorder = (list: Field[] | undefined, startIndex: number, endIndex: number) => {
-    if (!list) return;
-    let result = Array.from(list);
-    if (isMeta) {
-      result = result.map(field => ({ ...field, metadata: true }));
-    }
+  const reorder = useCallback(
+    (list: Field[] | undefined, startIndex: number, endIndex: number) => {
+      if (!list) return;
+      let result = Array.from(list);
+      if (isMeta) {
+        result = result.map(field => ({ ...field, metadata: true }));
+      }
 
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    onFieldReorder(result);
-    return result;
-  };
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      onFieldReorder(result);
+      return result;
+    },
+    [isMeta, onFieldReorder],
+  );
 
-  const onDragEnd = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0) return;
-    return setData(reorder(data, fromIndex, toIndex));
-  };
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0) return;
+      return setData(reorder(data, fromIndex, toIndex));
+    },
+    [data, reorder],
+  );
+
+  const hasModelFields = useMemo<boolean>(() => (fields ? fields.length > 0 : false), [fields]);
+  const getImportSchemaUIMetadata = useMemo(
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    [hasModelFields, hasCreateRight],
+  );
 
   return (
     <>
@@ -77,7 +86,7 @@ const ModelFieldList: React.FC<Props> = ({
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="terminalWindow" color="#40A9FF" />
+                  <StyledIcon icon="terminalWindow" color={AntdColor.BLUE.BLUE_4} />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Item Information")}</ItemTitle>}
@@ -87,7 +96,7 @@ const ModelFieldList: React.FC<Props> = ({
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="LineSegments" color="#FF9C6E" />
+                  <StyledIcon icon="LineSegments" color={AntdColor.VOLCANO.VOLCANO_3} />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Publish Status")}</ItemTitle>}
@@ -99,11 +108,34 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          {t("Please add some field from right panel.")}
+          {!isGroup ? (
+            <Trans
+              i18nKey="importSchema"
+              components={{
+                l: (
+                  <ImportButton
+                    title={
+                      typeof getImportSchemaUIMetadata.tooltipMessage === "string"
+                        ? getImportSchemaUIMetadata.tooltipMessage
+                        : ""
+                    }
+                    type="link"
+                    disabled={getImportSchemaUIMetadata.shouldDisable}
+                    onClick={onSchemaImport}
+                    data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
+                    import
+                  </ImportButton>
+                ),
+              }}
+            />
+          ) : (
+            t("Please add some field from right panel")
+          )}
         </EmptyText>
       ) : (
         <ReactDragListView
           nodeSelector=".ant-list-item"
+          handleSelector=".grabbable"
           lineClassName="dragLine"
           onDragEnd={onDragEnd}>
           <FieldStyledList itemLayout="horizontal">
@@ -112,25 +144,42 @@ const ModelFieldList: React.FC<Props> = ({
                 className="draggable-item"
                 key={index}
                 actions={[
-                  <Button
-                    type="text"
-                    shape="circle"
-                    size="small"
-                    onClick={() => handleFieldDeleteConfirmation(item.id, item.title)}
-                    icon={<Icon icon="delete" color="#8c8c8c" />}
-                  />,
+                  <Popconfirm
+                    title={
+                      <Trans
+                        i18nKey="Delete {{name}} field?"
+                        values={{ name: item.title }}
+                        components={{ u: <StyledFieldName /> }}
+                      />
+                    }
+                    onConfirm={async () => await onFieldDelete(item.id)}
+                    okText={t("Delete field")}
+                    okButtonProps={{
+                      danger: true,
+                      "data-testid": DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
+                    }}
+                    cancelText={t("Cancel")}>
+                    <Button
+                      type="text"
+                      shape="circle"
+                      size="small"
+                      icon={<Icon icon="delete" color={AntdColor.GREY.GREY_2} />}
+                      disabled={!hasDeleteRight}
+                    />
+                  </Popconfirm>,
                   <Button
                     type="text"
                     shape="circle"
                     size="small"
                     onClick={() => handleFieldUpdateModalOpen(item)}
-                    icon={<Icon icon="ellipsis" color="#8c8c8c" />}
+                    icon={<Icon icon="ellipsis" color={AntdColor.GREY.GREY_2} />}
+                    disabled={!hasUpdateRight}
                   />,
                 ]}>
                 <List.Item.Meta
                   avatar={
                     <FieldThumbnail>
-                      <DragIcon icon="menu" className="grabbable" />
+                      {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
                       <StyledIcon
                         icon={fieldTypes[item.type].icon}
                         color={fieldTypes[item.type].color}
@@ -157,12 +206,25 @@ const ModelFieldList: React.FC<Props> = ({
 };
 
 const DragIcon = styled(Icon)`
-  margin-right: 16px;
+  margin-right: ${AntdToken.SPACING.BASE}px;
   cursor: grab;
+  :active {
+    cursor: grabbing;
+  }
+`;
+
+const ImportButton = styled(Button)`
+  padding: 0;
+  /* color: ${AntdColor.BLUE.BLUE_5}; */
+  /* text-decoration: underline; */
+
+  /* :hover { */
+  /* color: ${AntdColor.BLUE.BLUE_3}; */
+  /* } */
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -175,27 +237,26 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    color: rgba(0, 0, 0, 0.45);
+    margin-left: ${AntdToken.SPACING.SM}px;
+    font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+    font-size: ${AntdToken.FONT.SIZE}px;
+    line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   }
 `;
 
 const FieldStyledList = styled(List)`
-  padding-top: 12px;
+  padding-top: ${AntdToken.SPACING.SM}px;
   .ant-list-empty-text {
     display: none;
   }
   .ant-list-item {
-    background-color: #fff;
-    cursor: pointer;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     + .ant-list-item {
-      margin-top: 12px;
+      margin-top: ${AntdToken.SPACING.SM}px;
     }
-    padding: 24px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    padding: ${AntdToken.SPACING.LG}px;
+    box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-content {
         text-align: center;
@@ -210,14 +271,10 @@ const FieldStyledList = styled(List)`
       padding: 0 3px;
     }
   }
-
-  .grabbable {
-    cursor: grab;
-  }
 `;
 
 const ItemTitle = styled.p`
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin: 0;
   display: flex;
   justify-content: center;
@@ -230,30 +287,35 @@ const ItemTitleHeading = styled.span`
 `;
 
 const ItemKey = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 `;
 
 const ItemUnique = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const ItemTitleTag = styled(Tag)`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #fafafa;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const EmptyText = styled.p`
   margin: 25vh auto 0;
-  color: #898989;
+  color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
   text-align: center;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+`;
+
+const StyledFieldName = styled.span`
+  text-decoration: underline;
 `;
 
 export default ModelFieldList;

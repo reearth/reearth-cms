@@ -4,6 +4,7 @@ import ReactDragListView from "react-drag-listview";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {
   resources: Resource[];
@@ -11,12 +12,20 @@ export type Props = {
   isTile: boolean;
   onDelete: (isTile: boolean, index: number) => void;
   onDragEnd: (fromIndex: number, toIndex: number, isTile: boolean) => void;
+  hasUpdateRight: boolean;
 };
 
 const { DragColumn } = ReactDragListView;
 const { Meta } = Card;
 
-const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDragEnd }) => {
+const Cards: React.FC<Props> = ({
+  resources,
+  onModalOpen,
+  isTile,
+  onDelete,
+  onDragEnd,
+  hasUpdateRight,
+}) => {
   return (
     <DragColumn
       nodeSelector=".ant-card"
@@ -28,16 +37,25 @@ const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDr
           return (
             <StyledCard
               actions={[
-                <Icon icon="delete" key="delete" onClick={() => onDelete(isTile, index)} />,
-                <Icon icon="edit" key="edit" onClick={() => onModalOpen(index)} />,
+                <Icon
+                  icon="delete"
+                  key="delete"
+                  onClick={hasUpdateRight ? () => onDelete(isTile, index) : undefined}
+                />,
+                <Icon
+                  icon="edit"
+                  key="edit"
+                  onClick={hasUpdateRight ? () => onModalOpen(index) : undefined}
+                />,
               ]}
-              key={resource.id}>
+              key={resource.id}
+              hasUpdateRight={hasUpdateRight}>
               <TitleWrapper>
                 <StyledMeta
                   avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
                   title={resource.props?.name ? resource.props.name : resource.type}
                 />
-                <DragIcon icon="menu" className="grabbable" />
+                {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
               </TitleWrapper>
             </StyledCard>
           );
@@ -51,14 +69,24 @@ export default Cards;
 
 const GridArea = styled.div`
   display: grid;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  padding-bottom: 12px;
+  padding-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ hasUpdateRight: boolean }>`
+  .ant-card-actions > li > span {
+    ${({ hasUpdateRight }) => !hasUpdateRight && "cursor: not-allowed;"}
+    > .anticon {
+      ${({ hasUpdateRight }) =>
+        !hasUpdateRight && `cursor: not-allowed; color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
+      :hover {
+        ${({ hasUpdateRight }) => !hasUpdateRight && `color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
+      }
+    }
+  }
   .ant-card-body {
-    padding: 16px;
+    padding: ${AntdToken.SPACING.BASE}px;
   }
 `;
 
@@ -71,10 +99,10 @@ const TitleWrapper = styled.div`
 const StyledMeta = styled(Meta)`
   overflow: hidden;
   .ant-card-meta-avatar {
-    padding-right: 8px;
+    padding-right: ${AntdToken.SPACING.XS}px;
     img {
-      width: 20px;
-      height: 20px;
+      width: ${AntdToken.SPACING.MD}px;
+      height: ${AntdToken.SPACING.MD}px;
       object-fit: cover;
     }
   }
@@ -82,4 +110,7 @@ const StyledMeta = styled(Meta)`
 
 const DragIcon = styled(Icon)`
   cursor: grab;
+  :active {
+    cursor: grabbing;
+  }
 `;

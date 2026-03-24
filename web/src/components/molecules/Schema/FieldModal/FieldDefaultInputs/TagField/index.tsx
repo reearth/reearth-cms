@@ -5,6 +5,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   selectedTags?: { id: string; name: string; color: string }[];
@@ -31,7 +32,9 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
         <Select key={selectedTags?.length} allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
-              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              <TagWrapper>
+                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              </TagWrapper>
             </Select.Option>
           ))}
         </Select>
@@ -41,8 +44,12 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
 };
 
 const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   .ant-select-selection-overflow-item {
-    margin-right: 4px;
+    margin-right: ${AntdToken.SPACING.XXS}px;
   }
   .ant-select-selection-item {
     padding: 0;
@@ -58,6 +65,11 @@ const StyledMultipleSelect = styled(Select)`
   .ant-tag {
     margin-right: 0;
   }
+`;
+
+const TagWrapper = styled.div`
+  overflow-x: auto;
+  overflow-y: hidden;
 `;
 
 export default TagField;

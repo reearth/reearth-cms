@@ -21,6 +21,7 @@ const ContentDetails: React.FC = () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     requestCreationLoading,
@@ -45,6 +46,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
@@ -63,6 +65,10 @@ const ContentDetails: React.FC = () => {
     handleAddItemToRequestModalOpen,
     handleGroupGet,
     handleCheckItemReference,
+    hasRequestCreateRight,
+    hasRequestUpdateRight,
+    hasPublishRight,
+    hasItemUpdateRight,
   } = useHooks();
 
   const {
@@ -92,6 +98,10 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      hasRequestCreateRight={hasRequestCreateRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      hasPublishRight={hasPublishRight}
+      hasItemUpdateRight={hasItemUpdateRight}
       linkItemModalTitle={linkItemModalTitle}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
@@ -118,6 +128,8 @@ const ContentDetails: React.FC = () => {
       commentsPanel={
         currentItem ? (
           <CommentsPanel
+            resourceId={currentItem.id}
+            resourceType={"ITEM"}
             comments={currentItem.comments}
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
@@ -133,6 +145,7 @@ const ContentDetails: React.FC = () => {
       model={currentModel}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
+      versions={versions}
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
@@ -159,6 +172,7 @@ const ContentDetails: React.FC = () => {
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      onGetVersionedItem={handleGetVersionedItem}
       onUnpublish={handleUnpublish}
       onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}

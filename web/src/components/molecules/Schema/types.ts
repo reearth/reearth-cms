@@ -1,8 +1,9 @@
+import type { GeoJSON } from "geojson";
 import { Key } from "react";
 
 export type MetaDataSchema = {
   id?: string;
-  fields?: Field[];
+  fields?: MetadataField[];
 };
 
 export type Schema = {
@@ -10,9 +11,11 @@ export type Schema = {
   fields: Field[];
 };
 
+type GroupSchema = Schema & { fields: GroupField[] };
+
 export type Field = {
   id: string;
-  type: FieldType;
+  type: SchemaFieldType;
   title: string;
   key: string;
   description: string;
@@ -24,26 +27,77 @@ export type Field = {
   typeProperty?: TypeProperty;
 };
 
-export type FieldType =
-  | "Text"
-  | "TextArea"
-  // | "RichText"
-  | "MarkdownText"
-  | "Asset"
-  | "Date"
-  | "Bool"
-  | "Select"
-  | "Tag"
-  | "Integer"
-  // | "Float"
-  | "Reference"
-  | "Checkbox"
-  | "URL"
-  | "Group"
-  | "GeometryObject"
-  | "GeometryEditor";
+export type CreateFieldInput = {
+  modelId?: string;
+  groupId?: string;
+  type: SchemaFieldType;
+  title: string;
+  metadata?: boolean;
+  description?: string;
+  key: string;
+  multiple: boolean;
+  unique: boolean;
+  required: boolean;
+  isTitle: boolean;
+  typeProperty: TypeProperty;
+};
 
-type Tag = {
+export type ImportFieldInput = CreateFieldInput & {
+  hidden?: boolean;
+};
+
+export type GroupField = Field & { type: Exclude<SchemaFieldType, "Group"> };
+
+export type MetadataField = Field & {
+  type: Extract<SchemaFieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
+};
+
+export type FieldProps = {
+  field: Field;
+  itemGroupId?: string;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
+};
+
+export const SchemaFieldType = {
+  Text: "Text",
+  TextArea: "TextArea",
+  // RichText: "RichText",
+  MarkdownText: "MarkdownText",
+  Asset: "Asset",
+  Date: "Date",
+  Bool: "Bool",
+  Select: "Select",
+  Tag: "Tag",
+  Integer: "Integer",
+  Number: "Number",
+  Reference: "Reference",
+  Checkbox: "Checkbox",
+  URL: "URL",
+  Group: "Group",
+  GeometryObject: "GeometryObject",
+  GeometryEditor: "GeometryEditor",
+} as const;
+
+export type SchemaFieldType = (typeof SchemaFieldType)[keyof typeof SchemaFieldType];
+
+export enum ExportSchemaFieldType {
+  Text = "text",
+  TextArea = "textArea",
+  Markdown = "markdown",
+  Asset = "asset",
+  Datetime = "datetime",
+  Bool = "bool",
+  Select = "select",
+  Integer = "integer",
+  Number = "number",
+  URL = "url",
+  GeometryObject = "geometryObject",
+  GeometryEditor = "geometryEditor",
+}
+
+export type Tag = {
   id: string;
   name: string;
   color: string;
@@ -62,7 +116,7 @@ export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
 
 export type CorrespondingField = {
   id: string;
-  type: FieldType;
+  type: SchemaFieldType;
   title: string;
   key: Key;
   description: string;
@@ -73,13 +127,24 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | boolean | string[] | boolean[];
+  defaultValue?:
+    | string
+    | string[]
+    | boolean
+    | boolean[]
+    | number
+    | number[]
+    | GeoJSON
+    | GeoJSON[]
+    | null;
   maxLength?: number;
-  assetDefaultValue?: string;
-  selectDefaultValue?: string | string[];
-  integerDefaultValue?: number;
+  assetDefaultValue?: string | string[] | null;
+  selectDefaultValue?: string | string[] | null;
+  integerDefaultValue?: number | number[] | null;
   min?: number;
   max?: number;
+  numberMin?: number;
+  numberMax?: number;
   correspondingField?: CorrespondingField;
   modelId?: string;
   groupId?: string;
@@ -99,7 +164,7 @@ export type FieldTypePropertyInput = {
   bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
   tag?: {
-    defaultValue?: string;
+    defaultValue?: string | string[];
     tags: Tag[];
   };
   checkbox?: { defaultValue?: boolean };
@@ -129,7 +194,7 @@ export type Group = {
   name: string;
   description: string;
   key: string;
-  schema: Schema;
+  schema: GroupSchema;
   order: number;
 };
 
@@ -151,7 +216,7 @@ export type FormValues = {
   unique: boolean;
   isTitle: boolean;
   required: boolean;
-  type?: FieldType;
+  type?: SchemaFieldType;
   typeProperty: FieldTypePropertyInput;
 };
 

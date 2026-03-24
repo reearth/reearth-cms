@@ -1,53 +1,81 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import Content from "@reearth-cms/components/atoms/Content";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Search from "@reearth-cms/components/atoms/Search";
+import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+import { SortBy, SortOption } from "./types";
 
 type Props = {
+  projectSort: SortBy;
   onProjectSearch: (value: string) => void;
-  onProjectModalOpen: () => void;
-  onWorkspaceModalOpen: () => void;
+  onProjectSort: (sort: SortBy) => void;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({
-  onProjectSearch,
-  onProjectModalOpen,
-  onWorkspaceModalOpen,
-}) => {
+const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, projectSort }) => {
   const t = useT();
 
+  const projectSortOptions: SortOption[] = useMemo(
+    () => [
+      { key: "updatedat", label: t("Last Modified") },
+      { key: "id", label: t("Created At") },
+      { key: "name", label: t("Name") },
+    ],
+    [t],
+  );
+
   return (
-    <ActionHeader>
+    <Container>
       <StyledSearch
         onSearch={onProjectSearch}
         placeholder={t("search projects")}
         allowClear
         type="text"
       />
-      <ButtonWrapper>
-        <Button onClick={onWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
-        <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
-          {t("New Project")}
-        </Button>
-      </ButtonWrapper>
-    </ActionHeader>
+      <Wrapper>
+        <Label>{t("Sort by")}</Label>
+        <StyledSelect
+          data-testid={DATA_TEST_ID.WorkspaceHeader__ProjectSortSelect}
+          value={projectSort}
+          onChange={value => {
+            onProjectSort(value as SortBy);
+          }}>
+          {projectSortOptions.map(option => (
+            <Select.Option
+              key={option.key}
+              value={option.key}
+              data-testid={`workspace-header-project-sort-option-${option.key}`}>
+              {option.label}
+            </Select.Option>
+          ))}
+        </StyledSelect>
+      </Wrapper>
+    </Container>
   );
 };
 
-const ActionHeader = styled(Content)`
+const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: auto;
-  padding-bottom: 16px;
+  align-items: center;
+  padding: ${AntdToken.SPACING.LG}px ${AntdToken.SPACING.LG}px 0 ${AntdToken.SPACING.LG}px;
 `;
 
-const ButtonWrapper = styled.div`
-  Button + Button {
-    margin-left: 8px;
-  }
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XS}px;
+`;
+
+const Label = styled.span`
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+`;
+
+const StyledSelect = styled(Select)`
+  width: 160px;
 `;
 
 const StyledSearch = styled(Search)`

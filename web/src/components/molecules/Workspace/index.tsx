@@ -1,88 +1,103 @@
 import styled from "@emotion/styled";
 
-import ProjectCreationModal, {
-  FormValues as ProjectFormValues,
-} from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import WorkspaceCreationModal, {
-  FormValues as WorkspaceFormValues,
-} from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
+import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
+import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
+import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
+
+import WorkspaceHeader from "./WorkspaceHeader";
 
 type Props = {
+  username?: string;
+  privateProjectsAllowed?: boolean;
   coverImageUrl?: string;
-  projects?: Project[];
-  projectModal: boolean;
-  workspaceModal: boolean;
-  loadingProjects: boolean;
+  projects: Project[];
+  loading: boolean;
+  hasCreateRight: boolean;
+  page: number;
+  pageSize: number;
+  projectSort: SortBy;
+  totalCount: number;
   onProjectSearch: (value: string) => void;
-  onProjectModalOpen: () => void;
-  onProjectNavigation: (project: Project) => void;
-  onWorkspaceModalClose: () => void;
-  onWorkspaceModalOpen: () => void;
-  onWorkspaceCreate: (data: WorkspaceFormValues) => Promise<void>;
-  onClose: () => void;
-  onSubmit: (values: ProjectFormValues) => Promise<void>;
+  onProjectSort: (sort: SortBy) => void;
+  onProjectNavigation: (projectId: string) => void;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onPageChange: (page: number, pageSize: number) => void;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
+  username,
+  privateProjectsAllowed,
   coverImageUrl,
   projects,
-  projectModal,
-  workspaceModal,
-  loadingProjects,
+  loading,
+  hasCreateRight,
+  page,
+  pageSize,
+  projectSort,
+  totalCount,
   onProjectSearch,
-  onProjectModalOpen,
+  onProjectSort,
   onProjectNavigation,
-  onWorkspaceModalClose,
-  onWorkspaceModalOpen,
   onWorkspaceCreate,
-  onClose,
-  onSubmit,
+  onProjectCreate,
   onProjectAliasCheck,
+  onPageChange,
 }) => {
+  const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
+
   return (
-    <Wrapper>
-      <Greeting coverImageUrl={coverImageUrl} />
-      <Content>
+    <InnerContent isFullHeight>
+      <Greeting username={username} coverImageUrl={coverImageUrl} />
+      <ContentSection
+        title="Projects"
+        headerActions={
+          <ButtonWrapper>
+            {!disableWorkspaceUi && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
+            <CreateProjectButton
+              privateProjectsAllowed={privateProjectsAllowed}
+              hasCreateRight={hasCreateRight}
+              onProjectCreate={onProjectCreate}
+              onProjectAliasCheck={onProjectAliasCheck}
+            />
+          </ButtonWrapper>
+        }
+        hasPadding={false}>
         <WorkspaceHeader
           onProjectSearch={onProjectSearch}
-          onProjectModalOpen={onProjectModalOpen}
-          onWorkspaceModalOpen={onWorkspaceModalOpen}
+          onProjectSort={onProjectSort}
+          projectSort={projectSort}
         />
         <ProjectList
+          hasCreateRight={hasCreateRight}
           projects={projects}
-          loading={loadingProjects}
-          onProjectModalOpen={onProjectModalOpen}
+          loading={loading}
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
           onProjectNavigation={onProjectNavigation}
-        />
-        <ProjectCreationModal
-          open={projectModal}
-          onClose={onClose}
-          onSubmit={onSubmit}
+          onProjectCreate={onProjectCreate}
           onProjectAliasCheck={onProjectAliasCheck}
+          onPageChange={onPageChange}
         />
-      </Content>
-      <WorkspaceCreationModal
-        open={workspaceModal}
-        onClose={onWorkspaceModalClose}
-        onSubmit={onWorkspaceCreate}
-      />
-    </Wrapper>
+      </ContentSection>
+    </InnerContent>
   );
 };
 
-const Wrapper = styled.div`
-  background-color: #fff;
-  margin: 16px;
-  min-height: 100%;
-`;
-
-const Content = styled.div`
-  padding: 32px;
+const ButtonWrapper = styled.div`
+  Button + Button {
+    margin-left: ${AntdToken.SPACING.XS}px;
+  }
 `;
 
 export default WorkspaceWrapper;

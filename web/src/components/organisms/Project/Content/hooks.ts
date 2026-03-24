@@ -1,23 +1,36 @@
+import { useLazyQuery, useMutation } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetModalRequestsLazyQuery,
-  useUnpublishItemMutation,
-  usePublishItemMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  PublishItemDocument,
+  UnpublishItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import {
+  GetModalRequestsDocument,
+  UpdateRequestDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
+import { useModel, useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const [currentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
+  const myRole = useMemo(() => userRights?.role, [userRights?.role]);
+  const showPublishAction = useMemo(
+    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
+    [currentProject?.requestRoles, myRole],
+  );
+
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
@@ -30,26 +43,19 @@ export default () => {
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const [getModalRequests, { data, refetch, loading }] = useGetModalRequestsLazyQuery({
+  const [getModalRequests, { data, refetch, loading }] = useLazyQuery(GetModalRequestsDocument, {
     fetchPolicy: "cache-and-network",
-    variables: {
-      projectId: currentProject?.id ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: { key: "createdAt", reverted: true },
-      state: ["WAITING"] as GQLRequestState[],
-      key: searchTerm,
-    },
   });
 
   const requests: Request[] = useMemo(
     () =>
       data?.requests.nodes
-        .filter((request): request is GQLRequest => !!request)
-        .map(request => fromGraphQLRequest(request)) ?? [],
+        .filter(request => !!request)
+        .map(request => fromGraphQLRequest(request as GQLRequest)) ?? [],
     [data?.requests.nodes],
   );
 
-  const [updateRequest] = useUpdateRequestMutation();
+  const [updateRequest] = useMutation(UpdateRequestDocument);
 
   const handleAddItemToRequest = useCallback(
     async (request: Request, items: RequestItem[]) => {
@@ -73,7 +79,7 @@ export default () => {
           state: request.state as GQLRequestState,
         },
       });
-      if (item.errors || !item.data?.updateRequest) {
+      if (item.error || !item.data?.updateRequest) {
         Notification.error({ message: t("Failed to update request.") });
         return;
       }
@@ -83,7 +89,7 @@ export default () => {
     [updateRequest, t],
   );
 
-  const [publishItem, { loading: publishLoading }] = usePublishItemMutation();
+  const [publishItem, { loading: publishLoading }] = useMutation(PublishItemDocument);
 
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
@@ -91,9 +97,8 @@ export default () => {
         variables: {
           itemIds: itemIds,
         },
-        refetchQueries: ["SearchItem", "GetItem", "GetItemsByIds"],
       });
-      if (item.errors || !item.data?.publishItem) {
+      if (item.error || !item.data?.publishItem) {
         Notification.error({ message: t("Failed to publish items.") });
         return;
       }
@@ -103,7 +108,7 @@ export default () => {
     [publishItem, t],
   );
 
-  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation();
+  const [unpublishItem, { loading: unpublishLoading }] = useMutation(UnpublishItemDocument);
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {
@@ -111,9 +116,8 @@ export default () => {
         variables: {
           itemIds: itemIds,
         },
-        refetchQueries: ["SearchItem", "GetItem"],
       });
-      if (item.errors || !item.data?.unpublishItem) {
+      if (item.error || !item.data?.unpublishItem) {
         Notification.error({ message: t("Failed to unpublish items.") });
         return;
       }
@@ -133,8 +137,25 @@ export default () => {
     setPageSize(10);
     setSearchTerm("");
     setAddItemToRequestModalShown(true);
-    getModalRequests();
-  }, [getModalRequests]);
+    getModalRequests({
+      variables: {
+        projectId: currentProject?.id ?? "",
+        pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        sort: { key: "createdAt", reverted: true },
+        state: ["WAITING"] as GQLRequestState[],
+        key: searchTerm,
+        createdBy: userRights?.request.update === null ? userId : undefined,
+      },
+    });
+  }, [
+    currentProject?.id,
+    getModalRequests,
+    page,
+    pageSize,
+    searchTerm,
+    userId,
+    userRights?.request.update,
+  ]);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
@@ -170,5 +191,6 @@ export default () => {
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,
+    showPublishAction,
   };
 };

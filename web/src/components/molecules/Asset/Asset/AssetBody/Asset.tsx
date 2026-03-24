@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
+import { useMemo, useState, RefObject } from "react";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Space from "@reearth-cms/components/atoms/Space";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -30,27 +29,31 @@ import {
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
+
+const { XS } = AntdToken.SPACING;
 
 type Props = {
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
+  hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
   workspaceSettings: WorkspaceSettings;
 };
-
-export let viewerRef: CesiumViewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
@@ -58,10 +61,13 @@ const AssetMolecule: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
+  viewerRef,
   displayUnzipFileList,
   decompressing,
+  hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -71,61 +77,65 @@ const AssetMolecule: React.FC<Props> = ({
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer?: CesiumViewer) => {
-    viewerRef = viewer;
-  };
-
-  const renderPreview = useCallback(() => {
+  const viewerComponent = useMemo(() => {
     switch (viewerType) {
       case "geo":
         return (
           <GeoViewer
-            url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={getViewer}
+            isAssetPublic={asset.public}
+            url={assetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "geo_3d_tiles":
         return (
           <Geo3dViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            onGetViewer={getViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "geo_mvt":
         return (
-          <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <MvtViewer
+            isAssetPublic={asset.public}
+            url={assetUrl}
+            viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "image":
-        return <ImageViewer url={assetUrl} />;
+        return <ImageViewer isAssetPublic={asset.public} url={assetUrl} />;
       case "image_svg":
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer isAssetPublic={asset.public} svgRender={svgRender} url={assetUrl} />;
       case "model_3d":
         return (
           <GltfViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={getViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "csv":
         return (
-          <CsvViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <CsvViewer
+            isAssetPublic={asset.public}
+            url={assetUrl}
+            viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(asset.url);
-  }, [asset.url]);
+  }, [asset.public, assetFileExt, assetUrl, viewerRef, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
@@ -133,10 +143,18 @@ const AssetMolecule: React.FC<Props> = ({
         <Card
           title={
             <>
-              {asset.fileName}
-              <Tooltip title={t("URL copied!!")} trigger={"click"}>
-                <CopyIcon icon="copy" onClick={handleCopy} />
-              </Tooltip>
+              <AssetName>{asset.fileName}</AssetName>
+              <Buttons>
+                <CopyButton
+                  copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+                  size={16}
+                />
+                <DownloadButton
+                  disabled={!asset}
+                  onlyIcon
+                  onDownload={() => onAssetDownload(asset)}
+                />
+              </Buttons>
             </>
           }
           toolbar={
@@ -144,13 +162,13 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              handleCodeSourceClick={handleCodeSourceClick}
-              handleRenderClick={handleRenderClick}
-              handleFullScreen={onChangeToFullScreen}
-              handleModalCancel={onModalCancel}
+              onCodeSourceClick={handleCodeSourceClick}
+              onRenderClick={handleRenderClick}
+              onFullScreen={onChangeToFullScreen}
+              onModalCancel={onModalCancel}
             />
           }>
-          {renderPreview()}
+          {viewerComponent}
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
@@ -160,9 +178,7 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={() => {
-                      onAssetDecompress(asset.id);
-                    }}
+                    onClick={() => onAssetDecompress(asset.id)}
                     loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}
@@ -178,18 +194,39 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton
+          disabled={!asset}
+          displayDefaultIcon
+          onDownload={() => onAssetDownload(asset)}
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <PreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
+          <PreviewTypeSelect
+            value={selectedPreviewType}
+            onTypeChange={onTypeChange}
+            hasUpdateRight={hasUpdateRight}
+          />
         </SideBarCard>
-        <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title={t("Created By")}>
-          <Space>
-            <UserAvatar username={asset.createdBy} shadow />
-            {asset.createdBy}
-          </Space>
+        <SideBarCard title={t("Asset Information")}>
+          <AssetInfo>
+            <InfoRow>
+              <InfoKey>ID</InfoKey>
+              <ID>{asset.id}</ID>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created at")}</InfoKey>
+              <InfoValue>{dateTimeFormat(asset.createdAt)}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created by")}</InfoKey>
+              <InfoValue>{asset.createdBy?.name}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Size")}</InfoKey>
+              <InfoValue>{bytesFormat(asset.size)}</InfoValue>
+            </InfoRow>
+          </AssetInfo>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
@@ -205,17 +242,18 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)`
-  margin-left: 10px;
-  transition: all 0.3s;
-  color: rgb(0, 0, 0, 0.45);
-  :hover {
-    color: rgba(0, 0, 0, 0.88);
-  }
+const AssetName = styled.span`
+  min-width: 0;
+  word-wrap: break-word;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  gap: ${AntdToken.SPACING.SM}px;
 `;
 
 const UnzipButton = styled(Button)`
-  margin-left: 24px;
+  margin-left: ${AntdToken.SPACING.LG}px;
 `;
 
 const BodyContainer = styled.div`
@@ -223,14 +261,14 @@ const BodyContainer = styled.div`
   flex-direction: row;
   width: 100%;
   height: calc(100% - 72px);
-  border-top: 1px solid #00000008;
+  border-top: 1px solid ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
 `;
 
 const BodyWrapper = styled.div`
-  padding: 16px 24px;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
   width: 70%;
   height: 100%;
   overflow-y: auto;
@@ -238,13 +276,49 @@ const BodyWrapper = styled.div`
 `;
 
 const SideBarWrapper = styled.div`
-  padding: 8px;
+  padding: ${AntdToken.SPACING.XS}px;
   width: 272px;
-  background-color: #fafafa;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const StyledButton = styled(Button)`
   padding: 0;
+`;
+
+const AssetInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${AntdToken.SPACING.XXS}px;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${AntdToken.SPACING.XS}px;
+  line-height: 28px;
+`;
+
+const InfoKey = styled.p`
+  font-size: ${AntdToken.FONT.SIZE}px;
+  margin: 0;
+  flex-shrink: 0;
+`;
+
+const InfoValue = styled.p`
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  margin: 0;
+  padding: 0px ${XS}px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: ${AntdColor.GREY.GREY_2};
+`;
+
+const ID = styled(InfoValue)`
+  color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
+  background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  border-radius: ${AntdToken.RADIUS.SM}px;
 `;
 
 export default AssetMolecule;

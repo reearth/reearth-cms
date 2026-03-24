@@ -1,9 +1,14 @@
+import { ApolloClient } from "@apollo/client";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
+  FormValues,
+  FormValue,
+  FormGroupValue,
   FormItem,
   Item,
   ItemStatus,
@@ -11,13 +16,16 @@ import {
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
-  RequestUpdatePayload,
   RequestState,
   RequestItem,
+  Request,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import {
+  fromGraphQLItem,
+  fromGraphQLversionsByItem,
+} from "@reearth-cms/components/organisms/DataConverters/content";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
@@ -25,23 +33,26 @@ import {
   Item as GQLItem,
   Model as GQLModel,
   Group as GQLGroup,
+  VersionedItem as GQLVersionedItem,
   RequestState as GQLRequestState,
-  useCreateItemMutation,
-  useCreateRequestMutation,
-  useGetItemQuery,
-  useGetModelLazyQuery,
-  useGetMeQuery,
-  useUpdateItemMutation,
-  useUpdateRequestMutation,
-  useSearchItemQuery,
-  useGetGroupLazyQuery,
   FieldType as GQLFieldType,
-  StringOperator,
   ItemFieldInput,
-  useIsItemReferencedLazyQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+  StringOperator,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetGroupDocument } from "@reearth-cms/gql/__generated__/group.generated";
+import {
+  CreateItemDocument,
+  GetItemDocument,
+  IsItemReferencedDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+  VersionsByItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetModelDocument } from "@reearth-cms/gql/__generated__/model.generated";
+import { CreateRequestDocument } from "@reearth-cms/gql/__generated__/requests.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu } from "@reearth-cms/state";
+import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
 
 import { dateConvert } from "./utils";
@@ -53,9 +64,9 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
-    handlePublish,
-    handleUnpublish,
-    handleAddItemToRequest,
+    handlePublish: _handlePublish,
+    handleUnpublish: _handleUnpublish,
+    handleAddItemToRequest: _handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
@@ -66,13 +77,28 @@ export default () => {
     totalCount,
     page,
     pageSize,
+    showPublishAction,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: userData } = useGetMeQuery();
+  const { data: userData } = useQuery(GetMeDocument);
 
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
+  const [userRights] = useUserRights();
+  const hasRequestCreateRight = useMemo(
+    () => !!userRights?.request.create,
+    [userRights?.request.create],
+  );
+  const hasRequestUpdateRight = useMemo(
+    () => userRights?.request.update === null || !!userRights?.request.update,
+    [userRights?.request.update],
+  );
+  const hasPublishRight = useMemo(
+    () => !!userRights?.content.publish,
+    [userRights?.content.publish],
+  );
+
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,53 +109,65 @@ export default () => {
   const titleId = useRef("");
   const t = useT();
 
-  const { data, loading: itemLoading } = useGetItemQuery({
+  const {
+    data: itemData,
+    loading: itemLoading,
+    refetch: itemRefetch,
+  } = useQuery(
+    GetItemDocument,
+    itemId
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: { id: itemId },
+        }
+      : skipToken,
+  );
+
+  const [getModel] = useLazyQuery(GetModelDocument, {
     fetchPolicy: "cache-and-network",
-    variables: { id: itemId ?? "" },
-    skip: !itemId,
   });
 
-  const [getModel] = useGetModelLazyQuery({
-    fetchPolicy: "cache-and-network",
-    onCompleted: data => setReferenceModel(fromGraphQLModel(data?.node as GQLModel)),
-  });
   const {
     data: itemsData,
-    loading: loadingReference,
-    refetch,
-  } = useSearchItemQuery({
-    fetchPolicy: "cache-and-network",
-    variables: {
-      searchItemInput: {
-        query: {
-          project: currentProject?.id ?? "",
-          model: referenceModel?.id ?? "",
-          schema: referenceModel?.schema.id,
-        },
-        pagination: {
-          first: linkItemModalPageSize,
-          offset: (linkItemModalPage - 1) * linkItemModalPageSize,
-        },
-        filter:
-          searchTerm && titleId.current
-            ? {
-                and: {
-                  conditions: [
-                    {
-                      string: {
-                        fieldId: { id: titleId.current, type: GQLFieldType.Field },
-                        operator: StringOperator.Contains,
-                        value: searchTerm,
+    loading: itemsLoading,
+    refetch: itemsRefetch,
+  } = useQuery(
+    SearchItemDocument,
+    referenceModel && currentProject
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: {
+            searchItemInput: {
+              query: {
+                project: currentProject.id,
+                model: referenceModel.id,
+                schema: referenceModel?.schema.id,
+              },
+              pagination: {
+                first: linkItemModalPageSize,
+                offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+              },
+              filter:
+                searchTerm && titleId.current
+                  ? {
+                      and: {
+                        conditions: [
+                          {
+                            string: {
+                              fieldId: { id: titleId.current, type: GQLFieldType.Field },
+                              operator: StringOperator.Contains,
+                              value: searchTerm,
+                            },
+                          },
+                        ],
                       },
-                    },
-                  ],
-                },
-              }
-            : undefined,
-      },
-    },
-    skip: !referenceModel,
-  });
+                    }
+                  : undefined,
+            },
+          },
+        }
+      : skipToken,
+  );
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term ?? "");
@@ -137,8 +175,8 @@ export default () => {
   }, []);
 
   const handleLinkItemTableReload = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    itemsRefetch();
+  }, [itemsRefetch]);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -174,24 +212,20 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole = useMemo(
-    () =>
-      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
-        ?.role,
-    [currentWorkspace?.members, me?.id],
-  );
-
-  const showPublishAction = useMemo(
-    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
-    [currentProject?.requestRoles, myRole],
-  );
-
   const currentItem: Item | undefined = useMemo(
-    () => fromGraphQLItem(data?.node as GQLItem),
-    [data?.node],
+    () => fromGraphQLItem(itemData?.node as GQLItem),
+    [itemData?.node],
   );
 
-  const [getGroup] = useGetGroupLazyQuery({
+  const hasItemUpdateRight = useMemo(
+    () =>
+      userRights?.content.update === null
+        ? currentItem?.createdBy?.id === me?.id
+        : !!userRights?.content.update,
+    [currentItem?.createdBy?.id, me?.id, userRights?.content.update],
+  );
+
+  const [getGroup] = useLazyQuery(GetGroupDocument, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -201,7 +235,7 @@ export default () => {
         variables: {
           id,
         },
-      });
+      }).retain();
       return fromGraphQLGroup(res.data?.node as GQLGroup);
     },
     [getGroup],
@@ -230,8 +264,8 @@ export default () => {
     );
   }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
 
-  const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["SearchItem", "GetRequests"],
+  const [createItem, { loading: itemCreationLoading }] = useMutation(CreateItemDocument, {
+    refetchQueries: ["GetRequests"],
   });
 
   const handleItemCreate = useCallback(
@@ -256,7 +290,7 @@ export default () => {
             fields: metaFields as ItemFieldInput[],
           },
         });
-        if (metaItem.errors || !metaItem.data?.createItem) {
+        if (metaItem.error || !metaItem.data?.createItem) {
           Notification.error({ message: t("Failed to create item.") });
           return;
         }
@@ -270,7 +304,7 @@ export default () => {
           metadataId,
         },
       });
-      if (item.errors || !item.data?.createItem) {
+      if (item.error || !item.data?.createItem) {
         Notification.error({ message: t("Failed to create item.") });
         return;
       }
@@ -282,8 +316,8 @@ export default () => {
     [currentModel?.id, createItem, navigate, currentWorkspace?.id, currentProject?.id, t],
   );
 
-  const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["GetItem"],
+  const [updateItem, { loading: itemUpdatingLoading }] = useMutation(UpdateItemDocument, {
+    refetchQueries: ["GetItem", "VersionsByItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -295,7 +329,7 @@ export default () => {
           version: currentItem?.version ?? "",
         },
       });
-      if (item.errors || !item.data?.updateItem) {
+      if (item.error || !item.data?.updateItem) {
         Notification.error({ message: t("Failed to update item.") });
         return;
       }
@@ -314,7 +348,7 @@ export default () => {
             version: currentItem?.metadata?.version ?? "",
           },
         });
-        if (item.errors || !item.data?.updateItem) {
+        if (item.error || !item.data?.updateItem) {
           Notification.error({ message: t("Failed to update item.") });
           return;
         }
@@ -331,7 +365,7 @@ export default () => {
             fields: metaFields as ItemFieldInput[],
           },
         });
-        if (metaItem.errors || !metaItem.data?.createItem) {
+        if (metaItem.error || !metaItem.data?.createItem) {
           Notification.error({ message: t("Failed to update item.") });
           return;
         }
@@ -346,7 +380,7 @@ export default () => {
             version: currentItem.version,
           },
         });
-        if (item.errors || !item.data?.updateItem) {
+        if (item.error || !item.data?.updateItem) {
           Notification.error({ message: t("Failed to update item.") });
           return;
         }
@@ -360,18 +394,27 @@ export default () => {
   );
 
   const valueGet = useCallback((field: Field) => {
+    let result: FormValue;
     switch (field.type) {
       case "Select":
-        return field.typeProperty?.selectDefaultValue;
+        result = field.typeProperty?.selectDefaultValue;
+        break;
       case "Integer":
-        return field.typeProperty?.integerDefaultValue;
+        result = field.typeProperty?.integerDefaultValue;
+        break;
       case "Asset":
-        return field.typeProperty?.assetDefaultValue;
+        result = field.typeProperty?.assetDefaultValue;
+        break;
       case "Date":
-        return dateConvert(field.typeProperty?.defaultValue);
+        result = dateConvert(field.typeProperty?.defaultValue);
+        break;
       default:
-        return field.typeProperty?.defaultValue;
+        result = field.typeProperty?.defaultValue;
     }
+    if (field.multiple && !result) {
+      result = [];
+    }
+    return result;
   }, []);
 
   const updateValueConvert = useCallback(({ type, value }: ItemField) => {
@@ -388,28 +431,27 @@ export default () => {
     }
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
+  const [initialFormValues, setInitialFormValues] = useState<
+    Record<string, FormValue | FormGroupValue>
+  >({});
 
-  useEffect(() => {
-    if (itemLoading) return;
-    const handleInitialValuesSet = async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const initialValues: Record<string, any> = {};
+  const initialValueGet = useCallback(
+    async (fields?: ItemField[]) => {
+      const initialValues: FormValues = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
-            ...initialValues[field.id],
+            ...(initialValues[field.id] as FormGroupValue),
             ...{ [itemGroupId]: valueGet(field) },
           };
         });
       };
 
-      if (currentItem) {
-        currentItem?.fields?.forEach(field => {
+      if (fields) {
+        fields?.forEach(field => {
           if (field.itemGroupId) {
             initialValues[field.schemaFieldId] = {
-              ...initialValues[field.schemaFieldId],
+              ...(initialValues[field.schemaFieldId] as FormGroupValue),
               ...{ [field.itemGroupId]: updateValueConvert(field) },
             };
           } else {
@@ -436,11 +478,18 @@ export default () => {
           }),
         );
       }
+      return initialValues;
+    },
+    [currentModel, handleGroupGet, updateValueConvert, valueGet],
+  );
 
-      setInitialFormValues(initialValues);
+  useEffect(() => {
+    if (itemLoading) return;
+    const handleInitialValuesSet = async () => {
+      setInitialFormValues(await initialValueGet(currentItem?.fields ?? undefined));
     };
     handleInitialValuesSet();
-  }, [itemLoading, currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
+  }, [currentItem, initialValueGet, itemLoading]);
 
   const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
     const initialValues: Record<string, unknown> = {};
@@ -488,9 +537,10 @@ export default () => {
     );
   }, [currentWorkspace]);
 
-  const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetModalRequests", "GetItem"],
-  });
+  const [createRequestMutation, { loading: requestCreationLoading }] = useMutation(
+    CreateRequestDocument,
+    { refetchQueries: ["GetItem", "VersionsByItem"] },
+  );
 
   const handleRequestCreate = useCallback(
     async (data: {
@@ -511,7 +561,7 @@ export default () => {
           items: data.items,
         },
       });
-      if (request.errors || !request.data?.createRequest) {
+      if (request.error || !request.data?.createRequest) {
         Notification.error({ message: t("Failed to create request.") });
         return;
       }
@@ -521,73 +571,121 @@ export default () => {
     [createRequestMutation, currentProject?.id, t],
   );
 
-  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
-    refetchQueries: ["GetRequests"],
-  });
-
-  const handleRequestUpdate = useCallback(
-    async (data: RequestUpdatePayload) => {
-      if (!data.requestId) return;
-      const request = await updateRequestMutation({
-        variables: {
-          requestId: data.requestId,
-          title: data.title,
-          description: data.description,
-          state: data.state as GQLRequestState,
-          reviewersId: data.reviewersId,
-          items: data.items,
-        },
-      });
-      if (request.errors || !request.data?.updateRequest) {
-        Notification.error({ message: t("Failed to update request.") });
-        return;
-      }
-      Notification.success({ message: t("Successfully updated request!") });
-      setRequestModalShown(false);
-    },
-    [updateRequestMutation, t],
-  );
   const handleModalClose = useCallback(() => setRequestModalShown(false), []);
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
   const handleReferenceModelUpdate = useCallback(
-    (modelId: string, titleFieldId: string) => {
-      getModel({
-        variables: { id: modelId },
-      });
+    async (modelId: string, titleFieldId: string) => {
+      try {
+        const { data } = await getModel({
+          variables: { id: modelId },
+        }).retain();
+        setReferenceModel(fromGraphQLModel(data?.node as GQLModel));
+      } catch (error) {
+        Notification.error({ message: String(error) });
+      }
+
       titleId.current = titleFieldId;
       handleSearchTerm();
     },
     [getModel, handleSearchTerm],
   );
 
-  const [checkIfItemIsReferenced] = useIsItemReferencedLazyQuery({
+  const [checkIfItemIsReferenced] = useLazyQuery(IsItemReferencedDocument, {
     fetchPolicy: "no-cache",
   });
 
   const handleCheckItemReference = useCallback(
-    async (value: string, correspondingFieldId: string) => {
+    async (itemId: string, correspondingFieldId: string, groupId?: string) => {
+      const initialValue = groupId
+        ? (initialFormValues[groupId] as FormGroupValue)[correspondingFieldId]
+        : initialFormValues[correspondingFieldId];
+      if (initialValue === itemId) {
+        return false;
+      }
       const res = await checkIfItemIsReferenced({
-        variables: { itemId: value ?? "", correspondingFieldId },
+        variables: { itemId, correspondingFieldId },
       });
       return res.data?.isItemReferenced ?? false;
     },
-    [checkIfItemIsReferenced],
+    [checkIfItemIsReferenced, initialFormValues],
   );
 
   const title = useMemo(() => {
     let result = currentModel?.name ?? "";
     if (currentItem) {
-      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
-      const titleValue = titleField && initialFormValues[titleField.id];
-      result += ` / ${titleValue || currentItem.id}`;
+      result += ` / ${currentItem.title || currentItem.id}`;
     }
     return result;
-  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
+  }, [currentItem, currentModel?.name]);
+
+  const { data: versionsData, refetch: versionsRefetch } = useQuery(
+    VersionsByItemDocument,
+    itemId
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: { itemId },
+        }
+      : skipToken,
+  );
+
+  const versions = useMemo(
+    () =>
+      versionsData
+        ? fromGraphQLversionsByItem(versionsData.versionsByItem as GQLVersionedItem[]).sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          )
+        : [],
+    [versionsData],
+  );
+
+  const handleGetVersionedItem = useCallback(
+    (version: string) => {
+      const res = versions.find(v => v.version === version);
+      return initialValueGet(res?.fields);
+    },
+    [initialValueGet, versions],
+  );
+
+  const handleRefetch = useCallback(async () => {
+    const refetchList: Promise<ApolloClient.QueryResult>[] = [];
+    if (itemId) {
+      refetchList.push(itemRefetch());
+      refetchList.push(versionsRefetch());
+    }
+
+    if (referenceModel && currentProject) refetchList.push(itemsRefetch());
+
+    await Promise.all(refetchList);
+  }, [currentProject, itemId, itemRefetch, itemsRefetch, referenceModel, versionsRefetch]);
+
+  const handlePublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handlePublish(itemIds);
+      await handleRefetch();
+    },
+    [_handlePublish, handleRefetch],
+  );
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handleUnpublish(itemIds);
+      await handleRefetch();
+    },
+    [_handleUnpublish, handleRefetch],
+  );
+
+  const handleAddItemToRequest = useCallback(
+    async (request: Request, items: RequestItem[]) => {
+      await _handleAddItemToRequest(request, items);
+      await handleRefetch();
+    },
+    [_handleAddItemToRequest, handleRefetch],
+  );
 
   return {
-    loadingReference,
+    loadingReference: itemsLoading,
     linkedItemsModalList,
     showPublishAction,
     requests,
@@ -599,6 +697,7 @@ export default () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     collapsedModelMenu,
@@ -622,6 +721,7 @@ export default () => {
     requestModalTotalCount: totalCount,
     requestModalPage: page,
     requestModalPageSize: pageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
@@ -634,13 +734,15 @@ export default () => {
     handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
-    updateRequestLoading,
-    handleRequestUpdate,
     handleModalClose,
     handleModalOpen,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleGroupGet,
     handleCheckItemReference,
+    hasRequestCreateRight,
+    hasRequestUpdateRight,
+    hasPublishRight,
+    hasItemUpdateRight,
   };
 };

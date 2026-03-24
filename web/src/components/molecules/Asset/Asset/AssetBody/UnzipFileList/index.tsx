@@ -2,12 +2,13 @@ import styled from "@emotion/styled";
 import { Key } from "rc-table/lib/interface";
 import { useCallback, useEffect, useState } from "react";
 
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
@@ -51,13 +52,6 @@ const UnzipFileList: React.FC<Props> = ({
     [previewFile, selectedKeys],
   );
 
-  const handleCopy = useCallback(
-    (path: string) => {
-      navigator.clipboard.writeText(assetBaseUrl + path);
-    },
-    [assetBaseUrl],
-  );
-
   return (
     <UnzipFileListWrapper>
       {archiveExtractionStatus === "IN_PROGRESS" || archiveExtractionStatus === "PENDING" ? (
@@ -66,7 +60,7 @@ const UnzipFileList: React.FC<Props> = ({
         </ExtractionInProgressWrapper>
       ) : archiveExtractionStatus === "FAILED" ? (
         <ExtractionFailedWrapper>
-          <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
+          <ExtractionFailedIcon icon="closeCircle" color={AntdColor.RED.RED_4} size="56px" />
           <ExtractionFailedText>
             {t("Failed to decompress. Please check the file and try again.")}
           </ExtractionFailedText>
@@ -75,7 +69,7 @@ const UnzipFileList: React.FC<Props> = ({
         treeData && (
           <Tree
             switcherIcon={({ expanded }) => (
-              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={14} />
+              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={AntdToken.FONT.SIZE} />
             )}
             defaultExpandedKeys={["0-0"]}
             selectedKeys={selectedKeys}
@@ -84,16 +78,21 @@ const UnzipFileList: React.FC<Props> = ({
             multiple={false}
             showLine={{ showLeafIcon: true }}
             titleRender={({ title, key, path }) => {
-              return (
-                <>
-                  {title}
-                  {selectedKeys[0] === key && (
-                    <Tooltip title={t("URL copied!!")} trigger={"click"}>
-                      <CopyIcon icon="copy" onClick={() => handleCopy(path)} />
-                    </Tooltip>
-                  )}
-                </>
-              );
+              if (typeof title !== "function") {
+                return (
+                  <TitleWrapper>
+                    <Title>{title}</Title>
+                    {selectedKeys[0] === key && (
+                      <CopyButton
+                        copyable={{
+                          text: assetBaseUrl + path,
+                          tooltips: [t("Copy URL"), t("URL copied!!")],
+                        }}
+                      />
+                    )}
+                  </TitleWrapper>
+                );
+              }
             }}
           />
         )
@@ -105,7 +104,13 @@ const UnzipFileList: React.FC<Props> = ({
 const UnzipFileListWrapper = styled.div`
   height: 250px;
   overflow-y: scroll;
-  background-color: #f5f5f5;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
+  .ant-tree-treenode {
+    max-width: 100%;
+  }
+  .ant-tree-node-content-wrapper {
+    min-width: 0;
+  }
 `;
 
 const ExtractionInProgressWrapper = styled.div`
@@ -131,19 +136,21 @@ const ExtractionFailedText = styled.p`
   margin-bottom: 0;
   font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
-const CopyIcon = styled(Icon)`
-  margin-left: 6px;
-  transition: all 0.3s;
-  color: rgb(0, 0, 0, 0.45);
-  :hover {
-    color: rgba(0, 0, 0, 0.88);
-  }
+const TitleWrapper = styled.span`
+  display: flex;
+  gap: 6px;
+`;
+
+const Title = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const SwitcherIcon = styled(Icon)`

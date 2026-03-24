@@ -14,12 +14,12 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   requests: Request[];
@@ -32,7 +32,7 @@ type Props = {
   selection: {
     selectedRowKeys: Key[];
   };
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
   onRequestsReload: () => void;
   deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
@@ -51,6 +51,7 @@ type Props = {
   pageSize: number;
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+  hasCloseRight: boolean;
 };
 
 const RequestListTable: React.FC<Props> = ({
@@ -62,7 +63,7 @@ const RequestListTable: React.FC<Props> = ({
   searchTerm,
   onSearchTerm,
   selection,
-  setSelection,
+  onSelect,
   onRequestsReload,
   deleteLoading,
   onRequestDelete,
@@ -75,6 +76,7 @@ const RequestListTable: React.FC<Props> = ({
   pageSize,
   columns: columnsState,
   onColumnsChange,
+  hasCloseRight,
 }) => {
   const t = useT();
 
@@ -84,7 +86,11 @@ const RequestListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, request) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onEdit(request.id)}
+          />
         ),
         key: "EDIT_ICON",
         width: 48,
@@ -101,7 +107,7 @@ const RequestListTable: React.FC<Props> = ({
             <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
               <CustomTag
                 value={request.comments?.length || 0}
-                color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
+                color={request.id === selectedRequest?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </CommentsButton>
           );
@@ -139,12 +145,7 @@ const RequestListTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy.name",
         key: "createdBy",
-        render: (_, request) => (
-          <Space>
-            <UserAvatar username={request.createdBy?.name} size={"small"} />
-            {request.createdBy?.name}
-          </Space>
-        ),
+        render: (_, request) => request.createdBy?.name,
         valueEnum: {
           all: { text: "All", status: "Default" },
           createdByMe: {
@@ -161,18 +162,7 @@ const RequestListTable: React.FC<Props> = ({
         title: t("Reviewers"),
         dataIndex: "reviewers.name",
         key: "reviewers",
-        render: (_, request) => (
-          <Space>
-            <div>
-              {request.reviewers
-                .filter((_, index) => index < 3)
-                .map(reviewer => (
-                  <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
-                ))}
-            </div>
-            {request.reviewers.map(reviewer => reviewer.name).join(", ")}
-          </Space>
-        ),
+        render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
         valueEnum: {
           all: { text: "All", status: "Default" },
           reviewedByMe: {
@@ -227,14 +217,9 @@ const RequestListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
-      },
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selection.selectedRowKeys],
   );
 
   const handleToolbarEvents: ListToolBarProps = useMemo(
@@ -257,27 +242,21 @@ const RequestListTable: React.FC<Props> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={4}>
-          <Button
-            type="link"
-            size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
-          </Button>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="link"
             size="small"
             icon={<Icon icon="delete" />}
             onClick={() => onRequestDelete(props.selectedRowKeys)}
             danger
-            loading={deleteLoading}>
+            loading={deleteLoading}
+            disabled={!hasCloseRight}>
             {t("Close")}
           </Button>
         </Space>
       );
     },
-    [deleteLoading, onRequestDelete, t],
+    [deleteLoading, onRequestDelete, t, hasCloseRight],
   );
 
   return (
@@ -306,7 +285,7 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
-      heightOffset={72}
+      heightOffset={73}
     />
   );
 };
@@ -315,16 +294,4 @@ export default RequestListTable;
 
 const CommentsButton = styled(Button)`
   padding: 0;
-`;
-
-const StyledUserAvatar = styled(UserAvatar)`
-  :nth-child(1) {
-    z-index: 2;
-  }
-  :nth-child(2) {
-    z-index: 1;
-  }
-  :nth-child(n + 2) {
-    margin-left: -18px;
-  }
 `;

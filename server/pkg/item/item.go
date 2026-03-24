@@ -21,7 +21,7 @@ type Item struct {
 	project              ProjectID
 	fields               []*Field
 	timestamp            time.Time
-	thread               ThreadID
+	thread               *ThreadID
 	isMetadata           bool
 	user                 *UserID
 	updatedByUser        *UserID
@@ -93,7 +93,7 @@ func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
 	return ff
 }
 
-func (i *Item) Thread() ThreadID {
+func (i *Item) Thread() *ThreadID {
 	return i.thread
 }
 
@@ -220,6 +220,77 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
+func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
+	sAssetsFields := sp.FieldsByType(value.TypeAsset)
+	if len(sAssetsFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sAssetsFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sAssetsFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	return lo.FilterMap(ids, func(v *value.Value, _ int) (AssetID, bool) {
+		return v.ValueAsset()
+	})
+}
+
+func (i *Item) refItemIDs(sp schema.Package, filter func(*schema.Field) bool) IDList {
+	sRefFields := sp.FieldsByType(value.TypeReference)
+	if len(sRefFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sRefFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sRefFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if filter != nil && !filter(sf) {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	validIDs := lo.FilterMap(ids, func(v *value.Value, _ int) (ID, bool) {
+		if refID, ok := v.Value().(ID); ok {
+			return refID, true
+		}
+		return ID{}, false
+	})
+	return lo.Uniq(validIDs)
+}
+
+func (i *Item) RefItemIDs(sp schema.Package) IDList {
+	return i.refItemIDs(sp, nil)
+}
+
+func (i *Item) RefItemIDsByModels(sp schema.Package, modelIDs id.ModelIDList) IDList {
+	return i.refItemIDs(sp, func(sf *schema.Field) bool {
+		found := false
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(rf *schema.FieldReference) {
+				if modelIDs.Has(rf.Model()) {
+					found = true
+				}
+			},
+		})
+		return found
+	})
+}
+
 func (i *Item) GetTitle(s *schema.Schema) *string {
 	if s == nil || s.TitleField() == nil {
 		return nil
@@ -256,13 +327,45 @@ func (i *Item) SetOriginalItem(iid id.ItemID) {
 	i.originalItem = &iid
 }
 
+func (i *Item) SetThread(thid id.ThreadID) {
+	i.thread = &thid
+}
+
 func (i *Item) GetFirstGeometryField() (*Field, bool) {
 	if i == nil {
 		return nil, false
 	}
-	geoFields := append(i.Fields().FieldsByType(value.TypeGeometryObject), i.Fields().FieldsByType(value.TypeGeometryEditor)...)
-	if len(geoFields) == 0 {
-		return nil, false
+	for _, f := range i.Fields() {
+		if f.IsGeometryField() && !f.Value().IsEmpty() {
+			return f, true
+		}
 	}
-	return geoFields[0], true
+	return nil, false
+}
+
+func (i *Item) Clone() *Item {
+	if i == nil {
+		return nil
+	}
+
+	fields := lo.Map(i.fields, func(f *Field, _ int) *Field {
+		return f.Clone()
+	})
+
+	return &Item{
+		id:                   i.id,
+		schema:               i.schema,
+		model:                i.model,
+		project:              i.project,
+		fields:               fields,
+		timestamp:            i.timestamp,
+		thread:               i.thread,
+		isMetadata:           i.isMetadata,
+		user:                 i.user,
+		updatedByUser:        i.updatedByUser,
+		updatedByIntegration: i.updatedByIntegration,
+		integration:          i.integration,
+		metadataItem:         i.metadataItem,
+		originalItem:         i.originalItem,
+	}
 }

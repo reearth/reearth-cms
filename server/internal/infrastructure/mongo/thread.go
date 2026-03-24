@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,6 +38,19 @@ func (r *ThreadRepo) Save(ctx context.Context, thread *thread.Thread) error {
 	}
 	doc, id := mongodoc.NewThread(thread)
 	return r.client.SaveOne(ctx, id, doc)
+}
+
+func (r *ThreadRepo) SaveAll(ctx context.Context, threads thread.List) error {
+	if len(threads) == 0 {
+		return nil
+	}
+	for _, t := range threads {
+		if !r.f.CanWrite(t.Workspace()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	docs, ids := mongodoc.NewThreads(threads)
+	return r.client.SaveAll(ctx, ids, lo.ToAnySlice(docs))
 }
 
 func (r *ThreadRepo) Filtered(f repo.WorkspaceFilter) repo.Thread {
@@ -96,6 +110,17 @@ func filterThreads(ids []id.ThreadID, rows []*thread.Thread) []*thread.Thread {
 		res = append(res, r2)
 	}
 	return res
+}
+
+func (r *ThreadRepo) Remove(ctx context.Context, threadID id.ThreadID) error {
+	return r.client.RemoveOne(ctx, bson.M{"id": threadID.String()})
+}
+
+func (r *ThreadRepo) RemoveByIDs(ctx context.Context, ids id.ThreadIDList) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.RemoveAll(ctx, bson.M{"id": bson.M{"$in": ids.Strings()}})
 }
 
 func (r *ThreadRepo) readFilter(filter any) any {

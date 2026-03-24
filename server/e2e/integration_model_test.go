@@ -9,36 +9,76 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
+func iAPIModelFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias)
+}
+
+func iAPIModelCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
+}
+
+func iAPIModelGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIModelUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
+	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIModelDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIModelSchemaExport(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIModelMetadataSchemaExport(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIModelImport(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/import"
+	return e.PUT(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIModelCopy(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/copy"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
 // GET /models/{modelId}
 func TestIntegrationModelGetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/models/{modelId}", id.NewModelID()).
+	iAPIModelGet(e, wId0, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/models/{modelId}", id.NewModelID()).
+	iAPIModelGet(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/models/{modelId}", id.NewModelID()).
+	iAPIModelGet(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/models/{modelId}", id.NewModelID()).
+	iAPIModelGet(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	// key cannot be used
-	e.GET("/api/models/{modelId}", ikey1).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusBadRequest)
-
-	obj := e.GET("/api/models/{modelId}", mId1).
+	// get by key
+	iAPIModelGet(e, wId0, pid, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -47,7 +87,19 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
+		HasValue("key", ikey1.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid1)
+
+	obj := iAPIModelGet(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("id", mId1.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -57,27 +109,107 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 	obj.Value("lastModified").NotNull()
 }
 
-// PATCH /models/{modelId}
-func TestIntegrationModelUpdateAPI(t *testing.T) {
-	endpoint := "/api/models/{modelId}"
+// POST /models/{modelId}/copy
+func TestIntegrationModelCopy(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.PATCH(endpoint, id.NewProjectID()).
+	iAPIModelCopy(e, wId0, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH(endpoint, id.NewProjectID()).
+	iAPIModelCopy(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH(endpoint, id.NewProjectID()).
+	iAPIModelCopy(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	oldModel := iAPIModelGet(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	newName := "new name"
+	newKey := id.RandomKey().Ref().StringRef()
+	newModel := iAPIModelCopy(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"name": newName,
+			"key":  newKey,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	newModel.
+		ContainsKey("id").
+		ContainsKey("projectId").
+		ContainsKey("schemaId").
+		ContainsKey("createdAt").
+		ContainsKey("updatedAt").
+		ContainsKey("key")
+
+	newModelID := newModel.Value("id").String()
+	newModelID.NotEqual(mId1.String())
+	copiedModel := iAPIModelGet(e, wId0, pid, id.MustModelID(newModelID.Raw())).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	copiedModel.
+		HasValue("id", newModelID.Raw()).
+		HasValue("projectId", oldModel.Value("projectId").String().Raw()).
+		HasValue("name", newName).
+		HasValue("key", newKey).
+		HasValue("description", oldModel.Value("description").String().Raw())
+
+	copiedModel.Value("schemaId").NotNull()
+	oldSchemaId := oldModel.Value("schemaId").String()
+	copiedSchemaId := copiedModel.Value("schemaId").String()
+	copiedSchemaId.NotEqual(oldSchemaId.Raw())
+
+	oldSchema := oldModel.Value("schema").Object()
+	copiedSchema := copiedModel.Value("schema").Object()
+	copiedSchema.Value("fields").Array().Length().IsEqual(oldSchema.Value("fields").Array().Length().Raw())
+	copiedSchema.Value("titleField").String().IsEqual(oldSchema.Value("titleField").String().Raw())
+
+	copiedModel.Value("metadataSchemaId").NotNull()
+	oldMetadataSchemaId := oldModel.Value("metadataSchemaId").String()
+	copiedMetadataSchemaId := copiedModel.Value("metadataSchemaId").String()
+	copiedMetadataSchemaId.NotEqual(oldMetadataSchemaId.Raw())
+
+	oldMetadataSchema := oldModel.Value("metadataSchema").Object()
+	copiedMetadataSchema := copiedModel.Value("metadataSchema").Object()
+	copiedMetadataSchema.Value("fields").Array().Length().IsEqual(oldMetadataSchema.Value("fields").Array().Length().Raw())
+}
+
+// PATCH /models/{modelId}
+func TestIntegrationModelUpdateAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	iAPIModelUpdate(e, wId0, pid, id.NewModelID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIModelUpdate(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIModelUpdate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// update empty model
-	obj := e.PATCH(endpoint, mId0).
+	obj := iAPIModelUpdate(e, wId0, pid, mId0).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"name":        "M0 updated",
@@ -96,7 +228,7 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 		HasValue("description", "M0 desc updated").
 		HasValue("key", "M0KeyUpdated")
 
-	obj = e.PATCH(endpoint, mId1).
+	obj = iAPIModelUpdate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"name":        "newM1 updated",
@@ -115,7 +247,7 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 		HasValue("description", "newM1 desc updated").
 		HasValue("key", "newM1KeyUpdated")
 
-	obj = e.GET("/api/models/{modelId}", mId1).
+	obj = iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -124,7 +256,6 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 		HasValue("id", mId1).
 		HasValue("name", "newM1 updated").
 		HasValue("description", "newM1 desc updated").
-		HasValue("public", true).
 		HasValue("key", "newM1KeyUpdated").
 		HasValue("projectId", pid)
 
@@ -136,24 +267,23 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 
 // DELETE /models/{modelId}
 func TestIntegrationModelDeleteAPI(t *testing.T) {
-	endpoint := "/api/models/{modelId}"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.DELETE(endpoint, id.NewProjectID()).
+	iAPIModelDelete(e, wId0, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(endpoint, id.NewProjectID()).
+	iAPIModelDelete(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(endpoint, id.NewProjectID()).
+	iAPIModelDelete(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(endpoint, mId1).
+	iAPIModelDelete(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"name":        "newM1 updated",
@@ -166,33 +296,32 @@ func TestIntegrationModelDeleteAPI(t *testing.T) {
 		Object().
 		HasValue("id", mId1)
 
-	e.GET("/api/models/{modelId}", mId1).
+	iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 }
 
-// GET /projects/{projectIdOrKey}/models
+// GET /projects/{projectIdOrAlias}/models
 func TestIntegrationModelFilterAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/models"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET(endpoint, id.NewProjectID()).
+	iAPIModelFilter(e, wId0, id.NewProjectID().String()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(endpoint, id.NewProjectID()).
+	iAPIModelFilter(e, wId0, id.NewProjectID().String()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(endpoint, id.NewProjectID()).
+	iAPIModelFilter(e, wId0, id.NewProjectID().String()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(endpoint, id.NewProjectID()).
+	iAPIModelFilter(e, wId0, id.NewProjectID().String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 0).
 		WithQuery("perPage", 5).
@@ -207,17 +336,16 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			Object().
 			HasValue("page", 1).
 			HasValue("perPage", 10).
-			HasValue("totalCount", 6).
+			HasValue("totalCount", 7).
 			Value("models").
 			Array()
-		models.Length().IsEqual(6)
+		models.Length().IsEqual(7)
 
 		obj0 := models.Value(0).Object()
 		obj0.
 			HasValue("id", mId0.String()).
 			HasValue("name", "m0").
 			HasValue("description", "m0 desc").
-			HasValue("public", true).
 			HasValue("key", ikey0.String()).
 			HasValue("projectId", pid).
 			HasValue("schemaId", sid0)
@@ -227,7 +355,6 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			HasValue("id", mId1.String()).
 			HasValue("name", "m1").
 			HasValue("description", "m1 desc").
-			HasValue("public", true).
 			HasValue("key", ikey1.String()).
 			HasValue("projectId", pid).
 			HasValue("schemaId", sid1)
@@ -241,7 +368,6 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			HasValue("id", mId2.String()).
 			HasValue("name", "m2").
 			HasValue("description", "m2 desc").
-			HasValue("public", true).
 			HasValue("key", ikey2.String()).
 			HasValue("projectId", pid).
 			HasValue("schemaId", sid2)
@@ -251,39 +377,42 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 		obj2.Value("lastModified").NotNull()
 	}
 
-	assertRes(t, e.GET(endpoint, pid).
+	assertRes(t, iAPIModelFilter(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "id").
+		WithQuery("dir", "asc").
 		Expect())
 
-	assertRes(t, e.GET(endpoint, palias).
+	assertRes(t, iAPIModelFilter(e, wId0, palias).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "id").
+		WithQuery("dir", "asc").
 		Expect())
 }
 
-// POST /projects/{projectIdOrKey}/models
+// POST /projects/{projectIdOrAlias}/models
 func TestIntegrationModelCreateAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/models"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST(endpoint, id.NewProjectID()).
+	iAPIModelCreate(e, wId0, id.NewProjectID().String()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(endpoint, id.NewProjectID()).
+	iAPIModelCreate(e, wId0, id.NewProjectID().String()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(endpoint, id.NewProjectID()).
+	iAPIModelCreate(e, wId0, id.NewProjectID().String()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	obj := e.POST(endpoint, pid.String()).
+	obj := iAPIModelCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"name":        "newM1",
@@ -303,7 +432,7 @@ func TestIntegrationModelCreateAPI(t *testing.T) {
 		HasValue("key", "newM1Key")
 
 	mId := obj.Value("id").String().Raw()
-	obj = e.GET("/api/models/{modelId}", mId).
+	obj = iAPIModelGet(e, wId0, pid, id.MustModelID(mId)).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -312,7 +441,6 @@ func TestIntegrationModelCreateAPI(t *testing.T) {
 		HasValue("id", mId).
 		HasValue("name", "newM1").
 		HasValue("description", "newM1 desc").
-		HasValue("public", true).
 		HasValue("key", "newM1Key").
 		HasValue("projectId", pid)
 
@@ -322,177 +450,123 @@ func TestIntegrationModelCreateAPI(t *testing.T) {
 	obj.Value("schemaId").NotNull()
 }
 
-// GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}
-func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
+// DELETE /models/{modelId} — cascade deletes items
+func TestIntegrationModelDeleteCascadeAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusNotFound)
-
-	obj := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("public", true).
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-
-	obj = e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, ikey1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("public", true).
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-}
-
-// PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey}
-func TestIntegrationModelUpdateWithProjectAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	e.PATCH(endpoint, palias, id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.PATCH(endpoint, palias, id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.PATCH(endpoint, palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.PATCH(endpoint, palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	obj := e.PATCH(endpoint, palias, mId1).
+	// create a model with an item
+	obj := iAPIModelCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
-			"name":        "newM1 updated",
-			"description": "newM1 desc updated",
-			"key":         "newM1KeyUpdated",
+			"name":        "cascade-model",
+			"description": "cascade test",
+			"key":         "cascade-model-key",
 		}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "newM1 updated").
-		HasValue("description", "newM1 desc updated").
-		HasValue("public", true).
-		HasValue("key", "newM1KeyUpdated").
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
+		Object()
 
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
+	newModelId := id.MustModelID(obj.Value("id").String().Raw())
 
-	obj = e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, "newM1KeyUpdated").
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "newM1 updated").
-		HasValue("description", "newM1 desc updated").
-		HasValue("public", true).
-		HasValue("key", "newM1KeyUpdated").
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-}
-
-// DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey}
-func TestIntegrationModelDeleteWithProjectAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	e.DELETE(endpoint, palias, id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.DELETE(endpoint, palias, id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.DELETE(endpoint, palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.DELETE(endpoint, palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	e.DELETE(endpoint, palias, mId1).
+	newItem := iAPIItemCreate(e, wId0, pid, newModelId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
-			"name":        "newM1 updated",
-			"description": "newM1 desc updated",
-			"key":         "newM1KeyUpdated",
+			"fields": []map[string]interface{}{},
 		}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", mId1.String())
+		Object()
+	newItemId := newItem.Value("id").String().Raw()
 
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, mId1).
+	// delete the model
+	iAPIModelDelete(e, wId0, pid, newModelId).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("id", newModelId)
+
+	// model should be gone
+	iAPIModelGet(e, wId0, pid, newModelId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
+
+	// item should be gone
+	iAPIItemGet(e, wId0, pid, newModelId, newItemId).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+}
+
+func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// /api/models/{modelId}/schema.json
+	iAPIModelSchemaExport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer abcd").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIModelSchemaExport(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	iAPIModelSchemaExport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     sid1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"type":        "string",
+					"format":      "binary",
+					"x-fieldType": "asset",
+				},
+				sfKey1.String(): map[string]any{
+					"type":        "string",
+					"x-fieldType": "text",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
+
+	// /api/models/{modelId}/metadata_schema.json
+	iAPIModelMetadataSchemaExport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer abcd").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIModelMetadataSchemaExport(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	iAPIModelMetadataSchemaExport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     msid1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				sfKey4.String(): map[string]any{
+					"type":        "boolean",
+					"x-fieldType": "bool",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 }

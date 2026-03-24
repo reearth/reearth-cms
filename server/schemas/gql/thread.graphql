@@ -1,0 +1,63 @@
+type Thread {
+  id: ID!
+  workspace: Workspace
+  workspaceId: ID!
+  comments: [Comment!]!
+}
+
+type Comment {
+  id: ID!
+  threadId: ID!
+  workspaceId: ID!
+  author: Operator
+  authorType: OperatorType!
+  authorId: ID!
+  content: String!
+  createdAt: DateTime!
+}
+
+enum ResourceType {
+  ITEM
+  ASSET
+  REQUEST
+}
+
+input CreateThreadWithCommentInput {
+  workspaceId: ID!
+  resourceId: ID!
+  resourceType: ResourceType!
+  content: String!
+}
+
+input AddCommentInput {
+  threadId: ID!
+  content: String!
+}
+
+input UpdateCommentInput {
+  threadId: ID!
+  commentId: ID!
+  content: String!
+}
+
+input DeleteCommentInput {
+  threadId: ID!
+  commentId: ID!
+}
+
+type CommentPayload {
+  thread: Thread!
+  comment: Comment!
+}
+
+type DeleteCommentPayload {
+  thread: Thread!
+  commentId: ID!
+}
+
+extend type Mutation {
+  createThreadWithComment(input: CreateThreadWithCommentInput!): CommentPayload
+  addComment(input: AddCommentInput!): CommentPayload
+  updateComment(input: UpdateCommentInput!): CommentPayload
+  deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
+}

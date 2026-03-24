@@ -123,7 +123,10 @@ func TestValues_All(t *testing.T) {
 	}
 	got := v.All()
 	assert.Equal(t, v.inner, got)
-	assert.NotSame(t, v.inner, got)
+	for i := 0; i < len(v.inner); i++ {
+		assert.Equal(t, v.inner[i], got[i])
+		assert.NotSame(t, v.inner[i], got[i])
+	}
 	assert.Nil(t, (*Values[string])(nil).All())
 }
 
@@ -140,8 +143,11 @@ func TestValues_Clone(t *testing.T) {
 	got := v.Clone()
 	assert.Equal(t, v, got)
 	assert.NotSame(t, v, got)
-	assert.NotSame(t, v.inner, got.inner)
 	assert.Nil(t, (*Values[string])(nil).Clone())
+	for i := 0; i < len(v.inner); i++ {
+		assert.Equal(t, v.inner[i], got.inner[i])
+		assert.NotSame(t, v.inner[i], got.inner[i])
+	}
 }
 
 func TestValues_Add(t *testing.T) {

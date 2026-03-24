@@ -1,33 +1,31 @@
-import { useParams } from "react-router-dom";
-
-import Loading from "@reearth-cms/components/atoms/Loading";
-import ProjectSettingsMolecule from "@reearth-cms/components/molecules/ProjectSettings";
+import ProjectSettingsWrapper from "@reearth-cms/components/molecules/ProjectSettings";
 
 import useHooks from "./hooks";
 
 const ProjectSettings: React.FC = () => {
-  const { projectId } = useParams();
-
   const {
     project,
-    loading,
+    hasUpdateRight,
+    hasDeleteRight,
+    hasPublishRight,
     handleProjectDelete,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectAliasCheck,
-  } = useHooks({
-    projectId,
-  });
+    handleProjectVisibilityChange,
+  } = useHooks();
 
-  return !project || loading ? (
-    <Loading minHeight="400px" />
-  ) : (
-    <ProjectSettingsMolecule
+  return (
+    <ProjectSettingsWrapper
       project={project}
+      hasUpdateRight={hasUpdateRight}
+      hasDeleteRight={hasDeleteRight}
+      hasPublishRight={hasPublishRight}
       onProjectDelete={handleProjectDelete}
       onProjectUpdate={handleProjectUpdate}
       onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}
       onProjectAliasCheck={handleProjectAliasCheck}
+      onProjectVisibilityChange={handleProjectVisibilityChange}
     />
   );
 };

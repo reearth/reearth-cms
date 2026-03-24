@@ -1,11 +1,9 @@
 import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
-import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
-  const t = useT();
   const {
     assetList,
     selection,
@@ -24,6 +22,8 @@ const AssetList: React.FC = () => {
     sort,
     searchTerm,
     columns,
+    hasCreateRight,
+    hasDeleteRight,
     handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
@@ -31,12 +31,13 @@ const AssetList: React.FC = () => {
     handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
-    setSelection,
+    handleSelect,
     setFileList,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetDelete,
+    handleMultipleAssetDownload,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
@@ -47,13 +48,10 @@ const AssetList: React.FC = () => {
     <AssetListBody
       commentsPanel={
         <CommentsPanel
+          resourceId={selectedAsset?.id}
+          resourceType={"ASSET"}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
-          emptyText={
-            selectedAsset
-              ? t("No comments.")
-              : t("Please click the comment bubble in the table to check comments.")
-          }
           comments={selectedAsset?.comments}
           threadId={selectedAsset?.threadId}
           refetchQueries={["GetAssetsItems"]}
@@ -76,6 +74,8 @@ const AssetList: React.FC = () => {
       deleteLoading={deleteLoading}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetSelect={handleAssetSelect}
       onUploadModalCancel={handleUploadModalCancel}
@@ -85,10 +85,11 @@ const AssetList: React.FC = () => {
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}
+      onAssetDownload={handleMultipleAssetDownload}
       onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
       onEdit={handleNavigateToAsset}
-      setSelection={setSelection}
+      onSelect={handleSelect}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
     />

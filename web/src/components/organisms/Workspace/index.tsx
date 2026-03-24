@@ -4,38 +4,44 @@ import useHooks from "./hooks";
 
 const Workspace: React.FC = () => {
   const {
+    username,
+    privateProjectsAllowed,
     coverImageUrl,
     projects,
-    projectModalShown,
-    loadingProjects,
-    workspaceModalShown,
+    loading,
+    hasCreateRight,
+    page,
+    pageSize,
+    projectSort,
+    totalCount,
     handleProjectSearch,
+    handleProjectSort,
     handleProjectCreate,
-    handleProjectModalOpen,
-    handleProjectModalClose,
     handleProjectNavigation,
-    handleWorkspaceModalClose,
-    handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleProjectAliasCheck,
+    handlePageChange,
   } = useHooks();
 
   return (
     <WorkspaceWrapper
+      username={username}
+      privateProjectsAllowed={privateProjectsAllowed}
       coverImageUrl={coverImageUrl}
       projects={projects}
-      projectModal={projectModalShown}
-      workspaceModal={workspaceModalShown}
-      loadingProjects={loadingProjects}
+      loading={loading}
+      hasCreateRight={hasCreateRight}
+      page={page}
+      pageSize={pageSize}
+      projectSort={projectSort}
+      totalCount={totalCount}
       onProjectSearch={handleProjectSearch}
-      onProjectModalOpen={handleProjectModalOpen}
+      onProjectSort={handleProjectSort}
       onProjectNavigation={handleProjectNavigation}
-      onWorkspaceModalClose={handleWorkspaceModalClose}
-      onWorkspaceModalOpen={handleWorkspaceModalOpen}
+      onProjectCreate={handleProjectCreate}
       onWorkspaceCreate={handleWorkspaceCreate}
-      onClose={handleProjectModalClose}
-      onSubmit={handleProjectCreate}
       onProjectAliasCheck={handleProjectAliasCheck}
+      onPageChange={handlePageChange}
     />
   );
 };

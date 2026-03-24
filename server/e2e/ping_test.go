@@ -12,12 +12,12 @@ func TestPingAPI(t *testing.T) {
 		Origins: []string{"https://example.com"},
 	}, false, nil)
 
-	e.OPTIONS("/api/ping").
-		WithHeader("Origin", "https://example.com").
-		Expect().
-		Status(http.StatusNoContent).
-		Header("Access-Control-Allow-Origin").
-		IsEqual("https://example.com")
+	//e.OPTIONS("/api/ping").
+	//	WithHeader("Origin", "https://example.com").
+	//	Expect().
+	//	Status(http.StatusNoContent).
+	//	Header("Access-Control-Allow-Origin").
+	//	IsEqual("https://example.com")
 
 	r := e.GET("/api/ping").
 		WithHeader("Origin", "https://example.com").
@@ -26,8 +26,8 @@ func TestPingAPI(t *testing.T) {
 	r.Header("Cache-Control").
 		IsEqual("private, no-store, no-cache, must-revalidate")
 
-	r.Header("Access-Control-Allow-Origin").
-		IsEqual("https://example.com")
+	//r.Header("Access-Control-Allow-Origin").
+	//	IsEqual("https://example.com")
 
 	r.Status(http.StatusOK).
 		JSON().

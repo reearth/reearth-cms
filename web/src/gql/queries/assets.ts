@@ -1,8 +1,20 @@
 import { gql } from "@apollo/client";
 
 export const GET_ASSETS = gql`
-  query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
-    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+  query GetAssets(
+    $projectId: ID!
+    $keyword: String
+    $sort: AssetSort
+    $pagination: Pagination
+    $contentTypes: [ContentTypesEnum!]
+  ) {
+    assets(
+      input: {
+        query: { project: $projectId, keyword: $keyword, contentTypes: $contentTypes }
+        sort: $sort
+        pagination: $pagination
+      }
+    ) {
       nodes {
         ...assetFragment
       }
@@ -23,8 +35,15 @@ export const GET_ASSETS_ITEMS = gql`
     $keyword: String
     $sort: AssetSort
     $pagination: Pagination
+    $contentTypes: [ContentTypesEnum!]
   ) {
-    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+    assets(
+      input: {
+        query: { project: $projectId, keyword: $keyword, contentTypes: $contentTypes }
+        sort: $sort
+        pagination: $pagination
+      }
+    ) {
       nodes {
         ...assetFragment
         items {
@@ -73,6 +92,18 @@ export const GET_ASSET_ITEM = gql`
   }
 `;
 
+export const GUESS_SCHEMA_FIELDS = gql`
+  query GuessSchemaFields($assetId: ID!, $modelId: ID!) {
+    guessSchemaFields(input: { assetId: $assetId, modelId: $modelId }) {
+      total_count
+      fields {
+        name
+        type
+      }
+    }
+  }
+`;
+
 export const CREATE_ASSET = gql`
   mutation CreateAsset(
     $projectId: ID!
@@ -115,6 +146,14 @@ export const DELETE_ASSET = gql`
   }
 `;
 
+export const DELETE_ASSETS = gql`
+  mutation DeleteAssets($assetIds: [ID!]!) {
+    deleteAssets(input: { assetIds: $assetIds }) {
+      assetIds
+    }
+  }
+`;
+
 export const DECOMPRESS_ASSET = gql`
   mutation DecompressAsset($assetId: ID!) {
     decompressAsset(input: { assetId: $assetId }) {
@@ -131,6 +170,7 @@ export const CREATE_ASSET_UPLOAD = gql`
     $filename: String!
     $cursor: String!
     $contentLength: Int!
+    $contentEncoding: String
   ) {
     createAssetUpload(
       input: {
@@ -138,12 +178,14 @@ export const CREATE_ASSET_UPLOAD = gql`
         filename: $filename
         cursor: $cursor
         contentLength: $contentLength
+        contentEncoding: $contentEncoding
       }
     ) {
       url
       token
       contentType
       contentLength
+      contentEncoding
       next
     }
   }

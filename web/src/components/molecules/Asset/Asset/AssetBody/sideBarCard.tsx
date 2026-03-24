@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
 type Props = {
   title: string;
   children?: ReactNode;
@@ -16,32 +18,27 @@ const SideBarCard: React.FC<Props> = ({ title, children }) => {
 };
 
 const SideBarCardWrapper = styled.div`
-  padding: 12px;
-  margin-bottom: 8px;
+  padding: ${AntdToken.SPACING.SM}px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 4px 0 #00000025;
-  background-color: #fff;
+  gap: ${AntdToken.SPACING.XXS}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  border-radius: ${AntdToken.RADIUS.XS}px;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const CardTitle = styled.span`
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: 13px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
-  margin-bottom: 4px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const CardValue = styled.span`
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 
 export default SideBarCard;

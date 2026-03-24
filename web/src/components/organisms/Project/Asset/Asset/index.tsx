@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
@@ -17,12 +18,15 @@ const Asset: React.FC = () => {
     isModalVisible,
     collapsed,
     viewerType,
+    viewerRef,
     displayUnzipFileList,
     decompressing,
     isSaveDisabled,
     updateLoading,
+    hasUpdateRight,
     handleAssetDecompress,
     handleAssetItemSelect,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
@@ -33,14 +37,22 @@ const Asset: React.FC = () => {
 
   const { workspaceSettings } = useSettingsHooks();
 
-  return isLoading ? (
-    <Loading spinnerSize="large" minHeight="100vh" />
-  ) : (
+  if (isLoading) {
+    return <Loading spinnerSize="large" minHeight="100vh" />;
+  }
+
+  if (!asset) {
+    return <NotFound />;
+  }
+
+  return (
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
-          comments={asset?.comments}
-          threadId={asset?.threadId}
+          resourceId={asset.id}
+          resourceType={"ASSET"}
+          comments={asset.comments}
+          threadId={asset.threadId}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
           refetchQueries={["GetAssetItem"]}
@@ -51,12 +63,15 @@ const Asset: React.FC = () => {
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
       viewerType={viewerType}
+      viewerRef={viewerRef}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}
       isSaveDisabled={isSaveDisabled}
       updateLoading={updateLoading}
+      hasUpdateRight={hasUpdateRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
+      onAssetDownload={handleSingleAssetDownload}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}

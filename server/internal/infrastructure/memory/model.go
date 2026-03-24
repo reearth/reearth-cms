@@ -61,24 +61,24 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 		int64(len(result)),
 		startCursor,
 		endCursor,
-		true,
-		true,
+		false,
+		false,
 	), nil
 }
 
-func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k string, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k *string, _ *usecasex.Sort, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
-	// TODO: implement pagination
+	// TODO: implement pagination and sorting
 
 	if !r.f.CanRead(pid) {
 		return nil, nil, nil
 	}
 
 	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project() == pid && strings.Contains(m.Name(), k)
+		return m.Project() == pid && (k == nil || strings.Contains(m.Name(), *k))
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor

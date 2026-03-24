@@ -7,6 +7,8 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import ItemFormat from "./ItemFormat";
 
@@ -36,7 +38,8 @@ export const renderField = (
             : option?.key;
           update?.(value);
         }}
-        placeholder="-">
+        placeholder="-"
+        disabled={!update}>
         {tags?.map(({ id, name, color }) => (
           <Select.Option key={id} value={name}>
             <Tag color={color.toLowerCase()}>{name}</Tag>
@@ -45,11 +48,7 @@ export const renderField = (
       </StyledSelect>
     );
   } else if (value === "-") {
-    if (
-      (field.type === "Text" || field.type === "Date" || field.type === "URL") &&
-      !field.multiple &&
-      update
-    ) {
+    if ((field.type === "Text" || field.type === "Date" || field.type === "URL") && update) {
       return <ItemFormat item="" field={field} update={update} />;
     }
     return <span>-</span>;
@@ -81,13 +80,15 @@ export const renderField = (
     );
     return (
       <Popover
-        overlayClassName="contentPopover"
-        content={content}
+        rootClassName="contentPopover"
+        content={
+          <div data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverContent}>{content}</div>
+        }
         title={field.title}
         trigger="click"
         placement="bottom">
-        <StyledButton>
-          <Icon icon={fieldTypes[field.type].icon} size={16} />
+        <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
+          <Icon icon={fieldTypes[field.type].icon} size={AntdToken.FONT.SIZE_LG} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
       </Popover>
@@ -99,17 +100,17 @@ export const renderField = (
 
 const StyledButton = styled(Button)`
   align-items: center;
-  border-color: #00000008;
-  color: #1890ff;
+  border-color: ${AntdColor.NEUTRAL.FILL_QUATERNARY};
+  color: ${AntdColor.BLUE.BLUE_5};
   display: flex;
-  font-size: 12px;
-  gap: 8px;
-  padding: 4px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Content = styled.p`
   margin: 0;
-  padding: 4px 8px 20px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.MD}px;
   :last-child {
     padding-bottom: 0;
   }

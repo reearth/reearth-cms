@@ -41,11 +41,22 @@ func (c *UserLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-func (c *UserLoader) SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error) {
-	res, err := c.usecase.SearchUser(ctx, nameOrEmail)
+func (c *UserLoader) ByNameOrEmail(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error) {
+	res, err := c.usecase.FetchByNameOrEmail(ctx, nameOrEmail)
 	if err != nil {
 		return nil, err
 	}
 
 	return gqlmodel.SimpleToUser(res), nil
+}
+
+func (c *UserLoader) Search(ctx context.Context, nameOrEmail string) ([]*gqlmodel.User, error) {
+	res, err := c.usecase.SearchUser(ctx, nameOrEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(res, func(u *user.Simple, _ int) *gqlmodel.User {
+		return gqlmodel.SimpleToUser(u)
+	}), nil
 }

@@ -21,23 +21,27 @@ import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/Fiel
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
-  FieldType,
+  SchemaFieldType,
   Group,
   FormValues,
+  Tag,
+  SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
 type Props = {
   groups?: Group[];
-  selectedType: FieldType;
+  selectedType: SchemaFieldType;
+  selectedSchemaType: SelectedSchemaType;
   isMeta: boolean;
   open: boolean;
   fieldLoading: boolean;
   selectedField: Field | null;
-  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
+  handleFieldKeyUnique: (key: string) => boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
@@ -84,6 +88,7 @@ const FieldModal: React.FC<Props> = ({
   groups,
   open,
   isMeta,
+  selectedSchemaType,
   fieldLoading,
   selectedType,
   selectedField,
@@ -139,7 +144,19 @@ const FieldModal: React.FC<Props> = ({
     isTitleDisabled,
     ObjectSupportType,
     EditorSupportType,
-  } = useHooks(selectedType, isMeta, selectedField, open, onClose, onSubmit, handleFieldKeyUnique);
+    emptyValidator,
+    duplicatedValidator,
+    errorIndexes,
+  } = useHooks(
+    selectedSchemaType,
+    selectedType,
+    isMeta,
+    selectedField,
+    open,
+    onClose,
+    onSubmit,
+    handleFieldKeyUnique,
+  );
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
     <>
@@ -206,7 +223,7 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
+              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
@@ -215,43 +232,50 @@ const FieldModal: React.FC<Props> = ({
               <Form.Item
                 name="values"
                 label={t("Set Options")}
+                validateStatus={"success"}
                 rules={[
                   {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                    },
+                    required: true,
+                    message: t("At least 1 option"),
+                  },
+                  {
+                    validator: async (_, values?: string[]) => emptyValidator(values),
+                    message: t("Empty values are not allowed"),
+                  },
+                  {
+                    validator: async (_, values?: string[]) => duplicatedValidator(values),
+                    message: t("Option must be unique"),
                   },
                 ]}>
-                <MultiValueField FieldInput={Input} />
+                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Tag" && (
               <Form.Item
                 name="tags"
                 label={t("Set Tags")}
+                validateStatus={"success"}
                 rules={[
                   {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
-                      if (uniqueNames.size !== values.length) {
-                        return Promise.reject(new Error("Labels must be unique"));
-                      }
+                    required: true,
+                    message: t("At least 1 tag"),
+                  },
+                  {
+                    validator: async (_, values?: Tag[]) => {
+                      const names = values?.map(value => value.name);
+                      return emptyValidator(names);
                     },
+                    message: t("Empty values are not allowed"),
+                  },
+                  {
+                    validator: async (_, values?: Tag[]) => {
+                      const names = values?.map(value => value.name);
+                      return duplicatedValidator(names);
+                    },
+                    message: t("Labels must be unique"),
                   },
                 ]}>
-                <MultiValueColoredTag />
+                <MultiValueColoredTag errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Group" && (
@@ -368,17 +392,17 @@ const FieldModal: React.FC<Props> = ({
 };
 
 const Required = styled.span`
-  color: #ff4d4f;
-  margin-right: 4px;
+  color: ${AntdColor.RED.RED_4};
+  margin-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Optional = styled.span`
-  color: #8c8c8c;
-  margin-left: 4px;
+  color: ${AntdColor.GREY.GREY_2};
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const OptionTitle = styled.p`
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const FieldThumbnail = styled.div`
@@ -387,7 +411,7 @@ const FieldThumbnail = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -399,15 +423,15 @@ const StyledIcon = styled(Icon)`
 `;
 
 const StyledTitle = styled.p`
-  color: #000000d9;
-  font-size: 16px;
-  margin: 0 20px 0 12px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  margin: 0 ${AntdToken.SPACING.MD}px 0 ${AntdToken.SPACING.SM}px;
   overflow: auto;
 `;
 
 const StyledGroupKey = styled.span`
-  font-size: 12px;
-  margin-left: 4px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledCheckboxGroup = styled(Checkbox.Group)`

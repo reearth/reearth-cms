@@ -55,9 +55,9 @@ export const DELETE_INTEGRATION = gql`
   }
 `;
 
-export const REGENERATE_TOKEN = gql`
-  mutation regenerateToken($integrationId: ID!) {
-    regenerateToken(input: { integrationId: $integrationId }) {
+export const REGENERATE_INTEGRATION_TOKEN = gql`
+  mutation regenerateIntegrationToken($integrationId: ID!) {
+    regenerateIntegrationToken(input: { integrationId: $integrationId }) {
       integration {
         id
         name

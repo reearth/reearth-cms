@@ -13,12 +13,26 @@ type GeometryEditorSupportedTypeList []GeometryEditorSupportedType
 func (l GeometryEditorSupportedTypeList) Has(st GeometryEditorSupportedType) bool {
 	hasAny := slices.Contains(l, GeometryEditorSupportedTypeAny)
 	if hasAny && st != "" {
-	     return true
+		return true
 	}
 	return slices.ContainsFunc(l, func(t GeometryEditorSupportedType) bool {
 		return t == st
 	})
 }
+
+func (l GeometryEditorSupportedTypeList) First() GeometryEditorSupportedType {
+	if len(l) == 0 {
+		return GeometryEditorSupportedType("")
+	}
+	return l[0]
+}
+
+func (l GeometryEditorSupportedTypeList) Strings() []string {
+	return lo.Map(l, func(t GeometryEditorSupportedType, _ int) string {
+		return t.String()
+	})
+}
+
 type FieldGeometryEditor struct {
 	st GeometryEditorSupportedTypeList
 }

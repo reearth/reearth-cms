@@ -49,9 +49,13 @@ func TestKey_StringRef(t *testing.T) {
 	assert.Nil(t, (*Key)(nil).StringRef())
 }
 
-func TestKey_Clone(t *testing.T) {
-	k := Key{key: "aaaaaa"}
-	c := k
-	assert.Equal(t, k, c)
-	assert.NotSame(t, k, c)
+func TestKey_NewKeyFromPtr(t *testing.T) {
+
+	str := "test-key"
+	wantKey := Key{
+		key: lo.FromPtr(&str),
+	}
+	result := NewKeyFromPtr(&str)
+	assert.NotNil(t, result, "Result should not be nil")
+	assert.Equal(t, &wantKey, result, "Key value should match the input string")
 }

@@ -1,59 +1,55 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMutation } from "@apollo/client/react";
+import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+  IntegrationInfo,
+  Webhook,
+  NewWebhook,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
-  useCreateWebhookMutation,
-  useUpdateIntegrationMutation,
-  useUpdateWebhookMutation,
-  useDeleteWebhookMutation,
-  useDeleteIntegrationMutation,
-  useRegenerateTokenMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+  DeleteIntegrationDocument,
+  RegenerateIntegrationTokenDocument,
+  UpdateIntegrationDocument,
+} from "@reearth-cms/gql/__generated__/integration.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import {
+  CreateWebhookDocument,
+  DeleteWebhookDocument,
+  UpdateWebhookDocument,
+} from "@reearth-cms/gql/__generated__/webhook.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
-  const { integrations } = integrationHooks();
+  const { loading, integrations } = integrationHooks();
   const t = useT();
-  const [webhookId, setwebhookId] = useState<string>();
-  const [currentWorkspace] = useWorkspace();
 
   const selectedIntegration = useMemo(
     () => integrations?.find(integration => integration.id === integrationId),
     [integrations, integrationId],
   );
 
-  const webhookInitialValues = useMemo(() => {
-    if (!selectedIntegration?.config.webhooks || !webhookId) return;
-    const selectedWebhook = selectedIntegration.config.webhooks.find(
-      webhook => webhook.id === webhookId,
-    );
-    if (!selectedWebhook) return;
-    const trigger: string[] = [];
-    Object.entries(selectedWebhook?.trigger).forEach(([key, value]) => value && trigger.push(key));
-    return { ...selectedWebhook, trigger };
-  }, [selectedIntegration, webhookId]);
-
-  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] =
-    useUpdateIntegrationMutation();
+  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] = useMutation(
+    UpdateIntegrationDocument,
+    { refetchQueries: [{ query: GetMeDocument }] },
+  );
 
   const handleIntegrationUpdate = useCallback(
-    async (data: { name: string; description: string; logoUrl: string }) => {
+    async ({ name, description, logoUrl }: IntegrationInfo) => {
       if (!integrationId) return;
       const result = await updateIntegrationMutation({
         variables: {
           integrationId,
-          name: data.name,
-          description: data.description,
-          logoUrl: data.logoUrl,
+          name,
+          description,
+          logoUrl,
         },
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({ message: t("Failed to update integration.") });
       } else {
         Notification.success({ message: t("Successfully updated integration!") });
@@ -62,24 +58,25 @@ export default () => {
     [integrationId, t, updateIntegrationMutation],
   );
 
-  const [deleteIntegrationMutation] = useDeleteIntegrationMutation({
-    refetchQueries: ["GetMe"],
+  const [deleteIntegrationMutation] = useMutation(DeleteIntegrationDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleIntegrationDelete = useCallback(async () => {
     if (!integrationId) return;
     const results = await deleteIntegrationMutation({ variables: { integrationId } });
-    if (results.errors) {
+    if (results.error) {
       Notification.error({ message: t("Failed to delete integration.") });
     } else {
       Notification.success({ message: t("Successfully deleted integration!") });
-      navigate(`/workspace/${currentWorkspace?.id}/myIntegrations`);
+      navigate(`/workspace/${workspaceId}/myIntegrations`);
     }
-  }, [currentWorkspace, integrationId, deleteIntegrationMutation, navigate, t]);
+  }, [integrationId, deleteIntegrationMutation, t, navigate, workspaceId]);
 
-  const [regenerateTokenMutation, { loading: regenerateLoading }] = useRegenerateTokenMutation({
-    refetchQueries: ["GetMe"],
-  });
+  const [regenerateTokenMutation, { loading: regenerateLoading }] = useMutation(
+    RegenerateIntegrationTokenDocument,
+    { refetchQueries: [{ query: GetMeDocument }] },
+  );
 
   const handleRegenerateToken = useCallback(async () => {
     if (!integrationId) return;
@@ -88,41 +85,35 @@ export default () => {
         integrationId,
       },
     });
-    if (result.errors) {
+    if (result.error) {
       Notification.error({
-        message: t("The attempt to regenerate the integration token has failed."),
+        message: t("The attempt to re-generate the integration token has failed."),
       });
     } else {
       Notification.success({
-        message: t("The integration token has been successfully regenerated!"),
+        message: t("Integration Token has been re-generated!"),
       });
     }
   }, [integrationId, regenerateTokenMutation, t]);
 
-  const [createNewWebhook, { loading: createWebhookLoading }] = useCreateWebhookMutation({
-    refetchQueries: ["GetMe"],
+  const [createNewWebhook, { loading: createWebhookLoading }] = useMutation(CreateWebhookDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookCreate = useCallback(
-    async (data: {
-      name: string;
-      url: string;
-      active: boolean;
-      trigger: WebhookTrigger;
-      secret: string;
-    }) => {
+    async ({ name, url, active, trigger, secret }: NewWebhook) => {
       if (!integrationId) return;
       const webhook = await createNewWebhook({
         variables: {
           integrationId,
-          name: data.name,
-          url: data.url,
-          active: data.active,
-          trigger: data.trigger,
-          secret: data.secret,
+          name,
+          url,
+          active,
+          trigger,
+          secret,
         },
       });
-      if (webhook.errors || !webhook.data?.createWebhook) {
+      if (webhook.error || !webhook.data?.createWebhook) {
         Notification.error({ message: t("Failed to create webhook.") });
         return;
       }
@@ -131,8 +122,8 @@ export default () => {
     [createNewWebhook, integrationId, t],
   );
 
-  const [deleteWebhook] = useDeleteWebhookMutation({
-    refetchQueries: ["GetMe"],
+  const [deleteWebhook] = useMutation(DeleteWebhookDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookDelete = useCallback(
@@ -141,10 +132,10 @@ export default () => {
       const webhook = await deleteWebhook({
         variables: {
           integrationId,
-          webhookId: webhookId,
+          webhookId,
         },
       });
-      if (webhook.errors || !webhook.data?.deleteWebhook) {
+      if (webhook.error || !webhook.data?.deleteWebhook) {
         Notification.error({ message: t("Failed to delete webhook.") });
         return;
       }
@@ -153,32 +144,25 @@ export default () => {
     [deleteWebhook, integrationId, t],
   );
 
-  const [updateWebhook, { loading: updateWebhookLoading }] = useUpdateWebhookMutation({
-    refetchQueries: ["GetMe"],
+  const [updateWebhook, { loading: updateWebhookLoading }] = useMutation(UpdateWebhookDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookUpdate = useCallback(
-    async (data: {
-      webhookId: string;
-      name: string;
-      url: string;
-      active: boolean;
-      trigger: WebhookTrigger;
-      secret?: string;
-    }) => {
+    async ({ id, name, url, active, trigger, secret }: Webhook) => {
       if (!integrationId) return;
       const webhook = await updateWebhook({
         variables: {
           integrationId,
-          webhookId: data.webhookId,
-          name: data.name,
-          active: data.active,
-          trigger: data.trigger,
-          url: data.url,
-          secret: data.secret,
+          webhookId: id,
+          name,
+          active,
+          trigger,
+          url,
+          secret,
         },
       });
-      if (webhook.errors || !webhook.data?.updateWebhook) {
+      if (webhook.error || !webhook.data?.updateWebhook) {
         Notification.error({ message: t("Failed to update webhook.") });
         return;
       }
@@ -187,21 +171,13 @@ export default () => {
     [updateWebhook, integrationId, t],
   );
 
-  const handleWebhookSelect = useCallback(
-    (id: string) => {
-      setwebhookId(id);
-    },
-    [setwebhookId],
-  );
-
   const handleIntegrationHeaderBack = useCallback(() => {
     navigate(`/workspace/${workspaceId}/myIntegrations`);
   }, [navigate, workspaceId]);
 
   return {
-    integrations,
+    loading,
     selectedIntegration,
-    webhookInitialValues,
     updateIntegrationLoading,
     regenerateLoading,
     createWebhookLoading,
@@ -212,7 +188,6 @@ export default () => {
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
-    handleWebhookSelect,
     handleIntegrationHeaderBack,
   };
 };

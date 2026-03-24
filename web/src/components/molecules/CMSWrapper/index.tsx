@@ -1,8 +1,17 @@
 import styled from "@emotion/styled";
+import { motion } from "motion/react";
+import { useRef } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
+
+import ReloadModal from "../ReloadModal";
+import Uploader from "../Uploader";
+import { UploaderState } from "../Uploader/types";
+
+const { MD } = AntdToken.SPACING;
 
 export type InnerProps = {
   onWorkspaceModalOpen?: () => void;
@@ -12,33 +21,52 @@ export type Props = {
   headerComponent: React.ReactNode;
   contentComponent: React.ReactNode;
   sidebarComponent: React.ReactNode;
-  collapsed: boolean;
+  collapsedMainMenu: boolean;
   onCollapse: (collapse: boolean) => void;
+  shouldPreventReload: boolean;
+  isShowUploader: boolean;
+  uploaderState: UploaderState;
 };
 
 const CMSWrapper: React.FC<Props> = ({
   contentComponent,
   sidebarComponent,
   headerComponent,
-  collapsed,
+  collapsedMainMenu,
   onCollapse,
+  shouldPreventReload,
+  isShowUploader,
 }) => {
+  const constraintsRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Wrapper>
-      <HeaderWrapper>{headerComponent}</HeaderWrapper>
-      <BodyWrapper>
-        <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse} collapsedWidth={54}>
-          {sidebarComponent}
-        </CMSSidebar>
-        <ContentWrapper>{contentComponent}</ContentWrapper>
-      </BodyWrapper>
-    </Wrapper>
+    <DragConstraint ref={constraintsRef}>
+      <Wrapper>
+        <HeaderWrapper>{headerComponent}</HeaderWrapper>
+        <BodyWrapper>
+          <CMSSidebar
+            collapsible
+            collapsed={collapsedMainMenu}
+            onCollapse={onCollapse}
+            collapsedWidth={54}>
+            {sidebarComponent}
+          </CMSSidebar>
+          <ContentWrapper>{contentComponent}</ContentWrapper>
+        </BodyWrapper>
+
+        {isShowUploader && <Uploader constraintsRef={constraintsRef} />}
+
+        <ReloadModal shouldPreventReload={shouldPreventReload} />
+      </Wrapper>
+    </DragConstraint>
   );
 };
 
 const Wrapper = styled(Layout)`
   height: 100vh;
 `;
+
+const DragConstraint = styled(motion.div)``;
 
 const BodyWrapper = styled(Layout)`
   margin-top: 48px;
@@ -51,15 +79,15 @@ const ContentWrapper = styled(Content)`
 
 const CMSSidebar = styled(Sider)`
   && {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     padding-bottom: 38px;
   }
   .ant-layout-sider-trigger {
-    background-color: #fff;
-    border-top: 1px solid #f0f0f0;
-    color: #002140;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+    border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+    color: ${CustomColor.SIDEBAR_TEXT};
     text-align: left;
-    padding: 0 20px;
+    padding: 0 ${MD}px;
     margin: 0;
     height: 38px;
     line-height: 38px;

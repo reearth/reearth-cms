@@ -68,3 +68,23 @@ func (l List) Remove(mid id.ModelID) List {
 	}
 	return append(ordered[:index], ordered[index+1:]...)
 }
+
+func (l List) Model(modelID id.ModelID) *Model {
+	for _, m := range l {
+		if m.ID() == modelID {
+			return m
+		}
+	}
+	return nil
+}
+
+func (l List) SchemaIDs() id.SchemaIDList {
+	var ids id.SchemaIDList
+	for _, m := range l {
+		if m == nil {
+			continue
+		}
+		ids = append(ids, m.Schema())
+	}
+	return ids
+}

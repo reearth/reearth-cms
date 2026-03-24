@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { Key, useCallback, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -6,14 +7,15 @@ import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  useGetRequestsQuery,
-  useDeleteRequestMutation,
   Comment as GQLComment,
   RequestState as GQLRequestState,
-  useGetMeQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  DeleteRequestDocument,
+  GetRequestsDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -30,13 +32,35 @@ export default () => {
       pageSize: number;
     } | null;
   } = useLocation();
+
   const [currentProject] = useProject();
+  const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [currentWorkspace] = useWorkspace();
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
+  const [hasCloseRight, setHasCloseRight] = useState(false);
+
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
-  const [selectedRequestId, setselectedRequestId] = useState<string>();
+
+  const handleSelect = useCallback(
+    (selectedRowKeys: Key[], selectedRows: Request[]) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys,
+      });
+      const newCloseRight =
+        userRights?.request.close === null
+          ? selectedRows.every(row => row.createdBy?.id === userId)
+          : !!userRights?.request.close;
+      setHasCloseRight(newCloseRight);
+    },
+    [selection, userId, userRights?.request.close],
+  );
+
+  const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const [page, setPage] = useState(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
   const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
@@ -51,15 +75,11 @@ export default () => {
     location.state?.columns ?? {},
   );
 
-  const projectId = useMemo(() => currentProject?.id, [currentProject]);
-
-  const { data: userData } = useGetMeQuery();
-
   const {
     data: rawRequests,
     refetch,
     loading,
-  } = useGetRequestsQuery({
+  } = useQuery(GetRequestsDocument, {
     fetchPolicy: "no-cache",
     variables: {
       projectId: projectId ?? "",
@@ -67,8 +87,8 @@ export default () => {
       sort: { key: "createdAt", reverted: true },
       key: searchTerm,
       state: requestState.length === 0 ? undefined : (requestState as GQLRequestState[]),
-      reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
-      createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
+      reviewer: reviewedByMe && userId ? userId : undefined,
+      createdBy: createdByMe && userId ? userId : undefined,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -88,7 +108,7 @@ export default () => {
           title: r.title,
           description: r.description ?? "",
           state: r.state,
-          threadId: r.threadId,
+          threadId: r.threadId ?? "",
           comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
           reviewers: r.reviewers,
           createdBy: r.createdBy ?? undefined,
@@ -106,10 +126,10 @@ export default () => {
 
   const handleRequestSelect = useCallback(
     (id: string) => {
-      setselectedRequestId(id);
+      setSelectedRequestId(id);
       collapseCommentsPanel(false);
     },
-    [setselectedRequestId],
+    [setSelectedRequestId],
   );
 
   const handleNavigateToRequest = useCallback(
@@ -133,7 +153,7 @@ export default () => {
     ],
   );
 
-  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useMutation(DeleteRequestDocument);
   const handleRequestDelete = useCallback(
     async (requestsId: string[]) => {
       if (!projectId) return;
@@ -141,7 +161,7 @@ export default () => {
         variables: { projectId, requestsId },
         refetchQueries: ["GetRequests"],
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });
       }
       if (result) {
@@ -193,7 +213,7 @@ export default () => {
     selectedRequest,
     selection,
     handleNavigateToRequest,
-    setSelection,
+    handleSelect,
     handleRequestSelect,
     handleRequestsReload,
     deleteLoading,
@@ -209,5 +229,6 @@ export default () => {
     handleRequestTableChange,
     columns,
     handleColumnsChange,
+    hasCloseRight,
   };
 };

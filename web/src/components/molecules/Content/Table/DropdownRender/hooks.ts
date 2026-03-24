@@ -136,7 +136,7 @@ export default (
           );
           break;
         case "Integer":
-          // case "Float":
+        case "Number":
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
@@ -312,7 +312,7 @@ export default (
         if (typeof value !== "boolean") {
           value = value === "true";
         }
-      } else if (filter.type === "Integer" /*|| filter.type === "Float"*/) {
+      } else if (filter.type === "Integer" || filter.type === "Number") {
         value = Number(value);
       } else if (filter.type === "Date") {
         value = value ? new Date(value) : new Date();

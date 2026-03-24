@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -84,21 +83,11 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		th, err := thread.New().NewID().Workspace(ws.ID()).Build()
-
-		if err != nil {
-			return nil, err
-		}
-		if err := r.repos.Thread.Save(ctx, th); err != nil {
-			return nil, err
-		}
-
 		builder := request.New().
 			NewID().
 			Workspace(ws.ID()).
 			Project(param.ProjectID).
 			CreatedBy(*operator.AcOperator.User).
-			Thread(th.ID()).
 			Items(*items).
 			Title(param.Title)
 
@@ -279,7 +268,12 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		// apply changes to items (publish items)
 		for _, itm := range req.Items() {
 			// publish the approved version
-			if err := r.repos.Item.UpdateRef(ctx, itm.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+			dist := itm.Pointer().Ref()
+			// this should not happen, used for backward compatibility (will set the latest version as published)
+			if dist == nil {
+				dist = version.Latest.OrVersion().Ref()
+			}
+			if err := r.repos.Item.UpdateRef(ctx, itm.Item(), version.Public, dist); err != nil {
 				return nil, err
 			}
 		}

@@ -14,13 +14,12 @@ import {
   Workspace as GQLWorkspace,
   WorkspaceMember,
   WorkspaceUserMember,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLWorkspaceSettings = (
   GQLWorkspaceSettings: GQLWorkspaceSettings,
 ): WorkspaceSettings => {
   return {
-    id: GQLWorkspaceSettings.id,
     tiles: {
       resources:
         GQLWorkspaceSettings.tiles?.resources.map(resource => ({
@@ -90,6 +89,7 @@ export const fromGraphQLWorkspace = (workspace: GQLWorkspace): Workspace => {
   return {
     id: workspace.id,
     name: workspace.name,
+    alias: workspace.alias ?? "",
     personal: workspace.personal,
     members: workspace.members.map(member => fromGraphQLMember(member)),
   };

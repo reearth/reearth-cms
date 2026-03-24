@@ -26,7 +26,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -35,7 +35,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -88,7 +88,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -97,7 +97,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -151,7 +151,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -160,7 +160,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -216,7 +216,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(creator).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1, item3}).
 		Reviewers(accountdomain.UserIDList{reviewer}).
 		Title("foo").
@@ -226,7 +226,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item2, item3}).
 		State(request.StateDraft).
 		Title("hoge").
@@ -386,7 +386,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -395,7 +395,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -404,7 +404,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("xxx").
 		MustBuild()
@@ -432,7 +432,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(creator).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1}).
 		Reviewers(accountdomain.UserIDList{reviewer}).
 		Title("foo").
@@ -442,7 +442,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1, item2}).
 		State(request.StateDraft).
 		Title("hoge").
@@ -452,7 +452,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item2}).
 		Title("xxx").
 		MustBuild()

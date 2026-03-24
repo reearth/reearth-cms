@@ -1,16 +1,22 @@
-import SettingsMolecule from "@reearth-cms/components/molecules/Settings";
+import Settings from "@reearth-cms/components/molecules/Settings";
 
 import useHooks from "./hooks";
 
 const WorkspaceSettings: React.FC = () => {
-  const { workspaceSettings, hasPrivilege, updateLoading, handleWorkspaceSettingsUpdate } =
-    useHooks();
+  const {
+    loading,
+    workspaceSettings,
+    hasUpdateRight,
+    updateLoading,
+    handleWorkspaceSettingsUpdate,
+  } = useHooks();
 
   return (
-    <SettingsMolecule
+    <Settings
+      loading={loading}
       workspaceSettings={workspaceSettings}
-      hasPrivilege={hasPrivilege}
-      loading={updateLoading}
+      hasUpdateRight={hasUpdateRight}
+      updateLoading={updateLoading}
       onWorkspaceSettingsUpdate={handleWorkspaceSettingsUpdate}
     />
   );

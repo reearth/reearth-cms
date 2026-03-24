@@ -1,148 +1,112 @@
+import type { IconName } from "@reearth-cms/components/atoms/Icon";
 import { t } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/style";
 
-import type { FieldType } from "./types";
+import type { SchemaFieldType } from "./types";
 
-export const fieldTypes: {
-  [key in FieldType]: {
-    icon: string;
+export const fieldTypes: Record<
+  SchemaFieldType,
+  {
+    icon: IconName;
     title: string;
     description: string;
     color: string;
-  };
-} = {
+  }
+> = {
   Text: {
     icon: "textT",
-    title: "Text",
-    description: "Heading and titles, one-line field",
-    color: "#FF7875",
+    title: t("Text"),
+    description: t("Heading and titles, one-line field"),
+    color: AntdColor.RED.RED_3,
   },
   TextArea: {
     icon: "textAlignLeft",
-    title: "TextArea",
-    description: "Multi line text",
-    color: "#FF7875",
+    title: t("TextArea"),
+    description: t("Multi line text"),
+    color: AntdColor.RED.RED_3,
   },
   MarkdownText: {
     icon: "markdown",
-    title: "Markdown text",
-    description: "Rich text which supports md style",
-    color: "#FF7875",
+    title: t("Markdown text"),
+    description: t("Rich text which supports md style"),
+    color: AntdColor.RED.RED_3,
   },
   Asset: {
     icon: "asset",
-    title: "Asset",
-    description: "Asset file",
-    color: "#FF9C6E",
+    title: t("Asset"),
+    description: t("Asset file"),
+    color: AntdColor.VOLCANO.VOLCANO_3,
   },
   Bool: {
     icon: "boolean",
-    title: "Boolean",
-    description: "true/false field",
-    color: "#FFD666",
+    title: t("Boolean"),
+    description: t("true/false field"),
+    color: AntdColor.GOLD.GOLD_3,
   },
   Select: {
     icon: "listBullets",
-    title: "Option",
-    description: "Multiple select",
-    color: "#7CB305",
+    title: t("Option"),
+    description: t("Multiple select"),
+    color: AntdColor.LIME.LIME_6,
   },
   Integer: {
     icon: "numberNine",
-    title: "Int",
-    description: "Integer",
-    color: "#36CFC9",
+    title: t("Int"),
+    description: t("Integer"),
+    color: AntdColor.CYAN.CYAN_4,
+  },
+  Number: {
+    icon: "infinity",
+    title: t("Float"),
+    description: t("Fractional"),
+    color: AntdColor.CYAN.CYAN_4,
   },
   URL: {
     icon: "link",
-    title: "URL",
+    title: t("URL"),
     description: "http/https URL",
-    color: "#9254DE",
+    color: AntdColor.PURPLE.PURPLE_4,
   },
   Reference: {
     icon: "arrowUpRight",
-    title: "Reference",
-    description: "Reference other models and items",
-    color: "#597EF7",
+    title: t("Reference"),
+    description: t("Reference other models and items"),
+    color: AntdColor.GEEKBLUE.GEEKBLUE_4,
   },
   Date: {
     icon: "date",
-    title: "Date",
-    description: "Date picker",
-    color: "#FFC069",
+    title: t("Date"),
+    description: t("Date picker"),
+    color: AntdColor.ORANGE.ORANGE_3,
   },
   Tag: {
     icon: "tag",
-    title: "Tag",
-    description: "Select from a list of tags",
-    color: "#7CB305",
+    title: t("Tag"),
+    description: t("Select from a list of tags"),
+    color: AntdColor.LIME.LIME_6,
   },
   Checkbox: {
     icon: "checkSquare",
-    title: "Check Box",
-    description: "Select from a list of checkboxes",
-    color: "#FFC069",
+    title: t("Check Box"),
+    description: t("Select from a list of checkboxes"),
+    color: AntdColor.ORANGE.ORANGE_3,
   },
   Group: {
     icon: "group",
-    title: "Group",
-    description: "Customize a group of fields",
-    color: "#36CFC9",
+    title: t("Group"),
+    description: t("Customize a group of fields"),
+    color: AntdColor.CYAN.CYAN_4,
   },
   GeometryObject: {
     icon: "curlyBrackets",
-    title: "Geometry Object",
-    description: "Input GeoJSON and preview",
-    color: "#73D13D",
+    title: t("Geometry Object"),
+    description: t("Input GeoJSON and preview"),
+    color: AntdColor.GREEN.GREEN_4,
   },
   GeometryEditor: {
     icon: "pencil",
-    title: "Geometry Editor",
-    description: "Draw the geometry on map",
-    color: "#73D13D",
+    title: t("Geometry Editor"),
+    description: t("Draw the geometry on map"),
+    color: AntdColor.GREEN.GREEN_4,
   },
 };
-
-t("Text");
-t("Heading and titles, one-line field");
-
-t("TextArea");
-t("Multi line text");
-
-t("Markdown text");
-t("Rich text which supports md style");
-
-t("Asset");
-t("Asset file");
-
-t("Boolean");
-t("true/false field");
-
-t("Option");
-t("Multiple select");
-
-t("Int");
-t("Integer");
-
-t("URL");
-t("http/https URL");
-
-t("Reference");
-t("Reference other models and items");
-
-t("Date");
-t("Date picker");
-
-t("Tag");
-t("Select from a list of tags");
-
-t("Check Box");
-t("Select from a list of checkboxes");
-
-t("Group");
-t("Customize a group of fields");
-
-t("Geometry Object");
-t("Input GeoJSON and preview");
-
-t("Geometry Editor");
-t("Draw the geometry on map");

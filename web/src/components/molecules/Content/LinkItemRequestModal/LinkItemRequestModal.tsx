@@ -6,13 +6,12 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Search from "@reearth-cms/components/atoms/Search";
-import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
@@ -99,14 +98,12 @@ const LinkItemRequestModal: React.FC<Props> = ({
       },
       {
         title: t("Created By"),
-        dataIndex: "createdBy.name",
+        dataIndex: ["createdBy", "name"],
         key: "createdBy",
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, request) => {
-          return request.createdBy?.name;
-        },
+        render: (_, request) => request.createdBy?.name,
       },
       {
         title: t("Reviewers"),
@@ -115,18 +112,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         ellipsis: true,
         width: 130,
         minWidth: 130,
-        render: (_, request) => (
-          <Space>
-            <div>
-              {request.reviewers
-                .filter((_, index) => index < 3)
-                .map(reviewer => (
-                  <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
-                ))}
-            </div>
-            {request.reviewers.map(reviewer => reviewer.name).join(", ")}
-          </Space>
-        ),
+        render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
       },
       {
         title: t("Created At"),
@@ -197,23 +183,12 @@ const LinkItemRequestModal: React.FC<Props> = ({
 
 export default LinkItemRequestModal;
 
-const StyledUserAvatar = styled(UserAvatar)`
-  :nth-child(1) {
-    z-index: 2;
-  }
-  :nth-child(2) {
-    z-index: 1;
-  }
-  :nth-child(n + 2) {
-    margin-left: -18px;
-  }
-`;
-
 const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
+
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

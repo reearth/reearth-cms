@@ -33,11 +33,11 @@ func TestComment_SetContent(t *testing.T) {
 }
 
 func TestComment_Clone(t *testing.T) {
-	comment := (&Comment{
+	comment := &Comment{
 		id:      NewCommentID(),
 		author:  operator.OperatorFromUser(NewUserID()),
 		content: "test",
-	})
+	}
 	assert.Nil(t, (*Comment)(nil).Clone())
 	assert.Equal(t, comment, comment.Clone())
 	assert.NotSame(t, comment, comment.Clone())

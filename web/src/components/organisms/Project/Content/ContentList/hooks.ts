@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { renderTitle } from "@reearth-cms/components/molecules/Content/RenderTitle";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -10,8 +13,13 @@ import {
   Item,
   ItemStatus,
   ItemField,
+  Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
+import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -30,19 +38,23 @@ import {
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
-  useDeleteItemMutation,
   Comment as GQLComment,
-  useSearchItemQuery,
   Asset as GQLAsset,
-  useGetItemLazyQuery,
-  useUpdateItemMutation,
-  useCreateItemMutation,
   SchemaFieldType,
   View as GQLView,
-  useGetViewsQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+  ItemFieldInput,
+  JobStatus,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  CreateItemDocument,
+  DeleteItemsDocument,
+  GetItemDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu } from "@reearth-cms/state";
+import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -53,6 +65,14 @@ const defaultViewSort: ItemSort = {
   },
 };
 
+export type ValidateImportResult = {
+  type: "warning" | "error";
+  title: string;
+  description: string;
+  canForwardToImport?: boolean;
+  hint?: string;
+};
+
 export default () => {
   const {
     currentModel,
@@ -60,7 +80,8 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
-    handleUnpublish,
+    handlePublish: _handlePublish,
+    handleUnpublish: _handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
@@ -68,12 +89,15 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading: requestModalLoading,
+    publishLoading,
     unpublishLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
+    showPublishAction,
   } = useContentHooks();
   const t = useT();
+  const { handleEnqueueJob, uploaderState } = useUploaderHook();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -83,8 +107,33 @@ export default () => {
       currentView: CurrentView;
       page: number;
       pageSize: number;
+      isImportModalOpen: boolean;
     } | null;
   } = useLocation();
+
+  const currentWorkspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const currentProjectId = useMemo(() => currentProject?.id, [currentProject?.id]);
+
+  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(
+    location.state?.isImportModalOpen || false,
+  );
+  const [dataChecking, setDataChecking] = useState(false);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
+  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
+    null,
+  );
+
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
+
+  const hasCreateRight = useMemo(() => !!userRights?.content.create, [userRights?.content.create]);
+  const [hasDeleteRight, setHasDeleteRight] = useState(false);
+  const hasPublishRight = useMemo(
+    () => !!userRights?.content.publish,
+    [userRights?.content.publish],
+  );
+  const [hasRequestUpdateRight, setHasRequestUpdateRight] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
   const [page, setPage] = useState<number>(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState<number>(location.state?.pageSize ?? 20);
@@ -93,7 +142,7 @@ export default () => {
   const viewsRef = useRef<View[]>([]);
   const prevModelIdRef = useRef<string>();
 
-  const { data: viewData, loading: viewLoading } = useGetViewsQuery({
+  const { data: viewData, loading: viewLoading } = useQuery(GetViewsDocument, {
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
@@ -118,24 +167,28 @@ export default () => {
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
-  const { data, refetch, loading } = useSearchItemQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      searchItemInput: {
-        query: {
-          project: currentProject?.id ?? "",
-          model: currentModel?.id ?? "",
-          schema: currentModel?.schema.id,
-          q: searchTerm,
-        },
-        pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
-        filter: toGraphConditionInput(currentView.filter),
-      },
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !currentProject?.id || !currentModel?.id || viewLoading,
-  });
+  const { data, refetch, loading } = useQuery(
+    SearchItemDocument,
+    currentProject?.id && currentModel?.id && !viewLoading
+      ? {
+          fetchPolicy: "no-cache",
+          variables: {
+            searchItemInput: {
+              query: {
+                project: currentProject.id,
+                model: currentModel.id,
+                schema: currentModel.schema.id,
+                q: searchTerm,
+              },
+              pagination: { first: pageSize, offset: (page - 1) * pageSize },
+              sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
+              filter: toGraphConditionInput(currentView.filter),
+            },
+          },
+          notifyOnNetworkStatusChange: true,
+        }
+      : skipToken,
+  );
 
   const handleItemsReload = useCallback(() => {
     refetch();
@@ -148,20 +201,45 @@ export default () => {
     selectedRows: { itemId: string; version?: string }[];
   }>({ selectedRows: [] });
 
-  const [updateItemMutation] = useUpdateItemMutation();
-  const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
-  const [createNewItem] = useCreateItemMutation();
+  const handleSelect = useCallback(
+    (_selectedRowKeys: Key[], selectedRows: ContentTableField[]) => {
+      setSelectedItems({
+        ...selectedItems,
+        selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
+      });
 
-  const metadataVersion = useMemo(() => new Map<string, string>(), []);
+      const newRight =
+        userRights?.content.delete === null
+          ? selectedRows.every(row => row.createdBy.id === userId)
+          : !!userRights?.content.delete;
+      setHasDeleteRight(newRight);
+
+      if (userRights?.request.update || userRights?.request.update === null) {
+        setHasRequestUpdateRight(selectedRows.every(row => row.status !== "PUBLIC"));
+      }
+    },
+    [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
+  );
+
+  const [updateItemMutation] = useMutation(UpdateItemDocument);
+  const [getItem] = useLazyQuery(GetItemDocument, { fetchPolicy: "no-cache" });
+  const [createNewItem] = useMutation(CreateItemDocument);
+
+  const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
     async (id: string) => {
       const { data } = await getItem({ variables: { id } });
       const item = fromGraphQLItem(data?.node as GQLItem);
-      if (item?.metadata.id) {
-        metadataVersion.set(item.metadata.id, item.metadata.version);
+      if (item) {
+        itemIdToMetadata.current.set(id, item.metadata);
       }
     },
-    [getItem, metadataVersion],
+    [getItem],
+  );
+
+  const metaFieldsMap = useMemo(
+    () => new Map((currentModel?.metadataSchema.fields || []).map(field => [field.id, field])),
+    [currentModel?.metadataSchema.fields],
   );
 
   const handleMetaItemUpdate = useCallback(
@@ -172,76 +250,116 @@ export default () => {
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
-      if (!target || !currentModel?.metadataSchema?.id || !currentModel.metadataSchema.fields) {
+      if (!target || !currentModel?.metadataSchema?.id || !metaFieldsMap) {
         Notification.error({ message: t("Failed to update item.") });
         return;
-      } else if (target.metadata) {
-        const fields = target.metadata.fields.map(field => {
-          if (field.schemaFieldId === key) {
-            if (Array.isArray(field.value) && field.type !== "Tag") {
-              field.value[index ?? 0] = value ?? "";
-            } else {
-              field.value = value ?? "";
-            }
-          } else {
-            field.value = field.value ?? "";
-          }
-          return field as typeof field & { value: unknown };
-        });
-        const item = await updateItemMutation({
-          variables: {
-            itemId: target.metadata.id,
-            fields,
-            version: metadataVersion.get(target.metadata.id) ?? target.metadata.version,
-          },
-        });
-        if (item.errors || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
-        }
       } else {
-        const fields = currentModel.metadataSchema.fields.map(field => ({
-          value: field.id === key ? value : "",
-          schemaFieldId: key,
-          type: field.type as SchemaFieldType,
-        }));
-        const metaItem = await createNewItem({
-          variables: {
-            modelId: currentModel.id,
-            schemaId: currentModel.metadataSchema.id,
-            fields,
-          },
-        });
-        if (metaItem.errors || !metaItem.data?.createItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
-        }
-        const item = await updateItemMutation({
-          variables: {
-            itemId: target.id,
-            fields: target.fields.map(field => ({
-              ...field,
-              value: field.value ?? "",
-            })),
-            metadataId: metaItem?.data.createItem.item.id,
-            version: target?.version ?? "",
-          },
-        });
-        if (item.errors || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
+        const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
+        if (metadata?.fields && metadata.id) {
+          const requiredErrorFields: string[] = [];
+          const maxLengthErrorFields: string[] = [];
+          const fields = metadata.fields.map(field => {
+            const metaField = metaFieldsMap.get(field.schemaFieldId);
+            if (field.schemaFieldId === key) {
+              if (Array.isArray(field.value)) {
+                if (field.type === "Tag") {
+                  const tags = metaField?.typeProperty?.tags;
+                  field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
+                } else {
+                  field.value[index ?? 0] = value === "" ? undefined : value;
+                }
+              } else {
+                field.value = value ?? "";
+              }
+            } else {
+              field.value = field.value ?? "";
+            }
+            const fieldValue = field.value;
+            if (metaField?.required) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.every(v => checkIfEmpty(v))) {
+                  requiredErrorFields.push(metaField.key);
+                }
+              } else if (checkIfEmpty(fieldValue)) {
+                requiredErrorFields.push(metaField.key);
+              }
+            }
+            const maxLength = metaField?.typeProperty?.maxLength;
+            if (maxLength) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.some(v => typeof v === "string" && v.length > maxLength)) {
+                  maxLengthErrorFields.push(metaField.key);
+                }
+              } else if (typeof fieldValue === "string" && fieldValue.length > maxLength) {
+                maxLengthErrorFields.push(metaField.key);
+              }
+            }
+
+            return field as ItemFieldInput;
+          });
+          if (requiredErrorFields.length || maxLengthErrorFields.length) {
+            requiredErrorFields.forEach(field => {
+              Notification.error({ message: t("{{field}} field is required!", { field }) });
+            });
+            maxLengthErrorFields.forEach(field => {
+              Notification.error({ message: t("Maximum length error", { field }) });
+            });
+            return;
+          }
+          const item = await updateItemMutation({
+            variables: {
+              itemId: metadata.id,
+              fields,
+              version: metadata.version,
+            },
+          });
+          if (item.error || !item.data?.updateItem) {
+            Notification.error({ message: t("Failed to update item.") });
+            return;
+          }
+        } else {
+          const fields = [...metaFieldsMap].map(field => ({
+            value: field[1].id === key ? value : "",
+            schemaFieldId: key,
+            type: field[1].type as SchemaFieldType,
+          }));
+          const metaItem = await createNewItem({
+            variables: {
+              modelId: currentModel.id,
+              schemaId: currentModel.metadataSchema.id,
+              fields,
+            },
+          });
+          if (metaItem.error || !metaItem.data?.createItem) {
+            Notification.error({ message: t("Failed to update item.") });
+            return;
+          }
+          const item = await updateItemMutation({
+            variables: {
+              itemId: target.id,
+              fields: target.fields.map(field => ({
+                ...field,
+                value: field.value ?? "",
+              })),
+              metadataId: metaItem?.data.createItem.item.id,
+              version: target?.version ?? "",
+            },
+          });
+          if (item.error || !item.data?.updateItem) {
+            Notification.error({ message: t("Failed to update item.") });
+            return;
+          }
         }
       }
-      metadataVersionSet(updateItemId);
+      await metadataVersionSet(updateItemId);
       Notification.success({ message: t("Successfully updated Item!") });
     },
     [
       createNewItem,
       currentModel?.id,
-      currentModel?.metadataSchema?.fields,
-      currentModel?.metadataSchema?.id,
+      currentModel?.metadataSchema.id,
       data?.searchItem.nodes,
-      metadataVersion,
+      metaFieldsMap,
       metadataVersionSet,
       t,
       updateItemMutation,
@@ -309,10 +427,10 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              createdBy: item.createdBy?.name,
-              updatedBy: item.updatedBy?.name || "",
+              createdBy: { id: item.createdBy?.id ?? "", name: item.createdBy?.name ?? "" },
+              updatedBy: item.updatedBy?.name ?? "",
               fields: fieldsGet(item as unknown as Item),
-              comments: item.thread.comments.map(comment =>
+              comments: item.thread?.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
               version: item.version,
@@ -339,6 +457,12 @@ export default () => {
       }
     },
     [currentView.sort?.direction, currentView.sort?.field.id],
+  );
+
+  const hasRightGet = useCallback(
+    (id: string) =>
+      userRights?.content.update === null ? id === userId : !!userRights?.content.update,
+    [userId, userRights?.content.update],
   );
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
@@ -378,14 +502,17 @@ export default () => {
         sortOrder: sortOrderGet(field.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
-          return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
-            handleMetaItemUpdate(record.id, field.id, value, index);
-          });
+          const update = hasRightGet(record.createdBy.id)
+            ? async (value?: string | string[] | boolean, index?: number) => {
+                await handleMetaItemUpdate(record.id, field.id, value, index);
+              }
+            : undefined;
+          return renderField(el, field, update);
         },
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
-  }, [currentModel, handleMetaItemUpdate, sortOrderGet]);
+  }, [currentModel, handleMetaItemUpdate, hasRightGet, sortOrderGet]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
@@ -402,6 +529,7 @@ export default () => {
       );
       setSearchTerm("");
       setPage(1);
+      setSelectedItems({ selectedRows: [] });
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
@@ -448,27 +576,22 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
+  const [deleteItemsMutation, { loading: deleteLoading }] = useMutation(DeleteItemsDocument);
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
-        const results = await Promise.all(
-          itemIds.map(async itemId => {
-            const result = await deleteItemMutation({
-              variables: { itemId },
-              refetchQueries: ["SearchItem"],
-            });
-            if (result.errors) {
-              Notification.error({ message: t("Failed to delete one or more items.") });
-            }
-          }),
-        );
-        if (results) {
-          Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelectedItems({ selectedRows: [] });
+        const result = await deleteItemsMutation({
+          variables: { itemIds },
+          refetchQueries: ["SearchItem"],
+        });
+        if (result.error || !result.data?.deleteItems) {
+          Notification.error({ message: t("Failed to delete one or more items.") });
+          return;
         }
+        Notification.success({ message: t("One or more items were successfully deleted!") });
+        setSelectedItems({ selectedRows: [] });
       })(),
-    [t, deleteItemMutation],
+    [t, deleteItemsMutation],
   );
 
   const handleItemSelect = useCallback(
@@ -513,16 +636,78 @@ export default () => {
   const handleBulkAddItemToRequest = useCallback(
     async (request: Request, items: RequestItem[]) => {
       await handleAddItemToRequest(request, items);
-      refetch();
       setSelectedItems({ selectedRows: [] });
     },
-    [handleAddItemToRequest, refetch],
+    [handleAddItemToRequest],
   );
+
+  const modelFields = useMemo<Model["schema"]["fields"]>(
+    () => (currentModel ? currentModel.schema.fields : []),
+    [currentModel],
+  );
+
+  const hasModelFields = useMemo<boolean>(() => modelFields.length > 0, [modelFields.length]);
+
+  const handleImportContentModalOpen = useCallback(() => {
+    setIsImportContentModalOpen(true);
+  }, []);
+
+  const handleImportContentModalClose = useCallback(() => {
+    setIsImportContentModalOpen(false);
+    setAlertList([]);
+    setValidateImportResult(null);
+  }, []);
+
+  const handlePublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handlePublish(itemIds);
+      await refetch();
+    },
+    [_handlePublish, refetch],
+  );
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handleUnpublish(itemIds);
+      await refetch();
+    },
+    [_handleUnpublish, refetch],
+  );
+
+  useEffect(() => {
+    const currentModelJobs = uploaderState.queue.reduce<UploaderQueueItem[]>(
+      (acc, curr) =>
+        curr.workspaceId === currentWorkspaceId &&
+        curr.projectId === currentProjectId &&
+        curr.modelId === modelId
+          ? [...acc, curr]
+          : acc,
+      [],
+    );
+    const hasJobs = currentModelJobs.length > 0;
+    const isAllCompleted = currentModelJobs.every(
+      item => item.jobState.status === JobStatus.Completed,
+    );
+
+    const shouldRefetch = !viewLoading && hasJobs && isAllCompleted;
+
+    if (shouldRefetch) refetch();
+  }, [
+    currentModel?.id,
+    currentProject?.id,
+    currentProjectId,
+    currentWorkspaceId,
+    modelId,
+    refetch,
+    uploaderState.queue,
+    viewLoading,
+  ]);
 
   return {
     currentModel,
     loading,
     deleteLoading,
+    publishLoading,
     unpublishLoading,
     contentTableFields,
     contentTableColumns,
@@ -538,19 +723,25 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handlePublish,
     handleUnpublish,
     handleBulkAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelectedItems,
+    handleSelect,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -564,5 +755,20 @@ export default () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    isImportContentModalOpen,
+    handleImportContentModalOpen,
+    handleImportContentModalClose,
+    dataChecking,
+    setDataChecking,
+    handleEnqueueJob,
+    modelFields,
+    modelId,
+    currentWorkspaceId,
+    currentProjectId,
+    hasModelFields,
+    alertList,
+    setAlertList,
+    validateImportResult,
+    setValidateImportResult,
   };
 };

@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 
-import { splitPathname } from "./path";
+import { splitPathname, joinPaths } from "./path";
 
 test("splitPathname function correctly splits pathname into primary, secondary, and sub routes", () => {
   const pathname1 = "localhost:3000/workspace/xxx";
@@ -10,4 +10,20 @@ test("splitPathname function correctly splits pathname into primary, secondary, 
   expect(splitPathname(pathname1)).toEqual(["workspace", undefined, undefined]);
   expect(splitPathname(pathname2)).toEqual(["workspace", "project", undefined]);
   expect(splitPathname(pathname3)).toEqual(["workspace", "project", "content"]);
+});
+
+test("joinPaths with URLs", () => {
+  expect(joinPaths("http://localhost:3000", "workspace/xxx")).toEqual(
+    "http://localhost:3000/workspace/xxx",
+  );
+  expect(joinPaths("https://example.com/", "/api/v1/", "users")).toEqual(
+    "https://example.com/api/v1/users",
+  );
+  expect(joinPaths("ftp://server.com", "files", "/2025/")).toEqual("ftp://server.com/files/2025");
+  expect(joinPaths("https://example.com/", "/search", "?q=test#top")).toEqual(
+    "https://example.com/search?q=test#top",
+  );
+  expect(joinPaths("example.com/", "/search", "?q=test#top")).toEqual(
+    "example.com/search?q=test#top",
+  );
 });

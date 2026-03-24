@@ -530,6 +530,94 @@ func TestCollection_SaveOne(t *testing.T) {
 	assert.Same(t, rerror.ErrNotFound, col.SaveOne(ctx, "x", Data{}, version.New().OrRef().Ref()))
 }
 
+func TestCollection_SaveAll(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Client()
+
+	type Data struct {
+		ID string
+		A  string
+	}
+	var data Data
+
+	// first
+	assert.NoError(t, col.SaveMany(ctx, []string{"x"}, []any{Data{ID: "x", A: "aaa"}}))
+
+	cur := c.FindOne(ctx, bson.M{"id": "x"})
+	meta1 := Meta{}
+	assert.NoError(t, cur.Decode(&meta1))
+	assert.Equal(t, Meta{
+		ObjectID: meta1.ObjectID,
+		Version:  meta1.Version,
+		Refs:     []version.Ref{version.Latest},
+	}, meta1)
+	assert.NoError(t, cur.Decode(&data))
+	assert.Equal(t, Data{ID: "x", A: "aaa"}, data)
+
+	// next version
+	assert.NoError(t, col.SaveMany(ctx, []string{"x"}, []any{Data{ID: "x", A: "bbb"}}))
+
+	cur = c.FindOne(ctx, bson.M{"id": "x", refsKey: bson.M{"$in": []string{"latest"}}})
+	meta2 := Meta{}
+	assert.NoError(t, cur.Decode(&meta2))
+	assert.Equal(t, Meta{
+		ObjectID: meta2.ObjectID,
+		Version:  meta2.Version,
+		Parents:  []version.Version{meta1.Version},
+		Refs:     []version.Ref{version.Latest},
+	}, meta2)
+	data2 := Data{}
+	assert.NoError(t, cur.Decode(&data2))
+	assert.Equal(t, Data{ID: "x", A: "bbb"}, data2)
+
+	cur = c.FindOne(ctx, bson.M{"id": "x", versionKey: meta1.Version})
+	meta3 := Meta{}
+	assert.NoError(t, cur.Decode(&meta3))
+	assert.Equal(t, Meta{
+		ObjectID: meta3.ObjectID,
+		Version:  meta1.Version,
+		Refs:     []version.Ref{}, // latest ref should be deleted
+	}, meta3)
+	data3 := Data{}
+	assert.NoError(t, cur.Decode(&data3))
+	assert.Equal(t, Data{ID: "x", A: "aaa"}, data3)
+
+	// should fail when there is an archived doc
+	assert.NoError(t, col.ArchiveOne(ctx, bson.M{"id": "x"}, true))
+	assert.ErrorIs(t, col.SaveMany(ctx, []string{"x"}, []any{Data{ID: "x", A: "ccc"}}), version.ErrArchived)
+}
+
+func TestCollection_DeleteRef(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Client()
+
+	v1, v2, v3 := version.New(), version.New(), version.New()
+	_, _ = c.InsertMany(ctx, []any{
+		bson.M{"id": "x", versionKey: v1, refsKey: []string{"a", "b"}},
+		bson.M{"id": "x", versionKey: v2, refsKey: []string{"a", "b", "c"}},
+		bson.M{"id": "y", versionKey: v3, refsKey: []string{"a", "d"}},
+	})
+
+	var meta Meta
+
+	// delete a ref
+	assert.NoError(t, col.DeleteRef(ctx, []string{"x", "y"}, "a"))
+	got := c.FindOne(ctx, bson.M{"id": "x", versionKey: v1})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v1, Refs: []version.Ref{"b"}}, meta)
+
+	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: v2})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v2, Refs: []version.Ref{"b", "c"}}, meta)
+
+	got = c.FindOne(ctx, bson.M{"id": "y", versionKey: v3})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v3, Refs: []version.Ref{"d"}}, meta)
+
+}
+
 func TestCollection_UpdateRef(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
@@ -660,6 +748,102 @@ func TestCollection_RemoveOne(t *testing.T) {
 	var data bson.M
 	assert.NoError(t, got.Decode(&data))
 	assert.Equal(t, "hoge", data["foo"])
+}
+
+func TestCollection_RemoveMany(t *testing.T) {
+	tests := []struct {
+		name           string
+		setupDocs      []any
+		filter         bson.M
+		expectedCount  int64
+		verifyRemoved  []bson.M
+		verifyRemained []struct {
+			filter   bson.M
+			expected bson.M
+		}
+	}{
+		{
+			name: "remove multiple documents matching specific criteria",
+			setupDocs: []any{
+				bson.M{"id": "xxx", metaKey: true},
+				bson.M{"id": "xxx", "foo": "bar"},
+				bson.M{"id": "yyy", "foo": "hoge"},
+				bson.M{"id": "zzz", "foo": "test"},
+			},
+			filter:        bson.M{"id": "xxx"},
+			expectedCount: 2,
+			verifyRemoved: []bson.M{
+				{"id": "xxx", metaKey: true},
+				{"id": "xxx"},
+			},
+			verifyRemained: []struct {
+				filter   bson.M
+				expected bson.M
+			}{
+				{bson.M{"id": "yyy"}, bson.M{"foo": "hoge"}},
+				{bson.M{"id": "zzz"}, bson.M{"foo": "test"}},
+			},
+		},
+		{
+			name: "remove all documents with empty filter",
+			setupDocs: []any{
+				bson.M{"id": "xxx", "foo": "bar"},
+				bson.M{"id": "yyy", "foo": "hoge"},
+			},
+			filter:        bson.M{},
+			expectedCount: 0,
+		},
+		{
+			name: "no matches - documents remain unchanged",
+			setupDocs: []any{
+				bson.M{"id": "xxx", "foo": "bar"},
+				bson.M{"id": "yyy", "foo": "hoge"},
+			},
+			filter:        bson.M{"id": "nonexistent"},
+			expectedCount: 2,
+			verifyRemained: []struct {
+				filter   bson.M
+				expected bson.M
+			}{
+				{bson.M{"id": "xxx"}, bson.M{"foo": "bar"}},
+				{bson.M{"id": "yyy"}, bson.M{"foo": "hoge"}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			col := initCollection(t)
+			c := col.Client().Client()
+
+			if len(tt.setupDocs) > 0 {
+				_, _ = c.InsertMany(ctx, tt.setupDocs)
+			}
+
+			assert.NoError(t, col.RemoveMany(ctx, tt.filter))
+
+			count, err := c.CountDocuments(ctx, bson.M{})
+			assert.NoError(t, err)
+			assert.Equal(t, tt.expectedCount, count)
+
+			for _, removedFilter := range tt.verifyRemoved {
+				got := c.FindOne(ctx, removedFilter)
+				assert.Equal(t, mongo.ErrNoDocuments, got.Err())
+			}
+
+			for _, remained := range tt.verifyRemained {
+				got := c.FindOne(ctx, remained.filter)
+				var data bson.M
+				assert.NoError(t, got.Decode(&data))
+				for key, value := range remained.expected {
+					assert.Equal(t, value, data[key])
+				}
+			}
+		})
+	}
 }
 
 func TestCollection_Empty(t *testing.T) {

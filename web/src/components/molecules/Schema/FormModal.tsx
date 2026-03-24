@@ -9,7 +9,8 @@ import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Commo
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 type Props = {
   data?: Model | Group;
@@ -42,28 +43,38 @@ const FormModal: React.FC<Props> = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
-  const values = Form.useWatch([], form);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const values = Form.useWatch<FormType | undefined>([], form);
   useEffect(() => {
-    if (form.getFieldValue("name") && form.getFieldValue("key")) {
-      if (
-        data?.name === values.name &&
-        data.description === values.description &&
-        data.key === values.key
-      ) {
-        setIsDisabled(true);
-      } else {
-        form
-          .validateFields()
-          .then(() => setIsDisabled(false))
-          .catch(() => setIsDisabled(true));
-      }
-    } else {
-      setIsDisabled(true);
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+      timeout.current = null;
     }
-  }, [data?.description, data?.key, data?.name, form, values]);
+    if (
+      data?.name === values?.name &&
+      data?.description === values?.description &&
+      data?.key === values?.key
+    ) {
+      setIsDisabled(true);
+      return;
+    }
+    const validate = () => {
+      form
+        .validateFields()
+        .then(() => setIsDisabled(false))
+        .catch(() => setIsDisabled(true));
+    };
+    timeout.current = setTimeout(validate, 300);
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    };
+  }, [data, form, values]);
 
   useEffect(() => {
     if (open) {
+      setIsDisabled(true);
       if (data) {
         form.setFieldsValue(data);
       } else {
@@ -183,7 +194,7 @@ const FormModal: React.FC<Props> = ({
           {t("OK")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" validateTrigger="">
         <Form.Item
           name="name"
           label={nameLabel}
@@ -211,7 +222,7 @@ const FormModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
+          <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
         </Form.Item>
       </Form>
     </Modal>

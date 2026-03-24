@@ -1,29 +1,37 @@
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { ProjectAccessibility } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
-import { t } from "@reearth-cms/i18n";
+import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 
 export type Project = {
   id: string;
   name: string;
-  description?: string;
-  alias?: string;
-  scope?: PublicScope;
-  assetPublic?: boolean;
-  requestRoles?: Role[];
+  description: string;
+  alias: string;
+  readme: string;
+  license: string;
+  requestRoles: Role[];
+  accessibility?: ProjectAccessibility;
 };
 
-export type User = {
-  name: string;
+export type UpdateProjectInput = {
+  projectId: string;
+  name?: string;
+  description?: string;
+  alias?: string;
+  readme?: string;
+  license?: string;
+  requestRoles?: Role[];
+  accessibility?: ProjectAccessibility;
+};
+
+export type ProjectListItem = Pick<Project, "id" | "name" | "description"> & {
+  accessibility?: ProjectAccessibility;
 };
 
 export type UserMember = {
   userId: string;
   role: Role;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  user: User;
 };
 
 export type Member = UserMember | IntegrationMember;
@@ -33,21 +41,15 @@ export type MemberInput = {
   role: Role;
 };
 
-export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
-t("WRITER");
-t("READER");
-t("MAINTAINER");
-t("OWNER");
-
 export type Workspace = {
   id: string;
   name: string;
+  alias?: string;
   personal?: boolean;
   members?: Member[];
 };
 
 export type WorkspaceSettings = {
-  id: string;
   tiles?: ResourceList<TileResource>;
   terrains?: ResourceList<TerrainResource>;
 };
@@ -104,4 +106,11 @@ export type CesiumResourceProps = {
   image: string;
   cesiumIonAssetId: string;
   cesiumIonAccessToken: string;
+};
+
+export type SortBy = "id" | "updatedat" | "name";
+
+export type SortOption = {
+  key: SortBy;
+  label: string;
 };

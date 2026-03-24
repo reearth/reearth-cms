@@ -1,0 +1,67 @@
+import styled from "@emotion/styled";
+import { useState } from "react";
+
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Password from "@reearth-cms/components/atoms/Password";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+type Props = {
+  apiKey: string;
+};
+
+const KeyCell: React.FC<Props> = ({ apiKey }) => {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <StyledTokenInput
+      data-testid="key"
+      value={apiKey}
+      disabled
+      visibilityToggle={{ visible }}
+      iconRender={() => <CopyButton copyable={{ text: apiKey }} />}
+      prefix={
+        <Icon
+          icon={visible ? "eye" : "eyeInvisible"}
+          onClick={() => {
+            setVisible(prev => !prev);
+          }}
+        />
+      }
+    />
+  );
+};
+
+const maxWidth = "500px";
+
+const StyledTokenInput = styled(Password)`
+  max-width: ${maxWidth};
+  border: none;
+
+  &.ant-input-affix-wrapper-disabled {
+    background-color: transparent !important;
+    cursor: text;
+    color: ${AntdColor.NEUTRAL.TEXT_V5};
+
+    input[disabled] {
+      cursor: text;
+    }
+  }
+
+  .ant-input-prefix {
+    order: 1;
+    margin-left: ${AntdToken.SPACING.XXS}px;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+    transition: all 0.3s;
+
+    &:hover {
+      color: ${AntdColor.NEUTRAL.TEXT_V5};
+    }
+  }
+
+  .ant-input-suffix {
+    order: 2;
+  }
+`;
+
+export default KeyCell;

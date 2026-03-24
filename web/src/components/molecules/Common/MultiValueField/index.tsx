@@ -6,7 +6,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "./moveItemArray";
 
@@ -16,6 +18,7 @@ type Props = {
   onBlur?: () => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
+  errorIndexes?: Set<number>;
 } & TextAreaProps &
   InputProps;
 
@@ -24,6 +27,8 @@ const MultiValueField: React.FC<Props> = ({
   onChange,
   onBlur,
   FieldInput,
+  errorIndexes,
+  required,
   ...props
 }) => {
   const t = useT();
@@ -66,8 +71,9 @@ const MultiValueField: React.FC<Props> = ({
             {!props.disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key - 1));
                     onBlur?.();
@@ -75,8 +81,9 @@ const MultiValueField: React.FC<Props> = ({
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key + 1));
                     onBlur?.();
@@ -91,11 +98,13 @@ const MultiValueField: React.FC<Props> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
               onBlur={() => onBlur?.()}
               value={valueItem}
+              isError={(required && value.every(v => checkIfEmpty(v))) || errorIndexes?.has(key)}
             />
             {!props.disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => {
                   handleInputDelete(key);
                   onBlur?.();
@@ -110,7 +119,7 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             const currentValues = value || [];
-            const defaultValue = props.type === "date" ? dayjs() : "";
+            const defaultValue = "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
             } else {
@@ -128,10 +137,10 @@ export default MultiValueField;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;

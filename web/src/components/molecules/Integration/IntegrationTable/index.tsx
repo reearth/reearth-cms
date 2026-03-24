@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import { Key, useMemo, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
@@ -13,49 +13,50 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
-import { useT } from "@reearth-cms/i18n";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
-  integrationMembers?: IntegrationMember[];
-  selection: {
-    selectedRowKeys: Key[];
-  };
+  workspaceIntegrations?: WorkspaceIntegration[];
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
-  onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
   deleteLoading: boolean;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   page: number;
   pageSize: number;
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
-  onReload: () => void;
+  hasConnectRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
 };
 
 const IntegrationTable: React.FC<Props> = ({
-  integrationMembers,
-  selection,
+  workspaceIntegrations,
   onIntegrationConnectModalOpen,
   onSearchTerm,
   onIntegrationSettingsModalOpen,
-  setSelection,
   deleteLoading,
   onIntegrationRemove,
   page,
   pageSize,
   onTableChange,
   loading,
-  onReload,
+  hasConnectRight,
+  hasUpdateRight,
+  hasDeleteRight,
 }) => {
   const t = useT();
 
-  const columns: StretchColumn<IntegrationMember>[] = useMemo(
+  const [selection, setSelection] = useState<Key[]>([]);
+
+  const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
     () => [
       {
         title: t("Name"),
-        dataIndex: ["integration", "name"],
+        dataIndex: "name",
         key: "name",
         filters: [],
         width: 250,
@@ -63,7 +64,7 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Role"),
-        dataIndex: "integrationRole",
+        dataIndex: "role",
         key: "role",
         render: text => (typeof text === "string" ? t(text) : text),
         width: 100,
@@ -71,24 +72,27 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Creator"),
-        dataIndex: ["integration", "developer", "name"],
+        dataIndex: ["createdBy", "name"],
         key: "creator",
         width: 250,
         minWidth: 100,
+        render: (_, item) => item.createdBy?.name,
       },
       {
         key: "action",
         render: (_, integrationMember) => (
-          <StyledIcon
+          <Button
+            type="link"
             onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-            icon="settings"
+            icon={<Icon size={18} icon="settings" />}
+            disabled={!hasUpdateRight}
           />
         ),
         width: 48,
         minWidth: 48,
       },
     ],
-    [onIntegrationSettingsModalOpen, t],
+    [hasUpdateRight, onIntegrationSettingsModalOpen, t],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -110,93 +114,92 @@ const IntegrationTable: React.FC<Props> = ({
     () => ({
       showSizeChanger: true,
       current: page,
-      pageSize: pageSize,
+      pageSize,
     }),
     [page, pageSize],
   );
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
+      selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
+        setSelection(selectedRowKeys);
       },
     }),
     [selection, setSelection],
   );
 
+  const handleRemove = useCallback(
+    async (keys: Key[]) => {
+      try {
+        await onIntegrationRemove(keys.map(key => key.toString()));
+        setSelection([]);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [onIntegrationRemove, setSelection],
+  );
+
   const alertOptions = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (props: any) => (
-      <Space size={4}>
-        <Button
-          type="link"
-          size="small"
-          icon={<Icon icon="clear" />}
-          onClick={props.onCleanSelected}>
-          {t("Deselect")}
-        </Button>
+    (props: { selectedRowKeys: Key[] }) => (
+      <Space size={AntdToken.SPACING.XXS}>
         <Button
           type="link"
           size="small"
           icon={<Icon icon="delete" />}
-          onClick={() => onIntegrationRemove(props.selectedRowKeys)}
+          onClick={() => handleRemove(props.selectedRowKeys)}
           danger
-          loading={deleteLoading}>
+          loading={deleteLoading}
+          disabled={!hasDeleteRight}>
           {t("Remove")}
         </Button>
       </Space>
     ),
-    [deleteLoading, onIntegrationRemove, t],
+    [deleteLoading, handleRemove, hasDeleteRight, t],
   );
 
-  const options = useMemo(
-    () => ({
-      fullScreen: true,
-      reload: onReload,
-    }),
-    [onReload],
+  const ConnectButton = useCallback(
+    () => (
+      <Button
+        type="primary"
+        onClick={onIntegrationConnectModalOpen}
+        icon={<Icon icon="api" />}
+        disabled={!hasConnectRight}>
+        {t("Connect Integration")}
+      </Button>
+    ),
+    [hasConnectRight, onIntegrationConnectModalOpen, t],
   );
 
   return (
     <Wrapper>
       <PageHeader
         title={t("Integrations")}
-        extra={
-          <Button type="primary" onClick={onIntegrationConnectModalOpen} icon={<Icon icon="api" />}>
-            {t("Connect Integration")}
-          </Button>
-        }
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
+        extra={<ConnectButton />}
       />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
             <Title>{t("No Integration yet")}</Title>
-            <Suggestion>
-              {t("Create a new")}{" "}
-              <Button
-                onClick={onIntegrationConnectModalOpen}
-                type="primary"
-                icon={<Icon icon="api" />}>
-                {t("Connect Integration")}
-              </Button>
-            </Suggestion>
-            <Suggestion>
-              {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
-            </Suggestion>
+            <Action>
+              {t("Create a new")}
+              <ConnectButton />
+            </Action>
+            <span>
+              <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+            </span>
           </EmptyTableWrapper>
         )}>
         <TableWrapper>
           <ResizableProTable
-            dataSource={integrationMembers}
+            dataSource={workspaceIntegrations}
             columns={columns}
             tableAlertOptionRender={alertOptions}
             search={false}
             rowKey="id"
-            options={options}
+            options={false}
             pagination={pagination}
             toolbar={toolbar}
             rowSelection={rowSelection}
@@ -214,42 +217,35 @@ const IntegrationTable: React.FC<Props> = ({
 
 const Wrapper = styled.div`
   height: 100%;
-  padding: 16px 16px 0;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.BASE}px 0;
 `;
 
 const EmptyTableWrapper = styled.div`
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 64px;
+  gap: ${AntdToken.SPACING.XS}px;
+  margin: ${AntdToken.SPACING.LG}px 0;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
-const Suggestion = styled.p`
-  margin-top: 8px;
-  margin-bottom: 8px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+const Action = styled.span`
+  display: flex;
+  gap: ${AntdToken.SPACING.BASE}px;
+  align-items: center;
 `;
 
-const Title = styled.h1`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #000;
-`;
-
-const StyledIcon = styled(Icon)`
-  color: #1890ff;
-  font-size: 18px;
+const Title = styled.h2`
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  color: ${AntdColor.GREY.GREY_8};
+  margin-bottom: ${AntdToken.SPACING.BASE}px;
 `;
 
 const TableWrapper = styled.div`
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   height: calc(100% - 72px);
 `;
 

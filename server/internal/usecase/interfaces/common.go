@@ -11,6 +11,8 @@ type ListOperation string
 var (
 	ErrOperationDenied error = rerror.NewE(i18n.T("operation denied"))
 	ErrInvalidOperator error = rerror.NewE(i18n.T("invalid operator"))
+	ErrEmptyIDsList    error = rerror.NewE(i18n.T("empty ids list"))
+	ErrPartialNotFound error = rerror.NewE(i18n.T("partial not found"))
 )
 
 type Container struct {
@@ -27,4 +29,5 @@ type Container struct {
 	Integration       Integration
 	Thread            Thread
 	Group             Group
+	Job               Job
 }

@@ -1,3 +1,4 @@
+At least one asset ID is required: アセットIDは少なくとも1つ必要です。
 Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
 File is missing: ファイルがありません
@@ -5,6 +6,7 @@ Options could not be empty!: 選択フィールドは空にできません
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
+asset upload size limit exceeded: アセットのアップロードサイズ制限を超えています。
 auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
@@ -14,11 +16,13 @@ comment already exist in this thread: コメントは既にこのスレッドに
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
 createdBy is required: createdByは必須です。
-data type mismatch: データ型の不一致
+data transfer upload size limit exceeded: ""
+data type mismatch: データ型が一致しません。
 duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
+empty ids list: IDリストが空です。
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。
@@ -31,16 +35,24 @@ file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
+format is incompatible with export type: 形式がエクスポートタイプと互換性がありません
+import file contains too many records (max 50,000): レコード数が上限（50,000件）を超えています
+import file is too large (max 100MB): ファイルサイズが上限（100MB）を超えています
 internal: 内部
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
+invalid content type: 無効なコンテンツタイプです。
+invalid content type for schema conversion: スキーマ変換のための無効なコンテンツタイプです。
 invalid cursor: 無効なカーソルです。
 invalid default values: 無効なデフォルト値です。
 invalid document: 無効なドキュメントです。
 invalid email address: 無効なEmailアドレスです。
+invalid export request: ""
 invalid field: 無効なフィールドです。
 invalid file: 無効なファイルです。
+invalid input: 無効な入力です。
+invalid json schema: 無効なJSONスキーマです。
 invalid key: 無効なキーです。
 invalid lang: 無効な言語です。
 invalid object: 無効なオブジェクトです。
@@ -50,12 +62,15 @@ invalid project: 無効なプロジェクトです。
 invalid smtp url: 無効なSMTP URLです。
 invalid type: 無効な型です。
 invalid type property: 無効な型プロパティです。
+invalid uuid: 無効なUUIDです。
 invalid value: 無効な値です。
 invalid values: 無効な値です。
 item field required: このフィールドは必須項目です。
 item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
+items are required for export: ""
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
+job not found: ジョブが見つかりません
 max must be larger then min: 最大値は最小値より大きい必要があります。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 metadata schema not found: メタデータのスキーマが見つかりません。
@@ -73,22 +88,28 @@ one or more items not found: 対象のアイテムが見つかりませんでし
 only requests with status waiting can be approved: レビュー待ちのリクエストのみ承認可能です。
 only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
-point type is not supported in any geometry field in this model: このモデルのどのジオメトリフィールドでも、ポイントタイプはサポートされていません。
+partial not found: 部分が見つかりませんでした。
+policy check failed: ポリシーチェックに失敗しました。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
-project alias is not set: プロジェクトエイリアスが設定されていません。
+project creation limit exceeded: プロジェクト作成数の上限に達しました。
 projectID is required: プロジェクトIDは必須です。
 reference field direction can not be changed: 参照フィールドの方向は変更できません
 reference field model can not be changed: 参照フィールドのモデルは変更できません
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
+schema is required for export: ""
+the number of models in a project has exceeded the limit: プロジェクト内のモデル数が上限を超えています。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
 unauthorized: 未認証
-unsupported entity: サポートされていないエンティティ
-unsupported geometry type: サポートされていないジオメトリタイプ
+unsupported content encoding: サポートされていないContent-Encodingです。
+unsupported entity: サポートされていないエンティティです。
+unsupported export format: ""
+unsupported geometry type: サポートされていないジオメトリタイプです。
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
 views are not in the same model: ビューが同じモデルに存在していません。
 views length mismatch: ビューの総数が正しくありません。
 workspace id is required: ワークスペースIDは必須です。
+writer is required for export: ""

@@ -100,9 +100,11 @@ export const GET_ITEM_NODE = gql`
         }
         createdBy {
           ... on Integration {
+            id
             name
           }
           ... on User {
+            id
             name
           }
         }
@@ -135,6 +137,7 @@ export const GET_ITEM_NODE = gql`
         requests {
           id
           state
+          title
         }
       }
     }
@@ -144,6 +147,59 @@ export const GET_ITEM_NODE = gql`
 export const IS_ITEM_REFERENCED = gql`
   query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
     isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+  }
+`;
+
+export const VERSIONS_BY_ITEM = gql`
+  query VersionsByItem($itemId: ID!) {
+    versionsByItem(itemId: $itemId) {
+      version
+      refs
+      value {
+        id
+        version
+        modelId
+        status
+        createdAt
+        updatedAt
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        updatedBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
+        }
+        requests {
+          id
+          title
+          state
+          items {
+            itemId
+            version
+            item {
+              value {
+                modelId
+              }
+            }
+          }
+        }
+      }
+    }
   }
 `;
 
@@ -187,9 +243,11 @@ export const SEARCH_ITEM = gql`
         }
         createdBy {
           ... on Integration {
+            id
             name
           }
           ... on User {
+            id
             name
           }
         }
@@ -270,6 +328,14 @@ export const DELETE_ITEM = gql`
   mutation DeleteItem($itemId: ID!) {
     deleteItem(input: { itemId: $itemId }) {
       itemId
+    }
+  }
+`;
+
+export const DELETE_ITEMS = gql`
+  mutation DeleteItems($itemIds: [ID!]!) {
+    deleteItems(input: { itemIds: $itemIds }) {
+      itemIds
     }
   }
 `;
@@ -366,6 +432,36 @@ export const PUBLISH_ITEM = gql`
           version
           createdAt
           updatedAt
+        }
+      }
+    }
+  }
+`;
+
+export const IMPORT_ITEMS = gql`
+  mutation ImportItems($input: ImportItemsInput!) {
+    importItems(input: $input) {
+      modelId
+      totalCount
+      insertedCount
+      updatedCount
+      ignoredCount
+    }
+  }
+`;
+
+export const IMPORT_ITEMS_ASYNC = gql`
+  mutation ImportItemsAsync($input: ImportItemsInput!) {
+    importItemsAsync(input: $input) {
+      job {
+        id
+        type
+        status
+        projectId
+        progress {
+          processed
+          total
+          percentage
         }
       }
     }

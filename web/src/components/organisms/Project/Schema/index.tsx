@@ -1,175 +1,191 @@
+import { useCallback, useState } from "react";
+
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
+import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { ContentTypesEnum } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+  const assetHooks = useAssetHooks(false);
+  const importHooks = useAssetHooks(true, [ContentTypesEnum.Geojson, ContentTypesEnum.Json]);
+  const schemaHooks = useHooks();
 
-  const {
-    assetList,
-    fileList,
-    loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
-    handleSearchTerm,
-    handleAssetsGet,
-    handleAssetsReload,
-    totalCount,
-    page,
-    pageSize,
-    handleAssetTableChange,
-    handleGetAsset,
-  } = useAssetHooks(false);
+  const toSchemaPreviewStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(1);
+  }, []);
 
-  const {
-    data,
-    models,
-    groups,
-    isMeta,
-    setIsMeta,
-    fieldModalShown,
-    selectedField,
-    selectedType,
-    collapsed,
-    fieldCreationLoading,
-    fieldUpdateLoading,
-    deleteModelLoading,
-    deleteGroupLoading,
-    setCollapsed,
-    selectedSchemaType,
-    handleModelSelect,
-    handleGroupSelect,
-    handleFieldCreationModalOpen,
-    handleFieldUpdateModalOpen,
-    handleFieldModalClose,
-    handleFieldCreate,
-    handleReferencedModelGet,
-    handleCorrespondingFieldKeyUnique,
-    handleFieldKeyUnique,
-    handleFieldUpdate,
-    handleFieldOrder,
-    handleFieldDelete,
-    handleKeyCheck,
-    handleModalOpen,
-    handleModalClose,
-    handleDeletionModalOpen,
-    handleDeletionModalClose,
-    handleSchemaCreate,
-    handleSchemaUpdate,
-    handleSchemaDelete,
-    groupModalShown,
-    groupDeletionModalShown,
-    modelModalShown,
-    modelDeletionModalShown,
-  } = useHooks();
+  const toImportingStep = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      await schemaHooks.handleFieldsCreate(fields);
+      setCurrentImportSchemaModalPage(2);
+    },
+    [schemaHooks],
+  );
+
+  const toFileSelectionStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(0);
+  }, []);
 
   return (
     <>
       <SchemaMolecule
-        data={data}
-        collapsed={collapsed}
-        selectedSchemaType={selectedSchemaType}
-        onModalOpen={handleModalOpen}
-        onDeletionModalOpen={handleDeletionModalOpen}
+        data={schemaHooks.data}
+        collapsed={schemaHooks.collapsed}
+        selectedSchemaType={schemaHooks.selectedSchemaType}
+        page={importHooks.page}
+        pageSize={importHooks.pageSize}
+        assetList={importHooks.assetList}
+        alertList={importHooks.alertList}
+        loading={importHooks.loading}
+        selectedAsset={importHooks.selectedAsset}
+        fileList={importHooks.fileList}
+        uploadType={importHooks.uploadType}
+        uploadUrl={importHooks.uploadUrl}
+        uploading={importHooks.uploading}
+        importFields={importHooks.importFields}
+        fieldsCreationError={schemaHooks.fieldsCreationError}
+        setImportFields={importHooks.setImportFields}
+        setUploadUrl={importHooks.setUploadUrl}
+        setUploadType={importHooks.setUploadType}
+        uploadModalVisibility={importHooks.uploadModalVisibility}
+        totalCount={importHooks.totalCount}
+        hasCreateRight={schemaHooks.hasCreateRight}
+        hasUpdateRight={schemaHooks.hasUpdateRight}
+        hasDeleteRight={schemaHooks.hasDeleteRight}
+        onSearchTerm={importHooks.handleSearchTerm}
+        onAssetsReload={importHooks.handleAssetsReload}
+        onAssetTableChange={importHooks.handleAssetTableChange}
+        onAssetSelect={importHooks.handleAssetSelect}
+        onAssetsCreate={importHooks.handleAssetsCreate}
+        onAssetCreateFromUrl={importHooks.handleAssetCreateFromUrl}
+        onModalOpen={schemaHooks.handleModalOpen}
+        onDeletionModalOpen={schemaHooks.handleDeletionModalOpen}
+        importSchemaModalVisibility={importHooks.importSchemaModalVisibility}
+        selectFileModalVisibility={importHooks.selectFileModalVisibility}
+        onSchemaImportModalOpen={importHooks.handleSchemaImportModalOpen}
+        onSchemaImportModalCancel={() => {
+          importHooks.handleSchemaImportModalCancel();
+          setCurrentImportSchemaModalPage(0);
+        }}
+        onSelectFileModalOpen={importHooks.handleSelectFileModalOpen}
+        onSelectFileModalCancel={importHooks.handleSelectFileModalCancel}
+        onUploadModalOpen={importHooks.handleUploadModalOpen}
+        onUploadModalCancel={importHooks.handleUploadModalCancel}
+        currentImportSchemaModalPage={currentImportSchemaModalPage}
+        toSchemaPreviewStep={toSchemaPreviewStep}
+        toImportingStep={toImportingStep}
+        toFileSelectionStep={toFileSelectionStep}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
-            collapsed={collapsed}
-            selectedSchemaType={selectedSchemaType}
-            onModelSelect={handleModelSelect}
-            onGroupSelect={handleGroupSelect}
+            collapsed={schemaHooks.collapsed}
+            selectedSchemaType={schemaHooks.selectedSchemaType}
             displayGroups
-            titleIcon={"unorderedList"}
+            titleIcon="unorderedList"
+            onModelSelect={schemaHooks.handleModelSelect}
+            onGroupSelect={schemaHooks.handleGroupSelect}
           />
         }
-        setIsMeta={setIsMeta}
-        onCollapse={setCollapsed}
-        onFieldUpdateModalOpen={handleFieldUpdateModalOpen}
-        onFieldCreationModalOpen={handleFieldCreationModalOpen}
-        onFieldReorder={handleFieldOrder}
-        onFieldDelete={handleFieldDelete}
+        setIsMeta={schemaHooks.setIsMeta}
+        onCollapse={schemaHooks.setCollapsed}
+        onFieldCreationModalOpen={schemaHooks.handleFieldCreationModalOpen}
+        onFieldUpdateModalOpen={schemaHooks.handleFieldUpdateModalOpen}
+        onFieldReorder={schemaHooks.handleFieldOrder}
+        onFieldDelete={schemaHooks.handleFieldDelete}
+        onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
+        fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
+        dataChecking={importHooks.dataChecking}
+        onFileContentChange={async (file, fileList) => {
+          const result = await importHooks.handleImportSchemaFileChange(file, fileList);
+
+          if (result) toSchemaPreviewStep();
+        }}
+        onFileRemove={importHooks.handleImportSchemaFileRemove}
       />
       <FormModal
-        data={data}
-        open={modelModalShown || groupModalShown}
-        onKeyCheck={handleKeyCheck}
-        onClose={handleModalClose}
-        onCreate={handleSchemaCreate}
-        onUpdate={handleSchemaUpdate}
-        isModel={modelModalShown}
+        data={schemaHooks.data}
+        open={schemaHooks.modelModalShown || schemaHooks.groupModalShown}
+        onKeyCheck={schemaHooks.handleKeyCheck}
+        onClose={schemaHooks.handleModalClose}
+        onCreate={schemaHooks.handleSchemaCreate}
+        onUpdate={schemaHooks.handleSchemaUpdate}
+        isModel={schemaHooks.modelModalShown}
       />
       <DeletionModal
-        data={data}
-        open={modelDeletionModalShown || groupDeletionModalShown}
-        deleteLoading={deleteModelLoading || deleteGroupLoading}
-        onDelete={handleSchemaDelete}
-        onClose={handleDeletionModalClose}
-        isModel={modelDeletionModalShown}
+        data={schemaHooks.data}
+        open={schemaHooks.modelDeletionModalShown || schemaHooks.groupDeletionModalShown}
+        deleteLoading={schemaHooks.deleteModelLoading || schemaHooks.deleteGroupLoading}
+        onDelete={schemaHooks.handleSchemaDelete}
+        onClose={schemaHooks.handleDeletionModalClose}
+        isModel={schemaHooks.modelDeletionModalShown}
       />
-      {selectedType && selectedType === "Reference" && (
+      {schemaHooks.selectedType === "Reference" && (
         <FieldCreationModalWithSteps
-          models={models}
-          selectedType={selectedType}
-          selectedField={selectedField}
-          open={fieldModalShown}
-          isLoading={fieldUpdateLoading || fieldCreationLoading}
-          handleReferencedModelGet={handleReferencedModelGet}
-          handleCorrespondingFieldKeyUnique={handleCorrespondingFieldKeyUnique}
-          handleFieldKeyUnique={handleFieldKeyUnique}
-          onClose={handleFieldModalClose}
-          onSubmit={handleFieldCreate}
-          onUpdate={handleFieldUpdate}
+          models={schemaHooks.models}
+          selectedType={schemaHooks.selectedType}
+          selectedField={schemaHooks.selectedField}
+          open={schemaHooks.fieldModalShown}
+          isLoading={schemaHooks.fieldUpdateLoading || schemaHooks.fieldCreationLoading}
+          handleReferencedModelGet={schemaHooks.handleReferencedModelGet}
+          handleCorrespondingFieldKeyUnique={schemaHooks.handleCorrespondingFieldKeyUnique}
+          handleFieldKeyUnique={schemaHooks.handleFieldKeyUnique}
+          onClose={schemaHooks.handleFieldModalClose}
+          onSubmit={schemaHooks.handleFieldCreate}
+          onUpdate={schemaHooks.handleFieldUpdate}
         />
       )}
-      {selectedType && selectedType !== "Reference" && (
+      {schemaHooks.selectedType && schemaHooks.selectedType !== "Reference" && (
         <FieldModal
-          groups={groups}
-          selectedType={selectedType}
-          isMeta={isMeta}
-          open={fieldModalShown}
-          fieldLoading={selectedField ? fieldUpdateLoading : fieldCreationLoading}
-          selectedField={selectedField}
-          handleFieldKeyUnique={handleFieldKeyUnique}
-          onClose={handleFieldModalClose}
-          onSubmit={selectedField ? handleFieldUpdate : handleFieldCreate}
-          onAssetTableChange={handleAssetTableChange}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          assetList={assetList}
-          fileList={fileList}
-          loadingAssets={loading}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          onUploadModalCancel={handleUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onAssetsCreate={handleAssetsCreate}
-          onAssetCreateFromUrl={handleAssetCreateFromUrl}
-          onAssetSearchTerm={handleSearchTerm}
-          onAssetsGet={handleAssetsGet}
-          onAssetsReload={handleAssetsReload}
-          setFileList={setFileList}
-          setUploadModalVisibility={setUploadModalVisibility}
-          onGetAsset={handleGetAsset}
+          groups={schemaHooks.groups}
+          selectedType={schemaHooks.selectedType}
+          selectedSchemaType={schemaHooks.selectedSchemaType}
+          isMeta={schemaHooks.isMeta}
+          open={schemaHooks.fieldModalShown}
+          selectedField={schemaHooks.selectedField}
+          fieldLoading={
+            schemaHooks.selectedField
+              ? schemaHooks.fieldUpdateLoading
+              : schemaHooks.fieldCreationLoading
+          }
+          handleFieldKeyUnique={schemaHooks.handleFieldKeyUnique}
+          onClose={schemaHooks.handleFieldModalClose}
+          onSubmit={
+            schemaHooks.selectedField
+              ? schemaHooks.handleFieldUpdate
+              : schemaHooks.handleFieldCreate
+          }
+          onAssetTableChange={assetHooks.handleAssetTableChange}
+          totalCount={assetHooks.totalCount}
+          page={assetHooks.page}
+          pageSize={assetHooks.pageSize}
+          assetList={assetHooks.assetList}
+          fileList={assetHooks.fileList}
+          loadingAssets={assetHooks.loading}
+          uploading={assetHooks.uploading}
+          uploadModalVisibility={assetHooks.uploadModalVisibility}
+          uploadUrl={assetHooks.uploadUrl}
+          uploadType={assetHooks.uploadType}
+          onUploadModalCancel={assetHooks.handleUploadModalCancel}
+          setUploadUrl={assetHooks.setUploadUrl}
+          setUploadType={assetHooks.setUploadType}
+          onAssetsCreate={assetHooks.handleAssetsCreate}
+          onAssetCreateFromUrl={assetHooks.handleAssetCreateFromUrl}
+          onAssetSearchTerm={assetHooks.handleSearchTerm}
+          onAssetsGet={assetHooks.handleAssetsGet}
+          onAssetsReload={assetHooks.handleAssetsReload}
+          setFileList={assetHooks.setFileList}
+          setUploadModalVisibility={assetHooks.setUploadModalVisibility}
+          onGetAsset={assetHooks.handleGetAsset}
         />
       )}
     </>

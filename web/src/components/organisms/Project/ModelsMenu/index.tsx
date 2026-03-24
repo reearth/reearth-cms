@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 
+import type { IconName } from "@reearth-cms/components/atoms/Icon";
 import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
 import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
 import ModelListHeader from "@reearth-cms/components/molecules/Model/ModelsList/ModelListHeader";
@@ -13,7 +14,7 @@ type Props = {
   collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
-  titleIcon: string;
+  titleIcon: IconName;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
 };
@@ -34,6 +35,8 @@ const ModelsMenu: React.FC<Props> = ({
     groups,
     modelModalShown,
     groupModalShown,
+    hasCreateRight,
+    hasUpdateRight,
     handleModelModalOpen,
     handleModelModalClose,
     handleGroupModalOpen,
@@ -58,6 +61,8 @@ const ModelsMenu: React.FC<Props> = ({
           selectedKey={schemaId}
           models={models}
           open={modelModalShown}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
           onModalOpen={handleModelModalOpen}
           onModelSelect={onModelSelect}
           onModelKeyCheck={handleModelKeyCheck}
@@ -71,12 +76,14 @@ const ModelsMenu: React.FC<Props> = ({
             collapsed={collapsed}
             selectedKey={schemaId}
             groups={groups}
-            onGroupSelect={onGroupSelect}
-            onModalOpen={handleGroupModalOpen}
             open={groupModalShown}
+            hasCreateRight={hasCreateRight}
+            hasUpdateRight={hasUpdateRight}
+            onModalOpen={handleGroupModalOpen}
             onGroupKeyCheck={handleGroupKeyCheck}
             onClose={handleGroupModalClose}
             onCreate={handleGroupCreate}
+            onGroupSelect={onGroupSelect}
             onUpdateGroupsOrder={handleUpdateGroupsOrder}
           />
         )}

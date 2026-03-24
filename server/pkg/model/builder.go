@@ -84,11 +84,6 @@ func (b *Builder) RandomKey() *Builder {
 	return b
 }
 
-func (b *Builder) Public(public bool) *Builder {
-	b.model.public = public
-	return b
-}
-
 func (b *Builder) UpdatedAt(updatedAt time.Time) *Builder {
 	b.model.updatedAt = updatedAt
 	return b

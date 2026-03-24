@@ -19,6 +19,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   visible: boolean;
@@ -35,6 +36,7 @@ type Props = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
+  hasCreateRight: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
@@ -62,6 +64,7 @@ const LinkAssetModal: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  hasCreateRight,
   onAssetTableChange,
   setUploadUrl,
   setUploadType,
@@ -130,7 +133,9 @@ const LinkAssetModal: React.FC<Props> = ({
           return (
             <Button
               type="link"
-              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              icon={
+                <Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />
+              }
               onClick={() => onLinkClick(isLink, asset)}
             />
           );
@@ -172,11 +177,12 @@ const LinkAssetModal: React.FC<Props> = ({
       },
       {
         title: t("Created By"),
-        dataIndex: "createdBy",
+        dataIndex: ["createdBy", "name"],
         key: "createdBy",
         ellipsis: true,
         width: 100,
         minWidth: 100,
+        render: (_, item) => item.createdBy.name,
       },
     ],
     [linkedAsset?.id, onLinkClick, t],
@@ -226,6 +232,7 @@ const LinkAssetModal: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          hasCreateRight={hasCreateRight}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
@@ -263,7 +270,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

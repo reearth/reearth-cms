@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
+import { Viewer as CesiumViewer } from "cesium";
+import { RefObject } from "react";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
-import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
@@ -12,17 +14,20 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   commentsPanel: JSX.Element;
-  asset?: Asset;
+  asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;
   updateLoading: boolean;
+  hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
   onChangeToFullScreen: () => void;
@@ -37,13 +42,16 @@ const AssetWrapper: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
+  viewerRef,
   displayUnzipFileList,
   decompressing,
   commentsPanel,
   isSaveDisabled,
   updateLoading,
+  hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -53,7 +61,7 @@ const AssetWrapper: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  return asset ? (
+  return (
     <ComplexInnerContents
       center={
         <Wrapper>
@@ -72,10 +80,13 @@ const AssetWrapper: React.FC<Props> = ({
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
             viewerType={viewerType}
+            viewerRef={viewerRef}
             displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
+            hasUpdateRight={hasUpdateRight}
             onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
+            onAssetDownload={onAssetDownload}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}
@@ -85,8 +96,6 @@ const AssetWrapper: React.FC<Props> = ({
       }
       right={commentsPanel}
     />
-  ) : (
-    <NotFound />
   );
 };
 

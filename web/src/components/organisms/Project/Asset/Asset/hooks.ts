@@ -1,9 +1,12 @@
-import { Ion } from "cesium";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { NetworkStatus } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
+import { Ion, Viewer as CesiumViewer } from "cesium";
+import fileDownload from "js-file-download";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   Asset,
   AssetItem,
@@ -23,36 +26,46 @@ import {
 } from "@reearth-cms/components/molecules/Common/Asset";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { config } from "@reearth-cms/config";
+import { useAuthHeader } from "@reearth-cms/gql";
+import {
+  DecompressAssetDocument,
+  GetAssetFileDocument,
+  GetAssetItemDocument,
+  UpdateAssetDocument,
+} from "@reearth-cms/gql/__generated__/assets.generated";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
-  useDecompressAssetMutation,
-  useGetAssetFileQuery,
-  useGetAssetItemQuery,
-  useUpdateAssetMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
-import { getExtension } from "@reearth-cms/utils/file";
+import { useUserId, useUserRights } from "@reearth-cms/state";
+import { FileUtils } from "@reearth-cms/utils/file";
 
 export default (assetId?: string) => {
   const t = useT();
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
-  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
+  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>();
   const [decompressing, setDecompressing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
-  const { data: rawAsset, loading } = useGetAssetItemQuery({
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
+
+  const { data: rawAsset, networkStatus } = useQuery(GetAssetItemDocument, {
     variables: {
       assetId: assetId ?? "",
     },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: rawFile, loading: loading2 } = useGetAssetFileQuery({
+  const { data: rawFile, loading: fileLoading } = useQuery(GetAssetFileDocument, {
     variables: {
       assetId: assetId ?? "",
     },
@@ -78,7 +91,15 @@ export default (assetId?: string) => {
       : undefined;
   }, [convertedAsset, rawFile?.assetFile]);
 
-  const [updateAssetMutation, { loading: updateLoading }] = useUpdateAssetMutation();
+  const hasUpdateRight = useMemo(
+    () =>
+      userRights?.asset.update === null
+        ? asset?.createdBy.id === userId
+        : !!userRights?.asset.update,
+    [asset?.createdBy.id, userId, userRights?.asset.update],
+  );
+
+  const [updateAssetMutation, { loading: updateLoading }] = useMutation(UpdateAssetDocument);
   const handleAssetUpdate = useCallback(
     async (assetId: string, previewType?: PreviewType) => {
       if (!assetId) return;
@@ -86,7 +107,7 @@ export default (assetId?: string) => {
         variables: { id: assetId, previewType: previewType as GQLPreviewType },
         refetchQueries: ["GetAssetItem"],
       });
-      if (result.errors || !result.data?.updateAsset) {
+      if (result.error || !result.data?.updateAsset) {
         Notification.error({ message: t("Failed to update asset.") });
       }
       if (result) {
@@ -96,7 +117,7 @@ export default (assetId?: string) => {
     [t, updateAssetMutation],
   );
 
-  const [decompressAssetMutation] = useDecompressAssetMutation();
+  const [decompressAssetMutation] = useMutation(DecompressAssetDocument);
   const handleAssetDecompress = useCallback(
     (assetId: string) =>
       (async () => {
@@ -107,14 +128,14 @@ export default (assetId?: string) => {
           refetchQueries: ["GetAssetItem"],
         });
         setDecompressing(false);
-        if (result.errors || !result.data?.decompressAsset) {
+        if (result.error || !result.data?.decompressAsset) {
           Notification.error({ message: t("Failed to decompress asset.") });
         }
         if (result) {
           Notification.success({ message: t("Asset is being decompressed!") });
         }
       })(),
-    [t, decompressAssetMutation, setDecompressing],
+    [t, decompressAssetMutation],
   );
 
   useEffect(() => {
@@ -131,57 +152,49 @@ export default (assetId?: string) => {
     [convertedAsset?.previewType],
   );
 
-  const [viewerType, setViewerType] = useState<ViewerType>("unknown");
-  const assetFileExt = getExtension(convertedAsset?.fileName);
+  const assetFileExt = FileUtils.getExtension(convertedAsset?.fileName);
 
-  useEffect(() => {
+  const viewerType = useMemo((): ViewerType | undefined => {
+    if (!selectedPreviewType || !assetFileExt) return;
+
     switch (true) {
       case selectedPreviewType === "GEO" &&
         (geoFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo");
-        break;
+        return "geo";
       case selectedPreviewType === "GEO_3D_TILES" &&
         (geo3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo_3d_tiles");
-        break;
+        return "geo_3d_tiles";
       case selectedPreviewType === "GEO_MVT" &&
         (geoMvtFormat.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo_mvt");
-        break;
+        return "geo_mvt";
       case selectedPreviewType === "MODEL_3D" &&
         (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("model_3d");
-        break;
+        return "model_3d";
       case selectedPreviewType === "CSV" && csvFormats.includes(assetFileExt):
-        setViewerType("csv");
-        break;
+        return "csv";
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
-        setViewerType("image");
-        break;
+        return "image";
       case selectedPreviewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
-        setViewerType("image_svg");
-        break;
+        return "image_svg";
       default:
-        setViewerType("unknown");
-        break;
+        return "unknown";
     }
-  }, [convertedAsset?.previewType, assetFileExt, selectedPreviewType]);
+  }, [assetFileExt, selectedPreviewType]);
 
   const displayUnzipFileList = useMemo(
     () => compressedFileFormats.includes(assetFileExt),
     [assetFileExt],
   );
 
+  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
+
   const handleFullScreen = useCallback(() => {
-    if (
-      viewerType === "geo" ||
-      viewerType === "geo_3d_tiles" ||
-      viewerType === "model_3d" ||
-      viewerType === "geo_mvt"
-    ) {
-      viewerRef?.canvas.requestFullscreen();
+    if (viewerType === "unknown") {
+      return;
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
+    } else {
+      viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
     }
   }, [viewerType]);
 
@@ -205,10 +218,6 @@ export default (assetId?: string) => {
     [setCollapsed],
   );
 
-  useEffect(() => {
-    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
-  }, []);
-
   const handleSave = useCallback(async () => {
     if (assetId) {
       setIsSaveDisabled(true);
@@ -224,20 +233,51 @@ export default (assetId?: string) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`, { state: location.state });
   }, [location.state, navigate, projectId, workspaceId]);
 
+  const { getHeader } = useAuthHeader();
+  const handleSingleAssetDownload = async (asset: Asset) => {
+    try {
+      const headers = await getHeader();
+      const response = await fetch(asset.url, {
+        method: "GET",
+        ...(asset.public ? {} : { headers }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to download ${asset.fileName}: HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      fileDownload(blob, asset.fileName);
+      Notification.success({
+        message: t("Download successful"),
+        description: asset.fileName,
+      });
+    } catch (err) {
+      console.error("Download error:", err);
+      Notification.error({
+        message: t("Download failed"),
+        description: asset.fileName,
+      });
+    }
+  };
+
   return {
     asset,
     assetFileExt,
-    isLoading: loading || loading2,
+    isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     selectedPreviewType,
     isModalVisible,
     collapsed,
     viewerType,
+    viewerRef,
     displayUnzipFileList,
     decompressing,
     isSaveDisabled,
     updateLoading,
+    hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,

@@ -1,18 +1,23 @@
 import styled from "@emotion/styled";
 
 import AntDComment from "@reearth-cms/components/atoms/Comment";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
+import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
+const { XXS, SM, BASE, LG } = AntdToken.SPACING;
+
 type Props = {
   me?: User;
+  hasCommentCreateRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   currentRequest: Request;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
@@ -24,6 +29,9 @@ type Props = {
 
 const RequestThread: React.FC<Props> = ({
   me,
+  hasCommentCreateRight,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   currentRequest,
   onCommentCreate,
   onCommentUpdate,
@@ -34,43 +42,42 @@ const RequestThread: React.FC<Props> = ({
 }) => {
   return (
     <ContentWrapper>
-      <ThreadWrapper>
-        <CommentsContainer>
-          <RequestDescription
-            currentRequest={currentRequest}
-            onGetAsset={onGetAsset}
-            onGroupGet={onGroupGet}
-            onNavigateToItemEdit={onNavigateToItemEdit}
-          />
-          {currentRequest.comments && currentRequest.comments?.length > 0 && (
-            <RequestCommentList
-              me={me}
-              comments={currentRequest.comments}
+      <RequestDescription
+        currentRequest={currentRequest}
+        onGetAsset={onGetAsset}
+        onGroupGet={onGroupGet}
+        onNavigateToItemEdit={onNavigateToItemEdit}
+      />
+      {currentRequest.comments && currentRequest.comments.length > 0 && (
+        <CommentWrapper>
+          {currentRequest.comments.map(comment => (
+            <Comment
+              key={comment.id}
+              userId={me?.id ?? ""}
+              hasUpdateRight={hasCommentUpdateRight}
+              hasDeleteRight={hasCommentDeleteRight}
+              comment={comment}
               onCommentUpdate={onCommentUpdate}
               onCommentDelete={onCommentDelete}
             />
-          )}
-        </CommentsContainer>
-        <RequestStatus requestState={currentRequest.state} />
-      </ThreadWrapper>
+          ))}
+        </CommentWrapper>
+      )}
+      <RequestStatus requestState={currentRequest.state} />
       <ThreadDivider />
       <StyledAntDComment
-        avatar={<UserAvatar username={me?.name} />}
-        content={<RequestEditor onCommentCreate={onCommentCreate} />}
+        content={
+          <RequestEditor
+            hasCommentCreateRight={hasCommentCreateRight}
+            onCommentCreate={onCommentCreate}
+          />
+        }
       />
     </ContentWrapper>
   );
 };
 
 export default RequestThread;
-
-const ThreadWrapper = styled.div`
-  overflow: auto;
-`;
-
-const CommentsContainer = styled.div`
-  overflow: auto;
-`;
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -79,20 +86,55 @@ const ContentWrapper = styled.div`
   height: 100%;
 `;
 
+const CommentWrapper = styled.div`
+  .ant-comment-inner {
+    padding: 0;
+    margin-top: 35px;
+  }
+  .ant-comment-content-author {
+    padding-right: 48px;
+    overflow-wrap: anywhere;
+  }
+  .ant-comment-avatar {
+    background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
+    margin-right: 0;
+    padding-right: ${SM}px;
+  }
+  .ant-comment-content {
+    padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.LG}px;
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: ${XXS}px;
+      height: ${LG}px;
+      background-color: ${AntdColor.NEUTRAL.BORDER};
+      left: ${BASE}px;
+      top: -30px;
+    }
+  }
+  .ant-comment-actions {
+    position: absolute;
+    top: ${SM}px;
+    right: ${LG}px;
+    margin: 0;
+  }
+`;
+
 const ThreadDivider = styled.div`
-  border-top: 1px solid #d9d9d9;
-  width: calc(100% - 12px);
-  padding: 0 12px;
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  width: calc(100% - ${SM}px);
+  padding: 0 ${SM}px;
 `;
 
 const StyledAntDComment = styled(AntDComment)`
-  margin-top: 16px;
-  background-color: #f5f5f5;
+  margin-top: ${AntdToken.SPACING.BASE}px;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   .ant-comment-inner {
     padding: 0;
   }
   .ant-comment-avatar {
     margin-right: 0;
-    padding-right: 12px;
+    padding-right: ${SM}px;
   }
 `;

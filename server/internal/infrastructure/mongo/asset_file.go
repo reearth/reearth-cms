@@ -74,6 +74,52 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 	return f, nil
 }
 
+func (r *AssetFile) FindByIDs(ctx context.Context, ids id.AssetIDList) (map[id.AssetID]*asset.File, error) {
+	filesMap := make(map[id.AssetID]*asset.File)
+
+	c := &mongodoc.AssetAndFileConsumer{}
+	if err := r.client.Find(ctx, bson.M{
+		"id": bson.M{"$in": ids.Strings()},
+	}, c, options.Find().SetProjection(bson.M{
+		"id":        1,
+		"file":      1,
+		"flatfiles": 1,
+	})); err != nil {
+		return nil, err
+	}
+
+	for _, result := range c.Result {
+		assetID := result.ID
+		f := result.File.Model()
+		if f == nil {
+			return nil, rerror.ErrNotFound
+		}
+
+		if result.FlatFiles {
+			var afc mongodoc.AssetFilesConsumer
+			if err := r.assetFilesClient.Find(ctx, bson.M{
+				"assetid": assetID,
+			}, &afc, options.Find().SetSort(bson.D{
+				{Key: "page", Value: 1},
+			})); err != nil {
+				return nil, err
+			}
+			files := afc.Result().Model()
+			f.SetFiles(files)
+		} else if len(f.Children()) > 0 {
+			f.SetFiles(f.FlattenChildren())
+		}
+
+		aId, err := id.AssetIDFrom(assetID)
+		if err != nil {
+			return nil, err
+		}
+		filesMap[aId] = f
+	}
+
+	return filesMap, nil
+}
+
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {
 	doc := mongodoc.NewFile(file)
 	_, err := r.client.Client().UpdateOne(ctx, bson.M{

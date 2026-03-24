@@ -5,15 +5,15 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 type Props = {
   url: string;
   visible: boolean;
-  handleCancel: () => void;
+  onCancel: () => void;
 };
 
-const PreviewModal: React.FC<Props> = ({ url, visible, handleCancel }) => {
+const PreviewModal: React.FC<Props> = ({ url, visible, onCancel }) => {
   return (
     <Modal
       centered
       open={visible}
-      onCancel={handleCancel}
+      onCancel={onCancel}
       footer={null}
       width="90vw"
       styles={{

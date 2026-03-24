@@ -3,17 +3,17 @@ import styled from "@emotion/styled";
 import Content from "@reearth-cms/components/atoms/Content";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+  Integration,
+  IntegrationInfo,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   integration: Integration;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
-  onIntegrationUpdate: (data: {
-    name: string;
-    description: string;
-    logoUrl: string;
-  }) => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };
@@ -45,5 +45,5 @@ export default MyIntegrationSettings;
 const Wrapper = styled(Content)`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 32px);
+  height: calc(100% - ${AntdToken.SPACING.XL}px);
 `;

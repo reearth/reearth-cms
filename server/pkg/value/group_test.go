@@ -1,9 +1,10 @@
 package value
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_propertyGroup_ToValue(t *testing.T) {

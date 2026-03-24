@@ -29,6 +29,7 @@ type Container struct {
 	Request           Request
 	Group             Group
 	WorkspaceSettings WorkspaceSettings
+	Job               Job
 	Transaction       usecasex.Transaction
 }
 
@@ -59,6 +60,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Integration:       c.Integration,
 		WorkspaceSettings: c.WorkspaceSettings,
 		Event:             c.Event,
+		Job:               c.Job,
 	}
 }
 

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, useRef, MutableRefObject } f
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -14,25 +14,25 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
-import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
   FieldModalTabs,
-  FieldType,
   FormValues,
   CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { validateKey } from "@reearth-cms/utils/regex";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { Step } = Steps;
 const { TabPane } = Tabs;
 
 type Props = {
   models?: Model[];
-  selectedType: FieldType;
+  selectedType: "Reference";
   selectedField: Field | null;
   open: boolean;
   isLoading: boolean;
@@ -75,15 +75,20 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const changedKeys = useRef(new Set<string>());
 
   const formValidate = useCallback(
-    (form: FormInstance) => {
+    async (form: FormInstance) => {
       if (
         form.getFieldValue("model") ||
         (form.getFieldValue("title") && form.getFieldValue("key"))
       ) {
-        form
-          .validateFields()
-          .then(() => setIsDisabled(currentStep === numSteps && changedKeys.current.size === 0))
-          .catch(() => setIsDisabled(true));
+        try {
+          await form.validateFields();
+        } catch (e) {
+          if ((e as ValidateErrorEntity).errorFields.length > 0) {
+            setIsDisabled(true);
+            return;
+          }
+        }
+        setIsDisabled(currentStep === numSteps && changedKeys.current.size === 0);
       } else {
         setIsDisabled(true);
       }
@@ -109,18 +114,24 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   const SettingValues = Form.useWatch([], modelForm);
   useEffect(() => {
-    formValidate(modelForm);
-  }, [modelForm, SettingValues, formValidate]);
+    if (currentStep === 0) {
+      formValidate(modelForm);
+    }
+  }, [modelForm, SettingValues, formValidate, currentStep]);
 
   const FieldValues = Form.useWatch([], field1Form);
   useEffect(() => {
-    formValidate(field1Form);
-  }, [field1Form, FieldValues, formValidate]);
+    if (currentStep === 1) {
+      formValidate(field1Form);
+    }
+  }, [field1Form, FieldValues, formValidate, currentStep]);
 
   const CorrespondingValues = Form.useWatch([], field2Form);
   useEffect(() => {
-    formValidate(field2Form);
-  }, [field2Form, CorrespondingValues, formValidate]);
+    if (currentStep === 2) {
+      formValidate(field2Form);
+    }
+  }, [field2Form, CorrespondingValues, formValidate, currentStep]);
 
   useEffect(() => {
     modelForm.setFieldsValue({
@@ -208,11 +219,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setField1FormValues(initialValues);
   }, [initialValues, setCurrentStep]);
 
-  const handleCancel = useCallback(() => {
-    onClose();
+  const handleAfterClose = useCallback(() => {
     formReset();
     modalReset();
-  }, [formReset, modalReset, onClose]);
+  }, [formReset, modalReset]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
@@ -342,8 +352,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      onCancel={handleCancel}
-      afterClose={modalReset}
+      onCancel={onClose}
+      afterClose={handleAfterClose}
       width={572}
       open={open}
       footer={
@@ -469,31 +479,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     handleKeyChange(e, field1Form);
                   }}
                   showCount
-                  maxLength={MAX_KEY_LENGTH}
+                  maxLength={Constant.KEY.MAX_LENGTH}
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
-              {selectedType === "Select" && (
-                <Form.Item
-                  name="values"
-                  label={t("Set Options")}
-                  rules={[
-                    {
-                      validator: async (_, values) => {
-                        if (!values || values.length < 1) {
-                          return Promise.reject(new Error("At least 1 option"));
-                        }
-                        if (values.some((value: string) => value.length === 0)) {
-                          return Promise.reject(new Error("Empty values are not allowed"));
-                        }
-                      },
-                    },
-                  ]}>
-                  <MultiValueField FieldInput={Input} />
-                </Form.Item>
-              )}
               <Form.Item
                 name="multiple"
                 valuePropName="checked"
@@ -550,7 +541,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               </Form.Item>
               <Form.Item
                 name="key"
-                label="Field Key"
+                label={t("Field Key")}
                 extra={t(
                   "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
                 )}
@@ -572,31 +563,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     handleKeyChange(e, field2Form);
                   }}
                   showCount
-                  maxLength={MAX_KEY_LENGTH}
+                  maxLength={Constant.KEY.MAX_LENGTH}
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
-              {selectedType === "Select" && (
-                <Form.Item
-                  name="values"
-                  label={t("Set Options")}
-                  rules={[
-                    {
-                      validator: async (_, values) => {
-                        if (!values || values.length < 1) {
-                          return Promise.reject(new Error("At least 1 option"));
-                        }
-                        if (values.some((value: string) => value.length === 0)) {
-                          return Promise.reject(new Error("Empty values are not allowed"));
-                        }
-                      },
-                    },
-                  ]}>
-                  <MultiValueField FieldInput={Input} />
-                </Form.Item>
-              )}
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
               <Form.Item
@@ -614,13 +586,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 };
 
 const Required = styled.span`
-  color: #ff4d4f;
-  margin-right: 4px;
+  color: ${AntdColor.RED.RED_4};
+  margin-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Optional = styled.span`
-  color: #8c8c8c;
-  margin-left: 4px;
+  color: ${AntdColor.GREY.GREY_2};
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const FieldThumbnail = styled.div`
@@ -628,16 +600,16 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    color: #000000d9;
+    margin-left: ${AntdToken.SPACING.SM}px;
+    font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+    font-size: ${AntdToken.FONT.SIZE_LG}px;
+    line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+    color: ${AntdColor.NEUTRAL.TEXT};
   }
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -655,12 +627,13 @@ const StyledFormItem = styled(Form.Item)`
 `;
 
 const StyledSteps = styled(Steps)<{ numSteps: number }>`
-  padding: ${({ numSteps }) => (numSteps === 1 ? "30px 24px 38px" : "30px 0 38px")};
+  padding: ${({ numSteps }) =>
+    numSteps === 1 ? `30px ${AntdToken.SPACING.LG}px 38px` : "30px 0 38px"};
   .ant-steps-item-title {
     white-space: nowrap;
   }
   .ant-steps-item-active {
-    font-weight: 600;
+    font-weight: ${AntdToken.FONT_WEIGHT.STRONG};
   }
 `;
 
@@ -672,8 +645,8 @@ const StyledModal = styled(Modal)`
 `;
 
 const StyledModelKey = styled.span`
-  font-size: 12px;
-  margin-left: 4px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 export default FieldCreationModalWithSteps;

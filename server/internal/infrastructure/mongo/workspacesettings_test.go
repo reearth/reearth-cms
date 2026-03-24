@@ -51,7 +51,7 @@ func TestWorkspaceSettingsRepo_FindByIDs(t *testing.T) {
 	got, err := r.FindByIDs(ctx, ids)
 	assert.NoError(t, err)
 	assert.Equal(t, want, got)
-	
+
 	ids2 := accountdomain.WorkspaceIDList{}
 	got2, err2 := r.FindByIDs(ctx, ids2)
 	assert.NoError(t, err2)
@@ -75,7 +75,7 @@ func TestWorkspaceSettingsRepo_Remove(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = r.FindByID(ctx, wid1)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
-	
+
 	err = r.Save(ctx, w2.Clone())
 	assert.ErrorIs(t, err, repo.ErrOperationDenied)
 	err = r.Remove(ctx, wid2)

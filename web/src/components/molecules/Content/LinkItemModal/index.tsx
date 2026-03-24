@@ -3,7 +3,7 @@ import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
   StretchColumn,
   ListToolBarProps,
@@ -11,8 +11,10 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../types";
 
@@ -21,7 +23,9 @@ import useHooks from "./hooks";
 type Props = {
   visible: boolean;
   loading: boolean;
-  correspondingFieldId: string;
+  fieldId: string;
+  itemGroupId?: string;
+  correspondingField?: CorrespondingField;
   linkedItemsModalList?: FormItem[];
   linkedItem?: string;
   linkItemModalTitle?: string;
@@ -33,13 +37,19 @@ type Props = {
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
   onChange?: (value: string) => void;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
 const LinkItemModal: React.FC<Props> = ({
   visible,
   loading,
-  correspondingFieldId,
+  fieldId,
+  itemGroupId,
+  correspondingField,
   linkedItemsModalList,
   linkedItem,
   linkItemModalTitle,
@@ -54,7 +64,8 @@ const LinkItemModal: React.FC<Props> = ({
   onCheckItemReference,
 }) => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm } = useModal();
+
   const { value, pagination, handleInput } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
@@ -69,34 +80,42 @@ const LinkItemModal: React.FC<Props> = ({
     [onLinkItemTableReload],
   );
 
+  const handleChange = useCallback(
+    (value: string) => {
+      onChange?.(value);
+      onLinkItemModalCancel();
+    },
+    [onChange, onLinkItemModalCancel],
+  );
+
   const handleClick = useCallback(
     async (link: boolean, item: FormItem) => {
       if (!link) {
-        onChange?.("");
-        onLinkItemModalCancel();
+        handleChange("");
         return;
       }
 
-      const isReferenced = await onCheckItemReference(item.id, correspondingFieldId);
+      if (!correspondingField) {
+        handleChange(item.id);
+        return;
+      }
 
+      const isReferenced = await onCheckItemReference(item.id, fieldId, itemGroupId);
       if (isReferenced) {
         confirm({
           title: t("This item has been referenced"),
           content: t(
             "Are you going to refer to it? The previous reference will be canceled automatically",
           ),
-          icon: <Icon icon="exclamationCircle" />,
           onOk() {
-            onChange?.(item.id);
-            onLinkItemModalCancel();
+            handleChange(item.id);
           },
         });
       } else {
-        onChange?.(item.id);
-        onLinkItemModalCancel();
+        handleChange(item.id);
       }
     },
-    [confirm, correspondingFieldId, onChange, onCheckItemReference, onLinkItemModalCancel, t],
+    [confirm, correspondingField, fieldId, handleChange, itemGroupId, onCheckItemReference, t],
   );
 
   const columns: StretchColumn<FormItem>[] = useMemo(
@@ -209,7 +228,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

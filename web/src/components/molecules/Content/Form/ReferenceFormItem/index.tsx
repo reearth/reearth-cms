@@ -6,19 +6,16 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemModal";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
+import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../../types";
 
-type Props = {
-  linkedItemsModalList?: FormItem[];
-  value?: string;
-  disabled?: boolean;
+export type ReferenceProps = {
+  referencedItems: FormItem[];
   loading?: boolean;
-  correspondingFieldId: string;
-  modelId?: string;
-  titleFieldId?: string | null;
-  formItemsData?: FormItem[];
+  linkedItemsModalList?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -27,19 +24,35 @@ type Props = {
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-  onChange?: (value?: string) => void;
+  onCheckItemReference?: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
+type Props = {
+  value?: string;
+  onChange?: (value?: string) => void;
+  disabled?: boolean;
+  itemGroupId?: string;
+  fieldId: string;
+  modelId?: string;
+  titleFieldId?: string | null;
+  correspondingField?: CorrespondingField;
+} & ReferenceProps;
+
 const ReferenceFormItem: React.FC<Props> = ({
-  linkedItemsModalList,
   value,
-  disabled,
+  fieldId,
+  referencedItems,
   loading,
-  correspondingFieldId,
+  linkedItemsModalList,
+  disabled,
+  itemGroupId,
+  correspondingField,
   modelId,
   titleFieldId,
-  formItemsData,
   linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
@@ -69,11 +82,11 @@ const ReferenceFormItem: React.FC<Props> = ({
   }, [disabled, setVisible]);
 
   useEffect(() => {
-    const item = [...(formItemsData ?? []), ...(linkedItemsModalList ?? [])]?.find(
+    const item = [...(referencedItems ?? []), ...(linkedItemsModalList ?? [])]?.find(
       item => item.id === value,
     );
     setCurrentItem(item);
-  }, [linkedItemsModalList, formItemsData, value]);
+  }, [linkedItemsModalList, referencedItems, value]);
 
   return (
     <>
@@ -90,8 +103,9 @@ const ReferenceFormItem: React.FC<Props> = ({
           />
           {!disabled && (
             <UnreferButton
-              type="link"
-              icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
+              color="default"
+              variant="link"
+              icon={<Icon icon={"arrowUpRightSlash"} size={AntdToken.FONT.SIZE_LG} />}
               onClick={() => {
                 onChange?.();
               }}
@@ -101,7 +115,8 @@ const ReferenceFormItem: React.FC<Props> = ({
       )}
       {!disabled && (
         <StyledButton onClick={handleClick} type="primary">
-          <Icon icon="arrowUpRight" size={14} /> {value ? t("Replace item") : t("Refer to item")}
+          <Icon icon="arrowUpRight" size={AntdToken.FONT.SIZE} />{" "}
+          {value ? t("Replace item") : t("Refer to item")}
         </StyledButton>
       )}
       {!!onSearchTerm &&
@@ -111,7 +126,9 @@ const ReferenceFormItem: React.FC<Props> = ({
           <LinkItemModal
             visible={visible}
             loading={!!loading}
-            correspondingFieldId={correspondingFieldId}
+            fieldId={fieldId}
+            itemGroupId={itemGroupId}
+            correspondingField={correspondingField}
             linkedItemsModalList={linkedItemsModalList}
             linkedItem={value}
             linkItemModalTitle={linkItemModalTitle}
@@ -131,19 +148,19 @@ const ReferenceFormItem: React.FC<Props> = ({
 };
 
 const UnreferButton = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
-  margin-top: 8px;
 `;
 
 const ReferenceItemWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 export default ReferenceFormItem;

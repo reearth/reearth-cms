@@ -1,0 +1,49 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [139.6917, 35.6895],
+        "type": "Point"
+      },
+      "properties": {
+        "text-field-key": "text111",
+        "textarea-field-key": "textarea1",
+        "markdown-text-field-key": "markdown1",
+        "asset-field-key": {
+          "url": "",
+          "type": "asset"
+        },
+        "date-field-key": "2025-12-01T00:00:00+09:00",
+        "boolean-field-key": true,
+        "select-field-key": "red",
+        "int-field-key": 1,
+        "number-field-key": 1.11,
+        "url-field-key": "http://111.com/"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [139.6917, 35.6895],
+        "type": "Point"
+      },
+      "properties": {
+        "text-field-key": "text2",
+        "textarea-field-key": "textarea2",
+        "markdown-text-field-key": "markdown2",
+        "asset-field-key": {
+          "url": "",
+          "type": "asset"
+        },
+        "date-field-key": "2025-12-02T00:00:00+09:00",
+        "boolean-field-key": false,
+        "select-field-key": "blue",
+        "int-field-key": 2,
+        "number-field-key": 2.22,
+        "url-field-key": "http://222.com/"
+      },
+      "type": "Feature"
+    }
+  ]
+}

@@ -2,33 +2,114 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
 
 type List []*Item
 
-func (l List) ItemsByField(fid id.FieldID, value any) List {
+func (l List) ItemsByField(fid FieldID, value any) List {
 	return lo.Filter(l, func(i *Item, _ int) bool {
 		return i.HasField(fid, value)
 	})
 }
 
-func (l List) FilterFields(lids id.FieldIDList) List {
+func (l List) FilterFields(lids FieldIDList) List {
 	return lo.Map(l, func(i *Item, _ int) *Item {
 		return i.FilterFields(lids)
 	})
 }
 
-func (l List) Item(iID id.ItemID) (*Item, bool) {
+func (l List) Item(iID ID) (*Item, bool) {
 	return lo.Find(l, func(i *Item) bool {
 		return i.ID() == iID
 	})
 }
 
+func (l List) FilterByIds(ids IDList) List {
+	if l == nil {
+		return nil
+	}
+	return lo.Filter(l, func(i *Item, _ int) bool {
+		return ids.Has(i.ID())
+	})
+}
+
+func (l List) IDs() IDList {
+	return lo.Map(l, func(i *Item, _ int) ID {
+		return i.ID()
+	})
+}
+
+func (l List) MetadataIDs() IDList {
+	return lo.FilterMap(l, func(i *Item, _ int) (ID, bool) {
+		id := i.MetadataItem()
+		if id == nil {
+			return ID{}, false
+		}
+		return *i.MetadataItem(), true
+	})
+}
+
+func (l List) AssetIDs(sp schema.Package) AssetIDList {
+	if l == nil {
+		return nil
+	}
+	assetIDs := make(AssetIDList, 0)
+	for _, i := range l {
+		assetIDs = assetIDs.AddUniq(i.AssetIDsBySchema(sp)...)
+	}
+	return assetIDs
+}
+
+// RefItemIDs collects all unique reference field item IDs from the list
+func (l List) RefItemIDs(sp schema.Package) IDList {
+	if l == nil {
+		return nil
+	}
+
+	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemIDs(sp)
+	})
+
+	return lo.Uniq(refIDs)
+}
+
+// RefItemIDsByModels collects unique reference field item IDs from the list,
+// filtered to only include references pointing to models in the provided list.
+func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDList {
+	if l == nil || len(models) == 0 {
+		return nil
+	}
+
+	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemIDsByModels(sp, models)
+	})
+
+	return lo.Uniq(refIDs)
+}
+
+func (l List) ToMap() map[ID]*Item {
+	m := make(map[ID]*Item, len(l))
+	for _, i := range l {
+		m[i.ID()] = i
+	}
+	return m
+}
+
+func (l List) Clone() List {
+	if l == nil {
+		return nil
+	}
+	return lo.Map(l, func(i *Item, _ int) *Item {
+		return i.Clone()
+	})
+}
+
 type VersionedList []Versioned
 
-func (l VersionedList) FilterFields(fields id.FieldIDList) VersionedList {
+func (l VersionedList) FilterFields(fields FieldIDList) VersionedList {
 	return lo.Map(l, func(a Versioned, _ int) Versioned {
 		return version.ValueFrom(a, a.Value().FilterFields(fields))
 	})
@@ -41,7 +122,7 @@ func (l VersionedList) Unwrap() List {
 	return version.UnwrapValues(l)
 }
 
-func (l VersionedList) Item(iid id.ItemID) Versioned {
+func (l VersionedList) Item(iid ID) Versioned {
 	if l == nil {
 		return nil
 	}
@@ -53,8 +134,16 @@ func (l VersionedList) Item(iid id.ItemID) Versioned {
 	return nil
 }
 
-func (l VersionedList) ToMap() map[id.ItemID]*version.Value[*Item] {
-	m := make(map[id.ItemID]*version.Value[*Item], len(l))
+func (l VersionedList) AssetIDs(sp schema.Package) AssetIDList {
+	var ids AssetIDList
+	for _, v := range l {
+		ids = ids.AddUniq(v.Value().AssetIDsBySchema(sp)...)
+	}
+	return ids
+}
+
+func (l VersionedList) ToMap() map[ID]*version.Value[*Item] {
+	m := make(map[ID]*version.Value[*Item], len(l))
 	for _, i := range l {
 		m[i.Value().ID()] = i
 	}

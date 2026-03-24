@@ -3,27 +3,29 @@ import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import Typography from "@reearth-cms/components/atoms/Typography";
+import {
+  Integration,
+  IntegrationInfo,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
-  integration: Integration;
+  integration: IntegrationInfo & Pick<Integration, "config">;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
-  onIntegrationUpdate: (data: {
-    name: string;
-    description: string;
-    logoUrl: string;
-  }) => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };
 
@@ -41,8 +43,10 @@ const MyIntegrationForm: React.FC<Props> = ({
   onRegenerateToken,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
   const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
@@ -73,22 +77,20 @@ const MyIntegrationForm: React.FC<Props> = ({
   }, [form, onIntegrationUpdate]);
 
   const handleRegenerateToken = useCallback(() => {
-    Modal.confirm({
-      title: t("Regenerate The Integration Token?"),
+    confirm({
+      title: t("Re-generate The Integration Token?"),
       content: t(
-        "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
+        "If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
-      cancelText: t("Cancel"),
       okText: t("Reset"),
       onOk() {
         onRegenerateToken();
       },
     });
-  }, [t, onRegenerateToken]);
+  }, [confirm, t, onRegenerateToken]);
 
-  const handleCopy = useCallback(() => {
-    if (integration.config.token) navigator.clipboard.writeText(integration.config.token);
-  }, [integration.config.token]);
+  const api = window.REEARTH_CONFIG?.api || "";
+  const codeExampleText = `curl --location --request POST '${api}/${t("<workspace_id_or_alias>")}/projects/${t("<project_id_or_alias>")}/models/${t("<model_id_or_key>")}/items' --header 'Authorization: Bearer ${t("<your_integration_token>")}'`;
 
   return (
     <Form
@@ -112,23 +114,32 @@ const MyIntegrationForm: React.FC<Props> = ({
           <Form.Item name="description" label={t("Description")}>
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
-          <Form.Item label={t("Integration Token")}>
+          <StyledFormItem
+            label={t("Integration Token")}
+            extra={t("This is your secret token, please use as your env value.")}>
             <StyledTokenInput
               value={integration.config.token}
               contentEditable={false}
+              visibilityToggle={{ visible }}
+              iconRender={() => (
+                <CopyButton
+                  data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__TokenCopyButton}
+                  copyable={{ text: integration.config.token }}
+                />
+              )}
               prefix={
-                <Tooltip title={t("Token copied!!")} trigger={"click"}>
-                  <Icon icon="copy" onClick={handleCopy} />
-                </Tooltip>
+                <Icon
+                  icon={visible ? "eye" : "eyeInvisible"}
+                  onClick={() => {
+                    setVisible(prev => !prev);
+                  }}
+                />
               }
             />
-            <StyledRegenerateTokenButton
-              type="primary"
-              onClick={handleRegenerateToken}
-              loading={regenerateLoading}>
-              {t("Regenerate")}
-            </StyledRegenerateTokenButton>
-          </Form.Item>
+            <Button onClick={handleRegenerateToken} loading={regenerateLoading}>
+              {t("Re-generate")}
+            </Button>
+          </StyledFormItem>
           <Form.Item>
             <Button
               type="primary"
@@ -145,12 +156,23 @@ const MyIntegrationForm: React.FC<Props> = ({
         <Col span={11}>
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
           <CodeExample>
-            curl --location --request POST <br />
-            &apos;{window.REEARTH_CONFIG?.api}/models/
-            <CodeImportant>“{t("your model id here")}”</CodeImportant>/items&apos;&nbsp;\
+            <StyledCopyButton
+              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton}
+              copyable={{ text: codeExampleText }}
+            />
+            <span>curl --location --request POST </span>
             <br />
-            --header &apos;Authorization: Bearer&nbsp;
-            <CodeImportant>“{t("your Integration Token here")}”</CodeImportant>&apos;
+            <span>&apos;{api}/</span>
+            <Typography.Text code>{t("<workspace_id_or_alias>")}</Typography.Text>
+            <span>/projects/</span>
+            <Typography.Text code>{t("<project_id_or_alias>")}</Typography.Text>
+            <span>/models/</span>
+            <Typography.Text code>{t("<model_id_or_key>")}</Typography.Text>
+            <span>/items&apos;&nbsp;</span>
+            <br />
+            <span>--header 'Authorization: Bearer </span>
+            <Typography.Text code>{t("<your_integration_token>")}</Typography.Text>
+            <span>&apos;</span>
           </CodeExample>
         </Col>
       </Row>
@@ -159,38 +181,44 @@ const MyIntegrationForm: React.FC<Props> = ({
 };
 
 const CodeExampleTitle = styled.h2`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
-const CodeExample = styled.div`
-  border: 1px solid #d9d9d9;
-  padding: 5px 12px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
-`;
-
-const CodeImportant = styled.span`
-  color: #ff4d4f;
+const CodeExample = styled.pre`
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  padding: 5px ${AntdToken.SPACING.SM}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  position: relative;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 `;
 
 const StyledDivider = styled(Divider)`
   height: 100%;
 `;
 
+const StyledFormItem = styled(Form.Item)`
+  .ant-form-item-control-input-content {
+    display: flex;
+    gap: ${AntdToken.SPACING.XXS}px;
+  }
+`;
+
 const StyledTokenInput = styled(Password)`
-  width: calc(100% - 120px);
+  flex: 1;
   .ant-input-prefix {
     order: 1;
-    margin-left: 4px;
-    color: rgb(0, 0, 0, 0.45);
+    margin-left: ${AntdToken.SPACING.XXS}px;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
     transition: all 0.3s;
     :hover {
-      color: rgba(0, 0, 0, 0.88);
+      color: ${AntdColor.NEUTRAL.TEXT_V5};
     }
   }
   .ant-input-suffix {
@@ -198,9 +226,11 @@ const StyledTokenInput = styled(Password)`
   }
 `;
 
-const StyledRegenerateTokenButton = styled(Button)`
-  width: 115px;
-  margin-left: 5px;
+const StyledCopyButton = styled(CopyButton)`
+  position: absolute;
+  top: 5px;
+  right: ${AntdToken.SPACING.SM}px;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 export default MyIntegrationForm;

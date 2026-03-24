@@ -1,22 +1,29 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, Key, SetStateAction, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
-  ItemSort,
   ConditionInput,
   CurrentView,
+  ItemSort,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+import { Field } from "../../Schema/types";
 
 type Props = {
   commentsPanel: JSX.Element;
@@ -26,6 +33,7 @@ type Props = {
   contentTableFields?: ContentTableField[];
   loading: boolean;
   deleteLoading: boolean;
+  publishLoading: boolean;
   unpublishLoading: boolean;
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
@@ -45,9 +53,10 @@ type Props = {
   onSearchTerm: (term?: string) => void;
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
@@ -60,6 +69,14 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
+  onImportModalOpen: () => void;
+  modelFields: Field[];
+  hasModelFields: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -72,6 +89,7 @@ const ContentListMolecule: React.FC<Props> = ({
   modelsMenu,
   loading,
   deleteLoading,
+  publishLoading,
   unpublishLoading,
   selectedItem,
   selectedItems,
@@ -88,6 +106,7 @@ const ContentListMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onPublish,
   onUnpublish,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
@@ -95,7 +114,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
-  setSelectedItems,
+  onSelect,
   onItemSelect,
   onCollapse,
   onItemAdd,
@@ -104,8 +123,20 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemDelete,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasCreateRight,
+  hasDeleteRight,
+  hasPublishRight,
+  hasRequestUpdateRight,
+  showPublishAction,
+  onImportModalOpen,
+  hasModelFields,
 }) => {
   const t = useT();
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
 
   return (
     <ComplexInnerContents
@@ -127,13 +158,26 @@ const ContentListMolecule: React.FC<Props> = ({
                 title={model?.name}
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
-                  <Button
-                    type="primary"
-                    onClick={onItemAdd}
-                    icon={<Icon icon="plus" />}
-                    disabled={!model}>
-                    {t("New Item")}
-                  </Button>
+                  <>
+                    <Tooltip title={getImportContentUIMetadata.tooltipMessage}>
+                      <Button
+                        type="default"
+                        data-testid={DATA_TEST_ID.Content__List__ImportContentButton}
+                        onClick={onImportModalOpen}
+                        icon={<Icon icon="import" />}
+                        disabled={getImportContentUIMetadata.shouldDisable}>
+                        {t("Import content")}
+                        <ExperimentIcon disabled={getImportContentUIMetadata.shouldDisable} />
+                      </Button>
+                    </Tooltip>
+                    <Button
+                      type="primary"
+                      onClick={onItemAdd}
+                      icon={<Icon icon="plus" />}
+                      disabled={!model || !hasCreateRight}>
+                      {t("New Item")}
+                    </Button>
+                  </>
                 }
               />
               {viewsMenu}
@@ -145,14 +189,16 @@ const ContentListMolecule: React.FC<Props> = ({
                 pageSize={pageSize}
                 loading={loading}
                 deleteLoading={deleteLoading}
+                publishLoading={publishLoading}
                 unpublishLoading={unpublishLoading}
                 selectedItem={selectedItem}
                 selectedItems={selectedItems}
+                onPublish={onPublish}
                 onUnpublish={onUnpublish}
                 onSearchTerm={onSearchTerm}
                 onFilterChange={onFilterChange}
                 onContentTableChange={onContentTableChange}
-                setSelectedItems={setSelectedItems}
+                onSelect={onSelect}
                 onItemSelect={onItemSelect}
                 onItemsReload={onItemsReload}
                 onItemEdit={onItemEdit}
@@ -173,6 +219,13 @@ const ContentListMolecule: React.FC<Props> = ({
                 modelKey={model?.key}
                 onRequestSearchTerm={onRequestSearchTerm}
                 onRequestTableReload={onRequestTableReload}
+                hasDeleteRight={hasDeleteRight}
+                hasPublishRight={hasPublishRight}
+                hasRequestUpdateRight={hasRequestUpdateRight}
+                hasCreateRight={hasCreateRight}
+                showPublishAction={showPublishAction}
+                onImportModalOpen={onImportModalOpen}
+                hasModelFields={hasModelFields}
               />
             </>
           )}
@@ -185,11 +238,11 @@ const ContentListMolecule: React.FC<Props> = ({
 
 const Content = styled.div`
   width: 100%;
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const StyledPageHeder = styled(PageHeader)`
-  padding: 16px 24px 0px 24px !important;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px 0px ${AntdToken.SPACING.LG}px !important;
 `;
 
 export default ContentListMolecule;

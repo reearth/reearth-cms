@@ -1,4 +1,4 @@
-FROM node:20.18.0-slim AS builder
+FROM node:24.14.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -9,6 +9,7 @@ ENV GITHUB_SHA=$GITHUB_SHA
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=yarn.lock,target=yarn.lock \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
+    --mount=type=cache,target=/app/node_modules,sharing=locked \
     yarn install --frozen-lockfile --production=false
 
 RUN --mount=type=bind,source=package.json,target=package.json \
@@ -17,14 +18,17 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=tsconfig.json,target=tsconfig.json \
     --mount=type=bind,source=vite.config.ts,target=vite.config.ts \
     --mount=type=bind,source=src,target=src \
+    --mount=type=bind,source=public,target=public \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
+    --mount=type=cache,target=/app/node_modules,sharing=locked \
+    --mount=type=cache,target=/app/node_modules/.cache,sharing=locked \
     yarn build
 
-FROM nginx:1.27-alpine
-WORKDIR /app
+FROM nginx:1.29-alpine
+WORKDIR /usr/share/nginx/html
 
-# Quite the Nginx startup logs.
-ENV  NGINX_ENTRYPOINT_QUIET_LOGS=true
+# Quiet the Nginx startup logs.
+ENV NGINX_ENTRYPOINT_QUIET_LOGS=true
 
 # Default to Cloud Run port.
 # Ref: https://cloud.google.com/run/docs/reference/container-contract#port
@@ -35,18 +39,25 @@ ENV PORT=8080
 ENV REAL_IP_HEADER=X-Forwarded-For
 
 # Default values.
-# Cesium Ion access token is not a secret.
-ENV REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=null
-
-# All values in reearth_config.json must have a default value.
+ENV REEARTH_CMS_TITLE=
+ENV REEARTH_CMS_FAVICON_URL=
 ENV REEARTH_CMS_API=null
+ENV REEARTH_CMS_AUTH0_AUDIENCE=
+ENV REEARTH_CMS_AUTH0_CLIENT_ID=
+ENV REEARTH_CMS_AUTH0_DOMAIN=
+ENV REEARTH_CESIUM_ION_ACCESS_TOKEN=null
 ENV REEARTH_CMS_COVER_IMAGE_URL=null
 ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
+ENV REEARTH_CMS_DISABLE_WORKSPACE_UI=null
+ENV REEARTH_CMS_DASHBOARD_BASE_URL=null
+
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add jq
 
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
-COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template 
+COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template
 COPY --chown=nginx:nginx docker/40-envsubst-on-reearth-config.sh /docker-entrypoint.d
 COPY --chown=nginx:nginx docker/reearth_config.json.template /opt/reearth-cms/reearth_config.json.template
 

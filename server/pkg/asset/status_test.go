@@ -75,6 +75,10 @@ func TestStatus_StatusFromRef(t *testing.T) {
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &f, res)
 
+	s = lo.ToPtr("test")
+	res = ArchiveExtractionStatusFromRef(s)
+	assert.Nil(t, res)
+
 	s = nil
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Nil(t, res)

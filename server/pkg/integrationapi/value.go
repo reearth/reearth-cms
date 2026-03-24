@@ -31,6 +31,8 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeSelect
 	case ValueTypeInteger:
 		return value.TypeInteger
+	case ValueTypeNumber:
+		return value.TypeNumber
 	case ValueTypeReference:
 		return value.TypeReference
 	case ValueTypeUrl:
@@ -68,6 +70,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeSelect
 	case value.TypeInteger:
 		return ValueTypeInteger
+	case value.TypeNumber:
+		return ValueTypeNumber
 	case value.TypeReference:
 		return ValueTypeReference
 	case value.TypeURL:
@@ -131,26 +135,19 @@ func ToValue(v *value.Value, sf *schema.Field, assets *AssetContext) any {
 }
 
 type AssetContext struct {
-	Map     asset.Map
-	Files   map[asset.ID]*asset.File
-	BaseURL func(a *asset.Asset) string
-	All     bool
+	Map   asset.Map
+	Files map[asset.ID]*asset.File
+	All   bool
 }
 
 func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
 	if c.Map != nil {
 		if a, ok := c.Map[id]; ok {
-			var aurl string
-			if c.BaseURL != nil {
-				aurl = c.BaseURL(a)
-			}
-
 			var f *asset.File
 			if c.Files != nil {
 				f = c.Files[id]
 			}
-
-			return NewAsset(a, f, aurl, c.All)
+			return NewAsset(a, f, c.All)
 		}
 	}
 	return nil

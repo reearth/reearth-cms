@@ -7,6 +7,7 @@ import (
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *httpexpect.Value) {
@@ -46,8 +47,8 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 
 func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
-		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String,  $public: Boolean!) {
-				  updateModel(input: {modelId: $modelId, name: $name, description: $description, key: $key, public: $public}) {
+		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
+				  updateModel(input: {modelId: $modelId, name: $name, description: $description, key: $key}) {
 					model {
 					  id
 					  name
@@ -64,7 +65,6 @@ func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string) *htt
 			"name":        name,
 			"description": desc,
 			"key":         key,
-			"public":      false,
 		},
 	}
 
@@ -111,6 +111,7 @@ func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 
 	return res
 }
+
 func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation DeleteModel($modelId: ID!) {
@@ -135,6 +136,7 @@ func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 
 	return res.Path("$.data.deleteModel.modelId").Raw().(string), res
 }
+
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
@@ -145,7 +147,6 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 					  name
 					  description
 					  key
-					  public
 					  order
 					  schema {
 						id
@@ -330,6 +331,7 @@ func TestCreateModel(t *testing.T) {
 		HasValue("key", "test-1")
 
 }
+
 func TestUpdateModel(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -344,6 +346,54 @@ func TestUpdateModel(t *testing.T) {
 		HasValue("name", "updated name").
 		HasValue("description", "updated desc").
 		HasValue("key", "updated_key")
+}
+
+func TestDeleteModelCascade(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-cascade")
+	mId, _ := createModel(e, pId, "cascade-model", "test", "cascade-model")
+
+	// Get schema ID for item creation
+	sId, _, _ := getModel(e, mId)
+
+	// Create a view for this model
+	_, _ = createView(e, pId, mId, "test-view", nil, nil, nil)
+
+	// Create an item for this model
+	iId, _ := createItem(e, mId, sId, nil, []map[string]any{})
+
+	// Delete the model — should cascade to views and items
+	deletedId, _ := deleteModel(e, mId)
+	assert.Equal(t, mId, deletedId)
+
+	// Model should no longer exist
+	nodeRes := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(GraphQLRequest{
+			Query:     `query GetNode($id: ID!) { node(id: $id, type: Model) { id } }`,
+			Variables: map[string]any{"id": mId},
+		}).
+		Expect().Status(http.StatusOK).JSON()
+	nodeRes.Path("$.data.node").IsNull()
+
+	// Item should no longer exist
+	itemRes := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(GraphQLRequest{
+			Query:     `query GetNode($id: ID!) { node(id: $id, type: Item) { id } }`,
+			Variables: map[string]any{"id": iId},
+		}).
+		Expect().Status(http.StatusOK).JSON()
+	itemRes.Path("$.data.node").IsNull()
+
+	// View should no longer exist (views query returns empty list)
+	viewRes := getViews(e, mId)
+	viewRes.Path("$.data.view").Array().IsEmpty()
 }
 
 func TestUpdateModelsOrder(t *testing.T) {

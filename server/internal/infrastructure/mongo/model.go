@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -12,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -79,10 +81,10 @@ func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination 
 
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
-	}, pagination)
+	}, nil, pagination)
 }
 
-func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k *string, sort *usecasex.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -91,13 +93,13 @@ func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k
 		"project": pid.String(),
 	}
 
-	if k != "" {
+	if k != nil && *k != "" {
 		filter["name"] = bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(k)), Options: "i"},
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*k)), Options: "i"},
 		}
 	}
 
-	return r.paginate(ctx, filter, pagination)
+	return r.paginate(ctx, filter, normalize(sort), pagination)
 }
 
 func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {
@@ -185,9 +187,9 @@ func (r *Model) find(ctx context.Context, filter any) (model.List, error) {
 	return c.Result, nil
 }
 
-func (r *Model) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) paginate(ctx context.Context, filter bson.M, sort *usecasex.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewModelConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -204,6 +206,26 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 				break
 			}
 		}
+	}
+	return res
+}
+
+func normalize(ms *usecasex.Sort) *usecasex.Sort {
+	if ms == nil {
+		return &usecasex.Sort{Key: "order", Reverted: true}
+	}
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(ms.Key)),
+		Reverted: ms.Reverted,
+	}
+	switch res.Key {
+	case "createdat", "created_at":
+		res.Key = "id"
+	case "updated_at":
+		res.Key = "updatedat"
+	}
+	if !lo.Contains([]string{"id", "name", "description", "key", "project", "schema", "metadata", "updatedat", "order"}, res.Key) {
+		res.Key = "order"
 	}
 	return res
 }

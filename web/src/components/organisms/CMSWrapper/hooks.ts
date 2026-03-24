@@ -1,24 +1,35 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import {
   fromGraphQLMember,
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useCreateWorkspaceMutation,
-  useGetMeQuery,
-  useGetProjectQuery,
-  ProjectPublicationScope,
   WorkspaceMember,
   Workspace as GQLWorkspace,
-} from "@reearth-cms/gql/graphql-client-api";
+  Project as GQLProject,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useProject, useUserId, useWorkspaceId } from "@reearth-cms/state";
-import { splitPathname } from "@reearth-cms/utils/path";
+import {
+  useWorkspace,
+  useProject,
+  useUserId,
+  useWorkspaceId,
+  useUserRights,
+  useCollapsedMainMenu,
+} from "@reearth-cms/state";
+import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
+
+import { userRightsGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -26,25 +37,35 @@ export default () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const logoUrl = window.REEARTH_CONFIG?.logoUrl;
+  const dashboardBaseUrl = window.REEARTH_CONFIG?.dashboardBaseUrl;
 
-  const [, setCurrentUserId] = useUserId();
+  const [currentUserId, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [, setCurrentWorkspaceId] = useWorkspaceId();
   const [currentProject, setCurrentProject] = useProject();
+  const [, setUserRights] = useUserRights();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsedMainMenu, setCollapsedMainMenu] = useCollapsedMainMenu();
 
-  const { data, refetch } = useGetMeQuery();
+  const { data, refetch } = useQuery(GetMeDocument);
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
 
+  const profilePictureUrl = useMemo(
+    () => data?.me?.profilePictureUrl ?? undefined,
+    [data?.me?.profilePictureUrl],
+  );
+
   setCurrentUserId(data?.me?.id);
 
-  const handleCollapse = useCallback((collapse: boolean) => {
-    setCollapsed(collapse);
-  }, []);
+  const handleCollapse = useCallback(
+    (collapse: boolean) => {
+      setCollapsedMainMenu(collapse);
+    },
+    [setCollapsedMainMenu],
+  );
 
   const workspaces = data?.me?.workspaces?.map(workspace =>
     fromGraphQLWorkspace(workspace as GQLWorkspace),
@@ -58,6 +79,7 @@ export default () => {
       ? {
           id: foundWorkspace.id,
           name: foundWorkspace.name,
+          alias: foundWorkspace.alias,
           members: foundWorkspace.members?.map(member =>
             fromGraphQLMember(member as WorkspaceMember),
           ),
@@ -68,10 +90,18 @@ export default () => {
 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
-    setCurrentWorkspace(data.me?.myWorkspace ?? undefined);
-    setCurrentWorkspaceId(data.me?.myWorkspace?.id);
+    setCurrentWorkspace(personalWorkspace ?? undefined);
+    setCurrentWorkspaceId(personalWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
-  }, [data, navigate, setCurrentWorkspace, setCurrentWorkspaceId, currentWorkspace, workspaceId]);
+  }, [
+    data,
+    navigate,
+    setCurrentWorkspace,
+    setCurrentWorkspaceId,
+    currentWorkspace,
+    workspaceId,
+    personalWorkspace,
+  ]);
 
   useEffect(() => {
     if (workspace?.id && workspace.id !== currentWorkspace?.id) {
@@ -83,7 +113,16 @@ export default () => {
     }
   }, [currentWorkspace, workspace, personal, setCurrentWorkspace, setCurrentWorkspaceId]);
 
-  const [createWorkspaceMutation] = useCreateWorkspaceMutation();
+  useEffect(() => {
+    const userInfo = currentWorkspace?.members?.find(
+      member => "userId" in member && member.userId === data?.me?.id,
+    );
+    if (userInfo) {
+      setUserRights(userRightsGet((userInfo as UserMember).role));
+    }
+  }, [currentUserId, currentWorkspace, data?.me?.id, setUserRights]);
+
+  const [createWorkspaceMutation] = useMutation(CreateWorkspaceDocument);
   const handleWorkspaceCreate = useCallback(
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
@@ -108,10 +147,14 @@ export default () => {
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    navigate(`/workspace/${personalWorkspace?.id}/account`);
-  }, [personalWorkspace?.id, navigate]);
+    if (dashboardBaseUrl) {
+      window.open(joinPaths(dashboardBaseUrl, "settings/profile"), "_blank", "noopener,noreferrer");
+    } else {
+      navigate(`/workspace/${personalWorkspace?.id}/account`);
+    }
+  }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
-  const { data: projectData } = useGetProjectQuery({
+  const { data: projectData } = useQuery(GetProjectDocument, {
     variables: { projectId: projectId ?? "" },
     skip: !projectId,
   });
@@ -120,15 +163,7 @@ export default () => {
     if (projectId) {
       const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
       if (project) {
-        setCurrentProject({
-          id: project.id,
-          name: project.name,
-          description: project.description,
-          scope: convertScope(project.publication?.scope),
-          alias: project.alias,
-          assetPublic: project.publication?.assetPublic,
-          requestRoles: project.requestRoles ?? undefined,
-        });
+        setCurrentProject(fromGraphQLProject(project as GQLProject));
       }
     } else {
       setCurrentProject(undefined);
@@ -139,7 +174,7 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
-      } else if (info.key === "overview") {
+      } else if (info.key === "models") {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
       } else {
         navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
@@ -152,11 +187,29 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
+      } else if (info.key === "members" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "members"),
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (info.key === "workspaceSettings" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/general"),
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (info.key === "account" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, "settings/profile"),
+          "_blank",
+          "noopener,noreferrer",
+        );
       } else {
         navigate(`/workspace/${workspaceId}/${info.key}`);
       }
     },
-    [navigate, workspaceId],
+    [currentWorkspace?.alias, dashboardBaseUrl, navigate, workspaceId],
   );
 
   const handleWorkspaceNavigation = useCallback(
@@ -172,6 +225,7 @@ export default () => {
 
   return {
     username,
+    profilePictureUrl,
     personalWorkspace,
     workspaces,
     currentWorkspace,
@@ -179,7 +233,7 @@ export default () => {
     currentProject,
     selectedKey: subRoute,
     secondaryRoute,
-    collapsed,
+    collapsedMainMenu,
     handleCollapse,
     handleProjectMenuNavigate,
     handleWorkspaceMenuNavigate,
@@ -191,14 +245,4 @@ export default () => {
     handleHomeNavigation,
     logoUrl,
   };
-};
-
-const convertScope = (scope?: ProjectPublicationScope): PublicScope | undefined => {
-  switch (scope) {
-    case "PUBLIC":
-      return "public";
-    case "PRIVATE":
-      return "private";
-  }
-  return "private";
 };

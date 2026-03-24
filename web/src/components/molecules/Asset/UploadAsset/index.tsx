@@ -1,3 +1,4 @@
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
@@ -10,10 +11,12 @@ type Props = {
   alsoLink?: boolean;
   uploadProps: UploadProps;
   fileList?: UploadFile<File>[];
+  alertList?: AlertProps[];
   uploading?: boolean;
   uploadModalVisibility?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType?: UploadType;
+  hasCreateRight: boolean;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
   onUploadModalClose?: () => void;
@@ -26,13 +29,15 @@ const UploadAsset: React.FC<Props> = ({
   alsoLink,
   uploadProps,
   fileList,
+  alertList,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  hasCreateRight,
   onUploadModalClose,
   displayUploadModal,
   onUploadModalCancel,
-  uploadUrl,
-  uploadType,
   setUploadUrl,
   setUploadType,
   onUpload,
@@ -40,13 +45,18 @@ const UploadAsset: React.FC<Props> = ({
   const t = useT();
   return (
     <>
-      <Button type="primary" icon={<Icon icon="upload" />} onClick={displayUploadModal}>
+      <Button
+        type="primary"
+        icon={<Icon icon="upload" />}
+        onClick={displayUploadModal}
+        disabled={!hasCreateRight}>
         {t("Upload Asset")}
       </Button>
       <UploadModal
         alsoLink={alsoLink}
         uploadProps={uploadProps}
         fileList={fileList}
+        alertList={alertList}
         uploading={uploading}
         uploadUrl={uploadUrl}
         uploadType={uploadType}

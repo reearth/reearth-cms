@@ -4,11 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
 type Props = {
-  user: User;
+  initialValues: FormType;
   onLanguageUpdate: (lang: string) => Promise<void>;
 };
 
@@ -16,10 +15,10 @@ type FormType = {
   lang: string;
 };
 
-const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
-  const [form] = Form.useForm<FormType>();
-  const { Option } = Select;
+const ServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
   const t = useT();
+
+  const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,9 +35,9 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
 
   const handleSelect = useCallback(
     (value: string) => {
-      setIsDisabled(value === user?.lang);
+      setIsDisabled(value === initialValues.lang);
     },
-    [user?.lang],
+    [initialValues.lang],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -55,16 +54,16 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   }, [form, onLanguageUpdate]);
 
   return (
-    <StyledForm form={form} initialValues={user} layout="vertical" autoComplete="off">
+    <StyledForm form={form} initialValues={initialValues} layout="vertical" autoComplete="off">
       <Form.Item
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI language")}>
         <Select placeholder={t("Language")} onSelect={handleSelect}>
           {langItems?.map(langItem => (
-            <Option key={langItem.key} value={langItem.key}>
+            <Select.Option key={langItem.key} value={langItem.key}>
               {langItem.label}
-            </Option>
+            </Select.Option>
           ))}
         </Select>
       </Form.Item>
@@ -79,4 +78,4 @@ const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
 `;
 
-export default AccountServiceForm;
+export default ServiceForm;

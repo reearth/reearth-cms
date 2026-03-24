@@ -14,7 +14,7 @@ const Loading: React.FC<Props> = ({ spinnerSize, minHeight }) => {
 
   return (
     <StyledRow justify="center" align="middle" minHeight={minHeight}>
-      <Spin tip={t("Loading")} size={spinnerSize} />
+      <Spin tip={t("Loading")} size={spinnerSize} data-testid="loading" />
     </StyledRow>
   );
 };

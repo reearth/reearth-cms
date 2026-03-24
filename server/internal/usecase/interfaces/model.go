@@ -17,7 +17,19 @@ type CreateModelParam struct {
 	Name        *string
 	Description *string
 	Key         *string
-	Public      *bool
+}
+
+type CopyModelParam struct {
+	ModelId id.ModelID
+	Name    *string
+	Key     *string
+}
+
+type FindByProjectAndKeywordParam struct {
+	ProjectID  id.ProjectID
+	Keyword    *string
+	Sort       *usecasex.Sort
+	Pagination *usecasex.Pagination
 }
 
 type FindOrCreateSchemaParam struct {
@@ -34,11 +46,16 @@ type UpdateModelParam struct {
 	Name        *string
 	Description *string
 	Key         *string
-	Public      *bool
+}
+
+type PublishModelParam struct {
+	ModelID id.ModelID
+	Public  bool
 }
 
 var (
-	ErrModelKey error = rerror.NewE(i18n.T("model key is already used by another model"))
+	ErrModelKey                     error = rerror.NewE(i18n.T("model key is already used by another model"))
+	ErrModelCountPerProjectExceeded       = rerror.NewE(i18n.T("the number of models in a project has exceeded the limit"))
 )
 
 type Model interface {
@@ -46,7 +63,7 @@ type Model interface {
 	FindBySchema(context.Context, id.SchemaID, *usecase.Operator) (*model.Model, error)
 	FindByIDs(context.Context, []id.ModelID, *usecase.Operator) (model.List, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
-	FindByProjectAndKeyword(context.Context, id.ProjectID, string, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
+	FindByProjectAndKeyword(context.Context, FindByProjectAndKeywordParam, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*model.Model, error)
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey, *usecase.Operator) (*model.Model, error)
 	FindOrCreateSchema(context.Context, FindOrCreateSchemaParam, *usecase.Operator) (*schema.Schema, error)
@@ -54,6 +71,6 @@ type Model interface {
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	UpdateOrder(context.Context, id.ModelIDList, *usecase.Operator) (model.List, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
-	Delete(context.Context, id.ModelID, *usecase.Operator) error
-	Publish(context.Context, id.ModelID, bool, *usecase.Operator) (bool, error)
+	Delete(context.Context, id.ModelID, schema.Package, *usecase.Operator) error
+	Copy(context.Context, CopyModelParam, *usecase.Operator) (*model.Model, error)
 }

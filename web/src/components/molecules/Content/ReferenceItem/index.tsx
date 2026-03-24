@@ -6,6 +6,7 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ItemStatus } from "../types";
 
@@ -39,9 +40,9 @@ const ReferenceItem: React.FC<Props> = ({
   );
 
   return (
-    <StyledReferenceItem>
+    <StyledReferenceItem disabled={disabled}>
       <Tooltip title={title}>
-        <StlyedReferenceTitle disabled={disabled}>{title}</StlyedReferenceTitle>
+        <StlyedReferenceTitle>{title}</StlyedReferenceTitle>
         {linkTo ? (
           <Link to={linkTo} target="_blank">
             <ReferenceItemName>{value}</ReferenceItemName>
@@ -51,36 +52,38 @@ const ReferenceItem: React.FC<Props> = ({
         )}
       </Tooltip>
       <div>
-        {itemStatus?.map((state, index) => <StyledBadge key={index} color={stateColors[state]} />)}
+        {itemStatus?.map((state, index) => (
+          <StyledBadge key={index} color={stateColors[state]} />
+        ))}
       </div>
     </StyledReferenceItem>
   );
 };
 
-const StlyedReferenceTitle = styled.div<{ disabled?: boolean }>`
-  margin-bottom: 4px;
-  ${({ disabled }) => disabled && "color: rgba(0, 0, 0, 0.25);"}
+const StlyedReferenceTitle = styled.div`
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
-const StyledReferenceItem = styled.div`
+const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  background-color: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.BASE}px;
+  background-color: ${({ disabled }) =>
+    disabled ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_ELEVATED};
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  border-radius: ${AntdToken.RADIUS.SM}px;
   justify-content: space-between;
   flex: 1;
 `;
 
 const ReferenceItemName = styled.p`
   margin: 0;
-  color: #1890ff;
+  color: ${AntdColor.BLUE.BLUE_5};
 `;
 
 const StyledBadge = styled(Badge)`
   + * {
-    margin-left: 4px;
+    margin-left: ${AntdToken.SPACING.XXS}px;
   }
 `;
 

@@ -21,9 +21,10 @@ type AssetDocument struct {
 	Size                    uint64
 	PreviewType             string
 	UUID                    string
-	Thread                  string
+	Thread                  *string
 	ArchiveExtractionStatus string
 	FlatFiles               bool
+	Public                  bool
 }
 
 type AssetAndFileDocument struct {
@@ -33,11 +34,12 @@ type AssetAndFileDocument struct {
 }
 
 type AssetFileDocument struct {
-	Name        string
-	Size        uint64
-	ContentType string
-	Path        string
-	Children    []*AssetFileDocument
+	Name            string
+	Size            uint64
+	ContentType     string
+	ContentEncoding string
+	Path            string
+	Children        []*AssetFileDocument
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -78,9 +80,10 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),
-		Thread:                  a.Thread().String(),
+		Thread:                  a.Thread().StringRef(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		FlatFiles:               a.FlatFiles(),
+		Public:                  a.Public(),
 	}, aid
 }
 
@@ -93,10 +96,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	if err != nil {
 		return nil, err
 	}
-	thid, err := id.ThreadIDFrom(d.Thread)
-	if err != nil {
-		return nil, err
-	}
 
 	ab := asset.New().
 		ID(aid).
@@ -106,9 +105,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		UUID(d.UUID).
-		Thread(thid).
+		Thread(id.ThreadIDFromRef(d.Thread)).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus))).
-		FlatFiles(d.FlatFiles)
+		FlatFiles(d.FlatFiles).
+		Public(d.Public)
 
 	if d.User != nil {
 		uid, err := accountdomain.UserIDFrom(*d.User)
@@ -142,11 +142,12 @@ func NewFile(f *asset.File) *AssetFileDocument {
 	}
 
 	return &AssetFileDocument{
-		Name:        f.Name(),
-		Size:        f.Size(),
-		ContentType: f.ContentType(),
-		Path:        f.Path(),
-		Children:    c,
+		Name:            f.Name(),
+		Size:            f.Size(),
+		ContentType:     f.ContentType(),
+		ContentEncoding: f.ContentEncoding(),
+		Path:            f.Path(),
+		Children:        c,
 	}
 }
 
@@ -167,6 +168,7 @@ func (f *AssetFileDocument) Model() *asset.File {
 		Name(f.Name).
 		Size(f.Size).
 		ContentType(f.ContentType).
+		ContentEncoding(f.ContentEncoding).
 		Path(f.Path).
 		Children(c).
 		Build()

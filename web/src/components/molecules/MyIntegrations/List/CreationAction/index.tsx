@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {
   onIntegrationModalOpen: () => void;
@@ -21,37 +22,38 @@ const IntegrationCreationAction: React.FC<Props> = ({ onIntegrationModalOpen }) 
 };
 
 const CardWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledIcon = styled(Icon)`
   font-size: 36px;
 `;
 
-const Card = styled.div`
+const Card = styled.button`
   justify-content: center;
   height: 180px;
   width: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0px 2px 8px #00000026;
-  border-radius: 4px;
-  color: #00000073;
+  padding: ${AntdToken.SPACING.LG}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
+  border-radius: ${AntdToken.RADIUS.SM}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   cursor: pointer;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   &:hover {
-    color: #1890ff;
-    background-color: #e6f7ff;
+    color: ${AntdColor.BLUE.BLUE_5};
+    background-color: ${AntdColor.BLUE.BLUE_0}; /* originally #E6F7FF */
   }
 `;
 
 const CardTitle = styled.p`
-  margin-top: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 22px;
+  margin-top: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 export default IntegrationCreationAction;

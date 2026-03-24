@@ -48,6 +48,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 		Group:             NewGroup(client),
 		Event:             NewEvent(client),
 		WorkspaceSettings: NewWorkspaceSettings(client),
+		Job:               NewJob(client),
 	}
 
 	// init
@@ -75,11 +76,13 @@ func Init(r *repo.Container) error {
 		r.View.(*View).Init,
 		r.Request.(*Request).Init,
 		r.Project.(*ProjectRepo).Init,
+		r.Item.(*Item).Init,
 		r.Schema.(*Schema).Init,
 		r.Group.(*Group).Init,
 		r.Integration.(*Integration).Init,
 		r.Event.(*Event).Init,
 		r.WorkspaceSettings.(*WorkspaceSettingsRepo).Init,
+		r.Job.(*Job).Init,
 	)
 }
 

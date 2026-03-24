@@ -5,6 +5,7 @@ import {
   SearchOutlined,
   SettingOutlined,
   UsergroupAddOutlined,
+  UsergroupDeleteOutlined,
   UserSwitchOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
@@ -46,12 +47,22 @@ import {
   FileTwoTone,
   PictureTwoTone,
   LoadingOutlined,
+  EyeOutlined,
   EyeInvisibleOutlined,
   CopyOutlined,
+  CopyrightOutlined,
   ReloadOutlined,
   SortAscendingOutlined,
   FilterOutlined,
   CommentOutlined,
+  SaveOutlined,
+  LockOutlined,
+  BlockOutlined,
+  ReadOutlined,
+  DownOutlined,
+  PaperClipOutlined,
+  ExclamationCircleFilled,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -68,6 +79,8 @@ import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
+import Import from "./Icons/import.svg";
+import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
 import LineString from "./Icons/lineString.svg";
@@ -83,21 +96,24 @@ import NumberNine from "./Icons/numberNine.svg";
 import Pencil from "./Icons/pencil.svg";
 import Polygon from "./Icons/polygon.svg";
 import Rectangle from "./Icons/rectangle.svg";
+import RetryFilled from "./Icons/retryFilled.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
 import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
+import WarningSolid from "./Icons/warningSolid.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
-export default {
+const icons = {
   home: HomeOutlined,
   download: DownloadOutlined,
   api: ApiOutlined,
   search: SearchOutlined,
   settings: SettingOutlined,
   userGroupAdd: UsergroupAddOutlined,
+  userGroupDelete: UsergroupDeleteOutlined,
   userSwitch: UserSwitchOutlined,
   caretDown: CaretDownOutlined,
   caretRight: CaretRightOutlined,
@@ -114,6 +130,7 @@ export default {
   plus: PlusOutlined,
   close: CloseOutlined,
   exclamationCircle: ExclamationCircleOutlined,
+  exclamationSolid: ExclamationCircleFilled,
   upload: UploadOutlined,
   message: MessageOutlined,
   inbox: InboxOutlined,
@@ -126,6 +143,7 @@ export default {
   listBullets: ListBullets,
   arrowUpRight: ArrowUpRight,
   arrowUpRightSlash: ArrowUpRightSlash,
+  infinity: InfinityIcon,
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,
@@ -157,8 +175,10 @@ export default {
   loading: LoadingOutlined,
   linked: Linked,
   unzip: Unzip,
+  eye: EyeOutlined,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
+  copyright: CopyrightOutlined,
   terminalWindow: TerminalWindow,
   date: Date,
   tag: Tag,
@@ -181,4 +201,18 @@ export default {
   circle: Circle,
   rectangle: Rectangle,
   comment: CommentOutlined,
+  import: Import,
+  save: SaveOutlined,
+  lock: LockOutlined,
+  block: BlockOutlined,
+  read: ReadOutlined,
+  down: DownOutlined,
+  clip: PaperClipOutlined,
+  retry: RetryFilled,
+  warningSolid: WarningSolid,
+  experimentOutlined: ExperimentOutlined,
 };
+
+export type IconName = keyof typeof icons;
+
+export default icons;

@@ -2,12 +2,14 @@ package integration
 
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -46,10 +48,10 @@ func Page(p usecasex.OffsetPagination) int {
 	return int(p.Offset/int64(p.Limit)) + 1
 }
 
-func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.ItemFieldParam {
-	var v any = f.Value
+func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.ItemFieldParam {
+	var v = f.Value
 	if f.Value != nil {
-		v = *f.Value
+		v = f.Value
 	}
 
 	var k *id.Key
@@ -113,10 +115,9 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 			continue
 		}
 		igID := id.NewItemGroupID()
-		var v any
-		v = []id.ItemGroupID{id.NewItemGroupID()}
-		if !gsf.Multiple() {
-			v = igID
+		var v any = igID
+		if gsf.Multiple() {
+			v = []any{igID}
 		}
 		res = append(res, interfaces.ItemFieldParam{
 			Field: gsf.ID().Ref(),
@@ -166,49 +167,33 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 		},
 	})
 	if !sf.Multiple() {
-		name := lo.FromPtr(field.Value).(string)
+		name := field.Value.(string)
 		tag := tagList.FindByName(name)
 		if tag != nil {
 			var v any = tag.ID()
-			field.Value = &v
+			field.Value = v
 		}
 	} else {
-		names := lo.FromPtr(field.Value).([]string)
+		names := field.Value.([]string)
 		tagIDs := util.Map(names, func(n string) id.TagID {
 			t := lo.FromPtr(tagList.FindByName(n))
 			return t.ID()
 		})
 		var v any = tagIDs
-		field.Value = &v
+		field.Value = v
 	}
 }
 
-func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
-	var s *view.Sort
-	if req.Params.Sort != nil {
-		s = fromSort(sp, *req.Params.Sort, req.Params.Dir)
-	}
-
-	var c *view.Condition
-	if req.Body.Filter != nil {
-		c = fromCondition(sp, *req.Body.Filter)
-	}
-
-	return item.NewQuery(sp.Schema().Project(), req.ModelId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
-		WithSort(s).
-		WithFilter(c)
-}
-
-func fromSort(sp schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
+func fromSort(_ schema.Package, sort integrationapi.SortParam, dir *integrationapi.SortDirParam) *view.Sort {
 	if dir == nil {
-		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+		dir = lo.ToPtr(integrationapi.SortDirParamAsc)
 	}
 	d := view.DirectionDesc
-	if *dir == integrationapi.ItemFilterParamsDirAsc {
+	if *dir == integrationapi.SortDirParamAsc {
 		d = view.DirectionAsc
 	}
 	switch sort {
-	case integrationapi.ItemFilterParamsSortCreatedAt:
+	case integrationapi.SortParamCreatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeCreationDate,
@@ -216,7 +201,7 @@ func fromSort(sp schema.Package, sort integrationapi.ItemFilterParamsSort, dir *
 			},
 			Direction: d,
 		}
-	case integrationapi.ItemFilterParamsSortUpdatedAt:
+	case integrationapi.SortParamUpdatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeModificationDate,
@@ -228,6 +213,115 @@ func fromSort(sp schema.Package, sort integrationapi.ItemFilterParamsSort, dir *
 	return nil
 }
 
-func fromCondition(sp schema.Package, condition integrationapi.Condition) *view.Condition {
-	return condition.Into()
+func toProjectSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
+
+	column := "id"
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = "id"
+		case integrationapi.SortParamUpdatedAt:
+			column = "updatedat"
+		}
+	}
+
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
+	}
+}
+
+func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
+
+	column := "order"
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = "id"
+		case integrationapi.SortParamUpdatedAt:
+			column = "updatedat"
+		}
+	}
+
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
+	}
+}
+
+func toGroupSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *group.Sort {
+	direction := group.DirectionDesc
+	if dir != nil && *dir == integrationapi.SortDirParamAsc {
+		direction = group.DirectionAsc
+	}
+
+	column := group.ColumnCreatedAt
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = group.ColumnCreatedAt
+		}
+	}
+
+	return &group.Sort{
+		Column:    column,
+		Direction: direction,
+	}
+}
+
+func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
+	if condition == (integrationapi.Condition{}) {
+		return nil
+	}
+
+	result := condition.Into()
+	if result == nil {
+		return nil
+	}
+
+	return result
+}
+
+func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Role, bool) {
+	if len(roles) == 0 {
+		return nil, true
+	}
+
+	result := make([]workspace.Role, 0, len(roles))
+	for _, r := range roles {
+		role, ok := fromRequestRole(r)
+		if !ok {
+			return nil, false
+		}
+		result = append(result, *role)
+	}
+	return result, true
+}
+
+func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool) {
+	switch r {
+	case integrationapi.OWNER:
+		return lo.ToPtr(workspace.RoleOwner), true
+	case integrationapi.MAINTAINER:
+		return lo.ToPtr(workspace.RoleMaintainer), true
+	case integrationapi.WRITER:
+		return lo.ToPtr(workspace.RoleWriter), true
+	case integrationapi.READER:
+		return lo.ToPtr(workspace.RoleReader), true
+	default:
+		return nil, false
+	}
+}
+
+func fromProjectVisibility(p integrationapi.AccessibilityVisibility) *project.Visibility {
+	switch p {
+	case integrationapi.PUBLIC:
+		return lo.ToPtr(project.VisibilityPublic)
+	case integrationapi.PRIVATE:
+		return lo.ToPtr(project.VisibilityPrivate)
+	default:
+		return nil
+	}
 }

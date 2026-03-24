@@ -55,4 +55,16 @@ func TestAsset_Type(t *testing.T) {
 
 	r := Resource{}
 	assert.Equal(t, "resource", r.Type())
+
+	v := View{}
+	assert.Equal(t, "view", v.Type())
+
+	tag := Tag{}
+	assert.Equal(t, "tag", tag.Type())
+
+	g := Group{}
+	assert.Equal(t, "group", g.Type())
+
+	ig := ItemGroup{}
+	assert.Equal(t, "item_group", ig.Type())
 }

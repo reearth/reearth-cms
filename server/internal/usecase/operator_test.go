@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -262,4 +263,71 @@ func TestOperator_RoleByProject(t *testing.T) {
 	role5 := operator5.RoleByProject(pid5)
 	expectedRole5 := workspace.Role("")
 	assert.Equal(t, expectedRole5, role5)
+}
+
+func TestOperator_IsUserOrIntegration(t *testing.T) {
+	uid := user.NewID()
+	iid := integration.NewID()
+
+	tests := []struct {
+		name     string
+		operator *Operator
+		want     bool
+	}{
+		{
+			name:     "nil operator",
+			operator: nil,
+			want:     false,
+		},
+		{
+			name: "no user or integration",
+			operator: &Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			want: false,
+		},
+		{
+			name: "user only",
+			operator: &Operator{
+				AcOperator: &accountusecase.Operator{
+					User: &uid,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "integration only",
+			operator: &Operator{
+				Integration: &iid,
+				AcOperator:  &accountusecase.Operator{},
+			},
+			want: true,
+		},
+		{
+			// note: not valid in real use case
+			name: "both user and integration",
+			operator: &Operator{
+				Integration: &iid,
+				AcOperator: &accountusecase.Operator{
+					User: &uid,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "nil AcOperator",
+			operator: &Operator{
+				Integration: nil,
+				AcOperator:  nil,
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.operator.IsUserOrIntegration()
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }

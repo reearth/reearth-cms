@@ -40,6 +40,20 @@ func NewThread(a *thread.Thread) (*ThreadDocument, string) {
 	return thd, id
 }
 
+func NewThreads(a thread.List) ([]ThreadDocument, []string) {
+	res := make([]ThreadDocument, 0, len(a))
+	ids := make([]string, 0, len(a))
+	for _, th := range a {
+		if th == nil {
+			continue
+		}
+		thDoc, thId := NewThread(th)
+		res = append(res, *thDoc)
+		ids = append(ids, thId)
+	}
+	return res, ids
+}
+
 func (d *ThreadDocument) Model() (*thread.Thread, error) {
 	thid, err := id.ThreadIDFrom(d.ID)
 	if err != nil {

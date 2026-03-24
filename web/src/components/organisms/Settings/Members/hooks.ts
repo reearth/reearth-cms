@@ -1,60 +1,61 @@
-import { Key, useCallback, useMemo, useState } from "react";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User, RoleUnion } from "@reearth-cms/components/molecules/Member/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetWorkspaceQuery,
-  useGetMeQuery,
-  useAddUsersToWorkspaceMutation,
-  useUpdateMemberOfWorkspaceMutation,
-  Role,
-  useRemoveMemberFromWorkspaceMutation,
+  Role as GQLRole,
   Workspace as GQLWorkspace,
-  useGetUserBySearchLazyQuery,
   MemberInput as GQLMemberInput,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetMeDocument, GetUsersDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import {
+  AddUsersToWorkspaceDocument,
+  GetWorkspaceDocument,
+  RemoveMultipleMembersFromWorkspaceDocument,
+  UpdateMemberOfWorkspaceDocument,
+} from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export default () => {
+  const t = useT();
   const navigate = useNavigate();
+
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
-  const [roleModalShown, setRoleModalShown] = useState(false);
-  const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<UserMember>();
-  const [searchTerm, setSearchTerm] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
-    selectedRowKeys: [],
-  });
+  const [userRights] = useUserRights();
+  const hasInviteRight = useMemo(() => !!userRights?.members.invite, [userRights?.members.invite]);
+  const hasRemoveRight = useMemo(() => !!userRights?.members.remove, [userRights?.members.remove]);
+  const hasChangeRoleRight = useMemo(
+    () => !!userRights?.members.changeRole,
+    [userRights?.members.changeRole],
+  );
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const t = useT();
-
+  const [searchTerm, setSearchTerm] = useState<string>();
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
     setPage(1);
   }, []);
 
-  const [searchedUser, changeSearchedUser] = useState<User & { isMember: boolean }>();
-  const [searchedUserList, changeSearchedUserList] = useState<User[]>([]);
-
   const {
     data: workspaceData,
     refetch,
     loading,
-  } = useGetWorkspaceQuery({
+  } = useQuery(GetWorkspaceDocument, {
     variables: { id: workspaceId ?? "" },
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
     skip: !workspaceId,
   });
 
-  const { data, refetch: refetchMe } = useGetMeQuery({
+  const { data, refetch: refetchMe } = useQuery(GetMeDocument, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -82,48 +83,31 @@ export default () => {
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [searchTerm, workspaceData?.node]);
 
-  const isOwner = useMemo(
-    () => !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId === me.id),
-    [me.id, workspaceUserMembers],
-  );
-
   const isAbleToLeave = useMemo(
-    () => !isOwner || !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
-    [isOwner, me.id, workspaceUserMembers],
+    () =>
+      userRights?.role !== "OWNER" ||
+      !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
+    [me.id, userRights?.role, workspaceUserMembers],
   );
 
-  const [searchUserQuery] = useGetUserBySearchLazyQuery({
+  const [getUsersQuery, { loading: searchLoading }] = useLazyQuery(GetUsersDocument, {
     fetchPolicy: "no-cache",
   });
 
-  const handleUserAdd = useCallback(() => {
-    if (
-      searchedUser &&
-      searchedUser.id !== data?.me?.id &&
-      !searchedUserList.find(user => user.id === searchedUser.id)
-    ) {
-      changeSearchedUserList([...searchedUserList, searchedUser]);
-    }
-  }, [data?.me?.id, searchedUser, searchedUserList]);
-
   const handleUserSearch = useCallback(
-    async (nameOrEmail: string) => {
-      if (nameOrEmail) {
-        const res = await searchUserQuery({ variables: { nameOrEmail } });
-        if (res.data?.searchUser && res.data.searchUser?.id !== data?.me?.id) {
-          const isMember = !!workspaceUserMembers?.some(
-            member => member.userId === res.data?.searchUser?.id,
-          );
-          changeSearchedUser({ ...res.data?.searchUser, isMember });
-        } else {
-          changeSearchedUser(undefined);
-        }
+    async (keyword: string) => {
+      const res = await getUsersQuery({ variables: { keyword } });
+      if (res.error) {
+        throw new Error(res.error.message);
       }
+      return res.data?.userSearch ?? [];
     },
-    [data?.me?.id, searchUserQuery, workspaceUserMembers],
+    [getUsersQuery],
   );
 
-  const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
+  const [addUsersToWorkspaceMutation, { loading: addLoading }] = useMutation(
+    AddUsersToWorkspaceDocument,
+  );
 
   const handleUsersAddToWorkspace = useCallback(
     async (users: MemberInput[]) => {
@@ -132,7 +116,7 @@ export default () => {
         variables: { workspaceId, users: users as GQLMemberInput[] },
       });
       const workspace = result.data?.addUsersToWorkspace?.workspace;
-      if (result.errors || !workspace) {
+      if (result.error || !workspace) {
         Notification.error({ message: t("Failed to add one or more members.") });
         return;
       }
@@ -142,26 +126,27 @@ export default () => {
     [addUsersToWorkspaceMutation, setWorkspace, t, workspaceId],
   );
 
-  const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] =
-    useUpdateMemberOfWorkspaceMutation();
+  const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] = useMutation(
+    UpdateMemberOfWorkspaceDocument,
+  );
 
-  const handleMemberOfWorkspaceUpdate = useCallback(
-    async (userId: string, role: RoleUnion) => {
+  const handleUpdateRole = useCallback(
+    async (userId: string, role: Role) => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
         variables: {
           workspaceId,
           userId,
           role: {
-            READER: Role.Reader,
-            WRITER: Role.Writer,
-            MAINTAINER: Role.Maintainer,
-            OWNER: Role.Owner,
+            READER: GQLRole.Reader,
+            WRITER: GQLRole.Writer,
+            MAINTAINER: GQLRole.Maintainer,
+            OWNER: GQLRole.Owner,
           }[role],
         },
       });
       const workspace = result.data?.updateUserOfWorkspace?.workspace;
-      if (result.errors || !workspace) {
+      if (result.error || !workspace) {
         Notification.error({ message: t("Failed to update member's role.") });
         return;
       }
@@ -171,40 +156,36 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-  const [removeMemberFromWorkspaceMutation] = useRemoveMemberFromWorkspaceMutation();
+  const [removeMultipleMembersFromWorkspaceMutation] = useMutation(
+    RemoveMultipleMembersFromWorkspaceDocument,
+  );
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
       if (!workspaceId) return;
-      const results = await Promise.all(
-        userIds.map(async userId => {
-          const result = await removeMemberFromWorkspaceMutation({
-            variables: { workspaceId, userId },
-          });
-          if (result.errors) {
-            Notification.error({
-              message: t("Failed to remove member(s) from the workspace."),
-            });
-          }
-        }),
-      );
-      if (results) {
-        Notification.success({
-          message: t("Successfully removed member(s) from the workspace!"),
+      const result = await removeMultipleMembersFromWorkspaceMutation({
+        variables: { workspaceId, userIds },
+      });
+      if (result.error) {
+        Notification.error({
+          message: t("Failed to remove member(s) from the workspace."),
         });
-        setSelection({ selectedRowKeys: [] });
+        throw new Error();
       }
+      Notification.success({
+        message: t("Successfully removed member(s) from the workspace!"),
+      });
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, t],
+    [workspaceId, removeMultipleMembersFromWorkspaceMutation, t],
   );
 
   const handleLeave = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
-      const result = await removeMemberFromWorkspaceMutation({
-        variables: { workspaceId, userId },
+      const result = await removeMultipleMembersFromWorkspaceMutation({
+        variables: { workspaceId, userIds: [userId] },
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({
           message: t("Failed to leave the workspace."),
         });
@@ -216,28 +197,15 @@ export default () => {
         navigate(`/workspace/${me.myWorkspace}`);
       }
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, t, refetchMe, navigate, me.myWorkspace],
+    [
+      workspaceId,
+      removeMultipleMembersFromWorkspaceMutation,
+      t,
+      refetchMe,
+      navigate,
+      me.myWorkspace,
+    ],
   );
-
-  const handleRoleModalClose = useCallback(() => {
-    setRoleModalShown(false);
-    setSelectedMember(undefined);
-  }, []);
-
-  const handleRoleModalOpen = useCallback((member: UserMember) => {
-    setRoleModalShown(true);
-    setSelectedMember(member);
-  }, []);
-
-  const handleMemberAddModalClose = useCallback(() => {
-    setMemberAddModalShown(false);
-    setSelectedMember(undefined);
-  }, []);
-
-  const handleMemberAddModalOpen = useCallback(() => {
-    setMemberAddModalShown(true);
-    setSelectedMember(undefined);
-  }, []);
 
   const handleReload = useCallback(() => {
     refetch();
@@ -249,36 +217,25 @@ export default () => {
   }, []);
 
   return {
-    me,
-    isOwner,
+    workspaceUserMembers,
+    userId: me.id,
     isAbleToLeave,
-    searchedUser,
     handleSearchTerm,
-    changeSearchedUser,
-    searchedUserList,
-    changeSearchedUserList,
     handleUserSearch,
-    handleUserAdd,
+    searchLoading,
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
-    handleMemberOfWorkspaceUpdate,
-    selectedMember,
-    roleModalShown,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
     handleLeave,
-    handleRoleModalClose,
-    handleRoleModalOpen,
-    handleMemberAddModalClose,
-    handleMemberAddModalOpen,
-    MemberAddModalShown,
-    workspaceUserMembers,
-    selection,
-    setSelection,
     page,
     pageSize,
     handleTableChange,
     loading,
     handleReload,
+    hasInviteRight,
+    hasRemoveRight,
+    hasChangeRoleRight,
   };
 };

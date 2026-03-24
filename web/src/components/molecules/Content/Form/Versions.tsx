@@ -1,0 +1,130 @@
+import styled from "@emotion/styled";
+import { useMemo } from "react";
+
+import Badge from "@reearth-cms/components/atoms/Badge";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Tag from "@reearth-cms/components/atoms/Tag";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import Typography from "@reearth-cms/components/atoms/Typography";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
+import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
+
+type Props = {
+  versions: VersionedItem[];
+  versionClick: (versionedItem: VersionedItem) => Promise<void>;
+  onNavigateToRequest: (id: string) => void;
+};
+
+const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest }) => {
+  const t = useT();
+  const statusTitle: Record<StateType, string> = useMemo(
+    () => ({
+      DRAFT: t("DRAFT"),
+      PUBLIC: t("PUBLIC"),
+      REVIEW: t("REVIEW"),
+    }),
+    [t],
+  );
+  return (
+    <>
+      {versions.map((version, index) => (
+        <HistoryCard key={version.version}>
+          <HistoryTitle onClick={() => versionClick(version)}>
+            <Tooltip title={statusTitle[version.status]}>
+              <Badge
+                color={stateColors[version.status]}
+                data-testid={DATA_TEST_ID.Versions__RequestStatus}
+              />
+            </Tooltip>
+            {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
+            {index === 0 && (
+              <span>
+                <Tag bordered={false} color="processing">
+                  {t("current")}
+                </Tag>
+              </span>
+            )}
+          </HistoryTitle>
+          <HistoryInfo>
+            <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
+            {version.status === "REVIEW" && (
+              <Requests>
+                {version.requests?.map(request => (
+                  <RequestWrapper
+                    role="link"
+                    key={request.id}
+                    onClick={() => onNavigateToRequest(request.id)}>
+                    <Icon icon="pullRequest" />
+                    <RequestTitle>{request.title}</RequestTitle>
+                  </RequestWrapper>
+                ))}
+              </Requests>
+            )}
+          </HistoryInfo>
+        </HistoryCard>
+      ))}
+    </>
+  );
+};
+
+const HistoryCard = styled.div`
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  padding: ${AntdToken.SPACING.SM}px;
+`;
+
+const HistoryTitle = styled.p`
+  display: flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  margin: 0;
+  cursor: pointer;
+  :hover {
+    text-decoration: underline;
+    > span {
+      text-decoration: none;
+    }
+  }
+`;
+
+const HistoryInfo = styled.div`
+  margin-left: 14px;
+  line-height: 1.75;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+`;
+
+const User = styled.p`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  color: ${CustomColor.TEXT_MUTED};
+`;
+
+const Requests = styled.div`
+  margin-top: ${AntdToken.SPACING.XXS}px;
+`;
+
+const RequestWrapper = styled(Typography.Link)`
+  display: flex;
+  gap: ${AntdToken.SPACING.XXS}px;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+`;
+
+const RequestTitle = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export default Versions;

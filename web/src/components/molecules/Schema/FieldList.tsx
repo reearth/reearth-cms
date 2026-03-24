@@ -4,22 +4,30 @@ import React, { useMemo } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
+import { Test } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
-import { FieldType, Tab, SelectedSchemaType } from "./types";
+import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
 
 type Props = {
   currentTab: Tab;
   selectedSchemaType: SelectedSchemaType;
-  addField: (fieldType: FieldType) => void;
+  hasCreateRight: boolean;
+  addField: (fieldType: SchemaFieldType) => void;
 };
 
 type FieldListItem = {
   title: string;
-  fields: FieldType[];
+  fields: SchemaFieldType[];
 };
 
-const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
+const FieldList: React.FC<Props> = ({
+  currentTab,
+  selectedSchemaType,
+  hasCreateRight,
+  addField,
+}) => {
   const t = useT();
 
   const common: FieldListItem[] = useMemo(
@@ -46,7 +54,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
       },
       {
         title: t("Number"),
-        fields: ["Integer"],
+        fields: ["Integer", "Number"],
       },
       {
         title: t("URL"),
@@ -103,11 +111,15 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={dataSource}
+        hasCreateRight={hasCreateRight}
         renderItem={item => (
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields.map(field => (
-              <List.Item key={field} onClick={() => addField(field)}>
+              <List.Item
+                key={field}
+                onClick={hasCreateRight ? () => addField(field) : undefined}
+                data-testid={Test.getDataTestIdFromSchemaFieldType(field)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}
@@ -123,37 +135,37 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
 };
 
 const StyledTitle = styled.h1`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 
 const FieldCategoryTitle = styled.h2`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
-  margin-bottom: 12px;
-  margin-top: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
+  margin-bottom: ${AntdToken.SPACING.SM}px;
+  margin-top: ${AntdToken.SPACING.SM}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
-const FieldStyledList = styled(List<FieldListItem>)`
+const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>`
   max-height: calc(100% - 34px);
   overflow-y: auto;
-  padding-bottom: 24px;
+  padding-bottom: ${AntdToken.SPACING.LG}px;
   .ant-list-item {
-    background-color: #fff;
-    cursor: pointer;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+    cursor: ${({ hasCreateRight }) => (hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
-      margin-top: 12px;
+      margin-top: ${AntdToken.SPACING.SM}px;
     }
-    padding: 4px;
-    box-shadow: 0px 2px 8px #00000026;
+    padding: ${AntdToken.SPACING.XXS}px;
+    box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-title {
         margin: 0;
       }
       align-items: center;
       .ant-list-item-meta-avatar {
-        border: 1px solid #f0f0f0;
+        border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
         width: 28px;
         height: 28px;
         display: flex;
@@ -166,7 +178,7 @@ const FieldStyledList = styled(List<FieldListItem>)`
 
 const Meta = styled(List.Item.Meta)`
   .ant-list-item-meta-description {
-    font-size: 12px !important;
+    font-size: ${AntdToken.FONT.SIZE_SM}px !important;
   }
 `;
 

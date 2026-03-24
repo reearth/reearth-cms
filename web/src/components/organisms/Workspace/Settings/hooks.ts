@@ -1,27 +1,37 @@
-import { useCallback } from "react";
+import { useMutation } from "@apollo/client/react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
+import { Workspace as GQLWorkspace } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
-  useUpdateWorkspaceMutation,
-  useDeleteWorkspaceMutation,
-  Workspace as GQLWorkspace,
-} from "@reearth-cms/gql/graphql-client-api";
+  DeleteWorkspaceDocument,
+  UpdateWorkspaceDocument,
+} from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
+  const t = useT();
   const navigate = useNavigate();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  const t = useT();
+  const [userRights] = useUserRights();
+  const hasUpdateRight = useMemo(
+    () => !!userRights?.workspace.update,
+    [userRights?.workspace.update],
+  );
+  const hasDeleteRight = useMemo(
+    () => !!userRights?.workspace.delete,
+    [userRights?.workspace.delete],
+  );
 
   const workspaceId = currentWorkspace?.id;
   const workspaceName = currentWorkspace?.name;
 
   const [updateWorkspaceMutation, { loading: updateWorkspaceLoading }] =
-    useUpdateWorkspaceMutation();
-  const [deleteWorkspaceMutation] = useDeleteWorkspaceMutation({
+    useMutation(UpdateWorkspaceDocument);
+  const [deleteWorkspaceMutation] = useMutation(DeleteWorkspaceDocument, {
     refetchQueries: ["GetMe"],
   });
 
@@ -34,7 +44,7 @@ export default () => {
           name,
         },
       });
-      if (res.errors || !res.data?.updateWorkspace) {
+      if (res.error || !res.data?.updateWorkspace) {
         Notification.error({ message: t("Failed to update workspace.") });
       } else {
         setCurrentWorkspace(
@@ -49,7 +59,7 @@ export default () => {
   const handleWorkspaceDelete = useCallback(async () => {
     if (!workspaceId) return;
     const results = await deleteWorkspaceMutation({ variables: { workspaceId } });
-    if (results.errors) {
+    if (results.error) {
       Notification.error({ message: t("Failed to delete workspace.") });
     } else {
       setCurrentWorkspace(undefined);
@@ -61,6 +71,8 @@ export default () => {
   return {
     workspaceName,
     updateWorkspaceLoading,
+    hasUpdateRight,
+    hasDeleteRight,
     handleWorkspaceUpdate,
     handleWorkspaceDelete,
   };

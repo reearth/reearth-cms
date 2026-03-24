@@ -2,23 +2,44 @@ import styled from "@emotion/styled";
 import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import Tag from "@reearth-cms/components/atoms/Tag";
+import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
+import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
-  project: Project;
-  onProjectNavigation: (project: Project) => void;
+  project: ProjectListItem;
+  onProjectNavigation: (projectId: string) => void;
 };
 
 const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
+  const t = useT();
   const { Meta } = Card;
 
   return (
     <CardWrapper key={project.id}>
-      <ProjectStyledCard
-        onClick={() => onProjectNavigation(project)}
-        cover={<Cover>{project.name.charAt(0)}</Cover>}>
-        <Meta title={project.name} description={project.description} />
-      </ProjectStyledCard>
+      <StyledProjectCard onClick={() => onProjectNavigation(project.id)}>
+        <Meta
+          title={
+            <TitleContainer>
+              <ProjectName>{project.name}</ProjectName>
+              <StyledTag
+                bordered
+                color={
+                  project.accessibility?.visibility === ProjectVisibility.Public
+                    ? "blue"
+                    : "default"
+                }>
+                {project.accessibility?.visibility === ProjectVisibility.Public
+                  ? t("Public")
+                  : t("Private")}
+              </StyledTag>
+            </TitleContainer>
+          }
+          description={project.description}
+        />
+      </StyledProjectCard>
     </CardWrapper>
   );
 };
@@ -27,39 +48,41 @@ const CardWrapper = styled.div`
   cursor: pointer;
   box-shadow: none;
   transition: box-shadow 0.2s;
+  border-radius: ${AntdToken.RADIUS.LG}px;
   &:hover {
-    box-shadow:
-      0px 3px 6px -4px rgba(0, 0, 0, 0.12),
-      0px 6px 16px rgba(0, 0, 0, 0.08),
-      0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: ${AntdToken.SHADOW.SECONDARY};
   }
 `;
 
-const Cover = styled.div`
-  && {
-    display: flex;
-  }
-  justify-content: center;
+const TitleContainer = styled.div`
+  width: 100%;
+  display: flex;
+  gap: ${AntdToken.SPACING.XS}px;
   align-items: center;
-  font-weight: 500;
-  font-size: 38px;
-  line-height: 46px;
-  height: 150px;
-  background-color: #eeeeee;
-  color: #fff;
-  user-select: none;
+  justify-content: space-between;
 `;
 
-const ProjectStyledCard = styled(Card)`
+const ProjectName = styled.span`
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledTag = styled(Tag)`
+  margin: 0;
+`;
+
+const StyledProjectCard = styled(Card)`
   .ant-card-body {
     height: 100px;
-    padding: 24px;
+    padding: ${AntdToken.SPACING.LG}px;
   }
   .ant-card-actions {
     height: 40px;
     > li {
       margin: auto;
-      font-size: 16px;
+      font-size: ${AntdToken.FONT.SIZE_LG}px;
     }
   }
   .ant-card-meta-detail {

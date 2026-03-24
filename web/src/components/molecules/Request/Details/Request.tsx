@@ -8,13 +8,19 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
   me?: User;
+  hasCommentCreateRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   isCloseActionEnabled: boolean;
+  isReopenActionEnabled: boolean;
   isApproveActionEnabled: boolean;
+  isAssignActionEnabled: boolean;
   currentRequest: Request;
   workspaceUserMembers: UserMember[];
   deleteLoading: boolean;
@@ -34,8 +40,13 @@ type Props = {
 
 const RequestMolecule: React.FC<Props> = ({
   me,
+  hasCommentCreateRight,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   isCloseActionEnabled,
+  isReopenActionEnabled,
   isApproveActionEnabled,
+  isAssignActionEnabled,
   currentRequest,
   workspaceUserMembers,
   deleteLoading,
@@ -59,6 +70,7 @@ const RequestMolecule: React.FC<Props> = ({
       <PageHeader
         title={`${t("Request")} / ${currentRequest.title}`}
         onBack={onBack}
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
         extra={
           <>
             <Button
@@ -69,6 +81,7 @@ const RequestMolecule: React.FC<Props> = ({
             </Button>
             <Button
               hidden={currentRequest.state !== "CLOSED"}
+              disabled={!isReopenActionEnabled}
               loading={updateLoading}
               onClick={() =>
                 onRequestUpdate({
@@ -95,6 +108,9 @@ const RequestMolecule: React.FC<Props> = ({
         <ThreadWrapper>
           <RequestThread
             me={me}
+            hasCommentCreateRight={hasCommentCreateRight}
+            hasCommentUpdateRight={hasCommentUpdateRight}
+            hasCommentDeleteRight={hasCommentDeleteRight}
             currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
             onCommentUpdate={onCommentUpdate}
@@ -107,6 +123,7 @@ const RequestMolecule: React.FC<Props> = ({
         <RequestSidebarWrapper
           currentRequest={currentRequest}
           workspaceUserMembers={workspaceUserMembers}
+          isAssignActionEnabled={isAssignActionEnabled}
           onRequestUpdate={onRequestUpdate}
         />
       </BodyWrapper>
@@ -115,14 +132,14 @@ const RequestMolecule: React.FC<Props> = ({
 };
 
 const Content = styled.div`
-  padding: 16px;
+  padding: ${AntdToken.SPACING.BASE}px;
   width: 100%;
   height: 100%;
   overflow-y: auto;
 `;
 
 const BodyWrapper = styled.div`
-  padding: 12px 0 0 24px;
+  padding: ${AntdToken.SPACING.SM}px 0 0 ${AntdToken.SPACING.LG}px;
   display: flex;
   gap: 11px;
 `;

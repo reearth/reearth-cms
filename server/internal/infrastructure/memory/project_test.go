@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
@@ -131,12 +132,11 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 }
 
 func TestProjectRepo_Filtered(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now()).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -185,7 +185,7 @@ func TestProjectRepo_Filtered(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
+
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -198,8 +198,8 @@ func TestProjectRepo_Filtered(t *testing.T) {
 func TestProjectRepo_FindByID(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).MustBuild()
+
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -289,7 +289,6 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -311,12 +310,11 @@ func TestProjectRepo_FindByID(t *testing.T) {
 }
 
 func TestProjectRepo_FindByIDs(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -422,7 +420,6 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -444,106 +441,123 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestProjectRepo_FindByPublicName(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
-	tid1 := accountdomain.NewWorkspaceID()
-	id1 := id.NewProjectID()
+func TestProjectRepo_IsAliasAvailable(t *testing.T) {
+	wId1 := accountdomain.NewWorkspaceID()
+	pId1 := id.NewProjectID()
 	p1 := project.New().
-		ID(id1).
-		Workspace(tid1).
+		ID(pId1).
+		Workspace(wId1).
 		Alias("xyz123").
-		UpdatedAt(mocknow).
+		UpdatedAt(time.Now().Add(-time.Hour)).
 		MustBuild()
 
-	id2 := id.NewProjectID()
+	wId2 := accountdomain.NewWorkspaceID()
+	pId2 := id.NewProjectID()
 	p2 := project.New().
-		ID(id2).
-		Workspace(accountdomain.NewWorkspaceID()).
+		ID(pId2).
+		Workspace(wId2).
 		Alias("xyz321").
-		UpdatedAt(mocknow).
 		MustBuild()
 
 	tests := []struct {
 		name    string
 		seeds   project.List
+		wId     accountdomain.WorkspaceID
 		arg     string
 		filter  *repo.WorkspaceFilter
-		want    *project.Project
+		want    bool
 		wantErr error
 		mockErr bool
 	}{
 		{
-			name:    "Not found in empty db",
+			name:    "available in empty db",
 			seeds:   project.List{},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name: "Not found",
-			seeds: project.List{
-				project.New().NewID().Alias("abc123").MustBuild(),
-			},
-			arg:     "xyz123",
-			filter:  nil,
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name: "public Found",
-			seeds: project.List{
-				p1,
-			},
-			arg:     "xyz123",
-			filter:  nil,
-			want:    p1,
+			want:    true,
 			wantErr: nil,
 		},
 		{
-			name: "linited Found",
+			name: "available with different workspace & alias",
+			seeds: project.List{
+				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Alias("abc123").MustBuild(),
+			},
+			wId:     accountdomain.NewWorkspaceID(),
+			arg:     "xyz123",
+			filter:  nil,
+			want:    true,
+			wantErr: nil,
+		},
+		{
+			name: "available with same alias but different workspace",
+			seeds: project.List{
+				p1,
+			},
+			wId:     accountdomain.NewWorkspaceID(),
+			arg:     "xyz123",
+			filter:  nil,
+			want:    true,
+			wantErr: nil,
+		},
+		{
+			name: "not available with same workspace & alias",
+			seeds: project.List{
+				p1,
+			},
+			wId:     wId1,
+			arg:     "xyz123",
+			filter:  nil,
+			want:    false,
+			wantErr: nil,
+		},
+		{
+			name: "not available with same workspace & alias 2",
 			seeds: project.List{
 				p2,
 			},
+			wId:     wId2,
 			arg:     "xyz321",
-			want:    p2,
+			want:    false,
 			filter:  nil,
 			wantErr: nil,
 		},
 		{
-			name: "Found 2",
+			name: "not available with multi projects containing same workspace & alias",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
+			wId:     wId1,
 			arg:     "xyz123",
 			filter:  nil,
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "Filtered should not Found",
+			name: "not available with multi projects containing same workspace & alias 3 (even if repo filter is applied)",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
+			wId:     wId1,
 			arg:     "xyz123",
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    false,
+			wantErr: nil,
 		},
 		{
-			name: "Filtered should Found",
+			name: "not available with multi projects containing same workspace & alias 4 (with correct repo filter)",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
+			wId:     wId1,
 			arg:     "xyz123",
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
-			want:    p1,
+			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{wId1}, Writable: []accountdomain.WorkspaceID{}},
+			want:    false,
 			wantErr: nil,
 		},
 		{
@@ -562,7 +576,6 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -573,7 +586,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, err := r.FindByPublicName(ctx, tc.arg)
+			got, err := r.IsAliasAvailable(ctx, tc.wId, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -585,10 +598,9 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 }
 
 func TestProjectRepo_FindByWorkspaces(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
-	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
-	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
+	p2 := project.New().NewID().Workspace(tid1).MustBuild()
 
 	type args struct {
 		wids  accountdomain.WorkspaceIDList
@@ -710,7 +722,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -721,7 +732,10 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, tc.args.pInfo)
+			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+				WorkspaceIds: &tc.args.wids,
+				Pagination:   tc.args.pInfo,
+			})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -843,7 +857,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 func TestProjectRepo_Save(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Truncate(time.Millisecond).UTC()).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -936,6 +950,83 @@ func TestProjectRepo_Save(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, 1, got)
+		})
+	}
+}
+
+func TestProject_FindByAPIKey(t *testing.T) {
+	tid1 := accountdomain.NewWorkspaceID()
+	id1 := id.NewProjectID()
+	apikey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Build()
+	pub := project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apikey})
+	p1 := project.New().
+		ID(id1).
+		Workspace(tid1).
+		Accessibility(pub).
+		MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   project.List
+		arg     string
+		want    *project.Project
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   project.List{},
+			arg:     "xyz123",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: project.List{
+				p1,
+			},
+			arg:     "",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: project.List{
+				p1,
+			},
+			arg:     apikey.Key(),
+			want:    p1,
+			wantErr: nil,
+		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				assert.NoError(t, err)
+			}
+
+			got, err := r.FindByPublicAPIKey(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

@@ -1,34 +1,57 @@
+import { NetworkStatus } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  useDeleteRequestMutation,
-  useApproveRequestMutation,
-  useAddCommentMutation,
-  useGetMeQuery,
-  useUpdateCommentMutation,
-  useDeleteCommentMutation,
-  useGetRequestQuery,
+  AddCommentDocument,
+  DeleteCommentDocument,
+  UpdateCommentDocument,
+} from "@reearth-cms/gql/__generated__/comment.generated";
+import {
   Request as GQLRequest,
-} from "@reearth-cms/gql/graphql-client-api";
+  RequestState as GQLRequestState,
+  ResourceType as GQLResourceType,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  ApproveRequestDocument,
+  DeleteRequestDocument,
+  GetRequestDocument,
+  UpdateRequestDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
+import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const navigate = useNavigate();
-  const [currentProject] = useProject();
-  const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
   const location = useLocation();
 
-  const { data: userData } = useGetMeQuery();
-  const { data: rawRequest, loading } = useGetRequestQuery({
+  const [currentProject] = useProject();
+  const [currentWorkspace] = useWorkspace();
+  const [userRights] = useUserRights();
+  const hasCommentCreateRight = useMemo(
+    () => !!userRights?.comment.create,
+    [userRights?.comment.create],
+  );
+  const hasCommentUpdateRight = useMemo(
+    () => userRights?.comment.update !== undefined && userRights.comment.update,
+    [userRights?.comment.update],
+  );
+  const hasCommentDeleteRight = useMemo(
+    () => userRights?.comment.delete !== undefined && userRights.comment.delete,
+    [userRights?.comment.delete],
+  );
+
+  const { data: userData } = useQuery(GetMeDocument);
+  const { data: rawRequest, networkStatus } = useQuery(GetRequestDocument, {
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
     fetchPolicy: "cache-and-network",
@@ -45,13 +68,6 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole = useMemo(
-    () =>
-      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
-        ?.role,
-    [currentWorkspace?.members, me?.id],
-  );
-
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
@@ -59,84 +75,145 @@ export default () => {
     return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
-  const isCloseActionEnabled: boolean = useMemo(
+  const isCloseActionEnabled = useMemo(
     () =>
-      currentRequest?.state !== "CLOSED" &&
-      currentRequest?.state !== "APPROVED" &&
-      !!currentRequest?.reviewers.find(reviewer => reviewer.id === me?.id) &&
-      myRole !== "READER" &&
-      myRole !== "WRITER",
-    [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
+      (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
+      (userRights?.request.close === null
+        ? currentRequest.createdBy?.id === me?.id
+        : !!userRights?.request.close),
+    [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.close],
   );
 
-  const isApproveActionEnabled: boolean = useMemo(
+  const isReopenActionEnabled = useMemo(
+    () => currentRequest?.state === "CLOSED" && !!userRights?.request.close,
+    [currentRequest?.state, userRights?.request.close],
+  );
+
+  const isApproveActionEnabled = useMemo(
     () =>
       currentRequest?.state === "WAITING" &&
-      !!currentRequest?.reviewers.find(reviewer => reviewer.id === me?.id) &&
-      myRole !== "READER" &&
-      myRole !== "WRITER",
-    [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
+      !!userRights?.request.approve &&
+      currentRequest?.reviewers.some(reviewer => reviewer.id === me?.id),
+    [currentRequest?.reviewers, currentRequest?.state, me?.id, userRights?.request.approve],
   );
 
-  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
+  const isAssignActionEnabled = useMemo(
+    () =>
+      (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
+      (userRights?.request.update === null
+        ? currentRequest.createdBy?.id === me?.id
+        : !!userRights?.request.update),
+    [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
+  );
+
+  const [updateRequestMutation, { loading: updateRequestLoading }] =
+    useMutation(UpdateRequestDocument);
+
+  const handleRequestUpdate = useCallback(
+    async (data: RequestUpdatePayload) => {
+      if (!data.requestId) return;
+      const request = await updateRequestMutation({
+        variables: {
+          requestId: data.requestId,
+          title: data.title,
+          description: data.description,
+          state: data.state as GQLRequestState,
+          reviewersId: data.reviewersId,
+          items: data.items,
+        },
+      });
+      if (request.error || !request.data?.updateRequest) {
+        Notification.error({ message: t("Failed to update request.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated request!") });
+    },
+    [updateRequestMutation, t],
+  );
+
+  const [deleteRequestMutation, { loading: deleteLoading }] = useMutation(DeleteRequestDocument);
   const handleRequestDelete = useCallback(
-    (requestsId: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await deleteRequestMutation({
-          variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests", "GetRequest"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to delete one or more requests.") });
-        }
-        if (result) {
-          Notification.success({ message: t("One or more requests were successfully closed!") });
-          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-        }
-      })(),
-    [t, projectId, currentWorkspace?.id, navigate, deleteRequestMutation],
+    async (requestsId: string[]) => {
+      if (!projectId) return;
+      const result = await deleteRequestMutation({
+        variables: { projectId, requestsId },
+        refetchQueries: ["GetRequest"],
+      });
+      if (result.error) {
+        Notification.error({ message: t("Failed to delete one or more requests.") });
+      }
+      if (result) {
+        Notification.success({ message: t("One or more requests were successfully closed!") });
+      }
+    },
+    [t, projectId, deleteRequestMutation],
   );
 
-  const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
+  const [approveRequestMutation, { loading: approveLoading }] = useMutation(ApproveRequestDocument);
   const handleRequestApprove = useCallback(
-    (requestId: string) =>
-      (async () => {
-        const result = await approveRequestMutation({
-          variables: { requestId },
-          refetchQueries: ["GetRequests", "GetRequest"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to approve request.") });
-        }
-        if (result) {
-          Notification.success({ message: t("Successfully approved request!") });
-          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-        }
-      })(),
-    [currentWorkspace?.id, projectId, navigate, t, approveRequestMutation],
+    async (requestId: string) => {
+      const result = await approveRequestMutation({
+        variables: { requestId },
+      });
+      if (result.error) {
+        Notification.error({ message: t("Failed to approve request.") });
+      }
+      if (result) {
+        Notification.success({ message: t("Successfully approved request!") });
+      }
+    },
+    [t, approveRequestMutation],
   );
 
-  const [createComment] = useAddCommentMutation({
+  const [createComment] = useMutation(AddCommentDocument, {
+    refetchQueries: ["GetRequests", "GetRequest"],
+  });
+
+  const [createThreadWithComment] = useMutation(CreateThreadWithCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
   const handleCommentCreate = useCallback(
     async (content: string) => {
-      if (!currentRequest?.threadId) return;
-      const comment = await createComment({
-        variables: {
-          threadId: currentRequest.threadId,
-          content,
-        },
-      });
-      if (comment.errors || !comment.data?.addComment) {
-        Notification.error({ message: t("Failed to create comment.") });
-        return;
+      try {
+        if (!currentRequest?.threadId) {
+          const { data, error } = await createThreadWithComment({
+            variables: {
+              workspaceId: currentWorkspace?.id ?? "",
+              resourceId: currentRequest?.id ?? "",
+              resourceType: GQLResourceType.Request,
+              content,
+            },
+          });
+
+          if (error || !data?.createThreadWithComment?.thread?.id) {
+            Notification.error({ message: t("Failed to create thread.") });
+            return;
+          }
+        } else {
+          const { data: commentData, error: commentError } = await createComment({
+            variables: { threadId: currentRequest?.threadId, content },
+          });
+
+          if (commentError || !commentData?.addComment) {
+            Notification.error({ message: t("Failed to create comment.") });
+            return;
+          }
+        }
+        Notification.success({ message: t("Successfully created comment!") });
+      } catch (error) {
+        Notification.error({ message: t("An unexpected error occurred.") });
+        console.error("Error creating comment:", error);
       }
-      Notification.success({ message: t("Successfully created comment!") });
     },
-    [createComment, currentRequest?.threadId, t],
+    [
+      createComment,
+      createThreadWithComment,
+      currentRequest?.id,
+      currentRequest?.threadId,
+      currentWorkspace?.id,
+      t,
+    ],
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
@@ -154,7 +231,7 @@ export default () => {
     [currentProject?.id, currentWorkspace?.id, navigate],
   );
 
-  const [updateComment] = useUpdateCommentMutation({
+  const [updateComment] = useMutation(UpdateCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
@@ -168,7 +245,7 @@ export default () => {
           content,
         },
       });
-      if (comment.errors || !comment.data?.updateComment) {
+      if (comment.error || !comment.data?.updateComment) {
         Notification.error({ message: t("Failed to update comment.") });
         return;
       }
@@ -177,7 +254,7 @@ export default () => {
     [updateComment, currentRequest?.threadId, t],
   );
 
-  const [deleteComment] = useDeleteCommentMutation({
+  const [deleteComment] = useMutation(DeleteCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
@@ -190,7 +267,7 @@ export default () => {
           commentId,
         },
       });
-      if (comment.errors || !comment.data?.deleteComment) {
+      if (comment.error || !comment.data?.deleteComment) {
         Notification.error({ message: t("Failed to delete comment.") });
         return;
       }
@@ -201,12 +278,19 @@ export default () => {
 
   return {
     me,
+    hasCommentCreateRight,
+    hasCommentUpdateRight,
+    hasCommentDeleteRight,
     isCloseActionEnabled,
-    loading,
+    isReopenActionEnabled,
+    isApproveActionEnabled,
+    isAssignActionEnabled,
+    loading: networkStatus === NetworkStatus.loading,
+    updateRequestLoading,
     deleteLoading,
     approveLoading,
-    isApproveActionEnabled,
     currentRequest,
+    handleRequestUpdate,
     handleRequestDelete,
     handleRequestApprove,
     handleCommentCreate,

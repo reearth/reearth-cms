@@ -69,6 +69,19 @@ var ProjectIDFrom = idx.From[Project]
 var ProjectIDFromRef = idx.FromRef[Project]
 var ProjectIDListFrom = idx.ListFrom[Project]
 
+type APIKey struct{}
+
+func (APIKey) Type() string { return "api_key" }
+
+type APIKeyID = idx.ID[APIKey]
+type APIKeyIDList = idx.List[APIKey]
+
+var MustAPIKeyID = idx.Must[APIKey]
+var NewAPIKeyID = idx.New[APIKey]
+var APIKeyIDFrom = idx.From[APIKey]
+var APIKeyIDFromRef = idx.FromRef[APIKey]
+var APIKeyIDListFrom = idx.ListFrom[APIKey]
+
 type Model struct{}
 
 func (Model) Type() string { return "model" }
@@ -243,7 +256,7 @@ var RequestIDFromRef = idx.FromRef[Request]
 
 type View struct{}
 
-func (View) Type() string { return "request" }
+func (View) Type() string { return "view" }
 
 type ViewID = idx.ID[View]
 type ViewIDList = idx.List[View]
@@ -264,3 +277,16 @@ var NewResourceID = idx.New[Resource]
 var MustResourceID = idx.Must[Resource]
 var ResourceIDFrom = idx.From[Resource]
 var ResourceIDFromRef = idx.FromRef[Resource]
+
+type Job struct{}
+
+func (Job) Type() string { return "job" }
+
+type JobID = idx.ID[Job]
+type JobIDList = idx.List[Job]
+
+var NewJobID = idx.New[Job]
+var MustJobID = idx.Must[Job]
+var JobIDFrom = idx.From[Job]
+var JobIDFromRef = idx.FromRef[Job]
+var JobIDListFrom = idx.ListFrom[Job]

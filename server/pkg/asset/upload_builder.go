@@ -39,6 +39,16 @@ func (b *UploadBuilder) ContentLength(contentLength int64) *UploadBuilder {
 	return b
 }
 
+func (b *UploadBuilder) ContentType(contentType string) *UploadBuilder {
+	b.u.contentType = contentType
+	return b
+}
+
+func (b *UploadBuilder) ContentEncoding(contentEncoding string) *UploadBuilder {
+	b.u.contentEncoding = contentEncoding
+	return b
+}
+
 func (b *UploadBuilder) Build() *Upload {
 	return b.u
 }

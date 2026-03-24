@@ -1,18 +1,22 @@
+import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type FormValues = {
   role: Role;
 };
 
 type Props = {
-  selectedIntegrationMember?: IntegrationMember;
+  selectedIntegration?: WorkspaceIntegration;
   open: boolean;
   loading: boolean;
   onClose: () => void;
@@ -20,7 +24,7 @@ type Props = {
 };
 
 const IntegrationSettingsModal: React.FC<Props> = ({
-  selectedIntegrationMember,
+  selectedIntegration,
   open,
   loading,
   onClose,
@@ -33,9 +37,9 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   useEffect(() => {
     form.setFieldsValue({
-      role: selectedIntegrationMember?.integrationRole,
+      role: selectedIntegration?.role,
     });
-  }, [form, selectedIntegrationMember]);
+  }, [form, selectedIntegration]);
 
   const handleSubmit = useCallback(async () => {
     setIsDisabled(true);
@@ -43,7 +47,6 @@ const IntegrationSettingsModal: React.FC<Props> = ({
       const values = await form.validateFields();
       await onSubmit(values.role);
       onClose();
-      form.resetFields();
     } catch (_) {
       setIsDisabled(false);
     }
@@ -51,22 +54,22 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   const handleSelect = useCallback(
     (value: string) => {
-      setIsDisabled(value === selectedIntegrationMember?.integrationRole);
+      setIsDisabled(value === selectedIntegration?.role);
     },
-    [selectedIntegrationMember?.integrationRole],
+    [selectedIntegration?.role],
   );
 
   const handleAfterClose = useCallback(() => {
     form.setFieldsValue({
-      role: selectedIntegrationMember?.integrationRole,
+      role: selectedIntegration?.role,
     });
     setIsDisabled(true);
-  }, [form, selectedIntegrationMember?.integrationRole]);
+  }, [form, selectedIntegration?.role]);
 
   return (
     <Modal
       afterClose={handleAfterClose}
-      title={t("Integration Setting") + "  " + selectedIntegrationMember?.integration?.name}
+      title={t("Integration Setting")}
       open={open}
       onCancel={onClose}
       footer={[
@@ -82,10 +85,22 @@ const IntegrationSettingsModal: React.FC<Props> = ({
           {t("Save")}
         </Button>,
       ]}>
-      <Form
+      <Wrapper>
+        <Conetnt>
+          <LogoWrapper>
+            <Icon icon="api" size={32} color={CustomColor.ICON_MUTED} />
+          </LogoWrapper>
+          <Info>
+            <Name>{selectedIntegration?.name}</Name>
+            <Description>{selectedIntegration?.description}</Description>
+          </Info>
+        </Conetnt>
+      </Wrapper>
+      <StyledForm
         form={form}
         layout="vertical"
-        initialValues={{ role: selectedIntegrationMember?.integrationRole }}>
+        initialValues={{ role: selectedIntegration?.role }}
+        requiredMark={false}>
         <Form.Item
           name="role"
           label={t("Role")}
@@ -95,16 +110,58 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <Select placeholder={t("select role")} onSelect={handleSelect}>
+          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="OWNER">{t("Owner")}</Option>
-          </Select>
+          </StyledSelect>
         </Form.Item>
-      </Form>
+      </StyledForm>
     </Modal>
   );
 };
+
+const Wrapper = styled.div`
+  padding: ${AntdToken.SPACING.LG}px 0;
+`;
+
+const Conetnt = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.SM}px;
+  padding: ${AntdToken.SPACING.SM}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  width: fit-content;
+  min-width: 70%;
+  max-width: 100%;
+`;
+
+const LogoWrapper = styled.div`
+  border-radius: ${AntdToken.RADIUS.SM}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+`;
+
+const Info = styled.div`
+  min-width: 0;
+`;
+
+const Name = styled.h3`
+  margin: 0;
+`;
+
+const Description = styled.p`
+  margin: 0;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  color: ${CustomColor.TEXT_MUTED};
+`;
+
+const StyledForm = styled(Form<FormValues>)`
+  padding-left: ${AntdToken.SPACING.SM}px;
+`;
+
+const StyledSelect = styled(Select<Role>)`
+  max-width: 25%;
+`;
 
 export default IntegrationSettingsModal;

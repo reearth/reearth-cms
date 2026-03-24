@@ -3,48 +3,25 @@ import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
+import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  itemAssets?: ItemAsset[];
   value?: string[];
   onChange?: (value: string[]) => void;
-  assetList?: Asset[];
-  fileList?: UploadFile[];
-  loadingAssets?: boolean;
-  uploading?: boolean;
-  uploadModalVisibility?: boolean;
-  uploadUrl?: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
-  totalCount?: number;
-  page?: number;
-  pageSize?: number;
   disabled?: boolean;
-  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel?: () => void;
-  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet?: () => void;
-  onAssetsReload?: () => void;
-  onAssetSearchTerm?: (term?: string | undefined) => void;
-  setFileList?: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility?: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+} & AssetProps;
 
 const MultiValueAsset: React.FC<Props> = ({
-  itemAssets,
   value = [],
+  disabled,
   onChange,
+  onGetAsset,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -66,8 +43,6 @@ const MultiValueAsset: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  disabled,
-  onGetAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -101,14 +76,16 @@ const MultiValueAsset: React.FC<Props> = ({
             {!disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -144,8 +121,9 @@ const MultiValueAsset: React.FC<Props> = ({
             />
             {!disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}
@@ -171,10 +149,10 @@ export default MultiValueAsset;
 const FieldWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;

@@ -16,10 +16,13 @@ type Props = {
 const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewChange }) => {
   const {
     modalState,
-    handleViewRenameModalOpen,
-    handleViewCreateModalOpen,
     viewModalShown,
     submitting,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
+    handleViewRenameModalOpen,
+    handleViewCreateModalOpen,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
@@ -39,6 +42,9 @@ const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewCh
         onUpdate={handleViewUpdate}
         onViewSelect={onViewSelect}
         onUpdateViewsOrder={handleUpdateViewsOrder}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
       />
       <ViewFormModal
         modalState={modalState}

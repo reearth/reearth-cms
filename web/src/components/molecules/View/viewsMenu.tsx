@@ -7,6 +7,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { DragColumn } = ReactDragListView;
 
@@ -19,6 +20,9 @@ type Props = {
   onViewCreateModalOpen: () => void;
   onViewSelect: (key: string) => void;
   onUpdateViewsOrder: (viewIds: string[]) => Promise<void>;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
 };
 
 const ViewsMenuMolecule: React.FC<Props> = ({
@@ -30,6 +34,9 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   currentView,
   onViewSelect,
   onUpdateViewsOrder,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
 }) => {
   const t = useT();
 
@@ -51,6 +58,8 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         label: (
           <ViewsMenuItem
             view={view}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
             onViewRenameModalOpen={onViewRenameModalOpen}
             onDelete={onDelete}
             onUpdate={onUpdate}
@@ -64,12 +73,12 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   return (
     <Wrapper>
       <DragColumn
-        nodeSelector=".ant-tabs-tab"
+        nodeSelector={hasUpdateRight ? ".ant-tabs-tab" : undefined}
         lineClassName="dragLineColumn"
         onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
         <StyledTabs
           tabBarExtraContent={
-            <NewViewButton type="text" onClick={onViewCreateModalOpen}>
+            <NewViewButton type="text" onClick={onViewCreateModalOpen} disabled={!hasCreateRight}>
               {t("Save as new view")}
             </NewViewButton>
           }
@@ -86,7 +95,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  padding: 0 24px;
+  padding: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledTabs = styled(Tabs)`
@@ -101,16 +110,16 @@ const StyledTabs = styled(Tabs)`
   }
 
   .ant-tabs-tab:not(:first-child) {
-    padding-left: 8px;
+    padding-left: ${AntdToken.SPACING.XS}px;
   }
 
   .ant-tabs-tab + .ant-tabs-tab {
-    margin-left: 8px;
+    margin-left: ${AntdToken.SPACING.XS}px;
   }
 `;
 
 const NewViewButton = styled(Button)`
-  color: rgba(0, 0, 0, 0.25);
+  color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};
   margin-left: 5px;
 `;
 

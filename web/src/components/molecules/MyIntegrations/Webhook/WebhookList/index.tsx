@@ -2,31 +2,26 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useT } from "@reearth-cms/i18n";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import WebhookCard from "./WebhookCard";
 
 type Props = {
-  webhooks?: Webhook[];
+  webhooks: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-  }) => Promise<void>;
-  onShowForm: () => void;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
   onWebhookSelect: (id: string) => void;
+  onShowForm: () => void;
 };
 
 const WebhookList: React.FC<Props> = ({
   webhooks,
   onWebhookDelete,
   onWebhookUpdate,
-  onShowForm,
   onWebhookSelect,
+  onShowForm,
 }) => {
   const t = useT();
 
@@ -37,7 +32,7 @@ const WebhookList: React.FC<Props> = ({
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
-      {webhooks && webhooks.length > 0 ? (
+      {webhooks.length > 0 ? (
         <ListWrapper>
           {webhooks.map(webhook => (
             <WebhookCard
@@ -45,7 +40,7 @@ const WebhookList: React.FC<Props> = ({
               webhook={webhook}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
-              onWebhookSettings={onWebhookSelect}
+              onWebhookSelect={onWebhookSelect}
             />
           ))}
         </ListWrapper>
@@ -59,7 +54,7 @@ const WebhookList: React.FC<Props> = ({
             </Button>
           </Suggestion>
           <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       )}
@@ -72,15 +67,15 @@ const ActionWrapper = styled.div`
 `;
 
 const Suggestion = styled.p`
-  margin-bottom: 8px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: #00000073;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Text = styled.span`
-  margin-right: 8px;
+  margin-right: ${AntdToken.SPACING.XS}px;
 `;
 
 const EmptyListWrapper = styled.div`
@@ -93,15 +88,15 @@ const EmptyListWrapper = styled.div`
 `;
 
 const ListWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const Title = styled.p`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #000;
-  margin-bottom: 24px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.GREY.GREY_8};
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 export default WebhookList;

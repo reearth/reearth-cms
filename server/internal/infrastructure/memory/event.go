@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Event struct {
@@ -36,11 +37,22 @@ func (r *Event) FindByID(_ context.Context, iId id.EventID) (*event.Event[any], 
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Event) Save(ctx context.Context, ev *event.Event[any]) error {
+func (r *Event) Save(_ context.Context, ev *event.Event[any]) error {
 	if r.err != nil {
 		return r.err
 	}
 
 	r.data.Store(ev.ID(), ev)
+	return nil
+}
+
+func (r *Event) SaveAll(_ context.Context, ev event.List) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.StoreAll(lo.SliceToMap(ev, func(e *event.Event[any]) (id.EventID, *event.Event[any]) {
+		return e.ID(), e
+	}))
 	return nil
 }

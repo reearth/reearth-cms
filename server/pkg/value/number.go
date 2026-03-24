@@ -15,6 +15,9 @@ type propertyNumber struct{}
 type Number = float64
 
 func (p *propertyNumber) ToValue(i any) (any, bool) {
+	if i == "" {
+		return nil, true
+	}
 	switch v := i.(type) {
 	case float64:
 		return Number(v), true

@@ -1,159 +1,125 @@
 name: deploy-test
+
 on:
-  workflow_run:
-    workflows: [server-build, ci-web, web-build, worker-build]
-    types: [completed]
-    branches: [main]
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}-${{github.event.workflow_run.name}}
-  cancel-in-progress: true
-env:
-  GCP_REGION: us-central1
-
-  # TODO: Remove after dockerizing the web.
-  GCS_DEST: gs://cms.test.reearth.dev
-
-  # server
-  SERVER_IMAGE: reearth/reearth-cms:nightly
-  SERVER_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms:nightly
-  SERVER_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms:nightly
-
-  # web
-  WEB_IMAGE:  reearth/reearth-cms-web:nightly
-  WEB_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms-web:nightly
-  WEB_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms-web:nightly
-
-  # worker
-  WORKER_IMAGE:  reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms-worker:nightly
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target to deploy'
+        type: choice
+        default: 'all'
+        options: ['all', 'server', 'web', 'worker']
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        default: 'all'
+        description: 'Target to deploy'
 
 jobs:
-  # TODO: Remove after dockerizing the web.
-  deploy_web_gcs:
-    name: Deploy web to test env
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read # To checkout
-      id-token: write # To authenticate with Google Cloud using OIDC
-    steps:
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-
-      - name: get latest web artifact
-        uses: dawidd6/action-download-artifact@v3.1.4
-        with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          workflow: ci_web.yml
-          workflow_conclusion: success
-          branch: main
-          name: reearth-cms-web
-          check_artifacts: true
-          search_artifacts: true
-      - name: Extract
-        run: tar -xvf reearth-cms-web.tar.gz
-      - uses: google-github-actions/auth@v2
-        with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      - name: Deploy
-        run: gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr reearth-cms-web/ $GCS_DEST
-
   deploy_server:
-    name: Deploy server to test env
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'server')
     permissions:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v6
+      - uses: google-github-actions/auth@v3
         with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
-          docker pull $SERVER_IMAGE
-          docker tag $SERVER_IMAGE $SERVER_IMAGE_GCP
-          docker push $SERVER_IMAGE_GCP
+          docker pull ${{ secrets.SERVER_IMAGE }}
+          docker tag ${{ secrets.SERVER_IMAGE }} ${{ secrets.SERVER_IMAGE_GC }}
+          docker push ${{ secrets.SERVER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy reearth-cms-backend \
-            --image $SERVER_IMAGE_GCP \
-            --region $GCP_REGION \
+          gcloud run deploy reearth-cms-api \
+            --image ${{ secrets.SERVER_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
+            --platform managed \
+            --quiet
+      - name: Deploy to Internal API Cloud Run
+        run: |
+          gcloud run deploy reearth-cms-internal-api \
+            --image ${{ secrets.SERVER_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
 
   deploy_web:
-    name: Deploy web to test env
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'web-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'web')
     permissions:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v6
+      - uses: google-github-actions/auth@v3
         with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
-          docker pull $WEB_IMAGE
-          docker tag $WEB_IMAGE $WEB_IMAGE_GCP
-          docker push $WEB_IMAGE_GCP
+          docker pull ${{ secrets.WEB_IMAGE }}
+          docker tag ${{ secrets.WEB_IMAGE }} ${{ secrets.WEB_IMAGE_GC }}
+          docker push ${{ secrets.WEB_IMAGE_GC }}
       - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy reearth-cms-web \
-            --image $WEB_IMAGE_GCP \
-            --region $GCP_REGION \
-            --platform managed \
-            --quiet
+        uses: google-github-actions/deploy-cloudrun@2028e2d7d30a78c6910e0632e48dd561b064884d # v3.0.1
+        with:
+          service: reearth-cms-web
+          skip_default_labels: true
+          image: ${{ secrets.WEB_IMAGE_GC }}
+          region: ${{ secrets.GC_REGION }}
+          revision_traffic: 'LATEST=100'
 
   deploy_worker:
-    name: Deploy worker to test env
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'worker-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'worker')
     permissions:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v6
+      - uses: google-github-actions/auth@v3
         with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
-          docker pull $WORKER_IMAGE
-          docker tag $WORKER_IMAGE $WORKER_IMAGE_GCP
-          docker push $WORKER_IMAGE_GCP
+          docker pull ${{ secrets.WORKER_IMAGE }}
+          docker tag ${{ secrets.WORKER_IMAGE }} ${{ secrets.WORKER_IMAGE_GC }}
+          docker push ${{ secrets.WORKER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-worker \
-            --image $WORKER_IMAGE_GCP \
-            --region $GCP_REGION \
+            --image ${{ secrets.WORKER_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
+
+  e2e_web:
+    needs: [deploy_server, deploy_web]
+    if: needs.deploy_server.result == 'success' && needs.deploy_web.result == 'success'
+    uses: ./.github/workflows/e2e_web.yml
+    with:
+      api_url: ${{ vars.REEARTH_CMS_API }}
+      base_url: ${{ vars.REEARTH_CMS_E2E_BASEURL }}
+      branch: main
+      smoke_only: true
+    secrets:
+      REEARTH_WEB_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
+      REEARTH_WEB_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}

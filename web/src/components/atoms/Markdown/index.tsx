@@ -4,19 +4,27 @@ import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+const { XXS } = AntdToken.SPACING;
 
 type Props = {
-  value?: string;
   onChange?: (value: string) => void;
+  isError?: boolean;
 } & TextAreaProps;
 
 const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
-  const isError = useMemo(
-    () => (props.maxLength && value ? runes(value).length > props.maxLength : false),
-    [props.maxLength, value],
-  );
+  const isError = useMemo(() => {
+    if (props.isError || (props.required && !value)) {
+      return true;
+    } else if (props.maxLength && typeof value === "string" && value) {
+      return runes(value).length > props.maxLength;
+    } else {
+      return false;
+    }
+  }, [props, value]);
 
   const handleBlur = useCallback((event: FocusEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
@@ -46,7 +54,7 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
         showCount
       />
       <StyledMD disabled={props.disabled} isError={isError} hidden={!showMD} onClick={handleClick}>
-        <ReactMarkdown>{value}</ReactMarkdown>
+        <ReactMarkdown>{typeof value === "string" ? value : undefined}</ReactMarkdown>
       </StyledMD>
     </MarkdownWrapper>
   );
@@ -60,8 +68,8 @@ const MarkdownWrapper = styled.div`
 
 const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  border: 1px solid #d9d9d9;
-  padding: 4px 11px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  padding: ${XXS}px 11px;
   overflow: auto;
   resize: vertical;
   height: 100%;
@@ -69,14 +77,21 @@ const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   height: 142px;
   line-height: 1;
   word-break: break-all;
-  ${({ isError }) => isError && "border-color: #ff4d4f"};
+  ${({ isError }) => isError && `border-color: ${AntdColor.RED.RED_4}`};
   &:hover,
   &:focus {
-    border-color: ${({ disabled, isError }) =>
-      disabled ? "#d9d9d9" : isError ? "#ffa39e" : "#40a9ff"};
+    border-color: ${
+      ({ disabled, isError }) =>
+        disabled
+          ? AntdColor.NEUTRAL.BORDER
+          : isError
+            ? AntdColor.RED.RED_2
+            : `${AntdColor.BLUE.BLUE_4}` /* originally #40a9ff */
+    };
   }
-  background-color: ${({ disabled }) => (disabled ? "#f5f5f5" : "#FFF")};
+  background-color: ${({ disabled }) =>
+    disabled ? AntdColor.NEUTRAL.BG_LAYOUT : AntdColor.NEUTRAL.BG_WHITE};
   * {
-    color: ${({ disabled, isError }) => (isError ? "#ff4d4f" : disabled ? "#00000040" : "#000")};
+    ${({ isError }) => isError && `color: ${AntdColor.RED.RED_4}`};
   }
 `;

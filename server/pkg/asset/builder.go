@@ -12,7 +12,9 @@ type Builder struct {
 }
 
 func New() *Builder {
-	return &Builder{a: &Asset{}}
+	a := &Asset{}
+	a.public = false
+	return &Builder{a: a}
 }
 
 func (b *Builder) Build() (*Asset, error) {
@@ -24,9 +26,6 @@ func (b *Builder) Build() (*Asset, error) {
 	}
 	if b.a.user.IsNil() && b.a.integration.IsNil() {
 		return nil, ErrNoUser
-	}
-	if b.a.thread.IsNil() {
-		return nil, ErrNoThread
 	}
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
@@ -105,7 +104,7 @@ func (b *Builder) NewUUID() *Builder {
 	return b
 }
 
-func (b *Builder) Thread(th ThreadID) *Builder {
+func (b *Builder) Thread(th *ThreadID) *Builder {
 	b.a.thread = th
 	return b
 }
@@ -117,5 +116,10 @@ func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
 
 func (b *Builder) FlatFiles(flatFiles bool) *Builder {
 	b.a.flatFiles = flatFiles
+	return b
+}
+
+func (b *Builder) Public(public bool) *Builder {
+	b.a.public = public
 	return b
 }

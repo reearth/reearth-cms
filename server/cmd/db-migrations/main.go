@@ -12,7 +12,10 @@ import (
 type command = func(ctx context.Context, dbURL, dbName string, wetRun bool) error
 
 var commands = map[string]command{
-	"ref-field-schema": RefFieldSchema,
+	"ref-field-schema":   RefFieldSchema,
+	"item-migration":     ItemMigration,
+	"project-visibility": ProjectVisibility,
+	"text-normalization": TextNormalizationMigration,
 }
 
 func main() {
@@ -46,10 +49,16 @@ func main() {
 		return
 	}
 
+	// get db name
+	dbName := os.Getenv("REEARTH_CMS_DB_CMS")
+	if dbName == "" {
+		dbName = "reearth_cms"
+	}
+
 	// exec command
-	fmt.Printf("command: '%s' ", *cmd)
+	fmt.Printf("command: '%s' \n", *cmd)
 	ctx := context.Background()
-	if err := command(ctx, dbURL, "reearth_cms", *wet); err != nil {
+	if err := command(ctx, dbURL, dbName, *wet); err != nil {
 		fmt.Printf("faild: %s.\n", err)
 		return
 	}

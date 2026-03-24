@@ -23,7 +23,7 @@ func TestToRequest(t *testing.T) {
 		Title("foo").
 		Description("xxx").
 		State(request.StateClosed).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Reviewers(accountdomain.UserIDList{accountdomain.NewUserID()}).
 		CreatedBy(accountdomain.NewUserID()).
 		ClosedAt(lo.ToPtr(util.Now())).
@@ -33,7 +33,7 @@ func TestToRequest(t *testing.T) {
 	assert.Equal(t, &Request{
 		ID: IDFrom(req.ID()),
 		Items: []*RequestItem{{
-			ItemID: IDFrom(itm.Item()),
+			ItemID:  IDFrom(itm.Item()),
 			Version: lo.ToPtr(ver),
 		}},
 		Title:       "foo",
@@ -41,7 +41,7 @@ func TestToRequest(t *testing.T) {
 		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
-		ThreadID:    IDFrom(req.Thread()),
+		ThreadID:    IDFromRef(req.Thread()),
 		ReviewersID: []ID{IDFrom(req.Reviewers()[0])},
 		State:       RequestStateClosed,
 		CreatedAt:   req.CreatedAt(),

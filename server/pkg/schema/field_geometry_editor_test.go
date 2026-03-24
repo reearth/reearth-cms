@@ -7,6 +7,79 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGeometryEditorSupportedTypeList_First(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		list     GeometryEditorSupportedTypeList
+		expected GeometryEditorSupportedType
+	}{
+		{
+			name:     "empty list returns empty type",
+			list:     GeometryEditorSupportedTypeList{},
+			expected: GeometryEditorSupportedType(""),
+		},
+		{
+			name:     "single element returns that element",
+			list:     GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint},
+			expected: GeometryEditorSupportedTypePoint,
+		},
+		{
+			name:     "multiple elements returns first element",
+			list:     GeometryEditorSupportedTypeList{GeometryEditorSupportedTypeLineString, GeometryEditorSupportedTypePolygon, GeometryEditorSupportedTypePoint},
+			expected: GeometryEditorSupportedTypeLineString,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, tt.list.First())
+		})
+	}
+}
+
+func TestGeometryEditorSupportedTypeList_Strings(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		list     GeometryEditorSupportedTypeList
+		expected []string
+	}{
+		{
+			name:     "empty list returns empty slice",
+			list:     GeometryEditorSupportedTypeList{},
+			expected: []string{},
+		},
+		{
+			name:     "single element",
+			list:     GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint},
+			expected: []string{"POINT"},
+		},
+		{
+			name:     "multiple elements",
+			list:     GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint, GeometryEditorSupportedTypeLineString, GeometryEditorSupportedTypePolygon},
+			expected: []string{"POINT", "LINESTRING", "POLYGON"},
+		},
+		{
+			name:     "any type",
+			list:     GeometryEditorSupportedTypeList{GeometryEditorSupportedTypeAny},
+			expected: []string{"ANY"},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, tt.list.Strings())
+		})
+	}
+}
+
 func TestNewGeometryEditor(t *testing.T) {
 	expected1 := &FieldGeometryEditor{
 		st: GeometryEditorSupportedTypeList{"POINT"},

@@ -35,6 +35,20 @@ func (r *Thread) Save(_ context.Context, th *thread.Thread) error {
 	return nil
 }
 
+func (r *Thread) SaveAll(_ context.Context, th thread.List) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, t := range th {
+		if !r.f.CanWrite(t.Workspace()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	r.data.StoreAll(th.ToMap())
+	return nil
+}
+
 func (r *Thread) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	return &Thread{
 		data: r.data,
@@ -66,6 +80,26 @@ func (r *Thread) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.
 		return ids.Has(key) && r.f.CanRead(value.Workspace())
 	})).SortByID()
 	return res, nil
+}
+
+func (r *Thread) Remove(_ context.Context, thid id.ThreadID) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Delete(thid)
+	return nil
+}
+
+func (r *Thread) RemoveByIDs(_ context.Context, ids id.ThreadIDList) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, thid := range ids {
+		r.data.Delete(thid)
+	}
+	return nil
 }
 
 func SetThreadError(r repo.Thread, err error) {

@@ -6,6 +6,7 @@ import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Loading from "@reearth-cms/components/atoms/Loading";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Cards from "@reearth-cms/components/molecules/Settings/Cards";
 import FormModal from "@reearth-cms/components/molecules/Settings/FormModal";
@@ -15,11 +16,13 @@ import {
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
-  workspaceSettings: WorkspaceSettings;
-  hasPrivilege: boolean;
   loading: boolean;
+  workspaceSettings: WorkspaceSettings;
+  hasUpdateRight: boolean;
+  updateLoading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
     terrains: TerrainInput[],
@@ -28,9 +31,10 @@ type Props = {
 };
 
 const Settings: React.FC<Props> = ({
-  workspaceSettings,
-  hasPrivilege,
   loading,
+  workspaceSettings,
+  hasUpdateRight,
+  updateLoading,
   onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
@@ -122,7 +126,9 @@ const Settings: React.FC<Props> = ({
     onWorkspaceSettingsUpdate(tiles, terrains, settings?.terrains?.enabled);
   }, [onWorkspaceSettingsUpdate, settings?.terrains?.enabled, terrains, tiles]);
 
-  return (
+  return loading ? (
+    <Loading minHeight="400px" />
+  ) : (
     <InnerContent title={t("Settings")}>
       <ContentSection
         title={t("Geospatial asset preview setting")}
@@ -136,9 +142,14 @@ const Settings: React.FC<Props> = ({
             isTile={true}
             onDelete={handleDelete}
             onDragEnd={handleDragEnd}
+            hasUpdateRight={hasUpdateRight}
           />
         ) : null}
-        <Button type="link" onClick={() => onTileModalOpen()} icon={<Icon icon="plus" />}>
+        <Button
+          type="link"
+          onClick={() => onTileModalOpen()}
+          icon={<Icon icon="plus" />}
+          disabled={!hasUpdateRight}>
           {t("Add new Tiles option")}
         </Button>
         <Divider />
@@ -148,7 +159,7 @@ const Settings: React.FC<Props> = ({
           <Switch
             checked={settings?.terrains?.enabled}
             onChange={onChange}
-            disabled={!hasPrivilege}
+            disabled={!hasUpdateRight}
           />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
@@ -161,9 +172,14 @@ const Settings: React.FC<Props> = ({
                 isTile={false}
                 onDelete={handleDelete}
                 onDragEnd={handleDragEnd}
+                hasUpdateRight={hasUpdateRight}
               />
             ) : null}
-            <Button type="link" onClick={() => onTerrainModalOpen()} icon={<Icon icon="plus" />}>
+            <Button
+              type="link"
+              onClick={() => onTerrainModalOpen()}
+              icon={<Icon icon="plus" />}
+              disabled={!hasUpdateRight}>
               {t("Add new Terrain option")}
             </Button>
           </>
@@ -173,7 +189,7 @@ const Settings: React.FC<Props> = ({
             type="primary"
             onClick={handleWorkspaceSettingsSave}
             disabled={isDisabled}
-            loading={loading}>
+            loading={updateLoading}>
             {t("Save")}
           </Button>
         </ButtonWrapper>
@@ -193,29 +209,29 @@ const Settings: React.FC<Props> = ({
 
 export default Settings;
 
-const Title = styled.h1`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
-  margin-bottom: 4px;
+const Title = styled.h3`
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
 const SecondaryText = styled.p`
-  color: #00000073;
-  margin-bottom: 12px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  margin-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
 const Text = styled.p`
-  color: rgb(0, 0, 0, 0.85);
-  font-weight: 500;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
 `;
 
 const SwitchWrapper = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const ButtonWrapper = styled.div`
-  padding: 12px 0;
+  padding: ${AntdToken.SPACING.SM}px 0;
 `;

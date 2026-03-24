@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -59,6 +60,24 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return group.List(result).SortByID(), nil
 }
 
+func (r *Group) Filter(ctx context.Context, pid id.ProjectID, _ *group.Sort, _ *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	// TODO: implement sort and pagination
+
+	if !r.f.CanRead(pid) {
+		return nil, nil, nil
+	}
+
+	result := group.List(r.data.FindAll(func(_ id.GroupID, m *group.Group) bool {
+		return m.Project() == pid
+	})).SortByID()
+
+	return result, nil, nil
+}
+
 func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
 	if r.err != nil {
 		return nil, r.err
@@ -92,6 +111,27 @@ func (r *Group) FindByKey(ctx context.Context, pid id.ProjectID, key string) (*g
 	}
 
 	return g, nil
+}
+
+func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDOrKey) (*group.Group, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	groupID := g.ID()
+	key := g.Key()
+	if groupID == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	m := r.data.Find(func(_ id.GroupID, m *group.Group) bool {
+		return r.f.CanRead(m.Project()) && (groupID != nil && m.ID() == *groupID || key != nil && m.Key().String() == *key)
+	})
+	if m == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return m, nil
 }
 
 func (r *Group) SaveAll(ctx context.Context, groups group.List) error {

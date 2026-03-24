@@ -9,6 +9,7 @@ import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTab
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export type UploadType = "local" | "url";
 
@@ -32,6 +33,8 @@ type Props = {
   sort?: SortType;
   searchTerm: string;
   columns: Record<string, ColumnsState>;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
@@ -41,9 +44,10 @@ type Props = {
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
+  onAssetDownload: (selected: Asset[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (assetId: string) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
@@ -68,6 +72,8 @@ const AssetList: React.FC<Props> = ({
   sort,
   searchTerm,
   columns,
+  hasCreateRight,
+  hasDeleteRight,
   onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
@@ -77,9 +83,10 @@ const AssetList: React.FC<Props> = ({
   onAssetsCreate,
   onAssetCreateFromUrl,
   onAssetDelete,
+  onAssetDownload,
   onSearchTerm,
   onEdit,
-  setSelection,
+  onSelect,
   setFileList,
   setUploadModalVisibility,
   onAssetsReload,
@@ -127,14 +134,15 @@ const AssetList: React.FC<Props> = ({
             title={t("Asset")}
             extra={
               <UploadAsset
+                uploadProps={uploadProps}
                 fileList={fileList}
                 uploading={uploading}
-                uploadProps={uploadProps}
+                uploadModalVisibility={uploadModalVisibility}
                 uploadUrl={uploadUrl}
                 uploadType={uploadType}
+                hasCreateRight={hasCreateRight}
                 setUploadUrl={setUploadUrl}
                 setUploadType={setUploadType}
-                uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
                 onUploadModalCancel={onUploadModalCancel}
                 onUpload={handleUpload}
@@ -153,14 +161,16 @@ const AssetList: React.FC<Props> = ({
             sort={sort}
             searchTerm={searchTerm}
             columns={columns}
+            hasDeleteRight={hasDeleteRight}
             onColumnsChange={onColumnsChange}
             onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
-            setSelection={setSelection}
+            onSelect={onSelect}
             onAssetsReload={onAssetsReload}
             onAssetDelete={onAssetDelete}
+            onAssetDownload={onAssetDownload}
             onAssetTableChange={onAssetTableChange}
           />
         </Wrapper>
@@ -173,11 +183,11 @@ const AssetList: React.FC<Props> = ({
 export default AssetList;
 
 const Wrapper = styled.div`
-  background: #fff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   width: 100%;
   height: 100%;
 `;
 
 const StyledPageHeader = styled(PageHeader)`
-  border-bottom: 1px solid #00000008;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.FILL_QUATERNARY};
 `;

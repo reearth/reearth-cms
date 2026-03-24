@@ -1,8 +1,6 @@
 package memory
 
 import (
-	"time"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmemory"
 	"github.com/reearth/reearthx/usecasex"
@@ -26,14 +24,7 @@ func New() *repo.Container {
 		Event:             NewEvent(),
 		Group:             NewGroup(),
 		WorkspaceSettings: NewWorkspaceSettings(),
+		Job:               NewJob(),
 		Transaction:       &usecasex.NopTransaction{},
-	}
-}
-
-func MockNow(r *repo.Container, t time.Time) func() {
-	p := r.Project.(*Project).now.Mock(t)
-
-	return func() {
-		p()
 	}
 }

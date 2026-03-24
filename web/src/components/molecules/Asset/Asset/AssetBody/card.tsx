@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
 type Props = {
   title: string | JSX.Element;
   toolbar?: ReactNode;
@@ -22,23 +24,28 @@ const Card: React.FC<Props> = ({ title, toolbar, children, style }) => {
 
 const CardWrapper = styled.div`
   padding: 0;
-  border: 1px solid #f5f5f5;
-  margin-bottom: 24px;
+  border: 1px solid ${AntdColor.NEUTRAL.BG_LAYOUT};
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
+
+const { SM, MD } = AntdToken.SPACING;
 
 const CardHeader = styled.div`
   height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 12px;
-  font-size: 24px;
+  padding: 0 ${SM}px 0 ${MD}px;
+  font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
 `;
 
 const Title = styled.p`
   margin: 0;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  display: flex;
+  gap: ${AntdToken.SPACING.BASE}px;
+  overflow: hidden;
 `;
 
 const Toolbar = styled.div`
@@ -48,7 +55,7 @@ const Toolbar = styled.div`
 
 const CardBody = styled.div`
   padding: 10px;
-  background-color: #f5f5f5;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   text-align: center;
 `;
 

@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -5,31 +6,31 @@ import {
   WorkspaceSettings,
   TileInput,
   TerrainInput,
-  UserMember,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetWorkspaceSettingsQuery,
-  useUpdateWorkspaceSettingsMutation,
   ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
-  useGetMeQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  GetWorkspaceSettingsDocument,
+  UpdateWorkspaceSettingsDocument,
+} from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
 
   const [currentWorkspace] = useWorkspace();
+  const [userRights] = useUserRights();
   const workspaceId = currentWorkspace?.id;
-  const { data, refetch, loading } = useGetWorkspaceSettingsQuery({
+  const { data, refetch, loading } = useQuery(GetWorkspaceSettingsDocument, {
     variables: { workspaceId: workspaceId ?? "" },
   });
 
   const defaultSettings: WorkspaceSettings = useMemo(
     () => ({
-      id: workspaceId ?? "",
       tiles: {
         resources: [],
       },
@@ -38,7 +39,7 @@ export default () => {
         resources: [],
       },
     }),
-    [workspaceId],
+    [],
   );
 
   const workspaceSettings: WorkspaceSettings = useMemo(() => {
@@ -47,8 +48,9 @@ export default () => {
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 
-  const [updateWorkspaceMutation, { loading: updateLoading }] =
-    useUpdateWorkspaceSettingsMutation();
+  const [updateWorkspaceMutation, { loading: updateLoading }] = useMutation(
+    UpdateWorkspaceSettingsDocument,
+  );
 
   const handleWorkspaceSettingsUpdate = useCallback(
     async (tiles: TileInput[], terrains: TerrainInput[], isEnable?: boolean) => {
@@ -68,7 +70,7 @@ export default () => {
         },
       });
 
-      if (res.errors) {
+      if (res.error) {
         Notification.error({ message: t("Failed to update workspace.") });
       } else {
         Notification.success({ message: t("Successfully updated workspace!") });
@@ -78,18 +80,15 @@ export default () => {
     [refetch, t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
   );
 
-  const { data: userData } = useGetMeQuery();
-  const hasPrivilege: boolean = useMemo(() => {
-    const myRole = currentWorkspace?.members?.find(
-      (m): m is UserMember => "userId" in m && m.userId === userData?.me?.id,
-    )?.role;
-    return myRole === "OWNER" || myRole === "MAINTAINER";
-  }, [currentWorkspace?.members, userData?.me?.id]);
+  const hasUpdateRight = useMemo(
+    () => !!userRights?.workspaceSetting.update,
+    [userRights?.workspaceSetting.update],
+  );
 
   return {
-    workspaceSettings,
     loading,
-    hasPrivilege,
+    workspaceSettings,
+    hasUpdateRight,
     updateLoading,
     handleWorkspaceSettingsUpdate,
   };

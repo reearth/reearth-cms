@@ -207,3 +207,21 @@ func (f *Field) SupportsPointField() bool {
 	})
 	return supported
 }
+
+func (f *Field) IsPrimitive() bool {
+	if f == nil {
+		return false
+	}
+	if f.Multiple() {
+		return false
+	}
+	switch f.Type() {
+	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag:
+	case value.TypeInteger, value.TypeNumber:
+	case value.TypeBool, value.TypeCheckbox:
+	case value.TypeDateTime:
+	case value.TypeURL:
+		return true
+	}
+	return false
+}

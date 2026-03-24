@@ -25,7 +25,7 @@ type FormValues = {
   cesiumIonAccessToken?: string;
 };
 
-const TileTypeFormat: { [key in TileType]: string } = {
+export const TileTypeFormat: Record<TileType, string> = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
   ROAD_MAP: "Road Map",
@@ -36,7 +36,7 @@ const TileTypeFormat: { [key in TileType]: string } = {
   URL: "URL",
 };
 
-const TerrainTypeFormat: { [key in TerrainType]: string } = {
+export const TerrainTypeFormat: Record<TerrainType, string> = {
   CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
   ARC_GIS_TERRAIN: "ArcGIS Terrain",
   CESIUM_ION: "Cesium Ion",
@@ -198,31 +198,31 @@ const FormModal: React.FC<Props> = ({
           isTile ? (
             <>
               <Form.Item name="name" label={t("Name")} extra={t("Name of tiles")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="url" label={t("URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
             </>
           ) : (
             <>
               <Form.Item name="name" label={t("Name")} extra={t("Name of terrain")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="cesiumIonAssetId" label={t("Terrain Cesium Ion asset ID")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="cesiumIonAccessToken" label={t("Terrain Cesium Ion access token")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="url" label={t("Terrain URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
             </>
           )

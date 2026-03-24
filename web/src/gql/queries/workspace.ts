@@ -72,9 +72,9 @@ export const UPDATE_MEMBER_OF_WORKSPACE = gql`
   }
 `;
 
-export const REMOVE_MEMBER_FROM_WORKSPACE = gql`
-  mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
-    removeUserFromWorkspace(input: { workspaceId: $workspaceId, userId: $userId }) {
+export const REMOVE_MULTIPLE_MEMBERS_FROM_WORKSPACE = gql`
+  mutation RemoveMultipleMembersFromWorkspace($workspaceId: ID!, $userIds: [ID!]!) {
+    removeMultipleMembersFromWorkspace(input: { workspaceId: $workspaceId, userIds: $userIds }) {
       workspace {
         id
         ...WorkspaceFragment

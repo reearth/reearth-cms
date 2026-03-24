@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -48,22 +49,23 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
             {!disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
               </>
             )}
-            <Select
+            <StyledSelect
               disabled={disabled}
-              style={{ flex: 1 }}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
               {selectedValues?.map((value: string) => (
@@ -71,11 +73,12 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                   {value}
                 </Option>
               ))}
-            </Select>
+            </StyledSelect>
             {!disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}
@@ -100,10 +103,15 @@ export default MultiValueSelect;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
+`;
+
+const StyledSelect = styled(Select<string>)`
+  flex: 1;
+  overflow: hidden;
 `;

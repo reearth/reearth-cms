@@ -6,7 +6,13 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
-import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  FormItem,
+  ItemField,
+  VersionedItem,
+  FormValues,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
@@ -17,6 +23,10 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
+  hasRequestCreateRight: boolean;
+  hasRequestUpdateRight: boolean;
+  hasPublishRight: boolean;
+  hasItemUpdateRight: boolean;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction: boolean;
@@ -27,6 +37,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
+  versions: VersionedItem[];
   title: string;
   item?: Item;
   itemId?: string;
@@ -59,6 +70,7 @@ type Props = {
   onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onLinkItemTableReload: () => void;
@@ -100,11 +112,19 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
   onNavigateToRequest: (id: string) => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  hasRequestCreateRight,
+  hasRequestUpdateRight,
+  hasPublishRight,
+  hasItemUpdateRight,
   loadingReference,
   linkedItemsModalList,
   showPublishAction,
@@ -114,6 +134,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   initialFormValues,
   initialMetaFormValues,
+  versions,
   title,
   item,
   itemId,
@@ -150,6 +171,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onCollapse,
@@ -198,6 +220,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           <ContentForm
             title={title}
             item={item}
+            hasRequestCreateRight={hasRequestCreateRight}
+            hasRequestUpdateRight={hasRequestUpdateRight}
+            hasPublishRight={hasPublishRight}
+            hasItemUpdateRight={hasItemUpdateRight}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
@@ -224,6 +250,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             model={model}
             initialFormValues={initialFormValues}
             initialMetaFormValues={initialMetaFormValues}
+            versions={versions}
             assetList={assetList}
             onAssetTableChange={onAssetTableChange}
             totalCount={totalCount}
@@ -235,6 +262,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             uploadModalVisibility={uploadModalVisibility}
             uploadUrl={uploadUrl}
             uploadType={uploadType}
+            onGetVersionedItem={onGetVersionedItem}
             onPublish={onPublish}
             onUnpublish={onUnpublish}
             onChange={onChange}

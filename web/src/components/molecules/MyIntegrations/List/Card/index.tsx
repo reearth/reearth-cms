@@ -3,21 +3,22 @@ import { useCallback } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   integration: Integration;
-  onIntegrationNavigate: (integration: Integration) => void;
+  onIntegrationNavigate: (integrationId: string) => void;
 };
 
 const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate }) => {
   const onCardClick = useCallback(() => {
-    onIntegrationNavigate(integration);
+    onIntegrationNavigate(integration.id);
   }, [integration, onIntegrationNavigate]);
 
   return (
     <CardWrapper>
-      <Card onClick={onCardClick}>
-        <Icon icon="api" size={40} color="#00000040" />
+      <Card onClick={onCardClick} role="link">
+        <Icon icon="api" size={40} color={AntdColor.NEUTRAL.TEXT_QUATERNARY} />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
       </Card>
@@ -26,7 +27,7 @@ const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate
 };
 
 const CardWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const Card = styled.div`
@@ -35,36 +36,36 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 24px;
-  border: 1px solid #d9d9d9;
-  box-shadow: 0px 2px 8px #00000026;
-  border-radius: 4px;
+  padding: ${AntdToken.SPACING.LG}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
+  border-radius: ${AntdToken.RADIUS.SM}px;
   cursor: pointer;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   }
 `;
 
-const CardTitle = styled.h5`
+const CardTitle = styled.h3`
   width: 100%;
   margin-top: 22px;
-  margin-bottom: 4px;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #000000d9;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `;
 
-const CardSubTitle = styled.h6`
+const CardSubTitle = styled.h4`
   width: 100%;
   margin: 0;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
-  color: #00000073;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;

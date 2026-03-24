@@ -1,9 +1,10 @@
 import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import {
   Item,
-  Comment,
   ItemField,
   ItemAsset,
+  VersionedItem,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Schema } from "@reearth-cms/components/molecules/Schema/types";
@@ -13,13 +14,15 @@ import {
   Item as GQLItem,
   Comment as GQLComment,
   Request as GQLRequest,
-} from "@reearth-cms/gql/graphql-client-api";
+  VersionedItem as GQLVersionedItem,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined => {
   if (!GQLItem) return;
   return {
     id: GQLItem.id,
     version: GQLItem.version,
+    title: GQLItem.title ?? "",
     fields: GQLItem.fields.map(
       field =>
         ({
@@ -41,8 +44,8 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       })) ?? [],
-    createdBy: GQLItem.createdBy?.name,
-    updatedBy: GQLItem.updatedBy?.name,
+    createdBy: { id: GQLItem.createdBy?.id, name: GQLItem.createdBy?.name },
+    updatedBy: { id: GQLItem.updatedBy?.id, name: GQLItem.updatedBy?.name },
     createdAt: GQLItem.createdAt,
     updatedAt: GQLItem.updatedAt,
     schemaId: GQLItem.schemaId,
@@ -63,7 +66,12 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
     assets: GQLItem.assets
       ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
       .filter((asset): asset is ItemAsset => asset !== null),
-    requests: GQLItem.requests?.map(request => ({ id: request.id, state: request.state })) ?? [],
+    requests:
+      GQLItem.requests?.map(request => ({
+        id: request.id,
+        state: request.state,
+        title: request.title,
+      })) ?? [],
   };
 };
 
@@ -73,7 +81,7 @@ export const fromGraphQLAsset = (asset: GQLAsset | undefined): Asset | undefined
     id: asset.id,
     fileName: asset.fileName,
     createdAt: asset.createdAt.toString(),
-    createdBy: asset.createdBy?.name ?? "",
+    createdBy: { id: asset.createdBy.id, name: asset.createdBy.name },
     createdByType: asset.createdByType,
     previewType: asset.previewType || "UNKNOWN",
     projectId: asset.projectId,
@@ -83,6 +91,7 @@ export const fromGraphQLAsset = (asset: GQLAsset | undefined): Asset | undefined
     comments: asset.thread?.comments?.map(comment => fromGraphQLComment(comment)) ?? [],
     archiveExtractionStatus: asset.archiveExtractionStatus as ArchiveExtractionStatus,
     items: asset.items ?? [],
+    public: asset.public,
   };
 };
 
@@ -101,6 +110,7 @@ export const fromGraphQLRequest = (request: GQLRequest): Request => ({
   closedAt: request.closedAt ?? undefined,
   items: request.items?.map(item => ({
     id: item.itemId,
+    title: item.item?.value.title ?? "",
     modelId: item?.item?.value.modelId,
     modelName: item?.item?.value.model.name,
     version: item?.version ?? "",
@@ -136,3 +146,39 @@ export const fromGraphQLComment = (GQLComment: GQLComment): Comment => {
     createdAt: GQLComment.createdAt.toString(),
   };
 };
+
+export const fromGraphQLversionsByItem = (GQLVersionsByItem: GQLVersionedItem[]): VersionedItem[] =>
+  GQLVersionsByItem.map(version => {
+    const requests =
+      version.value.requests
+        ?.filter(
+          request =>
+            request.state === "WAITING" &&
+            request.items.some(
+              item =>
+                item.item?.value.modelId === version.value.modelId &&
+                item.itemId === version.value.id &&
+                item.version === version.version,
+            ),
+        )
+        .map(request => ({
+          id: request.id,
+          title: request.title,
+        })) ?? [];
+    return {
+      version: version.version,
+      status: version.refs.includes("public") ? "PUBLIC" : requests.length ? "REVIEW" : "DRAFT",
+      timestamp: version.value.updatedAt ?? version.value.createdAt,
+      creator: { name: version.value.updatedBy?.name ?? version.value.createdBy?.name ?? "" },
+      fields: version.value.fields.map(
+        field =>
+          ({
+            schemaFieldId: field.schemaFieldId,
+            itemGroupId: field.itemGroupId,
+            type: field.type,
+            value: field.value,
+          }) as ItemField,
+      ),
+      requests,
+    };
+  });

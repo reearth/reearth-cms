@@ -2,9 +2,19 @@ import { gql } from "@apollo/client";
 
 import { integrationFragment } from "@reearth-cms/gql/fragments";
 
-export const GET_USER_BY_SEARCH = gql`
-  query GetUserBySearch($nameOrEmail: String!) {
-    searchUser(nameOrEmail: $nameOrEmail) {
+export const GET_USER_BY_NAME_OR_EMAIL = gql`
+  query GetUserByNameOrEmail($nameOrEmail: String!) {
+    userByNameOrEmail(nameOrEmail: $nameOrEmail) {
+      id
+      name
+      email
+    }
+  }
+`;
+
+export const GET_USERS = gql`
+  query GetUsers($keyword: String!) {
+    userSearch(keyword: $keyword) {
       id
       name
       email
@@ -19,13 +29,16 @@ export const GET_ME = gql`
       name
       email
       lang
+      profilePictureUrl
       myWorkspace {
         id
         name
+        alias
       }
       workspaces {
         id
         name
+        alias
         members {
           ... on WorkspaceUserMember {
             user {
@@ -72,6 +85,7 @@ export const GET_PROFILE = gql`
       myWorkspace {
         id
         name
+        alias
       }
       auths
     }
@@ -124,6 +138,7 @@ export const UPDATE_ME = gql`
         myWorkspace {
           id
           name
+          alias
         }
       }
     }

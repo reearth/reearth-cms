@@ -12,15 +12,21 @@ import (
 const configPrefix = "REEARTH_CMS_WORKER"
 
 type Config struct {
-	Port       string `default:"8080" envconfig:"PORT"`
-	ServerHost string
-	Dev        bool
-	GCS        GCSConfig
-	S3         S3Config
-	PubSub     PubSubConfig
-	SNS        SNSConfig
-	GCP        GCPConfig `envconfig:"GCP"`
-	DB         string
+	Port        string `default:"8080" envconfig:"PORT"`
+	ServerHost  string
+	Dev         bool
+	GCS         GCSConfig
+	S3          S3Config
+	PubSub      PubSubConfig
+	SNS         SNSConfig
+	GCP         GCPConfig `envconfig:"GCP"`
+	DB          string
+	HealthCheck HealthCheckConfig
+}
+
+type HealthCheckConfig struct {
+	Username string
+	Password string
 }
 
 type GCSConfig struct {

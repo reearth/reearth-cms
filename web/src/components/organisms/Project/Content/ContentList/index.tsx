@@ -1,3 +1,4 @@
+import ContentImportModal from "@reearth-cms/components/molecules/Content/ContentImportModal";
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
@@ -19,6 +20,7 @@ const ContentList: React.FC = () => {
     selectedItems,
     loading,
     deleteLoading,
+    publishLoading,
     unpublishLoading,
     totalCount,
     views,
@@ -28,6 +30,11 @@ const ContentList: React.FC = () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
@@ -35,12 +42,13 @@ const ContentList: React.FC = () => {
     requestModalPage,
     requestModalPageSize,
     handleBulkAddItemToRequest: handleAddItemToRequest,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelectedItems,
+    handleSelect,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -54,80 +62,119 @@ const ContentList: React.FC = () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    isImportContentModalOpen,
+    handleImportContentModalOpen,
+    handleImportContentModalClose,
+    handleEnqueueJob,
+    dataChecking,
+    setDataChecking,
+    modelFields,
+    modelId,
+    currentWorkspaceId,
+    currentProjectId,
+    hasModelFields,
+    alertList,
+    setAlertList,
+    validateImportResult,
+    setValidateImportResult,
   } = useHooks();
 
   return (
-    <ContentListMolecule
-      commentsPanel={
-        <CommentsPanel
-          collapsed={collapsedCommentsPanel}
-          onCollapse={collapseCommentsPanel}
-          emptyText={
-            selectedItem
-              ? t("No comments.")
-              : t("Please click the comment bubble in the table to check comments.")
-          }
-          comments={selectedItem?.comments}
-          threadId={selectedItem?.threadId}
-          refetchQueries={["SearchItem"]}
-        />
-      }
-      modelsMenu={
-        <ModelsMenu
-          title={t("Content")}
-          collapsed={collapsedModelMenu}
-          onModelSelect={handleModelSelect}
-          selectedSchemaType="model"
-          titleIcon={"table"}
-        />
-      }
-      viewsMenu={
-        <ViewsMenu
-          views={views}
-          currentView={currentView}
-          onViewSelect={handleViewSelect}
-          onViewChange={handleViewChange}
-        />
-      }
-      onContentTableChange={handleContentTableChange}
-      onSearchTerm={handleSearchTerm}
-      onFilterChange={handleFilterChange}
-      selectedItem={selectedItem}
-      onItemSelect={handleItemSelect}
-      collapsed={collapsedModelMenu}
-      loading={loading}
-      deleteLoading={deleteLoading}
-      unpublishLoading={unpublishLoading}
-      currentView={currentView}
-      setCurrentView={setCurrentView}
-      totalCount={totalCount}
-      searchTerm={searchTerm}
-      page={page}
-      pageSize={pageSize}
-      model={currentModel}
-      contentTableFields={contentTableFields}
-      contentTableColumns={contentTableColumns}
-      selectedItems={selectedItems}
-      requests={requests}
-      onRequestTableChange={handleRequestTableChange}
-      requestModalLoading={requestModalLoading}
-      requestModalTotalCount={requestModalTotalCount}
-      requestModalPage={requestModalPage}
-      requestModalPageSize={requestModalPageSize}
-      setSelectedItems={setSelectedItems}
-      onCollapse={collapseModelMenu}
-      onItemsReload={handleItemsReload}
-      onItemEdit={handleNavigateToItemEditForm}
-      onUnpublish={handleUnpublish}
-      onItemDelete={handleItemDelete}
-      onItemAdd={handleNavigateToItemForm}
-      onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
-      onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
-      onAddItemToRequest={handleAddItemToRequest}
-      addItemToRequestModalShown={addItemToRequestModalShown}
-      onRequestSearchTerm={handleRequestSearchTerm}
-      onRequestTableReload={handleRequestTableReload}
-    />
+    <>
+      <ContentListMolecule
+        commentsPanel={
+          <CommentsPanel
+            resourceId={selectedItem?.id}
+            resourceType={"ITEM"}
+            collapsed={collapsedCommentsPanel}
+            onCollapse={collapseCommentsPanel}
+            comments={selectedItem?.comments}
+            threadId={selectedItem?.threadId}
+            refetchQueries={["SearchItem"]}
+          />
+        }
+        modelsMenu={
+          <ModelsMenu
+            title={t("Content")}
+            collapsed={collapsedModelMenu}
+            onModelSelect={handleModelSelect}
+            selectedSchemaType="model"
+            titleIcon={"table"}
+          />
+        }
+        viewsMenu={
+          <ViewsMenu
+            views={views}
+            currentView={currentView}
+            onViewSelect={handleViewSelect}
+            onViewChange={handleViewChange}
+          />
+        }
+        onContentTableChange={handleContentTableChange}
+        onSearchTerm={handleSearchTerm}
+        onFilterChange={handleFilterChange}
+        selectedItem={selectedItem}
+        onItemSelect={handleItemSelect}
+        collapsed={collapsedModelMenu}
+        loading={loading}
+        deleteLoading={deleteLoading}
+        publishLoading={publishLoading}
+        unpublishLoading={unpublishLoading}
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        totalCount={totalCount}
+        searchTerm={searchTerm}
+        page={page}
+        pageSize={pageSize}
+        model={currentModel}
+        contentTableFields={contentTableFields}
+        contentTableColumns={contentTableColumns}
+        selectedItems={selectedItems}
+        requests={requests}
+        onRequestTableChange={handleRequestTableChange}
+        requestModalLoading={requestModalLoading}
+        requestModalTotalCount={requestModalTotalCount}
+        requestModalPage={requestModalPage}
+        requestModalPageSize={requestModalPageSize}
+        onSelect={handleSelect}
+        onCollapse={collapseModelMenu}
+        onItemsReload={handleItemsReload}
+        onItemEdit={handleNavigateToItemEditForm}
+        onPublish={handlePublish}
+        onUnpublish={handleUnpublish}
+        onItemDelete={handleItemDelete}
+        onItemAdd={handleNavigateToItemForm}
+        onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
+        onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
+        onAddItemToRequest={handleAddItemToRequest}
+        addItemToRequestModalShown={addItemToRequestModalShown}
+        onRequestSearchTerm={handleRequestSearchTerm}
+        onRequestTableReload={handleRequestTableReload}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasPublishRight={hasPublishRight}
+        hasRequestUpdateRight={hasRequestUpdateRight}
+        showPublishAction={showPublishAction}
+        onImportModalOpen={handleImportContentModalOpen}
+        modelFields={modelFields}
+        hasModelFields={hasModelFields}
+      />
+      <ContentImportModal
+        isOpen={isImportContentModalOpen}
+        dataChecking={dataChecking}
+        modelFields={modelFields}
+        modelId={modelId}
+        workspaceId={currentWorkspaceId}
+        projectId={currentProjectId}
+        onClose={handleImportContentModalClose}
+        onSetDataChecking={setDataChecking}
+        onEnqueueJob={handleEnqueueJob}
+        alertList={alertList}
+        setAlertList={setAlertList}
+        validateImportResult={validateImportResult}
+        setValidateImportResult={setValidateImportResult}
+      />
+    </>
   );
 };
 

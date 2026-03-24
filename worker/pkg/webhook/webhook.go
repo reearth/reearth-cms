@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -53,7 +54,12 @@ func Send(ctx context.Context, w *Webhook) error {
 	if err != nil {
 		return fmt.Errorf("failed to send a request: %w", err)
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Printf("failed to close response body: %v\n", err)
+		}
+	}(res.Body)
 
 	if res.StatusCode > 300 {
 		return fmt.Errorf("ERROR: id=%s, url=%s, status=%d", w.EventID, w.URL, res.StatusCode)
@@ -75,7 +81,7 @@ func (w Webhook) requestBody() ([]byte, error) {
 
 func Sign(payload, secret []byte, t time.Time, v string) string {
 	mac := hmac.New(sha256.New, secret)
-	_, _ = mac.Write([]byte(fmt.Sprintf("%s:%d:", v, t.Unix())))
+	_, _ = fmt.Fprintf(mac, "%s:%d:", v, t.Unix())
 	_, _ = mac.Write(payload)
 	s := hex.EncodeToString(mac.Sum(nil))
 	return fmt.Sprintf("%s,t=%d,%s", v, t.Unix(), s)

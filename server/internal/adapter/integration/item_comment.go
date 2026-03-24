@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
@@ -15,6 +16,14 @@ func (s *Server) ItemCommentList(ctx context.Context, request ItemCommentListReq
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	_, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentList404Response{}, err
+		}
+		return ItemCommentList400Response{}, err
+	}
+
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -24,7 +33,10 @@ func (s *Server) ItemCommentList(ctx context.Context, request ItemCommentListReq
 	}
 
 	thId := i.Value().Thread()
-	th, err := uc.Thread.FindByID(ctx, thId, op)
+	if thId == nil {
+		return ItemCommentList200JSONResponse{}, nil
+	}
+	th, err := uc.Thread.FindByID(ctx, *thId, op)
 	if err != nil {
 		return ItemCommentList400Response{}, err
 	}
@@ -40,6 +52,14 @@ func (s *Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreat
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentCreate404Response{}, err
+		}
+		return ItemCommentCreate400Response{}, err
+	}
+
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -48,8 +68,18 @@ func (s *Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreat
 		return ItemCommentCreate400Response{}, err
 	}
 
-	thId := i.Value().Thread()
-	_, comment, err := uc.Thread.AddComment(ctx, thId, *request.Body.Content, op)
+	var comment *thread.Comment
+	if i.Value().Thread() == nil {
+		_, comment, err = uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
+			WorkspaceID:  wp.Workspace.ID(),
+			ResourceID:   i.Value().ID().String(),
+			ResourceType: interfaces.ResourceTypeItem,
+			Content:      *request.Body.Content,
+		}, op)
+	} else {
+		_, comment, err = uc.Thread.AddComment(ctx, *i.Value().Thread(), *request.Body.Content, op)
+	}
+
 	if err != nil {
 		return ItemCommentCreate400Response{}, err
 	}
@@ -61,6 +91,14 @@ func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdat
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	_, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentUpdate404Response{}, err
+		}
+		return ItemCommentUpdate400Response{}, err
+	}
+
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -69,7 +107,11 @@ func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdat
 		return ItemCommentUpdate400Response{}, err
 	}
 
-	_, comment, err := uc.Thread.UpdateComment(ctx, i.Value().Thread(), request.CommentId, *request.Body.Content, op)
+	thId := i.Value().Thread()
+	if thId == nil {
+		return ItemCommentUpdate400Response{}, nil
+	}
+	_, comment, err := uc.Thread.UpdateComment(ctx, *thId, request.CommentId, *request.Body.Content, op)
 	if err != nil {
 		return ItemCommentUpdate400Response{}, err
 	}
@@ -81,6 +123,14 @@ func (s *Server) ItemCommentDelete(ctx context.Context, request ItemCommentDelet
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	_, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentDelete404Response{}, err
+		}
+		return ItemCommentDelete400Response{}, err
+	}
+
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -90,7 +140,10 @@ func (s *Server) ItemCommentDelete(ctx context.Context, request ItemCommentDelet
 	}
 
 	thId := i.Value().Thread()
-	_, err = uc.Thread.DeleteComment(ctx, thId, request.CommentId, op)
+	if thId == nil {
+		return ItemCommentDelete400Response{}, nil
+	}
+	_, err = uc.Thread.DeleteComment(ctx, *thId, request.CommentId, op)
 	if err != nil {
 		return ItemCommentDelete400Response{}, err
 	}

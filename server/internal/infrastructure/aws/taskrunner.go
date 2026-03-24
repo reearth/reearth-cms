@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -29,7 +28,7 @@ type TaskConfig struct {
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
 	if conf.WebhookARN == "" || conf.TopicARN == "" {
-		return nil, errors.New("Missing configuration")
+		return nil, errors.New("missing configuration")
 	}
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -90,11 +89,7 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	var urlFn asset.URLResolver = func(a *asset.Asset) string {
-		return getURL(s3AssetBasePath, a.UUID(), a.FileName())
-	}
-
-	data, err := marshalWebhookData(p.Webhook, urlFn)
+	data, err := marshalWebhookData(p.Webhook)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}

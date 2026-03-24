@@ -41,3 +41,15 @@ func (f Fields) FieldsByGroup(iid id.ItemGroupID) []*Field {
 		return f.ItemGroup() != nil && *f.ItemGroup() == iid
 	})
 }
+
+func (f Fields) Filter(fIds FieldIDList) Fields {
+	return lo.Filter(f, func(f *Field, _ int) bool {
+		return fIds.Has(f.FieldID())
+	})
+}
+
+func (f Fields) Clone() Fields {
+	return lo.Map(f, func(f *Field, _ int) *Field {
+		return f.Clone()
+	})
+}

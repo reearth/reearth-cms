@@ -163,7 +163,7 @@ func (o *Operator) CanUpdate(obj Ownable) bool {
 }
 
 func (o *Operator) Owns(obj Ownable) bool {
-	return (o.AcOperator.User != nil && obj.User() != nil && *o.AcOperator.User == *obj.User()) ||
+	return (o.AcOperator != nil && o.AcOperator.User != nil && obj.User() != nil && *o.AcOperator.User == *obj.User()) ||
 		(o.Integration != nil && obj.Integration() != nil && *o.Integration == *obj.Integration())
 }
 
@@ -181,4 +181,11 @@ func (o *Operator) RoleByProject(pid id.ProjectID) workspace.Role {
 		return workspace.RoleReader
 	}
 	return ""
+}
+
+func (o *Operator) IsUserOrIntegration() bool {
+	if o == nil {
+		return false
+	}
+	return (o.AcOperator != nil && o.AcOperator.User != nil) || o.Integration != nil
 }
