@@ -47,23 +47,28 @@ func privateAssetsMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 
 func handleAssetByUUID(appCtx *ApplicationContext) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		filename := ctx.Param("filename")
 		uuid := ctx.Param("uuid1") + ctx.Param("uuid2")
-		if !appCtx.Config.Asset_Public {
-			a, err := appCtx.Repos.Asset.FindByUUID(ctx.Request().Context(), uuid)
-			if err != nil {
-				return err
-			}
-			if a != nil && !a.Public() {
-				op := adapter.Operator(ctx.Request().Context())
-				if op == nil || !op.IsReadableProject(a.Project()) {
-					return rerror.ErrNotFound
-				}
+		reqCtx := ctx.Request().Context()
+
+		a, err := appCtx.Repos.Asset.FindByUUID(reqCtx, uuid)
+		if err != nil {
+			return err
+		}
+
+		if !appCtx.Config.Asset_Public && (a == nil || (!a.Public() && (adapter.Operator(reqCtx) == nil || !adapter.Operator(reqCtx).IsReadableProject(a.Project())))) {
+			return rerror.ErrNotFound
+		}
+
+		// Resolve the storage filename from AssetFile rather than the URL parameter,
+		// since asset.FileName may have been normalized after the file was uploaded.
+		filename := ctx.Param("filename")
+		if a != nil {
+			if af, err := appCtx.Repos.AssetFile.FindByID(reqCtx, a.ID()); err == nil && af.Path() != "" {
+				filename = af.Path()
 			}
 		}
-		r, h, err := appCtx.Gateways.File.ReadAsset(
-			ctx.Request().Context(), uuid, filename, assetHeaders(ctx.Request().Header),
-		)
+
+		r, h, err := appCtx.Gateways.File.ReadAsset(reqCtx, uuid, filename, assetHeaders(ctx.Request().Header))
 		if err != nil {
 			return err
 		}
