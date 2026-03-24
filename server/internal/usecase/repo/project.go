@@ -11,7 +11,7 @@ import (
 )
 
 type Project interface {
-	Filtered(workspace WorkspaceFilter, project ProjectFilter) Project
+	Filtered(WorkspaceFilter, ProjectFilter) Project
 	FindByID(context.Context, id.ProjectID) (*project.Project, error)
 	FindByIDOrAlias(context.Context, accountdomain.WorkspaceID, project.IDOrAlias) (*project.Project, error)
 	FindByIDs(context.Context, id.ProjectIDList) (project.List, error)

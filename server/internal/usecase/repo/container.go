@@ -123,13 +123,10 @@ type ProjectFilter struct {
 
 func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
 	if o == nil {
-		// unauthenticated: only public projects visible (empty non-nil Readable list)
 		return ProjectFilter{Readable: project.IDList{}}
 	}
 	if o.Machine {
-		// machine operators: no project visibility restriction
 		return ProjectFilter{
-			Readable: nil,
 			Writable: o.AllWritableProjects(),
 		}
 	}
