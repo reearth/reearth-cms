@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
@@ -237,6 +238,11 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 				return err
 			}
 
+			// remove reference fields in sibling schemas that point to this model's schema
+			if err := i.removeReferenceFieldsPointingToSchema(ctx, m); err != nil {
+				return err
+			}
+
 			// delete the model's schema
 			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
 				return err
@@ -260,6 +266,54 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 			}
 			return i.repos.Model.SaveAll(ctx, res)
 		})
+}
+
+func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
+	var models model.List
+	p := usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap()
+	for {
+		page, pageInfo, err := i.repos.Model.FindByProject(ctx, m.Project(), p)
+		if err != nil {
+			return err
+		}
+		for _, mm := range page {
+			if mm.ID() != m.ID() {
+				models = append(models, mm)
+			}
+		}
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+		p = usecasex.CursorPagination{First: lo.ToPtr(int64(1000)), After: pageInfo.EndCursor}.Wrap()
+	}
+
+	schemaIDs := models.SchemaIDs()
+	if len(schemaIDs) == 0 {
+		return nil
+	}
+	schemas, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+	if err != nil {
+		return err
+	}
+
+	var toSave schema.List
+	for _, s := range schemas {
+		if s == nil {
+			continue
+		}
+		before := s.Fields().Count()
+		for _, f := range s.FieldsByType(value.TypeReference) {
+			fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+			if ok && fr.Schema() == m.Schema() {
+				s.RemoveField(f.ID())
+			}
+		}
+		if s.Fields().Count() != before {
+			toSave = append(toSave, s)
+		}
+	}
+
+	return i.repos.Schema.SaveAll(ctx, toSave)
 }
 
 func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const NotFound: React.FC = () => {
   const t = useT();
@@ -30,11 +31,11 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f0f2f5;
+  background: ${AntdColor.NEUTRAL.BG_LAYOUT_V4};
 `;
 
 const CircleWrapper = styled.div`
-  padding: 32px;
+  padding: ${AntdToken.SPACING.XL}px;
 `;
 
 const Circle = styled.div`
@@ -42,9 +43,9 @@ const Circle = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 96px;
-  color: #bfbfbf;
-  font-weight: 700;
-  background-color: #d9d9d9;
+  color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
+  background-color: ${AntdColor.NEUTRAL.BORDER};
   width: 240px;
   height: 240px;
   padding: 0;
@@ -52,23 +53,23 @@ const Circle = styled.div`
 `;
 
 const Content = styled.div`
-  padding: 32px;
+  padding: ${AntdToken.SPACING.XL}px;
   text-align: center;
 `;
 
 const StyledTitle = styled.h1`
   text-align: center;
-  color: #1890ff;
-  font-weight: 500;
+  color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: 38px;
   line-height: 46px;
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledText = styled.p`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #00000073;
-  margin-bottom: 24px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
