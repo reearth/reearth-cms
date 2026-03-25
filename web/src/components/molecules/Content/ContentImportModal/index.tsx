@@ -32,6 +32,17 @@ import { AntdColor, AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 const { Dragger } = Upload;
 
+enum ImportContentError {
+  InvalidFormat = "invalid_format",
+  SingleFile = "single_file",
+  EmptyFile = "empty_file",
+  TooLargeFile = "too_large_file",
+  InvalidJson = "invalid_json",
+  WrongFileType = "wrong_file_type",
+  ExceedRecordLimit = "exceed_record_limit",
+  ValidationError = "validation_error",
+}
+
 type Props = {
   isOpen: boolean;
   dataChecking: boolean;
@@ -190,31 +201,32 @@ const ContentImportModal: React.FC<Props> = ({
       setImportValidationResult(null);
       setAlertList([]);
 
-      const fileName = file.name;
-      const extension = FileUtils.getExtension(fileName);
-
-      if (!["geojson", "json", "csv"].includes(extension)) {
-        raiseIllegalFileFormatAlert();
-        return;
-      }
-
-      if (fileList.length > 1) {
-        raiseSingleFileAlert();
-        return;
-      }
-
-      if (file.size === 0) {
-        raiseIllegalFileAlert();
-        return;
-      }
-
-      if (file.size > FileUtils.MBtoBytes(Constant.IMPORT.MAX_FILE_SIZE_IN_MB)) {
-        raiseTooLargeFileSizeAlert();
-        return;
-      }
-
       try {
         handleStartLoading();
+
+        const fileName = file.name;
+        const extension = FileUtils.getExtension(fileName);
+
+        if (!["geojson", "json", "csv"].includes(extension)) {
+          raiseIllegalFileFormatAlert();
+          throw new Error(ImportContentError.InvalidFormat);
+        }
+
+        if (fileList.length > 1) {
+          raiseSingleFileAlert();
+          throw new Error(ImportContentError.SingleFile);
+        }
+
+        if (file.size === 0) {
+          raiseIllegalFileAlert();
+          throw new Error(ImportContentError.EmptyFile);
+        }
+
+        if (file.size > FileUtils.MBtoBytes(Constant.IMPORT.MAX_FILE_SIZE_IN_MB)) {
+          raiseTooLargeFileSizeAlert();
+          throw new Error(ImportContentError.TooLargeFile);
+        }
+
         const content = await FileUtils.parseTextFile(file);
 
         switch (extension) {
@@ -223,7 +235,7 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
-              return;
+              throw new Error(ImportContentError.InvalidJson);
             }
 
             if (
@@ -233,12 +245,12 @@ const ContentImportModal: React.FC<Props> = ({
               "properties" in jsonValidation.data
             ) {
               raiseWrongFileTypeAlert();
-              return;
+              throw new Error(ImportContentError.WrongFileType);
             }
 
             if (jsonValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
               raiseExceedRecordLimitAlert();
-              return;
+              throw new Error(ImportContentError.ExceedRecordLimit);
             }
 
             const jsonContentValidation = await ImportContentUtils.validateContent(
@@ -250,7 +262,7 @@ const ContentImportModal: React.FC<Props> = ({
             if (!jsonContentValidation.isValid) {
               pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(jsonContentValidation.error, fileName);
-              return;
+              throw new Error(ImportContentError.ValidationError);
             }
 
             handleEnqueueJob(extension, file, fileName);
@@ -262,7 +274,7 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!geoJSONValidation.isValid) {
               raiseIllegalFileAlert();
-              return;
+              throw new Error(ImportContentError.InvalidJson);
             }
 
             const jsonValidation = await ImportContentUtils.convertGeoJSONToJSON(
@@ -271,12 +283,12 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
-              return;
+              throw new Error(ImportContentError.InvalidJson);
             }
 
             if (jsonValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
               raiseExceedRecordLimitAlert();
-              return;
+              throw new Error(ImportContentError.ExceedRecordLimit);
             }
 
             const geoJSONContentValidation = await ImportContentUtils.validateContent(
@@ -288,7 +300,7 @@ const ContentImportModal: React.FC<Props> = ({
             if (!geoJSONContentValidation.isValid) {
               pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(geoJSONContentValidation.error, fileName);
-              return;
+              throw new Error(ImportContentError.ValidationError);
             }
 
             handleEnqueueJob(extension, file, fileName);
@@ -300,12 +312,12 @@ const ContentImportModal: React.FC<Props> = ({
               await ImportContentUtils.convertCSVToJSON<ImportContentItem>(content);
             if (!csvValidation.isValid) {
               raiseIllegalFileAlert();
-              return;
+              throw new Error(ImportContentError.InvalidJson);
             }
 
             if (csvValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
               raiseExceedRecordLimitAlert();
-              return;
+              throw new Error(ImportContentError.ExceedRecordLimit);
             }
 
             const csvContentValidation = await ImportContentUtils.validateContent(
@@ -317,7 +329,7 @@ const ContentImportModal: React.FC<Props> = ({
             if (!csvContentValidation.isValid) {
               pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(csvContentValidation.error, fileName);
-              return;
+              throw new Error(ImportContentError.ValidationError);
             }
 
             handleEnqueueJob(extension, file, fileName);
@@ -327,15 +339,21 @@ const ContentImportModal: React.FC<Props> = ({
           default:
         }
       } catch (error) {
-        console.error(error);
-        setAlertList([
-          {
-            message: t("An unexpected error occurred while processing the file. Please try again."),
-            type: "error",
-            closable: true,
-            showIcon: true,
-          },
-        ]);
+        if (
+          !(error instanceof Error) ||
+          !Object.values(ImportContentError).includes(error.message as ImportContentError)
+        ) {
+          setAlertList([
+            {
+              message: t(
+                "An unexpected error occurred while processing the file. Please try again.",
+              ),
+              type: "error",
+              closable: true,
+              showIcon: true,
+            },
+          ]);
+        }
       } finally {
         handleEndLoading();
       }
@@ -345,11 +363,11 @@ const ContentImportModal: React.FC<Props> = ({
     [
       setImportValidationResult,
       setAlertList,
+      handleStartLoading,
       raiseIllegalFileFormatAlert,
       raiseSingleFileAlert,
       raiseIllegalFileAlert,
       raiseTooLargeFileSizeAlert,
-      handleStartLoading,
       modelFields,
       handleEnqueueJob,
       raiseWrongFileTypeAlert,
