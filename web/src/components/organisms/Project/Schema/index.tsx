@@ -6,7 +6,9 @@ import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
-import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import useAssetHooks, {
+  ImportSchemaError,
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { ContentTypesEnum } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
@@ -113,9 +115,11 @@ const ProjectSchema: React.FC = () => {
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async (file, fileList) => {
           const result = await importHooks.handleImportSchemaFileChange(file, fileList);
+          console.log("result", result);
 
-          if (result === "schema_error") toSchemaErrorLogStep();
-          else if (result) toSchemaPreviewStep();
+          if (!result.isValid && result.error === ImportSchemaError.SchemaError)
+            toSchemaErrorLogStep();
+          else if (result.isValid) toSchemaPreviewStep();
         }}
         onFileRemove={importHooks.handleImportSchemaFileRemove}
       />

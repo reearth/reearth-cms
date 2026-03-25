@@ -41,6 +41,14 @@ import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
 
+export enum ImportSchemaError {
+  InvalidFormat = "invalid_format",
+  SingleFile = "single_file",
+  EmptyFile = "empty_file",
+  InvalidJson = "invalid_json",
+  SchemaError = "schema_error",
+}
+
 type UploadFile = RcFile & {
   skipDecompression?: boolean;
 };
@@ -462,50 +470,50 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     ]);
   }, [setAlertList, t]);
 
-  const handleImportSchemaFileChange: UploadProps["beforeUpload"] = async (file, fileList) => {
+  const handleImportSchemaFileChange = async (
+    file: RcFile,
+    fileList: RcFile[],
+  ): Promise<{ isValid: boolean; error: ImportSchemaError | null }> => {
     setDataChecking(true);
 
-    const extension = FileUtils.getExtension(file.name);
-
-    if (!["geojson", "json"].includes(extension)) {
-      raiseIllegalFileFormatAlert();
-      return false;
-    }
-
-    if (fileList.length > 1) {
-      raiseSingleFileAlert();
-      return false;
-    }
-
-    setFileList([file]);
-
-    if (file.size === 0) {
-      raiseIllegalFileAlert();
-      return false;
-    }
-
     try {
+      const extension = FileUtils.getExtension(file.name);
+
+      if (extension !== "json") {
+        raiseIllegalFileFormatAlert();
+        throw new Error(ImportSchemaError.InvalidFormat);
+      }
+
+      if (fileList.length > 1) {
+        raiseSingleFileAlert();
+        throw new Error(ImportSchemaError.SingleFile);
+      }
+
+      setFileList([file]);
+
+      if (file.size === 0) {
+        raiseIllegalFileAlert();
+        throw new Error(ImportSchemaError.EmptyFile);
+      }
+
       const content = await FileUtils.parseTextFile(file);
 
-      const jsonValidation = await ObjectUtils.safeJSONParse(content);
+      const jsonValidation = await ObjectUtils.safeJSONParse<ImportSchema>(content);
 
       if (ObjectUtils.isEmpty(jsonValidation)) {
         raiseIllegalFileAlert();
-        return false;
+        throw new Error(ImportSchemaError.EmptyFile);
       }
 
       setAlertList([]);
       setSchemaErrorLogMeta(null);
 
-      const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(content);
-      setDataChecking(false);
-
-      if (!parsedJSON.isValid) {
+      if (!jsonValidation.isValid) {
         raiseIllegalFileAlert();
-        return false;
+        throw new Error(ImportSchemaError.InvalidJson);
       }
 
-      const importSchema = ImportSchemaUtils.validateSchemaFromJSON(parsedJSON.data);
+      const importSchema = ImportSchemaUtils.validateSchemaFromJSON(jsonValidation.data);
 
       if (!importSchema.isValid) {
         const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(importSchema.zodIssues);
@@ -515,17 +523,22 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
           totalErrors: importSchema.zodIssues.length,
           entries,
         });
-        return "schema_error";
+        throw new Error(ImportSchemaError.SchemaError);
       }
 
       const fields = SchemaHelpers.convertImportSchemaData(importSchema.data.properties, modelId);
 
       setImportFields(fields);
 
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
+      return { isValid: true, error: null };
+    } catch (error) {
+      const schemaError =
+        error instanceof Error
+          ? (error.message as ImportSchemaError)
+          : (error as ImportSchemaError);
+      return { isValid: false, error: schemaError };
+    } finally {
+      setDataChecking(false);
     }
   };
 
