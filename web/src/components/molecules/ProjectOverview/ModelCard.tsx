@@ -164,7 +164,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: getImportSchemaUIMetadata.shouldDisable,
         onClick: () => onImportSchemaNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
+        "data-testid": DATA_TEST_ID.ModelCard__MiscImportSchema,
       },
       {
         key: "content",
@@ -173,7 +173,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: getImportContentUIMetadata.shouldDisable,
         onClick: () => onImportContentNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
+        "data-testid": DATA_TEST_ID.ModelCard__MiscImportContent,
       },
     ],
     [
@@ -188,61 +188,55 @@ const ModelCard: React.FC<Props> = ({
     ],
   );
 
-  const ExportMenuItems = useMemo<MenuProps[]>(
+  const ExportMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
         key: "schema",
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
         disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportSchema,
+        "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportSchema,
       },
       {
-        key: "json",
-        label: t("Export as JSON"),
-        onClick: () => handleModelExportClick(ExportFormat.Json),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON,
-      },
-      {
-        key: "csv",
-        label: t("Export as CSV"),
-        onClick: () => handleModelExportClick(ExportFormat.Csv),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV,
-      },
-      {
-        key: "geojson",
-        label: t("Export as GeoJSON"),
-        onClick: () => handleModelExportClick(ExportFormat.Geojson),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON,
+        key: "content",
+        label: t("Export content"),
+        "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContent,
+        children: [
+          {
+            key: "json",
+            label: t("JSON"),
+            onClick: () => handleModelExportClick(ExportFormat.Json),
+            disabled: exportLoading,
+            "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentJSON,
+          },
+          {
+            key: "csv",
+            label: t("CSV"),
+            onClick: () => handleModelExportClick(ExportFormat.Csv),
+            disabled: exportLoading,
+            "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentCSV,
+          },
+          {
+            key: "geojson",
+            label: t("GeoJSON"),
+            onClick: () => handleModelExportClick(ExportFormat.Geojson),
+            disabled: exportLoading,
+            "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON,
+          },
+        ],
       },
     ],
     [t, handleModelExportClick, exportLoading],
   );
 
-  const OptionsMenuItems = useMemo<MenuProps["items"]>(
+  const MiscMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
         key: "edit",
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
         disabled: !hasUpdateRight,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownEdit,
-      },
-      {
-        key: "import",
-        label: t("Import"),
-        icon: <ExperimentIcon />,
-        children: ImportMenuItems,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImport,
-      },
-      {
-        key: "export",
-        label: t("Export"),
-        children: ExportMenuItems,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExport,
+        "data-testid": DATA_TEST_ID.ModelCard__MiscEdit,
       },
       {
         key: "delete",
@@ -250,19 +244,29 @@ const ModelCard: React.FC<Props> = ({
         onClick: () => onModelDeletionModalOpen(model),
         danger: true,
         disabled: !hasDeleteRight,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownDelete,
+        "data-testid": DATA_TEST_ID.ModelCard__MiscDelete,
       },
     ],
-    [
-      t,
-      hasUpdateRight,
-      ImportMenuItems,
-      ExportMenuItems,
-      hasDeleteRight,
-      onModelUpdateModalOpen,
-      model,
-      onModelDeletionModalOpen,
+    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
+  );
+
+  const FileOperationMenuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "import",
+        label: t("Import"),
+        icon: <StyledExperimentIcon />,
+        children: ImportMenuItems,
+        "data-testid": DATA_TEST_ID.ModelCard__FileOperationImport,
+      },
+      {
+        key: "export",
+        label: t("Export"),
+        children: ExportMenuItems,
+        "data-testid": DATA_TEST_ID.ModelCard__FileOperationExport,
+      },
     ],
+    [t, ImportMenuItems, ExportMenuItems],
   );
 
   return (
@@ -270,10 +274,15 @@ const ModelCard: React.FC<Props> = ({
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
+        <Dropdown key="fileOperation" menu={{ items: FileOperationMenuItems }} trigger={["click"]}>
           <a
-            data-testid={DATA_TEST_ID.ModelCard__UtilDropdownIcon}
+            data-testid={DATA_TEST_ID.ModelCard__FileOperationIcon}
             onClick={e => e.preventDefault()}>
+            <Icon icon="download" />
+          </a>
+        </Dropdown>,
+        <Dropdown key="misc" menu={{ items: MiscMenuItems }} trigger={["click"]}>
+          <a data-testid={DATA_TEST_ID.ModelCard__MiscIcon} onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
           </a>
         </Dropdown>,
@@ -304,4 +313,8 @@ const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${AntdToken.SPACING.XS}px;
+`;
+
+const StyledExperimentIcon = styled(ExperimentIcon)`
+  margin-right: ${AntdToken.SPACING.XS}px;
 `;

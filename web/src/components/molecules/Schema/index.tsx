@@ -180,6 +180,14 @@ const Schema: React.FC<Props> = ({
         disabled: !hasUpdateRight,
       },
       {
+        key: "delete",
+        label: t("Delete"),
+        icon: <StyledIcon icon="delete" />,
+        onClick: onDeletionModalOpen,
+        danger: true,
+        disabled: !hasDeleteRight,
+      },
+      {
         key: "import",
         label: (
           <Tooltip
@@ -194,14 +202,6 @@ const Schema: React.FC<Props> = ({
         icon: <StyledIcon icon="import" />,
         onClick: onSchemaImportModalOpen,
         disabled: getImportSchemaUIMetadata.shouldDisable,
-      },
-      {
-        key: "delete",
-        label: t("Delete"),
-        icon: <StyledIcon icon="delete" />,
-        onClick: onDeletionModalOpen,
-        danger: true,
-        disabled: !hasDeleteRight,
       },
     ],
     [
