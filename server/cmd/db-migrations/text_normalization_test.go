@@ -39,7 +39,7 @@ func TestTextNormalizationMigration(t *testing.T) {
 	err = TextNormalizationMigration(ctx, os.Getenv("REEARTH_CMS_DB"), db.Name(), true)
 	assert.NoError(t, err)
 
-	// Verify asset normalization: filename stays original, filenamenormalized is populated
+	// Verify asset normalization: filename stays original, filenamenormalized is always populated
 	var asset1Updated map[string]any
 	err = assetCol.FindOne(ctx, bson.M{"id": asset1["id"]}).Decode(&asset1Updated)
 	assert.NoError(t, err)
@@ -50,7 +50,7 @@ func TestTextNormalizationMigration(t *testing.T) {
 	err = assetCol.FindOne(ctx, bson.M{"id": asset2["id"]}).Decode(&asset2Updated)
 	assert.NoError(t, err)
 	assert.Equal(t, "test.png", asset2Updated["filename"])
-	assert.Nil(t, asset2Updated["filenamenormalized"])
+	assert.Equal(t, "test.png", asset2Updated["filenamenormalized"])
 }
 
 func TestNormalizeAssetFilename(t *testing.T) {
@@ -75,8 +75,8 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "test.png",
 			},
-			want:     nil,
-			shouldUp: false,
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "test.png"},
+			shouldUp: true,
 		},
 		{
 			name: "fullwidth symbols",
@@ -93,8 +93,8 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "\u30dd\u30fc\u30eb.jpg", // ポール composed form (already normalized)
 			},
-			want:     nil,
-			shouldUp: false,
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
+			shouldUp: true,
 		},
 		{
 			name: "decomposed form (NFD) - ポール",
