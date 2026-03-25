@@ -309,6 +309,25 @@ describe("ContentImportModal", () => {
     expect(screen.getByText("Download error log")).toBeInTheDocument();
   });
 
+  test("shows wrong file type error when schema file is uploaded as content", async () => {
+    const schemaData = { properties: { name: { "x-fieldType": "Text" } } };
+    const file = Test.createMockRcFile({ name: "schema.json", type: "application/json" });
+    mockGetExtension.mockReturnValue("json");
+    mockParseTextFile.mockResolvedValue(JSON.stringify(schemaData));
+    mockSafeJSONParse.mockResolvedValue({ isValid: true, data: schemaData });
+
+    render(<StatefulWrapper />);
+
+    const input = getFileInput();
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => expect(mockParseTextFile).toHaveBeenCalled());
+
+    expect(
+      await screen.findByText("This file appears to be a schema file, not a content file"),
+    ).toBeInTheDocument();
+  });
+
   test("shows error log view for GeoJSON file validation failure", async () => {
     mockValidateContent.mockResolvedValue({
       isValid: false,
