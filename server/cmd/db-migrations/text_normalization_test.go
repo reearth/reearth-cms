@@ -19,7 +19,6 @@ func TestTextNormalizationMigration(t *testing.T) {
 
 	ctx := context.Background()
 	assetCol := db.Collection("asset")
-	itemCol := db.Collection("item")
 
 	// Insert test assets with fullwidth characters
 	asset1 := map[string]any{
@@ -34,48 +33,6 @@ func TestTextNormalizationMigration(t *testing.T) {
 	}
 
 	_, err := assetCol.InsertMany(ctx, []any{asset1, asset2})
-	assert.NoError(t, err)
-
-	// Insert test items with fullwidth text in fields
-	item1 := map[string]any{
-		"id":      id.NewItemID().String(),
-		"project": id.NewProjectID().String(),
-		"model":   id.NewModelID().String(),
-		"schema":  id.NewSchemaID().String(),
-		"fields": []map[string]any{
-			{
-				"f": id.NewFieldID().String(),
-				"v": map[string]any{
-					"t": "text",
-					"v": []any{"Ｔｏｋｙｏ２０２４"},
-				},
-			},
-			{
-				"f": id.NewFieldID().String(),
-				"v": map[string]any{
-					"t": "textArea",
-					"v": []any{"test　file"},
-				},
-			},
-		},
-	}
-	item2 := map[string]any{
-		"id":      id.NewItemID().String(),
-		"project": id.NewProjectID().String(),
-		"model":   id.NewModelID().String(),
-		"schema":  id.NewSchemaID().String(),
-		"fields": []map[string]any{
-			{
-				"f": id.NewFieldID().String(),
-				"v": map[string]any{
-					"t": "number",
-					"v": []any{123},
-				},
-			},
-		},
-	}
-
-	_, err = itemCol.InsertMany(ctx, []any{item1, item2})
 	assert.NoError(t, err)
 
 	// Run the migration
@@ -93,37 +50,7 @@ func TestTextNormalizationMigration(t *testing.T) {
 	err = assetCol.FindOne(ctx, bson.M{"id": asset2["id"]}).Decode(&asset2Updated)
 	assert.NoError(t, err)
 	assert.Equal(t, "test.png", asset2Updated["filename"])
-	assert.Equal(t, "test.png", asset2Updated["filenamenormalized"])
-
-	// Verify item text field normalization
-	var item1Updated map[string]any
-	err = itemCol.FindOne(ctx, bson.M{"id": item1["id"]}).Decode(&item1Updated)
-	assert.NoError(t, err)
-
-	fields := item1Updated["fields"].(primitive.A)
-	assert.Len(t, fields, 2)
-
-	field1 := fields[0].(map[string]any)
-	field1Value := field1["v"].(map[string]any)
-	field1Values := field1Value["v"].(primitive.A)
-	assert.Equal(t, "Tokyo2024", field1Values[0])
-
-	field2 := fields[1].(map[string]any)
-	field2Value := field2["v"].(map[string]any)
-	field2Values := field2Value["v"].(primitive.A)
-	assert.Equal(t, "test file", field2Values[0])
-
-	// Verify item without text fields is unchanged
-	var item2Updated map[string]any
-	err = itemCol.FindOne(ctx, bson.M{"id": item2["id"]}).Decode(&item2Updated)
-	assert.NoError(t, err)
-
-	fields2 := item2Updated["fields"].(primitive.A)
-	assert.Len(t, fields2, 1)
-
-	field := fields2[0].(map[string]any)
-	fieldValue := field["v"].(map[string]any)
-	assert.Equal(t, "number", fieldValue["t"])
+	assert.Nil(t, asset2Updated["filenamenormalized"])
 }
 
 func TestNormalizeAssetFilename(t *testing.T) {
@@ -148,8 +75,8 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "test.png",
 			},
-			want:     &AssetDocumentForNormalization{FileNameNormalized: "test.png"},
-			shouldUp: true,
+			want:     nil,
+			shouldUp: false,
 		},
 		{
 			name: "fullwidth symbols",
@@ -166,14 +93,14 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "\u30dd\u30fc\u30eb.jpg", // ポール composed form (already normalized)
 			},
-			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
-			shouldUp: true,
+			want:     nil,
+			shouldUp: false,
 		},
 		{
-			name: "decomposed form (NFD) - ポール",
+			name: "decomposed form (NFD) - ポール",
 			asset: AssetDocumentForNormalization{
 				ID:       primitive.NewObjectID(),
-				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
+				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
 			},
 			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
 			shouldUp: true,
@@ -206,162 +133,6 @@ func TestNormalizeAssetFilename(t *testing.T) {
 			t.Parallel()
 
 			got, err := updateAssetFilename(tt.asset)
-			assert.NoError(t, err)
-			assert.Equal(t, tt.shouldUp, got != nil)
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestNormalizeItemTextFields(t *testing.T) {
-	tests := []struct {
-		name     string
-		item     ItemDocumentForTextNormalization
-		want     *ItemDocumentForTextNormalization
-		shouldUp bool
-	}{
-		{
-			name: "normalize text field",
-			item: ItemDocumentForTextNormalization{
-				ID:     primitive.NewObjectID(),
-				ItemID: "item1",
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"Tokyo２０２４"},
-						},
-					},
-				},
-			},
-			want: &ItemDocumentForTextNormalization{
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"Tokyo2024"},
-						},
-					},
-				},
-			},
-			shouldUp: true,
-		},
-		{
-			name: "composed form (NFC) - ポール - already normalized",
-			item: ItemDocumentForTextNormalization{
-				ID:     primitive.NewObjectID(),
-				ItemID: "item_composed",
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"\u30dd\u30fc\u30eb"}, // ポール composed form (already normalized)
-						},
-					},
-				},
-			},
-			want:     nil,
-			shouldUp: false, // Already in correct form, no update needed
-		},
-		{
-			name: "decomposed form (NFD) - ポール",
-			item: ItemDocumentForTextNormalization{
-				ID:     primitive.NewObjectID(),
-				ItemID: "item_decomposed",
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"\u30db\u309a\u30fc\u30eb"}, // ポール decomposed form (visually identical)
-						},
-					},
-				},
-			},
-			want: &ItemDocumentForTextNormalization{
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"\u30dd\u30fc\u30eb"}, // Normalized to composed form
-						},
-					},
-				},
-			},
-			shouldUp: true,
-		},
-		{
-			name: "non-text field unchanged",
-			item: ItemDocumentForTextNormalization{
-				ID:     primitive.NewObjectID(),
-				ItemID: "item2",
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "number",
-							V: []any{123},
-						},
-					},
-				},
-			},
-			want:     nil,
-			shouldUp: false,
-		},
-		{
-			name: "mixed text and non-text fields",
-			item: ItemDocumentForTextNormalization{
-				ID:     primitive.NewObjectID(),
-				ItemID: "item3",
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"test　file"},
-						},
-					},
-					{
-						F: "field2",
-						V: ValueForTextNormalization{
-							T: "number",
-							V: []any{456},
-						},
-					},
-				},
-			},
-			want: &ItemDocumentForTextNormalization{
-				Fields: []FieldsForTextNormalization{
-					{
-						F: "field1",
-						V: ValueForTextNormalization{
-							T: "text",
-							V: []any{"test file"},
-						},
-					},
-					{
-						F: "field2",
-						V: ValueForTextNormalization{
-							T: "number",
-							V: []any{456},
-						},
-					},
-				},
-			},
-			shouldUp: true,
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := updateItemTextFields(tt.item)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.shouldUp, got != nil)
 			assert.Equal(t, tt.want, got)

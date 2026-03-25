@@ -16,7 +16,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -797,8 +796,6 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 		if !ok {
 			return nil, fmt.Errorf("%w: id=%s key=%s", interfaces.ErrInvalidValue, f.Field, f.Key)
 		}
-		as = utils.NormalizeStringValues(string(sf.Type()), as)
-
 		m := value.NewMultiple(sf.Type(), as)
 		if err := sf.Validate(m); err != nil {
 			return nil, fmt.Errorf("%w: id=%s key=%s", err, sf.ID(), sf.Name())
