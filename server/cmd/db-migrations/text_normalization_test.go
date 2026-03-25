@@ -97,10 +97,10 @@ func TestNormalizeAssetFilename(t *testing.T) {
 			shouldUp: false,
 		},
 		{
-			name: "decomposed form (NFD) - ポール",
+			name: "decomposed form (NFD) - ポール",
 			asset: AssetDocumentForNormalization{
 				ID:       primitive.NewObjectID(),
-				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
+				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
 			},
 			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
 			shouldUp: true,
