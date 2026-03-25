@@ -167,7 +167,6 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.tooltipTextboxes.nth(1).fill("new text2");
     await contentPage.tooltipTextByName("new text1").click();
     await contentPage.closeNotification(false);
-    await contentPage.x2Button.click();
     await contentPage.tooltipTextboxes.nth(1).fill("text3");
     await contentPage.tooltipTextByName("new text1").click();
     await contentPage.closeNotification();

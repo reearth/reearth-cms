@@ -18,6 +18,7 @@ i18n.init({
   keySeparator: false,
   returnEmptyString: false,
   defaultNS: false,
+  showSupportNotice: false,
 });
 
 export { t } from "i18next";
