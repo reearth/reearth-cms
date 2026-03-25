@@ -32,7 +32,7 @@ describe("SchemaErrorLogStep", () => {
 
     expect(screen.getByText(t("Validation errors"))).toBeInTheDocument();
     expect(
-      screen.getByText(t("Download the full error log to see all errors")),
+      screen.getByText(t("You can preview errors here or download the error log")),
     ).toBeInTheDocument();
   });
 

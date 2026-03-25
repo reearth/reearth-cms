@@ -38,7 +38,7 @@ const SchemaErrorLogStep: React.FC<Props> = ({ errorLogMeta }) => {
         type="error"
         message={<AlertMessage>{t("Validation errors")}</AlertMessage>}
         description={
-          <AlertDescription>{t("Download the full error log to see all errors")}</AlertDescription>
+          <AlertDescription>{t("You can preview errors here or download the error log")}</AlertDescription>
         }
         showIcon
         icon={
