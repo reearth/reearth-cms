@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Modal from "@reearth-cms/components/atoms/Modal";
+import { CustomToken } from "@reearth-cms/utils/style";
 
 type Props = {
   url: string;
@@ -15,9 +16,9 @@ const PreviewModal: React.FC<Props> = ({ url, visible, onCancel }) => {
       open={visible}
       onCancel={onCancel}
       footer={null}
-      width="90vw"
+      width={CustomToken.MODAL.WIDTH_XL}
       styles={{
-        body: { height: "90vh" },
+        body: { height: CustomToken.MODAL.HEIGHT_XL },
       }}>
       <PreviewImage src={url} alt="asset-preview" />
     </Modal>

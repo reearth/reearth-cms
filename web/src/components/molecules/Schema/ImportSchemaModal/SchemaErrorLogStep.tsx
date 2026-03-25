@@ -10,7 +10,7 @@ import {
   ErrorLogMeta,
   ImportErrorLogUtils,
 } from "@reearth-cms/utils/importErrorLog";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 type Props = {
   errorLogMeta: ErrorLogMeta | null;
@@ -59,7 +59,7 @@ const SchemaErrorLogStep: React.FC<Props> = ({ errorLogMeta }) => {
           dataSource={errorLogMeta.entries}
           columns={errorLogColumns}
           pagination={false}
-          scroll={{ y: "calc(70vh - 200px)" }}
+          scroll={{ y: `calc(${CustomToken.MODAL.HEIGHT_LG} - 200px)` }}
           size="small"
           rowKey={(_, index) => index ?? 0}
         />

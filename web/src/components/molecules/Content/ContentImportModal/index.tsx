@@ -28,7 +28,7 @@ import {
   ImportErrorLogUtils,
 } from "@reearth-cms/utils/importErrorLog";
 import { ObjectUtils } from "@reearth-cms/utils/object";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 const { Dragger } = Upload;
 
@@ -402,9 +402,9 @@ const ContentImportModal: React.FC<Props> = ({
       maskClosable={false}
       footer={modalFooter}
       centered
-      width="50vw"
+      width={CustomToken.MODAL.WIDTH_MD}
       styles={{
-        body: { height: "70vh" },
+        body: { height: CustomToken.MODAL.HEIGHT_LG },
       }}>
       {!importValidationResult ? (
         <>
@@ -491,7 +491,7 @@ const ContentImportModal: React.FC<Props> = ({
               dataSource={errorLogMeta.entries}
               columns={errorLogColumns}
               pagination={false}
-              scroll={{ y: "calc(70vh - 200px)" }}
+              scroll={{ y: `calc(${CustomToken.MODAL.HEIGHT_LG} - 200px)` }}
               size="small"
               rowKey={(_, index) => index ?? 0}
             />

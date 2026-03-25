@@ -19,7 +19,7 @@ import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
-import { AntdToken } from "@reearth-cms/utils/style";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "../fieldTypes";
 import { CreateFieldInput, ImportFieldInput } from "../types";
@@ -196,7 +196,7 @@ const ImportSchemaModal: React.FC<Props> = ({
       open={visible}
       onCancel={onModalClose}
       maskClosable={false}
-      width="50vw"
+      width={CustomToken.MODAL.WIDTH_MD}
       footer={
         <>
           {currentPage === 1 && schemaErrorLogMeta && (
@@ -248,7 +248,7 @@ const ImportSchemaModal: React.FC<Props> = ({
         </>
       }
       styles={{
-        body: { height: "70vh" },
+        body: { height: CustomToken.MODAL.HEIGHT_LG },
       }}>
       <>
         <HiddenSteps current={currentPage} items={items} />
