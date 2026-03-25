@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/storage v1.61.3
 	github.com/aws/aws-sdk-go-v2 v1.41.4
 	github.com/aws/aws-sdk-go-v2/config v1.32.12
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.9
+	github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager v0.1.11
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.2
 	github.com/aws/aws-sdk-go-v2/service/sns v1.39.14
 	github.com/bodgit/sevenzip v1.6.1
