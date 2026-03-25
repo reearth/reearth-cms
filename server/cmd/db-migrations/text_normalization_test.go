@@ -39,7 +39,7 @@ func TestTextNormalizationMigration(t *testing.T) {
 	err = TextNormalizationMigration(ctx, os.Getenv("REEARTH_CMS_DB"), db.Name(), true)
 	assert.NoError(t, err)
 
-	// Verify asset normalization: filename stays original, filenamenormalized is always populated
+	// Verify asset normalization: filename stays original, filenamenormalized is populated
 	var asset1Updated map[string]any
 	err = assetCol.FindOne(ctx, bson.M{"id": asset1["id"]}).Decode(&asset1Updated)
 	assert.NoError(t, err)
