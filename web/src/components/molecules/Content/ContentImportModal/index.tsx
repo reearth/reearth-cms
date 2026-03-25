@@ -110,6 +110,17 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
+  const raiseWrongFileTypeAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("This file appears to be a schema file, not a content file"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
   const raiseTooLargeFileSizeAlert = useCallback(() => {
     setAlertList([
       {
@@ -212,6 +223,16 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
+              return;
+            }
+
+            if (
+              !Array.isArray(jsonValidation.data) &&
+              jsonValidation.data !== null &&
+              typeof jsonValidation.data === "object" &&
+              "properties" in jsonValidation.data
+            ) {
+              raiseWrongFileTypeAlert();
               return;
             }
 
@@ -329,8 +350,9 @@ const ContentImportModal: React.FC<Props> = ({
       raiseIllegalFileAlert,
       raiseTooLargeFileSizeAlert,
       handleStartLoading,
-      handleEnqueueJob,
       modelFields,
+      handleEnqueueJob,
+      raiseWrongFileTypeAlert,
       raiseExceedRecordLimitAlert,
       schemaValidationAlert,
       t,

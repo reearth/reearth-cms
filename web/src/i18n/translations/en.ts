@@ -666,6 +666,8 @@ export default {
   "This action is not reversible, so please continue with caution.": "",
   "This action is not reversible.": "",
   "This action will replace the previously entered value. Do you want to continue?": "",
+  "This file appears to be a content file, not a schema file": "This file appears to be a content file, not a schema file",
+  "This file appears to be a schema file, not a content file": "This file appears to be a schema file, not a content file",
   "This function is currently experimental and remains somewhat unstable": "This function is currently experimental and remains somewhat unstable",
   "This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.": "",
   "This is the title of the view": "",

@@ -115,7 +115,6 @@ const ProjectSchema: React.FC = () => {
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async (file, fileList) => {
           const result = await importHooks.handleImportSchemaFileChange(file, fileList);
-          console.log("result", result);
 
           if (!result.isValid && result.error === ImportSchemaError.SchemaError)
             toSchemaErrorLogStep();

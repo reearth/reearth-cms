@@ -47,6 +47,7 @@ export enum ImportSchemaError {
   EmptyFile = "empty_file",
   InvalidJson = "invalid_json",
   SchemaError = "schema_error",
+  WrongFileType = "wrong_file_type",
 }
 
 type UploadFile = RcFile & {
@@ -470,6 +471,17 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     ]);
   }, [setAlertList, t]);
 
+  const raiseWrongFileTypeAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("This file appears to be a content file, not a schema file"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
   const handleImportSchemaFileChange = async (
     file: RcFile,
     fileList: RcFile[],
@@ -511,6 +523,11 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       if (!jsonValidation.isValid) {
         raiseIllegalFileAlert();
         throw new Error(ImportSchemaError.InvalidJson);
+      }
+
+      if (Array.isArray(jsonValidation.data)) {
+        raiseWrongFileTypeAlert();
+        throw new Error(ImportSchemaError.WrongFileType);
       }
 
       const importSchema = ImportSchemaUtils.validateSchemaFromJSON(jsonValidation.data);
