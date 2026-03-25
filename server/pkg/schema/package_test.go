@@ -104,6 +104,29 @@ func TestPackage_GroupSchema(t *testing.T) {
 	assert.Nil(t, p.GroupSchema(id.NewGroupID()))
 }
 
+func TestPackage_SchemaByID(t *testing.T) {
+	mainSchema := &Schema{id: id.NewSchemaID()}
+	metaSchema := &Schema{id: id.NewSchemaID()}
+	groupSchema := &Schema{id: id.NewSchemaID()}
+	referencedSchema := &Schema{id: id.NewSchemaID()}
+	groupID := id.NewGroupID()
+
+	p := NewPackage(
+		mainSchema,
+		metaSchema,
+		map[id.GroupID]*Schema{
+			groupID: groupSchema,
+		},
+		List{referencedSchema},
+	)
+
+	assert.Equal(t, mainSchema, p.SchemaByID(mainSchema.ID()))
+	assert.Equal(t, metaSchema, p.SchemaByID(metaSchema.ID()))
+	assert.Equal(t, groupSchema, p.SchemaByID(groupSchema.ID()))
+	assert.Equal(t, referencedSchema, p.SchemaByID(referencedSchema.ID()))
+	assert.Nil(t, p.SchemaByID(id.NewSchemaID()))
+}
+
 func TestPackage_Field(t *testing.T) {
 	sID := id.NewSchemaID()
 	msID := id.NewSchemaID()
