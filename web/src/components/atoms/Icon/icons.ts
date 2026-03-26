@@ -62,6 +62,7 @@ import {
   DownOutlined,
   PaperClipOutlined,
   ExclamationCircleFilled,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -105,7 +106,7 @@ import Unzip from "./Icons/unzip.svg";
 import WarningSolid from "./Icons/warningSolid.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
-export default {
+const icons = {
   home: HomeOutlined,
   download: DownloadOutlined,
   api: ApiOutlined,
@@ -209,4 +210,9 @@ export default {
   clip: PaperClipOutlined,
   retry: RetryFilled,
   warningSolid: WarningSolid,
+  experimentOutlined: ExperimentOutlined,
 };
+
+export type IconName = keyof typeof icons;
+
+export default icons;

@@ -10,6 +10,7 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -20,6 +21,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { Field } from "../../Schema/types";
 
@@ -165,6 +167,7 @@ const ContentListMolecule: React.FC<Props> = ({
                         icon={<Icon icon="import" />}
                         disabled={getImportContentUIMetadata.shouldDisable}>
                         {t("Import content")}
+                        <ExperimentIcon disabled={getImportContentUIMetadata.shouldDisable} />
                       </Button>
                     </Tooltip>
                     <Button
@@ -235,11 +238,11 @@ const ContentListMolecule: React.FC<Props> = ({
 
 const Content = styled.div`
   width: 100%;
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const StyledPageHeder = styled(PageHeader)`
-  padding: 16px 24px 0px 24px !important;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px 0px ${AntdToken.SPACING.LG}px !important;
 `;
 
 export default ContentListMolecule;

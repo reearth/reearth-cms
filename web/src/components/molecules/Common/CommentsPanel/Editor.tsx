@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type FormValues = {
   content: string;
@@ -64,6 +65,6 @@ const StyledFormItem = styled(Form.Item)`
   margin-bottom: 14px;
 `;
 const ButtonWrapper = styled.div`
-  padding-right: 4px;
+  padding-right: ${AntdToken.SPACING.XXS}px;
   text-align: right;
 `;

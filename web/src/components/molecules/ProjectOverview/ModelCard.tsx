@@ -6,12 +6,14 @@ import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {
   model: Model;
@@ -232,6 +234,7 @@ const ModelCard: React.FC<Props> = ({
       {
         key: "import",
         label: t("Import"),
+        icon: <ExperimentIcon />,
         children: ImportMenuItems,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImport,
       },
@@ -300,5 +303,5 @@ const StyledCard = styled(Card)`
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;

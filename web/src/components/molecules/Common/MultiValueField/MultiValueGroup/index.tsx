@@ -9,6 +9,7 @@ import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/R
 import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import { AssetProps } from "../../Form/AssetItem";
 import GroupItem from "../../Form/GroupItem";
@@ -144,5 +145,5 @@ export default MultiValueGroup;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;

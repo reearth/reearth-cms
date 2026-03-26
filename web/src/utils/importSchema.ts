@@ -18,6 +18,7 @@ import {
   GeoJSONPolygonSchema,
 } from "zod-geojson";
 
+import { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
 import {
   ObjectSupportedType,
   EditorSupportedType,
@@ -806,18 +807,32 @@ export abstract class ImportSchemaUtils {
     ),
   });
 
-  public static getUIMetadata(params: { hasSchemaCreateRight: boolean; hasModelFields: boolean }): {
-    tooltipMessage: string | undefined;
+  public static getUIMetadata(params: {
+    hasSchemaCreateRight: boolean;
+    hasModelFields: boolean;
+    isFieldTab?: boolean;
+    isModel?: boolean;
+  }): {
+    tooltipMessage: TooltipProps["title"];
     shouldDisable: boolean;
   } {
-    const { hasModelFields, hasSchemaCreateRight } = params;
+    const { hasModelFields, hasSchemaCreateRight, isFieldTab = true, isModel = true } = params;
+
+    let tooltipMessage: TooltipProps["title"] = undefined;
+
+    if (!isModel) {
+      tooltipMessage = t("Importing into groups is not supported");
+    } else if (!isFieldTab) {
+      tooltipMessage = t("Importing into meta data is not supported");
+    } else if (!hasSchemaCreateRight) {
+      tooltipMessage = t("Reader cannot import schema.");
+    } else if (hasModelFields) {
+      tooltipMessage = t("Only empty schemas can be imported into");
+    }
+
     return {
-      tooltipMessage: !hasSchemaCreateRight
-        ? t("Reader cannot import schema.")
-        : !hasModelFields
-          ? undefined
-          : t("Only empty schemas can be imported into"),
-      shouldDisable: hasModelFields || !hasSchemaCreateRight,
+      tooltipMessage,
+      shouldDisable: !isModel || !isFieldTab || !hasSchemaCreateRight || hasModelFields,
     };
   }
 }
