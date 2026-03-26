@@ -21,6 +21,18 @@ type Operator struct {
 	MaintainableProjects project.IDList
 
 	AcOperator *accountusecase.Operator
+
+	WorkspaceID accountdomain.WorkspaceID
+}
+
+// WithWorkspace returns a shallow copy of the operator with WorkspaceID set.
+func (o *Operator) WithWorkspace(wid accountdomain.WorkspaceID) *Operator {
+	if o == nil {
+		return nil
+	}
+	copy := *o
+	copy.WorkspaceID = wid
+	return &copy
 }
 
 type Ownable interface {

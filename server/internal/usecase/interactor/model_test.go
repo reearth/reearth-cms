@@ -46,6 +46,8 @@ func TestModel_FindByID(t *testing.T) {
 
 	mFind1, mFind2 := newM(), newM()
 	mAllowed1, mAllowed2 := newM(), newM()
+	mDenied1 := newM()
+	mError1 := newM()
 	mNoUser1, mNoUser2 := newM(), newM()
 
 	tests := []struct {
@@ -78,27 +80,27 @@ func TestModel_FindByID(t *testing.T) {
 			operator: op,
 			want:     mAllowed1,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
 			name:     "permission denied - returns error",
-			seeds:    model.List{},
-			id:       id.NewModelID(),
+			seeds:    model.List{mDenied1},
+			id:       mDenied1.ID(),
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
 			name:     "permission check error - returns error",
-			seeds:    model.List{},
-			id:       id.NewModelID(),
+			seeds:    model.List{mError1},
+			id:       mError1.ID(),
 			operator: op,
 			wantErr:  errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 		{
@@ -108,7 +110,7 @@ func TestModel_FindByID(t *testing.T) {
 			operator: opNoUser,
 			want:     mNoUser1,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(true, nil)
 			},
 		},
 	}
@@ -122,6 +124,8 @@ func TestModel_FindByID(t *testing.T) {
 			db := memory.New()
 			for _, m := range tc.seeds {
 				assert.NoError(t, db.Model.Save(ctx, m))
+				p := project.New().ID(m.Project()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+				assert.NoError(t, db.Project.Save(ctx, p))
 			}
 
 			var gateways *gateway.Container
@@ -163,6 +167,8 @@ func TestModel_FindBySchema(t *testing.T) {
 	sidFind, mFind := newMWithSchema()
 	sidAllowed, mAllowed := newMWithSchema()
 	sidNoUser, mNoUser := newMWithSchema()
+	sidDenied, mDenied := newMWithSchema()
+	sidError, mError := newMWithSchema()
 	sidNotFound := id.NewSchemaID()
 
 	tests := []struct {
@@ -195,27 +201,27 @@ func TestModel_FindBySchema(t *testing.T) {
 			operator: op,
 			want:     mAllowed,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
 			name:     "permission denied - returns error",
-			seeds:    model.List{},
-			id:       id.NewSchemaID(),
+			seeds:    model.List{mDenied},
+			id:       sidDenied,
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
 			name:     "permission check error - returns error",
-			seeds:    model.List{},
-			id:       id.NewSchemaID(),
+			seeds:    model.List{mError},
+			id:       sidError,
 			operator: op,
 			wantErr:  errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 		{
@@ -225,7 +231,7 @@ func TestModel_FindBySchema(t *testing.T) {
 			operator: opNoUser,
 			want:     mNoUser,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(true, nil)
 			},
 		},
 	}
@@ -239,6 +245,8 @@ func TestModel_FindBySchema(t *testing.T) {
 			db := memory.New()
 			for _, m := range tc.seeds {
 				assert.NoError(t, db.Model.Save(ctx, m))
+				p := project.New().ID(m.Project()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+				assert.NoError(t, db.Project.Save(ctx, p))
 			}
 
 			var gateways *gateway.Container
@@ -536,7 +544,7 @@ func TestModel_Create(t *testing.T) {
 				operator: op,
 			},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, gomock.Any()).Return(false, nil)
 			},
 			wantErr: interfaces.ErrOperationDenied,
 		},
@@ -556,7 +564,7 @@ func TestModel_Create(t *testing.T) {
 				operator: op,
 			},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 			wantErr: errors.New("cerbos unavailable"),
 		},
@@ -730,7 +738,7 @@ func TestModel_Delete(t *testing.T) {
 
 		ctrl := gomock.NewController(t)
 		mockAuth := gatewaymock.NewMockAuthorization(ctrl)
-		mockAuth.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionDelete).Return(false, nil)
+		mockAuth.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionDelete, gomock.Any()).Return(false, nil)
 
 		sp := *schema.NewPackage(s, nil, nil, nil)
 		u := NewModel(db, &gateway.Container{Authorization: mockAuth})
@@ -752,7 +760,7 @@ func TestModel_Delete(t *testing.T) {
 
 		ctrl := gomock.NewController(t)
 		mockAuth := gatewaymock.NewMockAuthorization(ctrl)
-		mockAuth.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionDelete).Return(false, errors.New("cerbos unavailable"))
+		mockAuth.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionDelete, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 
 		sp := *schema.NewPackage(s, nil, nil, nil)
 		u := NewModel(db, &gateway.Container{Authorization: mockAuth})
@@ -890,7 +898,7 @@ func TestModel_FindByIDs(t *testing.T) {
 			operator: op,
 			want:     model.List{mAllowed1, mAllowed2},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
@@ -900,7 +908,7 @@ func TestModel_FindByIDs(t *testing.T) {
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -910,7 +918,7 @@ func TestModel_FindByIDs(t *testing.T) {
 			operator: op,
 			wantErr:  errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 		{
@@ -920,7 +928,7 @@ func TestModel_FindByIDs(t *testing.T) {
 			operator: opNoUser,
 			want:     model.List{mNoUser1, mNoUser2},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(true, nil)
 			},
 		},
 	}
@@ -934,6 +942,8 @@ func TestModel_FindByIDs(t *testing.T) {
 			db := memory.New()
 			for _, m := range tc.seeds {
 				assert.NoError(t, db.Model.Save(ctx, m))
+				p := project.New().ID(m.Project()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+				assert.NoError(t, db.Project.Save(ctx, p))
 			}
 
 			var gateways *gateway.Container
@@ -990,7 +1000,7 @@ func TestModel_Update(t *testing.T) {
 			param:    interfaces.UpdateModelParam{ModelID: m1.ID(), Name: lo.ToPtr("updated")},
 			operator: op,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
@@ -999,7 +1009,7 @@ func TestModel_Update(t *testing.T) {
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -1008,7 +1018,7 @@ func TestModel_Update(t *testing.T) {
 			operator: op,
 			wantErr:  errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 		{
@@ -1017,7 +1027,7 @@ func TestModel_Update(t *testing.T) {
 			operator: opNoUser,
 			wantErr:  interfaces.ErrOperationDenied, // from IsWritableProject check
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, gomock.Any()).Return(true, nil)
 			},
 		},
 	}
@@ -1163,7 +1173,7 @@ func TestModel_Copy(t *testing.T) {
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, gomock.Any()).Return(false, nil)
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			validate: func(t *testing.T, got *model.Model) {
@@ -1178,7 +1188,7 @@ func TestModel_Copy(t *testing.T) {
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			validate: func(t *testing.T, got *model.Model) {

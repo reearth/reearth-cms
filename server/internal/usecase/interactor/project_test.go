@@ -167,7 +167,7 @@ func TestProject_Fetch(t *testing.T) {
 			},
 			want: project.List{p1},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
@@ -179,7 +179,7 @@ func TestProject_Fetch(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -191,7 +191,7 @@ func TestProject_Fetch(t *testing.T) {
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}
@@ -330,7 +330,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			},
 			want: project.List{p1},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
@@ -342,7 +342,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -354,7 +354,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}
@@ -550,7 +550,7 @@ func TestProject_Create(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -568,7 +568,7 @@ func TestProject_Create(t *testing.T) {
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}
@@ -905,7 +905,7 @@ func TestProject_Update(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -920,7 +920,7 @@ func TestProject_Update(t *testing.T) {
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}
@@ -1163,7 +1163,7 @@ func TestProject_Delete(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -1175,7 +1175,7 @@ func TestProject_Delete(t *testing.T) {
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}
@@ -1644,7 +1644,7 @@ func TestProject_StarProject(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -1657,7 +1657,7 @@ func TestProject_StarProject(t *testing.T) {
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}
