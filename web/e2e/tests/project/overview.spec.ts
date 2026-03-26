@@ -42,6 +42,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
   await test.step("Update model name, description and key", async () => {
     await projectPage.modelsMenuItem.click();
     await projectPage.modelListLink.click();
+    await projectPage.modelMiscIcon.click();
     await projectPage.editText.click();
     await projectPage.modelNameInput.fill("new model name");
     await projectPage.modelDescriptionInput.fill("new model description");
@@ -59,6 +60,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
 
   await test.step("Delete model", async () => {
     await projectPage.modelListLink.click();
+    await projectPage.modelMiscIcon.click();
     await projectPage.deleteText.click();
     await projectPage.deleteModelButton.click();
     await projectPage.closeNotification();
@@ -324,7 +326,7 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
 
   await test.step("Open import schema from dropdown", async () => {
     await projectPage.modelsMenuItem.click();
-    await projectPage.modelMiscIcon.click();
+    await projectPage.modelFileOperationIcon.click();
     await projectPage.modelFileOperationImport.click();
     await projectPage.importSchemaText.click();
   });
