@@ -12,12 +12,10 @@ const DocumentationLink: React.FC<Props> = ({ url }) => {
 
   return (
     <Tooltip title={t("View full developer documentation")}>
-      <a href={url} target="_blank" rel="noreferrer">
-        <Button>
-          <Icon icon="importOutlined" />
-          {t("API Documentation")}
-        </Button>
-      </a>
+      <Button href={url} target="_blank" rel="noreferrer">
+        <Icon icon="importOutlined" />
+        {t("API Documentation")}
+      </Button>
     </Tooltip>
   );
 };

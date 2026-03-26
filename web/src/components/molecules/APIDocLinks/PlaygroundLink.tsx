@@ -11,9 +11,9 @@ const APIDocLink: React.FC<Props> = ({ url }) => {
 
   return (
     <Tooltip title={t("Open API reference & playground")}>
-      <a href={url} target="_blank" rel="noreferrer">
-        <Button>{t("API Playground")}</Button>
-      </a>
+      <Button href={url} target="_blank" rel="noreferrer">
+        {t("API Playground")}
+      </Button>
     </Tooltip>
   );
 };

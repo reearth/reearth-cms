@@ -13,7 +13,7 @@ export abstract class OpenApiSpecTransformer {
     apiUrl: string,
   ): OpenApiSpec | undefined {
     const parsed = this.openApiSpecSchema.safeParse(raw);
-    if (!parsed.success) return raw as OpenApiSpec;
+    if (!parsed.success) return undefined;
 
     const spec: OpenApiSpec = {
       ...parsed.data,

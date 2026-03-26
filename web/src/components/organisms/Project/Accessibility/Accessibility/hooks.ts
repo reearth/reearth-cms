@@ -12,7 +12,7 @@ import {
   DeleteApiKeyDocument,
   UpdateProjectDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
-import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated.ts";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 import { ObjectUtils } from "@reearth-cms/utils/object";
