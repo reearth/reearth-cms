@@ -1,15 +1,18 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   versions: VersionedItem[];
@@ -19,12 +22,20 @@ type Props = {
 
 const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest }) => {
   const t = useT();
+  const statusTitle: Record<StateType, string> = useMemo(
+    () => ({
+      DRAFT: t("DRAFT"),
+      PUBLIC: t("PUBLIC"),
+      REVIEW: t("REVIEW"),
+    }),
+    [t],
+  );
   return (
     <>
       {versions.map((version, index) => (
         <HistoryCard key={version.version}>
           <HistoryTitle onClick={() => versionClick(version)}>
-            <Tooltip title={t(version.status)}>
+            <Tooltip title={statusTitle[version.status]}>
               <Badge
                 color={stateColors[version.status]}
                 data-testid={DATA_TEST_ID.Versions__RequestStatus}
@@ -62,16 +73,16 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
 };
 
 const HistoryCard = styled.div`
-  background-color: #fff;
-  padding: 12px;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const HistoryTitle = styled.p`
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 12px;
+  gap: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
   cursor: pointer;
   :hover {
@@ -85,7 +96,7 @@ const HistoryTitle = styled.p`
 const HistoryInfo = styled.div`
   margin-left: 14px;
   line-height: 1.75;
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
 `;
 
 const User = styled.p`
@@ -93,16 +104,16 @@ const User = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
-  color: #9a9a9a;
+  color: ${CustomColor.TEXT_MUTED};
 `;
 
 const Requests = styled.div`
-  margin-top: 4px;
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;
 
 const RequestWrapper = styled(Typography.Link)`
   display: flex;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
   align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -5,7 +5,6 @@ import { FC, useMemo } from "react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-
 export type Props = {
   specContent?: Record<string, unknown>;
   specUrl?: string;

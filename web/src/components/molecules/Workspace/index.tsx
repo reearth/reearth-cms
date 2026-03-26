@@ -10,6 +10,7 @@ import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/C
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import WorkspaceHeader from "./WorkspaceHeader";
 
@@ -95,7 +96,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
 
 const ButtonWrapper = styled.div`
   Button + Button {
-    margin-left: 8px;
+    margin-left: ${AntdToken.SPACING.XS}px;
   }
 `;
 

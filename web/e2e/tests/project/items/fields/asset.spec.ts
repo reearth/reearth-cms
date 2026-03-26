@@ -149,6 +149,12 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     // Cesium canvas is rendered (attached to DOM) but Playwright considers it
     // hidden because the WebGL canvas is not passing visibility checks.
     await expect(viewerPage.locator("canvas").first()).toBeAttached();
+    // Wait until the Cesium canvas has non-zero dimensions to ensure it has
+    // been initialized/rendered, even in headless mode.
+    await viewerPage.waitForFunction(() => {
+      const canvas = document.querySelector("canvas") as HTMLCanvasElement | null;
+      return !!canvas && canvas.width > 0 && canvas.height > 0;
+    });
   });
 });
 

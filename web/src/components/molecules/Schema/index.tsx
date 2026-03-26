@@ -30,6 +30,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ItemAsset } from "../Content/types";
 
@@ -218,7 +219,7 @@ const Schema: React.FC<Props> = ({
   const DropdownMenu = useCallback(
     () => (
       <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-        <Button type="text" icon={<Icon icon="more" size={20} />} />
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_XL} />} />
       </Dropdown>
     ),
     [dropdownItems],
@@ -290,7 +291,7 @@ const Schema: React.FC<Props> = ({
               <PageHeader
                 title={data.name}
                 subTitle={`#${data.key}`}
-                style={{ backgroundColor: "#fff" }}
+                style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
                 extra={[
                   Constant.IS_DEV && (
                     <Button
@@ -394,39 +395,39 @@ export default Schema;
 const Content = styled.div`
   width: 100%;
   height: 100%;
-  background: #fafafa;
+  background: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const FieldListWrapper = styled.div`
   height: 100%;
   width: 272px;
-  padding: 12px 12px 0;
+  padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.SM}px 0;
 `;
 
 const StyledTabs = styled(Tabs)`
   max-height: calc(100% - 72px);
   .ant-tabs-nav {
-    padding: 0 24px;
-    margin-bottom: 12px;
-    background: #fff;
+    padding: 0 ${AntdToken.SPACING.LG}px;
+    margin-bottom: ${AntdToken.SPACING.SM}px;
+    background: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
     overflow-y: auto;
-    padding: 0 24px 24px;
+    padding: 0 ${AntdToken.SPACING.LG}px ${AntdToken.SPACING.LG}px;
   }
 `;
 
 const GroupFieldsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-right: 12px;
+  margin-right: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledImportMenuItem = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;

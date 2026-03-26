@@ -8,6 +8,7 @@ import Input, { InputProps } from "@reearth-cms/components/atoms/Input";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -129,14 +130,14 @@ const MultiValueColoredTag: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowUp" size={16} />}
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowDown" size={16} />}
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -161,14 +162,14 @@ const MultiValueColoredTag: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
-                icon={<Icon icon="colorPalette" size={16} />}
+                icon={<Icon icon="colorPalette" size={AntdToken.FONT.SIZE_LG} />}
               />
             </Dropdown>
             {!props.disabled && (
               <FieldButton
                 color="default"
                 variant="link"
-                icon={<Icon icon="delete" size={16} />}
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}
@@ -187,12 +188,12 @@ export default MultiValueColoredTag;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledDiv = styled.div`
@@ -205,8 +206,8 @@ const StyledInput = styled(Input)`
 
 const StyledTagContainer = styled.div<{ isError?: boolean }>`
   cursor: pointer;
-  border: 1px solid ${({ isError }) => (isError ? "#ff4d4f" : "#d9d9d9")};
-  padding: 4px 11px;
+  border: 1px solid ${({ isError }) => (isError ? AntdColor.RED.RED_4 : AntdColor.NEUTRAL.BORDER)};
+  padding: ${AntdToken.SPACING.XXS}px 11px;
   overflow: auto;
   height: 100%;
   width: 100% !important;
@@ -216,5 +217,5 @@ const StyledTagContainer = styled.div<{ isError?: boolean }>`
 
 const StyledTag = styled(Tag)`
   flex: 1;
-  margin-right: 8px;
+  margin-right: ${AntdToken.SPACING.XS}px;
 `;

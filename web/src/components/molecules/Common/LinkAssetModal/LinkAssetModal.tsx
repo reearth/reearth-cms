@@ -19,6 +19,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   visible: boolean;
@@ -132,7 +133,9 @@ const LinkAssetModal: React.FC<Props> = ({
           return (
             <Button
               type="link"
-              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              icon={
+                <Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />
+              }
               onClick={() => onLinkClick(isLink, asset)}
             />
           );
@@ -267,7 +270,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

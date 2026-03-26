@@ -5,10 +5,13 @@ import { useRef } from "react";
 import Content from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import ReloadModal from "../ReloadModal";
 import Uploader from "../Uploader";
 import { UploaderState } from "../Uploader/types";
+
+const { MD } = AntdToken.SPACING;
 
 export type InnerProps = {
   onWorkspaceModalOpen?: () => void;
@@ -78,15 +81,15 @@ const CMSSidebar = styled(Sider)`
   border-right: 1px solid rgba(5, 5, 5, 0.06);
 
   && {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     padding-bottom: 38px;
   }
   .ant-layout-sider-trigger {
-    background-color: #fff;
-    border-top: 1px solid #f0f0f0;
-    color: #002140;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+    border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+    color: ${CustomColor.SIDEBAR_TEXT};
     text-align: left;
-    padding: 0 20px;
+    padding: 0 ${MD}px;
     margin: 0;
     height: 38px;
     line-height: 38px;
