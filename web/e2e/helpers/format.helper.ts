@@ -6,9 +6,7 @@ export function parseConfigBoolean(value: string | boolean | undefined | null): 
   return false;
 }
 
-type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
-
-export const stateColors: Record<StateType, string> = {
+export const stateColors = {
   DRAFT: AntdColor.GREY.GREY_0,
   PUBLIC: AntdColor.GREEN.GREEN_5,
   REVIEW: AntdColor.ORANGE.ORANGE_5,
