@@ -4,10 +4,7 @@ import Alert, { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
-import Upload, {
-  UploadFile as RawUploadFile,
-  UploadProps,
-} from "@reearth-cms/components/atoms/Upload";
+import Upload, { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -16,7 +13,7 @@ import { AntdToken } from "@reearth-cms/utils/style";
 const { Dragger } = Upload;
 
 type Props = {
-  fileList: RawUploadFile[];
+  fileList: UploadFile[];
   alertList?: AlertProps[];
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];

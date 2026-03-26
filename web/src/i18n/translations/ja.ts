@@ -290,7 +290,7 @@ export default {
   "Geometry Object": "ジオメトリオブジェクト",
   "Geospatial asset preview setting": "地理空間アセットのプレビュー設定",
   "GLTF/GLB": "GLTF/GLB",
-  "go back": "戻る",
+  "Go back": "戻る",
   "Go back Home": "ホームへ戻る",
   "Go to Editor": "エディタへ移動",
   "greater than": "超過",

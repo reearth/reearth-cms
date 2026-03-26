@@ -292,7 +292,7 @@ export default {
   "Geometry Object": "",
   "Geospatial asset preview setting": "",
   "GLTF/GLB": "",
-  "go back": "go back",
+  "Go back": "Go back",
   "Go back Home": "",
   "Go to Editor": "",
   "greater than": "",

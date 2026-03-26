@@ -201,7 +201,7 @@ describe("ContentImportModal", () => {
       await screen.findByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper),
     ).toBeInTheDocument();
     expect(screen.getByText("Validation errors")).toBeInTheDocument();
-    expect(screen.getByText("go back")).toBeInTheDocument();
+    expect(screen.getByText("Go back")).toBeInTheDocument();
   });
 
   test("shows error log view when validation fails (all fields mismatched)", async () => {
@@ -222,7 +222,7 @@ describe("ContentImportModal", () => {
       await screen.findByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper),
     ).toBeInTheDocument();
     expect(screen.getByText("Validation errors")).toBeInTheDocument();
-    expect(screen.getByText("go back")).toBeInTheDocument();
+    expect(screen.getByText("Go back")).toBeInTheDocument();
   });
 
   test("shows error count badge in error log view", async () => {
@@ -280,7 +280,7 @@ describe("ContentImportModal", () => {
 
     await screen.findByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
 
-    await userEvent.click(screen.getByText("go back"));
+    await userEvent.click(screen.getByText("Go back"));
 
     expect(
       screen.queryByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper),

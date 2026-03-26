@@ -315,18 +315,19 @@ export abstract class ImportContentUtils {
         }
 
         case "Select": {
-          if (field.typeProperty?.values) {
-            let optionField: z.ZodTypeAny = z.union(
-              field.typeProperty.values.map(value => z.literal(value)),
-            );
+          if (field.typeProperty?.values && field.typeProperty.values.length > 0) {
+            const literals = field.typeProperty.values.map(value => z.literal(value));
+            const literalSchema: z.ZodTypeAny =
+              literals.length === 1 ? literals[0] : z.union(literals);
+
+            let optionField: z.ZodTypeAny = literalSchema;
 
             // validate multiple and add into schema
             const multiple = z.boolean().parse(field.multiple);
 
             // validate defaultValue into schema with single or multiple respectively
             if (multiple) {
-              const defaultValuesValidation = z
-                .union(field.typeProperty.values.map(value => z.literal(value)))
+              const defaultValuesValidation = literalSchema
                 .array()
                 .optional()
                 .safeParse(field.typeProperty?.selectDefaultValue);
@@ -335,8 +336,7 @@ export abstract class ImportContentUtils {
                 optionField = optionField.array().default(defaultValuesValidation.data);
               else optionField = optionField.array();
             } else {
-              const defaultValueValidation = z
-                .union(field.typeProperty.values.map(value => z.literal(value)))
+              const defaultValueValidation = literalSchema
                 .optional()
                 .safeParse(field.typeProperty?.selectDefaultValue);
 
@@ -445,6 +445,21 @@ export abstract class ImportContentUtils {
                   message: CustomError.SUPPORTED_TYPES_INVALID,
                 });
               }
+            }).superRefine((value, context) => {
+              const valueType = this.extractGeoTypeName(value);
+
+              if (
+                supportedTypes.success &&
+                valueType &&
+                !supportedTypes.data.includes(valueType as ObjectSupportedType)
+              ) {
+                context.addIssue({
+                  code: "custom",
+                  input: valueType,
+                  expected: supportedTypes.data.join(" | "),
+                  message: CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
+                });
+              }
             });
 
             // validate multiple and add into schema
@@ -466,23 +481,6 @@ export abstract class ImportContentUtils {
 
               if (defaultValueValidation.success && defaultValueValidation.data)
                 geoObjectField = geoObjectField.default(defaultValueValidation.data);
-
-              geoObjectField = geoObjectField.superRefine((value, context) => {
-                const valueType = this.extractGeoTypeName(value);
-
-                if (
-                  supportedTypes.success &&
-                  valueType &&
-                  !supportedTypes.data.includes(valueType as ObjectSupportedType)
-                ) {
-                  context.addIssue({
-                    code: "custom",
-                    input: valueType,
-                    expected: supportedTypes.data.join(" | "),
-                    message: CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
-                  });
-                }
-              });
             }
 
             validateObj[field.key] = !field.required
@@ -519,6 +517,21 @@ export abstract class ImportContentUtils {
                   message: CustomError.EDITOR_SUPPORTED_TYPES_INVALID,
                 });
               }
+            }).superRefine((value, context) => {
+              const valueType = this.extractGeoTypeName(value);
+
+              if (
+                editorSupportedTypes.success &&
+                valueType &&
+                !editorSupportedTypes.data.some(type => type === valueType)
+              ) {
+                context.addIssue({
+                  code: "custom",
+                  input: valueType,
+                  expected: editorSupportedTypes.data.join(" | "),
+                  message: CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
+                });
+              }
             });
 
             // validate multiple and add into schema
@@ -540,23 +553,6 @@ export abstract class ImportContentUtils {
 
               if (defaultValueValidation.success && defaultValueValidation.data)
                 geoEditorField = geoEditorField.default(defaultValueValidation.data);
-
-              geoEditorField = geoEditorField.superRefine((value, context) => {
-                const valueType = this.extractGeoTypeName(value);
-
-                if (
-                  editorSupportedTypes.success &&
-                  valueType &&
-                  !editorSupportedTypes.data.some(type => type === valueType)
-                ) {
-                  context.addIssue({
-                    code: "custom",
-                    input: valueType,
-                    expected: editorSupportedTypes.data.join(" | "),
-                    message: CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
-                  });
-                }
-              });
             }
 
             validateObj[field.key] = !field.required

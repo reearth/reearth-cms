@@ -8,11 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import {
-  UploadFile,
-  UploadFile as RawUploadFile,
-  UploadProps,
-} from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
@@ -38,7 +34,7 @@ type Props = {
   fieldsCreationLoading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
-  fileList: RawUploadFile[];
+  fileList: UploadFile[];
   alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
@@ -208,7 +204,7 @@ const ImportSchemaModal: React.FC<Props> = ({
                 {t("Download error log")}
               </FooterActionButton>
               <FooterActionButton type="default" onClick={toFileSelectionStep}>
-                {t("go back")}
+                {t("Go back")}
               </FooterActionButton>
             </Flex>
           )}
