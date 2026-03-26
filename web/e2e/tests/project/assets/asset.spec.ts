@@ -68,10 +68,13 @@ test.describe("Json file tests", () => {
     await expect(assetsPage.fullscreenButton).toBeVisible();
     await assetsPage.fullscreenButton.click();
 
-    // The browser Fullscreen API (canvas.requestFullscreen()) does not work
-    // in headless Chromium, so we only assert canvas dimensions when
-    // fullscreen actually engaged.
-    const isFullscreen = await page.evaluate(() => document.fullscreenElement !== null);
+    // Wait briefly for the Fullscreen API to engage. In headless Chromium the
+    // API is not supported so fullscreenElement stays null; we skip the
+    // dimension assertions in that case to avoid a false pass.
+    const isFullscreen = await page
+      .waitForFunction(() => document.fullscreenElement !== null, undefined, { timeout: 2000 })
+      .then(() => true)
+      .catch(() => false);
     if (isFullscreen) {
       const viewportSize = page.viewportSize();
       expect(viewportSize).toBeTruthy();
