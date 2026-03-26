@@ -314,6 +314,12 @@ const IconButton = styled.button`
   cursor: pointer;
   color: inherit;
   line-height: 1;
+
+  :focus-visible {
+    outline: 2px solid ${AntdColor.BLUE.BLUE_5};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `;
 
 const CloseIcon = styled(Icon)`
