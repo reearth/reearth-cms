@@ -31,11 +31,6 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 
 	fmt.Println()
 
-	// Run item text field normalization
-	if err := normalizeItemTextFields(ctx, db, wetRun); err != nil {
-		return fmt.Errorf("item text field normalization failed: %w", err)
-	}
-
 	return nil
 }
 
@@ -101,103 +96,4 @@ func updateAssetFilename(a AssetDocumentForNormalization) (*AssetDocumentForNorm
 	}
 
 	return nil, nil
-}
-
-type ValueForTextNormalization struct {
-	T string `bson:"t"`
-	V []any  `bson:"v"`
-}
-
-type FieldsForTextNormalization struct {
-	F string                    `bson:"f"`
-	V ValueForTextNormalization `bson:"v"`
-}
-
-type ItemDocumentForTextNormalization struct {
-	ID     primitive.ObjectID           `bson:"_id,omitempty"`
-	ItemID string                       `bson:"id,omitempty"`
-	Fields []FieldsForTextNormalization `bson:"fields"`
-}
-
-func (i ItemDocumentForTextNormalization) GetID() primitive.ObjectID {
-	return i.ID
-}
-
-// normalizeItemTextFields normalizes text field values in items
-func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun bool) error {
-	fmt.Println("=== Item Text Field Normalization ===")
-	testID := ""
-
-	col := db.Collection("item")
-	filter := bson.M{}
-
-	if testID != "" {
-		filter = bson.M{
-			"$and": []bson.M{
-				{"id": testID},
-				filter,
-			},
-		}
-		count, err := col.CountDocuments(ctx, filter)
-		if err != nil {
-			return fmt.Errorf("failed to count docs: %w", err)
-		}
-		fmt.Printf("test mode: filter on item id '%s' is applied, %d items selected.\n", testID, count)
-	}
-
-	if !wetRun {
-		fmt.Printf("dry run\n")
-		count, err := col.CountDocuments(ctx, filter)
-		if err != nil {
-			return fmt.Errorf("failed to count docs: %w", err)
-		}
-		fmt.Printf("%d docs will be checked for normalization\n", count)
-		return nil
-	}
-
-	fmt.Println("Starting item text field normalization...")
-
-	processed, err := BatchUpdate(ctx, col, filter, 1000, updateItemTextFields)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Migration completed. Processed %d documents\n", processed)
-	return nil
-}
-
-func updateItemTextFields(item ItemDocumentForTextNormalization) (*ItemDocumentForTextNormalization, error) {
-	hasChanges := false
-	for _, field := range item.Fields {
-		originalValues := field.V.V
-		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
-		for j := range originalValues {
-			if originalValues[j] != normalizedValues[j] {
-				hasChanges = true
-				break
-			}
-		}
-		if hasChanges {
-			break
-		}
-	}
-
-	if !hasChanges {
-		return nil, nil
-	}
-
-	normalizedFields := make([]FieldsForTextNormalization, len(item.Fields))
-	for i, field := range item.Fields {
-		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
-		normalizedFields[i] = FieldsForTextNormalization{
-			F: field.F,
-			V: ValueForTextNormalization{
-				T: field.V.T,
-				V: normalizedValues,
-			},
-		}
-	}
-
-	fmt.Printf("Normalized text fields in item %s\n", item.ItemID)
-	return &ItemDocumentForTextNormalization{Fields: normalizedFields}, nil
 }
