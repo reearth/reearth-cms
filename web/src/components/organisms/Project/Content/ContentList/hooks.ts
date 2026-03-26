@@ -67,7 +67,6 @@ const defaultViewSort: ItemSort = {
 };
 
 export type ImportValidationResult = {
-  canForwardToImport?: boolean;
   errorLogMeta?: ErrorLogMeta;
 };
 

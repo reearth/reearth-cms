@@ -157,14 +157,10 @@ const ContentImportModal: React.FC<Props> = ({
       setAlertList([]);
 
       const errorLogMeta = ImportErrorLogUtils.buildErrorLogMeta(errorMeta, fileName);
-      const canForwardToImport =
-        !errorMeta.exceedLimit &&
-        errorMeta.typeMismatchFieldKeys.size > 0 &&
-        errorMeta.typeMismatchFieldKeys.size !== modelFields.length;
 
-      setImportValidationResult({ canForwardToImport, errorLogMeta });
+      setImportValidationResult({ errorLogMeta });
     },
-    [modelFields.length, setAlertList, setImportValidationResult],
+    [setAlertList, setImportValidationResult],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
