@@ -53,7 +53,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 
   const menuItems = useMemo(
     () =>
-      views
+      [...views]
         .sort((a, b) => a.order - b.order)
         .map(view => ({
           label: (

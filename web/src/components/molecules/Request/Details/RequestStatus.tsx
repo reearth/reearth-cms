@@ -25,9 +25,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
     if (requestState === "CLOSED") {
       return [
         {
-          icon: "closeCircle",
-          color: AntdColor.GREY.GREY_0 /* originally #BFBFBF */,
-          size: 28,
+          icon: <StyledIcon icon="closeCircle" color={AntdColor.GREY.GREY_0} size={28} />,
           title: <StatusTitle>{t("Closed")}</StatusTitle>,
         },
       ];
