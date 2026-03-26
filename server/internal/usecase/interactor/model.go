@@ -40,12 +40,16 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 }
 
 func (i Model) checkPermission(ctx context.Context, operator *usecase.Operator, caller, action string) error {
-	if i.gateways == nil || i.gateways.Authorization == nil || operator.User() == nil {
+	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
 	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceModel, action)
 	if authErr != nil {
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, operator.User(), authErr)
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
 		return authErr
 	}
 	if !allowed {

@@ -102,12 +102,14 @@ func TestModel_FindByID(t *testing.T) {
 			},
 		},
 		{
-			name:      "no user in operator - permission check skipped",
-			seeds:     model.List{mNoUser1, mNoUser2},
-			id:        mNoUser1.ID(),
-			operator:  opNoUser,
-			want:      mNoUser1,
-			setupAuth: func(_ *gatewaymock.MockAuthorization) {},
+			name:     "no user in operator - permission check still runs",
+			seeds:    model.List{mNoUser1, mNoUser2},
+			id:       mNoUser1.ID(),
+			operator: opNoUser,
+			want:     mNoUser1,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(true, nil)
+			},
 		},
 	}
 
@@ -217,12 +219,14 @@ func TestModel_FindBySchema(t *testing.T) {
 			},
 		},
 		{
-			name:      "no user in operator - permission check skipped",
-			seeds:     model.List{mNoUser},
-			id:        sidNoUser,
-			operator:  opNoUser,
-			want:      mNoUser,
-			setupAuth: func(_ *gatewaymock.MockAuthorization) {},
+			name:     "no user in operator - permission check still runs",
+			seeds:    model.List{mNoUser},
+			id:       sidNoUser,
+			operator: opNoUser,
+			want:     mNoUser,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead).Return(true, nil)
+			},
 		},
 	}
 
@@ -910,12 +914,14 @@ func TestModel_FindByIDs(t *testing.T) {
 			},
 		},
 		{
-			name:      "no user in operator - permission check skipped",
-			seeds:     model.List{mNoUser1, mNoUser2},
-			ids:       []id.ModelID{mNoUser1.ID(), mNoUser2.ID()},
-			operator:  opNoUser,
-			want:      model.List{mNoUser1, mNoUser2},
-			setupAuth: func(_ *gatewaymock.MockAuthorization) {},
+			name:     "no user in operator - permission check still runs",
+			seeds:    model.List{mNoUser1, mNoUser2},
+			ids:      []id.ModelID{mNoUser1.ID(), mNoUser2.ID()},
+			operator: opNoUser,
+			want:     model.List{mNoUser1, mNoUser2},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList).Return(true, nil)
+			},
 		},
 	}
 
@@ -1006,11 +1012,13 @@ func TestModel_Update(t *testing.T) {
 			},
 		},
 		{
-			name:      "no user in operator - permission check skipped",
-			param:     interfaces.UpdateModelParam{ModelID: m1.ID(), Name: lo.ToPtr("updated")},
-			operator:  opNoUser,
-			wantErr:   interfaces.ErrOperationDenied, // from IsWritableProject check
-			setupAuth: func(_ *gatewaymock.MockAuthorization) {},
+			name:    "no user in operator - permission check still runs",
+			param:   interfaces.UpdateModelParam{ModelID: m1.ID(), Name: lo.ToPtr("updated")},
+			operator: opNoUser,
+			wantErr:  interfaces.ErrOperationDenied, // from IsWritableProject check
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate).Return(true, nil)
+			},
 		},
 	}
 
