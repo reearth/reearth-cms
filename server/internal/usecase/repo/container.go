@@ -53,7 +53,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Group:             c.Group.Filtered(project),
 		Item:              c.Item.Filtered(project),
 		View:              c.View.Filtered(project),
-		Project:           c.Project.Filtered(workspace),
+		Project:           c.Project.Filtered(workspace, project),
 		Model:             c.Model.Filtered(project),
 		Schema:            c.Schema.Filtered(workspace),
 		Thread:            c.Thread.Filtered(workspace),
@@ -70,6 +70,9 @@ type WorkspaceFilter struct {
 }
 
 func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
+	if o == nil {
+		return WorkspaceFilter{}
+	}
 	return WorkspaceFilter{
 		Readable: o.AllReadableWorkspaces(),
 		Writable: o.AllWritableWorkspaces(),
@@ -119,6 +122,14 @@ type ProjectFilter struct {
 }
 
 func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
+	if o == nil {
+		return ProjectFilter{Readable: project.IDList{}}
+	}
+	if o.Machine {
+		return ProjectFilter{
+			Writable: o.AllWritableProjects(),
+		}
+	}
 	return ProjectFilter{
 		Readable: o.AllReadableProjects(),
 		Writable: o.AllWritableProjects(),

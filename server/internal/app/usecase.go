@@ -17,13 +17,15 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.
 	return ContextMiddleware(func(ctx context.Context) context.Context {
 		var r2 *repo.Container
 		var ar2 *accountrepo.Container
-		if op := adapter.Operator(ctx); op != nil && r != nil {
-			// apply filters to repos
+		op := adapter.Operator(ctx)
+		if r != nil {
 			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
-			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
-
 		} else {
 			r2 = r
+		}
+		if op != nil {
+			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
+		} else {
 			ar2 = ar
 		}
 

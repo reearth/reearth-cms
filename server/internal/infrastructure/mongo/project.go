@@ -33,6 +33,7 @@ var (
 type ProjectRepo struct {
 	client *mongox.Collection
 	f      repo.WorkspaceFilter
+	pf     repo.ProjectFilter
 }
 
 func NewProject(client *mongox.Client) repo.Project {
@@ -58,10 +59,11 @@ func (r *ProjectRepo) Init() error {
 	return createIndexes2(context.Background(), r.client, idx...)
 }
 
-func (r *ProjectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
+func (r *ProjectRepo) Filtered(workspace repo.WorkspaceFilter, project repo.ProjectFilter) repo.Project {
 	return &ProjectRepo{
 		client: r.client,
-		f:      r.f.Merge(f),
+		f:      r.f.Merge(workspace),
+		pf:     r.pf.Merge(project),
 	}
 }
 
@@ -231,7 +233,20 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 }
 
 func (r *ProjectRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
+	filter = applyWorkspaceFilter(filter, r.f.Readable)
+	if r.pf.Readable != nil {
+		if len(r.pf.Readable) > 0 {
+			// public projects OR private projects the operator explicitly has access to
+			visibilityFilter := bson.M{"$or": bson.A{
+				bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
+				bson.M{"id": bson.M{"$in": r.pf.Readable.Strings()}},
+			}}
+			filter = bson.M{"$and": bson.A{filter, visibilityFilter}}
+		} else {
+			filter = mongox.And(filter, "accessibility.visibility", project.VisibilityPublic.String())
+		}
+	}
+	return filter
 }
 
 func (r *ProjectRepo) writeFilter(filter any) any {

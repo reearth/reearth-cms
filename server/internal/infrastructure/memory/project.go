@@ -17,6 +17,7 @@ import (
 type Project struct {
 	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
+	pf   repo.ProjectFilter
 	err  error
 }
 
@@ -26,10 +27,12 @@ func NewProject() repo.Project {
 	}
 }
 
-func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
+func (r *Project) Filtered(workspace repo.WorkspaceFilter, project repo.ProjectFilter) repo.Project {
 	return &Project{
 		data: r.data,
-		f:    r.f.Merge(f),
+		f:    r.f.Merge(workspace),
+		pf:   r.pf.Merge(project),
+		err:  r.err,
 	}
 }
 
@@ -40,13 +43,23 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 
 	// TODO: implement sort & pagination
 
-	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+	result := project.List(r.data.FindAll(func(pid id.ProjectID, v *project.Project) bool {
+		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+			return false
+		}
 		if f.Visibility != nil {
 			if v.Accessibility().Visibility() != *f.Visibility {
 				return false
 			}
 		}
-		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		if r.pf.Readable != nil {
+			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
+			isAccessible := r.pf.Readable.Has(pid)
+			if !isPublic && !isAccessible {
+				return false
+			}
+		}
+		return true
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -103,10 +116,20 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return r.f.CanRead(v.Workspace()) &&
-			v.Workspace() == wId &&
-			(pid != nil && k == *pid || alias != nil && v.Alias() == *alias)
-
+		if !r.f.CanRead(v.Workspace()) || v.Workspace() != wId {
+			return false
+		}
+		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
+			return false
+		}
+		if r.pf.Readable != nil {
+			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
+			isAccessible := r.pf.Readable.Has(k)
+			if !isPublic && !isAccessible {
+				return false
+			}
+		}
+		return true
 	})
 
 	if p != nil {

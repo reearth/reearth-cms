@@ -113,7 +113,7 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.CountByWorkspace(ctx, tc.arg)
@@ -175,7 +175,7 @@ func Test_projectRepo_Filtered(t *testing.T) {
 
 			client := mongox.NewClientWithDatabase(initDB(t))
 
-			r := NewProject(client).Filtered(tc.arg)
+			r := NewProject(client).Filtered(tc.arg, repo.ProjectFilter{})
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
@@ -281,7 +281,7 @@ func Test_projectRepo_FindByID(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.FindByID(ctx, tc.arg)
@@ -423,7 +423,7 @@ func Test_projectRepo_FindByIDOrAlias(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.FindByIDOrAlias(ctx, tc.wId, tc.arg)
@@ -550,7 +550,7 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.FindByIDs(ctx, tc.arg)
@@ -704,7 +704,7 @@ func Test_projectRepo_IsAliasAvailable(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.IsAliasAvailable(ctx, tc.wId, tc.arg)
@@ -846,7 +846,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
@@ -951,7 +951,7 @@ func Test_projectRepo_Remove(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			err := r.Remove(ctx, tc.arg)
@@ -1031,7 +1031,7 @@ func Test_projectRepo_Save(t *testing.T) {
 
 			r := NewProject(client)
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -1552,7 +1552,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			}
 
 			if tc.wsFilter != nil {
-				r = r.Filtered(*tc.wsFilter)
+				r = r.Filtered(*tc.wsFilter, repo.ProjectFilter{})
 			}
 
 			got, _, err := r.Search(ctx, tc.args.filter)
