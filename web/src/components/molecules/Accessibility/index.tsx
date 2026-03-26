@@ -54,7 +54,7 @@ const Accessibility: React.FC<Props> = ({
 }) => {
   const t = useT();
   const documentUrl = useMemo<string>(
-    () => (currentLang === "en" ? Constant.PUBLIC_API_DOCS.en : Constant.PUBLIC_API_DOCS.ja),
+    () => (currentLang === "ja" ? Constant.PUBLIC_API_DOCS.ja : Constant.PUBLIC_API_DOCS.en),
     [currentLang],
   );
 
