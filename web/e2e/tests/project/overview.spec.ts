@@ -42,6 +42,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
   await test.step("Update model name, description and key", async () => {
     await projectPage.modelsMenuItem.click();
     await projectPage.modelListLink.click();
+    await projectPage.modelMiscIcon.click();
     await projectPage.editText.click();
     await projectPage.modelNameInput.fill("new model name");
     await projectPage.modelDescriptionInput.fill("new model description");
@@ -59,6 +60,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
 
   await test.step("Delete model", async () => {
     await projectPage.modelListLink.click();
+    await projectPage.modelMiscIcon.click();
     await projectPage.deleteText.click();
     await projectPage.deleteModelButton.click();
     await projectPage.closeNotification();
@@ -99,9 +101,9 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Export model as JSON", async () => {
       await projectPage.modelsMenuItem.click();
-      await projectPage.modelUtilDropdown.click();
-      await projectPage.modelExportLink.click();
-      await projectPage.exportAsJSONText.click();
+      await projectPage.modelMiscIcon.click();
+      await projectPage.modelFileOperationExport.click();
+      await projectPage.exportContentJSONText.click();
       await projectPage.closeNotification();
       await page.waitForTimeout(300);
     });
@@ -126,9 +128,9 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Navigate to export and select CSV", async () => {
       await projectPage.modelsMenuItem.click();
-      await projectPage.modelUtilDropdown.click();
-      await projectPage.modelExportLink.click();
-      await projectPage.exportAsCSVText.click();
+      await projectPage.modelMiscIcon.click();
+      await projectPage.modelFileOperationExport.click();
+      await projectPage.exportContentCSVText.click();
       await page.waitForTimeout(300);
     });
 
@@ -159,8 +161,8 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Export schema", async () => {
       await projectPage.modelsMenuItem.click();
-      await projectPage.modelUtilDropdown.click();
-      await projectPage.modelExportLink.click();
+      await projectPage.modelMiscIcon.click();
+      await projectPage.modelFileOperationExport.click();
       await projectPage.exportSchemaText.click();
       await projectPage.closeNotification();
       await page.waitForTimeout(300);
@@ -186,16 +188,14 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
       await projectPage.modelsMenuItem.click();
-      await projectPage.modelUtilDropdown.click();
-      await projectPage.modelExportLink.click();
-      await projectPage.exportAsGeoJSONText.click();
-      // Verify error modal appears
+      await projectPage.modelMiscIcon.click();
+      await projectPage.modelFileOperationExport.click();
+      await projectPage.exportContentGeoJSONText.click();
+      // Verify error notification appears
       await expect(projectPage.cannotExportGeoJSONText).toBeVisible();
       await expect(projectPage.noGeometryFieldText).toBeVisible();
-      // Click OK
-      await projectPage.okButton.click();
-      // Verify modal closed
-      await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
+      // Notification auto-closes after 2s (configured in Notification atom)
+      await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible({ timeout: 5000 });
       await page.waitForTimeout(300);
     });
   });
@@ -233,9 +233,9 @@ test.describe("Model Export tests on Overview page", () => {
     await test.step("Export as GeoJSON successfully", async () => {
       // Navigate back to overview
       await projectPage.modelsMenuItem.click();
-      await projectPage.modelUtilDropdown.click();
-      await projectPage.modelExportLink.click();
-      await projectPage.exportAsGeoJSONText.click();
+      await projectPage.modelMiscIcon.click();
+      await projectPage.modelFileOperationExport.click();
+      await projectPage.exportContentGeoJSONText.click();
       // Should export directly without modal
       await projectPage.closeNotification();
       await page.waitForTimeout(300);
@@ -283,9 +283,9 @@ test.describe("Model Export tests on Overview page", () => {
     await test.step("Attempt GeoJSON export and verify warning modal", async () => {
       // Navigate back to overview
       await projectPage.modelsMenuItem.click();
-      await projectPage.modelUtilDropdown.click();
-      await projectPage.modelExportLink.click();
-      await projectPage.exportAsGeoJSONText.click();
+      await projectPage.modelMiscIcon.click();
+      await projectPage.modelFileOperationExport.click();
+      await projectPage.exportContentGeoJSONText.click();
 
       // Verify warning modal appears
       await expect(projectPage.multipleGeometryFieldsText).toBeVisible();
@@ -324,8 +324,8 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
 
   await test.step("Open import schema from dropdown", async () => {
     await projectPage.modelsMenuItem.click();
-    await projectPage.modelUtilDropdown.click();
-    await projectPage.modelImportLink.click();
+    await projectPage.modelFileOperationIcon.click();
+    await projectPage.modelFileOperationImport.click();
     await projectPage.importSchemaText.click();
   });
 
