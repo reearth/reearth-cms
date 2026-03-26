@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
@@ -82,12 +82,6 @@ const ContentImportModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const location = useLocation();
-  const pendingImportRef = useRef<{
-    file: RcFile;
-    fileName: string;
-    extension: "json" | "csv" | "geojson";
-  } | null>(null);
-
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
@@ -260,7 +254,6 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!jsonContentValidation.isValid) {
-              pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(jsonContentValidation.error, fileName);
               throw new Error(ImportContentError.ValidationError);
             }
@@ -298,7 +291,6 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!geoJSONContentValidation.isValid) {
-              pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(geoJSONContentValidation.error, fileName);
               throw new Error(ImportContentError.ValidationError);
             }
@@ -327,7 +319,6 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!csvContentValidation.isValid) {
-              pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(csvContentValidation.error, fileName);
               throw new Error(ImportContentError.ValidationError);
             }
@@ -405,7 +396,6 @@ const ContentImportModal: React.FC<Props> = ({
   );
 
   const handleGoBack = useCallback(() => {
-    pendingImportRef.current = null;
     setAlertList([]);
     setImportValidationResult(null);
   }, [setAlertList, setImportValidationResult]);
