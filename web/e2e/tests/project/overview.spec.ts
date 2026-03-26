@@ -191,13 +191,11 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMiscIcon.click();
       await projectPage.modelFileOperationExport.click();
       await projectPage.exportContentGeoJSONText.click();
-      // Verify error modal appears
+      // Verify error notification appears
       await expect(projectPage.cannotExportGeoJSONText).toBeVisible();
       await expect(projectPage.noGeometryFieldText).toBeVisible();
-      // Click OK
-      await projectPage.okButton.click();
-      // Verify modal closed
-      await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
+      // Notification auto-closes after 2s (configured in Notification atom)
+      await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible({ timeout: 5000 });
       await page.waitForTimeout(300);
     });
   });

@@ -1,10 +1,12 @@
 import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { useModal } from "@reearth-cms/components/atoms/Modal";
+import Notification from "@reearth-cms/components/atoms/Notification";
+import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
@@ -47,7 +49,6 @@ const ModelCard: React.FC<Props> = ({
   onModelExport,
 }) => {
   const t = useT();
-  const { confirm, error } = useModal();
 
   const { Meta } = Card;
 
@@ -58,25 +59,37 @@ const ModelCard: React.FC<Props> = ({
 
   const handleCSVExport = useCallback(
     async (exportType: ExportFormat) => {
-      confirm({
-        width: 550,
-        title: t("Export as CSV"),
-        content: (
+      const key = `csv-export-${Date.now()}`;
+      Notification.open({
+        key,
+        type: "warning",
+        message: t("Export as CSV"),
+        description: (
           <ModalContent>
-            <div>{t("CSV export only supports simple fields (text, number, date).")}</div>
-            <div>{t("Relations, arrays, objects, and geometry fields are not included.")}</div>
-            <div>
+            <span>{t("CSV export only supports simple fields (text, number, date).")}</span>
+            <span>{t("Relations, arrays, objects, and geometry fields are not included.")}</span>
+            <span>
               {t("For a complete export with all fields, please use the JSON export option.")}
-            </div>
+            </span>
           </ModalContent>
         ),
-        okText: t("Export CSV"),
-        async onOk() {
-          await onModelExport(model.id, exportType);
-        },
+        btn: (
+          <Space>
+            <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
+            <Button
+              type="primary"
+              onClick={async () => {
+                Notification.destroy(key);
+                await onModelExport(model.id, exportType);
+              }}>
+              {t("Export CSV")}
+            </Button>
+          </Space>
+        ),
+        duration: 0,
       });
     },
-    [confirm, model.id, onModelExport, t],
+    [model.id, onModelExport, t],
   );
 
   const getGeometryFieldsCount = useCallback(() => {
@@ -93,44 +106,50 @@ const ModelCard: React.FC<Props> = ({
     async (exportType: ExportFormat) => {
       const geoFieldsCount = getGeometryFieldsCount();
       if (geoFieldsCount === 0) {
-        error({
-          title: t("Cannot export GeoJSON"),
-          content: (
-            <ModalContent>
-              <div>
-                {t(
-                  "No Geometry field was found in this model, so GeoJSON export is not available.",
-                )}
-              </div>
-            </ModalContent>
+        Notification.error({
+          message: t("Cannot export GeoJSON"),
+          description: t(
+            "No Geometry field was found in this model, so GeoJSON export is not available.",
           ),
-          okText: t("OK"),
+          duration: 0,
         });
       } else if (geoFieldsCount > 1) {
-        confirm({
-          width: 550,
-          title: t("Multiple Geometry fields detected"),
-          content: (
+        const key = `geojson-export-${Date.now()}`;
+        Notification.open({
+          key,
+          type: "warning",
+          message: t("Multiple Geometry fields detected"),
+          description: (
             <ModalContent>
-              <div>{t("This model has multiple Geometry fields.")}</div>
-              <div>{t("GeoJSON format supports only one geometry field.")}</div>
-              <div>
+              <span>{t("This model has multiple Geometry fields.")}</span>
+              <span>{t("GeoJSON format supports only one geometry field.")}</span>
+              <span>
                 {t(
                   "Only the first Geometry field will be exported. Please adjust your data if needed.",
                 )}
-              </div>
+              </span>
             </ModalContent>
           ),
-          okText: t("Export Anyway"),
-          async onOk() {
-            await onModelExport(model.id, exportType);
-          },
+          btn: (
+            <Space>
+              <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
+              <Button
+                type="primary"
+                onClick={async () => {
+                  Notification.destroy(key);
+                  await onModelExport(model.id, exportType);
+                }}>
+                {t("Export Anyway")}
+              </Button>
+            </Space>
+          ),
+          duration: 0,
         });
       } else {
         await onModelExport(model.id, exportType);
       }
     },
-    [confirm, error, getGeometryFieldsCount, model.id, onModelExport, t],
+    [getGeometryFieldsCount, model.id, onModelExport, t],
   );
 
   const handleModelExportClick = useCallback(
@@ -309,11 +328,7 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const ModalContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${AntdToken.SPACING.XS}px;
-`;
+const ModalContent = styled.p``;
 
 const StyledExperimentIcon = styled(ExperimentIcon)`
   margin-right: ${AntdToken.SPACING.XS}px;
