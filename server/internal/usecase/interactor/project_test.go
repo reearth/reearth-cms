@@ -6,12 +6,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -93,6 +96,7 @@ func TestProject_Fetch(t *testing.T) {
 		want           project.List
 		mockProjectErr bool
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -154,6 +158,42 @@ func TestProject_Fetch(t *testing.T) {
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
+		{
+			name:  "permission allowed",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			want: project.List{p1},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(true, nil)
+			},
+		},
+		{
+			name:  "permission denied",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:  "permission check error",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -170,11 +210,19 @@ func TestProject_Fetch(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
@@ -212,6 +260,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 		want           project.List
 		mockProjectErr bool
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -272,6 +321,42 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
+		{
+			name:  "permission allowed",
+			seeds: project.List{p1},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			want: project.List{p1},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(true, nil)
+			},
+		},
+		{
+			name:  "permission denied",
+			seeds: project.List{p1},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:  "permission check error",
+			seeds: project.List{p1},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -288,11 +373,19 @@ func TestProject_FindByWorkspace(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
@@ -325,6 +418,7 @@ func TestProject_Create(t *testing.T) {
 		want          *project.Project
 		policyChecker gateway.PolicyChecker
 		wantErr       error
+		setupAuth     func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "Create",
@@ -441,6 +535,42 @@ func TestProject_Create(t *testing.T) {
 				MustBuild(),
 			wantErr: nil,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P006"),
+					Description:  lo.ToPtr("D006"),
+					Alias:        lo.ToPtr("Test006"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P007"),
+					Description:  lo.ToPtr("D007"),
+					Alias:        lo.ToPtr("Test007"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -456,10 +586,17 @@ func TestProject_Create(t *testing.T) {
 			}
 
 			var gateways *gateway.Container
+			if tc.policyChecker != nil || tc.setupAuth != nil {
+				gateways = &gateway.Container{}
+			}
 			if tc.policyChecker != nil {
-				gateways = &gateway.Container{
-					PolicyChecker: tc.policyChecker,
-				}
+				gateways.PolicyChecker = tc.policyChecker
+			}
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways.Authorization = mockAuth
 			}
 			projectUC := NewProject(db, gateways)
 
@@ -532,6 +669,7 @@ func TestProject_Update(t *testing.T) {
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "update",
@@ -755,6 +893,36 @@ func TestProject_Update(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: project.List{p1},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:   p1.ID(),
+					Name: lo.ToPtr("Updated Name"),
+				},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: project.List{p1},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:   p1.ID(),
+					Name: lo.ToPtr("Updated Name"),
+				},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -773,10 +941,17 @@ func TestProject_Update(t *testing.T) {
 			}
 
 			var gateways *gateway.Container
+			if tc.policyChecker != nil || tc.setupAuth != nil {
+				gateways = &gateway.Container{}
+			}
 			if tc.policyChecker != nil {
-				gateways = &gateway.Container{
-					PolicyChecker: tc.policyChecker,
-				}
+				gateways.PolicyChecker = tc.policyChecker
+			}
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways.Authorization = mockAuth
 			}
 			projectUC := NewProject(db, gateways)
 
@@ -918,6 +1093,7 @@ func TestProject_Delete(t *testing.T) {
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "delete",
@@ -978,6 +1154,30 @@ func TestProject_Delete(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -996,10 +1196,17 @@ func TestProject_Delete(t *testing.T) {
 			}
 
 			var gateways *gateway.Container
+			if tc.policyChecker != nil || tc.setupAuth != nil {
+				gateways = &gateway.Container{}
+			}
 			if tc.policyChecker != nil {
-				gateways = &gateway.Container{
-					PolicyChecker: tc.policyChecker,
-				}
+				gateways.PolicyChecker = tc.policyChecker
+			}
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways.Authorization = mockAuth
 			}
 			projectUC := NewProject(db, gateways)
 
@@ -1286,6 +1493,7 @@ func TestProject_StarProject(t *testing.T) {
 		want           *project.Project
 		mockProjectErr bool
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "star project owned by another user",
@@ -1426,9 +1634,36 @@ func TestProject_StarProject(t *testing.T) {
 			}(),
 			wantErr: nil,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Removed t.Parallel() to fix user ID consistency issue in unstar test
 
@@ -1440,20 +1675,19 @@ func TestProject_StarProject(t *testing.T) {
 			err := db.Workspace.SaveAll(ctx, workspace.List{w1, w2})
 			assert.NoError(t, err)
 
-			// Ensure the seeded project is saved for 'updated_at_should_not_change_when_starring'
-			if tc.name == "updated_at_should_not_change_when_starring" {
-				for _, p := range tc.seeds {
-					err := db.Project.Save(ctx, p)
-					assert.NoError(t, err)
-				}
-			} else {
-				for _, p := range tc.seeds {
-					err := db.Project.Save(ctx, p)
-					assert.NoError(t, err)
-				}
+			for _, p := range tc.seeds {
+				err := db.Project.Save(ctx, p)
+				assert.NoError(t, err)
 			}
 
-			projectUC := NewProject(db, nil)
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw)
 
 			got, err := projectUC.StarProject(ctx, tc.args.wIdOrAlias, tc.args.pIdOrAlias, tc.args.operator)
 			if tc.wantErr != nil {

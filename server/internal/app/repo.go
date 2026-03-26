@@ -174,6 +174,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		}
 		transport := NewDynamicAuthTransport()
 		gateways.Accounts = account.New(conf.Account_Api.Host, timeout, transport)
+		if conf.Account_Api.CheckPermission {
+			gateways.Authorization = account.NewAuthorization(conf.Account_Api.Host, timeout, transport)
+		}
 		log.Infof("accounts api: external GraphQL API configured: %s (timeout: %ds)", conf.Account_Api.Host, timeout)
 	} else {
 		log.Infof("accounts api: not configured or disabled")

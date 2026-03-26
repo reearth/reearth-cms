@@ -15,9 +15,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -38,19 +39,94 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	}
 }
 
-func (i Model) FindByID(ctx context.Context, id id.ModelID, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindByID(ctx, id)
+func (i Model) checkPermission(ctx context.Context, operator *usecase.Operator, caller, action string) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceModel, action, operator.WorkspaceID.String())
+	if authErr != nil {
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
 }
 
-func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindBySchema(ctx, id)
+// operatorWithProjectWorkspace returns a copy of operator with WorkspaceID set from the given project.
+func (i Model) operatorWithProjectWorkspace(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (*usecase.Operator, error) {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return operator, nil
+	}
+	p, err := i.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	return operator.WithWorkspace(p.Workspace()), nil
 }
 
-func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, _ *usecase.Operator) (model.List, error) {
-	return i.repos.Model.FindByIDs(ctx, ids)
+func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	operator, err = i.operatorWithProjectWorkspace(ctx, m.Project(), operator)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
-func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindBySchema(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	operator, err = i.operatorWithProjectWorkspace(ctx, m.Project(), operator)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindBySchema", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
+	models, err := i.repos.Model.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	if len(models) > 0 {
+		operator, err = i.operatorWithProjectWorkspace(ctx, models[0].Project(), operator)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindByIDs", rbac.ActionList); err != nil {
+		return nil, err
+	}
+	return models, nil
+}
+
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	var err error
+	operator, err = i.operatorWithProjectWorkspace(ctx, projectID, operator)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindByProject", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -58,7 +134,15 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return m, p, nil
 }
 
-func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	var err error
+	operator, err = i.operatorWithProjectWorkspace(ctx, params.ProjectID, operator)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindByProjectAndKeyword", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, params.ProjectID, params.Keyword, params.Sort, params.Pagination)
 	if err != nil {
 		return nil, nil, err
@@ -66,15 +150,39 @@ func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.Fi
 	return m, p, nil
 }
 
-func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindByKey(ctx, pid, model)
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, modelKey string, operator *usecase.Operator) (*model.Model, error) {
+	var err error
+	operator, err = i.operatorWithProjectWorkspace(ctx, pid, operator)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindByKey", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return i.repos.Model.FindByKey(ctx, pid, modelKey)
 }
 
-func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, _ *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+	var err error
+	operator, err = i.operatorWithProjectWorkspace(ctx, p, operator)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.FindByIDOrKey", rbac.ActionRead); err != nil {
+		return nil, err
+	}
 	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
+	var err error
+	operator, err = i.operatorWithProjectWorkspace(ctx, param.ProjectId, operator)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.Create", rbac.ActionCreate); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
 			if !operator.IsWritableProject(param.ProjectId) {
@@ -166,6 +274,17 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 }
 
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+	if err != nil {
+		return nil, err
+	}
+	operator, err = i.operatorWithProjectWorkspace(ctx, m.Project(), operator)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, "model.Update", rbac.ActionUpdate); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
 			m, err := i.repos.Model.FindByID(ctx, param.ModelID)
@@ -213,6 +332,17 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 }
 
 func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return err
+	}
+	operator, err = i.operatorWithProjectWorkspace(ctx, m.Project(), operator)
+	if err != nil {
+		return err
+	}
+	if err := i.checkPermission(ctx, operator, "model.Delete", rbac.ActionDelete); err != nil {
+		return err
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
@@ -387,6 +517,9 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
+	if err := i.checkPermission(ctx, operator, "model.FindOrCreateSchema", rbac.ActionRead); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *schema.Schema, err error) {
 			var sid id.SchemaID
@@ -446,6 +579,9 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 }
 
 func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *usecase.Operator) (model.List, error) {
+	if err := i.checkPermission(ctx, operator, "model.UpdateOrder", rbac.ActionUpdate); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ model.List, err error) {
 			if len(ids) == 0 {
@@ -471,6 +607,9 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 }
 
 func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
+	if err := i.checkPermission(ctx, operator, "model.Copy", rbac.ActionCreate); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*model.Model, error) {
 			// Copy the model
