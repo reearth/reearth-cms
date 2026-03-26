@@ -95,9 +95,9 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		// When IncludeRefModels is set, only fetch ref items from those models.
 		var refItemIDs id.ItemIDList
 		if len(params.Options.IncludeRefModels) > 0 {
-			refItemIDs = items.RefItemIDsByModels(params.SchemaPackage, params.Options.IncludeRefModels)
+			refItemIDs = items.RefItemsIDsByModels(params.SchemaPackage, params.Options.IncludeRefModels)
 		} else {
-			refItemIDs = items.RefItemIDs(params.SchemaPackage)
+			refItemIDs = items.RefItemsIDs(params.SchemaPackage)
 		}
 		var referencedItemsMap item.Map
 		if len(refItemIDs) > 0 {
