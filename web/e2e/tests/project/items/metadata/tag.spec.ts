@@ -92,8 +92,8 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
   await test.step("Update tag from edit view", async () => {
     await contentPage.editButton.click();
     await expect(contentPage.tabPanel.getByText(tag2)).toBeVisible();
-    await fieldEditorPage.tagOptionText(tag2).click({ force: true });
-    await fieldEditorPage.tagOptionText(tag1).click({ force: true });
+    await contentPage.tabPanel.getByRole("combobox").click();
+    await fieldEditorPage.tagOptionText(tag1).last().click();
     await contentPage.closeNotification();
     await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
     await page.waitForTimeout(300);
