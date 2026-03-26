@@ -1989,9 +1989,21 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		})
 	r2.Value("referencedItems").Array().Value(0).Object().Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
-	raw["id"] = itmId1.String()
-	raw["modelId"] = mId1.String()
+	refItem1 := r2.Value("referencedItems").Array().Value(0).Object()
+	refItem1.Value("id").String().IsEqual(itmId1.String())
+	refItem1.Value("modelId").String().IsEqual(mId1.String())
+	refItem1Field1 := refItem1.Value("fields").Array().Value(0).Object()
+	refItem1Field1.Value("id").String().IsEqual(fId2.String())
+	refItem1Field1.Value("type").IsEqual("asset")
+	refItem1Field1.Value("key").String().IsEqual("asset")
+
+	refItem1Field1Value := refItem1Field1.Value("value").Object()
+	refItem1Field1Value.Value("id").IsEqual(aid1)
+	refItem1Field1Value.Value("projectId").IsEqual(pid)
+	refItem1Field1Value.Value("previewType").IsEqual("unknown")
+	refItem1Field1Value.Value("public").IsEqual(false)
+	refItem1Field1Value.Value("totalSize").IsEqual(1000)
+	refItem1Field1Value.Value("url").String().IsEqual(fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid1[0:2], auuid1[2:]))
 
 	//	get Metadata Item
 	rm := iAPIItemGet(e, wId0, pid, mId1, itmId3).

@@ -7,6 +7,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { DragColumn } = ReactDragListView;
 
@@ -103,7 +104,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  padding: 0 24px;
+  padding: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledTabs = styled(Tabs)`
@@ -118,11 +119,11 @@ const StyledTabs = styled(Tabs)`
   }
 
   .ant-tabs-tab:not(:first-of-type) {
-    padding-left: 8px;
+    padding-left: ${AntdToken.SPACING.XS}px;
   }
 
   .ant-tabs-tab + .ant-tabs-tab {
-    margin-left: 8px;
+    margin-left: ${AntdToken.SPACING.XS}px;
   }
 `;
 
@@ -132,7 +133,7 @@ const MoreIcon = styled.span`
 `;
 
 const NewViewButton = styled(Button)`
-  color: rgba(0, 0, 0, 0.25);
+  color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};
   margin-left: 5px;
 `;
 

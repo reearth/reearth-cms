@@ -18,6 +18,7 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "../fieldTypes";
 import { CreateFieldInput, ImportFieldInput } from "../types";
@@ -244,7 +245,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;
@@ -262,6 +263,6 @@ const FieldTypeLabel = styled.div`
   display: flex;
   justify-content: start;
   align-items: center;
-  gap: 8px;
-  font-weight: 400;
+  gap: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;

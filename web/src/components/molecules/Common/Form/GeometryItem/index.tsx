@@ -32,6 +32,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import schema from "./schema";
 
@@ -92,9 +93,9 @@ const GeometryItem: React.FC<Props> = ({
         type: isRectangle ? "Circle" : drawType,
         style: {
           "stroke-width": 3,
-          "stroke-color": "#1677FF",
+          "stroke-color": AntdColor.BLUE.BLUE_5,
           "stroke-line-dash": [5, 10],
-          "fill-color": "#1677FF40",
+          "fill-color": `${AntdColor.BLUE.BLUE_5}40`,
         },
         geometryFunction: isRectangle ? createBox() : undefined,
       });
@@ -435,13 +436,13 @@ const GeometryItem: React.FC<Props> = ({
         const vectorLayer = new VectorLayer({
           source,
           style: new Style({
-            image: new IconStyle({ src: mapPinFilled, color: "#000000D9" }),
+            image: new IconStyle({ src: mapPinFilled, color: AntdColor.NEUTRAL.TEXT }),
             stroke: new Stroke({
-              color: "#000000D9",
+              color: AntdColor.NEUTRAL.TEXT,
               width: 2,
             }),
             fill: new Fill({
-              color: "#00000040",
+              color: AntdColor.NEUTRAL.TEXT_QUATERNARY,
             }),
           }),
         });
@@ -504,7 +505,7 @@ const GeometryItem: React.FC<Props> = ({
             <EditorButtons>
               <Tooltip title={t("Value copied!!")} trigger={"click"}>
                 <EditorButton
-                  icon={<Icon icon="editorCopy" size={12} />}
+                  icon={<Icon icon="editorCopy" size={AntdToken.FONT.SIZE_SM} />}
                   size="small"
                   onClick={copyButtonClick}
                   disabled={!currentValue}
@@ -512,7 +513,7 @@ const GeometryItem: React.FC<Props> = ({
               </Tooltip>
               {!disabled && (
                 <EditorButton
-                  icon={<Icon icon="trash" size={12} />}
+                  icon={<Icon icon="trash" size={AntdToken.FONT.SIZE_SM} />}
                   size="small"
                   onClick={deleteButtonClick}
                   disabled={!currentValue}
@@ -614,7 +615,7 @@ const Container = styled.div`
 const GeometryField = styled.div`
   display: flex;
   aspect-ratio: 1.86 / 1;
-  box-shadow: 0px 2px 8px 0px #00000026;
+  box-shadow: 0px 2px 8px 0px ${AntdColor.NEUTRAL.FILL};
 `;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -633,26 +634,26 @@ const StyledResizable = styled(Resizable as any)`
 const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
   width: ${({ width }) => `${width}px`};
   position: relative;
-  border: 1px solid ${({ hasError }) => (hasError ? "#ff4d4f" : "transparent")};
+  border: 1px solid ${({ hasError }) => (hasError ? AntdColor.RED.RED_4 : "transparent")};
   .glyphMargin {
-    background: #ecabbb;
+    background: ${CustomColor.EDITOR_ERROR_GLYPH};
     width: 5px !important;
   }
 `;
 
 const EditorButtons = styled.div`
   position: absolute;
-  right: 8px;
-  color: #8c8c8c;
+  right: ${AntdToken.SPACING.XS}px;
+  color: ${AntdColor.GREY.GREY_2};
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-top: 12px;
+  gap: ${AntdToken.SPACING.XXS}px;
+  padding-top: ${AntdToken.SPACING.SM}px;
 `;
 
 const EditorButton = styled(Button)`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
 const Placeholder = styled.div<{ isEmpty: boolean }>`
@@ -661,8 +662,8 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
   white-space: pre-wrap;
   top: 0px;
   left: 52px;
-  font-size: 14px;
-  color: #bfbfbf;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
   font-family: Consolas, "Courier New", monospace;
   pointer-events: none;
   user-select: none;
@@ -684,17 +685,17 @@ const MapContainer = styled.div<{ isDrawing: boolean }>`
 const StyledSearch = styled(Search)`
   z-index: 1;
   position: absolute;
-  left: 8px;
+  left: ${AntdToken.SPACING.XS}px;
   top: 15px;
   max-width: 167px;
   .ant-input-outlined {
-    height: 24px;
-    border-color: #d9d9d9 !important;
+    height: ${AntdToken.SPACING.LG}px;
+    border-color: ${AntdColor.NEUTRAL.BORDER} !important;
     :hover {
-      border-color: #1677ff !important;
+      border-color: ${AntdColor.BLUE.BLUE_5} !important;
     }
     :focus-within {
-      box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1) !important;
+      box-shadow: 0 0 0 2px ${CustomColor.FOCUS_RING_BLUE} !important;
     }
   }
 `;
@@ -702,8 +703,8 @@ const StyledSearch = styled(Search)`
 const ViewerButtons = styled.div`
   z-index: 1;
   position: absolute;
-  right: 8px;
-  height: calc(100% - 16px);
+  right: ${AntdToken.SPACING.XS}px;
+  height: calc(100% - ${AntdToken.SPACING.BASE}px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -713,12 +714,15 @@ const ViewerButtons = styled.div`
 const GeoButtons = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
   padding: 15px 0;
 `;
 
 const GeoButton = styled(Button, Constant.TRANSIENT_OPTIONS)<{ $selected: boolean }>`
-  color: ${({ $selected }) => ($selected ? "#1677ff" : "#434343")};
+  color: ${
+    ({ $selected }) =>
+      $selected ? AntdColor.BLUE.BLUE_5 : AntdColor.GREY.GREY_6 /* originally #434343 */
+  };
 `;
 
 const ZoomButtons = styled.div`

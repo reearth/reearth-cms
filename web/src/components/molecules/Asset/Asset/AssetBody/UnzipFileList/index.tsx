@@ -7,6 +7,7 @@ import Spin from "@reearth-cms/components/atoms/Spin";
 import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
@@ -60,7 +61,7 @@ const UnzipFileList: React.FC<Props> = ({
         </ExtractionInProgressWrapper>
       ) : archiveExtractionStatus === "FAILED" ? (
         <ExtractionFailedWrapper>
-          <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
+          <ExtractionFailedIcon icon="closeCircle" color={AntdColor.RED.RED_4} size="56px" />
           <ExtractionFailedText>
             {t("Failed to decompress. Please check the file and try again.")}
           </ExtractionFailedText>
@@ -69,7 +70,7 @@ const UnzipFileList: React.FC<Props> = ({
         treeData && (
           <Tree
             switcherIcon={({ expanded }) => (
-              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={14} />
+              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={AntdToken.FONT.SIZE} />
             )}
             defaultExpandedKeys={["0-0"]}
             selectedKeys={selectedKeys}
@@ -104,7 +105,7 @@ const UnzipFileList: React.FC<Props> = ({
 const UnzipFileListWrapper = styled.div`
   height: 250px;
   overflow-y: scroll;
-  background-color: #f5f5f5;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   .ant-tree-treenode {
     max-width: 100%;
   }
@@ -136,10 +137,10 @@ const ExtractionFailedText = styled.p`
   margin-bottom: 0;
   font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const TitleWrapper = styled.span`

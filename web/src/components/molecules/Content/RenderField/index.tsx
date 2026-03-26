@@ -8,6 +8,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import ItemFormat from "./ItemFormat";
 
@@ -87,7 +88,7 @@ export const renderField = (
         trigger="click"
         placement="bottom">
         <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
-          <Icon icon={fieldTypes[field.type].icon} size={16} />
+          <Icon icon={fieldTypes[field.type].icon} size={AntdToken.FONT.SIZE_LG} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
       </Popover>
@@ -99,17 +100,17 @@ export const renderField = (
 
 const StyledButton = styled(Button)`
   align-items: center;
-  border-color: #00000008;
-  color: #1890ff;
+  border-color: ${AntdColor.NEUTRAL.FILL_QUATERNARY};
+  color: ${AntdColor.BLUE.BLUE_5};
   display: flex;
-  font-size: 12px;
-  gap: 8px;
-  padding: 4px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Content = styled.p`
   margin: 0;
-  padding: 4px 8px 20px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.MD}px;
   :last-child {
     padding-bottom: 0;
   }

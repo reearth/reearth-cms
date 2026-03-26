@@ -19,6 +19,7 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   requests: Request[];
@@ -85,7 +86,11 @@ const RequestListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, request) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onEdit(request.id)}
+          />
         ),
         key: "EDIT_ICON",
         width: 48,
@@ -102,7 +107,7 @@ const RequestListTable: React.FC<Props> = ({
             <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
               <CustomTag
                 value={request.comments?.length || 0}
-                color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
+                color={request.id === selectedRequest?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </CommentsButton>
           );
@@ -237,7 +242,7 @@ const RequestListTable: React.FC<Props> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="link"
             size="small"

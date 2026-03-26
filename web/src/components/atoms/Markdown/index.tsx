@@ -4,6 +4,9 @@ import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
 import TextArea, { type TextAreaRef, TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+const { XXS } = AntdToken.SPACING;
 
 type Props = {
   onChange?: (value: string) => void;
@@ -65,8 +68,8 @@ const MarkdownWrapper = styled.div`
 
 const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  border: 1px solid #d9d9d9;
-  padding: 4px 11px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  padding: ${XXS}px 11px;
   overflow: auto;
   resize: vertical;
   height: 100%;
@@ -74,14 +77,21 @@ const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   height: 142px;
   line-height: 1;
   word-break: break-all;
-  ${({ isError }) => isError && "border-color: #ff4d4f"};
+  ${({ isError }) => isError && `border-color: ${AntdColor.RED.RED_4}`};
   &:hover,
   &:focus {
-    border-color: ${({ disabled, isError }) =>
-      disabled ? "#d9d9d9" : isError ? "#ffa39e" : "#40a9ff"};
+    border-color: ${
+      ({ disabled, isError }) =>
+        disabled
+          ? AntdColor.NEUTRAL.BORDER
+          : isError
+            ? AntdColor.RED.RED_2
+            : `${AntdColor.BLUE.BLUE_4}` /* originally #40a9ff */
+    };
   }
-  background-color: ${({ disabled }) => (disabled ? "#f5f5f5" : "#FFF")};
+  background-color: ${({ disabled }) =>
+    disabled ? AntdColor.NEUTRAL.BG_LAYOUT : AntdColor.NEUTRAL.BG_WHITE};
   * {
-    ${({ isError }) => isError && "color: #ff4d4f"};
+    ${({ isError }) => isError && `color: ${AntdColor.RED.RED_4}`};
   }
 `;

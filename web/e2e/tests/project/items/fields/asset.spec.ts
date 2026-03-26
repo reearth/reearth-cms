@@ -1,7 +1,6 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { isCesiumViewerReady } from "@reearth-cms/e2e/helpers/viewer.helper";
 
 const uploadFileUrl_1 =
   "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
@@ -147,17 +146,15 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     ]);
     await viewerPage.waitForLoadState("domcontentloaded");
 
-    const isViewerReady = await isCesiumViewerReady(viewerPage);
-
-    if (!isViewerReady) {
-      // Headless fallback: Cesium cannot create a WebGL canvas.
-      // Verify the asset detail page loaded correctly instead.
-      await expect(viewerPage.getByText(uploadFileName_2, { exact: true })).toBeVisible({
-        timeout: 10000,
-      });
-    }
-
-    await page.waitForTimeout(300);
+    // Cesium canvas is rendered (attached to DOM) but Playwright considers it
+    // hidden because the WebGL canvas is not passing visibility checks.
+    await expect(viewerPage.locator("canvas").first()).toBeAttached();
+    // Wait until the Cesium canvas has non-zero dimensions to ensure it has
+    // been initialized/rendered, even in headless mode.
+    await viewerPage.waitForFunction(() => {
+      const canvas = document.querySelector("canvas") as HTMLCanvasElement | null;
+      return !!canvas && canvas.width > 0 && canvas.height > 0;
+    });
   });
 });
 

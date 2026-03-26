@@ -11,6 +11,7 @@ import {
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import DropdownRender from "./DropdownRender";
 
@@ -79,7 +80,7 @@ const FilterDropdown: React.FC<Props> = ({
           <Space size={10}>
             <Title>{filter.title}</Title>
             <div onClick={remove}>
-              <StyledIcon icon="close" size={12} />
+              <StyledIcon icon="close" size={AntdToken.FONT.SIZE_SM} />
             </div>
           </Space>
         </StyledButton>
@@ -91,8 +92,8 @@ const FilterDropdown: React.FC<Props> = ({
 export default FilterDropdown;
 
 const StyledButton = styled(Button)`
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #f8f8f8;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${CustomColor.BG_SUBTLE};
 `;
 
 const Title = styled.div`
@@ -103,8 +104,8 @@ const Title = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   :hover {
-    color: rgba(0, 0, 0, 0.85);
+    color: ${AntdColor.NEUTRAL.TEXT};
   }
 `;

@@ -9,6 +9,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type FormValues = {
   role: Role;
@@ -86,7 +87,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
       <Wrapper>
         <Conetnt>
           <LogoWrapper>
-            <Icon icon="api" size={32} color="#b8b8b8" />
+            <Icon icon="api" size={32} color={CustomColor.ICON_MUTED} />
           </LogoWrapper>
           <Info>
             <Name>{selectedIntegration?.name}</Name>
@@ -125,23 +126,23 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  padding: 24px 0;
+  padding: ${AntdToken.SPACING.LG}px 0;
 `;
 
 const Conetnt = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #f0f0f0;
+  gap: ${AntdToken.SPACING.SM}px;
+  padding: ${AntdToken.SPACING.SM}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: fit-content;
   min-width: 70%;
   max-width: 100%;
 `;
 
 const LogoWrapper = styled.div`
-  border-radius: 4px;
-  border: 1px solid #f0f0f0;
+  border-radius: ${AntdToken.RADIUS.SM}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const Info = styled.div`
@@ -154,12 +155,12 @@ const Name = styled.h3`
 
 const Description = styled.p`
   margin: 0;
-  font-size: 12px;
-  color: #9a9a9a;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  color: ${CustomColor.TEXT_MUTED};
 `;
 
 const StyledForm = styled(Form<FormValues>)`
-  padding-left: 12px;
+  padding-left: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledSelect = styled(Select<Role>)`

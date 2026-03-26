@@ -6,6 +6,7 @@ import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
 import { Test } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
 import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
@@ -135,16 +136,16 @@ const FieldList: React.FC<Props> = ({
 };
 
 const StyledTitle = styled.h1`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 
 const FieldCategoryTitle = styled.h2`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
-  margin-bottom: 12px;
-  margin-top: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
+  margin-bottom: ${AntdToken.SPACING.SM}px;
+  margin-top: ${AntdToken.SPACING.SM}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const FieldStyledList = styled(List<FieldListItem>, Constant.TRANSIENT_OPTIONS)<{
@@ -152,22 +153,22 @@ const FieldStyledList = styled(List<FieldListItem>, Constant.TRANSIENT_OPTIONS)<
 }>`
   max-height: calc(100% - 34px);
   overflow-y: auto;
-  padding-bottom: 24px;
+  padding-bottom: ${AntdToken.SPACING.LG}px;
   .ant-list-item {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     cursor: ${({ $hasCreateRight }) => ($hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
-      margin-top: 12px;
+      margin-top: ${AntdToken.SPACING.SM}px;
     }
-    padding: 4px;
-    box-shadow: 0px 2px 8px #00000026;
+    padding: ${AntdToken.SPACING.XXS}px;
+    box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-title {
         margin: 0;
       }
       align-items: center;
       .ant-list-item-meta-avatar {
-        border: 1px solid #f0f0f0;
+        border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
         width: 28px;
         height: 28px;
         display: flex;
@@ -180,7 +181,7 @@ const FieldStyledList = styled(List<FieldListItem>, Constant.TRANSIENT_OPTIONS)<
 
 const Meta = styled(List.Item.Meta)`
   .ant-list-item-meta-description {
-    font-size: 12px !important;
+    font-size: ${AntdToken.FONT.SIZE_SM}px !important;
   }
 `;
 

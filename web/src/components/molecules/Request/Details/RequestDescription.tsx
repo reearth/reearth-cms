@@ -9,6 +9,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestItemForm from "./ItemForm";
 
@@ -98,14 +99,14 @@ export const RequestDescription: React.FC<Props> = ({
 
 const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content-author {
-    padding: 16px 24px;
+    padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
     margin: 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 
     .ant-comment-content-author-name {
-      font-weight: 500;
-      font-size: 14px;
-      color: #000000;
+      font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+      font-size: ${AntdToken.FONT.SIZE}px;
+      color: ${AntdColor.GREY.GREY_8};
       overflow: hidden;
     }
 
@@ -120,30 +121,30 @@ const StyledAntDComment = styled(AntDComment)`
   }
 
   .ant-comment-content {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   }
 `;
 
 const RequestTitle = styled.h1`
-  border-bottom: 1px solid #f0f0f0;
-  padding: 8px 0;
-  color: #000000d9;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  padding: ${AntdToken.SPACING.XS}px 0;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const RequestTextWrapper = styled.div`
-  padding: 24px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: ${AntdToken.SPACING.LG}px;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const RequestText = styled.p`
-  padding-top: 8px;
+  padding-top: ${AntdToken.SPACING.XS}px;
 `;
 
 const RequestItemsWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   .ant-pro-card-body {
     padding: 0;
   }

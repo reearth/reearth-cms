@@ -19,6 +19,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 import { validateURL } from "@reearth-cms/utils/regex";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   webhookInitialValues?: WebhookValues;
@@ -227,12 +228,12 @@ const StyledCheckboxGroup = styled(Checkbox.Group)`
 `;
 
 const CheckboxLabel = styled.p`
-  margin-top: 24px;
-  margin-bottom: 8px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: #000000d9;
+  margin-top: ${AntdToken.SPACING.LG}px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledForm = styled(Form<FormType>)`
@@ -240,11 +241,11 @@ const StyledForm = styled(Form<FormType>)`
 `;
 
 const CheckboxTitle = styled.h5`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #000000d9;
-  margin-bottom: 24px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledDivider = styled(Divider)`

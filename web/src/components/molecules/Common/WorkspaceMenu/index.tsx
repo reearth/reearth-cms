@@ -5,6 +5,7 @@ import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type ItemType = NonNullable<MenuProps["items"]>[number];
 
@@ -116,6 +117,6 @@ export default WorkspaceMenu;
 
 const StyledMenu = styled(Menu)`
   li {
-    padding-left: 16px !important;
+    padding-left: ${AntdToken.SPACING.BASE}px !important;
   }
 `;

@@ -18,7 +18,8 @@ import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
-import { bytesFormat, dateTimeFormat } from "@reearth-cms/utils/format";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   visible: boolean;
@@ -132,7 +133,9 @@ const LinkAssetModal: React.FC<Props> = ({
           return (
             <Button
               type="link"
-              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              icon={
+                <Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />
+              }
               onClick={() => onLinkClick(isLink, asset)}
             />
           );
@@ -266,5 +269,8 @@ export default LinkAssetModal;
 const StyledModal = styled(Modal)`
   .ant-pro-table {
     padding: 0;
+    .ant-pro-table-list-toolbar {
+      padding-left: ${AntdToken.SPACING.SM}px;
+    }
   }
 `;

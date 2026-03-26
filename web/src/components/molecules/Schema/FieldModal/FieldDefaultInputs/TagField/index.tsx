@@ -5,6 +5,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   selectedTags?: { id: string; name: string; color: string }[];
@@ -52,7 +53,7 @@ const StyledMultipleSelect = styled(Select)`
     overflow-y: hidden;
   }
   .ant-select-selection-overflow-item {
-    margin-right: 4px;
+    margin-right: ${AntdToken.SPACING.XXS}px;
   }
   .ant-select-selection-item {
     padding: 0;

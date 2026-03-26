@@ -13,6 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {
   model: Model;
@@ -302,5 +303,5 @@ const StyledCard = styled(Card)`
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;

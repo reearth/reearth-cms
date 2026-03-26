@@ -8,6 +8,7 @@ import Modal, { ModalFuncProps } from "@reearth-cms/components/atoms/Modal";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 import QueueItem from "./QueueItem";
@@ -186,11 +187,11 @@ const Uploader: React.FC<Props> = props => {
           }
         }}>
         <Badge
-          color="#ffffff"
+          color={AntdColor.NEUTRAL.BG_WHITE}
           size="small"
           style={{ boxShadow: "none" }}
           dot={uploaderState.showBadge}>
-          <Icon icon="upload" size={26} color="#ffffff" />
+          <Icon icon="upload" size={26} color={AntdColor.NEUTRAL.BG_WHITE} />
         </Badge>
       </UploadIcon>
 
@@ -248,12 +249,9 @@ const Card = styled(motion.div)`
   max-height: 90vh;
   position: absolute;
   z-index: 30;
-  background: #ffffff;
-  border-radius: 6px;
-  box-shadow:
-    0 1px 2px -2px rgba(0, 0, 0, 0.16),
-    0 3px 6px 0 rgba(0, 0, 0, 0.12),
-    0 5px 12px 4px rgba(0, 0, 0, 0.09);
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
+  border-radius: ${AntdToken.RADIUS.BASE}px;
+  box-shadow: ${AntdToken.SHADOW.BASE};
   overflow-y: scroll;
 
   &[data-corner="${Corner.BottomRight}"] {
@@ -288,7 +286,7 @@ const CardHead = styled.div`
   text-overflow: ellipsis;
   position: sticky;
   top: 0;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   z-index: 10;
 `;
 
@@ -306,8 +304,8 @@ const Title = styled.div`
 
 const TitleSuffix = styled.div`
   display: flex;
-  color: #8c8c8c;
-  gap: 8px;
+  color: ${AntdColor.GREY.GREY_2};
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const CloseIcon = styled(Icon)`
@@ -316,7 +314,7 @@ const CloseIcon = styled(Icon)`
   cursor: pointer;
 
   :hover {
-    color: #1677ff;
+    color: ${AntdColor.BLUE.BLUE_5};
   }
 `;
 
@@ -326,7 +324,7 @@ const CancelAllIcon = styled(Icon)`
   cursor: pointer;
 
   :hover {
-    color: #f5222d;
+    color: ${AntdColor.RED.RED_5};
   }
 `;
 
@@ -337,18 +335,15 @@ const UploadIcon = styled(motion.div)`
   position: relative;
   justify-content: center;
   align-items: center;
-  background-color: #1677ff;
+  background-color: ${AntdColor.BLUE.BLUE_5};
   cursor: pointer;
   transition-property: background-color;
   transition-duration: 0.5s;
-  border-radius: 6px;
-  box-shadow:
-    0 1px 2px -2px rgba(0, 0, 0, 0.16),
-    0 3px 6px 0 rgba(0, 0, 0, 0.12),
-    0 5px 12px 4px rgba(0, 0, 0, 0.09);
+  border-radius: ${AntdToken.RADIUS.BASE}px;
+  box-shadow: ${AntdToken.SHADOW.BASE};
 
   &:hover {
-    background-color: #4096ff;
+    background-color: ${AntdColor.BLUE.BLUE_4};
   }
 `;
 

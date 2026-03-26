@@ -40,6 +40,7 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
@@ -926,7 +927,7 @@ const Wrapper = styled.div`
 `;
 
 const HeaderWrapper = styled.div`
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   display: flex;
 `;
 
@@ -936,11 +937,11 @@ const StyledPageHeader = styled(PageHeader)`
 `;
 
 const VersionHeader = styled(StyledPageHeader)`
-  background-color: #fafafa !important;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED} !important;
 `;
 
 const FormWrapper = styled.div`
-  border-top: 1px solid #00000008;
+  border-top: 1px solid ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   overflow: hidden auto;
   display: flex;
   flex: 1;
@@ -949,13 +950,13 @@ const FormWrapper = styled.div`
 
 const StyledTabs = styled(Tabs)`
   max-height: 100%;
-  background-color: #fafafa;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
   width: 272px;
-  border-left: 1px solid #f0f0f0;
+  border-left: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   .ant-tabs-nav {
     margin-bottom: 0;
-    padding-left: 20px;
-    background-color: #fff;
+    padding-left: ${AntdToken.SPACING.MD}px;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
     overflow-y: auto;
@@ -966,7 +967,7 @@ const StyledForm = styled(Form, Constant.TRANSIENT_OPTIONS)<{ $scrollbarWidth: n
   flex: 1;
   min-width: 0;
   padding: 36px;
-  background: #fff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   min-height: 100%;
   height: fit-content;
   label {
@@ -979,14 +980,14 @@ const StyledForm = styled(Form, Constant.TRANSIENT_OPTIONS)<{ $scrollbarWidth: n
 `;
 
 const VersionForm = styled(StyledForm)`
-  background: #fafafa;
+  background: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const TabContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XS}px;
 `;
 
 export default ContentForm;

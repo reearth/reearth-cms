@@ -14,6 +14,7 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ImportFieldInput } from "../types";
 
@@ -161,23 +162,23 @@ const SchemaPreviewStepWrapper = styled.div`
 `;
 
 const Section = styled.div`
-  padding-top: 24px;
-  padding-bottom: 12px;
+  padding-top: ${AntdToken.SPACING.LG}px;
+  padding-bottom: ${AntdToken.SPACING.SM}px;
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const SectionTitle = styled.h3``;
 
 const Description = styled.p`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const HeaderRow = styled(Row)`
-  padding: 0 24px;
-  color: rgba(0, 0, 0, 0.45);
+  padding: 0 ${AntdToken.SPACING.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const HeaderCol = styled(Col)`
@@ -200,8 +201,8 @@ const FieldStyledList = styled(List)`
     display: none;
   }
   .ant-list-item {
-    background-color: #fff;
-    padding: 12px 24px;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+    padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.LG}px;
     .ant-list-item-meta {
       .ant-list-item-meta-content {
         text-align: center;
@@ -227,11 +228,11 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    color: rgba(0, 0, 0, 0.45);
+    margin-left: ${AntdToken.SPACING.SM}px;
+    font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+    font-size: ${AntdToken.FONT.SIZE}px;
+    line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   }
 `;
 
@@ -249,28 +250,28 @@ const ItemTitleHeading = styled.span`
 `;
 
 const ItemKey = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 `;
 
 const ItemUnique = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const ItemTitleTag = styled(Tag)`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #fafafa;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const DragIcon = styled(Icon)`
-  margin-right: 16px;
+  margin-right: ${AntdToken.SPACING.BASE}px;
   cursor: grab;
   :active {
     cursor: grabbing;

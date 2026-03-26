@@ -11,6 +11,7 @@ import Upload, {
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 const { Dragger } = Upload;
 
@@ -108,5 +109,5 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
 `;

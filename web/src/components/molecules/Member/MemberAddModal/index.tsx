@@ -12,6 +12,7 @@ import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   open: boolean;
@@ -245,16 +246,16 @@ const StyledModal = styled(Modal)`
     padding: 0;
   }
   .ant-modal-header {
-    padding: 16px 24px;
+    padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
     margin: 0;
   }
   .ant-modal-body {
-    padding: 24px;
-    border-top: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
+    padding: ${AntdToken.SPACING.LG}px;
+    border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+    border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   }
   .ant-modal-footer {
-    padding: 10px 16px;
+    padding: 10px ${AntdToken.SPACING.BASE}px;
     margin: 0;
   }
 `;
@@ -273,14 +274,14 @@ const StyledFormItem = styled(Form.Item)`
 
 const UserWrapper = styled.div`
   display: flex;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   align-items: center;
 `;
 
 const UserInfo = styled.div`
   max-width: 65%;
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const UserName = styled.div`
@@ -292,7 +293,7 @@ const UserName = styled.div`
 
 const Email = styled.div`
   font-family: "Roboto";
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -302,15 +303,15 @@ const SelectedUser = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
-  border: 1px solid #d9d9d9;
-  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
-  border-radius: 8px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.BASE}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  box-shadow: 0px 2px 0px ${AntdColor.NEUTRAL.FILL_QUATERNARY};
+  border-radius: ${AntdToken.RADIUS.LG}px;
 `;
 
 const Actions = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const FormItemRole = styled(Form.Item)`

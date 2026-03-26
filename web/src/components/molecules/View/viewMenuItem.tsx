@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   view: View;
@@ -77,7 +78,7 @@ const ViewsMenuItem: React.FC<Props> = ({
     <Wrapper>
       {view.name}
       <StyledDropdown trigger={["click"]} menu={{ items: children }}>
-        <Icon icon="more" size={16} />
+        <Icon icon="more" size={AntdToken.FONT.SIZE_LG} />
       </StyledDropdown>
     </Wrapper>
   );
@@ -88,7 +89,7 @@ export default ViewsMenuItem;
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   justify-content: space-between;
 `;
 

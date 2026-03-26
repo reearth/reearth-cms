@@ -60,29 +60,29 @@ test.describe("Json file tests", () => {
     await assetsPage.saveButton.click();
     await assetsPage.closeNotification();
 
-    // Confirm canvas is rendered in the DOM before proceeding
-    await expect(assetsPage.canvas).toHaveCount(1);
+    // Cesium canvas is rendered (attached to DOM) but Playwright considers it
+    // hidden because the WebGL canvas is not passing visibility checks.
+    await expect(assetsPage.canvas).toBeAttached();
 
-    // Click fullscreen and check if the browser actually entered fullscreen
+    // Fullscreen button is clickable
+    await expect(assetsPage.fullscreenButton).toBeVisible();
     await assetsPage.fullscreenButton.click();
-    await page.waitForTimeout(1000);
-    const isFullscreen = await page.evaluate(() => !!document.fullscreenElement);
 
+    // Wait briefly for the Fullscreen API to engage. In headless Chromium the
+    // API is not supported so fullscreenElement stays null; we skip the
+    // dimension assertions in that case to avoid a false pass.
+    const isFullscreen = await page
+      .waitForFunction(() => document.fullscreenElement !== null, undefined, { timeout: 2000 })
+      .then(() => true)
+      .catch(() => false);
     if (isFullscreen) {
-      // Headed mode: fullscreen worked — assert canvas resizes to viewport
       const viewportSize = page.viewportSize();
       expect(viewportSize).toBeTruthy();
-      const width = String(viewportSize?.width);
-      const height = String(viewportSize?.height);
-
-      await expect(assetsPage.canvas).toHaveAttribute("width", width);
-      await expect(assetsPage.canvas).toHaveAttribute("height", height);
-
-      await page.goBack();
-    } else {
-      // Headless mode: fullscreen silently failed — verify canvas still exists
-      await expect(assetsPage.canvas).toHaveCount(1);
+      await expect(assetsPage.canvas).toHaveAttribute("width", String(viewportSize?.width));
+      await expect(assetsPage.canvas).toHaveAttribute("height", String(viewportSize?.height));
     }
+
+    await page.goBack();
   });
 
   test("Downloading asset has succeeded", async ({ page, assetsPage }) => {

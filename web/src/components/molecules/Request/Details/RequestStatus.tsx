@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Steps, { type StepsProps } from "@reearth-cms/components/atoms/Step";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   requestState: RequestState;
@@ -16,7 +17,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
     if (requestState === "APPROVED") {
       return [
         {
-          icon: <StyledIcon icon="checkCircle" color="#52C41A" size={28} />,
+          icon: <StyledIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} size={28} />,
           title: <StatusTitle>{t("Approved")}</StatusTitle>,
         },
       ];
@@ -24,7 +25,9 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
     if (requestState === "CLOSED") {
       return [
         {
-          icon: <StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />,
+          icon: "closeCircle",
+          color: AntdColor.GREY.GREY_0 /* originally #BFBFBF */,
+          size: 28,
           title: <StatusTitle>{t("Closed")}</StatusTitle>,
         },
       ];
@@ -44,10 +47,10 @@ const StyledSteps = styled(Steps)`
     content: "";
     display: block;
     position: absolute;
-    width: 4px;
-    height: 24px;
-    background-color: #d9d9d9;
-    left: 16px;
+    width: ${AntdToken.SPACING.XXS}px;
+    height: ${AntdToken.SPACING.LG}px;
+    background-color: ${AntdColor.NEUTRAL.BORDER};
+    left: ${AntdToken.SPACING.BASE}px;
     top: -30px;
   }
 `;
@@ -59,10 +62,10 @@ const StyledIcon = styled(Icon)`
 
 const StatusTitle = styled.p`
   display: inline;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 22px;
-  color: #00000073;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 export default RequestStatus;

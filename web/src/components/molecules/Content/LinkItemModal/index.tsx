@@ -14,6 +14,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../types";
 
@@ -226,5 +227,8 @@ export default LinkItemModal;
 const StyledModal = styled(Modal)`
   .ant-pro-table {
     padding: 0;
+    .ant-pro-table-list-toolbar {
+      padding-left: ${AntdToken.SPACING.SM}px;
+    }
   }
 `;

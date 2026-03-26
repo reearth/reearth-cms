@@ -9,6 +9,7 @@ import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { getLicenseContent, license_options } from "@reearth-cms/data/license";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   needsTemplate?: boolean;
@@ -90,12 +91,12 @@ const MarkdownComponent: React.FC<Props> = ({
 export default MarkdownComponent;
 
 const StyledTabs = styled(Tabs)`
-  background-color: #fafafa;
-  border-left: 1px solid #f0f0f0;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
+  border-left: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   .ant-tabs-nav {
     margin-bottom: 0;
-    padding: 0 20px;
-    background-color: #fff;
+    padding: 0 ${AntdToken.SPACING.MD}px;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
     overflow-y: auto;
@@ -104,8 +105,8 @@ const StyledTabs = styled(Tabs)`
 
 const StyledContainer = styled.div`
   padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid ${CustomColor.BORDER_LIGHT};
+  border-radius: ${AntdToken.RADIUS.SM}px;
   height: 700px;
   overflow-y: auto;
   font-family: inherit !important;

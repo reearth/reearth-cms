@@ -8,6 +8,7 @@ import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemMod
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../../types";
 
@@ -104,7 +105,7 @@ const ReferenceFormItem: React.FC<Props> = ({
             <UnreferButton
               color="default"
               variant="link"
-              icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
+              icon={<Icon icon={"arrowUpRightSlash"} size={AntdToken.FONT.SIZE_LG} />}
               onClick={() => {
                 onChange?.();
               }}
@@ -114,7 +115,8 @@ const ReferenceFormItem: React.FC<Props> = ({
       )}
       {!disabled && (
         <StyledButton onClick={handleClick} type="primary">
-          <Icon icon="arrowUpRight" size={14} /> {value ? t("Replace item") : t("Refer to item")}
+          <Icon icon="arrowUpRight" size={AntdToken.FONT.SIZE} />{" "}
+          {value ? t("Replace item") : t("Refer to item")}
         </StyledButton>
       )}
       {!!onSearchTerm &&
@@ -146,7 +148,7 @@ const ReferenceFormItem: React.FC<Props> = ({
 };
 
 const UnreferButton = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledButton = styled(Button)`
@@ -158,7 +160,7 @@ const ReferenceItemWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 export default ReferenceFormItem;

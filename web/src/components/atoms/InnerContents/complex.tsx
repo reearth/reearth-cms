@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import { AntdToken } from "@reearth-cms/utils/style";
+
 export type Props = {
   left?: ReactNode;
   center?: ReactNode;
@@ -23,10 +25,10 @@ export default ComplexInnerContents;
 
 const PaddedContent = styled.div`
   display: flex;
-  margin: 16px 0 0 16px;
+  margin: ${AntdToken.SPACING.BASE}px 0 0 ${AntdToken.SPACING.BASE}px;
   height: 100%;
   min-height: calc(100% - 66px);
-  max-height: calc(100% - 16px);
+  max-height: calc(100% - ${AntdToken.SPACING.BASE}px);
 `;
 
 const Main = styled.div`

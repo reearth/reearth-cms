@@ -14,6 +14,7 @@ import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   workspaceUserMembers?: UserMember[];
@@ -257,7 +258,7 @@ const MemberTable: React.FC<Props> = ({
     <PaddedContent>
       <PageHeader
         title={t("Members")}
-        style={{ backgroundColor: "#fff" }}
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
         extra={
           <Button
             type="primary"
@@ -292,15 +293,15 @@ const MemberTable: React.FC<Props> = ({
 const RemoveUsers = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-bottom: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const RemoveUser = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const UserInfoWrapper = styled.div`
@@ -316,17 +317,17 @@ const UserInfo = styled.p`
 `;
 
 const Email = styled(UserInfo)`
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const PaddedContent = styled(Content)`
-  padding: 16px 16px 0;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.BASE}px 0;
   height: 100%;
 `;
 
 const TableWrapper = styled.div`
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   height: calc(100% - 72px);
   padding: 0 24px;
 `;

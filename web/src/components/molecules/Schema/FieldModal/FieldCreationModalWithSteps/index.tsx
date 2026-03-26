@@ -25,6 +25,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { validateKey } from "@reearth-cms/utils/regex";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   models?: Model[];
@@ -636,13 +637,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 };
 
 const Required = styled.span`
-  color: #ff4d4f;
-  margin-right: 4px;
+  color: ${AntdColor.RED.RED_4};
+  margin-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Optional = styled.span`
-  color: #8c8c8c;
-  margin-left: 4px;
+  color: ${AntdColor.GREY.GREY_2};
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const FieldThumbnail = styled.div`
@@ -650,16 +651,16 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    color: #000000d9;
+    margin-left: ${AntdToken.SPACING.SM}px;
+    font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+    font-size: ${AntdToken.FONT.SIZE_LG}px;
+    line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+    color: ${AntdColor.NEUTRAL.TEXT};
   }
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -677,12 +678,13 @@ const StyledFormItem = styled(Form.Item)`
 `;
 
 const StyledSteps = styled(Steps, Constant.TRANSIENT_OPTIONS)<{ $numSteps: number }>`
-  padding: ${({ $numSteps }) => ($numSteps === 1 ? "30px 24px 38px" : "30px 0 38px")};
+  padding: ${({ $numSteps }) =>
+    $numSteps === 1 ? `30px ${AntdToken.SPACING.LG}px 38px` : "30px 0 38px"};
   .ant-steps-item-title {
     white-space: nowrap;
   }
   .ant-steps-item-active {
-    font-weight: 600;
+    font-weight: ${AntdToken.FONT_WEIGHT.STRONG};
   }
 `;
 
@@ -694,8 +696,8 @@ const StyledModal = styled(Modal)`
 `;
 
 const StyledModelKey = styled.span`
-  font-size: 12px;
-  margin-left: 4px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 export default FieldCreationModalWithSteps;

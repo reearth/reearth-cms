@@ -14,8 +14,9 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { Trans, useT } from "@reearth-cms/i18n";
+import { useT, Trans } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
@@ -143,7 +144,7 @@ const IntegrationTable: React.FC<Props> = ({
 
   const alertOptions = useCallback(
     (props: { selectedRowKeys: Key[] }) => (
-      <Space size={4}>
+      <Space size={AntdToken.SPACING.XXS}>
         <Button
           type="link"
           size="small"
@@ -178,7 +179,7 @@ const IntegrationTable: React.FC<Props> = ({
     <Wrapper>
       <PageHeader
         title={t("Integrations")}
-        style={{ backgroundColor: "#fff" }}
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
         extra={<ConnectButton />}
       />
       <ConfigProvider
@@ -219,7 +220,7 @@ const IntegrationTable: React.FC<Props> = ({
 
 const Wrapper = styled.div`
   height: 100%;
-  padding: 16px 16px 0;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.BASE}px 0;
 `;
 
 const EmptyTableWrapper = styled.div`
@@ -227,27 +228,27 @@ const EmptyTableWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin: 24px 0;
-  color: #8c8c8c;
+  gap: ${AntdToken.SPACING.XS}px;
+  margin: ${AntdToken.SPACING.LG}px 0;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
 const Action = styled.span`
   display: flex;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   align-items: center;
 `;
 
 const Title = styled.h2`
-  font-weight: 500;
-  font-size: 16px;
-  color: #000;
-  margin-bottom: 16px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  color: ${AntdColor.GREY.GREY_8};
+  margin-bottom: ${AntdToken.SPACING.BASE}px;
 `;
 
 const TableWrapper = styled.div`
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   height: calc(100% - 72px);
 `;
 
