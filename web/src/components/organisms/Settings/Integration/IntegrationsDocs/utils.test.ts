@@ -96,7 +96,7 @@ describe("OpenApiSpecTransformer", () => {
         "ws-1",
         "http://api.example.com",
       );
-      expect(result).toBe("not an object");
+      expect(result).toBeUndefined();
     });
 
     test("should handle spec with no paths", () => {
