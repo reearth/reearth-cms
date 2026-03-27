@@ -49,6 +49,8 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
+import { useExportSchema } from "../hooks/useExportSchema";
+
 export default () => {
   const t = useT();
   const { confirm, error } = useModal();
@@ -136,6 +138,14 @@ export default () => {
   );
 
   const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
+
+  const { handleExportSchema, exportSchemaLoading } = useExportSchema();
+
+  const handleSchemaExport = useCallback(async () => {
+    const modelId = data?.id;
+    if (!modelId) return;
+    await handleExportSchema(modelId);
+  }, [data?.id, handleExportSchema]);
 
   useEffect(() => {
     if (!schemaId && currentModel) {
@@ -696,5 +706,7 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    handleSchemaExport,
+    exportSchemaLoading,
   };
 };

@@ -13,6 +13,8 @@ import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/typ
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ExportContentUtils } from "@reearth-cms/utils/exportContent";
+import { ExportSchemaUtils } from "@reearth-cms/utils/exportSchema";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdToken } from "@reearth-cms/utils/style";
@@ -174,6 +176,17 @@ const ModelCard: React.FC<Props> = ({
     [hasContentCreateRight, hasModelFields],
   );
 
+  const getExportSchemaUIMetadata = useMemo(
+    () =>
+      ExportSchemaUtils.getUIMetadata({ hasModelFields, isExportLoading: exportLoading || false }),
+    [exportLoading, hasModelFields],
+  );
+
+  const getExportContentUIMetadata = useMemo(
+    () => ExportContentUtils.getUIMetadata({ isExportLoading: exportLoading || false }),
+    [exportLoading],
+  );
+
   const ImportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
@@ -210,42 +223,55 @@ const ModelCard: React.FC<Props> = ({
   const ExportMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
-        key: "schema",
-        label: t("Export Schema"),
+        key: t("Export Schema"),
+        label: (
+          <Tooltip title={getExportSchemaUIMetadata.tooltipMessage}>
+            {exportLoading && <StyledInlineIcon icon="loading" />}
+            <span>{t("Export Schema")}</span>
+          </Tooltip>
+        ),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
-        disabled: exportLoading,
+        disabled: getExportSchemaUIMetadata.shouldDisable,
         "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportSchema,
       },
       {
         key: "content",
-        label: t("Export content"),
+        label: (
+          <Tooltip title={getExportContentUIMetadata.tooltipMessage}>{t("Export content")}</Tooltip>
+        ),
         "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContent,
+        disabled: getExportContentUIMetadata.shouldDisable,
         children: [
           {
-            key: "json",
+            key: t("JSON"),
             label: t("JSON"),
             onClick: () => handleModelExportClick(ExportFormat.Json),
-            disabled: exportLoading,
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentJSON,
           },
           {
-            key: "csv",
+            key: t("CSV"),
             label: t("CSV"),
             onClick: () => handleModelExportClick(ExportFormat.Csv),
-            disabled: exportLoading,
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentCSV,
           },
           {
-            key: "geojson",
+            key: t("GeoJSON"),
             label: t("GeoJSON"),
             onClick: () => handleModelExportClick(ExportFormat.Geojson),
-            disabled: exportLoading,
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON,
           },
         ],
       },
     ],
-    [t, handleModelExportClick, exportLoading],
+    [
+      t,
+      getExportSchemaUIMetadata.tooltipMessage,
+      getExportSchemaUIMetadata.shouldDisable,
+      exportLoading,
+      getExportContentUIMetadata.tooltipMessage,
+      getExportContentUIMetadata.shouldDisable,
+      handleModelExportClick,
+    ],
   );
 
   const MiscMenuItems = useMemo<MenuProps["items"]>(
@@ -331,5 +357,9 @@ const StyledCard = styled(Card)`
 const ModalContent = styled.p``;
 
 const StyledExperimentIcon = styled(ExperimentIcon)`
+  margin-right: ${AntdToken.SPACING.XS}px;
+`;
+
+const StyledInlineIcon = styled(Icon)`
   margin-right: ${AntdToken.SPACING.XS}px;
 `;

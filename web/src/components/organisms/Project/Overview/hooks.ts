@@ -18,13 +18,14 @@ import {
 import {
   DeleteModelDocument,
   ExportModelDocument,
-  ExportModelSchemaDocument,
   GetModelsDocument,
   UpdateModelDocument,
 } from "@reearth-cms/gql/__generated__/model.generated";
 import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
+
+import { useExportSchema } from "../hooks/useExportSchema";
 
 export default () => {
   const [currentProject] = useProject();
@@ -169,8 +170,7 @@ export default () => {
   );
 
   const [exportModel, { loading: exportModelLoading }] = useMutation(ExportModelDocument);
-  const [exportModelSchema, { loading: exportSchemaLoading }] =
-    useMutation(ExportModelSchemaDocument);
+  const { handleExportSchema, exportSchemaLoading } = useExportSchema();
 
   const exportLoading = exportModelLoading || exportSchemaLoading;
 
@@ -220,14 +220,7 @@ export default () => {
 
       try {
         if (format === ExportFormat.Schema) {
-          // Export schema
-          const res = await exportModelSchema({ variables: { modelId } });
-          if (res.error || !res.data?.exportModelSchema) {
-            throw new Error(t("Failed to export schema."));
-          }
-          const url = res.data.exportModelSchema.url;
-          const filename = getFilenameFromFormat(modelId, format);
-          await downloadFile(url, filename);
+          await handleExportSchema(modelId);
         } else {
           // Export model data (JSON, CSV, or GeoJSON)
           const exportFormat = format as GQLExportFormat;
@@ -250,7 +243,7 @@ export default () => {
         });
       }
     },
-    [exportModel, exportModelSchema, t, downloadFile, getFilenameFromFormat],
+    [exportModel, handleExportSchema, t, downloadFile, getFilenameFromFormat],
   );
 
   const handleHomeNavigation = useCallback(() => {

@@ -103,6 +103,8 @@ const ProjectSchema: React.FC = () => {
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
         onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
+        onSchemaExport={schemaHooks.handleSchemaExport}
+        exportSchemaLoading={schemaHooks.exportSchemaLoading}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async (file, fileList) => {
