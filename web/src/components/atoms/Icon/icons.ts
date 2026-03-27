@@ -80,6 +80,7 @@ import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
 import Import from "./Icons/import.svg";
+import ImportOutlined2 from "./Icons/importOutlined-2.svg";
 import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
@@ -210,6 +211,7 @@ const icons = {
   clip: PaperClipOutlined,
   retry: RetryFilled,
   warningSolid: WarningSolid,
+  importOutlined: ImportOutlined2,
   experimentOutlined: ExperimentOutlined,
 };
 

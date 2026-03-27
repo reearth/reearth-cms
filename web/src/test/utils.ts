@@ -285,4 +285,7 @@ export enum DATA_TEST_ID {
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
+
+  // ApiDocs
+  ApiDocs__ApiDocsWrapper = "ApiDocs__ApiDocsWrapper",
 }

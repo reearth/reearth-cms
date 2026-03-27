@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { ItemType } from "antd/lib/menu/interface";
 import { useCallback, useEffect, useState } from "react";
 
@@ -62,14 +63,14 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   return (
     <>
-      <Menu
+      <StyledMenu
         onClick={onClick}
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
-      <Menu
+      <StyledMenu
         onClick={onClick}
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
@@ -81,3 +82,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 };
 
 export default ProjectMenu;
+
+const StyledMenu = styled(Menu)`
+  border-right: none !important;
+`;

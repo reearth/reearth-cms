@@ -117,4 +117,6 @@ const StyledMenu = styled(Menu)`
   li {
     padding-left: ${AntdToken.SPACING.BASE}px !important;
   }
+
+  border-right: none !important;
 `;
