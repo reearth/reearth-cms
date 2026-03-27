@@ -15,32 +15,40 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
+enum ImportSchemaStep {
+  FileSelection = 0,
+  ErrorLog = 1,
+  Preview = 2,
+  Importing = 3,
+}
+
 const ProjectSchema: React.FC = () => {
   const t = useT();
-  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] =
+    useState<ImportSchemaStep>(ImportSchemaStep.FileSelection);
   const assetHooks = useAssetHooks(false);
   const importHooks = useAssetHooks(true, [ContentTypesEnum.Geojson, ContentTypesEnum.Json]);
   const schemaHooks = useHooks();
 
   const toSchemaPreviewStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(2);
+    setCurrentImportSchemaModalPage(ImportSchemaStep.Preview);
   }, []);
 
   const toSchemaErrorLogStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(1);
+    setCurrentImportSchemaModalPage(ImportSchemaStep.ErrorLog);
   }, []);
 
   const toImportingStep = useCallback(
     async (fields: CreateFieldInput[]) => {
       await schemaHooks.handleFieldsCreate(fields);
-      setCurrentImportSchemaModalPage(3);
+      setCurrentImportSchemaModalPage(ImportSchemaStep.Importing);
     },
     [schemaHooks],
   );
 
   const toFileSelectionStep = useCallback(() => {
     importHooks.setSchemaErrorLogMeta(null);
-    setCurrentImportSchemaModalPage(0);
+    setCurrentImportSchemaModalPage(ImportSchemaStep.FileSelection);
   }, [importHooks]);
 
   return (
@@ -82,7 +90,7 @@ const ProjectSchema: React.FC = () => {
         onSchemaImportModalOpen={importHooks.handleSchemaImportModalOpen}
         onSchemaImportModalCancel={() => {
           importHooks.handleSchemaImportModalCancel();
-          setCurrentImportSchemaModalPage(0);
+          setCurrentImportSchemaModalPage(ImportSchemaStep.FileSelection);
         }}
         onSelectFileModalOpen={importHooks.handleSelectFileModalOpen}
         onSelectFileModalCancel={importHooks.handleSelectFileModalCancel}

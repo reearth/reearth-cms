@@ -142,7 +142,7 @@ const ImportSchemaModal: React.FC<Props> = ({
 
   const stepComponents = [
     {
-      title: "Select file",
+      title: t("Select file"),
       content: (
         <FileSelectionStep
           fileList={fileList}
@@ -154,11 +154,11 @@ const ImportSchemaModal: React.FC<Props> = ({
       ),
     },
     {
-      title: "Error log",
+      title: t("Error log"),
       content: <SchemaErrorLogStep errorLogMeta={schemaErrorLogMeta} />,
     },
     {
-      title: "Schema preview",
+      title: t("Schema preview"),
       content: (
         <SchemaPreviewStep
           fields={fields}
@@ -172,7 +172,7 @@ const ImportSchemaModal: React.FC<Props> = ({
       ),
     },
     {
-      title: "Importing",
+      title: t("Importing"),
       content: (
         <ImportingStep
           fieldsCreationLoading={fieldsCreationLoading}

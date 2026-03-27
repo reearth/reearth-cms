@@ -482,82 +482,91 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     ]);
   }, [setAlertList, t]);
 
-  const handleImportSchemaFileChange = async (
-    file: RcFile,
-    fileList: RcFile[],
-  ): Promise<{ isValid: boolean; error: ImportSchemaError | null }> => {
-    setDataChecking(true);
+  const handleImportSchemaFileChange = useCallback(
+    async (
+      file: RcFile,
+      fileList: RcFile[],
+    ): Promise<{ isValid: boolean; error: ImportSchemaError | null }> => {
+      setDataChecking(true);
 
-    try {
-      const extension = FileUtils.getExtension(file.name);
+      try {
+        const extension = FileUtils.getExtension(file.name);
 
-      if (extension !== "json") {
-        raiseIllegalFileFormatAlert();
-        throw new Error(ImportSchemaError.InvalidFormat);
+        if (extension !== "json") {
+          raiseIllegalFileFormatAlert();
+          throw new Error(ImportSchemaError.InvalidFormat);
+        }
+
+        if (fileList.length > 1) {
+          raiseSingleFileAlert();
+          throw new Error(ImportSchemaError.SingleFile);
+        }
+
+        setFileList([file]);
+
+        if (file.size === 0) {
+          raiseIllegalFileAlert();
+          throw new Error(ImportSchemaError.EmptyFile);
+        }
+
+        const content = await FileUtils.parseTextFile(file);
+
+        const jsonValidation = await ObjectUtils.safeJSONParse<ImportSchema>(content);
+
+        if (ObjectUtils.isEmpty(jsonValidation)) {
+          raiseIllegalFileAlert();
+          throw new Error(ImportSchemaError.EmptyFile);
+        }
+
+        setAlertList([]);
+        setSchemaErrorLogMeta(null);
+
+        if (!jsonValidation.isValid) {
+          raiseIllegalFileAlert();
+          throw new Error(ImportSchemaError.InvalidJson);
+        }
+
+        if (Array.isArray(jsonValidation.data)) {
+          raiseWrongFileTypeAlert();
+          throw new Error(ImportSchemaError.WrongFileType);
+        }
+
+        const importSchema = ImportSchemaUtils.validateSchemaFromJSON(jsonValidation.data);
+
+        if (!importSchema.isValid) {
+          const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(importSchema.zodIssues);
+          setSchemaErrorLogMeta({
+            fileName: file.name,
+            source: "schema",
+            totalErrors: importSchema.zodIssues.length,
+            entries,
+          });
+          throw new Error(ImportSchemaError.SchemaError);
+        }
+
+        const fields = SchemaHelpers.convertImportSchemaData(importSchema.data.properties, modelId);
+
+        setImportFields(fields);
+
+        return { isValid: true, error: null };
+      } catch (error) {
+        const schemaError =
+          error instanceof Error
+            ? (error.message as ImportSchemaError)
+            : (error as ImportSchemaError);
+        return { isValid: false, error: schemaError };
+      } finally {
+        setDataChecking(false);
       }
-
-      if (fileList.length > 1) {
-        raiseSingleFileAlert();
-        throw new Error(ImportSchemaError.SingleFile);
-      }
-
-      setFileList([file]);
-
-      if (file.size === 0) {
-        raiseIllegalFileAlert();
-        throw new Error(ImportSchemaError.EmptyFile);
-      }
-
-      const content = await FileUtils.parseTextFile(file);
-
-      const jsonValidation = await ObjectUtils.safeJSONParse<ImportSchema>(content);
-
-      if (ObjectUtils.isEmpty(jsonValidation)) {
-        raiseIllegalFileAlert();
-        throw new Error(ImportSchemaError.EmptyFile);
-      }
-
-      setAlertList([]);
-      setSchemaErrorLogMeta(null);
-
-      if (!jsonValidation.isValid) {
-        raiseIllegalFileAlert();
-        throw new Error(ImportSchemaError.InvalidJson);
-      }
-
-      if (Array.isArray(jsonValidation.data)) {
-        raiseWrongFileTypeAlert();
-        throw new Error(ImportSchemaError.WrongFileType);
-      }
-
-      const importSchema = ImportSchemaUtils.validateSchemaFromJSON(jsonValidation.data);
-
-      if (!importSchema.isValid) {
-        const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(importSchema.zodIssues);
-        setSchemaErrorLogMeta({
-          fileName: file.name,
-          source: "schema",
-          totalErrors: importSchema.zodIssues.length,
-          entries,
-        });
-        throw new Error(ImportSchemaError.SchemaError);
-      }
-
-      const fields = SchemaHelpers.convertImportSchemaData(importSchema.data.properties, modelId);
-
-      setImportFields(fields);
-
-      return { isValid: true, error: null };
-    } catch (error) {
-      const schemaError =
-        error instanceof Error
-          ? (error.message as ImportSchemaError)
-          : (error as ImportSchemaError);
-      return { isValid: false, error: schemaError };
-    } finally {
-      setDataChecking(false);
-    }
-  };
+    },
+    [
+      modelId,
+      raiseIllegalFileAlert,
+      raiseIllegalFileFormatAlert,
+      raiseSingleFileAlert,
+      raiseWrongFileTypeAlert,
+    ],
+  );
 
   const handleImportSchemaFileRemove: UploadProps["onRemove"] = () => {
     setFileList([]);
