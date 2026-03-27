@@ -729,24 +729,8 @@ export class ContentPage extends BasePage {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
   }
 
-  get importContentErrorTitle(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle);
-  }
-
-  get importContentErrorDescription(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription);
-  }
-
-  get importContentErrorHint(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint);
-  }
-
   get importContentGoBackButton(): Locator {
-    return this.getByRole("button", { name: "Go Back" });
-  }
-
-  get importContentImportAnywayButton(): Locator {
-    return this.getByRole("button", { name: "Import Anyway" });
+    return this.getByRole("button", { name: /go back/i });
   }
 
   get uploadSuccessNotification(): Locator {

@@ -8,23 +8,21 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import {
-  UploadFile,
-  UploadFile as RawUploadFile,
-  UploadProps,
-} from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdToken } from "@reearth-cms/utils/style";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "../fieldTypes";
 import { CreateFieldInput, ImportFieldInput } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
+import SchemaErrorLogStep from "./SchemaErrorLogStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
 
 type Props = {
@@ -36,7 +34,7 @@ type Props = {
   fieldsCreationLoading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
-  fileList: RawUploadFile[];
+  fileList: UploadFile[];
   alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
@@ -66,6 +64,7 @@ type Props = {
   onSelectFile: () => void;
   onSelectFileModalCancel: () => void;
   onModalClose: () => void;
+  schemaErrorLogMeta: ErrorLogMeta | null;
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
@@ -85,6 +84,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   onModalClose,
+  schemaErrorLogMeta,
   dataChecking,
   onFileContentChange,
   onFileRemove,
@@ -142,7 +142,7 @@ const ImportSchemaModal: React.FC<Props> = ({
 
   const stepComponents = [
     {
-      title: "Select file",
+      title: t("Select file"),
       content: (
         <FileSelectionStep
           fileList={fileList}
@@ -154,7 +154,11 @@ const ImportSchemaModal: React.FC<Props> = ({
       ),
     },
     {
-      title: "Schema preview",
+      title: t("Error log"),
+      content: <SchemaErrorLogStep errorLogMeta={schemaErrorLogMeta} />,
+    },
+    {
+      title: t("Schema preview"),
       content: (
         <SchemaPreviewStep
           fields={fields}
@@ -168,7 +172,7 @@ const ImportSchemaModal: React.FC<Props> = ({
       ),
     },
     {
-      title: "Importing",
+      title: t("Importing"),
       content: (
         <ImportingStep
           fieldsCreationLoading={fieldsCreationLoading}
@@ -188,10 +192,23 @@ const ImportSchemaModal: React.FC<Props> = ({
       open={visible}
       onCancel={onModalClose}
       maskClosable={false}
-      width="70vw"
+      width={CustomToken.MODAL.WIDTH_MD}
       footer={
         <>
-          {currentPage === 1 && (
+          {currentPage === 1 && schemaErrorLogMeta && (
+            <Flex justify="space-between">
+              <FooterActionButton
+                icon={<Icon icon="download" />}
+                type="text"
+                onClick={() => ImportErrorLogUtils.downloadErrorLog(schemaErrorLogMeta)}>
+                {t("Download error log")}
+              </FooterActionButton>
+              <FooterActionButton type="default" onClick={toFileSelectionStep}>
+                {t("Go back")}
+              </FooterActionButton>
+            </Flex>
+          )}
+          {currentPage === 2 && (
             <Flex justify="space-between">
               <Button
                 type="default"
@@ -227,9 +244,7 @@ const ImportSchemaModal: React.FC<Props> = ({
         </>
       }
       styles={{
-        body: {
-          height: "70vh",
-        },
+        body: { height: CustomToken.MODAL.HEIGHT_LG },
       }}>
       <>
         <HiddenSteps current={currentPage} items={items} />
@@ -265,4 +280,8 @@ const FieldTypeLabel = styled.div`
   align-items: center;
   gap: ${AntdToken.SPACING.XS}px;
   font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+`;
+
+const FooterActionButton = styled(Button)`
+  text-transform: capitalize;
 `;
