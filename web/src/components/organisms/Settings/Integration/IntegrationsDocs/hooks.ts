@@ -9,7 +9,8 @@ export default () => {
   const [currentWorkspace] = useWorkspace();
   const [specContent, setSpecContent] = useState<OpenApiSpec>();
 
-  const specUrl = `${window.REEARTH_CONFIG?.api}/openapi.json`;
+  const apiBase = window.REEARTH_CONFIG?.api;
+  const specUrl = apiBase ? `${apiBase}/openapi.json` : "";
 
   const workspaceId = useMemo<string>(
     () => currentWorkspace?.alias || currentWorkspace?.id || "",
