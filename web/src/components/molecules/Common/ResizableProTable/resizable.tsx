@@ -1,20 +1,22 @@
 import styled from "@emotion/styled";
+import { forwardRef } from "react";
 import { Resizable } from "react-resizable";
 import type { ResizeCallbackData } from "react-resizable";
 
 export type { ResizeCallbackData } from "react-resizable";
 
-export const ResizableTitle = (
+export const ResizableTitle = forwardRef<
+  HTMLTableCellElement,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: React.HTMLAttributes<any> & {
+  React.HTMLAttributes<any> & {
     onResize: (e: React.SyntheticEvent<Element>, data: ResizeCallbackData) => void;
     width: number;
     minWidth: number;
-  },
-) => {
+  }
+>((props, ref) => {
   const { onResize, width, minWidth, ...restProps } = props;
   if (!width) {
-    return <th {...restProps} />;
+    return <th ref={ref} {...restProps} />;
   }
 
   return (
@@ -32,10 +34,10 @@ export const ResizableTitle = (
       }
       onResize={onResize}
       draggableOpts={{ enableUserSelectHack: false }}>
-      <th {...restProps} />
+      <th ref={ref} {...restProps} />
     </StyledResizable>
   );
-};
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StyledResizable = styled(Resizable as any)`

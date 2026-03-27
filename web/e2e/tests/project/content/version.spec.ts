@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { stateColors } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
@@ -16,14 +17,13 @@ function getRgb(colorCode: string) {
   ).replaceAll(",", ", ")})`;
 }
 
-test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
-  await fieldEditorPage.fieldTypeButton("Text").click();
-  await schemaPage.handleFieldForm(fieldName);
+  await fieldEditorPage.createField(SchemaFieldType.Text, fieldName);
   await projectPage.contentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput(fieldName).fill("1");

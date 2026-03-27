@@ -1,7 +1,7 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -222,7 +222,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
               });
 
               if (result.error || !result.data?.createAssetUpload) {
-                Notification.error({ message: t("Failed to add one or more assets.") });
+                Notification.error({ title: t("Failed to add one or more assets.") });
                 handleUploadModalCancel();
                 return undefined;
               }
@@ -246,7 +246,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                 },
               }).then(result => {
                 if (result.error || !result.data?.createAsset) {
-                  Notification.error({ message: t("Failed to add one or more assets.") });
+                  Notification.error({ title: t("Failed to add one or more assets.") });
                   return undefined;
                 }
                 return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
@@ -257,12 +257,12 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
         if (results?.length > 0) {
           handleUploadModalCancel();
-          Notification.success({ message: t("Successfully added one or more assets!") });
+          Notification.success({ title: t("Successfully added one or more assets!") });
           await refetch();
         }
       } catch (e) {
         console.error("upload error", e);
-        Notification.error({ message: t("Failed to add one or more assets.") });
+        Notification.error({ title: t("Failed to add one or more assets.") });
       } finally {
         setUploading(false);
       }
@@ -294,12 +294,12 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
         });
         if (result.data?.createAsset) {
           handleUploadModalCancel();
-          Notification.success({ message: t("Successfully added asset!") });
+          Notification.success({ title: t("Successfully added asset!") });
           await refetch();
           return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
         }
       } catch {
-        Notification.error({ message: t("Failed to add asset.") });
+        Notification.error({ title: t("Failed to add asset.") });
       } finally {
         setUploading(false);
       }
@@ -315,11 +315,11 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
         variables: { assetIds },
       });
       if (result.error || !result.data?.deleteAssets) {
-        Notification.error({ message: t("Failed to delete one or more assets.") });
+        Notification.error({ title: t("Failed to delete one or more assets.") });
         return;
       }
       await refetch();
-      Notification.success({ message: t("One or more assets were successfully deleted!") });
+      Notification.success({ title: t("One or more assets were successfully deleted!") });
       setSelection({ selectedRowKeys: [] });
     },
     [t, deleteAssetsMutation, refetch, projectId],
@@ -410,19 +410,19 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
     if (failedAssets.length === selected.length) {
       Notification.error({
-        message: t("All downloads failed"),
+        title: t("All downloads failed"),
         description: failedAssets.join(", "),
       });
     } else if (failedAssets.length > 0) {
       Notification.warning({
-        message: t("Some downloads failed"),
+        title: t("Some downloads failed"),
         description: t(
           `Success: ${selected.length - failedAssets.length}, Failed: ${failedAssets.join(", ")}`,
         ),
       });
     } else {
       Notification.success({
-        message: t("All downloads completed successfully"),
+        title: t("All downloads completed successfully"),
       });
     }
   };

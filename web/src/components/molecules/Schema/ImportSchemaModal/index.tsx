@@ -187,7 +187,7 @@ const ImportSchemaModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onModalClose}
-      maskClosable={false}
+      mask={{ closable: false }}
       width="70vw"
       footer={
         <>

@@ -3,6 +3,7 @@ import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import WebhookList from ".";
 
@@ -47,11 +48,16 @@ describe("Webhook list", () => {
       />,
     );
 
-    const createButtons = screen.getAllByRole("button", { name: "plusNew Webhook" });
-    expect(createButtons.length).toBe(2);
+    const newWebhookButton = screen.getByTestId(DATA_TEST_ID.WebhookList__NewWebhookButton);
+    const emptyNewWebhookButton = screen.getByTestId(
+      DATA_TEST_ID.WebhookList__EmptyNewWebhookButton,
+    );
 
-    await user.click(createButtons[0]);
-    await user.click(createButtons[1]);
+    expect(newWebhookButton).toBeVisible();
+    expect(emptyNewWebhookButton).toBeVisible();
+
+    await user.click(newWebhookButton);
+    await user.click(emptyNewWebhookButton);
 
     expect(onShowFormMock).toHaveBeenCalledTimes(2);
   });
@@ -87,7 +93,7 @@ describe("Webhook list", () => {
       />,
     );
 
-    expect(screen.getAllByRole("button", { name: "plusNew Webhook" }).length).toBe(1);
+    expect(screen.getByTestId(DATA_TEST_ID.WebhookList__NewWebhookButton)).toBeVisible();
     expect(screen.getByText(name1)).toBeVisible();
     expect(screen.getByText(name2)).toBeVisible();
   });

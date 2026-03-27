@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction, useMemo } from "react";
+import React, { Dispatch, Key, SetStateAction, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -26,8 +26,8 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import { Field } from "../../Schema/types";
 
 type Props = {
-  commentsPanel: JSX.Element;
-  viewsMenu: JSX.Element;
+  commentsPanel: React.JSX.Element;
+  viewsMenu: React.JSX.Element;
   collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];

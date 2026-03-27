@@ -29,7 +29,7 @@ export default () => {
     variables: { workspaceId: workspaceId ?? "" },
   });
 
-  const defaultSettings: WorkspaceSettings = useMemo(
+  const defaultSettings = useMemo<WorkspaceSettings>(
     () => ({
       tiles: {
         resources: [],
@@ -42,7 +42,7 @@ export default () => {
     [],
   );
 
-  const workspaceSettings: WorkspaceSettings = useMemo(() => {
+  const workspaceSettings = useMemo<WorkspaceSettings>(() => {
     return data?.node
       ? fromGraphQLWorkspaceSettings(data.node as GQLWorkspaceSettings)
       : defaultSettings;
@@ -71,9 +71,9 @@ export default () => {
       });
 
       if (res.error) {
-        Notification.error({ message: t("Failed to update workspace.") });
+        Notification.error({ title: t("Failed to update workspace.") });
       } else {
-        Notification.success({ message: t("Successfully updated workspace!") });
+        Notification.success({ title: t("Successfully updated workspace!") });
       }
       refetch();
     },

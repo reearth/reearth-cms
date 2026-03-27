@@ -10,10 +10,9 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
-
-const { Option } = Select;
 
 type Props = {
   currentRequest: Request;
@@ -37,7 +36,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     return currentRequest?.reviewers.map(reviewer => reviewer.id);
   }, [currentRequest?.reviewers]);
 
-  const reviewers: { label: string; value: string }[] = useMemo(() => {
+  const reviewers = useMemo<{ label: string; value: string }[]>(() => {
     return workspaceUserMembers.map(member => ({
       label: member.user.name,
       value: member.userId,
@@ -52,7 +51,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     toggleViewReviewers(false);
   }, []);
 
-  const handleSubmit: FocusEventHandler<HTMLElement> | undefined = useCallback(async () => {
+  const handleSubmit = useCallback<NonNullable<FocusEventHandler<HTMLElement>>>(async () => {
     const requestId = currentRequest?.id;
     const isEqual =
       JSON.stringify([...defaultValue].sort()) === JSON.stringify([...selectedReviewers].sort());
@@ -88,7 +87,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   return (
     <SideBarWrapper>
       <SidebarCard title={t("State")}>
-        <Badge color={badgeColors[currentRequest.state]} text={t(currentRequest.state)} />
+        <Badge
+          data-testid={DATA_TEST_ID.Request__Details__SideWrapper__Badge}
+          color={badgeColors[currentRequest.state]}
+          text={t(currentRequest.state)}
+        />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
         <StyledSpace>{currentRequest?.createdBy?.name}</StyledSpace>
@@ -112,13 +115,13 @@ const RequestSidebarWrapper: React.FC<Props> = ({
             }
             onChange={value => setSelectedReviewers(value as string[])}
             onBlur={handleSubmit}
-            allowClear>
-            {reviewers.map(reviewer => (
-              <Option key={reviewer.value} label={reviewer.label}>
-                {reviewer.label}
-              </Option>
-            ))}
-          </StyledSelect>
+            allowClear
+            options={reviewers.map(reviewer => ({
+              key: reviewer.value,
+              value: reviewer.value,
+              label: reviewer.label,
+            }))}
+          />
         ) : (
           <ViewReviewers>
             <StyledButton

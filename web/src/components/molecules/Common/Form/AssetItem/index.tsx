@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -11,6 +11,7 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
@@ -165,7 +166,7 @@ const AssetItem: React.FC<Props> = ({
       {value ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
+            <AssetButton $enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <Icon icon="folder" size={AntdToken.FONT.SIZE_HEADING_3} />
               <AssetName>{asset?.fileName ?? value}</AssetName>
             </AssetButton>
@@ -243,13 +244,14 @@ const AssetItem: React.FC<Props> = ({
   );
 };
 
-const AssetButton = styled(Button)<{ enabled?: boolean }>`
+const AssetButton = styled(Button, Constant.TRANSIENT_OPTIONS)<{ $enabled?: boolean }>`
   width: 100px;
   height: 100px;
   border: 1px dashed;
-  border-color: ${({ enabled }) =>
-    enabled ? AntdColor.NEUTRAL.BORDER : AntdColor.NEUTRAL.TEXT_QUATERNARY};
-  color: ${({ enabled }) => (enabled ? AntdColor.NEUTRAL.TEXT : AntdColor.NEUTRAL.TEXT_QUATERNARY)};
+  border-color: ${({ $enabled }) =>
+    $enabled ? AntdColor.NEUTRAL.BORDER : AntdColor.NEUTRAL.TEXT_QUATERNARY};
+  color: ${({ $enabled }) =>
+    $enabled ? AntdColor.NEUTRAL.TEXT : AntdColor.NEUTRAL.TEXT_QUATERNARY};
   padding: 0 5px;
   flex-flow: column;
 `;

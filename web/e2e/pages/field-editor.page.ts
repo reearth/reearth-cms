@@ -374,7 +374,7 @@ export class FieldEditorPage extends BasePage {
 
   // Geometry field specific
   get pointCheckbox(): Locator {
-    return this.getByLabel("Point", { exact: true });
+    return this.getByText("Point", { exact: true });
   }
 
   // Code editor elements
@@ -382,8 +382,8 @@ export class FieldEditorPage extends BasePage {
     return this.locator(".view-lines");
   }
 
-  get editorContent(): Locator {
-    return this.getByLabel("Editor content;Press Alt+F1");
+  editorContent(index = 0): Locator {
+    return this.locator(".monaco-editor").nth(index);
   }
 
   // Delete field button
@@ -498,5 +498,11 @@ export class FieldEditorPage extends BasePage {
     await this.deleteFieldButton.click();
     await this.confirmDeleteFieldButton.click();
     await this.closeNotification();
+  }
+
+  async fillEditorContent(text: string, index?: number): Promise<void> {
+    await this.editorContent(index).click();
+    await this.keyboardType(text, { delay: 100 });
+    await this.page.waitForTimeout(300);
   }
 }

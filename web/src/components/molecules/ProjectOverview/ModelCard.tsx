@@ -191,28 +191,28 @@ const ModelCard: React.FC<Props> = ({
   const ExportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
-        key: "schema",
+        key: "exportSchema",
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
         disabled: exportLoading,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportSchema,
       },
       {
-        key: "json",
+        key: "exportJson",
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
         disabled: exportLoading,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON,
       },
       {
-        key: "csv",
+        key: "exportCsv",
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
         disabled: exportLoading,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV,
       },
       {
-        key: "geojson",
+        key: "exportGeoJson",
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
         disabled: exportLoading,

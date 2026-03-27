@@ -4,6 +4,7 @@ import ReactDragListView from "react-drag-listview";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
+import { Constant } from "@reearth-cms/utils/constant";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {
@@ -49,7 +50,7 @@ const Cards: React.FC<Props> = ({
                 />,
               ]}
               key={resource.id}
-              hasUpdateRight={hasUpdateRight}>
+              $hasUpdateRight={hasUpdateRight}>
               <TitleWrapper>
                 <StyledMeta
                   avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
@@ -74,14 +75,15 @@ const GridArea = styled.div`
   padding-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
-const StyledCard = styled(Card)<{ hasUpdateRight: boolean }>`
+const StyledCard = styled(Card, Constant.TRANSIENT_OPTIONS)<{ $hasUpdateRight: boolean }>`
   .ant-card-actions > li > span {
-    ${({ hasUpdateRight }) => !hasUpdateRight && "cursor: not-allowed;"}
+    ${({ $hasUpdateRight }) => !$hasUpdateRight && "cursor: not-allowed;"}
     > .anticon {
-      ${({ hasUpdateRight }) =>
-        !hasUpdateRight && `cursor: not-allowed; color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
+      ${({ $hasUpdateRight }) =>
+        !$hasUpdateRight && `cursor: not-allowed; color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
       :hover {
-        ${({ hasUpdateRight }) => !hasUpdateRight && `color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
+        ${({ $hasUpdateRight }) =>
+          !$hasUpdateRight && `color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
       }
     }
   }

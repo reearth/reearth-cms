@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import type { IconName } from "@reearth-cms/components/atoms/Icon";
 import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";

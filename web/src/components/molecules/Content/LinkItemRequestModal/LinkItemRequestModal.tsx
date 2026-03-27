@@ -56,12 +56,12 @@ const LinkItemRequestModal: React.FC<Props> = ({
       onChange,
     );
 
-  const columns: StretchColumn<Request>[] = useMemo(
+  const columns = useMemo<StretchColumn<Request>[]>(
     () => [
       {
         title: "",
         hideInSetting: true,
-        fixed: "left",
+        fixed: "start",
         align: "center",
         width: 32,
         minWidth: 32,
@@ -184,7 +184,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
 export default LinkItemRequestModal;
 
 const StyledModal = styled(Modal)`
-  .ant-pro-card-body {
+  .ant-pro-table {
     padding: 0;
 
     .ant-pro-table-list-toolbar {

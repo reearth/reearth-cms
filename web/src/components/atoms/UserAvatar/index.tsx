@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { Constant } from "@reearth-cms/utils/constant";
 import { AntdColor, CustomColor } from "@reearth-cms/utils/style";
 
 import Avatar, { AvatarProps } from "../Avatar";
@@ -13,21 +15,43 @@ type Props = {
 
 const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...props }) => {
   const anonymous = username === "Anonymous";
-  return profilePictureUrl ? (
+  const [isValidImage, setIsValidImage] = useState(false);
+
+  useEffect(() => {
+    if (!profilePictureUrl) {
+      setIsValidImage(false);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => setIsValidImage(true);
+    img.onerror = () => setIsValidImage(false);
+    img.src = profilePictureUrl;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [profilePictureUrl]);
+
+  return isValidImage && profilePictureUrl ? (
     <Avatar src={profilePictureUrl} alt="User avatar" {...props} />
   ) : (
-    <UserAvatarWrapper shadow={shadow} anonymous={anonymous} {...props}>
+    <UserAvatarWrapper $shadow={shadow} $anonymous={anonymous || undefined} {...props}>
       {anonymous ? <Icon icon="user" /> : username?.charAt(0)}
     </UserAvatarWrapper>
   );
 };
 
-const UserAvatarWrapper = styled(Avatar)<{ shadow?: boolean; anonymous?: boolean }>`
+const UserAvatarWrapper = styled(Avatar, Constant.TRANSIENT_OPTIONS)<{
+  $shadow?: boolean;
+  $anonymous?: boolean;
+}>`
   color: ${AntdColor.GREY.GREY_8};
-  background-color: ${({ anonymous }) =>
-    anonymous ? AntdColor.GREY.GREY_0 /* originally #BFBFBF */ : CustomColor.AVATAR_BG};
-  box-shadow: ${({ shadow }) =>
-    shadow ? `0px 4px 4px ${AntdColor.NEUTRAL.TEXT_QUATERNARY}` : "none"};
+  background-color: ${({ $anonymous }) =>
+    $anonymous ? AntdColor.GREY.GREY_0 /* originally #BFBFBF */ : CustomColor.AVATAR_BG};
+  box-shadow: ${({ $shadow }) =>
+    $shadow ? `0px 4px 4px ${AntdColor.NEUTRAL.TEXT_QUATERNARY}` : "none"};
 `;
 
 export default UserAvatar;

@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -101,10 +101,10 @@ export default ({ modelId }: Params) => {
         },
       });
       if (model.error || !model.data?.createModel) {
-        Notification.error({ message: t("Failed to create model.") });
+        Notification.error({ title: t("Failed to create model.") });
         return;
       }
-      Notification.success({ message: t("Successfully created model!") });
+      Notification.success({ title: t("Successfully created model!") });
       setModelModalShown(false);
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${projectId}/schema/${model.data?.createModel.model.id}`,
@@ -126,10 +126,10 @@ export default ({ modelId }: Params) => {
         },
       });
       if (model.error) {
-        Notification.error({ message: t("Failed to update models order.") });
+        Notification.error({ title: t("Failed to update models order.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated models order!") });
+      Notification.success({ title: t("Successfully updated models order!") });
     },
     [updateModelsOrder, t],
   );
@@ -184,10 +184,10 @@ export default ({ modelId }: Params) => {
         },
       });
       if (group.error || !group.data?.createGroup) {
-        Notification.error({ message: t("Failed to create group.") });
+        Notification.error({ title: t("Failed to create group.") });
         return;
       }
-      Notification.success({ message: t("Successfully created group!") });
+      Notification.success({ title: t("Successfully created group!") });
       setGroupModalShown(false);
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${projectId}/schema/${group.data?.createGroup.group.id}`,
@@ -208,10 +208,10 @@ export default ({ modelId }: Params) => {
         },
       });
       if (group.error) {
-        Notification.error({ message: t("Failed to update groups order.") });
+        Notification.error({ title: t("Failed to update groups order.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated groups order!") });
+      Notification.success({ title: t("Successfully updated groups order!") });
     },
     [updateGroupsOrder, t],
   );

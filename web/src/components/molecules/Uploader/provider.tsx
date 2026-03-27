@@ -87,7 +87,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
         !importItemsRes.data ||
         !importItemsRes?.data?.importItemsAsync?.job
       ) {
-        if (importItemsRes.error) Notification.error({ message: importItemsRes.error.message });
+        if (importItemsRes.error) Notification.error({ title: importItemsRes.error.message });
         return;
       }
 
@@ -147,7 +147,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           !importItemsRes.data ||
           !importItemsRes?.data?.importItemsAsync?.job
         ) {
-          Notification.error({ message: "retry failed" });
+          Notification.error({ title: "retry failed" });
           return;
         }
 
@@ -177,7 +177,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
       const findCancelItem = uploaderState.queue.find(item => item.jobId === cancelJobId);
 
       if (!findCancelItem) {
-        Notification.error({ message: "cancel failed, cannot find job id" });
+        Notification.error({ title: "cancel failed, cannot find job id" });
         return;
       }
 
@@ -211,7 +211,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
     try {
       await Promise.all(cancelPromises);
     } catch (_error) {
-      Notification.error({ message: "Cancel all failed" });
+      Notification.error({ title: "Cancel all failed" });
       return;
     }
 

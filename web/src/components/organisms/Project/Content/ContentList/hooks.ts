@@ -1,6 +1,6 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -251,7 +251,7 @@ export default () => {
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
       if (!target || !currentModel?.metadataSchema?.id || !metaFieldsMap) {
-        Notification.error({ message: t("Failed to update item.") });
+        Notification.error({ title: t("Failed to update item.") });
         return;
       } else {
         const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
@@ -299,10 +299,10 @@ export default () => {
           });
           if (requiredErrorFields.length || maxLengthErrorFields.length) {
             requiredErrorFields.forEach(field => {
-              Notification.error({ message: t("{{field}} field is required!", { field }) });
+              Notification.error({ title: t("{{field}} field is required!", { field }) });
             });
             maxLengthErrorFields.forEach(field => {
-              Notification.error({ message: t("Maximum length error", { field }) });
+              Notification.error({ title: t("Maximum length error", { field }) });
             });
             return;
           }
@@ -314,7 +314,7 @@ export default () => {
             },
           });
           if (item.error || !item.data?.updateItem) {
-            Notification.error({ message: t("Failed to update item.") });
+            Notification.error({ title: t("Failed to update item.") });
             return;
           }
         } else {
@@ -331,7 +331,7 @@ export default () => {
             },
           });
           if (metaItem.error || !metaItem.data?.createItem) {
-            Notification.error({ message: t("Failed to update item.") });
+            Notification.error({ title: t("Failed to update item.") });
             return;
           }
           const item = await updateItemMutation({
@@ -346,13 +346,13 @@ export default () => {
             },
           });
           if (item.error || !item.data?.updateItem) {
-            Notification.error({ message: t("Failed to update item.") });
+            Notification.error({ title: t("Failed to update item.") });
             return;
           }
         }
       }
       await metadataVersionSet(updateItemId);
-      Notification.success({ message: t("Successfully updated Item!") });
+      Notification.success({ title: t("Successfully updated Item!") });
     },
     [
       createNewItem,
@@ -419,7 +419,7 @@ export default () => {
     return result;
   }, []);
 
-  const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
+  const contentTableFields = useMemo<ContentTableField[] | undefined>(() => {
     return data?.searchItem.nodes
       ?.map(item =>
         item
@@ -465,13 +465,13 @@ export default () => {
     [userId, userRights?.content.update],
   );
 
-  const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
+  const contentTableColumns = useMemo<ExtendedColumns[] | undefined>(() => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
       dataIndex: ["fields", field.id],
       fieldType: "FIELD" as const,
-      key: field.id,
+      key: ["fields", field.id].toString(),
       ellipsis: true,
       type: field.type,
       typeProperty: field.typeProperty,
@@ -481,6 +481,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      defaultSortOrder: sortOrderGet(field.id),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
@@ -490,7 +491,7 @@ export default () => {
         title: renderTitle(field),
         dataIndex: ["metadata", field.id],
         fieldType: "META_FIELD" as const,
-        key: field.id,
+        key: ["metadata", field.id].toString(),
         ellipsis: true,
         type: field.type,
         typeProperty: field.typeProperty,
@@ -500,6 +501,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        defaultSortOrder: sortOrderGet(field.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
@@ -585,10 +587,10 @@ export default () => {
           refetchQueries: ["SearchItem"],
         });
         if (result.error || !result.data?.deleteItems) {
-          Notification.error({ message: t("Failed to delete one or more items.") });
+          Notification.error({ title: t("Failed to delete one or more items.") });
           return;
         }
-        Notification.success({ message: t("One or more items were successfully deleted!") });
+        Notification.success({ title: t("One or more items were successfully deleted!") });
         setSelectedItems({ selectedRows: [] });
       })(),
     [t, deleteItemsMutation],

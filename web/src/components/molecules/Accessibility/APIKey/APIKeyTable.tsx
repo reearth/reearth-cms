@@ -75,7 +75,7 @@ const APIKeyTable: React.FC<Props> = ({
     [confirmDelete, hasUpdateRight, hasDeleteRight, onAPIKeyEdit, t],
   );
 
-  const columns: TableColumnsType<APIKeyModelType> = useMemo(
+  const columns = useMemo<TableColumnsType<APIKeyModelType>>(
     () => [
       {
         key: "name",
