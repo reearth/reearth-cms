@@ -15,27 +15,35 @@ import (
 
 func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.Container, ag *accountgateway.Container, config interactor.ContainerConfig) echo.MiddlewareFunc {
 	return ContextMiddleware(func(ctx context.Context) context.Context {
-		var r2 *repo.Container
-		var ar2 *accountrepo.Container
-		op := adapter.Operator(ctx)
-		if r != nil {
-			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
-		} else {
-			r2 = r
-		}
-		if op != nil {
-			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
-		} else {
-			ar2 = ar
-		}
-
-		uc := interactor.New(r2, g, ar2, ag, config)
-		ctx = adapter.AttachAcRepos(ctx, ar2)
-		ctx = adapter.AttachUsecases(ctx, &uc)
-		ctx = adapter.AttachGateways(ctx, g)
-		ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Workspace, r2.Project, &uc))
-		return ctx
+		return attachUsecases(ctx, r, g, ar, ag, config)
 	})
+}
+
+func attachUsecases(ctx context.Context, r *repo.Container, g *gateway.Container, ar *accountrepo.Container, ag *accountgateway.Container, config interactor.ContainerConfig) context.Context {
+	var r2 *repo.Container
+	var ar2 *accountrepo.Container
+	op := adapter.Operator(ctx)
+	if r != nil {
+		r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
+	} else {
+		r2 = r
+	}
+	if op != nil {
+		ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
+	} else {
+		ar2 = ar
+	}
+
+	uc := interactor.New(r2, g, ar2, ag, config)
+	ctx = adapter.AttachAcRepos(ctx, ar2)
+	ctx = adapter.AttachUsecases(ctx, &uc)
+	ctx = adapter.AttachGateways(ctx, g)
+	var publicProject repo.Project
+	if r != nil {
+		publicProject = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilter{}).Project
+	}
+	ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Workspace, publicProject, &uc))
+	return ctx
 }
 
 func ContextMiddleware(fn func(ctx context.Context) context.Context) echo.MiddlewareFunc {

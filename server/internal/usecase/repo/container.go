@@ -117,13 +117,14 @@ func (f WorkspaceFilter) CanWrite(id accountdomain.WorkspaceID) bool {
 }
 
 type ProjectFilter struct {
-	Readable project.IDList
-	Writable project.IDList
+	Readable   project.IDList
+	Writable   project.IDList
+	PublicOnly bool
 }
 
 func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
 	if o == nil {
-		return ProjectFilter{Readable: project.IDList{}}
+		return ProjectFilter{PublicOnly: true}
 	}
 	if o.Machine {
 		return ProjectFilter{
@@ -138,8 +139,9 @@ func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
 
 func (f ProjectFilter) Clone() ProjectFilter {
 	return ProjectFilter{
-		Readable: f.Readable.Clone(),
-		Writable: f.Writable.Clone(),
+		Readable:   f.Readable.Clone(),
+		Writable:   f.Writable.Clone(),
+		PublicOnly: f.PublicOnly,
 	}
 }
 
@@ -160,8 +162,9 @@ func (f ProjectFilter) Merge(g ProjectFilter) ProjectFilter {
 		}
 	}
 	return ProjectFilter{
-		Readable: r,
-		Writable: w,
+		Readable:   r,
+		Writable:   w,
+		PublicOnly: f.PublicOnly || g.PublicOnly,
 	}
 }
 

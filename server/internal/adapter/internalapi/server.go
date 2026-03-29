@@ -166,10 +166,6 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
-	if req.PublicOnly {
-		f.Visibility = lo.ToPtr(project.VisibilityPublic)
-	}
-
 	wIds := lo.FilterMap(req.WorkspaceIds, func(wid string, _ int) (accountdomain.WorkspaceID, bool) {
 		wId, err := accountdomain.WorkspaceIDFrom(wid)
 		if err != nil {
@@ -177,6 +173,9 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		}
 		return wId, true
 	})
+	if req.PublicOnly || len(wIds) == 0 {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	}
 
 	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
 

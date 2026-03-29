@@ -91,28 +91,32 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 }
 
 func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
-	filter := bson.M{}
+	conditions := bson.A{}
 
 	if f.Visibility != nil {
-		filter["accessibility.visibility"] = f.Visibility.String()
+		if *f.Visibility == project.VisibilityPublic {
+			conditions = append(conditions, publicVisibilityFilter())
+		} else {
+			conditions = append(conditions, bson.M{"accessibility.visibility": f.Visibility.String()})
+		}
 	}
 
 	if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
-		filter["workspace"] = bson.M{
+		conditions = append(conditions, bson.M{"workspace": bson.M{
 			"$in": f.WorkspaceIds.Strings(),
-		}
+		}})
 	}
 
 	if f.Keyword != nil && *f.Keyword != "" {
 		p := fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*f.Keyword))
 		regx := bson.M{"$regex": primitive.Regex{Pattern: p, Options: "i"}}
-		filter["$or"] = bson.A{
+		conditions = append(conditions, bson.M{"$or": bson.A{
 			bson.M{"name": regx},
 			bson.M{"alias": regx},
 			bson.M{"description": regx},
 			bson.M{"topics": regx},
 			bson.M{"id": *f.Keyword},
-		}
+		}})
 	}
 
 	if len(f.Topics) > 0 {
@@ -120,7 +124,17 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 		for i, topic := range f.Topics {
 			regexPatterns[i] = primitive.Regex{Pattern: fmt.Sprintf("^%s$", regexp.QuoteMeta(topic)), Options: "i"}
 		}
-		filter["topics"] = bson.M{"$all": regexPatterns}
+		conditions = append(conditions, bson.M{"topics": bson.M{"$all": regexPatterns}})
+	}
+
+	var filter any
+	switch len(conditions) {
+	case 0:
+		filter = bson.M{}
+	case 1:
+		filter = conditions[0]
+	default:
+		filter = bson.M{"$and": conditions}
 	}
 
 	return r.paginate(ctx, filter, f.Sort, f.Pagination)
@@ -210,7 +224,7 @@ func (r *ProjectRepo) findOne(ctx context.Context, filter any, options ...*optio
 	return c.Result[0], nil
 }
 
-func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, s *usecasex.Sort, p *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) paginate(ctx context.Context, filter any, s *usecasex.Sort, p *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewProjectConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), s, p, c)
 	if err != nil {
@@ -234,19 +248,25 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 
 func (r *ProjectRepo) readFilter(filter any) any {
 	filter = applyWorkspaceFilter(filter, r.f.Readable)
-	if r.pf.Readable != nil {
-		if len(r.pf.Readable) > 0 {
-			// public projects OR private projects the operator explicitly has access to
-			visibilityFilter := bson.M{"$or": bson.A{
-				bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
-				bson.M{"id": bson.M{"$in": r.pf.Readable.Strings()}},
-			}}
-			filter = bson.M{"$and": bson.A{filter, visibilityFilter}}
-		} else {
-			filter = mongox.And(filter, "accessibility.visibility", project.VisibilityPublic.String())
-		}
+	if r.pf.PublicOnly {
+		// null accessibility defaults to public, so include those too
+		filter = bson.M{"$and": bson.A{filter, publicVisibilityFilter()}}
+	} else if r.pf.Readable != nil {
+		// public projects OR private projects the operator explicitly has access to
+		visibilityFilter := bson.M{"$or": bson.A{
+			publicVisibilityFilter(),
+			bson.M{"id": bson.M{"$in": r.pf.Readable.Strings()}},
+		}}
+		filter = bson.M{"$and": bson.A{filter, visibilityFilter}}
 	}
 	return filter
+}
+
+func publicVisibilityFilter() bson.M {
+	return bson.M{"$or": bson.A{
+		bson.M{"accessibility": nil},
+		bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
+	}}
 }
 
 func (r *ProjectRepo) writeFilter(filter any) any {
