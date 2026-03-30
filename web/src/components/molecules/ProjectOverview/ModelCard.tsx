@@ -1,12 +1,9 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Notification from "@reearth-cms/components/atoms/Notification";
-import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
@@ -32,7 +29,11 @@ export type Props = {
   onImportContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
-  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
+  onModelExport: (
+    modelId?: string,
+    format?: ExportFormat,
+    geometryFieldsCount?: number,
+  ) => Promise<void>;
 };
 
 const ModelCard: React.FC<Props> = ({
@@ -59,112 +60,14 @@ const ModelCard: React.FC<Props> = ({
     [model.schema.fields],
   );
 
-  const handleCSVExport = useCallback(
-    async (exportType: ExportFormat) => {
-      const key = `csv-export-${Date.now()}`;
-      Notification.open({
-        key,
-        type: "warning",
-        message: t("Export as CSV"),
-        description: (
-          <ModalContent>
-            <span>{t("CSV export only supports simple fields (text, number, date).")}</span>
-            <span>{t("Relations, arrays, objects, and geometry fields are not included.")}</span>
-            <span>
-              {t("For a complete export with all fields, please use the JSON export option.")}
-            </span>
-          </ModalContent>
-        ),
-        btn: (
-          <Space>
-            <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
-            <Button
-              type="primary"
-              onClick={async () => {
-                Notification.destroy(key);
-                await onModelExport(model.id, exportType);
-              }}>
-              {t("Export CSV")}
-            </Button>
-          </Space>
-        ),
-        duration: 0,
-      });
-    },
-    [model.id, onModelExport, t],
-  );
-
-  const getGeometryFieldsCount = useCallback(() => {
-    return (
+  const getGeometryFieldsCount = useMemo(
+    () =>
       model.schema?.fields?.filter(
         field =>
           field.type === SchemaFieldType.GeometryEditor ||
           field.type === SchemaFieldType.GeometryObject,
-      ).length ?? 0
-    );
-  }, [model.schema?.fields]);
-
-  const handleGeoJSONExport = useCallback(
-    async (exportType: ExportFormat) => {
-      const geoFieldsCount = getGeometryFieldsCount();
-      if (geoFieldsCount === 0) {
-        Notification.error({
-          message: t("Cannot export GeoJSON"),
-          description: t(
-            "No Geometry field was found in this model, so GeoJSON export is not available.",
-          ),
-          duration: 0,
-        });
-      } else if (geoFieldsCount > 1) {
-        const key = `geojson-export-${Date.now()}`;
-        Notification.open({
-          key,
-          type: "warning",
-          message: t("Multiple Geometry fields detected"),
-          description: (
-            <ModalContent>
-              <span>{t("This model has multiple Geometry fields.")}</span>
-              <span>{t("GeoJSON format supports only one geometry field.")}</span>
-              <span>
-                {t(
-                  "Only the first Geometry field will be exported. Please adjust your data if needed.",
-                )}
-              </span>
-            </ModalContent>
-          ),
-          btn: (
-            <Space>
-              <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
-              <Button
-                type="primary"
-                onClick={async () => {
-                  Notification.destroy(key);
-                  await onModelExport(model.id, exportType);
-                }}>
-                {t("Export Anyway")}
-              </Button>
-            </Space>
-          ),
-          duration: 0,
-        });
-      } else {
-        await onModelExport(model.id, exportType);
-      }
-    },
-    [getGeometryFieldsCount, model.id, onModelExport, t],
-  );
-
-  const handleModelExportClick = useCallback(
-    async (exportType: ExportFormat) => {
-      if (exportType === ExportFormat.Csv) {
-        await handleCSVExport(exportType);
-      } else if (exportType === ExportFormat.Geojson) {
-        await handleGeoJSONExport(exportType);
-      } else {
-        await onModelExport(model.id, exportType);
-      }
-    },
-    [handleCSVExport, handleGeoJSONExport, model.id, onModelExport],
+      ).length ?? 0,
+    [model.schema?.fields],
   );
 
   const getImportSchemaUIMetadata = useMemo(
@@ -230,14 +133,17 @@ const ModelCard: React.FC<Props> = ({
             <span>{t("Export Schema")}</span>
           </Tooltip>
         ),
-        onClick: () => handleModelExportClick(ExportFormat.Schema),
+        onClick: () => onModelExport(model.id, ExportFormat.Schema),
         disabled: getExportSchemaUIMetadata.shouldDisable,
         "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportSchema,
       },
       {
         key: "content",
         label: (
-          <Tooltip title={getExportContentUIMetadata.tooltipMessage}>{t("Export content")}</Tooltip>
+          <Tooltip title={getExportContentUIMetadata.tooltipMessage}>
+            {exportLoading && <StyledInlineIcon icon="loading" />}
+            <span>{t("Export content")}</span>
+          </Tooltip>
         ),
         "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContent,
         disabled: getExportContentUIMetadata.shouldDisable,
@@ -245,19 +151,19 @@ const ModelCard: React.FC<Props> = ({
           {
             key: t("JSON"),
             label: t("JSON"),
-            onClick: () => handleModelExportClick(ExportFormat.Json),
+            onClick: () => onModelExport(model.id, ExportFormat.Json),
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentJSON,
           },
           {
             key: t("CSV"),
             label: t("CSV"),
-            onClick: () => handleModelExportClick(ExportFormat.Csv),
+            onClick: () => onModelExport(model.id, ExportFormat.Csv),
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentCSV,
           },
           {
             key: t("GeoJSON"),
             label: t("GeoJSON"),
-            onClick: () => handleModelExportClick(ExportFormat.Geojson),
+            onClick: () => onModelExport(model.id, ExportFormat.Geojson, getGeometryFieldsCount),
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON,
           },
         ],
@@ -270,7 +176,9 @@ const ModelCard: React.FC<Props> = ({
       exportLoading,
       getExportContentUIMetadata.tooltipMessage,
       getExportContentUIMetadata.shouldDisable,
-      handleModelExportClick,
+      onModelExport,
+      model.id,
+      getGeometryFieldsCount,
     ],
   );
 
@@ -353,8 +261,6 @@ const StyledCard = styled(Card)`
     word-break: break-all;
   }
 `;
-
-const ModalContent = styled.p``;
 
 const StyledExperimentIcon = styled(ExperimentIcon)`
   margin-right: ${AntdToken.SPACING.XS}px;

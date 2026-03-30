@@ -175,8 +175,6 @@ const Schema: React.FC<Props> = ({
     [hasCreateRight, hasModelFields, tab, selectedSchemaType],
   );
 
-  console.log("hasModelFields", hasModelFields);
-
   const getExportSchemaUIMetadata = useMemo(
     () => ExportSchemaUtils.getUIMetadata({ hasModelFields, isExportLoading: exportSchemaLoading }),
     [exportSchemaLoading, hasModelFields],

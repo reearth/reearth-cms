@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   CreateFieldInput,
   Field,
@@ -49,6 +49,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
+import { useExportContent } from "../hooks/useExportContent";
 import { useExportSchema } from "../hooks/useExportSchema";
 
 export default () => {
@@ -140,12 +141,22 @@ export default () => {
   const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
 
   const { handleExportSchema, exportSchemaLoading } = useExportSchema();
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
 
   const handleSchemaExport = useCallback(async () => {
     const modelId = data?.id;
     if (!modelId) return;
     await handleExportSchema(modelId);
   }, [data?.id, handleExportSchema]);
+
+  const handleContentExport = useCallback(
+    async (format: ExportFormat, geometryFieldsCount?: number) => {
+      const modelId = data?.id;
+      if (!modelId) return;
+      await handleContentExportClick(modelId, format, geometryFieldsCount);
+    },
+    [data?.id, handleContentExportClick],
+  );
 
   useEffect(() => {
     if (!schemaId && currentModel) {
@@ -708,5 +719,7 @@ export default () => {
     hasDeleteRight,
     handleSchemaExport,
     exportSchemaLoading,
+    handleContentExport,
+    exportContentLoading,
   };
 };

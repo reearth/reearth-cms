@@ -16,7 +16,7 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
 import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
@@ -36,6 +36,7 @@ import {
   toGraphConditionInput,
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+import { useExportContent } from "@reearth-cms/components/organisms/Project/hooks/useExportContent";
 import {
   Item as GQLItem,
   Comment as GQLComment,
@@ -98,6 +99,15 @@ export default () => {
   } = useContentHooks();
   const t = useT();
   const { handleEnqueueJob, uploaderState } = useUploaderHook();
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
+
+  const handleContentExport = useCallback(
+    async (format: ExportFormat, geometryFieldsCount?: number) => {
+      if (!currentModel?.id) return;
+      await handleContentExportClick(currentModel.id, format, geometryFieldsCount);
+    },
+    [currentModel?.id, handleContentExportClick],
+  );
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -766,6 +776,8 @@ export default () => {
     currentWorkspaceId,
     currentProjectId,
     hasModelFields,
+    handleContentExport,
+    exportContentLoading,
     alertList,
     setAlertList,
     validateImportResult,
