@@ -7,6 +7,8 @@ import (
 	"github.com/reearth/reearth-accounts/server/pkg/gqlclient"
 	"github.com/reearth/reearth-accounts/server/pkg/gqlclient/cerbos"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 )
 
 type authorizationGateway struct {
@@ -19,14 +21,15 @@ func NewAuthorization(host string, timeout int, transport http.RoundTripper) gat
 	}
 }
 
-func (a *authorizationGateway) CheckPermission(ctx context.Context, resource string, action string, workspaceAlias ...string) (bool, error) {
+func (a *authorizationGateway) CheckPermission(ctx context.Context, resource rbac.Resource, action rbac.Action, workspaceID *workspace.ID) (bool, error) {
 	param := cerbos.CheckPermissionParam{
 		Service:  "cms",
 		Resource: resource,
 		Action:   action,
 	}
-	if len(workspaceAlias) > 0 {
-		param.WorkspaceAlias = &workspaceAlias[0]
+	if workspaceID != nil {
+		alias := workspaceID.String()
+		param.WorkspaceAlias = &alias
 	}
 
 	result, err := a.client.CerbosRepo.CheckPermission(ctx, param)

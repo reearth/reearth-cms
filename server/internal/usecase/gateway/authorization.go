@@ -2,11 +2,14 @@ package gateway
 
 import (
 	"context"
+
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 )
 
 // Authorization handles permission checks via Cerbos
 type Authorization interface {
 	// CheckPermission checks if the principal can perform the action on the resource.
-	// workspaceAlias is optional; if provided, the first value is used.
-	CheckPermission(ctx context.Context, resource string, action string, workspaceAlias ...string) (bool, error)
+	// workspaceID is optional; if nil, no workspace filter is applied.
+	CheckPermission(ctx context.Context, resource rbac.Resource, action rbac.Action, workspaceID *workspace.ID) (bool, error)
 }

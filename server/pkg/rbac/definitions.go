@@ -5,6 +5,12 @@ import (
 	"github.com/samber/lo"
 )
 
+// Resource represents a Cerbos resource type.
+type Resource = string
+
+// Action represents a Cerbos action.
+type Action = string
+
 const (
 	ServiceName   = "cms"
 	PolicyFileDir = "policies"

@@ -9,6 +9,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	rbac "github.com/reearth/reearth-cms/server/pkg/rbac"
+	workspace "github.com/reearth/reearthx/account/accountdomain/workspace"
 )
 
 // MockAuthorization is a mock of Authorization interface.
@@ -35,21 +37,16 @@ func (m *MockAuthorization) EXPECT() *MockAuthorizationMockRecorder {
 }
 
 // CheckPermission mocks base method.
-func (m *MockAuthorization) CheckPermission(ctx context.Context, resource, action string, workspaceAlias ...string) (bool, error) {
+func (m *MockAuthorization) CheckPermission(ctx context.Context, resource rbac.Resource, action rbac.Action, workspaceID *workspace.ID) (bool, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, resource, action}
-	for _, a := range workspaceAlias {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CheckPermission", varargs...)
+	ret := m.ctrl.Call(m, "CheckPermission", ctx, resource, action, workspaceID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CheckPermission indicates an expected call of CheckPermission.
-func (mr *MockAuthorizationMockRecorder) CheckPermission(ctx, resource, action interface{}, workspaceAlias ...interface{}) *gomock.Call {
+func (mr *MockAuthorizationMockRecorder) CheckPermission(ctx, resource, action, workspaceID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, resource, action}, workspaceAlias...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPermission", reflect.TypeOf((*MockAuthorization)(nil).CheckPermission), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPermission", reflect.TypeOf((*MockAuthorization)(nil).CheckPermission), ctx, resource, action, workspaceID)
 }
