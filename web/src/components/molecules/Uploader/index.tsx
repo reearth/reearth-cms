@@ -207,16 +207,20 @@ const Uploader: React.FC<Props> = props => {
           <Title data-testid={DATA_TEST_ID.Uploader__CardTitle}>{titleMessage}</Title>
           <TitleSuffix data-testid={DATA_TEST_ID.Uploader__CardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
-              <span>
-                <CloseIcon icon="down" onClick={() => void handleUploaderOpen(false)} />
-              </span>
+              <IconButton
+                data-testid={DATA_TEST_ID.Uploader__MinimizeIcon}
+                aria-label={t("Minimize")}
+                onClick={() => void handleUploaderOpen(false)}>
+                <CloseIcon icon="down" />
+              </IconButton>
             </Tooltip>
             <Tooltip title={t("Close")}>
-              <span
+              <IconButton
                 data-testid={DATA_TEST_ID.Uploader__CancelAllIcon}
+                aria-label={t("Close")}
                 onClick={() => void _handleCancelAll()}>
                 <CancelAllIcon icon="close" />
-              </span>
+              </IconButton>
             </Tooltip>
           </TitleSuffix>
         </CardHead>
@@ -306,6 +310,23 @@ const TitleSuffix = styled.div`
   display: flex;
   color: ${AntdColor.GREY.GREY_2};
   gap: ${AntdToken.SPACING.XS}px;
+`;
+
+const IconButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  line-height: 1;
+
+  :focus-visible {
+    outline: 2px solid ${AntdColor.BLUE.BLUE_5};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `;
 
 const CloseIcon = styled(Icon)`

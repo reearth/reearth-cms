@@ -233,6 +233,7 @@ export enum DATA_TEST_ID {
   Uploader__CardTitle = "Uploader__CardTitle",
   Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
   Uploader__CancelAllIcon = "Uploader__CancelAllIcon",
+  Uploader__MinimizeIcon = "Uploader__MinimizeIcon",
   Uploader__CompleteIcon = "Uploader__CompleteIcon",
   Uploader__CancelModal__Title = "Uploader__CancelModal__Title",
   Uploader__CancelModal__CancelUploadButton = "Uploader__CancelModal__CancelUploadButton",
@@ -329,6 +330,9 @@ export enum DATA_TEST_ID {
 
   // Request/Details/SideWrapper
   Request__Details__SideWrapper__Badge = "Request__Details__SideWrapper__Badge",
+
+  // ApiDocs
+  ApiDocs__ApiDocsWrapper = "ApiDocs__ApiDocsWrapper",
 }
 
 export enum TEST_CLASS {

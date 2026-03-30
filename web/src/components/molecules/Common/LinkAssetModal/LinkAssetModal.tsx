@@ -19,7 +19,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
-import { AntdToken } from "@reearth-cms/utils/style";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 type Props = {
   visible: boolean;
@@ -241,10 +241,10 @@ const LinkAssetModal: React.FC<Props> = ({
           onUploadModalClose={onLinkAssetModalCancel}
         />,
       ]}
-      width="70vw"
+      width={CustomToken.MODAL.WIDTH_LG}
       styles={{
         body: {
-          height: "70vh",
+          height: CustomToken.MODAL.HEIGHT_LG,
         },
       }}>
       <ResizableProTable
