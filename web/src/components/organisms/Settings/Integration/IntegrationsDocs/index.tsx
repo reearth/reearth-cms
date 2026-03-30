@@ -3,14 +3,14 @@ import ApiDocs from "@reearth-cms/components/molecules/ApiDocs";
 
 import useHooks from "./hooks";
 
-const AccessibilityDocs: React.FC = () => {
-  const { specUrl } = useHooks();
+const IntegrationsDocs: React.FC = () => {
+  const { specContent, specUrl } = useHooks();
 
   return (
     <InnerContent isFullHeight>
-      <ApiDocs specUrl={specUrl} />
+      <ApiDocs specContent={specContent} specUrl={specUrl} />
     </InnerContent>
   );
 };
 
-export default AccessibilityDocs;
+export default IntegrationsDocs;

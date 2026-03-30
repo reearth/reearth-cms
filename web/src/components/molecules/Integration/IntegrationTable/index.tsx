@@ -17,6 +17,8 @@ import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integrat
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
+import PlaygroundLink from "../../APIDocLinks/PlaygroundLink";
+
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
   onIntegrationConnectModalOpen: () => void;
@@ -177,7 +179,12 @@ const IntegrationTable: React.FC<Props> = ({
       <PageHeader
         title={t("Integrations")}
         style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
-        extra={<ConnectButton />}
+        extra={
+          <>
+            <PlaygroundLink url="./integrations/docs" />
+            <ConnectButton />
+          </>
+        }
       />
       <ConfigProvider
         renderEmpty={() => (
