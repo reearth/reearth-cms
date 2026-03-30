@@ -52,9 +52,9 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 				return false
 			}
 		}
-		if r.pf.PublicOnly || r.pf.Readable != nil {
+		if r.pf.Readable != nil {
 			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
-			isAccessible := !r.pf.PublicOnly && r.pf.Readable.Has(pid)
+			isAccessible := r.pf.Readable.Has(pid)
 			if !isPublic && !isAccessible {
 				return false
 			}
@@ -122,9 +122,9 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
 			return false
 		}
-		if r.pf.PublicOnly || r.pf.Readable != nil {
+		if r.pf.Readable != nil {
 			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
-			isAccessible := !r.pf.PublicOnly && r.pf.Readable.Has(k)
+			isAccessible := r.pf.Readable.Has(k)
 			if !isPublic && !isAccessible {
 				return false
 			}
