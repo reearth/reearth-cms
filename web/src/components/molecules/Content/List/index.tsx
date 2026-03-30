@@ -27,7 +27,7 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { Field } from "../../Schema/types";
 
-type Props = {
+export type Props = {
   commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
   collapsed: boolean;
