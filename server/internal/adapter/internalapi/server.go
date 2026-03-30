@@ -173,7 +173,7 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		}
 		return wId, true
 	})
-	if req.PublicOnly {
+	if req.PublicOnly || len(wIds) == 0 {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
 	}
 
