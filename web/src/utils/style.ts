@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import {
   blue,
   cyan,
@@ -14,7 +15,6 @@ import {
   yellow,
 } from "@ant-design/colors";
 
-/* eslint-disable @typescript-eslint/no-extraneous-class */
 export abstract class AntdColor {
   public static readonly RED = {
     RED_0: red[0], // #fff1f0
@@ -333,5 +333,23 @@ export abstract class AntdToken {
     LG: 24,
     /** token.paddingXL / marginXL — 32px */
     XL: 32,
+  };
+}
+
+export abstract class CustomToken {
+  // --- Modal Viewport Sizes ---
+  public static readonly MODAL = {
+    /** Modal width — 50vw */
+    WIDTH_MD: "50vw",
+    /** Modal width — 70vw */
+    WIDTH_LG: "70vw",
+    /** Modal width — 90vw (near full-screen) */
+    WIDTH_XL: "90vw",
+    /** Modal body height — 50vh */
+    HEIGHT_MD: "50vh",
+    /** Modal body height — 70vh */
+    HEIGHT_LG: "70vh",
+    /** Modal body height — 90vh (near full-screen) */
+    HEIGHT_XL: "90vh",
   };
 }
