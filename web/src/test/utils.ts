@@ -233,6 +233,7 @@ export enum DATA_TEST_ID {
   Uploader__CardTitle = "Uploader__CardTitle",
   Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
   Uploader__CancelAllIcon = "Uploader__CancelAllIcon",
+  Uploader__MinimizeIcon = "Uploader__MinimizeIcon",
   Uploader__CompleteIcon = "Uploader__CompleteIcon",
 
   // QueueItem
@@ -287,4 +288,7 @@ export enum DATA_TEST_ID {
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
+
+  // ApiDocs
+  ApiDocs__ApiDocsWrapper = "ApiDocs__ApiDocsWrapper",
 }

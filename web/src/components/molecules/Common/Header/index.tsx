@@ -194,6 +194,7 @@ const MainHeader = styled(Header)`
   line-height: 41px;
   padding: 0;
   background-color: ${CustomColor.HEADER_BG};
+  z-index: 20;
 
   .ant-space-item {
     color: ${CustomColor.HEADER_TEXT};

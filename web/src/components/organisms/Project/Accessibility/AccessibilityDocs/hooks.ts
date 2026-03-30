@@ -6,7 +6,7 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
 
-  const specUrl = useMemo(() => {
+  const specUrl = useMemo<string>(() => {
     if (!currentWorkspace?.alias && !currentWorkspace?.id) return "";
     if (!currentProject?.alias && !currentProject?.id) return "";
 
@@ -16,7 +16,5 @@ export default () => {
     return `${window.REEARTH_CONFIG?.api}/p/${workspaceIdentifier}/${projectIdentifier}`;
   }, [currentWorkspace, currentProject]);
 
-  return {
-    specUrl,
-  };
+  return { specUrl };
 };
