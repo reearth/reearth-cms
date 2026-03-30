@@ -123,7 +123,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
-    return this.getByRole("tab", { selected: true }).getByLabel("more");
+    return this.page.locator('role=tab[selected]').getByLabel("more");
   }
   get renameViewButton(): Locator {
     return this.getByText("Rename");
