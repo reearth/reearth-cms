@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { type AlertProps } from "@reearth-cms/components/atoms/Alert";
