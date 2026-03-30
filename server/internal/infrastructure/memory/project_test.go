@@ -21,19 +21,19 @@ import (
 func TestProjectRepo_CountByWorkspace(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	tests := []struct {
-		name    string
-		seeds   project.List
-		arg     accountdomain.WorkspaceID
-		filter  *repo.WorkspaceFilter
-		want    int
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		arg             accountdomain.WorkspaceID
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		want            int
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name:    "0 count in empty db",
 			seeds:   project.List{},
 			arg:     accountdomain.NewWorkspaceID(),
-			filter:  nil,
 			want:    0,
 			wantErr: nil,
 		},
@@ -43,7 +43,6 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     accountdomain.NewWorkspaceID(),
-			filter:  nil,
 			want:    0,
 			wantErr: nil,
 		},
@@ -53,7 +52,6 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(tid1).MustBuild(),
 			},
 			arg:     tid1,
-			filter:  nil,
 			want:    1,
 			wantErr: nil,
 		},
@@ -65,7 +63,6 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     tid1,
-			filter:  nil,
 			want:    1,
 			wantErr: nil,
 		},
@@ -78,7 +75,6 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     tid1,
-			filter:  nil,
 			want:    2,
 			wantErr: nil,
 		},
@@ -90,10 +86,11 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     tid1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    0,
-			wantErr: nil,
+			arg:             tid1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{}},
+			want:            0,
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -117,8 +114,8 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 
 			got, err := r.CountByWorkspace(ctx, tc.arg)
@@ -139,11 +136,12 @@ func TestProjectRepo_Filtered(t *testing.T) {
 	p2 := project.New().ID(id2).Workspace(tid1).MustBuild()
 
 	tests := []struct {
-		name    string
-		seeds   project.List
-		arg     repo.WorkspaceFilter
-		wantErr error
-		mockErr bool
+		name          string
+		seeds         project.List
+		arg           repo.WorkspaceFilter
+		projectFilter repo.ProjectFilter
+		wantErr       error
+		mockErr       bool
 	}{
 		{
 			name: "no r/w workspaces operation denied",
@@ -181,7 +179,7 @@ func TestProjectRepo_Filtered(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			r := NewProject().Filtered(tc.arg, repo.ProjectFilter{})
+			r := NewProject().Filtered(tc.arg, tc.projectFilter)
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
@@ -201,19 +199,19 @@ func TestProjectRepo_FindByID(t *testing.T) {
 	p1 := project.New().ID(id1).Workspace(tid1).MustBuild()
 
 	tests := []struct {
-		name    string
-		seeds   project.List
-		arg     id.ProjectID
-		filter  *repo.WorkspaceFilter
-		want    *project.Project
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		arg             id.ProjectID
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		want            *project.Project
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name:    "Not found in empty db",
 			seeds:   project.List{},
 			arg:     id.NewProjectID(),
-			filter:  nil,
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
@@ -223,7 +221,6 @@ func TestProjectRepo_FindByID(t *testing.T) {
 				project.New().NewID().MustBuild(),
 			},
 			arg:     id.NewProjectID(),
-			filter:  nil,
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
@@ -233,7 +230,6 @@ func TestProjectRepo_FindByID(t *testing.T) {
 				p1,
 			},
 			arg:     id1,
-			filter:  nil,
 			want:    p1,
 			wantErr: nil,
 		},
@@ -245,7 +241,6 @@ func TestProjectRepo_FindByID(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
-			filter:  nil,
 			want:    p1,
 			wantErr: nil,
 		},
@@ -256,10 +251,11 @@ func TestProjectRepo_FindByID(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     id1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: nil,
+			arg:             id1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			want:            nil,
+			wantErr:         nil,
 		},
 		{
 			name: "Filtered Found 2",
@@ -268,10 +264,11 @@ func TestProjectRepo_FindByID(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     id1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
-			want:    p1,
-			wantErr: nil,
+			arg:             id1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			want:            p1,
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -295,8 +292,8 @@ func TestProjectRepo_FindByID(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 
 			got, err := r.FindByID(ctx, tc.arg)
@@ -317,19 +314,19 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	p2 := project.New().ID(id2).Workspace(tid1).MustBuild()
 
 	tests := []struct {
-		name    string
-		seeds   project.List
-		arg     id.ProjectIDList
-		filter  *repo.WorkspaceFilter
-		want    project.List
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		arg             id.ProjectIDList
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		want            project.List
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name:    "0 count in empty db",
 			seeds:   project.List{},
 			arg:     []id.ProjectID{},
-			filter:  nil,
 			want:    nil,
 			wantErr: nil,
 		},
@@ -339,7 +336,6 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     []id.ProjectID{},
-			filter:  nil,
 			want:    nil,
 			wantErr: nil,
 		},
@@ -349,7 +345,6 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				p1,
 			},
 			arg:     []id.ProjectID{id1},
-			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
 		},
@@ -361,7 +356,6 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     []id.ProjectID{id1},
-			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
 		},
@@ -374,9 +368,8 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     []id.ProjectID{id1, id2},
-			filter:  nil,
 			want:    project.List{p1, p2},
-			wantErr: nil,
+			wantErr:         nil,
 		},
 		{
 			name: "Filter 2 count with multi projects",
@@ -386,10 +379,11 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     []id.ProjectID{id1, id2},
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: nil,
+			arg:             []id.ProjectID{id1, id2},
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1, id2}},
+			want:            nil,
+			wantErr:         nil,
 		},
 		{
 			name: "Filter 2 count with multi projects",
@@ -399,10 +393,11 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     []id.ProjectID{id1, id2},
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
-			want:    project.List{p1, p2},
-			wantErr: nil,
+			arg:             []id.ProjectID{id1, id2},
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1, id2}},
+			want:            project.List{p1, p2},
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -426,8 +421,8 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 
 			got, err := r.FindByIDs(ctx, tc.arg)
@@ -460,20 +455,20 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 		MustBuild()
 
 	tests := []struct {
-		name    string
-		seeds   project.List
-		wId     accountdomain.WorkspaceID
-		arg     string
-		filter  *repo.WorkspaceFilter
-		want    bool
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		wId             accountdomain.WorkspaceID
+		arg             string
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		want            bool
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name:    "available in empty db",
 			seeds:   project.List{},
 			arg:     "xyz123",
-			filter:  nil,
 			want:    true,
 			wantErr: nil,
 		},
@@ -484,7 +479,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			},
 			wId:     accountdomain.NewWorkspaceID(),
 			arg:     "xyz123",
-			filter:  nil,
 			want:    true,
 			wantErr: nil,
 		},
@@ -495,7 +489,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			},
 			wId:     accountdomain.NewWorkspaceID(),
 			arg:     "xyz123",
-			filter:  nil,
 			want:    true,
 			wantErr: nil,
 		},
@@ -506,7 +499,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			},
 			wId:     wId1,
 			arg:     "xyz123",
-			filter:  nil,
 			want:    false,
 			wantErr: nil,
 		},
@@ -518,7 +510,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			wId:     wId2,
 			arg:     "xyz321",
 			want:    false,
-			filter:  nil,
 			wantErr: nil,
 		},
 		{
@@ -530,7 +521,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			},
 			wId:     wId1,
 			arg:     "xyz123",
-			filter:  nil,
 			want:    false,
 			wantErr: nil,
 		},
@@ -541,11 +531,12 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			wId:     wId1,
-			arg:     "xyz123",
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    false,
-			wantErr: nil,
+			wId:             wId1,
+			arg:             "xyz123",
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{pId1}},
+			want:            false,
+			wantErr:         nil,
 		},
 		{
 			name: "not available with multi projects containing same workspace & alias 4 (with correct repo filter)",
@@ -554,11 +545,12 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			wId:     wId1,
-			arg:     "xyz123",
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{wId1}, Writable: []accountdomain.WorkspaceID{}},
-			want:    false,
-			wantErr: nil,
+			wId:             wId1,
+			arg:             "xyz123",
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{wId1}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{pId1}},
+			want:            false,
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -582,8 +574,8 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 
 			got, err := r.IsAliasAvailable(ctx, tc.wId, tc.arg)
@@ -607,19 +599,19 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 		pInfo *usecasex.Pagination
 	}
 	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		filter  *repo.WorkspaceFilter
-		want    project.List
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		args            args
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		want            project.List
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name:    "0 count in empty db",
 			seeds:   project.List{},
 			args:    args{accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()}, nil},
-			filter:  nil,
 			want:    nil,
 			wantErr: nil,
 		},
@@ -629,7 +621,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()}, nil},
-			filter:  nil,
 			want:    nil,
 			wantErr: nil,
 		},
@@ -639,7 +630,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				p1,
 			},
 			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
 		},
@@ -651,7 +641,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
 		},
@@ -664,7 +653,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
-			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
@@ -677,7 +665,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
@@ -690,7 +677,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
@@ -701,10 +687,11 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: nil,
+			args:            args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{p1.ID(), p2.ID()}},
+			want:            nil,
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -728,8 +715,8 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 
 			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
@@ -751,18 +738,18 @@ func TestProjectRepo_Remove(t *testing.T) {
 	id1 := id.NewProjectID()
 	p1 := project.New().ID(id1).Workspace(tid1).MustBuild()
 	tests := []struct {
-		name    string
-		seeds   project.List
-		arg     id.ProjectID
-		filter  *repo.WorkspaceFilter
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		arg             id.ProjectID
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name:    "Not found in empty db",
 			seeds:   project.List{},
 			arg:     id.NewProjectID(),
-			filter:  nil,
 			wantErr: rerror.ErrNotFound,
 		},
 		{
@@ -771,7 +758,6 @@ func TestProjectRepo_Remove(t *testing.T) {
 				project.New().NewID().MustBuild(),
 			},
 			arg:     id.NewProjectID(),
-			filter:  nil,
 			wantErr: rerror.ErrNotFound,
 		},
 		{
@@ -780,7 +766,6 @@ func TestProjectRepo_Remove(t *testing.T) {
 				p1,
 			},
 			arg:     id1,
-			filter:  nil,
 			wantErr: nil,
 		},
 		{
@@ -791,7 +776,6 @@ func TestProjectRepo_Remove(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
-			filter:  nil,
 			wantErr: nil,
 		},
 		{
@@ -801,9 +785,10 @@ func TestProjectRepo_Remove(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     id1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}},
-			wantErr: rerror.ErrNotFound,
+			arg:             id1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			wantErr:         rerror.ErrNotFound,
 		},
 		{
 			name: "Filtered should work Found 2",
@@ -812,9 +797,10 @@ func TestProjectRepo_Remove(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			arg:     id1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{tid1}},
-			wantErr: nil,
+			arg:             id1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{tid1}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -838,8 +824,8 @@ func TestProjectRepo_Remove(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 
 			err := r.Remove(ctx, tc.arg)
@@ -860,13 +846,14 @@ func TestProjectRepo_Save(t *testing.T) {
 	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 
 	tests := []struct {
-		name    string
-		seeds   project.List
-		arg     *project.Project
-		filter  *repo.WorkspaceFilter
-		want    *project.Project
-		wantErr error
-		mockErr bool
+		name            string
+		seeds           project.List
+		arg             *project.Project
+		workspaceFilter *repo.WorkspaceFilter
+		projectFilter   *repo.ProjectFilter
+		want            *project.Project
+		wantErr         error
+		mockErr         bool
 	}{
 		{
 			name: "Saved",
@@ -874,7 +861,6 @@ func TestProjectRepo_Save(t *testing.T) {
 				p1,
 			},
 			arg:     p1,
-			filter:  nil,
 			want:    p1,
 			wantErr: nil,
 		},
@@ -883,30 +869,33 @@ func TestProjectRepo_Save(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			arg:     p1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: repo.ErrOperationDenied,
+			arg:             p1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			want:            nil,
+			wantErr:         repo.ErrOperationDenied,
 		},
 		{
 			name: "Filtered should work - Saved",
 			seeds: project.List{
 				p1,
 			},
-			arg:     p1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{tid1}},
-			want:    p1,
-			wantErr: nil,
+			arg:             p1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{tid1}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			want:            p1,
+			wantErr:         nil,
 		},
 		{
 			name: "Filtered should work - Saved same data",
 			seeds: project.List{
 				p1,
 			},
-			arg:     p1,
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{tid1}},
-			want:    p1,
-			wantErr: nil,
+			arg:             p1,
+			workspaceFilter: &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{tid1}},
+			projectFilter:   &repo.ProjectFilter{Readable: id.ProjectIDList{id1}},
+			want:            p1,
+			wantErr:         nil,
 		},
 		{
 			name:    "must mock error",
@@ -921,8 +910,8 @@ func TestProjectRepo_Save(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
+			if tc.workspaceFilter != nil {
+				r = r.Filtered(*tc.workspaceFilter, *tc.projectFilter)
 			}
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
