@@ -30,6 +30,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ExportSchemaUtils } from "@reearth-cms/utils/exportSchema";
+import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -92,6 +93,7 @@ type Props = {
   toFileSelectionStep: () => void;
   onSchemaExport: () => void;
   exportSchemaLoading: boolean;
+  schemaErrorLogMeta: ErrorLogMeta | null;
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
@@ -152,6 +154,7 @@ const Schema: React.FC<Props> = ({
   toFileSelectionStep,
   onSchemaExport,
   exportSchemaLoading,
+  schemaErrorLogMeta,
   dataChecking,
   onFileContentChange,
   onFileRemove,
@@ -399,6 +402,7 @@ const Schema: React.FC<Props> = ({
             onSelectFile={onSelectFileModalOpen}
             onSelectFileModalCancel={onSelectFileModalCancel}
             onModalClose={onSchemaImportModalCancel}
+            schemaErrorLogMeta={schemaErrorLogMeta}
             dataChecking={dataChecking}
             onFileContentChange={onFileContentChange}
             onFileRemove={onFileRemove}

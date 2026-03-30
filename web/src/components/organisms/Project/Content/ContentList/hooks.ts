@@ -56,6 +56,7 @@ import {
 import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
 import { fileName } from "./utils";
 
@@ -66,12 +67,8 @@ const defaultViewSort: ItemSort = {
   },
 };
 
-export type ValidateImportResult = {
-  type: "warning" | "error";
-  title: string;
-  description: string;
-  canForwardToImport?: boolean;
-  hint?: string;
+export type ImportValidationResult = {
+  errorLogMeta?: ErrorLogMeta;
 };
 
 export default () => {
@@ -129,9 +126,8 @@ export default () => {
   );
   const [dataChecking, setDataChecking] = useState(false);
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
-  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
-    null,
-  );
+  const [importValidationResult, setImportValidationResult] =
+    useState<ImportValidationResult | null>(null);
 
   const [userId] = useUserId();
   const [userRights] = useUserRights();
@@ -665,7 +661,7 @@ export default () => {
   const handleImportContentModalClose = useCallback(() => {
     setIsImportContentModalOpen(false);
     setAlertList([]);
-    setValidateImportResult(null);
+    setImportValidationResult(null);
   }, []);
 
   const handlePublish = useCallback(
@@ -780,7 +776,7 @@ export default () => {
     exportContentLoading,
     alertList,
     setAlertList,
-    validateImportResult,
-    setValidateImportResult,
+    importValidationResult,
+    setImportValidationResult,
   };
 };

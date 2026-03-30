@@ -77,8 +77,8 @@ const ContentList: React.FC = () => {
     exportContentLoading,
     alertList,
     setAlertList,
-    validateImportResult,
-    setValidateImportResult,
+    importValidationResult,
+    setImportValidationResult,
   } = useHooks();
 
   return (
@@ -175,8 +175,8 @@ const ContentList: React.FC = () => {
         onEnqueueJob={handleEnqueueJob}
         alertList={alertList}
         setAlertList={setAlertList}
-        validateImportResult={validateImportResult}
-        setValidateImportResult={setValidateImportResult}
+        importValidationResult={importValidationResult}
+        setImportValidationResult={setImportValidationResult}
       />
     </>
   );
