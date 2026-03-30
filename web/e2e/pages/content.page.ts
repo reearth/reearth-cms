@@ -123,7 +123,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
-    return this.getByLabel("more").locator("svg");
+    return this.getByRole("tab", { selected: true }).getByLabel("more");
   }
   get renameViewButton(): Locator {
     return this.getByText("Rename");
@@ -705,8 +705,11 @@ export class ContentPage extends BasePage {
 
   // ========== Import Content Locators ==========
 
-  get importContentButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.Content__List__ImportContentButton);
+  get contentMoreButton(): Locator {
+    return this.getByRole("button", { name: "more" });
+  }
+  get importMenuItem(): Locator {
+    return this.getByText("Import", { exact: true });
   }
 
   get importContentModal(): Locator {
@@ -752,7 +755,8 @@ export class ContentPage extends BasePage {
   // ========== Import Content Actions ==========
 
   async openImportContentModal(): Promise<void> {
-    await this.importContentButton.click();
+    await this.contentMoreButton.click();
+    await this.importMenuItem.click();
     await this.importContentModal.waitFor({ state: "visible" });
   }
 
