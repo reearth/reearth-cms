@@ -173,12 +173,13 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		}
 		return wId, true
 	})
-	if req.PublicOnly || len(wIds) == 0 {
+	if req.PublicOnly {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
 	}
 
-	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
-
+	if len(wIds) > 0 {
+		f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
+	}
 	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {
 		return nil, err

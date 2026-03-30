@@ -40,7 +40,7 @@ func attachUsecases(ctx context.Context, r *repo.Container, g *gateway.Container
 	ctx = adapter.AttachGateways(ctx, g)
 	var publicProject repo.Project
 	if r != nil {
-		publicProject = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilter{}).Project
+		publicProject = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(nil)).Project
 	}
 	ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Workspace, publicProject, &uc))
 	return ctx

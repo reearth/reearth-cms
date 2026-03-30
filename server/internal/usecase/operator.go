@@ -126,6 +126,23 @@ func (o *Operator) IsReadableProject(projects ...project.ID) bool {
 	return o.AllReadableProjects().Intersect(projects).Len() > 0
 }
 
+func (o *Operator) CanReadProject(p *project.Project) bool {
+	if p == nil {
+		return false
+	}
+	isPublic := p.Accessibility() == nil || p.Accessibility().Visibility() == project.VisibilityPublic
+	if isPublic {
+		return true
+	}
+	if o == nil {
+		return false
+	}
+	if o.Machine {
+		return true
+	}
+	return o.IsReadableProject(p.ID())
+}
+
 func (o *Operator) IsWritableProject(projects ...project.ID) bool {
 	return o.AllWritableProjects().Intersect(projects).Len() > 0
 }

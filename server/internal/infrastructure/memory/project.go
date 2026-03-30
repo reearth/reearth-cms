@@ -77,13 +77,21 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 	), nil
 }
 
+func (r *Project) canReadProject(k id.ProjectID, v *project.Project) bool {
+	if r.pf.Readable == nil {
+		return true
+	}
+	isPublic := v.Accessibility() == nil || v.Accessibility().Visibility() == project.VisibilityPublic
+	return isPublic || r.pf.Readable.Has(k)
+}
+
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	result := r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
-		return ids.Has(k) && r.f.CanRead(v.Workspace())
+		return ids.Has(k) && r.f.CanRead(v.Workspace()) && r.canReadProject(k, v)
 	})
 
 	return project.List(result).SortByID(), nil
@@ -95,7 +103,7 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return k == pid && r.f.CanRead(v.Workspace())
+		return k == pid && r.f.CanRead(v.Workspace()) && r.canReadProject(k, v)
 	})
 
 	if p != nil {

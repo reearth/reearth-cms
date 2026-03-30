@@ -1577,3 +1577,220 @@ func Test_projectRepo_Search(t *testing.T) {
 		})
 	}
 }
+
+func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
+	now := time.Now().Truncate(time.Millisecond).UTC()
+	wid := accountdomain.NewWorkspaceID()
+
+	pidPub := id.NewProjectID()
+	pPub := project.New().ID(pidPub).Workspace(wid).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		UpdatedAt(now).Topics([]string{}).MustBuild()
+
+	pidPriv := id.NewProjectID()
+	pPriv := project.New().ID(pidPriv).Workspace(wid).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		UpdatedAt(now.Add(time.Second)).Topics([]string{}).MustBuild()
+
+	pidPriv2 := id.NewProjectID()
+	pPriv2 := project.New().ID(pidPriv2).Workspace(wid).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		UpdatedAt(now.Add(2 * time.Second)).Topics([]string{}).MustBuild()
+
+	wsFilter := repo.WorkspaceFilter{
+		Readable: accountdomain.WorkspaceIDList{wid},
+		Writable: accountdomain.WorkspaceIDList{wid},
+	}
+	pagination := usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap()
+
+	t.Run("FindByID", func(t *testing.T) {
+		tests := []struct {
+			name      string
+			pf        repo.ProjectFilter
+			lookupID  id.ProjectID
+			wantFound bool
+		}{
+			{
+				name:      "nil Readable → no visibility filter, public project found",
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidPub,
+				wantFound: true,
+			},
+			{
+				name:      "nil Readable → no visibility filter, private project found",
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, public project found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidPub,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, private project not found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidPriv,
+				wantFound: false,
+			},
+			{
+				name:      "Readable with access → private project found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{pidPriv}},
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "Readable without access → other private project not found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{pidPriv2}},
+				lookupID:  pidPriv,
+				wantFound: false,
+			},
+		}
+
+		initDB := mongotest.Connect(t)
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				client := mongox.NewClientWithDatabase(initDB(t))
+				r := NewProject(client)
+				ctx := context.Background()
+				seeds := project.List{pPub, pPriv, pPriv2}
+				for _, p := range seeds {
+					assert.NoError(t, r.Save(ctx, p))
+				}
+
+				r = r.Filtered(wsFilter, tc.pf)
+				got, err := r.FindByID(ctx, tc.lookupID)
+				if tc.wantFound {
+					assert.NoError(t, err)
+					assert.NotNil(t, got)
+				} else {
+					assert.ErrorIs(t, err, rerror.ErrNotFound)
+				}
+			})
+		}
+	})
+
+	t.Run("FindByIDOrAlias", func(t *testing.T) {
+		tests := []struct {
+			name      string
+			pf        repo.ProjectFilter
+			lookupID  id.ProjectID
+			wantFound bool
+		}{
+			{
+				name:      "nil Readable → no visibility filter, private project found",
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, private project not found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidPriv,
+				wantFound: false,
+			},
+			{
+				name:      "Readable with access → private project found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{pidPriv}},
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, public project found",
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidPub,
+				wantFound: true,
+			},
+		}
+
+		initDB := mongotest.Connect(t)
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				client := mongox.NewClientWithDatabase(initDB(t))
+				r := NewProject(client)
+				ctx := context.Background()
+				seeds := project.List{pPub, pPriv, pPriv2}
+				for _, p := range seeds {
+					assert.NoError(t, r.Save(ctx, p))
+				}
+
+				r = r.Filtered(wsFilter, tc.pf)
+				got, err := r.FindByIDOrAlias(ctx, wid, project.IDOrAlias(tc.lookupID.String()))
+				if tc.wantFound {
+					assert.NoError(t, err)
+					assert.NotNil(t, got)
+				} else {
+					assert.ErrorIs(t, err, rerror.ErrNotFound)
+				}
+			})
+		}
+	})
+
+	t.Run("Search", func(t *testing.T) {
+		tests := []struct {
+			name    string
+			pf      repo.ProjectFilter
+			wantIDs []id.ProjectID
+		}{
+			{
+				name:    "nil Readable → all projects visible",
+				pf:      repo.ProjectFilter{Readable: nil},
+				wantIDs: []id.ProjectID{pidPub, pidPriv, pidPriv2},
+			},
+			{
+				name:    "empty Readable → public only",
+				pf:      repo.ProjectFilter{Readable: project.IDList{}},
+				wantIDs: []id.ProjectID{pidPub},
+			},
+			{
+				name:    "Readable with one private project → public + that private",
+				pf:      repo.ProjectFilter{Readable: project.IDList{pidPriv}},
+				wantIDs: []id.ProjectID{pidPub, pidPriv},
+			},
+			{
+				name:    "Readable with both private projects → public + both privates",
+				pf:      repo.ProjectFilter{Readable: project.IDList{pidPriv, pidPriv2}},
+				wantIDs: []id.ProjectID{pidPub, pidPriv, pidPriv2},
+			},
+		}
+
+		initDB := mongotest.Connect(t)
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				client := mongox.NewClientWithDatabase(initDB(t))
+				r := NewProject(client)
+				ctx := context.Background()
+				seeds := project.List{pPub, pPriv, pPriv2}
+				for _, p := range seeds {
+					assert.NoError(t, r.Save(ctx, p))
+				}
+
+				r = r.Filtered(wsFilter, tc.pf)
+				got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{wid},
+					Pagination:   pagination,
+				})
+				assert.NoError(t, err)
+
+				gotIDs := make([]id.ProjectID, 0, len(got))
+				for _, p := range got {
+					gotIDs = append(gotIDs, p.ID())
+				}
+				assert.ElementsMatch(t, tc.wantIDs, gotIDs)
+			})
+		}
+	})
+}
