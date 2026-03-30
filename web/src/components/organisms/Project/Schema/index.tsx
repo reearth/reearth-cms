@@ -6,35 +6,50 @@ import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
-import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import useAssetHooks, {
+  ImportSchemaError,
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { ContentTypesEnum } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
+enum ImportSchemaStep {
+  FileSelection = 0,
+  ErrorLog = 1,
+  Preview = 2,
+  Importing = 3,
+}
+
 const ProjectSchema: React.FC = () => {
   const t = useT();
-  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] =
+    useState<ImportSchemaStep>(ImportSchemaStep.FileSelection);
   const assetHooks = useAssetHooks(false);
   const importHooks = useAssetHooks(true, [ContentTypesEnum.Geojson, ContentTypesEnum.Json]);
   const schemaHooks = useHooks();
 
   const toSchemaPreviewStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(1);
+    setCurrentImportSchemaModalPage(ImportSchemaStep.Preview);
+  }, []);
+
+  const toSchemaErrorLogStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(ImportSchemaStep.ErrorLog);
   }, []);
 
   const toImportingStep = useCallback(
     async (fields: CreateFieldInput[]) => {
       await schemaHooks.handleFieldsCreate(fields);
-      setCurrentImportSchemaModalPage(2);
+      setCurrentImportSchemaModalPage(ImportSchemaStep.Importing);
     },
     [schemaHooks],
   );
 
   const toFileSelectionStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(0);
-  }, []);
+    importHooks.setSchemaErrorLogMeta(null);
+    setCurrentImportSchemaModalPage(ImportSchemaStep.FileSelection);
+  }, [importHooks]);
 
   return (
     <>
@@ -75,7 +90,7 @@ const ProjectSchema: React.FC = () => {
         onSchemaImportModalOpen={importHooks.handleSchemaImportModalOpen}
         onSchemaImportModalCancel={() => {
           importHooks.handleSchemaImportModalCancel();
-          setCurrentImportSchemaModalPage(0);
+          setCurrentImportSchemaModalPage(ImportSchemaStep.FileSelection);
         }}
         onSelectFileModalOpen={importHooks.handleSelectFileModalOpen}
         onSelectFileModalCancel={importHooks.handleSelectFileModalCancel}
@@ -104,11 +119,14 @@ const ProjectSchema: React.FC = () => {
         onFieldDelete={schemaHooks.handleFieldDelete}
         onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
+        schemaErrorLogMeta={importHooks.schemaErrorLogMeta}
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async (file, fileList) => {
           const result = await importHooks.handleImportSchemaFileChange(file, fileList);
 
-          if (result) toSchemaPreviewStep();
+          if (!result.isValid && result.error === ImportSchemaError.SchemaError)
+            toSchemaErrorLogStep();
+          else if (result.isValid) toSchemaPreviewStep();
         }}
         onFileRemove={importHooks.handleImportSchemaFileRemove}
       />
