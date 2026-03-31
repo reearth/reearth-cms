@@ -52,14 +52,7 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 				return false
 			}
 		}
-		if r.pf.Readable != nil {
-			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
-			isAccessible := r.pf.Readable.Has(pid)
-			if !isPublic && !isAccessible {
-				return false
-			}
-		}
-		return true
+		return r.canReadProject(pid, v)
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -78,10 +71,13 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 }
 
 func (r *Project) canReadProject(k id.ProjectID, v *project.Project) bool {
+	isPublic := v.Accessibility() == nil || v.Accessibility().Visibility() == project.VisibilityPublic
+	if r.pf.PublicOnly {
+		return isPublic
+	}
 	if r.pf.Readable == nil {
 		return true
 	}
-	isPublic := v.Accessibility() == nil || v.Accessibility().Visibility() == project.VisibilityPublic
 	return isPublic || r.pf.Readable.Has(k)
 }
 
@@ -130,14 +126,7 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
 			return false
 		}
-		if r.pf.Readable != nil {
-			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
-			isAccessible := r.pf.Readable.Has(k)
-			if !isPublic && !isAccessible {
-				return false
-			}
-		}
-		return true
+		return r.canReadProject(k, v)
 	})
 
 	if p != nil {

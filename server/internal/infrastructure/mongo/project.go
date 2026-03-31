@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -97,9 +98,16 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 		filter["accessibility.visibility"] = f.Visibility.String()
 	}
 
-	if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
+	wids := f.WorkspaceIds
+	if wids != nil && r.f.Readable != nil {
+		intersected := accountdomain.WorkspaceIDList(lo.Filter(*wids, func(id accountdomain.WorkspaceID, _ int) bool {
+			return r.f.Readable.Has(id)
+		}))
+		wids = &intersected
+	}
+	if wids != nil && len(*wids) > 0 {
 		filter["workspace"] = bson.M{
-			"$in": f.WorkspaceIds.Strings(),
+			"$in": wids.Strings(),
 		}
 	}
 
@@ -234,6 +242,9 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 
 func (r *ProjectRepo) readFilter(filter any) any {
 	filter = applyWorkspaceFilter(filter, r.f.Readable)
+	if r.pf.Readable == nil {
+		return filter
+	}
 	if len(r.pf.Readable) > 0 {
 		// public projects OR private projects the operator explicitly has access to
 		visibilityFilter := bson.M{"$or": bson.A{
