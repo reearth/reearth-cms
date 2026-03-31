@@ -8,6 +8,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
+import { CustomToken } from "@reearth-cms/utils/style";
 
 import LocalTab from "./localTab";
 import UrlTab from "./UrlTab";
@@ -75,11 +76,11 @@ const UploadModal: React.FC<Props> = ({
           </Button>
         </>
       }
-      width="50vw"
+      width={CustomToken.MODAL.WIDTH_MD}
       afterClose={onUploadModalClose}
       styles={{
         body: {
-          minHeight: "50vh",
+          minHeight: CustomToken.MODAL.HEIGHT_MD,
         },
       }}>
       <div>

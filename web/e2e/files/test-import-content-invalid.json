@@ -1,0 +1,26 @@
+[
+  {
+    "text_field": 12345,
+    "integer_field": "not-an-integer",
+    "bool_field": "not-a-boolean",
+    "url_field": "not-a-url",
+    "date_field": "not-a-date",
+    "select_field": "invalid_option"
+  },
+  {
+    "text_field": "this string exceeds maxLength constraint if set to 10",
+    "integer_field": 99999,
+    "bool_field": 42,
+    "url_field": 123,
+    "date_field": 999,
+    "select_field": 456
+  },
+  {
+    "text_field": null,
+    "integer_field": 3.14,
+    "bool_field": null,
+    "url_field": null,
+    "date_field": null,
+    "select_field": null
+  }
+]
