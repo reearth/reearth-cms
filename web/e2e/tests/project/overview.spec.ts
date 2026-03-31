@@ -194,8 +194,8 @@ test.describe("Model Export tests on Overview page", () => {
       // Verify error notification appears
       await expect(projectPage.cannotExportGeoJSONText).toBeVisible();
       await expect(projectPage.noGeometryFieldText).toBeVisible();
-      // Notification auto-closes after 2s (configured in Notification atom)
-      await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible({ timeout: 5000 });
+      // Notification is persistent (duration: 0) - close it manually
+      await projectPage.closeNotification(false);
       await page.waitForTimeout(300);
     });
   });
