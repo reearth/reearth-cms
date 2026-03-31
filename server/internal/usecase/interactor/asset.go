@@ -23,6 +23,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/types"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -45,9 +47,48 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	}
 }
 
-func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceAsset, action, workspaceID)
+	if authErr != nil {
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
+}
+
+// workspaceIDForProject returns the workspace ID of the given project.
+func (i *Asset) workspaceIDForProject(ctx context.Context, projectID id.ProjectID) (*workspace.ID, error) {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil, nil
+	}
+	p, err := i.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	ws := p.Workspace()
+	return &ws, nil
+}
+
+func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForProject(ctx, a.Project())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "asset.FindByID", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	if a != nil {
@@ -67,9 +108,19 @@ func (i *Asset) FindByUUID(ctx context.Context, uuid string, _ *usecase.Operator
 	return a, nil
 }
 
-func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.Operator) (asset.List, error) {
+func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, operator *usecase.Operator) (asset.List, error) {
 	al, err := i.repos.Asset.FindByIDs(ctx, assets)
 	if err != nil {
+		return nil, err
+	}
+	var wid *workspace.ID
+	if len(al) > 0 {
+		wid, err = i.workspaceIDForProject(ctx, al[0].Project())
+		if err != nil {
+			return nil, err
+		}
+	}
+	if err := i.checkPermission(ctx, operator, wid, "asset.FindByIDs", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	if al != nil {
@@ -78,7 +129,14 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 	return al, nil
 }
 
-func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, operator *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+	wid, err := i.workspaceIDForProject(ctx, projectID)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "asset.Search", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	al, pi, err := i.repos.Asset.Search(ctx, projectID, repo.AssetFilter{
 		Sort:         filter.Sort,
 		Keyword:      filter.Keyword,
@@ -298,6 +356,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 	if !op.IsWritableWorkspace(prj.Workspace()) {
 		return nil, nil, interfaces.ErrOperationDenied
+	}
+
+	prjWs := prj.Workspace()
+	if err := i.checkPermission(ctx, op, &prjWs, "asset.Create", rbac.ActionCreate); err != nil {
+		return nil, nil, err
 	}
 
 	var uuid string
@@ -766,6 +829,14 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			wid, err := i.workspaceIDForProject(ctx, a.Project())
+			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, operator, wid, "asset.Update", rbac.ActionUpdate); err != nil {
+				return nil, err
+			}
+
 			if inp.PreviewType != nil {
 				a.UpdatePreviewType(inp.PreviewType)
 			}
@@ -903,6 +974,14 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			return aId, interfaces.ErrOperationDenied
 		}
 
+		wid, err := i.workspaceIDForProject(ctx, a.Project())
+		if err != nil {
+			return aId, err
+		}
+		if err := i.checkPermission(ctx, operator, wid, "asset.Delete", rbac.ActionDelete); err != nil {
+			return aId, err
+		}
+
 		uuid := a.UUID()
 		filename := a.FileName()
 		if uuid != "" && filename != "" {
@@ -957,6 +1036,14 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 
 		if assets == nil {
 			return assetIDs, nil
+		}
+
+		wid, err := i.workspaceIDForProject(ctx, assets[0].Project())
+		if err != nil {
+			return assetIDs, err
+		}
+		if err := i.checkPermission(ctx, operator, wid, "asset.BatchDelete", rbac.ActionDelete); err != nil {
+			return assetIDs, err
 		}
 
 		UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {

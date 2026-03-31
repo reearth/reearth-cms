@@ -149,6 +149,34 @@ var ResourceRules = []generator.ResourceRule{
 		},
 	},
 
+	// ========== Item ==========
+	{
+		Resource: ResourceItem,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:      {Roles: allRoles},
+			ActionList:      {Roles: allRoles},
+			ActionCreate:    {Roles: writerAndAbove},
+			ActionUpdate:    {Roles: writerAndAbove},
+			ActionDelete:    {Roles: writerAndAbove},
+			ActionPublish:   {Roles: writerAndAbove},
+			ActionUnpublish: {Roles: writerAndAbove},
+			ActionExport:    {Roles: allRoles},
+			ActionImport:    {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== Asset ==========
+	{
+		Resource: ResourceAsset,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionCreate: {Roles: writerAndAbove},
+			ActionUpdate: {Roles: writerAndAbove},
+			ActionDelete: {Roles: writerAndAbove},
+		},
+	},
+
 	// TODO: Add more resources on the next tasks
-	// Schema, Item, Asset, Integration, Request, Thread, View, WorkspaceSettings
+	// Schema, Integration, Request, Thread, View, WorkspaceSettings
 }
