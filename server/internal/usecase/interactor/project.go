@@ -30,17 +30,11 @@ func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
 	}
 }
 
-func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, op *usecase.Operator) (project.List, error) {
-	projects, err := i.repos.Project.FindByIDs(ctx, ids)
-	if err != nil || len(projects) == 0 {
-		return projects, err
-	}
-	return lo.Filter(projects, func(p *project.Project, _ int) bool {
-		return op.CanReadProject(p)
-	}), nil
+func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Operator) (project.List, error) {
+	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
 	}
@@ -48,16 +42,10 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
-	projects, pi, err := i.repos.Project.Search(ctx, *f)
-	if err != nil || len(projects) == 0 {
-		return projects, pi, err
-	}
-	return lo.Filter(projects, func(p *project.Project, _ int) bool {
-		return op.CanReadProject(p)
-	}), pi, nil
+	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
 	}
@@ -65,26 +53,17 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
-	projects, pi, err := i.repos.Project.Search(ctx, *f)
-	if err != nil || len(projects) == 0 {
-		return projects, pi, err
-	}
-	return lo.Filter(projects, func(p *project.Project, _ int) bool {
-		return op.CanReadProject(p)
-	}), pi, nil
+	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	projects, pi, err := i.repos.Project.Search(ctx, f)
-	if err != nil || len(projects) == 0 {
-		return projects, pi, err
+func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
 	}
-	return lo.Filter(projects, func(p *project.Project, _ int) bool {
-		return op.CanReadProject(p)
-	}), pi, nil
+	return i.repos.Project.Search(ctx, f)
 }
 
-func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, op *usecase.Operator) (*project.Project, error) {
+func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
 	w, err := i.repos.Workspace.FindByIDOrAlias(ctx, wsIdOrAlias)
 	if err != nil {
 		return nil, err
@@ -93,14 +72,7 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain
 		return nil, rerror.ErrNotFound
 	}
 
-	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
-	if err != nil {
-		return nil, err
-	}
-	if !op.CanReadProject(p) {
-		return nil, rerror.ErrNotFound
-	}
-	return p, nil
+	return i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
 }
 
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
@@ -610,6 +582,9 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
 	if err != nil {
 		return nil, err
+	}
+	if p == nil {
+		return nil, rerror.ErrNotFound
 	}
 
 	return Run1(ctx, op, i.repos, Usecase().Transaction(),

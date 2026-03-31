@@ -11,7 +11,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -121,9 +123,21 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		if appCtx == nil || appCtx.Repos == nil || appCtx.AcRepos == nil || appCtx.Gateways == nil || appCtx.AcGateways == nil {
 			return nil, errors.New("internal error")
 		}
-
-		ctx = attachUsecases(ctx, appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{})
-
+		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
+		var r2 *repo.Container
+		var ar2 *accountrepo.Container
+		op := adapter.Operator(ctx)
+		if op != nil {
+			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
+			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
+		} else {
+			r2 = r
+			ar2 = ar
+		}
+		uc := interactor.New(r2, g, ar2, ag, interactor.ContainerConfig{})
+		ctx = adapter.AttachAcRepos(ctx, ar2)
+		ctx = adapter.AttachUsecases(ctx, &uc)
+		ctx = adapter.AttachGateways(ctx, g)
 		return handler(ctx, req)
 	}
 }
