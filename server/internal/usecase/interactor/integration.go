@@ -11,7 +11,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -29,9 +32,31 @@ func NewIntegration(r *repo.Container, g *gateway.Container) interfaces.Integrat
 	}
 }
 
+func (i Integration) checkPermission(ctx context.Context, operator *usecase.Operator, caller, action string) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceIntegration, action, (*workspace.ID)(nil))
+	if authErr != nil {
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
+}
+
 func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (integration.List, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.FindByMe", rbac.ActionList); err != nil {
+		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (integration.List, error) {
@@ -47,6 +72,9 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
+	if err := i.checkPermission(ctx, operator, "integration.FindByIDs", rbac.ActionRead); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (integration.List, error) {
 			in, err := i.repos.Integration.FindByIDs(ctx, ids)
@@ -60,6 +88,9 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.Create", rbac.ActionCreate); err != nil {
+		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*integration.Integration, error) {
@@ -87,6 +118,9 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param interfaces.UpdateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.Update", rbac.ActionUpdate); err != nil {
+		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*integration.Integration, error) {
@@ -124,6 +158,9 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
+	if err := i.checkPermission(ctx, operator, "integration.Delete", rbac.ActionDelete); err != nil {
+		return err
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
 			iid, err := accountdomain.IntegrationIDFrom(integrationId.String())
@@ -160,6 +197,9 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 func (i Integration) DeleteMany(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) error {
 	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.DeleteMany", rbac.ActionDelete); err != nil {
+		return err
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
@@ -216,6 +256,9 @@ func (i Integration) RegenerateToken(ctx context.Context, iId id.IntegrationID, 
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
+	if err := i.checkPermission(ctx, operator, "integration.RegenerateToken", rbac.ActionUpdate); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*integration.Integration, error) {
 			in, err := i.repos.Integration.FindByID(ctx, iId)
@@ -241,6 +284,9 @@ func (i Integration) RegenerateToken(ctx context.Context, iId id.IntegrationID, 
 func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, param interfaces.CreateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.CreateWebhook", rbac.ActionCreate); err != nil {
+		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*integration.Webhook, error) {
@@ -280,6 +326,9 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, param interfaces.UpdateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.UpdateWebhook", rbac.ActionUpdate); err != nil {
+		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*integration.Webhook, error) {
@@ -333,6 +382,9 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, operator *usecase.Operator) error {
 	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
+	}
+	if err := i.checkPermission(ctx, operator, "integration.DeleteWebhook", rbac.ActionDelete); err != nil {
+		return err
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {

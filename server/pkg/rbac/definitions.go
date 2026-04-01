@@ -149,6 +149,28 @@ var ResourceRules = []generator.ResourceRule{
 		},
 	},
 
+	// ========== Schema ==========
+	{
+		Resource: ResourceSchema,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionUpdate: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== Integration ==========
+	{
+		Resource: ResourceIntegration,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:   {Roles: selfOnly, Condition: jwtRequired},
+			ActionList:   {Roles: selfOnly, Condition: jwtRequired},
+			ActionCreate: {Roles: selfOnly, Condition: jwtRequired},
+			ActionUpdate: {Roles: selfOnly, Condition: jwtRequired},
+			ActionDelete: {Roles: selfOnly, Condition: jwtRequired},
+		},
+	},
+
 	// TODO: Add more resources on the next tasks
-	// Schema, Item, Asset, Integration, Request, Thread, View, WorkspaceSettings
+	// Request, Thread, View, WorkspaceSettings
 }
