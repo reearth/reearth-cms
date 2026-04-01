@@ -123,6 +123,7 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		if appCtx == nil || appCtx.Repos == nil || appCtx.AcRepos == nil || appCtx.Gateways == nil || appCtx.AcGateways == nil {
 			return nil, errors.New("internal error")
 		}
+
 		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
 		var r2 *repo.Container
 		var ar2 *accountrepo.Container
@@ -134,9 +135,10 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 			ar2 = ar
 		}
 		uc := interactor.New(r2, g, ar2, ag, interactor.ContainerConfig{})
-		ctx = adapter.AttachAcRepos(ctx, ar2)
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		ctx = adapter.AttachGateways(ctx, g)
+		ctx = adapter.AttachAcRepos(ctx, ar2)
+
 		return handler(ctx, req)
 	}
 }

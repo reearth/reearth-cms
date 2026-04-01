@@ -21,6 +21,7 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.
 			// apply filters to repos
 			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
 			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
+
 		} else {
 			r2 = r
 			ar2 = ar
@@ -30,7 +31,7 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.
 		ctx = adapter.AttachAcRepos(ctx, ar2)
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		ctx = adapter.AttachGateways(ctx, g)
-		ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Workspace, r.Project, &uc))
+		ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Workspace, r2.Project, &uc))
 		return ctx
 	})
 }

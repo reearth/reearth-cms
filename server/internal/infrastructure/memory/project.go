@@ -27,11 +27,11 @@ func NewProject() repo.Project {
 	}
 }
 
-func (r *Project) Filtered(workspace repo.WorkspaceFilter, project repo.ProjectFilter) repo.Project {
+func (r *Project) Filtered(wf repo.WorkspaceFilter, pf repo.ProjectFilter) repo.Project {
 	return &Project{
 		data: r.data,
-		f:    r.f.Merge(workspace),
-		pf:   r.pf.Merge(project),
+		f:    r.f.Merge(wf),
+		pf:   r.pf.Merge(pf),
 		err:  r.err,
 	}
 }

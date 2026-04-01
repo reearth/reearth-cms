@@ -59,11 +59,11 @@ func (r *ProjectRepo) Init() error {
 	return createIndexes2(context.Background(), r.client, idx...)
 }
 
-func (r *ProjectRepo) Filtered(workspace repo.WorkspaceFilter, project repo.ProjectFilter) repo.Project {
+func (r *ProjectRepo) Filtered(wf repo.WorkspaceFilter, pf repo.ProjectFilter) repo.Project {
 	return &ProjectRepo{
 		client: r.client,
-		f:      r.f.Merge(workspace),
-		pf:     r.pf.Merge(project),
+		f:      r.f.Merge(wf),
+		pf:     r.pf.Merge(pf),
 	}
 }
 
@@ -241,7 +241,6 @@ func (r *ProjectRepo) readFilter(filter any) any {
 		return filter
 	}
 	if len(r.pf.Readable) > 0 {
-		// public projects OR private projects the operator explicitly has access to
 		visibilityFilter := bson.M{"$or": bson.A{
 			bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
 			bson.M{"id": bson.M{"$in": r.pf.Readable.Strings()}},
