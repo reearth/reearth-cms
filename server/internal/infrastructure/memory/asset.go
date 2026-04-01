@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -80,7 +81,9 @@ func (r *Asset) Search(_ context.Context, id id.ProjectID, filter repo.AssetFilt
 
 		// Keyword filter
 		if filter.Keyword != nil && *filter.Keyword != "" {
-			if !strings.Contains(strings.ToLower(v.FileName()), strings.ToLower(*filter.Keyword)) {
+			normalizedKeyword := utils.NormalizeText(*filter.Keyword)
+			normalizedFileName := utils.NormalizeText(v.FileName())
+			if !strings.Contains(strings.ToLower(normalizedFileName), strings.ToLower(normalizedKeyword)) {
 				return false
 			}
 		}

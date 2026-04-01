@@ -425,11 +425,9 @@ test.describe("Import content", () => {
         await contentPage.uploadImportFile(path);
       });
 
-      await test.step("Verify schema mismatch warning is displayed", async () => {
+      await test.step("Verify error log is displayed", async () => {
         await expect(contentPage.importContentErrorWrapper).toBeVisible();
-        await expect(contentPage.importContentErrorTitle).toContainText(
-          t("Some fields don't match the schema"),
-        );
+        await expect(contentPage.importContentErrorWrapper).toContainText(t("Validation errors"));
         await expect(contentPage.importContentGoBackButton).toBeVisible();
       });
     });
@@ -466,11 +464,9 @@ test.describe("Import content", () => {
       await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
     });
 
-    await test.step("Verify schema mismatch warning is displayed", async () => {
+    await test.step("Verify error log is displayed", async () => {
       await expect(contentPage.importContentErrorWrapper).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toContainText(
-        t("Some fields don't match the schema"),
-      );
+      await expect(contentPage.importContentErrorWrapper).toContainText(t("Validation errors"));
     });
   });
 
@@ -506,13 +502,9 @@ test.describe("Import content", () => {
       await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_JSON_PATH);
     });
 
-    await test.step("Verify error is displayed for no matching fields", async () => {
+    await test.step("Verify error log is displayed for no matching fields", async () => {
       await expect(contentPage.importContentErrorWrapper).toBeVisible();
-
-      await expect(contentPage.importContentErrorTitle).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toContainText(
-        t("No matching fields found"),
-      );
+      await expect(contentPage.importContentErrorWrapper).toContainText(t("Validation errors"));
     });
   });
 });

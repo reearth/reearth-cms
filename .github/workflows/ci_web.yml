@@ -3,7 +3,7 @@ on:
   workflow_call:
 jobs:
   validate-nginx-config:
-    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@e05fcd1efc6c985c7c0c906cff1452ee634232c8
+    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@4a7719ea2bfbcf3841b58eaedb01e91d3520227a
     with:
       template_directory: docker
       template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
@@ -19,11 +19,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
@@ -39,11 +46,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
@@ -59,11 +73,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
@@ -84,11 +105,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Cache TypeScript
         uses: actions/cache@v5
         with:
@@ -107,7 +135,7 @@ jobs:
           tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
       - name: Upload artifact
         if: github.ref_name == 'main' || github.ref_name == 'release'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: reearth-cms-web
           path: web/reearth-cms-web.tar.gz

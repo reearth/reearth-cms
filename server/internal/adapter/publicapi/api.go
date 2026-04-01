@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
 
@@ -55,38 +56,45 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project", OpenAPISchema())
 }
 
+// parseSubRoute splits a sub-route segment into a model key and extension.
+// Compound extensions (.schema.json, .metadata_schema.json, .geojson) are
+// checked first since path.Ext would only return the last component (.json).
+func parseSubRoute(subRoute string) (name, ext string) {
+	lower := strings.ToLower(subRoute)
+	for _, compound := range []string{".metadata_schema.json", ".schema.json", ".geojson"} {
+		if strings.HasSuffix(lower, compound) {
+			return subRoute[:len(subRoute)-len(compound)], compound
+		}
+	}
+	ext = path.Ext(lower)
+	return subRoute[:len(subRoute)-len(ext)], ext
+}
+
 // SubRoute since echo supports only / separated params, we need to route inside the handler
 func SubRoute() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		wsAlias, pAlias := c.Param("workspace"), c.Param("project")
-		subRoute := strings.ToLower(c.Param("sub-route"))
+		mKey, ext := parseSubRoute(c.Param("sub-route"))
 
-		switch {
-		case strings.HasSuffix(subRoute, ".metadata_schema.json"):
-			mKey := strings.TrimSuffix(subRoute, ".metadata_schema.json")
+		switch ext {
+		case ".metadata_schema.json":
 			return SchemaOrMetadataSchema(c, wsAlias, pAlias, mKey, "metadata_schema")
-		case strings.HasSuffix(subRoute, ".schema.json"):
-			mKey := strings.TrimSuffix(subRoute, ".schema.json")
+		case ".schema.json":
 			return SchemaOrMetadataSchema(c, wsAlias, pAlias, mKey, "schema")
-
-		case subRoute == "assets":
-			return Assets(c, wsAlias, pAlias, "assets", "")
-		case strings.HasSuffix(subRoute, "assets.json"):
-			return Assets(c, wsAlias, pAlias, "assets", "json")
-
-		case strings.HasSuffix(subRoute, ".json"):
-			mKey := strings.TrimSuffix(subRoute, ".json")
+		case ".json":
+			if mKey == "assets" {
+				return Assets(c, wsAlias, pAlias, "assets", "json")
+			}
 			return Items(c, wsAlias, pAlias, mKey, "json")
-		case strings.HasSuffix(subRoute, ".csv"):
-			mKey := strings.TrimSuffix(subRoute, ".csv")
+		case ".csv":
 			return Items(c, wsAlias, pAlias, mKey, "csv")
-		case strings.HasSuffix(subRoute, ".geojson"):
-			mKey := strings.TrimSuffix(subRoute, ".geojson")
+		case ".geojson":
 			return Items(c, wsAlias, pAlias, mKey, "geojson")
-		case !strings.Contains(subRoute, "."):
-			mKey := subRoute
+		case "":
+			if mKey == "assets" {
+				return Assets(c, wsAlias, pAlias, "assets", "")
+			}
 			return Items(c, wsAlias, pAlias, mKey, "json")
-
 		default:
 			return c.JSON(http.StatusNotFound, nil)
 		}
@@ -207,16 +215,6 @@ func paginationFrom(c echo.Context) *usecasex.Pagination {
 	if offset, ok := intParams(c, "offset"); ok {
 		return usecasex.OffsetPagination{
 			Offset: offset,
-			Limit:  limit,
-		}.Wrap()
-	}
-
-	if page, ok := intParams(c, "page"); ok {
-		if page <= 0 {
-			page = 1
-		}
-		return usecasex.OffsetPagination{
-			Offset: (page - 1) * limit,
 			Limit:  limit,
 		}.Wrap()
 	}
