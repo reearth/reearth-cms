@@ -234,10 +234,7 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 
 func (r *ProjectRepo) readFilter(filter any) any {
 	filter = applyWorkspaceFilter(filter, r.f.Readable)
-	if r.pf.PublicOnly {
-		return mongox.And(filter, "accessibility.visibility", project.VisibilityPublic.String())
-	}
-	if r.pf.Readable == nil {
+	if r.pf.Readable == nil && !r.pf.PublicOnly {
 		return filter
 	}
 	if len(r.pf.Readable) > 0 {
