@@ -292,14 +292,8 @@ test("@focus Group field editing has succeeded", async ({
     await fieldEditorPage.plusNewButton.click();
     await page.waitForTimeout(300);
     await expect(contentPage.mainRole).toContainText("new group1 (2)");
-    await contentPage
-      .divFilterByText(/^0text1 description$/)
-      .getByLabel("text1")
-      .click();
-    await contentPage
-      .divFilterByText(/^0text1 description$/)
-      .getByLabel("text1")
-      .fill("text1-2");
+    await contentPage.textBoxByIndex(1).click();
+    await contentPage.textBoxByIndex(1).fill("text1-2");
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await page.waitForTimeout(300);
@@ -308,12 +302,9 @@ test("@focus Group field editing has succeeded", async ({
   await test.step("Verify multiple group values persisted", async () => {
     await expect(contentPage.editButton).toBeVisible();
     await contentPage.editButton.click();
-    await expect(
-      contentPage.divFilterByText(/^5text1 description$/).getByLabel("text1"),
-    ).toHaveValue("text1");
-    await expect(
-      contentPage.divFilterByText(/^7text1 description$/).getByLabel("text1"),
-    ).toHaveValue("text1-2");
+    await expect(contentPage.mainRole).toContainText("new group1");
+    await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
+    await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1-2");
     await expect(contentPage.backButton).toBeVisible();
     await contentPage.backButton.click();
     await page.waitForTimeout(300);

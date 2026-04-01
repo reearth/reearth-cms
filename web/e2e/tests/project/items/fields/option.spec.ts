@@ -134,7 +134,7 @@ test("@focus Option field editing has succeeded", async ({
   await test.step("Verify deleted option removed from default and set new default", async () => {
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeVisible();
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.setDefaultValueInput.click();
     await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("second")).toBeHidden();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();

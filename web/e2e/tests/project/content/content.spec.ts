@@ -345,8 +345,10 @@ test.describe("Import content", () => {
 
       await test.step("Verify import job is created and modal closes", async () => {
         await expect(contentPage.importContentModal).toBeHidden();
-        await contentPage.tableReloadIcon.click();
-        await expect(contentPage.cellByText("text111")).toBeVisible();
+        await expect(async () => {
+          await contentPage.tableReloadIcon.click();
+          await expect(contentPage.cellByText("text111")).toBeVisible();
+        }).toPass({ timeout: 30_000 });
       });
     });
   });
