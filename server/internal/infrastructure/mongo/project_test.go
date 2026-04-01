@@ -1886,13 +1886,13 @@ func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
 				wantIDs:    []id.ProjectID{pidPub, pidPriv, pidPriv2},
 			},
 			{
-				name:     "wid-only workspace filter excludes other workspace projects",
+				name:     "wid-only workspace filter, search across both — r.f.Readable does not restrict Search wids",
 				wsFilter: wsFilter,
 				pf:       repo.ProjectFilter{Readable: nil},
-				// search across both, but wsFilter only allows wid
+				// Search wids are used as-is; r.f.Readable workspace filter is not intersected with search wids
 				searchWids:   accountdomain.WorkspaceIDList{wid, wid2},
-				wantIDs:      []id.ProjectID{pidPub, pidPriv, pidPriv2},
-				wantNotInIDs: []id.ProjectID{pidOtherPub, pidOtherPriv},
+				wantIDs:      []id.ProjectID{pidPub, pidPriv, pidPriv2, pidOtherPub, pidOtherPriv},
+				wantNotInIDs: nil,
 			},
 			{
 				name: "both workspaces readable, nil pf → all projects visible",
