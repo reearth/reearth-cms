@@ -29,7 +29,7 @@ const config: PlaywrightTestConfig = {
   testDir: "./e2e/tests",
   testMatch: "**/*.spec.ts",
   testIgnore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
-  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
+  reporter: process.env.CI ? [["blob"], ["github"]] : [["list"], ["html", { open: "never" }]],
   fullyParallel: false,
   projects: [
     {
