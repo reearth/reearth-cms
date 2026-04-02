@@ -8,7 +8,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -24,18 +28,87 @@ func NewView(r *repo.Container, g *gateway.Container) interfaces.View {
 	}
 }
 
-func (i View) FindByID(ctx context.Context, ID view.ID, _ *usecase.Operator) (*view.View, error) {
-	return i.repos.View.FindByID(ctx, ID)
+func (i View) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceView, action, workspaceID)
+	if authErr != nil {
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
 }
 
-func (i View) FindByIDs(ctx context.Context, IDs view.IDList, _ *usecase.Operator) (view.List, error) {
-	return i.repos.View.FindByIDs(ctx, IDs)
+func (i View) workspaceIDForProject(ctx context.Context, projectID id.ProjectID) (*workspace.ID, error) {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil, nil
+	}
+	p, err := i.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	ws := p.Workspace()
+	return &ws, nil
 }
 
-func (i View) FindByModel(ctx context.Context, mID view.ModelID, _ *usecase.Operator) (view.List, error) {
+func (i View) FindByID(ctx context.Context, ID view.ID, operator *usecase.Operator) (*view.View, error) {
+	v, err := i.repos.View.FindByID(ctx, ID)
+	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForProject(ctx, v.Project())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "View.FindByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+func (i View) FindByIDs(ctx context.Context, IDs view.IDList, operator *usecase.Operator) (view.List, error) {
+	views, err := i.repos.View.FindByIDs(ctx, IDs)
+	if err != nil {
+		return nil, err
+	}
+	seen := map[view.ProjectID]bool{}
+	for _, v := range views {
+		if v == nil || seen[v.Project()] {
+			continue
+		}
+		seen[v.Project()] = true
+		wid, err := i.workspaceIDForProject(ctx, v.Project())
+		if err != nil {
+			return nil, err
+		}
+		if err := i.checkPermission(ctx, operator, wid, "View.FindByIDs", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
+	return views, nil
+}
+
+func (i View) FindByModel(ctx context.Context, mID view.ModelID, operator *usecase.Operator) (view.List, error) {
 	v, err := i.repos.View.FindByModel(ctx, mID)
 	if err != nil {
 		return nil, err
+	}
+	if len(v) > 0 {
+		wid, err := i.workspaceIDForProject(ctx, v[0].Project())
+		if err != nil {
+			return nil, err
+		}
+		if err := i.checkPermission(ctx, operator, wid, "View.FindByModel", rbac.ActionList); err != nil {
+			return nil, err
+		}
 	}
 	return v.Ordered(), nil
 }
@@ -43,6 +116,13 @@ func (i View) FindByModel(ctx context.Context, mID view.ModelID, _ *usecase.Oper
 func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *usecase.Operator) (*view.View, error) {
 	if op.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
+	}
+	wid, err := i.workspaceIDForProject(ctx, param.Project)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, op, wid, "View.Create", rbac.ActionCreate); err != nil {
+		return nil, err
 	}
 	return Run1(ctx, op, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *view.View, err error) {
@@ -104,6 +184,14 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			wid, err := i.workspaceIDForProject(ctx, v.Project())
+			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, op, wid, "View.Update", rbac.ActionUpdate); err != nil {
+				return nil, err
+			}
+
 			if param.Name != nil {
 				v.SetName(*param.Name)
 			}
@@ -136,6 +224,14 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			wid, err := i.workspaceIDForProject(ctx, v[0].Project())
+			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, operator, wid, "View.UpdateOrder", rbac.ActionUpdate); err != nil {
+				return nil, err
+			}
+
 			views, err := i.repos.View.FindByModel(ctx, v[0].Model())
 			if err != nil {
 				return nil, err
@@ -161,6 +257,14 @@ func (i View) Delete(ctx context.Context, ID view.ID, op *usecase.Operator) erro
 			}
 			if !op.IsMaintainingProject(m.Project()) {
 				return interfaces.ErrOperationDenied
+			}
+
+			wid, err := i.workspaceIDForProject(ctx, m.Project())
+			if err != nil {
+				return err
+			}
+			if err := i.checkPermission(ctx, op, wid, "View.Delete", rbac.ActionDelete); err != nil {
+				return err
 			}
 
 			views, err := i.repos.View.FindByModel(ctx, m.Model())

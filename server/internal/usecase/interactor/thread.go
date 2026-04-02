@@ -8,7 +8,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/log"
 )
 
 type Thread struct {
@@ -23,21 +26,67 @@ func NewThread(r *repo.Container, g *gateway.Container) interfaces.Thread {
 	}
 }
 
+func (i *Thread) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceThread, action, workspaceID)
+	if authErr != nil {
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
+}
+
 func (i *Thread) FindByID(ctx context.Context, aid id.ThreadID, op *usecase.Operator) (*thread.Thread, error) {
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*thread.Thread, error) {
-			return i.repos.Thread.FindByID(ctx, aid)
+			th, err := i.repos.Thread.FindByID(ctx, aid)
+			if err != nil {
+				return nil, err
+			}
+			wid := th.Workspace()
+			if err := i.checkPermission(ctx, op, &wid, "Thread.FindByID", rbac.ActionRead); err != nil {
+				return nil, err
+			}
+			return th, nil
 		},
 	)
 }
 
 func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator *usecase.Operator) (thread.List, error) {
-	return i.repos.Thread.FindByIDs(ctx, threads)
+	list, err := i.repos.Thread.FindByIDs(ctx, threads)
+	if err != nil {
+		return nil, err
+	}
+	seen := map[workspace.ID]bool{}
+	for _, th := range list {
+		if th == nil || seen[th.Workspace()] {
+			continue
+		}
+		seen[th.Workspace()] = true
+		wid := th.Workspace()
+		if err := i.checkPermission(ctx, operator, &wid, "Thread.FindByIDs", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
+	return list, nil
 }
 
 func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.CreateThreadWithCommentInput, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
+	wid := input.WorkspaceID
+	if err := i.checkPermission(ctx, op, &wid, "Thread.CreateThreadWithComment", rbac.ActionCreate); err != nil {
+		return nil, nil, err
+	}
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(input.WorkspaceID).Transaction(),
@@ -128,6 +177,11 @@ func (i *Thread) addComment(ctx context.Context, thid id.ThreadID, content strin
 		return nil, nil, err
 	}
 
+	wid := th.Workspace()
+	if err := i.checkPermission(ctx, op, &wid, "Thread.AddComment", rbac.ActionComment); err != nil {
+		return nil, nil, err
+	}
+
 	if !op.IsWritableWorkspace(th.Workspace()) {
 		return nil, nil, interfaces.ErrOperationDenied
 	}
@@ -154,6 +208,11 @@ func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.Com
 		func(ctx context.Context) (*thread.Thread, *thread.Comment, error) {
 			th, err := i.repos.Thread.FindByID(ctx, thid)
 			if err != nil {
+				return nil, nil, err
+			}
+
+			wid := th.Workspace()
+			if err := i.checkPermission(ctx, op, &wid, "Thread.UpdateComment", rbac.ActionComment); err != nil {
 				return nil, nil, err
 			}
 
@@ -184,6 +243,11 @@ func (i *Thread) DeleteComment(ctx context.Context, thid id.ThreadID, cid id.Com
 		func(ctx context.Context) (*thread.Thread, error) {
 			th, err := i.repos.Thread.FindByID(ctx, thid)
 			if err != nil {
+				return nil, err
+			}
+
+			wid := th.Workspace()
+			if err := i.checkPermission(ctx, op, &wid, "Thread.DeleteComment", rbac.ActionComment); err != nil {
 				return nil, err
 			}
 

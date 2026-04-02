@@ -12,9 +12,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -33,15 +36,76 @@ func NewRequest(r *repo.Container, g *gateway.Container) *Request {
 	}
 }
 
-func (r Request) FindByID(ctx context.Context, id id.RequestID, _ *usecase.Operator) (*request.Request, error) {
-	return r.repos.Request.FindByID(ctx, id)
+func (r Request) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+	if r.gateways == nil || r.gateways.Authorization == nil {
+		return nil
+	}
+	allowed, authErr := r.gateways.Authorization.CheckPermission(ctx, rbac.ResourceRequest, action, workspaceID)
+	if authErr != nil {
+		userID := "unknown"
+		if operator.User() != nil {
+			userID = operator.User().String()
+		}
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
 }
 
-func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecase.Operator) (request.List, error) {
-	return r.repos.Request.FindByIDs(ctx, list)
+func (r Request) workspaceIDForProject(ctx context.Context, projectID id.ProjectID) (*workspace.ID, error) {
+	if r.gateways == nil || r.gateways.Authorization == nil {
+		return nil, nil
+	}
+	p, err := r.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	ws := p.Workspace()
+	return &ws, nil
 }
 
-func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
+func (r Request) FindByID(ctx context.Context, rid id.RequestID, operator *usecase.Operator) (*request.Request, error) {
+	req, err := r.repos.Request.FindByID(ctx, rid)
+	if err != nil {
+		return nil, err
+	}
+	wid := req.Workspace()
+	if err := r.checkPermission(ctx, operator, &wid, "Request.FindByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator *usecase.Operator) (request.List, error) {
+	reqs, err := r.repos.Request.FindByIDs(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	seen := map[workspace.ID]bool{}
+	for _, req := range reqs {
+		if req == nil || seen[req.Workspace()] {
+			continue
+		}
+		seen[req.Workspace()] = true
+		wid := req.Workspace()
+		if err := r.checkPermission(ctx, operator, &wid, "Request.FindByIDs", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
+	return reqs, nil
+}
+
+func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, operator *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
+	wid, err := r.workspaceIDForProject(ctx, pid)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := r.checkPermission(ctx, operator, wid, "Request.FindByProject", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
 		State:     filter.State,
 		Keyword:   filter.Keyword,
@@ -50,7 +114,20 @@ func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter int
 	}, sort, pagination)
 }
 
-func (r Request) FindByItem(ctx context.Context, iId id.ItemID, filter *interfaces.RequestFilter, _ *usecase.Operator) (request.List, error) {
+func (r Request) FindByItem(ctx context.Context, iId id.ItemID, filter *interfaces.RequestFilter, operator *usecase.Operator) (request.List, error) {
+	itm, err := r.repos.Item.FindByID(ctx, iId, nil)
+	if err != nil {
+		return nil, err
+	}
+	if itm != nil {
+		wid, err := r.workspaceIDForProject(ctx, itm.Value().Project())
+		if err != nil {
+			return nil, err
+		}
+		if err := r.checkPermission(ctx, operator, wid, "Request.FindByItem", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
 	var f *repo.RequestFilter
 	if filter != nil {
 		f = &repo.RequestFilter{
@@ -75,6 +152,11 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 		}
 		ws, err := r.repos.Workspace.FindByID(ctx, p.Workspace())
 		if err != nil {
+			return nil, err
+		}
+
+		wid := ws.ID()
+		if err := r.checkPermission(ctx, operator, &wid, "Request.Create", rbac.ActionCreate); err != nil {
 			return nil, err
 		}
 
@@ -130,6 +212,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func(ctx context.Context) (*request.Request, error) {
 		req, err := r.repos.Request.FindByID(ctx, param.RequestID)
 		if err != nil {
+			return nil, err
+		}
+
+		wid := req.Workspace()
+		if err := r.checkPermission(ctx, operator, &wid, "Request.Update", rbac.ActionUpdate); err != nil {
 			return nil, err
 		}
 
@@ -224,7 +311,15 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 		return interfaces.ErrInvalidOperator
 	}
 
-	reqs, err := r.FindByIDs(ctx, ids, operator)
+	wid, err := r.workspaceIDForProject(ctx, pid)
+	if err != nil {
+		return err
+	}
+	if err := r.checkPermission(ctx, operator, wid, "Request.CloseAll", rbac.ActionUpdate); err != nil {
+		return err
+	}
+
+	reqs, err := r.repos.Request.FindByIDs(ctx, ids)
 	if err != nil {
 		return err
 	}
@@ -243,6 +338,12 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		if err != nil {
 			return nil, err
 		}
+
+		wid := req.Workspace()
+		if err := r.checkPermission(ctx, operator, &wid, "Request.Approve", rbac.ActionApprove); err != nil {
+			return nil, err
+		}
+
 		if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
 			return nil, interfaces.ErrInvalidOperator
 		}

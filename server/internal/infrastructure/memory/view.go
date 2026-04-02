@@ -53,14 +53,9 @@ func (r *View) FindByModel(_ context.Context, mID id.ModelID) (view.List, error)
 		return nil, r.err
 	}
 
-	i := r.data.FindAll(func(_ id.ViewID, i *view.View) bool {
+	return r.data.FindAll(func(_ id.ViewID, i *view.View) bool {
 		return i.Model() == mID && r.f.CanRead(i.Project())
-	})
-
-	if i != nil {
-		return i, nil
-	}
-	return nil, rerror.ErrNotFound
+	}), nil
 }
 
 func (r *View) FindByIDs(_ context.Context, iIds id.ViewIDList) (view.List, error) {
