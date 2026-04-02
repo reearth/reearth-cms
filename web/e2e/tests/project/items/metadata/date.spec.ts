@@ -24,8 +24,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("date1");
     await fieldEditorPage.fieldKeyInput.fill("date1");
     await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.fieldText("date1", "date1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -56,8 +55,7 @@ test("Date metadata creating and updating has succeeded", async ({
 
     await contentPage.fieldInput("date1").fill("2024-01-01");
     await contentPage.fieldInput("date1").press("Enter");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
     await page.waitForTimeout(300);
@@ -101,8 +99,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.fill("2024-01-01");
     await fieldEditorPage.selectDatePlaceholder.press("Enter");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -113,8 +110,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
 
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -138,8 +134,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.textboxByIndex(1).fill("2024-01-02");
     await fieldEditorPage.textboxByIndex(1).press("Enter");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -155,8 +150,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
 
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
     await page.waitForTimeout(300);

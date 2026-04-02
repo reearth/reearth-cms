@@ -57,8 +57,7 @@ test.describe("Json file tests", () => {
     // change type
     await assetsPage.typeSelectTrigger.click();
     await assetsPage.typeOption("GEOJSON/KML/CZML").click();
-    await assetsPage.saveButton.click();
-    await assetsPage.closeNotification();
+    await assetsPage.clickAndExpectSuccess(assetsPage.saveButton);
 
     // Cesium canvas is rendered (attached to DOM) but Playwright considers it
     // hidden because the WebGL canvas is not passing visibility checks.
@@ -105,8 +104,7 @@ test.describe("Json file tests", () => {
     // cleanup
     await assetsPage.backButton.click();
     await assetsPage.selectAssetCheckbox.check();
-    await assetsPage.deleteButton.click();
-    await assetsPage.closeNotification();
+    await assetsPage.clickAndExpectSuccess(assetsPage.deleteButton);
   });
 
   test("Comment CRUD on edit page has succeeded", async ({ assetsPage, contentPage }) => {

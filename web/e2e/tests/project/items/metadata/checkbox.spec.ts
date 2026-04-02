@@ -25,8 +25,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("checkbox1");
     await fieldEditorPage.fieldKeyInput.fill("checkbox1");
     await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -52,8 +51,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("checkbox1")).toBeVisible();
     await expect(contentPage.fieldDescriptionText("checkbox1 description")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
     await page.waitForTimeout(300);
@@ -97,8 +95,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueCheckbox.check();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -107,8 +104,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit("checkbox1")).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -125,8 +121,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await fieldEditorPage.plusNewButton.click();
     await expect(fieldEditorPage.checkboxByIndex(1)).not.toBeChecked();
     await fieldEditorPage.checkboxByIndex(1).check();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.getByText("new checkbox1")).toBeVisible();
     await expect(schemaPage.getByText("#new-checkbox1")).toBeVisible();
     await page.waitForTimeout(300);
@@ -141,8 +136,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.fieldDescriptionText("new checkbox1 description")).toBeVisible();
     await expect(contentPage.checkboxByIndex(0)).toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.checkboxByIndex(0)).toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
     await page.waitForTimeout(300);
@@ -162,8 +156,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await contentPage.cellEditButtonByIndex(0).click();
     await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
-    await fieldEditorPage.plusNewButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.plusNewButton);
     await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
     await expect(contentPage.checkboxByIndex(2)).not.toBeChecked();

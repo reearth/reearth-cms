@@ -31,7 +31,6 @@ export class ProjectSettingsPage extends BasePage {
   }
 
   public async saveSettings(): Promise<void> {
-    await this.saveChanges.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.saveChanges);
   }
 }

@@ -210,8 +210,7 @@ test("Group creating from adding field has succeeded", async ({
     await schemaPage.groupKeyInput.click();
     await schemaPage.groupKeyInput.fill("e2e-group-key");
     await expect(fieldEditorPage.okButton).toBeEnabled();
-    await fieldEditorPage.okButton.click();
-    await schemaPage.closeNotification();
+    await schemaPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 

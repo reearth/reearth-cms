@@ -27,8 +27,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.integrationNameInput.fill(id);
     await integrationsPage.descriptionInput.click();
     await integrationsPage.descriptionInput.fill("e2e integration description");
-    await integrationsPage.createButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.createButton);
     await page.waitForTimeout(300);
   });
 
@@ -40,8 +39,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.integrationTextById(id)).toBeVisible();
     await integrationsPage.integrationTextById(id).click();
     await expect(integrationsPage.connectButton).toBeVisible();
-    await integrationsPage.connectButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.connectButton);
     await page.waitForTimeout(300);
   });
 
@@ -66,8 +64,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.readerRoleOption.click();
     await integrationsPage.writerRoleOption.click();
     await expect(integrationsPage.saveButton).toBeVisible();
-    await integrationsPage.saveButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.saveButton);
     await expect(integrationsPage.writerCell).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -90,8 +87,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.selectAllCheckbox).toBeVisible();
     await integrationsPage.selectAllCheckbox.check();
     await expect(integrationsPage.removeText).toBeVisible();
-    await integrationsPage.removeText.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.removeText);
     await page.waitForTimeout(300);
     await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();

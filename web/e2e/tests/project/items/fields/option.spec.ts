@@ -39,8 +39,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
     await expect(contentPage.optionTextByName("Option must be unique")).toBeVisible();
     await expect(fieldEditorPage.okButton).toBeDisabled();
     await fieldEditorPage.valuesInput.nth(1).fill("second");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -61,8 +60,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.optionDiv("second")).toBeVisible();
     await fieldEditorPage.optionDiv("first").click();
     await expect(contentPage.rootElement.getByText("first").last()).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -78,8 +76,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
     await contentPage.fieldInput("option1").click();
     await fieldEditorPage.optionDiv("second").click();
     await expect(contentPage.rootElement.getByText("second").last()).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -140,8 +137,7 @@ test("Option field editing has succeeded", async ({
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
     await fieldEditorPage.optionDiv("third").click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -154,8 +150,7 @@ test("Option field editing has succeeded", async ({
     await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -230,8 +225,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.antSelectSelectionItem.nth(1).click();
     await fieldEditorPage.optionDiv("new third").last().click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -252,8 +246,7 @@ test("Option field editing has succeeded", async ({
     await expect(contentPage.optionTextByName("new option1(unique)")).toBeVisible();
     await expect(contentPage.optionTextByName("new first")).toBeVisible();
     await expect(contentPage.optionTextByName("new third")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 

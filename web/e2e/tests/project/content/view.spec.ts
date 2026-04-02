@@ -40,8 +40,7 @@ test("Create a new view", async ({
   await test.step("Create a new view named 'view1'", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -70,8 +69,7 @@ test("Rename an existing view", async ({
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -80,8 +78,7 @@ test("Rename an existing view", async ({
     await contentPage.renameViewButton.click();
     await contentPage.viewNameInput.click();
     await contentPage.viewNameInput.fill("renamed view");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -109,8 +106,7 @@ test("Cancel view deletion", async ({
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -269,8 +265,7 @@ test("Save view with custom sorting and filtering", async ({
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.click();
     await contentPage.viewNameInput.fill("filtered view");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -305,8 +300,7 @@ test("Switch between views preserves individual view settings", async ({
   await test.step("Create first view with no customization", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -330,8 +324,7 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.click();
     await contentPage.viewNameInput.fill("view2");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -373,8 +366,7 @@ test("Update view settings", async ({
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -398,16 +390,14 @@ test("Update view settings", async ({
 
   await test.step("Update the view with new settings", async () => {
     await contentPage.viewTabMoreIcon("view1").click();
-    await contentPage.updateViewButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.updateViewButton);
     await page.waitForTimeout(300);
   });
 
   await test.step("Create another view to switch context", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view2");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -439,8 +429,7 @@ test("Delete view and switch to remaining view", async ({
   await test.step("Create first view", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -462,8 +451,7 @@ test("Delete view and switch to remaining view", async ({
   await test.step("Save as second view", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view2");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -471,8 +459,7 @@ test("Delete view and switch to remaining view", async ({
     await contentPage.viewTabWithMore("view1").click();
     await contentPage.viewTabMoreIcon("view1").click();
     await contentPage.removeViewButton.click();
-    await contentPage.removeButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.removeButton);
     await page.waitForTimeout(300);
   });
 
@@ -497,16 +484,14 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
   await test.step("Create view1", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view1");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
   await test.step("Create view2", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view2");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -531,8 +516,7 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
   await test.step("Create view3", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.fill("view3");
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForTimeout(300);
   });
 

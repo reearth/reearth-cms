@@ -34,8 +34,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsKeyInput.fill("asset1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -54,8 +53,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
     await page.waitForTimeout(300);
   });
 
@@ -66,8 +64,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
   });
 
   await test.step("Save item and verify asset appears in list", async () => {
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
     await page.waitForTimeout(300);
@@ -80,8 +77,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
     await page.waitForTimeout(300);
   });
 
@@ -90,8 +86,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
     await contentPage.backButton.click();
     await contentPage.cancelButton.click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
     await page.waitForTimeout(300);
@@ -110,8 +105,7 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("asset1");
     await fieldEditorPage.settingsKeyInput.fill("asset1");
     await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
   });
@@ -128,15 +122,13 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     await fieldEditorPage.uploadAssetButton.click();
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
     await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
   });
 
   await test.step("Save item", async () => {
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   });
 
   await test.step("Preview asset in new tab and verify viewer loads", async () => {
@@ -178,8 +170,7 @@ test("Asset field editing has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
     await page.waitForTimeout(300);
   });
 
@@ -199,8 +190,7 @@ test("Asset field editing has succeeded", async ({
     await contentPage.antTableRowTd.first().getByRole("button").click();
     await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -212,8 +202,7 @@ test("Asset field editing has succeeded", async ({
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
     await expect(contentPage.optionTextByName("asset1")).toBeVisible();
     await expect(contentPage.optionTextByName("asset1 description")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -250,8 +239,7 @@ test("Asset field editing has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
     await page.waitForTimeout(300);
 
     await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
@@ -259,8 +247,7 @@ test("Asset field editing has succeeded", async ({
     await fieldEditorPage.arrowUpButton.nth(1).click();
     await expect(contentPage.cssAssetByIndex(0)).toContainText(uploadFileName_2);
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -280,8 +267,7 @@ test("Asset field editing has succeeded", async ({
     await expect(contentPage.cssAssetByIndex(0)).toContainText(uploadFileName_2);
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
     await fieldEditorPage.plusNewButton.click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 

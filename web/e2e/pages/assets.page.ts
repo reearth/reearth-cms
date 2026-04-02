@@ -114,7 +114,6 @@ export class AssetsPage extends BasePage {
     await this.urlTab.click();
     await this.urlInput.fill(url);
     if (autoUnzip) await this.autoUnzipCheckbox.setChecked(true);
-    await this.submitUploadButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.submitUploadButton);
   }
 }

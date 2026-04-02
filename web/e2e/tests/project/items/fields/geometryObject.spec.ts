@@ -26,8 +26,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
     await fieldEditorPage.pointCheckbox.check();
-    await fieldEditorPage.okButton.click();
-    await fieldEditorPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -89,8 +88,7 @@ test("GeometryObject field editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.viewLinesEditor.click();
     await fieldEditorPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
-    await fieldEditorPage.okButton.click();
-    await fieldEditorPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -142,8 +140,7 @@ test("GeometryObject field editing has succeeded", async ({
     await expect(fieldEditorPage.viewLinesEditor.nth(1)).toContainText(
       '{  "type": "Point",  "coordinates": [0, 0]}',
     );
-    await fieldEditorPage.okButton.click();
-    await fieldEditorPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 

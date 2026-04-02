@@ -25,8 +25,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("text1");
     await fieldEditorPage.fieldKeyInput.fill("text1");
     await fieldEditorPage.fieldDescriptionInput.fill("text1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -54,8 +53,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await expect(contentPage.fieldInput("text1")).toBeVisible();
     await expect(contentPage.optionTextByName("text1 description")).toBeVisible();
     await contentPage.fieldInput("text1").fill("text1");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
     await page.waitForTimeout(300);
@@ -65,8 +63,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.textBoxes).toHaveValue("text1");
     await contentPage.textBoxes.fill("new text1");
-    await contentPage.antTableBody.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.antTableBody);
     await expect(contentPage.textBoxes).toHaveValue("new text1");
     await page.waitForTimeout(300);
   });
@@ -101,8 +98,7 @@ test("Text metadata editing has succeeded", async ({
     await fieldEditorPage.fieldDescriptionInput.fill("text1 description");
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -111,8 +107,7 @@ test("Text metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit("text1")).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1 default value");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -134,8 +129,7 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.textBoxByIndex(1).fill("text2");
     await expect(fieldEditorPage.okButton).toBeDisabled();
     await contentPage.textBoxByIndex(0).fill("text1");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(contentPage.optionTextByName("new text1 *#new-text1(unique)")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -152,8 +146,7 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.textBoxByIndex(1).fill("text22");
     await expect(contentPage.saveButton).toBeDisabled();
     await contentPage.textBoxByIndex(1).fill("text2");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
     await page.waitForTimeout(300);
@@ -168,8 +161,7 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.tooltipTextByName("new text1").click();
     await contentPage.closeNotification(false);
     await contentPage.tooltipTextboxes.nth(1).fill("text3");
-    await contentPage.tooltipTextByName("new text1").click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.tooltipTextByName("new text1"));
     await page.waitForTimeout(300);
   });
 

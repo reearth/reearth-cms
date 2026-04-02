@@ -207,8 +207,7 @@ export class ProjectPage extends BasePage {
     await expect(this.getByRole("dialog")).toBeVisible();
     await this.getByRole("dialog").locator("#name").fill(name);
     await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async gotoProject(name: string): Promise<void> {
@@ -266,8 +265,7 @@ export class ProjectPage extends BasePage {
     await expect(this.getByText("Settings").first()).toBeVisible();
     await this.getByText("Settings").first().click();
     await this.deleteProjectButton.click();
-    await this.confirmDeleteProjectButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.confirmDeleteProjectButton);
   }
 
   async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
@@ -279,8 +277,7 @@ export class ProjectPage extends BasePage {
       await this.getByLabel("Model key").fill(key);
     }
     await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   projectCardDescription(description: string): Locator {

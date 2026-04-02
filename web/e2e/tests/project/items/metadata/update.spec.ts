@@ -13,8 +13,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await projectPage.contentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").fill("test");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await projectPage.schemaMenuItem.click();
   await schemaPage.metaDataTab.click();
   await schemaPage.booleanListItem.click();
@@ -27,12 +26,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Updating metadata added later from table has succeeded", async ({ contentPage }) => {
-  await contentPage.allSwitches.click();
-  await contentPage.closeNotification();
-  await contentPage.allSwitches.click();
-  await contentPage.closeNotification();
-  await contentPage.allSwitches.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.allSwitches);
+  await contentPage.clickAndExpectSuccess(contentPage.allSwitches);
+  await contentPage.clickAndExpectSuccess(contentPage.allSwitches);
   await contentPage.editButton.click();
   await expect(contentPage.fieldInput("boolean")).toHaveAttribute("aria-checked", "true");
 });
@@ -40,8 +36,7 @@ test("Updating metadata added later from table has succeeded", async ({ contentP
 test("Updating metadata added later from edit page has succeeded", async ({ contentPage }) => {
   await contentPage.editButton.click();
   await expect(contentPage.fieldInput("text")).toHaveValue("test");
-  await contentPage.fieldInput("boolean").click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.fieldInput("boolean"));
   await contentPage.backButtonRole.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
 });

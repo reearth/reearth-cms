@@ -55,8 +55,7 @@ test("@smoke Request creating, searching, updating reviewer, and approving has s
   });
 
   await test.step("Approve request", async () => {
-    await requestPage.approveButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.approveButton);
     await requestPage.backButton.click();
   });
 
@@ -79,8 +78,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   });
 
   await test.step("Close request from edit page", async () => {
-    await requestPage.closeButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.closeButton);
     await requestPage.backButton.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
     await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
@@ -97,8 +95,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
     await requestPage.editButton.click();
     await expect(requestPage.statusText("CLOSED")).toBeVisible();
     await expect(requestPage.statusText("Closed")).toBeVisible();
-    await requestPage.reopenButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.reopenButton);
     await requestPage.backButtonCapitalized.click();
   });
 
@@ -109,8 +106,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
 
   await test.step("Close request from list view using bulk action", async () => {
     await requestPage.selectCheckbox.check();
-    await requestPage.closeTextButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.closeTextButton);
   });
 
   await test.step("Verify request is closed after bulk action", async () => {
@@ -134,8 +130,7 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   await test.step("Create a comment", async () => {
     await requestPage.commentTextbox.click();
     await requestPage.commentTextbox.fill("comment");
-    await requestPage.commentButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.commentButton);
     await expect(requestPage.statusText("comment")).toBeVisible();
   });
 
@@ -146,15 +141,13 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
     await requestPage.commentTextboxWithText("comment").click();
     await requestPage.commentTextboxWithText("comment").fill("new comment");
     await expect(requestPage.checkButton).toBeVisible();
-    await requestPage.checkButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.checkButton);
     await expect(requestPage.getByText("new comment")).toBeVisible();
   });
 
   await test.step("Delete the comment", async () => {
     await expect(requestPage.deleteButton).toBeVisible();
-    await requestPage.deleteButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.deleteButton);
     await expect(requestPage.getByText("new comment")).toBeHidden();
   });
 });
@@ -182,8 +175,7 @@ test("Creating a new request and adding to request has succeeded", async ({
     await expect(requestPage.newItemButton).toBeVisible();
     await requestPage.newItemButton.click();
     await expect(requestPage.saveButton).toBeVisible();
-    await requestPage.saveButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -194,8 +186,7 @@ test("Creating a new request and adding to request has succeeded", async ({
     await requestPage.addToRequestButton.click();
     await expect(requestPage.selectCheckbox).toBeVisible();
     await requestPage.selectCheckbox.click();
-    await requestPage.okButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -215,8 +206,7 @@ test("Navigating between item and request has succeeded", async ({ contentPage, 
     await requestPage.requestTitleLink(requestTitle).click();
     await expect(requestPage.requestPageTitle(requestTitle)).toBeVisible();
     await expect(requestPage.requestHeading(requestTitle)).toBeVisible();
-    await requestPage.approveButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.approveButton);
   });
 
   await test.step("Navigate back to item and clear title", async () => {
@@ -224,8 +214,7 @@ test("Navigating between item and request has succeeded", async ({ contentPage, 
     await expect(requestPage.titleFieldInput(titleFieldName, "Title")).toHaveValue(itemTitle);
     await requestPage.titleFieldInput(titleFieldName, "Title").click();
     await requestPage.titleFieldInput(titleFieldName, "Title").clear();
-    await requestPage.saveButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.saveButton);
   });
 
   let savedItemId: string;
@@ -237,8 +226,7 @@ test("Navigating between item and request has succeeded", async ({ contentPage, 
     await contentPage.createRequest(newRequestTitle);
     await requestPage.titleFieldInput(titleFieldName, "Title").click();
     await requestPage.titleFieldInput(titleFieldName, "Title").fill("newItemTitle");
-    await requestPage.saveButton.click();
-    await requestPage.closeNotification();
+    await requestPage.clickAndExpectSuccess(requestPage.saveButton);
   });
 
   await test.step("Navigate to new request and verify item is linked", async () => {

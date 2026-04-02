@@ -22,8 +22,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
       await workspacePage.projectNameInput.fill(PROJECT_NAME);
       await workspacePage.projectDescriptionInput.fill(PROJECT_DESCRIPTION);
 
-      await workspacePage.okButton.click();
-      await workspacePage.closeNotification();
+      await workspacePage.clickAndExpectSuccess(workspacePage.okButton);
       await page.waitForTimeout(300);
     });
   });
@@ -65,8 +64,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
       await projectSettingsPage.goToProjectSettings();
       await projectPage.nameInput.fill(NEW_PROJECT_NAME);
       await projectPage.descriptionInput.fill(NEW_PROJECT_DESCRIPTION);
-      await projectPage.formSaveChangesButton.click();
-      await projectPage.closeNotification();
+      await projectPage.clickAndExpectSuccess(projectPage.formSaveChangesButton);
 
       await expect(projectPage.projectSettingsHeading(NEW_PROJECT_NAME)).toBeVisible();
       await expect(projectPage.banner).toContainText(NEW_PROJECT_NAME);
@@ -103,8 +101,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
       const deleteButton = projectPage.deleteProjectButton;
       await deleteButton.waitFor({ state: "visible" });
       await deleteButton.click();
-      await projectPage.confirmDeleteProjectButton.click();
-      await projectPage.closeNotification();
+      await projectPage.clickAndExpectSuccess(projectPage.confirmDeleteProjectButton);
       await page.waitForTimeout(300);
     });
 

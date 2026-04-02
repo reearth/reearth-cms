@@ -25,8 +25,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
     await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.fieldText("boolean1", "boolean1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -52,8 +51,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("boolean1")).toBeVisible();
     await expect(contentPage.fieldDescriptionText("boolean1 description")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
     await page.waitForTimeout(300);
@@ -61,8 +59,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
 
   await test.step("Update boolean from table view to true", async () => {
     await contentPage.backButtonRole.click();
-    await contentPage.closeSwitch.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.closeSwitch);
     await expect(contentPage.checkSwitch).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -70,8 +67,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
   await test.step("Update boolean from edit view to false", async () => {
     await contentPage.cellEditButton.click();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
-    await contentPage.fieldInput("boolean1").click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.fieldInput("boolean1"));
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
     await page.waitForTimeout(300);
   });
@@ -97,8 +93,7 @@ test("Boolean metadata editing has succeeded", async ({
     await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueSwitch.click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -107,8 +102,7 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit("boolean1")).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -125,8 +119,7 @@ test("Boolean metadata editing has succeeded", async ({
     await fieldEditorPage.plusNewButton.click();
     await expect(fieldEditorPage.switchByIndex(1)).toHaveAttribute("aria-checked", "false");
     await fieldEditorPage.switchByIndex(1).click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.getByText("new boolean1")).toBeVisible();
     await expect(schemaPage.getByText("#new-boolean1")).toBeVisible();
     await page.waitForTimeout(300);
@@ -141,8 +134,7 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.fieldDescriptionText("new boolean1 description")).toBeVisible();
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await page.waitForTimeout(300);
@@ -153,8 +145,7 @@ test("Boolean metadata editing has succeeded", async ({
     await contentPage.x2Button.click();
     await expect(contentPage.tooltipSwitchByIndex(0)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute("aria-checked", "true");
-    await contentPage.tooltipSwitchByIndex(0).click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.tooltipSwitchByIndex(0));
     await page.waitForTimeout(300);
   });
 
@@ -162,8 +153,7 @@ test("Boolean metadata editing has succeeded", async ({
     await contentPage.cellEditButtonByIndex(0).click();
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
-    await fieldEditorPage.plusNewButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.plusNewButton);
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(2)).toHaveAttribute("aria-checked", "false");

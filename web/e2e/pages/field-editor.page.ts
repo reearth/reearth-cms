@@ -497,13 +497,11 @@ export class FieldEditorPage extends BasePage {
       if (unique) await this.uniqueFieldCheckbox.check();
     }
 
-    await this.okButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.okButton);
   }
 
   async deleteField(): Promise<void> {
     await this.deleteFieldButton.click();
-    await this.confirmDeleteFieldButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.confirmDeleteFieldButton);
   }
 }

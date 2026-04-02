@@ -551,8 +551,7 @@ export class ContentPage extends BasePage {
   async createItem(): Promise<void> {
     await this.getByText("Content").click();
     await this.getByRole("button", { name: "plus New Item" }).click();
-    await this.getByRole("button", { name: "Save" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Save" }));
   }
 
   async createRequest(title: string): Promise<void> {
@@ -564,15 +563,13 @@ export class ContentPage extends BasePage {
     const firstItem = this.page.locator(".ant-select-item").first();
     await firstItem.click();
     await this.getByLabel("Description").click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async createComment(content: string): Promise<void> {
     await this.page.locator("#content").click();
     await this.page.locator("#content").fill(content);
-    await this.getByRole("button", { name: "Comment" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Comment" }));
   }
 
   async updateComment(oldText: string, newText: string): Promise<void> {
@@ -583,13 +580,11 @@ export class ContentPage extends BasePage {
       .click();
     await this.page.locator("textarea").filter({ hasText: oldText }).click();
     await this.page.locator("textarea").filter({ hasText: oldText }).fill(newText);
-    await this.getByLabel("check").locator("svg").first().click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByLabel("check").locator("svg").first());
   }
 
   async deleteComment(): Promise<void> {
-    await this.getByLabel("delete").locator("svg").click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByLabel("delete").locator("svg"));
   }
 
   viewTabMoreIcon(viewName: string): Locator {
@@ -619,23 +614,20 @@ export class ContentPage extends BasePage {
   async createView(viewName: string): Promise<void> {
     await this.saveAsNewViewButton.click();
     await this.viewNameInput.fill(viewName);
-    await this.okButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.okButton);
   }
 
   async renameView(newName: string): Promise<void> {
     await this.moreButton.click();
     await this.renameViewButton.click();
     await this.viewNameInput.fill(newName);
-    await this.okButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.okButton);
   }
 
   async deleteView(): Promise<void> {
     await this.moreButton.click();
     await this.removeViewButton.click();
-    await this.removeButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.removeButton);
   }
 
   async searchFor(searchTerm: string): Promise<void> {
@@ -649,14 +641,12 @@ export class ContentPage extends BasePage {
   }
 
   async publishItem(): Promise<void> {
-    await this.publishButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.publishButton);
   }
 
   async unpublishItem(): Promise<void> {
     await this.ellipsisMenuButton.click();
-    await this.unpublishButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.unpublishButton);
   }
 
   async addFilter(
@@ -691,8 +681,7 @@ export class ContentPage extends BasePage {
   ): Promise<void> {
     await this.newItemButton.click();
     await this.fieldInput(fieldName).fill(fieldValue);
-    await this.saveButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.saveButton);
     if (navigateBack) {
       await this.backButton.click();
     }

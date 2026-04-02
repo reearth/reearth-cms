@@ -104,7 +104,7 @@ export abstract class BasePage {
     await closeNotification(this.page, isSuccess);
   }
 
-  async clickAndExpectSuccess(clickTarget: Locator, maxRetries = 1) {
+  async clickAndExpectSuccess(clickTarget: Locator, maxRetries = 2) {
     await clickAndExpectSuccess(this.page, clickTarget, maxRetries);
   }
 

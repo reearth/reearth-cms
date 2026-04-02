@@ -52,8 +52,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.cellByText("text", true)).toBeVisible();
     await page.waitForTimeout(300);
@@ -80,8 +79,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
     await expect(contentPage.fieldInput("text")).toHaveValue("text");
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("new text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButtonLabel.click();
     await expect(contentPage.cellByText("new text")).toBeVisible();
     await page.waitForTimeout(300);
@@ -89,8 +87,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
 
   await test.step("Delete item", async () => {
     await contentPage.selectAllCheckbox.check();
-    await contentPage.deleteButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.deleteButton);
     await expect(contentPage.cellByText("new text")).toBeHidden();
     await page.waitForTimeout(300);
   });
@@ -109,15 +106,13 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.draftStatus).toBeVisible();
     await page.waitForTimeout(300);
   });
 
   await test.step("Publish item from edit page", async () => {
-    await contentPage.publishButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.publishButton);
     await expect(contentPage.publishedStatus).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -132,8 +127,7 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
 
   await test.step("Unpublish item from edit page", async () => {
     await contentPage.ellipsisMenuButton.click();
-    await contentPage.unpublishButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.unpublishButton);
     await expect(contentPage.draftStatus).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -158,8 +152,7 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.draftStatus).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -173,15 +166,13 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   await test.step("Publish item from table", async () => {
     await contentPage.selectAllCheckbox.check();
     await contentPage.publishFromTableButton.click();
-    await contentPage.yesButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.yesButton);
     await expect(contentPage.publishedStatus).toBeVisible();
     await page.waitForTimeout(300);
   });
 
   await test.step("Unpublish item from table", async () => {
-    await contentPage.unpublishButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.unpublishButton);
     await expect(contentPage.draftStatus).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -207,8 +198,7 @@ test("Showing item title has succeeded", async ({
     await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     const itemId = contentPage.getCurrentItemId();
     await expect(contentPage.titleByText(`e2e model name / ${itemId}`, true)).toBeVisible();
     await page.waitForTimeout(300);
@@ -221,8 +211,7 @@ test("Showing item title has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.click();
     await fieldEditorPage.defaultValueTextInput.fill("default text");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -237,8 +226,7 @@ test("Showing item title has succeeded", async ({
   await test.step("Verify title shows default value for new item", async () => {
     await contentPage.newItemButton.click();
     await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.titleByText(`e2e model name / default text`, true)).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -257,8 +245,7 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButtonLabel.click();
     await page.waitForTimeout(300);
   });
@@ -297,8 +284,7 @@ test("Comment CRUD on edit page has succeeded", async ({
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -365,8 +351,7 @@ test.describe("Import content", () => {
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.click();
       await fieldEditorPage.pointCheckbox.check();
-      await fieldEditorPage.okButton.click();
-      await fieldEditorPage.closeNotification();
+      await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
 
       await fieldEditorPage.createField(SchemaFieldType.Text, "title");
 

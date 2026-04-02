@@ -17,8 +17,7 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
   await integrationsPage.integrationNameInput.fill(integrationName);
   await integrationsPage.descriptionInput.click();
   await integrationsPage.descriptionInput.fill(newDescription);
-  await integrationsPage.createButton.click();
-  await integrationsPage.closeNotification();
+  await integrationsPage.clickAndExpectSuccess(integrationsPage.createButton);
 
   await integrationsPage.integrationTextByName(integrationName, newDescription).last().click();
 });
@@ -29,8 +28,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.integrationNameInput.fill(newIntegrationName);
     await integrationsPage.descriptionInput.click();
     await integrationsPage.descriptionInput.fill(newDescription);
-    await integrationsPage.saveButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -44,8 +42,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
   await test.step("Delete integration", async () => {
     await integrationsPage.integrationLinkByText(newDescription).click();
     await integrationsPage.removeIntegrationButton.click();
-    await integrationsPage.okButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.okButton);
     // Wait for navigation back to the list and ensure the deleted item is no longer visible
     await page.waitForLoadState("domcontentloaded");
     await page.waitForTimeout(300);
@@ -71,8 +68,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.secretInput.click();
     await integrationsPage.secretInput.fill("secret");
     await expect(integrationsPage.saveButton).toBeVisible();
-    await integrationsPage.saveButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -105,8 +101,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.uploadCheckbox.click();
     await expect(integrationsPage.uploadCheckbox).toBeChecked();
     await expect(integrationsPage.saveButton).toBeVisible();
-    await integrationsPage.saveButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -156,8 +151,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await expect(integrationsPage.removeIntegrationButton).toBeVisible();
     await integrationsPage.removeIntegrationButton.click();
     await expect(integrationsPage.okButton).toBeVisible();
-    await integrationsPage.okButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.okButton);
     await page.waitForTimeout(300);
   });
 });
