@@ -3,7 +3,7 @@ import { type Locator, type Page, expect } from "@reearth-cms/e2e/fixtures/test"
 export async function clickAndExpectSuccess(
   page: Page,
   clickTarget: Locator,
-  maxRetries = 1,
+  maxRetries = 2,
 ): Promise<void> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     await clickTarget.click();
@@ -13,7 +13,7 @@ export async function clickAndExpectSuccess(
     } catch (error) {
       const isTransient = String(error).includes("Failed to fetch");
       if (attempt < maxRetries && isTransient) {
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(2000 * Math.pow(2, attempt));
         continue;
       }
       throw error;

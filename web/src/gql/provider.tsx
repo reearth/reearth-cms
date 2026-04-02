@@ -9,6 +9,7 @@ import {
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import { SetContextLink } from "@apollo/client/link/context";
 import { ErrorLink } from "@apollo/client/link/error";
+import { RetryLink } from "@apollo/client/link/retry";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { ApolloProvider } from "@apollo/client/react";
 import { getMainDefinition } from "@apollo/client/utilities";
@@ -125,6 +126,18 @@ const Provider: React.FC<Props> = ({ children }) => {
       }),
   );
 
+  const retryLink = new RetryLink({
+    delay: {
+      initial: 500,
+      max: 3000,
+      jitter: true,
+    },
+    attempts: {
+      max: 3,
+      retryIf: error => !!error && /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? ""),
+    },
+  });
+
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (!error) return;
 
@@ -163,6 +176,7 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const client = new ApolloClient({
     link: ApolloLink.from([
+      retryLink,
       errorLink,
       ApolloLink.split(
         isSubscription,
