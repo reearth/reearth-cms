@@ -1934,7 +1934,7 @@ func TestAsset_Export_CheckPermission(t *testing.T) {
 			name: "permission allowed",
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				wsID := ws.ID()
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceAsset, rbac.ActionList, &wsID).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceAsset, rbac.ActionExport, &wsID).Return(true, nil)
 			},
 		},
 		{
@@ -1942,7 +1942,7 @@ func TestAsset_Export_CheckPermission(t *testing.T) {
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				wsID := ws.ID()
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceAsset, rbac.ActionList, &wsID).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceAsset, rbac.ActionExport, &wsID).Return(false, nil)
 			},
 		},
 		{
@@ -1950,7 +1950,7 @@ func TestAsset_Export_CheckPermission(t *testing.T) {
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				wsID := ws.ID()
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceAsset, rbac.ActionList, &wsID).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceAsset, rbac.ActionExport, &wsID).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}

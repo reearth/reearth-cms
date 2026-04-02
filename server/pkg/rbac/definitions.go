@@ -174,6 +174,7 @@ var ResourceRules = []generator.ResourceRule{
 			ActionCreate: {Roles: writerAndAbove},
 			ActionUpdate: {Roles: writerAndAbove},
 			ActionDelete: {Roles: writerAndAbove},
+			ActionExport: {Roles: allRoles},
 		},
 	},
 

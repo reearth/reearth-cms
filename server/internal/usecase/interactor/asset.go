@@ -192,7 +192,7 @@ func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams
 	if err != nil {
 		return err
 	}
-	if err := i.checkPermission(ctx, operator, wid, "asset.Export", rbac.ActionList); err != nil {
+	if err := i.checkPermission(ctx, operator, wid, "asset.Export", rbac.ActionExport); err != nil {
 		return err
 	}
 
@@ -362,19 +362,40 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, operator *usec
 }
 
 func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, operator *usecase.Operator) (map[id.AssetID]*asset.File, error) {
+	// Short-circuit when no IDs are provided.
+	if len(ids) == 0 {
+		return map[id.AssetID]*asset.File{}, nil
+	}
 	al, err := i.repos.Asset.FindByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	var wid *workspace.ID
-	if len(al) > 0 {
-		wid, err = i.workspaceIDForProject(ctx, al[0].Project())
+	// Validate that all requested assets were found and collect unique workspaces.
+	workspaceSet := map[workspace.ID]struct{}{}
+	for _, a := range al {
+		if a == nil {
+
+			return nil, rerror.ErrNotFound
+		}
+		pid := a.Project()
+		wid, err := i.workspaceIDForProject(ctx, pid)
 		if err != nil {
 			return nil, err
 		}
+		if wid == nil {
+			continue
+		}
+		if _, ok := workspaceSet[*wid]; !ok {
+			workspaceSet[*wid] = struct{}{}
+		}
 	}
-	if err := i.checkPermission(ctx, operator, wid, "asset.FindFilesByIDs", rbac.ActionRead); err != nil {
-		return nil, err
+
+	// Check permission for all unique workspaces involved.
+	for wid := range workspaceSet {
+		w := wid
+		if err := i.checkPermission(ctx, operator, &w, "asset.FindFilesByIDs", rbac.ActionRead); err != nil {
+			return nil, err
+		}
 	}
 
 	files, err := i.repos.AssetFile.FindByIDs(ctx, ids)
@@ -1134,15 +1155,13 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 			return assetIDs, interfaces.ErrPartialNotFound
 		}
 
-		if assets == nil {
-			return assetIDs, nil
+		for _, a := range assets {
+			if a == nil {
+				return assetIDs, interfaces.ErrPartialNotFound
+			}
 		}
 
-		wid, err := i.workspaceIDForProject(ctx, assets[0].Project())
-		if err != nil {
-			return assetIDs, err
-		}
-		if err := i.checkPermission(ctx, operator, wid, "asset.BatchDelete", rbac.ActionDelete); err != nil {
+		if err := i.checkPermissionForAllAssets(ctx, operator, "asset.BatchDelete", rbac.ActionDelete, assets); err != nil {
 			return assetIDs, err
 		}
 
