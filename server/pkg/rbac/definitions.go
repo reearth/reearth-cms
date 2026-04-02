@@ -149,6 +149,50 @@ var ResourceRules = []generator.ResourceRule{
 		},
 	},
 
+	// ========== Request ==========
+	{
+		Resource: ResourceRequest,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:    {Roles: allRoles},
+			ActionList:    {Roles: allRoles},
+			ActionCreate:  {Roles: writerAndAbove},
+			ActionUpdate:  {Roles: writerAndAbove},
+			ActionApprove: {Roles: maintainerAndAbove},
+		},
+	},
+
+	// ========== Thread ==========
+	{
+		Resource: ResourceThread,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:    {Roles: allRoles},
+			ActionCreate:  {Roles: writerAndAbove},
+			ActionComment: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== View ==========
+	{
+		Resource: ResourceView,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionCreate: {Roles: writerAndAbove},
+			ActionUpdate: {Roles: writerAndAbove},
+			ActionDelete: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== WorkspaceSettings ==========
+	{
+		Resource: ResourceWorkspaceSettings,
+		Actions: map[string]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionUpdate: {Roles: maintainerAndAbove},
+			ActionDelete: {Roles: ownerOnly},
+		},
+	},
+
 	// TODO: Add more resources on the next tasks
-	// Schema, Item, Asset, Integration, Request, Thread, View, WorkspaceSettings
+	// Schema, Item, Asset, Integration
 }
