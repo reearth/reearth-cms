@@ -746,7 +746,7 @@ func TestSchema_FindByIDs_CheckPermission(t *testing.T) {
 			seeds: schema.List{sAllowed},
 			ids:   []id.SchemaID{sAllowed.ID()},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceSchema, rbac.ActionRead, gomock.Any()).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceSchema, rbac.ActionList, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
@@ -755,7 +755,7 @@ func TestSchema_FindByIDs_CheckPermission(t *testing.T) {
 			ids:     []id.SchemaID{sDenied.ID()},
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceSchema, rbac.ActionRead, gomock.Any()).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceSchema, rbac.ActionList, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
@@ -764,7 +764,7 @@ func TestSchema_FindByIDs_CheckPermission(t *testing.T) {
 			ids:     []id.SchemaID{sError.ID()},
 			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceSchema, rbac.ActionRead, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceSchema, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 	}

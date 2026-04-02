@@ -39,7 +39,7 @@ func (i Schema) checkPermission(ctx context.Context, operator *usecase.Operator,
 	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceSchema, action, workspaceID)
 	if authErr != nil {
 		userID := "unknown"
-		if operator.User() != nil {
+		if operator != nil && operator.User() != nil {
 			userID = operator.User().String()
 		}
 		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
@@ -68,13 +68,19 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, op *usecase.Op
 	if err != nil {
 		return nil, err
 	}
-	var wid *workspace.ID
-	if len(schemas) > 0 {
-		ws := schemas[0].Workspace()
-		wid = &ws
+	if len(schemas) == 0 {
+		return schemas, nil
 	}
-	if err := i.checkPermission(ctx, op, wid, "schema.FindByIDs", rbac.ActionRead); err != nil {
-		return nil, err
+	workspaceSet := map[workspace.ID]struct{}{}
+	for _, s := range schemas {
+		wid := s.Workspace()
+		workspaceSet[wid] = struct{}{}
+	}
+	for wid := range workspaceSet {
+		w := wid
+		if err := i.checkPermission(ctx, op, &w, "schema.FindByIDs", rbac.ActionList); err != nil {
+			return nil, err
+		}
 	}
 	return schemas, nil
 }
@@ -152,13 +158,15 @@ func (i Schema) FindByGroups(ctx context.Context, gIDs id.GroupIDList, op *useca
 		return nil, err
 	}
 
-	var wid *workspace.ID
-	if len(schemas) > 0 {
-		ws := schemas[0].Workspace()
-		wid = &ws
+	workspaceSet := map[workspace.ID]struct{}{}
+	for _, s := range schemas {
+		workspaceSet[s.Workspace()] = struct{}{}
 	}
-	if err := i.checkPermission(ctx, op, wid, "schema.FindByGroups", rbac.ActionRead); err != nil {
-		return nil, err
+	for wid := range workspaceSet {
+		w := wid
+		if err := i.checkPermission(ctx, op, &w, "schema.FindByGroups", rbac.ActionRead); err != nil {
+			return nil, err
+		}
 	}
 
 	return schemas, nil
@@ -679,6 +687,21 @@ func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID
 		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidOperator
 	}
 
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	wid := s.Workspace()
+	if err := i.checkPermission(ctx, operator, &wid, "schema.GuessSchemaFieldsByAsset", rbac.ActionRead); err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
 	assetData, err := i.repos.Asset.FindByID(ctx, assetID)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
@@ -698,21 +721,6 @@ func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID
 	// read file
 	file, _, err := i.gateways.File.ReadAsset(ctx, assetData.UUID(), assetFileData.Path(), nil)
 	if err != nil {
-		return &interfaces.GuessSchemaFieldsData{}, err
-	}
-
-	m, err := i.repos.Model.FindByID(ctx, modelID)
-	if err != nil {
-		return &interfaces.GuessSchemaFieldsData{}, err
-	}
-
-	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
-	if err != nil {
-		return &interfaces.GuessSchemaFieldsData{}, err
-	}
-
-	wid := s.Workspace()
-	if err := i.checkPermission(ctx, operator, &wid, "schema.GuessSchemaFieldsByAsset", rbac.ActionRead); err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 

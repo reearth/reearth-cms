@@ -39,7 +39,7 @@ func (i *Project) checkPermission(ctx context.Context, operator *usecase.Operato
 	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceProject, action, workspaceID)
 	if authErr != nil {
 		userID := "unknown"
-		if operator.User() != nil {
+		if operator != nil && operator.User() != nil {
 			userID = operator.User().String()
 		}
 		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
