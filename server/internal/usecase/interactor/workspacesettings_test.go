@@ -170,14 +170,14 @@ func TestWorkspaceSettings_Delete_CheckPermission(t *testing.T) {
 		{
 			name: "permission denied",
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceWorkspaceSettings, rbac.ActionUpdate, gomock.Any()).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceWorkspaceSettings, rbac.ActionDelete, gomock.Any()).Return(false, nil)
 			},
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
 			name: "permission check error",
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceWorkspaceSettings, rbac.ActionUpdate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceWorkspaceSettings, rbac.ActionDelete, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 			wantErr: errors.New("cerbos unavailable"),
 		},

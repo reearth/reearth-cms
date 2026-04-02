@@ -94,7 +94,7 @@ func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.
 
 func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWorkspaceSettingsParam, op *usecase.Operator) error {
 	wid := inp.ID
-	if err := ws.checkPermission(ctx, op, &wid, "WorkspaceSettings.Delete", rbac.ActionUpdate); err != nil {
+	if err := ws.checkPermission(ctx, op, &wid, "WorkspaceSettings.Delete", rbac.ActionDelete); err != nil {
 		return err
 	}
 	return Run0(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),

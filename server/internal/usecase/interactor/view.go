@@ -97,18 +97,20 @@ func (i View) FindByIDs(ctx context.Context, IDs view.IDList, operator *usecase.
 }
 
 func (i View) FindByModel(ctx context.Context, mID view.ModelID, operator *usecase.Operator) (view.List, error) {
-	v, err := i.repos.View.FindByModel(ctx, mID)
+	m, err := i.repos.Model.FindByID(ctx, mID)
 	if err != nil {
 		return nil, err
 	}
-	if len(v) > 0 {
-		wid, err := i.workspaceIDForProject(ctx, v[0].Project())
-		if err != nil {
-			return nil, err
-		}
-		if err := i.checkPermission(ctx, operator, wid, "View.FindByModel", rbac.ActionList); err != nil {
-			return nil, err
-		}
+	wid, err := i.workspaceIDForProject(ctx, m.Project())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "View.FindByModel", rbac.ActionList); err != nil {
+		return nil, err
+	}
+	v, err := i.repos.View.FindByModel(ctx, mID)
+	if err != nil {
+		return nil, err
 	}
 	return v.Ordered(), nil
 }
