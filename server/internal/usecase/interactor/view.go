@@ -99,6 +99,9 @@ func (i View) FindByIDs(ctx context.Context, IDs view.IDList, operator *usecase.
 func (i View) FindByModel(ctx context.Context, mID view.ModelID, operator *usecase.Operator) (view.List, error) {
 	m, err := i.repos.Model.FindByID(ctx, mID)
 	if err != nil {
+		if err == rerror.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	wid, err := i.workspaceIDForProject(ctx, m.Project())
