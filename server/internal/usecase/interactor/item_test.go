@@ -637,35 +637,29 @@ func TestItem_FindPublicByID_CheckPermission(t *testing.T) {
 }
 
 func TestItem_FindPublicByModel_CheckPermission(t *testing.T) {
-	wid := accountdomain.NewWorkspaceID()
-	pid := id.NewProjectID()
-	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
-	mid := id.NewModelID()
-	m := model.New().ID(mid).Key(id.RandomKey()).Schema(s.ID()).Project(pid).MustBuild()
-	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
 
 	tests := []struct {
 		name      string
 		wantErr   error
-		setupAuth func(*gatewaymock.MockAuthorization)
+		setupAuth func(*gatewaymock.MockAuthorization, accountdomain.WorkspaceID)
 	}{
 		{
 			name: "permission allowed",
-			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+			setupAuth: func(mock *gatewaymock.MockAuthorization, wid accountdomain.WorkspaceID) {
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
 			},
 		},
 		{
 			name:    "permission denied",
 			wantErr: interfaces.ErrOperationDenied,
-			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+			setupAuth: func(mock *gatewaymock.MockAuthorization, wid accountdomain.WorkspaceID) {
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
 			},
 		},
 		{
 			name:    "permission check error",
 			wantErr: errors.New("cerbos unavailable"),
-			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+			setupAuth: func(mock *gatewaymock.MockAuthorization, wid accountdomain.WorkspaceID) {
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
@@ -676,6 +670,13 @@ func TestItem_FindPublicByModel_CheckPermission(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
+			wid := accountdomain.NewWorkspaceID()
+			pid := id.NewProjectID()
+			s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+			mid := id.NewModelID()
+			m := model.New().ID(mid).Key(id.RandomKey()).Schema(s.ID()).Project(pid).MustBuild()
+			op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
 			ctx := context.Background()
 			db := memory.New()
 			assert.NoError(t, db.Schema.Save(ctx, s))
@@ -683,7 +684,7 @@ func TestItem_FindPublicByModel_CheckPermission(t *testing.T) {
 
 			ctrl := gomock.NewController(t)
 			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
-			tc.setupAuth(mockAuth)
+			tc.setupAuth(mockAuth, wid)
 			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
 			itemUC.ignoreEvent = true
 
