@@ -4,6 +4,8 @@ import (
 	"context"
 	"slices"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -32,7 +34,7 @@ func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
 	}
 }
 
-func (i *Project) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (i *Project) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
@@ -56,12 +58,17 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 	if err != nil {
 		return nil, err
 	}
-	var wid *workspace.ID
-	if len(projects) > 0 {
-		ws := projects[0].Workspace()
-		wid = &ws
+	uniqueWorkspaces := lo.Uniq(lo.Map(projects, func(p *project.Project, _ int) workspace.ID {
+		return p.Workspace()
+	}))
+	eg, egCtx := errgroup.WithContext(ctx)
+	for _, ws := range uniqueWorkspaces {
+		ws := ws
+		eg.Go(func() error {
+			return i.checkPermission(egCtx, operator, &ws, "project.Fetch", rbac.ActionList)
+		})
 	}
-	if err := i.checkPermission(ctx, operator, wid, "project.Fetch", rbac.ActionList); err != nil {
+	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
 	return projects, nil
@@ -121,8 +128,7 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain
 	if w == nil {
 		return nil, rerror.ErrNotFound
 	}
-	wid := w.ID()
-	if err := i.checkPermission(ctx, operator, &wid, "project.FindByIDOrAlias", rbac.ActionRead); err != nil {
+	if err := i.checkPermission(ctx, operator, w.ID().Ref(), "project.FindByIDOrAlias", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	return i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
@@ -235,8 +241,8 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 	if err != nil {
 		return nil, err
 	}
-	ws := p.Workspace()
-	if err := i.checkPermission(ctx, op, &ws, "project.Update", rbac.ActionUpdate); err != nil {
+
+	if err := i.checkPermission(ctx, op, p.Workspace().Ref(), "project.Update", rbac.ActionUpdate); err != nil {
 		return nil, err
 	}
 
@@ -381,8 +387,8 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 	if err != nil {
 		return err
 	}
-	projWS := proj.Workspace()
-	if err := i.checkPermission(ctx, op, &projWS, "project.Delete", rbac.ActionDelete); err != nil {
+
+	if err := i.checkPermission(ctx, op, proj.Workspace().Ref(), "project.Delete", rbac.ActionDelete); err != nil {
 		return err
 	}
 
@@ -420,8 +426,8 @@ func (i *Project) CreateAPIKey(ctx context.Context, param interfaces.CreateAPITo
 	if err != nil {
 		return nil, nil, err
 	}
-	pws := p.Workspace()
-	if err := i.checkPermission(ctx, op, &pws, "project.CreateAPIKey", rbac.ActionManageAPIKeys); err != nil {
+
+	if err := i.checkPermission(ctx, op, p.Workspace().Ref(), "project.CreateAPIKey", rbac.ActionManageAPIKeys); err != nil {
 		return nil, nil, err
 	}
 	return Run2(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
@@ -459,8 +465,8 @@ func (i *Project) UpdateAPIKey(ctx context.Context, param interfaces.UpdateAPITo
 	if err != nil {
 		return nil, err
 	}
-	pws2 := p.Workspace()
-	if err := i.checkPermission(ctx, op, &pws2, "project.UpdateAPIKey", rbac.ActionManageAPIKeys); err != nil {
+
+	if err := i.checkPermission(ctx, op, p.Workspace().Ref(), "project.UpdateAPIKey", rbac.ActionManageAPIKeys); err != nil {
 		return nil, err
 	}
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
@@ -505,8 +511,8 @@ func (i *Project) DeleteAPIKey(ctx context.Context, pId id.ProjectID, kId id.API
 	if err != nil {
 		return nil, err
 	}
-	pws3 := p.Workspace()
-	if err := i.checkPermission(ctx, op, &pws3, "project.DeleteAPIKey", rbac.ActionManageAPIKeys); err != nil {
+
+	if err := i.checkPermission(ctx, op, p.Workspace().Ref(), "project.DeleteAPIKey", rbac.ActionManageAPIKeys); err != nil {
 		return nil, err
 	}
 	return Run1(context.Background(), nil, i.repos, Usecase().Transaction(),
@@ -543,8 +549,8 @@ func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.Rege
 	if err != nil {
 		return nil, err
 	}
-	pws4 := p.Workspace()
-	if err := i.checkPermission(ctx, op, &pws4, "project.RegenerateAPIKeyKey", rbac.ActionManageAPIKeys); err != nil {
+
+	if err := i.checkPermission(ctx, op, p.Workspace().Ref(), "project.RegenerateAPIKeyKey", rbac.ActionManageAPIKeys); err != nil {
 		return nil, err
 	}
 	return Run1(ctx, op, i.repos, Usecase().Transaction(),
@@ -656,10 +662,6 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 	}
 	if w == nil {
 		return nil, rerror.ErrNotFound
-	}
-	wID := w.ID()
-	if err := i.checkPermission(ctx, op, &wID, "project.StarProject", rbac.ActionUpdate); err != nil {
-		return nil, err
 	}
 
 	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)

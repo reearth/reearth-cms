@@ -1062,6 +1062,92 @@ func TestModel_Update(t *testing.T) {
 	}
 }
 
+func TestModel_UpdateOrder(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	p := project.New().ID(pid).Workspace(wid).MustBuild()
+	m1 := model.New().NewID().Key(id.RandomKey()).Schema(id.NewSchemaID()).Project(pid).MustBuild()
+	m2 := model.New().NewID().Key(id.RandomKey()).Schema(id.NewSchemaID()).Project(pid).MustBuild()
+
+	op := &usecase.Operator{
+		WritableProjects: []id.ProjectID{pid},
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(user.NewID()),
+		},
+	}
+
+	tests := []struct {
+		name      string
+		ids       id.ModelIDList
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "empty ids - no permission check",
+			ids:  id.ModelIDList{},
+		},
+		{
+			name: "update order without auth gateway",
+			ids:  id.ModelIDList{m1.ID(), m2.ID()},
+		},
+		{
+			name: "permission allowed",
+			ids:  id.ModelIDList{m1.ID(), m2.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			ids:     id.ModelIDList{m1.ID(), m2.ID()},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			ids:     id.ModelIDList{m1.ID(), m2.ID()},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionUpdate, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+			assert.NoError(t, db.Model.Save(ctx, m1.Clone()))
+			assert.NoError(t, db.Model.Save(ctx, m2.Clone()))
+
+			var gateways *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways = &gateway.Container{Authorization: mockAuth}
+			}
+
+			modelUC := NewModel(db, gateways)
+			got, err := modelUC.UpdateOrder(ctx, tc.ids, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+			if len(tc.ids) > 0 {
+				assert.Len(t, got, len(tc.ids))
+			}
+		})
+	}
+}
+
 func TestNewModel(t *testing.T) {
 	type args struct {
 		r *repo.Container
@@ -1166,14 +1252,30 @@ func TestModel_Copy(t *testing.T) {
 			},
 		},
 		{
-			name: "permission denied - returns error",
+			name: "read permission denied - returns error",
 			param: interfaces.CopyModelParam{
 				ModelId: m.ID(),
 				Name:    lo.ToPtr("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, nil).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, &wid).Return(false, nil)
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			validate: func(t *testing.T, got *model.Model) {
+				assert.Nil(t, got)
+			},
+		},
+		{
+			name: "write permission denied - returns error",
+			param: interfaces.CopyModelParam{
+				ModelId: m.ID(),
+				Name:    lo.ToPtr("Copied Model"),
+			},
+			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, &wid).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, &wid).Return(false, nil)
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			validate: func(t *testing.T, got *model.Model) {
@@ -1188,7 +1290,7 @@ func TestModel_Copy(t *testing.T) {
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionCreate, nil).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
 			},
 			wantErr: errors.New("cerbos unavailable"),
 			validate: func(t *testing.T, got *model.Model) {
