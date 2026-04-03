@@ -49,6 +49,7 @@ var (
 	mId3    = id.NewModelID()
 	mId4    = id.NewModelID()
 	mId5    = id.NewModelID()
+	mId6    = id.NewModelID()
 	gId1    = id.NewGroupID()
 	gId2    = id.NewGroupID()
 	dvmId   = id.NewModelID()
@@ -89,6 +90,7 @@ var (
 	ikey3   = id.RandomKey()
 	ikey4   = id.RandomKey()
 	ikey5   = id.RandomKey()
+	ikey6   = id.RandomKey()
 	pid     = id.NewProjectID()
 	pid2    = id.NewProjectID()
 	sid0    = id.NewSchemaID()
@@ -348,6 +350,22 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Order(5).
 		MustBuild()
 	if err := r.Model.Save(ctx, m5); err != nil {
+		return err
+	}
+
+	s9 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p2.ID()).Fields([]*schema.Field{}).MustBuild()
+	if err := r.Schema.Save(ctx, s9); err != nil {
+		return err
+	}
+	m6 := model.New().
+		ID(mId6).
+		Name("m6").
+		Description("m6 desc").
+		Key(ikey6).
+		Project(p2.ID()).
+		Schema(s9.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m6); err != nil {
 		return err
 	}
 
