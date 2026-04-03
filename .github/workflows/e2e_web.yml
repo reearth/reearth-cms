@@ -59,8 +59,12 @@ env:
   REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 jobs:
   e2e:
-    name: playwright
+    name: playwright (${{ matrix.shard }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     permissions:
       contents: read
       id-token: write
@@ -126,16 +130,42 @@ jobs:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
+        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }} --shard=${{ matrix.shard }}/2
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: blob-report
+          name: blob-report-${{ matrix.shard }}
           path: web/blob-report/
           retention-days: 7
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: test-results
+          name: test-results-${{ matrix.shard }}
           path: web/test-results/
           retention-days: 7
+  merge-reports:
+    if: always()
+    needs: e2e
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: reearth/reearth-cms
+          ref: ${{ inputs.branch || 'main' }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: "**/yarn.lock"
+      - name: Install dependencies
+        run: yarn install
+      - uses: actions/download-artifact@v7
+        with:
+          path: web/all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+      - name: Merge reports
+        run: npx playwright merge-reports --reporter=github ./all-blob-reports
