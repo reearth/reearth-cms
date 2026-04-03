@@ -18,55 +18,55 @@ const (
 
 // Resources
 const (
-	ResourceUser      = "user"
-	ResourceWorkspace = "workspace"
-	ResourceProject   = "project"
+	ResourceUser      Resource = "user"
+	ResourceWorkspace Resource = "workspace"
+	ResourceProject   Resource = "project"
 
 	// CMS Schema Resources
-	ResourceModel  = "model"
-	ResourceSchema = "schema"
+	ResourceModel  Resource = "model"
+	ResourceSchema Resource = "schema"
 
 	// CMS Content Resources
-	ResourceItem  = "item"
-	ResourceAsset = "asset"
+	ResourceItem  Resource = "item"
+	ResourceAsset Resource = "asset"
 
 	// CMS Integration Resources
-	ResourceIntegration = "integration"
-	ResourceRequest     = "request"
-	ResourceThread      = "thread"
+	ResourceIntegration Resource = "integration"
+	ResourceRequest     Resource = "request"
+	ResourceThread      Resource = "thread"
 
 	// CMS View Resources
-	ResourceView              = "view"
-	ResourceWorkspaceSettings = "workspace_settings"
+	ResourceView              Resource = "view"
+	ResourceWorkspaceSettings Resource = "workspace_settings"
 )
 
 // Standard CRUD Actions
 const (
-	ActionCreate = "create"
-	ActionRead   = "read"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
-	ActionList   = "list"
+	ActionCreate Action = "create"
+	ActionRead   Action = "read"
+	ActionUpdate Action = "update"
+	ActionDelete Action = "delete"
+	ActionList   Action = "list"
 )
 
 // Actions with Different Permission Requirements
 const (
 	// Content actions
-	ActionPublish   = "publish"
-	ActionUnpublish = "unpublish"
-	ActionExport    = "export"
-	ActionImport    = "import"
+	ActionPublish   Action = "publish"
+	ActionUnpublish Action = "unpublish"
+	ActionExport    Action = "export"
+	ActionImport    Action = "import"
 
 	// Review/approval actions
-	ActionApprove = "approve"
-	ActionComment = "comment"
+	ActionApprove Action = "approve"
+	ActionComment Action = "comment"
 
 	// Management actions
-	ActionManageMembers      = "manage_members"      // Covers add/edit/delete members
-	ActionManageAPIKeys      = "manage_api_keys"     // Covers CRUD on API keys
-	ActionManageIntegrations = "manage_integrations" // Covers webhooks, tokens
-	ActionManageSubscription = "manage_subscription" // Owner-only billing
-	ActionTransferOwnership  = "transfer_ownership"  // Owner-only
+	ActionManageMembers      Action = "manage_members"      // Covers add/edit/delete members
+	ActionManageAPIKeys      Action = "manage_api_keys"     // Covers CRUD on API keys
+	ActionManageIntegrations Action = "manage_integrations" // Covers webhooks, tokens
+	ActionManageSubscription Action = "manage_subscription" // Owner-only billing
+	ActionTransferOwnership  Action = "transfer_ownership"  // Owner-only
 )
 
 // Roles
@@ -101,7 +101,7 @@ var ResourceRules = []generator.ResourceRule{
 	// ========== User ==========
 	{
 		Resource: ResourceUser,
-		Actions: map[string]generator.ActionRule{
+		Actions: map[Action]generator.ActionRule{
 			ActionRead:   {Roles: selfOnly, Condition: jwtRequired},
 			ActionUpdate: {Roles: selfOnly, Condition: jwtRequired},
 			ActionDelete: {Roles: selfOnly, Condition: jwtRequired},
@@ -112,7 +112,7 @@ var ResourceRules = []generator.ResourceRule{
 	// ========== Workspace ==========
 	{
 		Resource: ResourceWorkspace,
-		Actions: map[string]generator.ActionRule{
+		Actions: map[Action]generator.ActionRule{
 			ActionCreate:             {Roles: selfOnly, Condition: jwtRequired},
 			ActionRead:               {Roles: allRoles},
 			ActionUpdate:             {Roles: maintainerAndAbove},
@@ -127,7 +127,7 @@ var ResourceRules = []generator.ResourceRule{
 	// ========== Project ==========
 	{
 		Resource: ResourceProject,
-		Actions: map[string]generator.ActionRule{
+		Actions: map[Action]generator.ActionRule{
 			ActionRead:          {Roles: allRoles},
 			ActionList:          {Roles: allRoles},
 			ActionCreate:        {Roles: ownerOnly},
@@ -140,7 +140,7 @@ var ResourceRules = []generator.ResourceRule{
 	// ========== Model ==========
 	{
 		Resource: ResourceModel,
-		Actions: map[string]generator.ActionRule{
+		Actions: map[Action]generator.ActionRule{
 			ActionRead:   {Roles: allRoles},
 			ActionList:   {Roles: allRoles},
 			ActionCreate: {Roles: writerAndAbove},
@@ -149,10 +149,32 @@ var ResourceRules = []generator.ResourceRule{
 		},
 	},
 
+	// ========== Schema ==========
+	{
+		Resource: ResourceSchema,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionUpdate: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== Integration ==========
+	{
+		Resource: ResourceIntegration,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:   {Roles: selfOnly, Condition: jwtRequired},
+			ActionList:   {Roles: selfOnly, Condition: jwtRequired},
+			ActionCreate: {Roles: selfOnly, Condition: jwtRequired},
+			ActionUpdate: {Roles: selfOnly, Condition: jwtRequired},
+			ActionDelete: {Roles: selfOnly, Condition: jwtRequired},
+		},
+	},
+
 	// ========== Item ==========
 	{
 		Resource: ResourceItem,
-		Actions: map[string]generator.ActionRule{
+		Actions: map[Action]generator.ActionRule{
 			ActionRead:      {Roles: allRoles},
 			ActionList:      {Roles: allRoles},
 			ActionCreate:    {Roles: writerAndAbove},
@@ -168,7 +190,7 @@ var ResourceRules = []generator.ResourceRule{
 	// ========== Asset ==========
 	{
 		Resource: ResourceAsset,
-		Actions: map[string]generator.ActionRule{
+		Actions: map[Action]generator.ActionRule{
 			ActionRead:   {Roles: allRoles},
 			ActionList:   {Roles: allRoles},
 			ActionCreate: {Roles: writerAndAbove},
@@ -178,6 +200,47 @@ var ResourceRules = []generator.ResourceRule{
 		},
 	},
 
-	// TODO: Add more resources on the next tasks
-	// Schema, Integration, Request, Thread, View, WorkspaceSettings
+	// ========== Request ==========
+	{
+		Resource: ResourceRequest,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:    {Roles: allRoles},
+			ActionList:    {Roles: allRoles},
+			ActionCreate:  {Roles: writerAndAbove},
+			ActionUpdate:  {Roles: writerAndAbove},
+			ActionApprove: {Roles: maintainerAndAbove},
+		},
+	},
+
+	// ========== Thread ==========
+	{
+		Resource: ResourceThread,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:    {Roles: allRoles},
+			ActionCreate:  {Roles: writerAndAbove},
+			ActionComment: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== View ==========
+	{
+		Resource: ResourceView,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionCreate: {Roles: writerAndAbove},
+			ActionUpdate: {Roles: writerAndAbove},
+			ActionDelete: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== WorkspaceSettings ==========
+	{
+		Resource: ResourceWorkspaceSettings,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionUpdate: {Roles: maintainerAndAbove},
+			ActionDelete: {Roles: ownerOnly},
+		},
+	},
 }

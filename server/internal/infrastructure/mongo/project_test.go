@@ -113,7 +113,7 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.CountByWorkspace(ctx, tc.arg)
@@ -175,7 +175,7 @@ func Test_projectRepo_Filtered(t *testing.T) {
 
 			client := mongox.NewClientWithDatabase(initDB(t))
 
-			r := NewProject(client).Filtered(tc.arg)
+			r := NewProject(client).Filtered(tc.arg, repo.ProjectFilter{})
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
@@ -281,7 +281,7 @@ func Test_projectRepo_FindByID(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.FindByID(ctx, tc.arg)
@@ -423,7 +423,7 @@ func Test_projectRepo_FindByIDOrAlias(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.FindByIDOrAlias(ctx, tc.wId, tc.arg)
@@ -550,7 +550,7 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.FindByIDs(ctx, tc.arg)
@@ -704,7 +704,7 @@ func Test_projectRepo_IsAliasAvailable(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, err := r.IsAliasAvailable(ctx, tc.wId, tc.arg)
@@ -846,7 +846,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
@@ -951,7 +951,7 @@ func Test_projectRepo_Remove(t *testing.T) {
 			}
 
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 
 			err := r.Remove(ctx, tc.arg)
@@ -1031,7 +1031,7 @@ func Test_projectRepo_Save(t *testing.T) {
 
 			r := NewProject(client)
 			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
+				r = r.Filtered(*tc.filter, repo.ProjectFilter{})
 			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -1552,7 +1552,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			}
 
 			if tc.wsFilter != nil {
-				r = r.Filtered(*tc.wsFilter)
+				r = r.Filtered(*tc.wsFilter, repo.ProjectFilter{})
 			}
 
 			got, _, err := r.Search(ctx, tc.args.filter)
@@ -1576,4 +1576,388 @@ func Test_projectRepo_Search(t *testing.T) {
 			assert.Equal(t, wantIDs, gotIDs)
 		})
 	}
+}
+
+func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
+	now := time.Now().Truncate(time.Millisecond).UTC()
+	wid := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	pidPub := id.NewProjectID()
+	pPub := project.New().ID(pidPub).Workspace(wid).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		UpdatedAt(now).Topics([]string{}).MustBuild()
+
+	pidPriv := id.NewProjectID()
+	pPriv := project.New().ID(pidPriv).Workspace(wid).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		UpdatedAt(now.Add(time.Second)).Topics([]string{}).MustBuild()
+
+	pidPriv2 := id.NewProjectID()
+	pPriv2 := project.New().ID(pidPriv2).Workspace(wid).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		UpdatedAt(now.Add(2 * time.Second)).Topics([]string{}).MustBuild()
+
+	// projects in a second workspace
+	pidOtherPub := id.NewProjectID()
+	pOtherPub := project.New().ID(pidOtherPub).Workspace(wid2).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		UpdatedAt(now.Add(3 * time.Second)).Topics([]string{}).MustBuild()
+
+	pidOtherPriv := id.NewProjectID()
+	pOtherPriv := project.New().ID(pidOtherPriv).Workspace(wid2).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		UpdatedAt(now.Add(4 * time.Second)).Topics([]string{}).MustBuild()
+
+	wsFilter := repo.WorkspaceFilter{
+		Readable: accountdomain.WorkspaceIDList{wid},
+		Writable: accountdomain.WorkspaceIDList{wid},
+	}
+	pagination := usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap()
+
+	allSeeds := project.List{pPub, pPriv, pPriv2, pOtherPub, pOtherPriv}
+
+	t.Run("FindByID", func(t *testing.T) {
+		tests := []struct {
+			name      string
+			wsFilter  repo.WorkspaceFilter
+			pf        repo.ProjectFilter
+			lookupID  id.ProjectID
+			wantFound bool
+		}{
+			{
+				name:      "nil Readable → no visibility filter, public project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidPub,
+				wantFound: true,
+			},
+			{
+				name:      "nil Readable → no visibility filter, private project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, public project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidPub,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, private project not found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidPriv,
+				wantFound: false,
+			},
+			{
+				name:      "Readable with access → private project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{pidPriv}},
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "Readable without access → other private project not found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{pidPriv2}},
+				lookupID:  pidPriv,
+				wantFound: false,
+			},
+			{
+				name:      "other workspace public project not found — excluded by workspace filter",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidOtherPub,
+				wantFound: false,
+			},
+			{
+				name:      "other workspace private project not found — excluded by workspace filter",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidOtherPriv,
+				wantFound: false,
+			},
+			{
+				name: "both workspaces readable, nil pf → other workspace public project found",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidOtherPub,
+				wantFound: true,
+			},
+			{
+				name: "both workspaces readable, nil pf → other workspace private project found",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:        repo.ProjectFilter{Readable: nil},
+				lookupID:  pidOtherPriv,
+				wantFound: true,
+			},
+			{
+				name: "both workspaces readable, empty pf → other workspace private project not found",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidOtherPriv,
+				wantFound: false,
+			},
+			{
+				name: "both workspaces readable, empty pf → other workspace public project found",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				lookupID:  pidOtherPub,
+				wantFound: true,
+			},
+		}
+
+		initDB := mongotest.Connect(t)
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				client := mongox.NewClientWithDatabase(initDB(t))
+				r := NewProject(client)
+				ctx := context.Background()
+				for _, p := range allSeeds {
+					assert.NoError(t, r.Save(ctx, p))
+				}
+
+				r = r.Filtered(tc.wsFilter, tc.pf)
+				got, err := r.FindByID(ctx, tc.lookupID)
+				if tc.wantFound {
+					assert.NoError(t, err)
+					assert.NotNil(t, got)
+				} else {
+					assert.ErrorIs(t, err, rerror.ErrNotFound)
+				}
+			})
+		}
+	})
+
+	t.Run("FindByIDOrAlias", func(t *testing.T) {
+		tests := []struct {
+			name      string
+			wsFilter  repo.WorkspaceFilter
+			pf        repo.ProjectFilter
+			wid       accountdomain.WorkspaceID
+			lookupID  id.ProjectID
+			wantFound bool
+		}{
+			{
+				name:      "nil Readable → no visibility filter, private project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: nil},
+				wid:       wid,
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, private project not found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				wid:       wid,
+				lookupID:  pidPriv,
+				wantFound: false,
+			},
+			{
+				name:      "Readable with access → private project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{pidPriv}},
+				wid:       wid,
+				lookupID:  pidPriv,
+				wantFound: true,
+			},
+			{
+				name:      "empty Readable → public only, public project found",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				wid:       wid,
+				lookupID:  pidPub,
+				wantFound: true,
+			},
+			{
+				name:      "other workspace public project not found — excluded by workspace filter",
+				wsFilter:  wsFilter,
+				pf:        repo.ProjectFilter{Readable: nil},
+				wid:       wid2,
+				lookupID:  pidOtherPub,
+				wantFound: false,
+			},
+			{
+				name: "both workspaces readable, nil pf → other workspace public project found",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:        repo.ProjectFilter{Readable: nil},
+				wid:       wid2,
+				lookupID:  pidOtherPub,
+				wantFound: true,
+			},
+			{
+				name: "both workspaces readable, empty pf → other workspace private project not found",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:        repo.ProjectFilter{Readable: project.IDList{}},
+				wid:       wid2,
+				lookupID:  pidOtherPriv,
+				wantFound: false,
+			},
+		}
+
+		initDB := mongotest.Connect(t)
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				client := mongox.NewClientWithDatabase(initDB(t))
+				r := NewProject(client)
+				ctx := context.Background()
+				for _, p := range allSeeds {
+					assert.NoError(t, r.Save(ctx, p))
+				}
+
+				r = r.Filtered(tc.wsFilter, tc.pf)
+				got, err := r.FindByIDOrAlias(ctx, tc.wid, project.IDOrAlias(tc.lookupID.String()))
+				if tc.wantFound {
+					assert.NoError(t, err)
+					assert.NotNil(t, got)
+				} else {
+					assert.ErrorIs(t, err, rerror.ErrNotFound)
+				}
+			})
+		}
+	})
+
+	t.Run("Search", func(t *testing.T) {
+		tests := []struct {
+			name         string
+			wsFilter     repo.WorkspaceFilter
+			pf           repo.ProjectFilter
+			searchWids   accountdomain.WorkspaceIDList
+			wantIDs      []id.ProjectID
+			wantNotInIDs []id.ProjectID
+		}{
+			{
+				name:       "nil Readable → all projects in wid visible",
+				wsFilter:   wsFilter,
+				pf:         repo.ProjectFilter{Readable: nil},
+				searchWids: accountdomain.WorkspaceIDList{wid},
+				wantIDs:    []id.ProjectID{pidPub, pidPriv, pidPriv2},
+			},
+			{
+				name:       "empty Readable → public only in wid",
+				wsFilter:   wsFilter,
+				pf:         repo.ProjectFilter{Readable: project.IDList{}},
+				searchWids: accountdomain.WorkspaceIDList{wid},
+				wantIDs:    []id.ProjectID{pidPub},
+			},
+			{
+				name:       "Readable with one private project → public + that private in wid",
+				wsFilter:   wsFilter,
+				pf:         repo.ProjectFilter{Readable: project.IDList{pidPriv}},
+				searchWids: accountdomain.WorkspaceIDList{wid},
+				wantIDs:    []id.ProjectID{pidPub, pidPriv},
+			},
+			{
+				name:       "Readable with both private projects → public + both privates in wid",
+				wsFilter:   wsFilter,
+				pf:         repo.ProjectFilter{Readable: project.IDList{pidPriv, pidPriv2}},
+				searchWids: accountdomain.WorkspaceIDList{wid},
+				wantIDs:    []id.ProjectID{pidPub, pidPriv, pidPriv2},
+			},
+			{
+				name:     "wid-only workspace filter, search across both — r.f.Readable does not restrict Search wids",
+				wsFilter: wsFilter,
+				pf:       repo.ProjectFilter{Readable: nil},
+				// Search wids are used as-is; r.f.Readable workspace filter is not intersected with search wids
+				searchWids:   accountdomain.WorkspaceIDList{wid, wid2},
+				wantIDs:      []id.ProjectID{pidPub, pidPriv, pidPriv2, pidOtherPub, pidOtherPriv},
+				wantNotInIDs: nil,
+			},
+			{
+				name: "both workspaces readable, nil pf → all projects visible",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:         repo.ProjectFilter{Readable: nil},
+				searchWids: accountdomain.WorkspaceIDList{wid, wid2},
+				wantIDs:    []id.ProjectID{pidPub, pidPriv, pidPriv2, pidOtherPub, pidOtherPriv},
+			},
+			{
+				name: "both workspaces readable, empty pf → only public projects across both workspaces",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:           repo.ProjectFilter{Readable: project.IDList{}},
+				searchWids:   accountdomain.WorkspaceIDList{wid, wid2},
+				wantIDs:      []id.ProjectID{pidPub, pidOtherPub},
+				wantNotInIDs: []id.ProjectID{pidPriv, pidPriv2, pidOtherPriv},
+			},
+			{
+				name: "both workspaces readable, pf grants access to one private per workspace",
+				wsFilter: repo.WorkspaceFilter{
+					Readable: accountdomain.WorkspaceIDList{wid, wid2},
+					Writable: accountdomain.WorkspaceIDList{wid, wid2},
+				},
+				pf:           repo.ProjectFilter{Readable: project.IDList{pidPriv, pidOtherPriv}},
+				searchWids:   accountdomain.WorkspaceIDList{wid, wid2},
+				wantIDs:      []id.ProjectID{pidPub, pidPriv, pidOtherPub, pidOtherPriv},
+				wantNotInIDs: []id.ProjectID{pidPriv2},
+			},
+		}
+
+		initDB := mongotest.Connect(t)
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				client := mongox.NewClientWithDatabase(initDB(t))
+				r := NewProject(client)
+				ctx := context.Background()
+				for _, p := range allSeeds {
+					assert.NoError(t, r.Save(ctx, p))
+				}
+
+				r = r.Filtered(tc.wsFilter, tc.pf)
+				got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+					WorkspaceIds: &tc.searchWids,
+					Pagination:   pagination,
+				})
+				assert.NoError(t, err)
+
+				gotIDs := make([]id.ProjectID, 0, len(got))
+				for _, p := range got {
+					gotIDs = append(gotIDs, p.ID())
+				}
+				assert.ElementsMatch(t, tc.wantIDs, gotIDs)
+				for _, notWant := range tc.wantNotInIDs {
+					assert.NotContains(t, gotIDs, notWant)
+				}
+			})
+		}
+	})
 }
