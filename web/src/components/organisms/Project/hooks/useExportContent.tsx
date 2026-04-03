@@ -24,6 +24,15 @@ const getFilenameFromFormat = (modelId: string, format: ExportFormat): string =>
   }
 };
 
+const exportFormatToGQL: Record<
+  ExportFormat.Csv | ExportFormat.Geojson | ExportFormat.Json,
+  GQLExportFormat
+> = {
+  [ExportFormat.Csv]: GQLExportFormat.Csv,
+  [ExportFormat.Geojson]: GQLExportFormat.Geojson,
+  [ExportFormat.Json]: GQLExportFormat.Json,
+};
+
 export const useExportContent = () => {
   const t = useT();
   const [exportContentLoading, setExportContentLoading] = useExportContentLoading();
@@ -34,7 +43,8 @@ export const useExportContent = () => {
       setExportContentLoading(true);
 
       try {
-        const exportFormat = format as unknown as GQLExportFormat;
+        const exportFormat =
+          exportFormatToGQL[format as ExportFormat.Csv | ExportFormat.Geojson | ExportFormat.Json];
         const res = await exportModel({
           variables: { modelId, format: exportFormat },
         });
