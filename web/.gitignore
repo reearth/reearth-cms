@@ -58,3 +58,4 @@ amplifytools.xcconfig
 /blob-report/
 /playwright/.cache/
 /e2e/support/.auth
+/e2e/gql-errors.log

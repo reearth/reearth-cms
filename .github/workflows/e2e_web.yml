@@ -143,6 +143,13 @@ jobs:
           name: test-results-${{ matrix.shard }}
           path: web/test-results/
           retention-days: 7
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: gql-error-log-${{ matrix.shard }}
+          path: web/e2e/gql-errors.log
+          if-no-files-found: ignore
+          retention-days: 7
   merge-reports:
     if: always()
     needs: e2e

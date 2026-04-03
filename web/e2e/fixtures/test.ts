@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "../config/config";
@@ -39,7 +42,9 @@ export type Reearth = {
   ) => Promise<T>;
 } & Config;
 
-type Fixtures = { reearth: Reearth } & PageObjects;
+const GQL_LOG_PATH = path.join(__dirname, "..", "gql-errors.log");
+
+type Fixtures = { reearth: Reearth; gqlErrorLog: void } & PageObjects;
 
 export const test = base.extend<Fixtures>({
   reearth: async ({ page, request }, use) => {
@@ -75,6 +80,26 @@ export const test = base.extend<Fixtures>({
       },
     });
   },
+
+  gqlErrorLog: [
+    async ({ page }, use, testInfo) => {
+      const logs: string[] = [];
+      page.on("console", msg => {
+        if (msg.type() === "warning") {
+          const text = msg.text();
+          if (text.startsWith("[GQL_LOG]")) {
+            logs.push(text.replace("[GQL_LOG] ", ""));
+          }
+        }
+      });
+      await use();
+      if (logs.length > 0) {
+        const header = `\n=== ${testInfo.titlePath.join(" › ")} [${testInfo.status}] ===\n`;
+        fs.appendFileSync(GQL_LOG_PATH, header + logs.join("\n") + "\n");
+      }
+    },
+    { auto: true },
+  ],
 
   assetsPage: async ({ page }, use) => {
     await use(new AssetsPage(page));
