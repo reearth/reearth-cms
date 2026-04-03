@@ -415,6 +415,7 @@ export default {
   "No data": "No data",
   "No Geometry field was found in this model, so GeoJSON export is not available.": "",
   "No Integration yet": "",
+  "No model selected.": "No model selected.",
   "No Models yet": "",
   "No Projects Yet": "",
   "No result": "",

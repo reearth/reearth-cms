@@ -413,6 +413,7 @@ export default {
   "No data": "データなし",
   "No Geometry field was found in this model, so GeoJSON export is not available.": "このモデルにジオメトリフィールドが見つからないため、GeoJSONエクスポートは利用できません。",
   "No Integration yet": "まだインテグレーションはありません",
+  "No model selected.": "モデルが選択されていません。",
   "No Models yet": "モデルはまだありません",
   "No Projects Yet": "プロジェクトがありません",
   "No result": "見つかりませんでした",
