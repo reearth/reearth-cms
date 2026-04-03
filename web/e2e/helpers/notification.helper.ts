@@ -15,7 +15,7 @@ export async function clickAndExpectSuccess(
     } catch (error) {
       const isTransient = String(error).includes("Failed to fetch");
       if (attempt < maxRetries && isTransient) {
-        await page.waitForTimeout(2000 * Math.pow(2, attempt));
+        await page.waitForTimeout(2_000 * Math.pow(2, attempt));
         continue;
       }
       throw error;
@@ -41,8 +41,8 @@ export async function closeNotification(page: Page, isSuccess = true) {
   if (isSuccess) {
     // Race: wait for either success or error notification
     const result = await Promise.race([
-      successNotice.waitFor({ state: "visible", timeout: 30_000 }).then(() => "success" as const),
-      errorNotice.waitFor({ state: "visible", timeout: 30_000 }).then(() => "error" as const),
+      successNotice.waitFor({ state: "visible", timeout: 10_000 }).then(() => "success" as const),
+      errorNotice.waitFor({ state: "visible", timeout: 10_000 }).then(() => "error" as const),
     ]);
 
     if (result === "error") {
@@ -58,7 +58,7 @@ export async function closeNotification(page: Page, isSuccess = true) {
     await successNotice.locator(".ant-notification-notice-close").dispatchEvent("click");
     await successNotice.waitFor({ state: "detached", timeout: 10_000 });
   } else {
-    await expect(errorNotice).toBeVisible({ timeout: 30_000 });
+    await expect(errorNotice).toBeVisible({ timeout: 10_000 });
     await errorNotice.locator(".ant-notification-notice-close").dispatchEvent("click");
     await errorNotice.waitFor({ state: "detached", timeout: 10_000 });
   }

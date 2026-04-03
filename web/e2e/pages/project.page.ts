@@ -217,55 +217,50 @@ export class ProjectPage extends BasePage {
   }
 
   async deleteProject(): Promise<void> {
-    // Close any open modals/dialogs before attempting to delete
-    // Check if modal is present and stable (not animating)
-    const modalWrap = this.page.locator(".ant-modal-wrap");
-    const isModalVisible = await modalWrap
-      .first()
-      .isVisible({ timeout: 500 })
-      .catch(() => false);
-
-    if (isModalVisible) {
-      // Check if modal is actually blocking (has pointer-events)
-      const modalStyle = await modalWrap
+    try {
+      // Close any open modals/dialogs before attempting to delete
+      const modalWrap = this.page.locator(".ant-modal-wrap");
+      const isModalVisible = await modalWrap
         .first()
-        .evaluate(el => window.getComputedStyle(el).pointerEvents)
-        .catch(() => "auto");
+        .isVisible({ timeout: 500 })
+        .catch(() => false);
 
-      if (modalStyle !== "none") {
-        // Try to close the modal using close button
-        const modalClose = this.page.locator(".ant-modal-close");
-        const isCloseButtonVisible = await modalClose
+      if (isModalVisible) {
+        const modalStyle = await modalWrap
           .first()
-          .isVisible({ timeout: 500 })
-          .catch(() => false);
+          .evaluate(el => window.getComputedStyle(el).pointerEvents)
+          .catch(() => "auto");
 
-        if (isCloseButtonVisible) {
-          try {
-            await modalClose.first().click({ timeout: 2000 });
-            // Wait for modal to fully disappear
-            await modalWrap
-              .first()
-              .waitFor({ state: "hidden", timeout: 2000 })
-              .catch(() => {});
-          } catch {
-            // If clicking fails, try ESC key as fallback
+        if (modalStyle !== "none") {
+          const modalClose = this.page.locator(".ant-modal-close");
+          const isCloseButtonVisible = await modalClose
+            .first()
+            .isVisible({ timeout: 500 })
+            .catch(() => false);
+
+          if (isCloseButtonVisible) {
+            try {
+              await modalClose.first().click({ timeout: 2_000 });
+              await modalWrap.first().waitFor({ state: "hidden", timeout: 2_000 }).catch(() => {});
+            } catch {
+              await this.page.keyboard.press("Escape");
+              await modalWrap.first().waitFor({ state: "hidden", timeout: 2_000 }).catch(() => {});
+            }
+          } else {
             await this.page.keyboard.press("Escape");
-            await this.page.waitForTimeout(300);
+            await modalWrap.first().waitFor({ state: "hidden", timeout: 2_000 }).catch(() => {});
           }
-        } else {
-          // No close button, use ESC key
-          await this.page.keyboard.press("Escape");
-          await this.page.waitForTimeout(300);
         }
       }
-    }
 
-    await this.page.waitForLoadState("networkidle");
-    await expect(this.getByText("Settings").first()).toBeVisible();
-    await this.getByText("Settings").first().click();
-    await this.deleteProjectButton.click();
-    await this.clickAndExpectSuccess(this.confirmDeleteProjectButton);
+      await this.page.waitForLoadState("networkidle");
+      await expect(this.getByText("Settings").first()).toBeVisible();
+      await this.getByText("Settings").first().click();
+      await this.deleteProjectButton.click();
+      await this.clickAndExpectSuccess(this.confirmDeleteProjectButton);
+    } catch (error) {
+      console.warn(`[E2E] deleteProject cleanup failed: ${error}`);
+    }
   }
 
   async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
