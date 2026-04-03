@@ -27,7 +27,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
     await fieldEditorPage.pointCheckbox.check();
     await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify field created and navigate to new item", async () => {
@@ -38,7 +38,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.labelElement()).toContainText("geometryObject1");
     await expect(contentPage.mainElement).toContainText("geometryObject1 description");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add Point geometry with coordinates [0, 0]", async () => {
@@ -52,7 +52,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit item and update geometry to [1, 0]", async () => {
@@ -68,7 +68,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -89,7 +89,7 @@ test("GeometryObject field editing has succeeded", async ({
     await fieldEditorPage.viewLinesEditor.click();
     await fieldEditorPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
     await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create new item and verify default value applied", async () => {
@@ -107,7 +107,7 @@ test("GeometryObject field editing has succeeded", async ({
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit field settings: rename, enable multiple values, and validations", async () => {
@@ -141,14 +141,14 @@ test("GeometryObject field editing has succeeded", async ({
       '{  "type": "Point",  "coordinates": [0, 0]}',
     );
     await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify updated field in schema", async () => {
     await expect(
       schemaPage.uniqueFieldText("new geometryObject1", "new-geometryobject1"),
     ).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify existing item shows old default value", async () => {
@@ -156,7 +156,7 @@ test("GeometryObject field editing has succeeded", async ({
     await expect(contentPage.tableHead).toContainText("new geometryObject1");
     await contentPage.nthTableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create new item with multiple geometries and reorder", async () => {
@@ -185,6 +185,6 @@ test("GeometryObject field editing has succeeded", async ({
     await expect(contentPage.tooltipParagraphByIndex(2)).toContainText(
       '{ "type": "Point", "coordinates": [0, 0] }',
     );
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

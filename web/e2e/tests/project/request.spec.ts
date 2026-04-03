@@ -176,7 +176,7 @@ test("Creating a new request and adding to request has succeeded", async ({
     await requestPage.newItemButton.click();
     await expect(requestPage.saveButton).toBeVisible();
     await requestPage.clickAndExpectSuccess(requestPage.saveButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add new item to existing request", async () => {
@@ -187,7 +187,7 @@ test("Creating a new request and adding to request has succeeded", async ({
     await expect(requestPage.selectCheckbox).toBeVisible();
     await requestPage.selectCheckbox.click();
     await requestPage.clickAndExpectSuccess(requestPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify both items appear in request", async () => {
@@ -196,7 +196,7 @@ test("Creating a new request and adding to request has succeeded", async ({
     await requestPage.editButton.click();
     await expect(requestPage.collapsedModelButton("e2e model name", 0)).toBeVisible();
     await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 

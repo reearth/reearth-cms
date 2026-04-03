@@ -24,12 +24,12 @@ test.describe("Project General Settings", () => {
 
       await projectPage.gotoProject(PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Check project settings heading", async () => {
       await expect(projectSettingsPage.settingsTitle(PROJECT_NAME)).toBeVisible();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     const nameEl = projectSettingsPage.projectName;
@@ -37,7 +37,7 @@ test.describe("Project General Settings", () => {
     await test.step("Check original name exists", async () => {
       await expect(nameEl).toBeVisible();
       await expect(nameEl).toHaveValue(PROJECT_NAME);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     const aliasEl = projectSettingsPage.projectAlias;
@@ -45,7 +45,7 @@ test.describe("Project General Settings", () => {
     await test.step("Check original alias exists", async () => {
       await expect(aliasEl).toBeVisible();
       await expect(aliasEl).toHaveValue(PROJECT_NAME);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Update project name and check result", async () => {
@@ -53,7 +53,7 @@ test.describe("Project General Settings", () => {
       await projectSettingsPage.saveSettings();
       const newSettingsTitle = projectSettingsPage.settingsTitle(NEW_PROJECT_NAME);
       await expect(newSettingsTitle).toBeVisible();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     const errorEl = projectSettingsPage.errorMessage;
@@ -63,7 +63,7 @@ test.describe("Project General Settings", () => {
         await aliasEl.clear();
         const errorMsg1 = t("{{field}} field is required!", { field: "alias" });
         await expect(errorEl).toHaveText(errorMsg1);
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
 
       await test.step("Alias illegal case 2", async () => {
@@ -73,7 +73,7 @@ test.describe("Project General Settings", () => {
           max: Constant.PROJECT_ALIAS.MAX_LENGTH,
         });
         await expect(errorEl).toHaveText(errorMsg2);
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
 
       await test.step("Alias illegal case 3", async () => {
@@ -82,7 +82,7 @@ test.describe("Project General Settings", () => {
           "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
         );
         await expect(errorEl).toHaveText(errorMsg3);
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
 
       await test.step("Alias illegal case 4", async () => {
@@ -91,31 +91,31 @@ test.describe("Project General Settings", () => {
           "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
         );
         await expect(errorEl).toHaveText(errorMsg4);
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
 
       await test.step("Alias illegal case 5", async () => {
         await aliasEl.fill(EXIST_PROJECT_NAME);
         const errorMsg5 = t("Project alias is already taken");
         await expect(errorEl).toHaveText(errorMsg5);
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Alias legal cases", async () => {
       await test.step("Alias legal case 1", async () => {
         await aliasEl.fill("test-alias-123");
         await expect(errorEl).toBeHidden();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
 
       await test.step("Alias legal case 2", async () => {
         await aliasEl.fill("test_alias_123");
         await expect(errorEl).toBeHidden();
-        await page.waitForTimeout(300);
+        await page.waitForLoadState("networkidle");
       });
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Delete all projects", async () => {
@@ -125,7 +125,7 @@ test.describe("Project General Settings", () => {
         await projectPage.gotoProject(project);
         await projectPage.deleteProject();
       }
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 });

@@ -45,7 +45,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
     await projectPage.contentMenuItem.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create new item with text value", async () => {
@@ -55,7 +55,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.cellByText("text", true)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Search for non-existent item", async () => {
@@ -63,14 +63,14 @@ test("@smoke Item CRUD and searching has succeeded", async ({
     await contentPage.searchInput.fill("no field");
     await contentPage.searchButton.click();
     await expect(contentPage.cellByText("text", true)).toBeHidden();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Clear search to show item again", async () => {
     await contentPage.searchInput.fill("");
     await contentPage.searchButton.click();
     await expect(contentPage.cellByText("text", true)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit item with new text value", async () => {
@@ -82,14 +82,14 @@ test("@smoke Item CRUD and searching has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButtonLabel.click();
     await expect(contentPage.cellByText("new text")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete item", async () => {
     await contentPage.selectAllCheckbox.check();
     await contentPage.clickAndExpectSuccess(contentPage.deleteButton);
     await expect(contentPage.cellByText("new text")).toBeHidden();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -108,13 +108,13 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
     await contentPage.fieldInput("text").fill("text");
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Publish item from edit page", async () => {
     await contentPage.clickAndExpectSuccess(contentPage.publishButton);
     await expect(contentPage.publishedStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify published status persists", async () => {
@@ -122,20 +122,20 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
     await expect(contentPage.publishedStatus).toBeVisible();
     await contentPage.cellEditButton.click();
     await expect(contentPage.publishedStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Unpublish item from edit page", async () => {
     await contentPage.ellipsisMenuButton.click();
     await contentPage.clickAndExpectSuccess(contentPage.unpublishButton);
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify draft status persists", async () => {
     await contentPage.backButtonLabel.click();
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -154,13 +154,13 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
     await contentPage.fieldInput("text").fill("text");
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Navigate to table and verify draft status", async () => {
     await contentPage.backButtonLabel.click();
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Publish item from table", async () => {
@@ -168,19 +168,19 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
     await contentPage.publishFromTableButton.click();
     await contentPage.clickAndExpectSuccess(contentPage.yesButton);
     await expect(contentPage.publishedStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Unpublish item from table", async () => {
     await contentPage.clickAndExpectSuccess(contentPage.unpublishButton);
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify draft status in edit page", async () => {
     await contentPage.cellEditButton.click();
     await expect(contentPage.draftStatus).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -201,7 +201,7 @@ test("Showing item title has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     const itemId = contentPage.getCurrentItemId();
     await expect(contentPage.titleByText(`e2e model name / ${itemId}`, true)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Configure field to use as title with default value", async () => {
@@ -212,7 +212,7 @@ test("Showing item title has succeeded", async ({
     await fieldEditorPage.setDefaultValueInput.click();
     await fieldEditorPage.defaultValueTextInput.fill("default text");
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify title shows field value", async () => {
@@ -220,7 +220,7 @@ test("Showing item title has succeeded", async ({
     await contentPage.cellEditButton.click();
     await expect(contentPage.titleByText(`e2e model name / text`, true)).toBeVisible();
     await contentPage.backButtonLabel.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify title shows default value for new item", async () => {
@@ -228,7 +228,7 @@ test("Showing item title has succeeded", async ({
     await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.titleByText(`e2e model name / default text`, true)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -247,27 +247,27 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
     await contentPage.fieldInput("text").fill("text");
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButtonLabel.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Open comments panel", async () => {
     await contentPage.commentsCountButton("0").click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create comment", async () => {
     await contentPage.createComment("comment");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update comment", async () => {
     await contentPage.updateComment("comment", "new comment");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete comment", async () => {
     await contentPage.deleteComment();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -285,27 +285,27 @@ test("Comment CRUD on edit page has succeeded", async ({
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Open comments panel", async () => {
     await contentPage.commentButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create comment", async () => {
     await contentPage.createComment("comment");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update comment", async () => {
     await contentPage.updateComment("comment", "new comment");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete comment", async () => {
     await contentPage.deleteComment();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 

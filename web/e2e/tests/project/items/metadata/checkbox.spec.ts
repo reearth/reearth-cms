@@ -27,7 +27,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify metadata field settings", async () => {
@@ -43,7 +43,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueCheckbox).not.toBeChecked();
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create item with default checkbox value", async () => {
@@ -54,7 +54,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update checkbox from table view to checked", async () => {
@@ -62,7 +62,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.lastCellCheckbox.check();
     await contentPage.closeNotification();
     await expect(contentPage.lastCellCheckbox).toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update checkbox from edit view to unchecked", async () => {
@@ -71,13 +71,13 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.fieldInput("checkbox1").uncheck();
     await contentPage.closeNotification();
     await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify updated checkbox in table view", async () => {
     await contentPage.backButtonRole.click();
     await expect(contentPage.lastCellCheckbox).not.toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -96,7 +96,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueCheckbox.check();
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
@@ -105,7 +105,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update metadata with multiple values", async () => {
@@ -124,7 +124,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.getByText("new checkbox1")).toBeVisible();
     await expect(schemaPage.getByText("#new-checkbox1")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
@@ -139,7 +139,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.checkboxByIndex(0)).toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update checkbox from tooltip in table view", async () => {
@@ -149,7 +149,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
     await contentPage.tooltipCheckboxByIndex(0).uncheck();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add third value from edit view", async () => {
@@ -160,7 +160,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
     await expect(contentPage.checkboxByIndex(2)).not.toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify all three values in table view", async () => {
@@ -169,6 +169,6 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.tooltipCheckboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
     await expect(contentPage.tooltipCheckboxByIndex(2)).not.toBeChecked();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

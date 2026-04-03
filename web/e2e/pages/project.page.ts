@@ -211,7 +211,10 @@ export class ProjectPage extends BasePage {
   }
 
   async gotoProject(name: string): Promise<void> {
-    await this.getByText(name, { exact: true }).click();
+    await this.page.waitForLoadState("networkidle");
+    const projectLink = this.getByText(name, { exact: true });
+    await expect(projectLink).toBeVisible();
+    await projectLink.click();
     const projectName = this.locator(".ant-layout-header p").nth(2);
     await expect(projectName).toHaveText(name);
   }

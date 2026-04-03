@@ -28,14 +28,14 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
     await schemaPage.modelNameInput.fill("model name");
     await projectPage.modelDescriptionInput.fill("model description");
     await projectPage.clickAndExpectSuccess(schemaPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify model created successfully", async () => {
     await expect(projectPage.modelTitleByName("model name")).toBeVisible();
     await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
     await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update model name, description and key", async () => {
@@ -46,26 +46,26 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
     await projectPage.modelDescriptionInput.fill("new model description");
     await projectPage.modelKeyInput.fill("new-model-key");
     await projectPage.clickAndExpectSuccess(projectPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify model updated successfully", async () => {
     await expect(projectPage.rootElement).toContainText("new model name");
     await expect(projectPage.rootElement).toContainText("new model description");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete model", async () => {
     await projectPage.modelListLink.click();
     await projectPage.deleteText.click();
     await projectPage.clickAndExpectSuccess(projectPage.deleteModelButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify model deleted successfully", async () => {
     await expect(projectPage.rootElement).not.toContainText("new model name");
     await expect(projectPage.noModelsYetText).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -90,7 +90,7 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.modelTitleByName("model name")).toBeVisible();
       await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
       await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Export model as JSON", async () => {
@@ -98,7 +98,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.clickAndExpectSuccess(projectPage.exportAsJSONText);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 
@@ -115,7 +115,7 @@ test.describe("Model Export tests on Overview page", () => {
       await schemaPage.modelNameInput.fill("model name");
       await projectPage.modelDescriptionInput.fill("model description");
       await projectPage.clickAndExpectSuccess(schemaPage.okButton);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Navigate to export and select CSV", async () => {
@@ -123,7 +123,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsCSVText.click();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Verify CSV export warning modal and export", async () => {
@@ -132,7 +132,7 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.csvExportRelationsWarningText).toBeVisible();
       // Click Export button
       await projectPage.clickAndExpectSuccess(projectPage.exportCSVButton);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 
@@ -145,7 +145,7 @@ test.describe("Model Export tests on Overview page", () => {
       await schemaPage.modelNameInput.fill("model name");
       await projectPage.modelDescriptionInput.fill("model description");
       await projectPage.clickAndExpectSuccess(schemaPage.okButton);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Export schema", async () => {
@@ -153,7 +153,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.clickAndExpectSuccess(projectPage.exportSchemaText);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 
@@ -170,7 +170,7 @@ test.describe("Model Export tests on Overview page", () => {
       await schemaPage.modelNameInput.fill("model name");
       await projectPage.modelDescriptionInput.fill("model description");
       await projectPage.clickAndExpectSuccess(schemaPage.okButton);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
@@ -185,7 +185,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.okButton.click();
       // Verify modal closed
       await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 
@@ -214,7 +214,7 @@ test.describe("Model Export tests on Overview page", () => {
       await fieldEditorPage.settingsDescriptionInput.fill("location field");
       await fieldEditorPage.supportTypePointCheckbox.check();
       await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Export as GeoJSON successfully", async () => {
@@ -224,7 +224,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelExportLink.click();
       // Should export directly without modal
       await projectPage.clickAndExpectSuccess(projectPage.exportAsGeoJSONText);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 
@@ -260,7 +260,7 @@ test.describe("Model Export tests on Overview page", () => {
       await fieldEditorPage.settingsDescriptionInput.fill("second location field");
       await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
       await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
 
     await test.step("Attempt GeoJSON export and verify warning modal", async () => {
@@ -279,7 +279,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.cancelButton.click();
       // Verify modal closed
       await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
-      await page.waitForTimeout(300);
+      await page.waitForLoadState("networkidle");
     });
   });
 });
@@ -301,7 +301,7 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
     await projectPage.modelDescriptionInput.fill("model description");
     await projectPage.clickAndExpectSuccess(schemaPage.okButton);
     await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Open import schema from dropdown", async () => {
@@ -326,13 +326,13 @@ test("Creating Model by using the button on placeholder has succeeded", async ({
     await expect(projectPage.dialogNewModelText).toBeVisible();
     await projectPage.modelNameInput.fill("model name");
     await projectPage.clickAndExpectSuccess(projectPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify model created successfully", async () => {
     await expect(projectPage.modelTitleByName("model name")).toBeVisible();
     await expect(projectPage.modelKeyTextByKey("model-name")).toBeVisible();
     await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

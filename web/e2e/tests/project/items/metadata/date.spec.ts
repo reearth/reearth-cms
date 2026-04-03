@@ -26,7 +26,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.fieldText("date1", "date1")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify field settings and validations", async () => {
@@ -44,7 +44,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.selectDatePlaceholder).toBeEmpty();
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create new item with date value", async () => {
@@ -58,7 +58,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update date value inline in list view", async () => {
@@ -68,7 +68,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await contentPage.textBoxes.press("Enter");
     await contentPage.closeNotification();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-02");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update date value in item edit view", async () => {
@@ -79,13 +79,13 @@ test("Date metadata creating and updating has succeeded", async ({
     await contentPage.fieldInput("date1").press("Enter");
     await contentPage.closeNotification();
     await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-03");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify final date value in list view", async () => {
     await contentPage.backButtonRole.click();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-03");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -100,7 +100,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.setDefaultValueInput.fill("2024-01-01");
     await fieldEditorPage.selectDatePlaceholder.press("Enter");
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify field created and create item with default value", async () => {
@@ -111,7 +111,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
 
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit field: rename, enable multiple values and validations", async () => {
@@ -127,7 +127,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.uniqueFieldCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.firstTextbox).toHaveValue("2024-01-01");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add second default date value", async () => {
@@ -136,7 +136,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.textboxByIndex(1).press("Enter");
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(fieldEditorPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify existing item and create new item with multiple defaults", async () => {
@@ -153,7 +153,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update second date value inline in list view tooltip", async () => {
@@ -165,7 +165,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.tooltipTextbox(1).fill("2024-01-03");
     await fieldEditorPage.tooltipTextbox(1).press("Enter");
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add third date value in item edit view", async () => {
@@ -176,7 +176,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await fieldEditorPage.lastTextbox.fill("2024-01-02");
     await fieldEditorPage.lastTextbox.press("Enter");
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify all three date values in list view tooltip", async () => {
@@ -186,6 +186,6 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await expect(fieldEditorPage.tooltipTextbox(0)).toHaveValue("2024-01-01");
     await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-03");
     await expect(fieldEditorPage.tooltipTextbox(2)).toHaveValue("2024-01-02");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

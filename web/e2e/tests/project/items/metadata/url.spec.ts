@@ -55,7 +55,7 @@ test("Url metadata creating and updating has succeeded", async ({
   const urlLink = contentPage.linkByName("http://test1.com");
   await expect(urlLink).toBeVisible();
   await urlLink.hover();
-  await page.waitForTimeout(300);
+  await page.waitForLoadState("networkidle");
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
@@ -93,7 +93,7 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
 
   await expect(contentPage.saveButton).toBeEnabled();
   await contentPage.clickAndExpectSuccess(contentPage.saveButton);
-  await page.waitForTimeout(300);
+  await page.waitForLoadState("networkidle");
   await contentPage.backButtonRole.click();
   await fieldEditorPage.menuItemByName("Schema").click();
   await fieldEditorPage.metaDataTab.click();
@@ -125,13 +125,13 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
 
   await expect(contentPage.saveButton).toBeEnabled();
   await contentPage.clickAndExpectSuccess(contentPage.saveButton);
-  await page.waitForTimeout(300);
+  await page.waitForLoadState("networkidle");
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
   await contentPage.backButtonRole.click();
   await expect(contentPage.x2Button).toBeVisible();
   await contentPage.x2Button.click();
-  await page.waitForTimeout(300);
+  await page.waitForLoadState("networkidle");
   const tooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(tooltipLinks.nth(0)).toContainText("http://default1.com");
   await expect(tooltipLinks.nth(1)).toContainText("http://default2.com");
@@ -148,9 +148,9 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await fieldEditorPage.plusNewButton.click();
   await expect(fieldEditorPage.lastTextbox).toBeVisible();
   await fieldEditorPage.lastTextbox.fill("http://default3.com");
-  await page.waitForTimeout(1000);
+  await page.waitForLoadState("networkidle");
   await contentPage.closeNotification();
-  await page.waitForTimeout(300);
+  await page.waitForLoadState("networkidle");
   await expect(contentPage.textBoxByIndex(2)).toBeVisible();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
