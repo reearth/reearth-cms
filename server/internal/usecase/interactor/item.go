@@ -42,7 +42,7 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 	}
 }
 
-func (i Item) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (i Item) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
@@ -64,7 +64,7 @@ func (i Item) checkPermission(ctx context.Context, operator *usecase.Operator, w
 // checkPermissionForAllItems checks the given action against every unique workspace
 // represented in items. Workspace lookups and permission checks run concurrently.
 // Returns the first error encountered.
-func (i Item) checkPermissionForAllItems(ctx context.Context, operator *usecase.Operator, caller, action string, items item.VersionedList) error {
+func (i Item) checkPermissionForAllItems(ctx context.Context, operator *usecase.Operator, caller, action rbac.Action, items item.VersionedList) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
@@ -101,18 +101,16 @@ func (i Item) checkPermissionForAllItems(ctx context.Context, operator *usecase.
 
 // workspaceIDForSchema returns the workspace ID for the given schema by fetching it from
 // the repository. This DB lookup exists because item.Item does not currently store workspace
-// directly. TODO: add workspace field to item.Item (with a data migration) so this lookup
-// can be replaced by item.Workspace().
+// directly.
+// TODO: add workspace field to item.Item (with a data migration) so this lookup
+// can be replaced by item.Workspace() or Cache it
 func (i Item) workspaceIDForSchema(ctx context.Context, schemaID id.SchemaID) (*workspace.ID, error) {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil, nil
-	}
 	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, err
 	}
-	ws := s.Workspace()
-	return &ws, nil
+
+	return s.Workspace().Ref(), nil
 }
 
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
@@ -266,8 +264,7 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operato
 func (i Item) Search(ctx context.Context, sp schema.Package, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	var wid *workspace.ID
 	if sp.Schema() != nil {
-		ws := sp.Schema().Workspace()
-		wid = &ws
+		wid = sp.Schema().Workspace().Ref()
 	}
 	if err := i.checkPermission(ctx, operator, wid, "item.Search", rbac.ActionList); err != nil {
 		return nil, nil, err
@@ -333,8 +330,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		ws := s.Workspace()
-		if err := i.checkPermission(ctx, operator, &ws, "item.Create", rbac.ActionCreate); err != nil {
+		if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "item.Create", rbac.ActionCreate); err != nil {
 			return nil, err
 		}
 
@@ -480,8 +476,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		ws := s.Workspace()
-		if err := i.checkPermission(ctx, operator, &ws, "item.Update", rbac.ActionUpdate); err != nil {
+		if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "item.Update", rbac.ActionUpdate); err != nil {
 			return nil, err
 		}
 
@@ -624,8 +619,7 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, interfaces.ErrInvalidOperator
 		}
 
-		prjWs := prj.Workspace()
-		if err := i.checkPermission(ctx, operator, &prjWs, "item.Unpublish", rbac.ActionUnpublish); err != nil {
+		if err := i.checkPermission(ctx, operator, prj.Workspace().Ref(), "item.Unpublish", rbac.ActionUnpublish); err != nil {
 			return nil, err
 		}
 
@@ -696,8 +690,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, interfaces.ErrInvalidOperator
 		}
 
-		prjWs := prj.Workspace()
-		if err := i.checkPermission(ctx, operator, &prjWs, "item.Publish", rbac.ActionPublish); err != nil {
+		if err := i.checkPermission(ctx, operator, prj.Workspace().Ref(), "item.Publish", rbac.ActionPublish); err != nil {
 			return nil, err
 		}
 

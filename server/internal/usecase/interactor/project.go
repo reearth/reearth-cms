@@ -63,9 +63,8 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 	}))
 	eg, egCtx := errgroup.WithContext(ctx)
 	for _, ws := range uniqueWorkspaces {
-		ws := ws
 		eg.Go(func() error {
-			return i.checkPermission(egCtx, operator, &ws, "project.Fetch", rbac.ActionList)
+			return i.checkPermission(egCtx, operator, ws.Ref(), "project.Fetch", rbac.ActionList)
 		})
 	}
 	if err := eg.Wait(); err != nil {
@@ -75,7 +74,7 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 }
 
 func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	if err := i.checkPermission(ctx, operator, &wid, "project.FindByWorkspace", rbac.ActionList); err != nil {
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "project.FindByWorkspace", rbac.ActionList); err != nil {
 		return nil, nil, err
 	}
 	if f == nil {
@@ -91,7 +90,7 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	for _, ws := range wIds {
 		ws := ws
-		if err := i.checkPermission(ctx, operator, &ws, "project.FindByWorkspaces", rbac.ActionList); err != nil {
+		if err := i.checkPermission(ctx, operator, ws.Ref(), "project.FindByWorkspaces", rbac.ActionList); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -106,13 +105,17 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 }
 
 func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	var wid *workspace.ID
 	if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
-		ws := (*f.WorkspaceIds)[0]
-		wid = &ws
-	}
-	if err := i.checkPermission(ctx, operator, wid, "project.Search", rbac.ActionList); err != nil {
-		return nil, nil, err
+		eg, egCtx := errgroup.WithContext(ctx)
+		for _, ws := range *f.WorkspaceIds {
+			ws := ws
+			eg.Go(func() error {
+				return i.checkPermission(egCtx, operator, ws.Ref(), "project.Search", rbac.ActionList)
+			})
+		}
+		if err := eg.Wait(); err != nil {
+			return nil, nil, err
+		}
 	}
 	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
@@ -138,7 +141,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	if err := i.checkPermission(ctx, op, &param.WorkspaceID, "project.Create", rbac.ActionCreate); err != nil {
+	if err := i.checkPermission(ctx, op, param.WorkspaceID.Ref(), "project.Create", rbac.ActionCreate); err != nil {
 		return nil, err
 	}
 
