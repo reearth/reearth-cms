@@ -28,7 +28,7 @@ func NewWorkspaceSettings(r *repo.Container, g *gateway.Container) interfaces.Wo
 	}
 }
 
-func (ws *WorkspaceSettings) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (ws *WorkspaceSettings) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
 	if ws.gateways == nil || ws.gateways.Authorization == nil {
 		return nil
 	}
@@ -49,8 +49,8 @@ func (ws *WorkspaceSettings) checkPermission(ctx context.Context, operator *usec
 
 func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.WorkspaceIDList, op *usecase.Operator) (result workspacesettings.List, err error) {
 	for _, w := range wid {
-		wPtr := w
-		if err := ws.checkPermission(ctx, op, &wPtr, "WorkspaceSettings.Fetch", rbac.ActionRead); err != nil {
+
+		if err := ws.checkPermission(ctx, op, w.Ref(), "WorkspaceSettings.Fetch", rbac.ActionRead); err != nil {
 			return nil, err
 		}
 	}
@@ -58,8 +58,8 @@ func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.Worksp
 }
 
 func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.UpdateOrCreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	wid := inp.ID
-	if err := ws.checkPermission(ctx, op, &wid, "WorkspaceSettings.UpdateOrCreate", rbac.ActionUpdate); err != nil {
+
+	if err := ws.checkPermission(ctx, op, inp.ID.Ref(), "WorkspaceSettings.UpdateOrCreate", rbac.ActionUpdate); err != nil {
 		return nil, err
 	}
 
@@ -93,8 +93,8 @@ func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.
 }
 
 func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWorkspaceSettingsParam, op *usecase.Operator) error {
-	wid := inp.ID
-	if err := ws.checkPermission(ctx, op, &wid, "WorkspaceSettings.Delete", rbac.ActionDelete); err != nil {
+
+	if err := ws.checkPermission(ctx, op, inp.ID.Ref(), "WorkspaceSettings.Delete", rbac.ActionDelete); err != nil {
 		return err
 	}
 	return Run0(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),

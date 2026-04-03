@@ -36,7 +36,7 @@ func NewRequest(r *repo.Container, g *gateway.Container) *Request {
 	}
 }
 
-func (r Request) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (r Request) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
 	if r.gateways == nil || r.gateways.Authorization == nil {
 		return nil
 	}
@@ -72,8 +72,8 @@ func (r Request) FindByID(ctx context.Context, rid id.RequestID, operator *useca
 	if err != nil {
 		return nil, err
 	}
-	wid := req.Workspace()
-	if err := r.checkPermission(ctx, operator, &wid, "Request.FindByID", rbac.ActionRead); err != nil {
+
+	if err := r.checkPermission(ctx, operator, req.Workspace().Ref(), "Request.FindByID", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	return req, nil
@@ -90,8 +90,8 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator 
 			continue
 		}
 		seen[req.Workspace()] = true
-		wid := req.Workspace()
-		if err := r.checkPermission(ctx, operator, &wid, "Request.FindByIDs", rbac.ActionRead); err != nil {
+
+		if err := r.checkPermission(ctx, operator, req.Workspace().Ref(), "Request.FindByIDs", rbac.ActionRead); err != nil {
 			return nil, err
 		}
 	}
@@ -155,8 +155,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		wid := ws.ID()
-		if err := r.checkPermission(ctx, operator, &wid, "Request.Create", rbac.ActionCreate); err != nil {
+		if err := r.checkPermission(ctx, operator, ws.ID().Ref(), "Request.Create", rbac.ActionCreate); err != nil {
 			return nil, err
 		}
 
@@ -215,8 +214,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			return nil, err
 		}
 
-		wid := req.Workspace()
-		if err := r.checkPermission(ctx, operator, &wid, "Request.Update", rbac.ActionUpdate); err != nil {
+		if err := r.checkPermission(ctx, operator, req.Workspace().Ref(), "Request.Update", rbac.ActionUpdate); err != nil {
 			return nil, err
 		}
 
@@ -339,8 +337,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 			return nil, err
 		}
 
-		wid := req.Workspace()
-		if err := r.checkPermission(ctx, operator, &wid, "Request.Approve", rbac.ActionApprove); err != nil {
+		if err := r.checkPermission(ctx, operator, req.Workspace().Ref(), "Request.Approve", rbac.ActionApprove); err != nil {
 			return nil, err
 		}
 

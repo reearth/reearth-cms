@@ -26,7 +26,7 @@ func NewThread(r *repo.Container, g *gateway.Container) interfaces.Thread {
 	}
 }
 
-func (i *Thread) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (i *Thread) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
@@ -54,8 +54,8 @@ func (i *Thread) FindByID(ctx context.Context, aid id.ThreadID, op *usecase.Oper
 			if err != nil {
 				return nil, err
 			}
-			wid := th.Workspace()
-			if err := i.checkPermission(ctx, op, &wid, "Thread.FindByID", rbac.ActionRead); err != nil {
+
+			if err := i.checkPermission(ctx, op, th.Workspace().Ref(), "Thread.FindByID", rbac.ActionRead); err != nil {
 				return nil, err
 			}
 			return th, nil
@@ -74,8 +74,8 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 			continue
 		}
 		seen[th.Workspace()] = true
-		wid := th.Workspace()
-		if err := i.checkPermission(ctx, operator, &wid, "Thread.FindByIDs", rbac.ActionRead); err != nil {
+
+		if err := i.checkPermission(ctx, operator, th.Workspace().Ref(), "Thread.FindByIDs", rbac.ActionRead); err != nil {
 			return nil, err
 		}
 	}
@@ -83,8 +83,8 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 }
 
 func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.CreateThreadWithCommentInput, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
-	wid := input.WorkspaceID
-	if err := i.checkPermission(ctx, op, &wid, "Thread.CreateThreadWithComment", rbac.ActionCreate); err != nil {
+
+	if err := i.checkPermission(ctx, op, input.WorkspaceID.Ref(), "Thread.CreateThreadWithComment", rbac.ActionCreate); err != nil {
 		return nil, nil, err
 	}
 	return Run2(
@@ -177,8 +177,7 @@ func (i *Thread) addComment(ctx context.Context, thid id.ThreadID, content strin
 		return nil, nil, err
 	}
 
-	wid := th.Workspace()
-	if err := i.checkPermission(ctx, op, &wid, "Thread.AddComment", rbac.ActionComment); err != nil {
+	if err := i.checkPermission(ctx, op, th.Workspace().Ref(), "Thread.AddComment", rbac.ActionComment); err != nil {
 		return nil, nil, err
 	}
 
@@ -211,8 +210,7 @@ func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.Com
 				return nil, nil, err
 			}
 
-			wid := th.Workspace()
-			if err := i.checkPermission(ctx, op, &wid, "Thread.UpdateComment", rbac.ActionComment); err != nil {
+			if err := i.checkPermission(ctx, op, th.Workspace().Ref(), "Thread.UpdateComment", rbac.ActionComment); err != nil {
 				return nil, nil, err
 			}
 
@@ -246,8 +244,7 @@ func (i *Thread) DeleteComment(ctx context.Context, thid id.ThreadID, cid id.Com
 				return nil, err
 			}
 
-			wid := th.Workspace()
-			if err := i.checkPermission(ctx, op, &wid, "Thread.DeleteComment", rbac.ActionComment); err != nil {
+			if err := i.checkPermission(ctx, op, th.Workspace().Ref(), "Thread.DeleteComment", rbac.ActionComment); err != nil {
 				return nil, err
 			}
 

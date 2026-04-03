@@ -28,7 +28,7 @@ func NewView(r *repo.Container, g *gateway.Container) interfaces.View {
 	}
 }
 
-func (i View) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (i View) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
