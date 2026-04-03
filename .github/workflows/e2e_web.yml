@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2]
     permissions:
       contents: read
       id-token: write
@@ -130,7 +130,7 @@ jobs:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }} --shard=${{ matrix.shard }}/4
+        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }} --shard=${{ matrix.shard }}/2
       - uses: actions/upload-artifact@v7
         if: always()
         with:
