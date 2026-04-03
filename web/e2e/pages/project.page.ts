@@ -241,14 +241,23 @@ export class ProjectPage extends BasePage {
           if (isCloseButtonVisible) {
             try {
               await modalClose.first().click({ timeout: 2_000 });
-              await modalWrap.first().waitFor({ state: "hidden", timeout: 2_000 }).catch(() => {});
+              await modalWrap
+                .first()
+                .waitFor({ state: "hidden", timeout: 2_000 })
+                .catch(() => {});
             } catch {
               await this.page.keyboard.press("Escape");
-              await modalWrap.first().waitFor({ state: "hidden", timeout: 2_000 }).catch(() => {});
+              await modalWrap
+                .first()
+                .waitFor({ state: "hidden", timeout: 2_000 })
+                .catch(() => {});
             }
           } else {
             await this.page.keyboard.press("Escape");
-            await modalWrap.first().waitFor({ state: "hidden", timeout: 2_000 }).catch(() => {});
+            await modalWrap
+              .first()
+              .waitFor({ state: "hidden", timeout: 2_000 })
+              .catch(() => {});
           }
         }
       }
