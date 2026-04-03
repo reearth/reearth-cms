@@ -709,6 +709,11 @@ export default () => {
     viewLoading,
   ]);
 
+  const isExportContentLoading = useMemo<boolean>(
+    () => !currentModel?.id || exportContentLoading,
+    [currentModel?.id, exportContentLoading],
+  );
+
   return {
     currentModel,
     loading,
@@ -773,7 +778,7 @@ export default () => {
     currentProjectId,
     hasModelFields,
     handleContentExport,
-    exportContentLoading,
+    exportContentLoading: isExportContentLoading,
     alertList,
     setAlertList,
     importValidationResult,

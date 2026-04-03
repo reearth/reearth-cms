@@ -76,64 +76,31 @@ export const useExportContent = () => {
   );
 
   const handleContentExportClick = useCallback(
-    async (modelId: string, format: ExportFormat, geometryFieldsCount?: number) => {
-      if (format === ExportFormat.Csv) {
-        const key = `csv-export-${Date.now()}`;
-
-        Notification.open({
-          key,
-          type: "warning",
-          message: t("Export as CSV"),
-          description: (
-            <p>
-              <span>{t("CSV export only supports simple fields (text, number, date).")}</span>
-              <span>{t("Relations, arrays, objects, and geometry fields are not included.")}</span>
-              <span>
-                {t("For a complete export with all fields, please use the JSON export option.")}
-              </span>
-            </p>
-          ),
-          btn: (
-            <Space>
-              <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
-              <Button
-                type="primary"
-                onClick={async () => {
-                  Notification.destroy(key);
-                  await handleExportContent(modelId, format);
-                }}>
-                {t("Export CSV")}
-              </Button>
-            </Space>
-          ),
-          duration: 0,
+    async (modelId: string, format: ExportFormat, geometryFieldsCount = 0) => {
+      if (!modelId) {
+        Notification.error({
+          message: t("Export failed"),
+          description: t("No model selected."),
         });
-      } else if (format === ExportFormat.Geojson) {
-        const geoFieldsCount = geometryFieldsCount ?? 0;
+        return;
+      }
 
-        if (geoFieldsCount === 0) {
-          Notification.error({
-            message: t("Cannot export GeoJSON"),
-            description: t(
-              "No Geometry field was found in this model, so GeoJSON export is not available.",
-            ),
-            duration: 0,
-          });
-        } else if (geoFieldsCount > 1) {
-          const key = `geojson-export-${Date.now()}`;
+      switch (format) {
+        case ExportFormat.Csv: {
+          const key = `csv-export-${Date.now()}`;
 
           Notification.open({
             key,
             type: "warning",
-            message: t("Multiple Geometry fields detected"),
+            message: t("Export as CSV"),
             description: (
               <p>
-                <span>{t("This model has multiple Geometry fields.")}</span>
-                <span>{t("GeoJSON format supports only one geometry field.")}</span>
+                <span>{t("CSV export only supports simple fields (text, number, date).")}</span>
                 <span>
-                  {t(
-                    "Only the first Geometry field will be exported. Please adjust your data if needed.",
-                  )}
+                  {t("Relations, arrays, objects, and geometry fields are not included.")}
+                </span>
+                <span>
+                  {t("For a complete export with all fields, please use the JSON export option.")}
                 </span>
               </p>
             ),
@@ -146,17 +113,64 @@ export const useExportContent = () => {
                     Notification.destroy(key);
                     await handleExportContent(modelId, format);
                   }}>
-                  {t("Export Anyway")}
+                  {t("Export CSV")}
                 </Button>
               </Space>
             ),
             duration: 0,
           });
-        } else {
-          await handleExportContent(modelId, format);
+          break;
         }
-      } else {
-        await handleExportContent(modelId, format);
+        case ExportFormat.Geojson: {
+          if (geometryFieldsCount === 0) {
+            Notification.error({
+              message: t("Cannot export GeoJSON"),
+              description: t(
+                "No Geometry field was found in this model, so GeoJSON export is not available.",
+              ),
+              duration: 0,
+            });
+          } else if (geometryFieldsCount > 1) {
+            const key = `geojson-export-${Date.now()}`;
+
+            Notification.open({
+              key,
+              type: "warning",
+              message: t("Multiple Geometry fields detected"),
+              description: (
+                <p>
+                  <span>{t("This model has multiple Geometry fields.")}</span>
+                  <span>{t("GeoJSON format supports only one geometry field.")}</span>
+                  <span>
+                    {t(
+                      "Only the first Geometry field will be exported. Please adjust your data if needed.",
+                    )}
+                  </span>
+                </p>
+              ),
+              btn: (
+                <Space>
+                  <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
+                  <Button
+                    type="primary"
+                    onClick={async () => {
+                      Notification.destroy(key);
+                      await handleExportContent(modelId, format);
+                    }}>
+                    {t("Export Anyway")}
+                  </Button>
+                </Space>
+              ),
+              duration: 0,
+            });
+          } else {
+            await handleExportContent(modelId, format);
+          }
+          break;
+        }
+        default:
+          await handleExportContent(modelId, format);
+          break;
       }
     },
     [handleExportContent, t],

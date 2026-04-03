@@ -170,7 +170,10 @@ export default () => {
   const { handleContentExportClick, exportContentLoading } = useExportContent();
   const { handleExportSchema, exportSchemaLoading } = useExportSchema();
 
-  const exportLoading = exportContentLoading || exportSchemaLoading;
+  const exportLoading = useMemo<boolean>(
+    () => exportContentLoading || exportSchemaLoading,
+    [exportContentLoading, exportSchemaLoading],
+  );
 
   const handleModelExport = useCallback(
     async (
