@@ -40,13 +40,15 @@ func TestNewItem(t *testing.T) {
 }
 
 func TestItem_FindByID(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
 	sid := id.NewSchemaID()
+	s := schema.New().ID(sid).Workspace(wid).Project(id.NewProjectID()).MustBuild()
+
 	id1 := id.NewItemID()
 	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	id2 := id.NewItemID()
 	i2 := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
-	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -74,8 +76,9 @@ func TestItem_FindByID(t *testing.T) {
 		setupAuth   func(*gatewaymock.MockAuthorization)
 	}{
 		{
-			name:  "find 1 of 2",
-			seeds: item.List{i1, i2},
+			name:        "find 1 of 2",
+			seeds:       item.List{i1, i2},
+			seedSchemas: []*schema.Schema{s},
 			args: struct {
 				id       id.ItemID
 				operator *usecase.Operator
