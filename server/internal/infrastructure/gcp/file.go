@@ -40,6 +40,7 @@ type fileRepo struct {
 	cacheControl     string
 	public           bool
 	replaceUploadURL bool
+	client           *storage.Client
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -158,19 +159,18 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 		return gateway.ErrInvalidFile
 	}
 
-	return f.delete(ctx, p)
+	return f.Delete(ctx, p)
 }
 
-// DeleteAssets deletes assets data in batch
 func (f *fileRepo) DeleteAssets(ctx context.Context, UUIDs []string) error {
 	paths := make([]string, 0)
-	for _, uuid := range UUIDs {
-		path := getGCSObjectPathFolder(uuid)
-		if path == "" {
+	for _, id := range UUIDs {
+		p := getGCSObjectPathFolder(id)
+		if p == "" {
 			return gateway.ErrInvalidFile
 		}
 
-		paths = append(paths, path)
+		paths = append(paths, p)
 	}
 
 	return f.batchDelete(ctx, paths)
@@ -273,20 +273,6 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
 	}, nil
-}
-
-func (f *fileRepo) toPublicUrl(uploadURL string) string {
-	// Replace storage.googleapis.com with custom asset base URL if configured and enabled
-	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
-		parsedURL, err := url.Parse(uploadURL)
-		if err == nil {
-			parsedURL.Scheme = f.publicBase.Scheme
-			parsedURL.Host = f.publicBase.Host
-			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
-			uploadURL = parsedURL.String()
-		}
-	}
-	return uploadURL
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -445,12 +431,7 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 	return attr.Size, nil
 }
 
-func getContentType(filename string) string {
-	ext := filepath.Ext(filename)
-	return mime.TypeByExtension(ext)
-}
-
-func (f *fileRepo) delete(ctx context.Context, filename string) error {
+func (f *fileRepo) Delete(ctx context.Context, filename string) error {
 	if filename == "" {
 		return gateway.ErrInvalidFile
 	}
@@ -471,6 +452,103 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
+}
+
+func (f *fileRepo) DeleteByPrefix(ctx context.Context, folderPrefix string, p gateway.Predicate) error {
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return f.deleteByPrefix(ctx, bucket, folderPrefix, p)
+}
+
+func (f *fileRepo) ListByPrefix(ctx context.Context, prefix string) ([]string, error) {
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	var result []string
+	it := bucket.Objects(ctx, &storage.Query{Prefix: prefix})
+	for {
+		attrs, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+		if err != nil {
+			return nil, rerror.ErrInternalBy(err)
+		}
+		result = append(result, attrs.Name)
+	}
+	return result, nil
+}
+
+func (f *fileRepo) Check(ctx context.Context) error {
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return fmt.Errorf("GCS client creation failed: %w", err)
+	}
+	if _, err = bucket.Attrs(ctx); err != nil {
+		return fmt.Errorf("GCS bucket access failed: %w", err)
+	}
+
+	// cleanup
+	defer func() {
+		if err := f.deleteByPrefix(ctx, bucket, healthCheckDir+"/", nil); err != nil {
+			log.Warnf("gcs: failed to cleanup health check directory: %v", err)
+		}
+	}()
+
+	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
+	testContent := []byte("ok")
+	obj := bucket.Object(testFileName)
+
+	// upload
+	writer := obj.NewWriter(ctx)
+	if _, err := writer.Write(testContent); err != nil {
+		_ = writer.Close()
+		return fmt.Errorf("GCS upload failed: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("GCS upload failed (close): %w", err)
+	}
+
+	// read
+	reader, err := obj.NewReader(ctx)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read failed: %w", err)
+	}
+	defer func() { _ = reader.Close() }()
+	readContent, err := io.ReadAll(reader)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read failed: %w", err)
+	}
+
+	if !bytes.Equal(readContent, testContent) {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS verification failed: content mismatch")
+	}
+
+	// delete
+	if err := obj.Delete(ctx); err != nil {
+		return fmt.Errorf("GCS delete failed: %w", err)
+	}
+
+	return nil
+}
+
+func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
+	if f.client == nil {
+		client, err := storage.NewClient(ctx)
+		if err != nil {
+			log.Errorf("gcs: failed to initialize client: %v", err)
+			return nil, err
+		}
+		f.client = client
+	}
+	return f.client.Bucket(f.bucketName), nil
 }
 
 func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
@@ -530,7 +608,7 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 			if ctx.Err() != nil {
 				return
 			}
-			if err := f.deleteFolder(ctx, bucket, folderName); err != nil {
+			if err := f.deleteByPrefix(ctx, bucket, folderName, nil); err != nil {
 				mu.Lock()
 				errs = append(errs, fmt.Errorf("failed to delete folder %s: %w", folderName, err))
 				mu.Unlock()
@@ -565,7 +643,7 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 	return nil
 }
 
-func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandle, folderPrefix string) error {
+func (f *fileRepo) deleteByPrefix(ctx context.Context, bucket *storage.BucketHandle, folderPrefix string, p gateway.Predicate) error {
 	it := bucket.Objects(ctx, &storage.Query{Prefix: folderPrefix})
 
 	var errs []error
@@ -578,6 +656,18 @@ func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandl
 			log.Errorf("gcs: failed to iterate objects: %+v", err)
 			errs = append(errs, err)
 			continue
+		}
+
+		if p != nil {
+			fe := gateway.FileEntry{
+				Name:            objAttrs.Name,
+				Size:            objAttrs.Size,
+				ContentType:     objAttrs.ContentType,
+				ContentEncoding: objAttrs.ContentEncoding,
+			}
+			if !p(fe) {
+				continue
+			}
 		}
 
 		obj := bucket.Object(objAttrs.Name)
@@ -597,6 +687,20 @@ func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandl
 	return nil
 }
 
+func (f *fileRepo) toPublicUrl(uploadURL string) string {
+	// Replace storage.googleapis.com with custom asset base URL if configured and enabled
+	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
+		parsedURL, err := url.Parse(uploadURL)
+		if err == nil {
+			parsedURL.Scheme = f.publicBase.Scheme
+			parsedURL.Host = f.publicBase.Host
+			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
+			uploadURL = parsedURL.String()
+		}
+	}
+	return uploadURL
+}
+
 func getGCSObjectPath(uuid, objectName string) string {
 	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
@@ -612,16 +716,9 @@ func getGCSObjectPathFolder(uuid string) string {
 	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:])
 }
 
-func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		log.Errorf("gcs: failed to initialize client: %v", err)
-		return nil, err
-	}
-
-	bucket := client.Bucket(f.bucketName)
-
-	return bucket, nil
+func getContentType(filename string) string {
+	ext := filepath.Ext(filename)
+	return mime.TypeByExtension(ext)
 }
 
 func newUUID() string {
@@ -678,62 +775,6 @@ func getWorkspaceFromContext(ctx context.Context) string {
 		}
 	}
 	return ""
-}
-
-func (f *fileRepo) Check(ctx context.Context) error {
-	bucket, err := f.bucket(ctx)
-	if err != nil {
-		return fmt.Errorf("GCS client creation failed: %w", err)
-	}
-	if _, err = bucket.Attrs(ctx); err != nil {
-		return fmt.Errorf("GCS bucket access failed: %w", err)
-	}
-
-	// cleanup
-	defer func() {
-		if err := f.deleteFolder(ctx, bucket, healthCheckDir+"/"); err != nil {
-			log.Warnf("gcs: failed to cleanup health check directory: %v", err)
-		}
-	}()
-
-	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
-	testContent := []byte("ok")
-	obj := bucket.Object(testFileName)
-
-	// upload
-	writer := obj.NewWriter(ctx)
-	if _, err := writer.Write(testContent); err != nil {
-		_ = writer.Close()
-		return fmt.Errorf("GCS upload failed: %w", err)
-	}
-	if err := writer.Close(); err != nil {
-		return fmt.Errorf("GCS upload failed (close): %w", err)
-	}
-
-	// read
-	reader, err := obj.NewReader(ctx)
-	if err != nil {
-		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read failed: %w", err)
-	}
-	defer func() { _ = reader.Close() }()
-	readContent, err := io.ReadAll(reader)
-	if err != nil {
-		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read failed: %w", err)
-	}
-
-	if !bytes.Equal(readContent, testContent) {
-		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS verification failed: content mismatch")
-	}
-
-	// delete
-	if err := obj.Delete(ctx); err != nil {
-		return fmt.Errorf("GCS delete failed: %w", err)
-	}
-
-	return nil
 }
 
 type contextKey string

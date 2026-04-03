@@ -192,6 +192,100 @@ func TestFile_IsValidUUID(t *testing.T) {
 	assert.Equal(t, false, IsValidUUID(u1))
 }
 
+func TestFile_Delete(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		filename string
+		wantErr  error
+	}{
+		{
+			name:     "deletes existing file",
+			filename: filepath.Join("published", "s.json"),
+			wantErr:  nil,
+		},
+		{
+			name:     "no error for non-existent file",
+			filename: "nonexistent.txt",
+			wantErr:  nil,
+		},
+		{
+			name:     "empty filename returns error",
+			filename: "",
+			wantErr:  gateway.ErrFailedToUploadFile,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fs := mockFs()
+			f, _ := NewFile(fs, "https://example.com", false)
+
+			err := f.Delete(context.Background(), tt.filename)
+
+			if tt.wantErr != nil {
+				assert.Same(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+				if tt.filename != "" {
+					_, statErr := fs.Stat(tt.filename)
+					assert.ErrorIs(t, statErr, os.ErrNotExist)
+				}
+			}
+		})
+	}
+}
+
+func TestFile_ListByPrefix(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		prefix   string
+		wantLen  int
+		wantPaths []string
+	}{
+		{
+			name:      "matches files with given prefix",
+			prefix:    filepath.Join("published", "s"),
+			wantLen:   1,
+			wantPaths: []string{filepath.Join("published", "s.json")},
+		},
+		{
+			name:    "returns multiple matching files",
+			prefix:  filepath.Join("assets", "51"),
+			wantLen: 2,
+		},
+		{
+			name:    "no matches returns empty slice",
+			prefix:  "no-such-prefix",
+			wantLen: 0,
+		},
+		{
+			name:    "empty prefix matches all files",
+			prefix:  "",
+			wantLen: 4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			f, _ := NewFile(mockFs(), "https://example.com", false)
+
+			result, err := f.ListByPrefix(context.Background(), tt.prefix)
+
+			assert.NoError(t, err)
+			assert.Len(t, result, tt.wantLen)
+			for _, want := range tt.wantPaths {
+				assert.Contains(t, result, want)
+			}
+		})
+	}
+}
+
 func mockFs() afero.Fs {
 	files := map[string]string{
 		filepath.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "xxx.txt"):          "hello",

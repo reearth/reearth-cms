@@ -261,6 +261,59 @@ func (f *fileRepo) delete(filename string) error {
 	return nil
 }
 
+func (f *fileRepo) Delete(_ context.Context, filename string) error {
+	return f.delete(filename)
+}
+
+func (f *fileRepo) DeleteByPrefix(_ context.Context, prefix string, p gateway.Predicate) error {
+	var errs []error
+	err := afero.Walk(f.fs, ".", func(path string, info fs.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return nil
+		}
+		if !strings.HasPrefix(path, prefix) {
+			return nil
+		}
+		if p != nil {
+			fe := gateway.FileEntry{
+				Name: path,
+				Size: info.Size(),
+			}
+			if !p(fe) {
+				return nil
+			}
+		}
+		if err := f.delete(path); err != nil {
+			errs = append(errs, err)
+		}
+		return nil
+	})
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	return nil
+}
+
+func (f *fileRepo) ListByPrefix(_ context.Context, prefix string) ([]string, error) {
+	var result []string
+	err := afero.Walk(f.fs, ".", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !info.IsDir() && strings.HasPrefix(path, prefix) {
+			result = append(result, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return result, nil
+}
+
 func getFSObjectPath(fileUUID, objectName string) string {
 	if fileUUID == "" || !IsValidUUID(fileUUID) {
 		return ""

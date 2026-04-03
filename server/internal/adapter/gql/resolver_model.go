@@ -12,14 +12,18 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
@@ -168,16 +172,27 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 		ct = "text/csv"
 	}
 
+	timestamp := time.Now().Unix()
+	filename := fmt.Sprintf("%s-%d%s", m.ID().String(), timestamp, ext)
+
 	// upload result as file
 	_, err = g.File.Upload(ctx, &file.File{
 		Content:         io.NopCloser(w),
-		Name:            m.ID().String() + ext,
+		Name:            filename,
 		Size:            int64(w.Len()),
 		ContentType:     ct,
 		ContentEncoding: "",
-	}, m.ID().String()+ext)
+	}, filename)
 	if err != nil {
 		return nil, err
+	}
+
+	// delete old export files for this model+format
+	err = g.File.DeleteByPrefix(ctx, m.ID().String()+"-", func(f gateway.FileEntry) bool {
+		return f.Name != filename && strings.HasSuffix(f.Name, ext)
+	})
+	if err != nil {
+		log.Warn("failed to delete old export files for model %s: %v", m.ID(), err)
 	}
 
 	baseURL, err := url.Parse(g.File.GetBaseURL())
@@ -187,7 +202,7 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 
 	return &gqlmodel.ExportModelPayload{
 		ModelID: input.ModelID,
-		URL:     *baseURL.JoinPath(m.ID().String() + ext),
+		URL:     *baseURL.JoinPath(filename),
 	}, nil
 }
 
@@ -213,7 +228,8 @@ func (r *mutationResolver) ExportModelSchema(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 
-	fileName := fmt.Sprintf("%s.schema.json", m.Key())
+	timestamp := time.Now().Unix()
+	fileName := fmt.Sprintf("%s-%d.schema.json", m.Key(), timestamp)
 	data, err := json.MarshalIndent(js, "", "  ")
 	if err != nil {
 		return nil, err
@@ -228,6 +244,14 @@ func (r *mutationResolver) ExportModelSchema(ctx context.Context, input gqlmodel
 	}, fileName)
 	if err != nil {
 		return nil, err
+	}
+
+	// delete old schema export files for this model
+	err = g.File.DeleteByPrefix(ctx, m.Key().String()+"-", func(f gateway.FileEntry) bool {
+		return f.Name != fileName && strings.HasSuffix(f.Name, ".schema.json")
+	})
+	if err != nil {
+		log.Warn("failed to delete old schema export files for model %s: %v", m.ID(), err)
 	}
 
 	baseURL, err := url.Parse(g.File.GetBaseURL())
