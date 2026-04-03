@@ -3,6 +3,8 @@ package interactor
 import (
 	"context"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -32,7 +34,7 @@ func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 	}
 }
 
-func (i Schema) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action string) error {
+func (i Schema) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
@@ -56,8 +58,8 @@ func (i Schema) FindByID(ctx context.Context, id id.SchemaID, op *usecase.Operat
 	if err != nil {
 		return nil, err
 	}
-	wid := s.Workspace()
-	if err := i.checkPermission(ctx, op, &wid, "schema.FindByID", rbac.ActionRead); err != nil {
+
+	if err := i.checkPermission(ctx, op, s.Workspace().Ref(), "schema.FindByID", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	return s, nil
@@ -77,8 +79,7 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, op *usecase.Op
 		workspaceSet[wid] = struct{}{}
 	}
 	for wid := range workspaceSet {
-		w := wid
-		if err := i.checkPermission(ctx, op, &w, "schema.FindByIDs", rbac.ActionList); err != nil {
+		if err := i.checkPermission(ctx, op, wid.Ref(), "schema.FindByIDs", rbac.ActionList); err != nil {
 			return nil, err
 		}
 	}
@@ -104,8 +105,7 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, op *usecase.Ope
 		return nil, nil
 	}
 
-	wid := s.Workspace()
-	if err := i.checkPermission(ctx, op, &wid, "schema.FindByModel", rbac.ActionRead); err != nil {
+	if err := i.checkPermission(ctx, op, s.Workspace().Ref(), "schema.FindByModel", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 
@@ -139,8 +139,7 @@ func (i Schema) FindByGroup(ctx context.Context, gID id.GroupID, op *usecase.Ope
 		return nil, err
 	}
 
-	wid := s.Workspace()
-	if err := i.checkPermission(ctx, op, &wid, "schema.FindByGroup", rbac.ActionRead); err != nil {
+	if err := i.checkPermission(ctx, op, s.Workspace().Ref(), "schema.FindByGroup", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 
@@ -163,8 +162,8 @@ func (i Schema) FindByGroups(ctx context.Context, gIDs id.GroupIDList, op *useca
 		workspaceSet[s.Workspace()] = struct{}{}
 	}
 	for wid := range workspaceSet {
-		w := wid
-		if err := i.checkPermission(ctx, op, &w, "schema.FindByGroups", rbac.ActionRead); err != nil {
+
+		if err := i.checkPermission(ctx, op, wid.Ref(), "schema.FindByGroups", rbac.ActionRead); err != nil {
 			return nil, err
 		}
 	}
@@ -199,8 +198,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		ws := s.Workspace()
-		if err := i.checkPermission(ctx, op, &ws, "schema.CreateField", rbac.ActionUpdate); err != nil {
+		if err := i.checkPermission(ctx, op, s.Workspace().Ref(), "schema.CreateField", rbac.ActionUpdate); err != nil {
 			return nil, err
 		}
 
@@ -301,8 +299,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		ws := s.Workspace()
-		if err := i.checkPermission(ctx, op, &ws, "schema.UpdateField", rbac.ActionUpdate); err != nil {
+		if err := i.checkPermission(ctx, op, s.Workspace().Ref(), "schema.UpdateField", rbac.ActionUpdate); err != nil {
 			return nil, err
 		}
 
@@ -429,8 +426,7 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 				return interfaces.ErrOperationDenied
 			}
 
-			ws := s.Workspace()
-			if err := i.checkPermission(ctx, operator, &ws, "schema.DeleteField", rbac.ActionUpdate); err != nil {
+			if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "schema.DeleteField", rbac.ActionUpdate); err != nil {
 				return err
 			}
 
@@ -483,8 +479,7 @@ func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []inte
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		ws := s.Workspace()
-		if err := i.checkPermission(ctx, operator, &ws, "schema.UpdateFields", rbac.ActionUpdate); err != nil {
+		if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "schema.UpdateFields", rbac.ActionUpdate); err != nil {
 			return nil, err
 		}
 
@@ -561,12 +556,17 @@ func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.Sche
 		return
 	}
 
-	var wid *workspace.ID
-	if len(schemas) > 0 {
-		ws := schemas[0].Workspace()
-		wid = &ws
+	uniqueWorkspaces := lo.Uniq(lo.Map(schemas, func(s *schema.Schema, _ int) workspace.ID {
+		return s.Workspace()
+	}))
+	eg, egCtx := errgroup.WithContext(ctx)
+	for _, ws := range uniqueWorkspaces {
+		ws := ws
+		eg.Go(func() error {
+			return i.checkPermission(egCtx, op, ws.Ref(), "schema.GetSchemasAndGroupSchemasByIDs", rbac.ActionRead)
+		})
 	}
-	if permErr := i.checkPermission(ctx, op, wid, "schema.GetSchemasAndGroupSchemasByIDs", rbac.ActionRead); permErr != nil {
+	if permErr := eg.Wait(); permErr != nil {
 		return nil, nil, permErr
 	}
 	var gIds id.GroupIDList
@@ -608,8 +608,7 @@ func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsP
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			ws := s.Workspace()
-			if err := i.checkPermission(ctx, op, &ws, "schema.CreateFields", rbac.ActionUpdate); err != nil {
+			if err := i.checkPermission(ctx, op, s.Workspace().Ref(), "schema.CreateFields", rbac.ActionUpdate); err != nil {
 				return nil, err
 			}
 
@@ -697,8 +696,7 @@ func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	wid := s.Workspace()
-	if err := i.checkPermission(ctx, operator, &wid, "schema.GuessSchemaFieldsByAsset", rbac.ActionRead); err != nil {
+	if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "schema.GuessSchemaFieldsByAsset", rbac.ActionRead); err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 

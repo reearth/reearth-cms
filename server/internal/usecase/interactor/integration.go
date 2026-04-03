@@ -32,7 +32,7 @@ func NewIntegration(r *repo.Container, g *gateway.Container) interfaces.Integrat
 	}
 }
 
-func (i Integration) checkPermission(ctx context.Context, operator *usecase.Operator, caller, action string) error {
+func (i Integration) checkPermission(ctx context.Context, operator *usecase.Operator, caller, action rbac.Action) error {
 	if i.gateways == nil || i.gateways.Authorization == nil {
 		return nil
 	}
