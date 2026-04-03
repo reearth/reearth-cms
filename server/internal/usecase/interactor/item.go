@@ -128,8 +128,19 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 	return itm, nil
 }
 
-func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
+func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
+	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForSchema(ctx, itm.Value().Schema())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.FindPublicByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return itm, nil
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
@@ -194,12 +205,22 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, operator *
 	return res, nil
 }
 
-func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return nil, nil, err
+	}
+	wid, err := i.workspaceIDForSchema(ctx, m.Schema())
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.FindPublicByModel", rbac.ActionRead); err != nil {
+		return nil, nil, err
+	}
 	items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, p)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	return items.Unwrap(), pi, nil
 }
 

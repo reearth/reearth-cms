@@ -568,6 +568,135 @@ func TestItem_FindVersionByID_CheckPermission(t *testing.T) {
 	}
 }
 
+func TestItem_FindPublicByID_CheckPermission(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s.ID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	setup := func(db *repo.Container) {
+		ctx := context.Background()
+		assert.NoError(t, db.Schema.Save(ctx, s))
+		assert.NoError(t, db.Item.Save(ctx, i1))
+		// publish the item so FindByID with version.Public.Ref() can find it
+		v := version.Latest.OrVersion()
+		assert.NoError(t, db.Item.UpdateRef(ctx, i1.ID(), version.Public, &v))
+	}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			setup(db)
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+			itemUC.ignoreEvent = true
+
+			_, err := itemUC.FindPublicByID(ctx, i1.ID(), op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestItem_FindPublicByModel_CheckPermission(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	mid := id.NewModelID()
+	m := model.New().ID(mid).Key(id.RandomKey()).Schema(s.ID()).Project(pid).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Model.Save(ctx, m))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+			itemUC.ignoreEvent = true
+
+			_, _, err := itemUC.FindPublicByModel(ctx, mid, nil, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
 func TestItem_FindAllVersionsByID_CheckPermission(t *testing.T) {
 
 	wid := accountdomain.NewWorkspaceID()
