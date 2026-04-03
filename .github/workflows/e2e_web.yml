@@ -175,4 +175,9 @@ jobs:
           pattern: blob-report-*
           merge-multiple: true
       - name: Merge reports
-        run: npx playwright merge-reports --reporter=github ./all-blob-reports
+        run: |
+          if [ -d "./all-blob-reports" ] && [ "$(ls -A ./all-blob-reports)" ]; then
+            npx playwright merge-reports --reporter=github ./all-blob-reports
+          else
+            echo "No blob reports found, skipping merge"
+          fi
