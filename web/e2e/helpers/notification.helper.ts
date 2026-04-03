@@ -1,13 +1,15 @@
 import { type Locator, type Page, expect } from "@reearth-cms/e2e/fixtures/test";
 
+import { waitForGraphQL } from "./graphql.helper";
+
 export async function clickAndExpectSuccess(
   page: Page,
   clickTarget: Locator,
   maxRetries = 2,
 ): Promise<void> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    await clickTarget.click();
     try {
+      await waitForGraphQL(page, () => clickTarget.click());
       await closeNotification(page, true);
       return;
     } catch (error) {

@@ -151,4 +151,4 @@ export const test = base.extend<Fixtures>({
   },
 });
 
-export { chromium, expect, type Page, type Locator } from "@playwright/test";
+export { chromium, expect, type Page, type Locator, type Response } from "@playwright/test";
