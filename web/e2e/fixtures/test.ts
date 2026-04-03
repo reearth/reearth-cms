@@ -1,5 +1,6 @@
 import fs from "fs";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 
 import { test as base, type Page } from "@playwright/test";
 
@@ -42,7 +43,7 @@ export type Reearth = {
   ) => Promise<T>;
 } & Config;
 
-const GQL_LOG_PATH = path.join(__dirname, "..", "gql-errors.log");
+const GQL_LOG_PATH = path.join(dirname(fileURLToPath(import.meta.url)), "..", "gql-errors.log");
 
 type Fixtures = { reearth: Reearth; gqlErrorLog: void } & PageObjects;
 
