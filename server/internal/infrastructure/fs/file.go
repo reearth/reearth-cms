@@ -266,9 +266,15 @@ func (f *fileRepo) Delete(_ context.Context, filename string) error {
 }
 
 func (f *fileRepo) DeleteByPrefix(_ context.Context, prefix string, p gateway.Predicate) error {
+	if prefix == "" {
+		return gateway.ErrInvalidInput
+	}
 	var errs []error
 	err := afero.Walk(f.fs, ".", func(path string, info fs.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
 			return nil
 		}
 		if !strings.HasPrefix(path, prefix) {
@@ -301,7 +307,7 @@ func (f *fileRepo) ListByPrefix(_ context.Context, prefix string) ([]string, err
 	var result []string
 	err := afero.Walk(f.fs, ".", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			return nil
+			return err
 		}
 		if !info.IsDir() && strings.HasPrefix(path, prefix) {
 			result = append(result, path)

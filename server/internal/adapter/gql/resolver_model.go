@@ -192,7 +192,7 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 		return f.Name != filename && strings.HasSuffix(f.Name, ext)
 	})
 	if err != nil {
-		log.Warn("failed to delete old export files for model %s: %v", m.ID(), err)
+		log.Warnf("failed to delete old export files for model %s: %v", m.ID(), err)
 	}
 
 	baseURL, err := url.Parse(g.File.GetBaseURL())
@@ -251,7 +251,7 @@ func (r *mutationResolver) ExportModelSchema(ctx context.Context, input gqlmodel
 		return f.Name != fileName && strings.HasSuffix(f.Name, ".schema.json")
 	})
 	if err != nil {
-		log.Warn("failed to delete old schema export files for model %s: %v", m.ID(), err)
+		log.Warnf("failed to delete old schema export files for model %s: %v", m.ID(), err)
 	}
 
 	baseURL, err := url.Parse(g.File.GetBaseURL())

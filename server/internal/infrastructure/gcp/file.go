@@ -41,6 +41,7 @@ type fileRepo struct {
 	public           bool
 	replaceUploadURL bool
 	client           *storage.Client
+	clientMu         sync.Mutex
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -455,6 +456,9 @@ func (f *fileRepo) Delete(ctx context.Context, filename string) error {
 }
 
 func (f *fileRepo) DeleteByPrefix(ctx context.Context, folderPrefix string, p gateway.Predicate) error {
+	if folderPrefix == "" {
+		return gateway.ErrInvalidInput
+	}
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
@@ -540,6 +544,8 @@ func (f *fileRepo) Check(ctx context.Context) error {
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
+	f.clientMu.Lock()
+	defer f.clientMu.Unlock()
 	if f.client == nil {
 		client, err := storage.NewClient(ctx)
 		if err != nil {
