@@ -1,5 +1,8 @@
 import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { clickAndExpectSuccess, closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import {
+  clickAndExpectSuccess,
+  closeNotification,
+} from "@reearth-cms/e2e/helpers/notification.helper";
 
 type Role =
   | "alert"

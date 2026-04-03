@@ -141,9 +141,15 @@ const Provider: React.FC<Props> = ({ children }) => {
       jitter: true,
     },
     attempts: (attempt, operation, error) => {
-      const isRetryable = !!error && /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? "");
+      const isRetryable =
+        !!error && /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? "");
       if (attempt > 1 && isRetryable) {
-        gqlLog({ type: "retry", operation: operation.operationName, attempt, error: error.message });
+        gqlLog({
+          type: "retry",
+          operation: operation.operationName,
+          attempt,
+          error: error.message,
+        });
       }
       return attempt <= 3 && isRetryable;
     },
@@ -162,7 +168,9 @@ const Provider: React.FC<Props> = ({ children }) => {
       errorType = "protocol";
       message = error.errors.map(e => e.message).join(", ");
     } else {
-      errorType = /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? "") ? "network" : "unknown";
+      errorType = /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? "")
+        ? "network"
+        : "unknown";
       message = error.message;
     }
 

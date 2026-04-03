@@ -22,13 +22,19 @@ export async function clickAndExpectSuccess(
 }
 
 export async function closeNotification(page: Page, isSuccess = true) {
-  const successNotice = page.locator(".ant-notification-notice").filter({
-    has: page.locator('[aria-label="check-circle"]'),
-  }).last();
+  const successNotice = page
+    .locator(".ant-notification-notice")
+    .filter({
+      has: page.locator('[aria-label="check-circle"]'),
+    })
+    .last();
 
-  const errorNotice = page.locator(".ant-notification-notice").filter({
-    has: page.locator('[aria-label="close-circle"]'),
-  }).last();
+  const errorNotice = page
+    .locator(".ant-notification-notice")
+    .filter({
+      has: page.locator('[aria-label="close-circle"]'),
+    })
+    .last();
 
   if (isSuccess) {
     // Race: wait for either success or error notification
@@ -40,7 +46,10 @@ export async function closeNotification(page: Page, isSuccess = true) {
     if (result === "error") {
       const message = await errorNotice.textContent().catch(() => "unknown error");
       // Close the error notification before throwing — use dispatchEvent to bypass viewport/interception checks
-      await errorNotice.locator(".ant-notification-notice-close").dispatchEvent("click").catch(() => {});
+      await errorNotice
+        .locator(".ant-notification-notice-close")
+        .dispatchEvent("click")
+        .catch(() => {});
       throw new Error(`Expected success notification but got error: ${message}`);
     }
 
