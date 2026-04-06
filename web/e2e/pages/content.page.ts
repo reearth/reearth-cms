@@ -613,6 +613,7 @@ export class ContentPage extends BasePage {
 
   async createView(viewName: string): Promise<void> {
     await this.saveAsNewViewButton.click();
+    await expect(this.viewNameInput).toBeVisible();
     await expect(async () => {
       await this.viewNameInput.fill(viewName);
       await expect(this.viewNameInput).toHaveValue(viewName);
@@ -623,6 +624,7 @@ export class ContentPage extends BasePage {
   async renameView(newName: string): Promise<void> {
     await this.moreButton.click();
     await this.renameViewButton.click();
+    await expect(this.viewNameInput).toBeVisible();
     await expect(async () => {
       await this.viewNameInput.fill(newName);
       await expect(this.viewNameInput).toHaveValue(newName);
