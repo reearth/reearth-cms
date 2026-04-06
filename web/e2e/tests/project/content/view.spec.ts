@@ -39,7 +39,10 @@ test("@focus Create a new view", async ({
 
   await test.step("Create a new view named 'view1'", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -68,7 +71,10 @@ test("@focus Rename an existing view", async ({
 
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -76,8 +82,10 @@ test("@focus Rename an existing view", async ({
   await test.step("Rename view to 'renamed view'", async () => {
     await contentPage.moreButton.click();
     await contentPage.renameViewButton.click();
-    await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill("renamed view");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("renamed view");
+      await expect(contentPage.viewNameInput).toHaveValue("renamed view");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -105,7 +113,10 @@ test("@focus Cancel view deletion", async ({
 
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -263,8 +274,10 @@ test("@focus Save view with custom sorting and filtering", async ({
 
   await test.step("Save as new view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill("filtered view");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("filtered view");
+      await expect(contentPage.viewNameInput).toHaveValue("filtered view");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -299,7 +312,10 @@ test("@focus Switch between views preserves individual view settings", async ({
 
   await test.step("Create first view with no customization", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -322,8 +338,10 @@ test("@focus Switch between views preserves individual view settings", async ({
 
   await test.step("Save as second view with customizations", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill("view2");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view2");
+      await expect(contentPage.viewNameInput).toHaveValue("view2");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -365,7 +383,10 @@ test("@focus Update view settings", async ({
 
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -396,7 +417,10 @@ test("@focus Update view settings", async ({
 
   await test.step("Create another view to switch context", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view2");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view2");
+      await expect(contentPage.viewNameInput).toHaveValue("view2");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -428,7 +452,10 @@ test("@focus Delete view and switch to remaining view", async ({
 
   await test.step("Create first view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -450,7 +477,10 @@ test("@focus Delete view and switch to remaining view", async ({
 
   await test.step("Save as second view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view2");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view2");
+      await expect(contentPage.viewNameInput).toHaveValue("view2");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -483,14 +513,20 @@ test("@focus View reordering has succeeded", async ({ page, projectPage, content
 
   await test.step("Create view1", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view1");
+      await expect(contentPage.viewNameInput).toHaveValue("view1");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create view2", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view2");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view2");
+      await expect(contentPage.viewNameInput).toHaveValue("view2");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });
@@ -515,7 +551,10 @@ test("@focus View reordering has succeeded", async ({ page, projectPage, content
 
   await test.step("Create view3", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view3");
+    await expect(async () => {
+      await contentPage.viewNameInput.fill("view3");
+      await expect(contentPage.viewNameInput).toHaveValue("view3");
+    }).toPass({ timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.okButton);
     await page.waitForLoadState("networkidle");
   });

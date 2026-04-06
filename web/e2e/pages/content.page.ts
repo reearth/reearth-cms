@@ -1,5 +1,5 @@
 // e2e/pages/content.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -613,14 +613,20 @@ export class ContentPage extends BasePage {
 
   async createView(viewName: string): Promise<void> {
     await this.saveAsNewViewButton.click();
-    await this.viewNameInput.fill(viewName);
+    await expect(async () => {
+      await this.viewNameInput.fill(viewName);
+      await expect(this.viewNameInput).toHaveValue(viewName);
+    }).toPass({ timeout: 5_000 });
     await this.clickAndExpectSuccess(this.okButton);
   }
 
   async renameView(newName: string): Promise<void> {
     await this.moreButton.click();
     await this.renameViewButton.click();
-    await this.viewNameInput.fill(newName);
+    await expect(async () => {
+      await this.viewNameInput.fill(newName);
+      await expect(this.viewNameInput).toHaveValue(newName);
+    }).toPass({ timeout: 5_000 });
     await this.clickAndExpectSuccess(this.okButton);
   }
 
