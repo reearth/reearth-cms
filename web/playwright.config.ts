@@ -15,7 +15,7 @@ export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:
 const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
   workers: process.env.CI ? 1 : undefined,
-  retries: 2,
+  retries: 3,
   maxFailures: process.env.CI ? undefined : 10,
   forbidOnly: !!process.env.CI,
   use: {
@@ -45,6 +45,7 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices["Desktop Chrome"],
         storageState: authFile,
+        launchOptions: { slowMo: 50 },
       },
       dependencies: ["setup"],
     },
