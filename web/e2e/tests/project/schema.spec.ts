@@ -84,7 +84,7 @@ test("Model reordering has succeeded", async ({ schemaPage, page }) => {
   });
 });
 
-test.describe("Test import schema", () => {
+test.describe("@focus Test import schema", () => {
   test("Import schema from static file has succeeded", async ({ schemaPage, page }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `model-key-${getId()}`;
@@ -159,7 +159,7 @@ test.describe("Test import schema", () => {
   });
 });
 
-test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@focus @smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";
@@ -187,7 +187,7 @@ test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
   });
 });
 
-test("Group creating from adding field has succeeded", async ({
+test("@focus Group creating from adding field has succeeded", async ({
   schemaPage,
   fieldEditorPage,
   page,
@@ -245,7 +245,7 @@ test("Group creating from adding field has succeeded", async ({
   });
 });
 
-test("Group reordering has succeeded", async ({ schemaPage, page }) => {
+test("@focus Group reordering has succeeded", async ({ schemaPage, page }) => {
   await test.step("Create two groups and verify initial order", async () => {
     await schemaPage.createGroup("group1", "group1");
     await schemaPage.createGroup("group2", "group2");
@@ -271,7 +271,7 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
   });
 });
 
-test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page }) => {
+test("@focus Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page }) => {
   await test.step("Create model and add text field", async () => {
     await schemaPage.createModelFromSidebar();
     await fieldEditorPage.fieldTypeListItem("Text").click();
@@ -292,7 +292,7 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
   });
 });
 
-test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@focus Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   await test.step("Create model and add two text fields", async () => {
     await schemaPage.createModelFromSidebar();
     await fieldEditorPage.fieldTypeListItem(/Text/).click();

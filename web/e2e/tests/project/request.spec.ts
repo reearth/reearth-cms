@@ -21,7 +21,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Request creating, searching, updating reviewer, and approving has succeeded", async ({
+test("@focus @smoke Request creating, searching, updating reviewer, and approving has succeeded", async ({
   requestPage,
 }) => {
   await test.step("Navigate to request page and verify request is visible", async () => {
@@ -69,7 +69,7 @@ test("@smoke Request creating, searching, updating reviewer, and approving has s
   });
 });
 
-test("Request closing and reopening has succeeded", async ({ requestPage }) => {
+test("@focus Request closing and reopening has succeeded", async ({ requestPage }) => {
   await test.step("Navigate to request page and verify initial state", async () => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
@@ -119,7 +119,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   });
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
+test("@focus Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   await test.step("Navigate to request edit page", async () => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
@@ -152,7 +152,7 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   });
 });
 
-test("Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
+test("@focus Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
   await test.step("Navigate to request comments panel", async () => {
     await requestPage.requestMenuItem.click();
     await requestPage.commentsCountButton("0").click();
@@ -165,7 +165,7 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
   });
 });
 
-test("Creating a new request and adding to request has succeeded", async ({
+test("@focus Creating a new request and adding to request has succeeded", async ({
   requestPage,
   page,
 }) => {
@@ -200,7 +200,10 @@ test("Creating a new request and adding to request has succeeded", async ({
   });
 });
 
-test("Navigating between item and request has succeeded", async ({ contentPage, requestPage }) => {
+test("@focus Navigating between item and request has succeeded", async ({
+  contentPage,
+  requestPage,
+}) => {
   await test.step("Navigate from item to request and approve", async () => {
     await requestPage.versionHistoryTab.click();
     await requestPage.requestTitleLink(requestTitle).click();

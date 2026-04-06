@@ -24,7 +24,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test.describe("@focus Zip Upload Tests", () => {
+test.describe("Zip Upload Tests", () => {
   test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
     await assetsPage.uploadButton.click();
     await assetsPage.urlTab.click();
