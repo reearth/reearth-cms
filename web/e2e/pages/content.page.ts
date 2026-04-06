@@ -45,7 +45,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Publish" });
   }
   get unpublishButton(): Locator {
-    return this.getByRole("button", { name: "Unpublish" });
+    return this.getByText("Unpublish", { exact: true });
   }
   get publishFromTableButton(): Locator {
     return this.getByText("Publish", { exact: true });

@@ -9,8 +9,11 @@ export async function clickAndExpectSuccess(
 ): Promise<void> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
+      // Start watching for notification BEFORE clicking to avoid race
+      // with the 2s auto-dismiss
+      const notificationPromise = closeNotification(page, true);
       await waitForGraphQL(page, () => clickTarget.click());
-      await closeNotification(page, true);
+      await notificationPromise;
       return;
     } catch (error) {
       const isTransient = String(error).includes("Failed to fetch");
