@@ -9,7 +9,7 @@ test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
 });
 
-test("@smoke Workspace CRUD has succeeded", async ({ workspacePage }) => {
+test("@focus @smoke Workspace CRUD has succeeded", async ({ workspacePage }) => {
   await workspacePage.createWorkspaceButton.click();
   await workspacePage.workspaceNameInput.click();
   await workspacePage.workspaceNameInput.fill("workspace name");

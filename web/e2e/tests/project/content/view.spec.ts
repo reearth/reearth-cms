@@ -21,7 +21,7 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("@focus Create a new view", async ({
+test("Create a new view", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -55,7 +55,7 @@ test("@focus Create a new view", async ({
   });
 });
 
-test("@focus Rename an existing view", async ({
+test("Rename an existing view", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -99,7 +99,7 @@ test("@focus Rename an existing view", async ({
   });
 });
 
-test("@focus Cancel view deletion", async ({
+test("Cancel view deletion", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -140,7 +140,7 @@ test("@focus Cancel view deletion", async ({
   });
 });
 
-test("@focus Apply sorting to view", async ({
+test("Apply sorting to view", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -170,7 +170,7 @@ test("@focus Apply sorting to view", async ({
   });
 });
 
-test("@focus Apply filter to view", async ({
+test("Apply filter to view", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -204,7 +204,7 @@ test("@focus Apply filter to view", async ({
   });
 });
 
-test("@focus Toggle column visibility in view settings", async ({
+test("Toggle column visibility in view settings", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -236,7 +236,7 @@ test("@focus Toggle column visibility in view settings", async ({
   });
 });
 
-test("@focus Save view with custom sorting and filtering", async ({
+test("Save view with custom sorting and filtering", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -297,7 +297,7 @@ test("@focus Save view with custom sorting and filtering", async ({
   });
 });
 
-test("@focus Switch between views preserves individual view settings", async ({
+test("Switch between views preserves individual view settings", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -372,7 +372,7 @@ test("@focus Switch between views preserves individual view settings", async ({
   });
 });
 
-test("@focus Update view settings", async ({
+test("Update view settings", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -443,7 +443,7 @@ test("@focus Update view settings", async ({
   });
 });
 
-test("@focus Delete view and switch to remaining view", async ({
+test("Delete view and switch to remaining view", async ({
   page,
   fieldEditorPage,
   projectPage,
@@ -515,7 +515,7 @@ test("@focus Delete view and switch to remaining view", async ({
   });
 });
 
-test("@focus View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
+test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();

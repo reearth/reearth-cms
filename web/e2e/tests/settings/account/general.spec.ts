@@ -24,7 +24,7 @@ test.afterEach(async ({ reearth, settingsPage }) => {
   }
 });
 
-test("Name and email updating has succeeded", async ({ reearth, settingsPage }) => {
+test("@focus Name and email updating has succeeded", async ({ reearth, settingsPage }) => {
   test.skip(process.env.ENV !== "oss", "This test is only for oss");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.textByName("Account").click();
