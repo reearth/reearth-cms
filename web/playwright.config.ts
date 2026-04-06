@@ -32,7 +32,7 @@ const config: PlaywrightTestConfig = {
   reporter: process.env.CI
     ? [["blob"], ["github"], ["list"]]
     : [["list"], ["html", { open: "never" }]],
-  fullyParallel: false,
+  fullyParallel: process.env.CI ? false : true,
   projects: [
     {
       name: "setup",
@@ -47,6 +47,9 @@ const config: PlaywrightTestConfig = {
       use: {
         ...devices["Desktop Chrome"],
         storageState: authFile,
+        launchOptions: {
+          slowMo: 50,
+        },
       },
       dependencies: ["setup"],
     },
