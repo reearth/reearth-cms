@@ -36,7 +36,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Read versions successfully", async ({ contentPage }) => {
+test("@focus @smoke Read versions successfully", async ({ contentPage }) => {
   const requestStatus = contentPage.requestStatusElement;
   await expect(contentPage.textByRegex(dateReg)).toBeVisible();
   await expect(contentPage.currentVersionText).toBeVisible();
@@ -70,7 +70,7 @@ test("@smoke Read versions successfully", async ({ contentPage }) => {
   await expect(requestStatus.last()).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
 });
 
-test.describe("Version details", () => {
+test.describe("@focus Version details", () => {
   test.beforeEach(async ({ contentPage }) => {
     await expect(contentPage.fieldInput(fieldName)).toHaveValue("1");
     await contentPage.fieldInput(fieldName).fill("2");

@@ -7,7 +7,7 @@ test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
 });
 
-test.describe("@focus Project CRUD and searching has succeeded", () => {
+test.describe("Project CRUD and searching has succeeded", () => {
   // setup
   const PROJECT_NAME = getId();
   const PROJECT_DESCRIPTION = "project description";

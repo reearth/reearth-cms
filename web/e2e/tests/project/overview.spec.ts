@@ -15,7 +15,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@focus @smoke Model CRUD on Overview page has succeeded", async ({
+test("@smoke Model CRUD on Overview page has succeeded", async ({
   schemaPage,
   projectPage,
   page,
@@ -69,7 +69,7 @@ test("@focus @smoke Model CRUD on Overview page has succeeded", async ({
   });
 });
 
-test.describe("@focus Model Export tests on Overview page", () => {
+test.describe("Model Export tests on Overview page", () => {
   test.beforeEach(async () => {
     test.skip(!isCI, "This test runs only in CI environment");
   });
@@ -284,7 +284,7 @@ test.describe("@focus Model Export tests on Overview page", () => {
   });
 });
 
-test("@focus Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
+test("Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
   schemaPage,
   projectPage,
   page,
@@ -317,7 +317,7 @@ test("@focus Import schema dropdown redirects to schema page correctly, with imp
   });
 });
 
-test("@focus Creating Model by using the button on placeholder has succeeded", async ({
+test("Creating Model by using the button on placeholder has succeeded", async ({
   projectPage,
   page,
 }) => {

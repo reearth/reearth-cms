@@ -11,7 +11,7 @@ test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
 });
 
-test.describe("@focus Project General Settings", () => {
+test.describe("Project General Settings", () => {
   test("@smoke Update project general settings", async ({
     page,
     projectSettingsPage,

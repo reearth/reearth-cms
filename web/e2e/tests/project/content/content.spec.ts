@@ -34,7 +34,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Item CRUD and searching has succeeded", async ({
+test("@focus @smoke Item CRUD and searching has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -93,7 +93,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
   });
 });
 
-test("@smoke Publishing and Unpublishing item from edit page has succeeded", async ({
+test("@focus @smoke Publishing and Unpublishing item from edit page has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -139,7 +139,7 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
   });
 });
 
-test("Publishing and Unpublishing item from table has succeeded", async ({
+test("@focus Publishing and Unpublishing item from table has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -184,7 +184,7 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   });
 });
 
-test("Showing item title has succeeded", async ({
+test("@focus Showing item title has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -232,7 +232,7 @@ test("Showing item title has succeeded", async ({
   });
 });
 
-test("@smoke Comment CRUD on Content page has succeeded", async ({
+test("@focus @smoke Comment CRUD on Content page has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -271,7 +271,7 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   });
 });
 
-test("Comment CRUD on edit page has succeeded", async ({
+test("@focus Comment CRUD on edit page has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -309,7 +309,7 @@ test("Comment CRUD on edit page has succeeded", async ({
   });
 });
 
-test.describe("Import content", () => {
+test.describe("@focus Import content", () => {
   [
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
     { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
