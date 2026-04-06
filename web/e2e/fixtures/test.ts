@@ -85,7 +85,7 @@ export const test = base.extend<Fixtures>({
   slowMarker: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use, testInfo) => {
-      testInfo.slow();
+      if (process.env.CI) testInfo.slow();
       await use(undefined);
     },
     { auto: true },
