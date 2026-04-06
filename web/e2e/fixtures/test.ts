@@ -83,7 +83,7 @@ export const test = base.extend<Fixtures>({
   },
 
   slowMarker: [
-    async ({}, use, testInfo) => {
+    async (_, use, testInfo) => {
       testInfo.slow();
       await use(undefined);
     },
