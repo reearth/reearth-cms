@@ -22,7 +22,7 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
   await integrationsPage.integrationTextByName(integrationName, newDescription).last().click();
 });
 
-test("@focus MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
+test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
   await test.step("Update integration name and description", async () => {
     await integrationsPage.integrationNameInput.click();
     await integrationsPage.integrationNameInput.fill(newIntegrationName);
@@ -51,7 +51,7 @@ test("@focus MyIntegration CRUD has succeeded", async ({ integrationsPage, page 
   });
 });
 
-test("@focus Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
+test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
   await test.step("Create webhook with basic configuration", async () => {
     await expect(integrationsPage.webhookTab).toBeVisible();
     await integrationsPage.webhookTab.click();

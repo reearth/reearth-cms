@@ -19,7 +19,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test.describe("Json file tests", () => {
+test.describe("@focus Json file tests", () => {
   test.beforeEach(async ({ assetsPage }) => {
     await assetsPage.uploadViaUrl(jsonUrl);
   });
@@ -124,7 +124,7 @@ test.describe("Json file tests", () => {
   });
 });
 
-test("Previewing png file on modal has succeeded", async ({ assetsPage, page }) => {
+test("@focus Previewing png file on modal has succeeded", async ({ assetsPage, page }) => {
   await test.step("Upload PNG file via URL", async () => {
     await assetsPage.uploadViaUrl(pngUrl);
     await page.waitForLoadState("networkidle");
