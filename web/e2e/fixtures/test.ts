@@ -45,7 +45,7 @@ export type Reearth = {
 
 const GQL_LOG_PATH = path.join(dirname(fileURLToPath(import.meta.url)), "..", "gql-errors.log");
 
-type Fixtures = { reearth: Reearth; gqlErrorLog: undefined } & PageObjects;
+type Fixtures = { reearth: Reearth; gqlErrorLog: undefined; slowMarker: undefined } & PageObjects;
 
 export const test = base.extend<Fixtures>({
   reearth: async ({ page, request }, use) => {
@@ -81,6 +81,14 @@ export const test = base.extend<Fixtures>({
       },
     });
   },
+
+  slowMarker: [
+    async ({}, use, testInfo) => {
+      testInfo.slow();
+      await use(undefined);
+    },
+    { auto: true },
+  ],
 
   gqlErrorLog: [
     async ({ page }, use, testInfo) => {
