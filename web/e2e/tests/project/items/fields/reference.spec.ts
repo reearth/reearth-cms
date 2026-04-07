@@ -321,7 +321,7 @@ test("Two-way reference field editing has succeeded", async ({
 
   await test.step("Edit ref model item and verify two-way sync", async () => {
     await contentPage.editButton.first().click();
-    await fieldEditorPage.referToItemButton.click();
+    await fieldEditorPage.replaceItemButton.click();
     await fieldEditorPage.rowButton(0).hover();
     await fieldEditorPage.rowButton(0).click();
     await fieldEditorPage.okButton.click();

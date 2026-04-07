@@ -6,10 +6,12 @@ import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
+  className?: string;
   disabled?: boolean;
+  style?: React.CSSProperties;
 };
 
-const ExperimentIcon: React.FC<Props> = ({ disabled = false }) => {
+const ExperimentIcon: React.FC<Props> = ({ className, disabled = false, style }) => {
   const t = useT();
 
   return (
@@ -19,7 +21,7 @@ const ExperimentIcon: React.FC<Props> = ({ disabled = false }) => {
           ? undefined
           : t("This function is currently experimental and remains somewhat unstable")
       }>
-      <IconWrapper disabled={disabled}>
+      <IconWrapper className={className} disabled={disabled} style={style}>
         <Icon icon="experimentOutlined" color={AntdColor.GOLD.GOLD_5} />
       </IconWrapper>
     </Tooltip>
