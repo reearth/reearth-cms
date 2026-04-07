@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp/v3"
@@ -75,11 +76,22 @@ type Config struct {
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
 
+	Otel OtelConfig `pp:",omitempty"`
+
 	// Account API Configuration
 	Account_Api AccountAPIConfig `pp:",omitempty"`
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+}
+
+type OtelConfig struct {
+	Enabled            bool          `default:"true" pp:",omitempty"`
+	Endpoint           string        `default:"http://localhost:4318" pp:",omitempty"`
+	MaxExportBatchSize int           `pp:",omitempty"`
+	BatchTimeout       time.Duration `pp:",omitempty"`
+	MaxQueueSize       int           `pp:",omitempty"`
+	SamplingRatio      float64       `default:"1" pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {

@@ -29,6 +29,9 @@ func Start(debug bool, version string) {
 	}
 	log.Infof("config: %s", conf.Print())
 
+	// Init telemetry
+	defer initTelemetry(ctx, conf.Otel)()
+
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
