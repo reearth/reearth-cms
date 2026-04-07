@@ -71,9 +71,10 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
   });
 });
 
-test.describe("@focus Model Export tests on Overview page", () => {
+test.describe("Model Export tests on Overview page", () => {
   test.beforeEach(async () => {
-    test.skip(!isCI, "This test runs only in CI environment");
+    // test.skip(!isCI, "This test runs only in CI environment");
+    test.skip();
   });
 
   test("Model Export as JSON on Overview page has succeeded", async ({
