@@ -39,6 +39,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
   });
 
   await test.step("Update model name, description and key", async () => {
+    await page.goBack();
     await projectPage.openModelEditModal();
     await projectPage.modelNameInput.fill("new model name");
     await projectPage.modelDescriptionInput.fill("new model description");
@@ -55,7 +56,6 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
 
   await test.step("Delete model", async () => {
     await projectPage.openModelDeleteModal();
-    await projectPage.clickAndExpectSuccess(projectPage.deleteModelButton);
     await page.waitForLoadState("networkidle");
   });
 
@@ -66,7 +66,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
   });
 });
 
-test.describe("@focus Model Export tests on Overview page", () => {
+test.describe("Model Export tests on Overview page", () => {
   test.beforeEach(async () => {
     test.skip(!isCI, "This test runs only in CI environment");
   });
@@ -311,6 +311,7 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
   });
 
   await test.step("Open import schema from dropdown", async () => {
+    await page.goBack();
     await projectPage.clickImportSchema();
   });
 

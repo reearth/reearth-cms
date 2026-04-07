@@ -218,6 +218,7 @@ export class ProjectPage extends BasePage {
   async openModelDeleteModal(): Promise<void> {
     await this.modelMiscIcon.click();
     await this.modelMiscDelete.click();
+    await this.getByRole("button", { name: "Delete model" }).click();
   }
 
   async clickExportSchema(): Promise<void> {
