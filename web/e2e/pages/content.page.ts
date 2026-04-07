@@ -261,7 +261,7 @@ export class ContentPage extends BasePage {
 
   // Character count indicators
   get characterCountText(): Locator {
-    return this.getByText("/ 5");
+    return this.getByText("/ 5").first();
   }
 
   // Option field specific

@@ -47,26 +47,32 @@ export class ProjectPage extends BasePage {
   get modelsMenuItem(): Locator {
     return this.getByText("Models").first();
   }
-  get modelMiscIcon(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon);
-  }
+
+  // ModelCard action icons (dropdown triggers)
   get modelFileOperationIcon(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationIcon);
   }
+  get modelMiscIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon);
+  }
+
+  // ModelCard > Misc dropdown menu items
+  get modelMiscEdit(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit);
+  }
+  get modelMiscDelete(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete);
+  }
+
+  // ModelCard > File Operation > Export menu items
   get modelFileOperationExport(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExport);
   }
-  get modelFileOperationImport(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
+  get exportSchemaText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportSchema);
   }
-  get modelListLink(): Locator {
-    return this.getByRole("list").locator("a").nth(0);
-  }
-  get editText(): Locator {
-    return this.getByText("Edit", { exact: true });
-  }
-  get deleteText(): Locator {
-    return this.getByText("Delete");
+  get exportContentSubmenu(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContent);
   }
   get exportContentJSONText(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentJSON);
@@ -77,8 +83,10 @@ export class ProjectPage extends BasePage {
   get exportContentGeoJSONText(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON);
   }
-  get exportSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportSchema);
+
+  // ModelCard > File Operation > Import menu items
+  get modelFileOperationImport(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
   }
   get importSchemaText(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
@@ -198,6 +206,57 @@ export class ProjectPage extends BasePage {
   }
   get changeProjectVisibilityButton(): Locator {
     return this.getByRole("button", { name: "Change project visibility" });
+  }
+
+  // ========== ModelCard Action Methods ==========
+
+  async openModelEditModal(): Promise<void> {
+    await this.modelMiscIcon.click();
+    await this.modelMiscEdit.click();
+  }
+
+  async openModelDeleteModal(): Promise<void> {
+    await this.modelMiscIcon.click();
+    await this.modelMiscDelete.click();
+  }
+
+  async clickExportSchema(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportSchemaText.click();
+  }
+
+  async clickExportContentJSON(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentJSONText.click();
+  }
+
+  async clickExportContentCSV(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentCSVText.click();
+  }
+
+  async clickExportContentGeoJSON(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentGeoJSONText.click();
+  }
+
+  async clickImportSchema(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationImport.click();
+    await this.importSchemaText.click();
+  }
+
+  async clickImportContent(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationImport.click();
+    await this.importContentText.click();
   }
 
   // ========== Action Methods (POM Pattern) ==========
