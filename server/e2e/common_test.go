@@ -152,6 +152,51 @@ func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) *h
 	return e
 }
 
+func StartServerWithGateway(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *gateway.Container) {
+	t.Helper()
+
+	ctx := context.Background()
+
+	var repos *repo.Container
+	var accountRepos *accountrepo.Container
+	if useMongo {
+		db := mongotest.Connect(t)(t)
+		log.Infof("test: new db created with name: %v", db.Name())
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
+		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
+	} else {
+		repos = memory.New()
+		accountRepos = accountmemory.New()
+	}
+
+	if cfg.AssetBaseURL == "" {
+		cfg.AssetBaseURL = "https://example.com"
+	}
+	if cfg.Host == "" {
+		cfg.Host = "https://example.com"
+	}
+
+	f := lo.Must(fs.NewFile(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.AssetUploadURLReplacement))
+	if !cfg.Asset_Public {
+		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host, cfg.AssetUploadURLReplacement))
+	}
+	gw := &gateway.Container{
+		File:      f,
+		JobPubSub: memory.NewJobPubSub(),
+	}
+	accountGateways := &accountgateway.Container{
+		Mailer: mailer.New(ctx, &mailer.Config{}),
+	}
+
+	if seeder != nil {
+		if err := seeder(ctx, repos, gw); err != nil {
+			t.Fatalf("failed to seed the db: %s", err)
+		}
+	}
+
+	return startServer(t, cfg, repos, accountRepos, gw, accountGateways), gw
+}
+
 // StartServerAndGetURL starts the server and returns both httpexpect and the server URL
 func StartServerAndGetURL(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, string) {
 	t.Helper()
