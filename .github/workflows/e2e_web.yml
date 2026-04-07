@@ -21,6 +21,16 @@ on:
         type: number
         required: false
         default: 300
+      workers:
+        description: "Number of Playwright worker processes"
+        type: number
+        required: false
+        default: 1
+      fully_parallel:
+        description: "Run tests in fully parallel mode"
+        type: boolean
+        required: false
+        default: false
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -75,12 +85,16 @@ jobs:
       shard_matrix: ${{ steps.params.outputs.matrix }}
       shard_total: ${{ steps.params.outputs.total }}
       slowmo_ms: ${{ steps.params.outputs.slowmo_ms }}
+      workers: ${{ steps.params.outputs.workers }}
+      fully_parallel: ${{ steps.params.outputs.fully_parallel }}
     steps:
       - name: Validate and resolve parameters
         id: params
         run: |
           shard_count=${{ inputs.shard_count || 2 }}
           slowmo_ms=${{ inputs.slowmo_ms || 300 }}
+          workers=${{ inputs.workers || 1 }}
+          fully_parallel=${{ inputs.fully_parallel || false }}
 
           if ! echo "$shard_count" | grep -qE '^[1-9][0-9]*$'; then
             echo "::warning::shard_count must be a positive integer, got '$shard_count'. Using default: 2"
@@ -92,10 +106,22 @@ jobs:
             slowmo_ms=300
           fi
 
+          if ! echo "$workers" | grep -qE '^[1-9][0-9]*$'; then
+            echo "::warning::workers must be a positive integer, got '$workers'. Using default: 1"
+            workers=1
+          fi
+
+          if [ "$fully_parallel" != "true" ] && [ "$fully_parallel" != "false" ]; then
+            echo "::warning::fully_parallel must be true or false, got '$fully_parallel'. Using default: false"
+            fully_parallel=false
+          fi
+
           matrix=$(seq 1 "$shard_count" | jq -R 'tonumber' | jq -sc '.')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
           echo "total=$shard_count" >> "$GITHUB_OUTPUT"
           echo "slowmo_ms=$slowmo_ms" >> "$GITHUB_OUTPUT"
+          echo "workers=$workers" >> "$GITHUB_OUTPUT"
+          echo "fully_parallel=$fully_parallel" >> "$GITHUB_OUTPUT"
   e2e:
     name: playwright (${{ matrix.shard }})
     needs: setup
@@ -170,6 +196,8 @@ jobs:
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
           PLAYWRIGHT_SLOW_MO: ${{ needs.setup.outputs.slowmo_ms }}
+          PLAYWRIGHT_WORKERS: ${{ needs.setup.outputs.workers }}
+          PLAYWRIGHT_FULLY_PARALLEL: ${{ needs.setup.outputs.fully_parallel }}
         run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }} --shard=${{ matrix.shard }}/${{ needs.setup.outputs.shard_total }}
       - uses: actions/upload-artifact@v7
         if: always()
