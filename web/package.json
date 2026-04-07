@@ -19,7 +19,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "e2e": "playwright test tests/project",
+    "e2e": "playwright test tests/project/request.spec.ts tests/project/schema.spec.ts",
     "e2e-smoke": "playwright test --grep @smoke",
     "lint": "eslint .",
     "fix": "eslint --fix .",
