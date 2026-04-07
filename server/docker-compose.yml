@@ -5,7 +5,7 @@ services:
       context: .
     environment:
       REEARTH_DB: mongodb://reearth-cms-mongo
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      REEARTH_CMS_OTEL_ENDPOINT: http://jaeger:4318
     ports:
       - '8080:8080'
     # env_file:
