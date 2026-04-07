@@ -73,6 +73,8 @@ const ContentList: React.FC = () => {
     currentWorkspaceId,
     currentProjectId,
     hasModelFields,
+    handleContentExport,
+    exportContentLoading,
     alertList,
     setAlertList,
     importValidationResult,
@@ -156,6 +158,8 @@ const ContentList: React.FC = () => {
         hasRequestUpdateRight={hasRequestUpdateRight}
         showPublishAction={showPublishAction}
         onImportModalOpen={handleImportContentModalOpen}
+        onContentExport={handleContentExport}
+        exportContentLoading={exportContentLoading}
         modelFields={modelFields}
         hasModelFields={hasModelFields}
       />
