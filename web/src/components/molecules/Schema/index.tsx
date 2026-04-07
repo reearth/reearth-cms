@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react"
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -29,7 +29,6 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
-import { ExportSchemaUtils } from "@reearth-cms/utils/exportSchema";
 import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
@@ -91,8 +90,6 @@ type Props = {
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   toFileSelectionStep: () => void;
-  onSchemaExport: () => void;
-  exportSchemaLoading: boolean;
   schemaErrorLogMeta: ErrorLogMeta | null;
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
@@ -152,8 +149,6 @@ const Schema: React.FC<Props> = ({
   toSchemaPreviewStep,
   toImportingStep,
   toFileSelectionStep,
-  onSchemaExport,
-  exportSchemaLoading,
   schemaErrorLogMeta,
   dataChecking,
   onFileContentChange,
@@ -178,12 +173,7 @@ const Schema: React.FC<Props> = ({
     [hasCreateRight, hasModelFields, tab, selectedSchemaType],
   );
 
-  const getExportSchemaUIMetadata = useMemo(
-    () => ExportSchemaUtils.getUIMetadata({ hasModelFields, isExportLoading: exportSchemaLoading }),
-    [exportSchemaLoading, hasModelFields],
-  );
-
-  const dropdownItems = useMemo<MenuProps["items"]>(
+  const dropdownItems = useMemo(
     () => [
       {
         key: "edit",
@@ -191,17 +181,6 @@ const Schema: React.FC<Props> = ({
         icon: <StyledIcon icon="edit" />,
         onClick: onModalOpen,
         disabled: !hasUpdateRight,
-      },
-      {
-        key: "delete",
-        label: t("Delete"),
-        icon: <StyledIcon icon="delete" />,
-        onClick: onDeletionModalOpen,
-        danger: true,
-        disabled: !hasDeleteRight,
-      },
-      {
-        type: "divider",
       },
       {
         key: "import",
@@ -220,31 +199,23 @@ const Schema: React.FC<Props> = ({
         disabled: getImportSchemaUIMetadata.shouldDisable,
       },
       {
-        key: "export",
-        icon: <StyledIcon icon="export" />,
-        label: (
-          <Tooltip title={getExportSchemaUIMetadata.tooltipMessage}>
-            {exportSchemaLoading && <StyledIcon icon="loading" />}
-            <span>{t("Export")}</span>
-          </Tooltip>
-        ),
-        onClick: onSchemaExport,
-        disabled: getExportSchemaUIMetadata.shouldDisable,
+        key: "delete",
+        label: t("Delete"),
+        icon: <StyledIcon icon="delete" />,
+        onClick: onDeletionModalOpen,
+        danger: true,
+        disabled: !hasDeleteRight,
       },
     ],
     [
       t,
       onModalOpen,
       hasUpdateRight,
-      onDeletionModalOpen,
-      hasDeleteRight,
       getImportSchemaUIMetadata.tooltipMessage,
       getImportSchemaUIMetadata.shouldDisable,
       onSchemaImportModalOpen,
-      exportSchemaLoading,
-      getExportSchemaUIMetadata.tooltipMessage,
-      getExportSchemaUIMetadata.shouldDisable,
-      onSchemaExport,
+      onDeletionModalOpen,
+      hasDeleteRight,
     ],
   );
 

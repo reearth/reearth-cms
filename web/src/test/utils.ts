@@ -179,28 +179,26 @@ export abstract class Test {
 // Naming convention: Component__Element (inspired by BEM with PascalCase)
 export enum DATA_TEST_ID {
   // ModelCard
-  ModelCard__MiscIcon = "ModelCard__MiscIcon",
-  ModelCard__FileOperationIcon = "ModelCard__FileOperationIcon",
+  ModelCard__UtilDropdownIcon = "ModelCard__UtilDropdownIcon",
 
-  ModelCard__MiscEdit = "ModelCard__MiscEdit",
-  ModelCard__FileOperationImport = "ModelCard__FileOperationImport",
-  ModelCard__FileOperationExport = "ModelCard__FileOperationExport",
-  ModelCard__MiscDelete = "ModelCard__MiscDelete",
+  ModelCard__UtilDropdownEdit = "ModelCard__UtilDropdownEdit",
+  ModelCard__UtilDropdownImport = "ModelCard__UtilDropdownImport",
+  ModelCard__UtilDropdownExport = "ModelCard__UtilDropdownExport",
+  ModelCard__UtilDropdownDelete = "ModelCard__UtilDropdownDelete",
 
-  ModelCard__MiscImportSchema = "ModelCard__MiscImportSchema",
-  ModelCard__MiscImportContent = "ModelCard__MiscImportContent",
+  ModelCard__UtilDropdownImportSchema = "ModelCard__UtilDropdownImportSchema",
+  ModelCard__UtilDropdownImportContent = "ModelCard__UtilDropdownImportContent",
 
-  ModelCard__FileOperationExportSchema = "ModelCard__FileOperationExportSchema",
-  ModelCard__FileOperationExportContent = "ModelCard__FileOperationExportContent",
-  ModelCard__FileOperationExportContentJSON = "ModelCard__FileOperationExportContentJSON",
-  ModelCard__FileOperationExportContentCSV = "ModelCard__FileOperationExportContentCSV",
-  ModelCard__FileOperationExportContentGeoJSON = "ModelCard__FileOperationExportContentGeoJSON",
+  ModelCard__UtilDropdownExportSchema = "ModelCard__UtilDropdownExportSchema",
+  ModelCard__UtilDropdownExportContentJSON = "ModelCard__UtilDropdownExportContentJSON",
+  ModelCard__UtilDropdownExportContentCSV = "ModelCard__UtilDropdownExportContentCSV",
+  ModelCard__UtilDropdownExportContentGeoJSON = "ModelCard__UtilDropdownExportContentGeoJSON",
 
   // Schema
   Schema__ImportSchemaButton = "Schema__ImportSchemaButton",
 
   // ModelFieldList
-  ModelFieldList__ImportSchemaButton = "ModelFieldList__ImportSchemaButton",
+  ModelFieldList__ImportSchemaButton = "ImportSchemaOuterButton",
 
   // FileSelectionStep
   FileSelectionStep__FileSelectLoadingWrapper = "FileSelectionStep__FileSelectLoadingWrapper",
@@ -269,7 +267,7 @@ export enum DATA_TEST_ID {
   // FieldList
   FieldList__Text = "FieldList__Text",
   FieldList__TextArea = "FieldList__TextArea",
-  FieldList__MarkdownText = "FieldList__MarkdownText",
+  FieldList__MarkdownText = "FieldLIst__MarkdownText",
   FieldList__Asset = "FieldList__Asset",
   FieldList__Date = "FieldList__Date",
   FieldList__Bool = "FieldList__Bool",

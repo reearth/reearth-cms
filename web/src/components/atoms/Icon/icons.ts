@@ -78,7 +78,6 @@ import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
-import Export from "./Icons/export.svg";
 import Group from "./Icons/group.svg";
 import Import from "./Icons/import.svg";
 import ImportOutlined2 from "./Icons/importOutlined-2.svg";
@@ -214,7 +213,6 @@ const icons = {
   warningSolid: WarningSolid,
   importOutlined: ImportOutlined2,
   experimentOutlined: ExperimentOutlined,
-  export: Export,
 };
 
 export type IconName = keyof typeof icons;

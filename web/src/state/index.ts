@@ -36,9 +36,3 @@ const uploader = atom<UploaderState>({
   queue: [],
 });
 export const useUploader = () => useAtom(uploader);
-
-const exportSchemaLoading = atom<boolean>(false);
-export const useExportSchemaLoading = () => useAtom(exportSchemaLoading);
-
-const exportContentLoading = atom<boolean>(false);
-export const useExportContentLoading = () => useAtom(exportContentLoading);

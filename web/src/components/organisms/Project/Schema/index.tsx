@@ -118,8 +118,6 @@ const ProjectSchema: React.FC = () => {
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
         onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
-        onSchemaExport={schemaHooks.handleSchemaExport}
-        exportSchemaLoading={schemaHooks.exportSchemaLoading}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
         schemaErrorLogMeta={importHooks.schemaErrorLogMeta}
         dataChecking={importHooks.dataChecking}

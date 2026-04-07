@@ -128,6 +128,8 @@ test("Cancel view deletion", async ({
   await test.step("Attempt to delete view but cancel", async () => {
     await contentPage.moreButton.click();
     await contentPage.removeViewButton.click();
+    await contentPage.removeButton.click();
+    await contentPage.closeNotification(false);
     await contentPage.cancelButton.click();
     await page.waitForLoadState("networkidle");
   });

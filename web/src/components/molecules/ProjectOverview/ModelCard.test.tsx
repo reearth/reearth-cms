@@ -39,18 +39,13 @@ const buildProps = (overrides: Partial<Props> = {}): Props => ({
   ...overrides,
 });
 
-const openMiscDropdown = async () => {
-  await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon));
-  await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscEdit);
-};
-
-const openFileOperationDropdown = async () => {
-  await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__FileOperationIcon));
-  await screen.findByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
+const openDropdown = async () => {
+  await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownIcon));
+  await screen.findByTestId(DATA_TEST_ID.ModelCard__UtilDropdownEdit);
 };
 
 const openSubmenu = async (testId: DATA_TEST_ID) => {
-  const submenu = await screen.findByTestId(testId);
+  const submenu = screen.getByTestId(testId);
   const trigger = within(submenu).getByRole("menuitem");
   await user.hover(trigger);
 };
@@ -62,34 +57,32 @@ describe("Test ModelCard component", () => {
     expect(screen.getByText("test model")).toBeVisible();
     expect(screen.getByText("test description")).toBeVisible();
 
-    await openMiscDropdown();
-    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit)).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete)).toBeInTheDocument();
+    await openDropdown();
 
-    await openFileOperationDropdown();
-    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport)).toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExport)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownEdit)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImport)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExport)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownDelete)).toBeInTheDocument();
   });
 
   test("Fires menu actions when enabled", async () => {
     const props = buildProps();
     render(<ModelCard {...props} />);
 
-    await openMiscDropdown();
-    await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit));
+    await openDropdown();
+    await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownEdit));
 
     expect(props.onModelUpdateModalOpen).toHaveBeenCalledWith(props.model);
 
-    await openMiscDropdown();
-    await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete));
+    await openDropdown();
+    await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownDelete));
 
     expect(props.onModelDeletionModalOpen).toHaveBeenCalledWith(props.model);
 
-    await openFileOperationDropdown();
-    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
-    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExportContent);
+    await openDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__UtilDropdownExport);
     await user.click(
-      await screen.findByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentJSON),
+      await screen.findByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON),
     );
 
     expect(props.onModelExport).toHaveBeenCalledWith(props.model.id, ExportFormat.Json);
@@ -120,11 +113,15 @@ describe("Test ModelCard component", () => {
     });
 
     render(<ModelCard {...withFields} />);
-    await openFileOperationDropdown();
-    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationImport);
+    await openDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__UtilDropdownImport);
 
-    const importSchema = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
-    const importContent = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
+    const importSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
+    );
+    const importContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
+    );
 
     expect(importSchema).toHaveClass("ant-dropdown-menu-item-disabled");
     expect(importContent).not.toHaveClass("ant-dropdown-menu-item-disabled");
@@ -132,11 +129,15 @@ describe("Test ModelCard component", () => {
 
   test("Disables import content when schema is empty", async () => {
     render(<ModelCard {...buildProps()} />);
-    await openFileOperationDropdown();
-    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationImport);
+    await openDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__UtilDropdownImport);
 
-    const importSchema = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
-    const importContent = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
+    const importSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
+    );
+    const importContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
+    );
 
     expect(importSchema).not.toHaveClass("ant-dropdown-menu-item-disabled");
     expect(importContent).toHaveClass("ant-dropdown-menu-item-disabled");

@@ -47,17 +47,14 @@ export class ProjectPage extends BasePage {
   get modelsMenuItem(): Locator {
     return this.getByText("Models").first();
   }
-  get modelMiscIcon(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon);
+  get modelUtilDropdown(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownIcon);
   }
-  get modelFileOperationIcon(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationIcon);
+  get modelExportLink(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExport);
   }
-  get modelFileOperationExport(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExport);
-  }
-  get modelFileOperationImport(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
+  get modelImportLink(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImport);
   }
   get modelListLink(): Locator {
     return this.getByRole("list").locator("a").nth(0);
@@ -68,23 +65,23 @@ export class ProjectPage extends BasePage {
   get deleteText(): Locator {
     return this.getByText("Delete");
   }
-  get exportContentJSONText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentJSON);
+  get exportAsJSONText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON);
   }
-  get exportContentCSVText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentCSV);
+  get exportAsCSVText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV);
   }
-  get exportContentGeoJSONText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON);
+  get exportAsGeoJSONText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON);
   }
   get exportSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportSchema);
   }
   get importSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportSchema);
   }
   get importContentText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportContent);
   }
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });
