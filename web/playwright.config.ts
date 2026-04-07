@@ -32,7 +32,7 @@ const config: PlaywrightTestConfig = {
   reporter: process.env.CI
     ? [["blob"], ["github"], ["list"]]
     : [["list"], ["html", { open: "never" }]],
-  fullyParallel: process.env.CI ? false : true,
+  fullyParallel: true,
   projects: [
     {
       name: "setup",
