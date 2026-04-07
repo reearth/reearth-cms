@@ -87,7 +87,7 @@ type Config struct {
 
 type OtelConfig struct {
 	Enabled            bool          `default:"true" pp:",omitempty"`
-	Endpoint           string        `default:"http://localhost:4318" pp:",omitempty"`
+	Endpoint           string        `pp:",omitempty"`
 	MaxExportBatchSize int           `pp:",omitempty"`
 	BatchTimeout       time.Duration `pp:",omitempty"`
 	MaxQueueSize       int           `pp:",omitempty"`
@@ -190,6 +190,14 @@ type AuthM2MConfig struct {
 	Email   string   `pp:",omitempty"`
 	JWKSURI *string  `pp:",omitempty"`
 	Token   string   `pp:",omitempty"`
+}
+
+func (c *Config) Otel1() OtelConfig {
+	oc := c.Otel
+	if oc.Enabled && oc.Endpoint == "" && c.Dev {
+		oc.Endpoint = "http://localhost:4318"
+	}
+	return oc
 }
 
 func (c *Config) Auths() (res AuthConfigs) {
