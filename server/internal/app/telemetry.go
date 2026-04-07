@@ -87,10 +87,13 @@ func buildExporter(ctx context.Context, config OtelConfig) (sdktrace.SpanExporte
 }
 
 func sampler(config OtelConfig) sdktrace.Sampler {
-	if config.SamplingRatio > 0 && config.SamplingRatio < 1 {
-		return sdktrace.ParentBased(sdktrace.TraceIDRatioBased(config.SamplingRatio))
+	if config.SamplingRatio <= 0 {
+		return sdktrace.NeverSample()
 	}
-	return sdktrace.AlwaysSample()
+	if config.SamplingRatio >= 1 {
+		return sdktrace.AlwaysSample()
+	}
+	return sdktrace.ParentBased(sdktrace.TraceIDRatioBased(config.SamplingRatio))
 }
 
 func batcherOptions(config OtelConfig) []sdktrace.BatchSpanProcessorOption {
