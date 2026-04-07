@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
   workers: process.env.CI ? 1 : "25%",
   retries: 3,
-  maxFailures: process.env.CI ? 4 : 10,
+  maxFailures: process.env.CI ? 2 : 10,
   forbidOnly: !!process.env.CI,
   use: {
     baseURL,
@@ -32,7 +32,7 @@ const config: PlaywrightTestConfig = {
   reporter: process.env.CI
     ? [["blob"], ["github"], ["list"]]
     : [["list"], ["html", { open: "never" }]],
-  fullyParallel: false,
+  fullyParallel: true,
   projects: [
     {
       name: "setup",
