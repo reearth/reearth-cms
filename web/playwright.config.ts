@@ -48,7 +48,7 @@ const config: PlaywrightTestConfig = {
         ...devices["Desktop Chrome"],
         storageState: authFile,
         launchOptions: {
-          slowMo: 50,
+          slowMo: 300,
         },
       },
       dependencies: ["setup"],
