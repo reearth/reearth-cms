@@ -564,8 +564,11 @@ export class ContentPage extends BasePage {
   }
 
   async createComment(content: string): Promise<void> {
-    await this.page.locator("#content").click();
-    await this.page.locator("#content").fill(content);
+    const commentInput = this.getByRole("main")
+      .getByRole("complementary")
+      .getByRole("textbox");
+    await commentInput.click();
+    await commentInput.fill(content);
     await this.clickAndExpectSuccess(this.getByRole("button", { name: "Comment" }));
   }
 
