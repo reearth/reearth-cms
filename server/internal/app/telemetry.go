@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"os"
+	"time"
 
 	texporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"github.com/reearth/reearthx/log"
@@ -65,7 +66,10 @@ func initTelemetry(ctx context.Context, config OtelConfig) func() {
 	log.Infof("otel: initialized with %s exporter", label)
 
 	return func() {
-		if err := tp.Shutdown(ctx); err != nil {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := tp.Shutdown(shutdownCtx); err != nil {
 			log.Warnf("otel: shutdown error: %v", err)
 		}
 		log.Infof("otel: exporter shutdown")
