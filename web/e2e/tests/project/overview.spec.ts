@@ -2,7 +2,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-// const isCI = !!process.env.CI;
+const isCI = !!process.env.CI;
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -68,8 +68,7 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
 
 test.describe("Model Export tests on Overview page", () => {
   test.beforeEach(async () => {
-    // test.skip(!isCI, "This test runs only in CI environment");
-    // test.skip();
+    test.skip(!isCI, "This test runs only in CI environment");
   });
 
   test("Model Export as JSON on Overview page has succeeded", async ({
