@@ -478,6 +478,62 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
+func (f *fileRepo) Delete(ctx context.Context, filename string) error {
+	return f.delete(ctx, filename)
+}
+
+func (f *fileRepo) DeleteByPrefix(ctx context.Context, prefix string, p gateway.Predicate) error {
+	paginator := s3.NewListObjectsV2Paginator(f.s3Client, &s3.ListObjectsV2Input{
+		Bucket: aws.String(f.bucketName),
+		Prefix: aws.String(prefix),
+	})
+
+	var errs []error
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+		for _, obj := range output.Contents {
+			if p != nil {
+				fe := gateway.FileEntry{
+					Name: lo.FromPtr(obj.Key),
+					Size: lo.FromPtr(obj.Size),
+				}
+				if !p(fe) {
+					continue
+				}
+			}
+			if err := f.delete(ctx, lo.FromPtr(obj.Key)); err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	return nil
+}
+
+func (f *fileRepo) ListByPrefix(ctx context.Context, prefix string) ([]string, error) {
+	var result []string
+	paginator := s3.NewListObjectsV2Paginator(f.s3Client, &s3.ListObjectsV2Input{
+		Bucket: aws.String(f.bucketName),
+		Prefix: aws.String(prefix),
+	})
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, rerror.ErrInternalBy(err)
+		}
+		for _, obj := range output.Contents {
+			result = append(result, lo.FromPtr(obj.Key))
+		}
+	}
+	return result, nil
+}
+
 func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
 	if filename == "" {
 		return gateway.ErrInvalidFile
