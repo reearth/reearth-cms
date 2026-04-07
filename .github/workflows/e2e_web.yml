@@ -11,6 +11,16 @@ on:
         type: boolean
         required: false
         default: false
+      shard_count:
+        description: "Number of shards for parallel test execution"
+        type: number
+        required: false
+        default: 2
+      slowmo_ms:
+        description: "Playwright slowMo in milliseconds"
+        type: number
+        required: false
+        default: 300
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -58,13 +68,42 @@ env:
   REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
   REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 jobs:
+  setup:
+    name: setup
+    runs-on: ubuntu-latest
+    outputs:
+      shard_matrix: ${{ steps.params.outputs.matrix }}
+      shard_total: ${{ steps.params.outputs.total }}
+      slowmo_ms: ${{ steps.params.outputs.slowmo_ms }}
+    steps:
+      - name: Validate and resolve parameters
+        id: params
+        run: |
+          shard_count=${{ inputs.shard_count || 2 }}
+          slowmo_ms=${{ inputs.slowmo_ms || 300 }}
+
+          if ! echo "$shard_count" | grep -qE '^[1-9][0-9]*$'; then
+            echo "::warning::shard_count must be a positive integer, got '$shard_count'. Using default: 2"
+            shard_count=2
+          fi
+
+          if ! echo "$slowmo_ms" | grep -qE '^[0-9]+$' || [ "$slowmo_ms" -lt 0 ] 2>/dev/null; then
+            echo "::warning::slowmo_ms must be a non-negative integer, got '$slowmo_ms'. Using default: 300"
+            slowmo_ms=300
+          fi
+
+          matrix=$(seq 1 "$shard_count" | jq -R 'tonumber' | jq -sc '.')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "total=$shard_count" >> "$GITHUB_OUTPUT"
+          echo "slowmo_ms=$slowmo_ms" >> "$GITHUB_OUTPUT"
   e2e:
     name: playwright (${{ matrix.shard }})
+    needs: setup
     runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: true
       matrix:
-        shard: [1]
+        shard: ${{ fromJSON(needs.setup.outputs.shard_matrix) }}
     permissions:
       contents: read
       id-token: write
@@ -130,7 +169,8 @@ jobs:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }} --shard=${{ matrix.shard }}/1
+          PLAYWRIGHT_SLOW_MO: ${{ needs.setup.outputs.slowmo_ms }}
+        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }} --shard=${{ matrix.shard }}/${{ needs.setup.outputs.shard_total }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:
