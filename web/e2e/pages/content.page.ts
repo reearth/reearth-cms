@@ -139,17 +139,14 @@ export class ContentPage extends BasePage {
   }
 
   // Table sorting and filtering
-  textColumnHeader(): Locator {
-    return this.getByText("text", { exact: true });
-  }
-  get columnHeaderText(): Locator {
+  get textColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "text" });
   }
   get sortUpIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
+    return this.textColumnHeader.locator("div").locator(".anticon-caret-up");
   }
   get sortDownIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
+    return this.textColumnHeader.locator("div").locator(".anticon-caret-down");
   }
   tableRow(index: number): Locator {
     return this.locator(".ant-table-row").nth(index);

@@ -158,12 +158,14 @@ test("Apply sorting to view", async ({
   });
 
   await test.step("Apply ascending sort to text column", async () => {
-    await contentPage.textColumnHeader().click();
+    await expect(async () => {
+      await contentPage.textColumnHeader.click();
+      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+    }).toPass({ timeout: 15_000 });
     await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify items are sorted alphabetically", async () => {
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("sample1");
     await expect(contentPage.tableRow(1)).toContainText("sample2");
     await page.waitForLoadState("networkidle");
@@ -254,8 +256,10 @@ test("Save view with custom sorting and filtering", async ({
   });
 
   await test.step("Apply sorting", async () => {
-    await contentPage.textColumnHeader().click();
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+    await expect(async () => {
+      await contentPage.textColumnHeader.click();
+      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+    }).toPass({ timeout: 15_000 });
     await page.waitForLoadState("networkidle");
   });
 
@@ -327,7 +331,10 @@ test("Switch between views preserves individual view settings", async ({
   });
 
   await test.step("Apply sorting, filtering, and hide column", async () => {
-    await contentPage.textColumnHeader().click();
+    await expect(async () => {
+      await contentPage.textColumnHeader.click();
+      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+    }).toPass({ timeout: 15_000 });
     await contentPage.addFilterButton.click();
     await contentPage.filterMenuItem("text").click();
     await expect(contentPage.isDropdown).toBeVisible();
@@ -400,8 +407,12 @@ test("Update view settings", async ({
   });
 
   await test.step("Apply descending sort", async () => {
-    await contentPage.textColumnHeader().first().click();
-    await contentPage.textColumnHeader().first().click();
+    await expect(async () => {
+      await contentPage.textColumnHeader.first().click();
+      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+    }).toPass({ timeout: 15_000 });
+    await contentPage.textColumnHeader.first().click();
+    await expect(contentPage.sortDownIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await page.waitForLoadState("networkidle");
   });
@@ -471,7 +482,10 @@ test("Delete view and switch to remaining view", async ({
   });
 
   await test.step("Apply customizations for second view", async () => {
-    await contentPage.textColumnHeader().click();
+    await expect(async () => {
+      await contentPage.textColumnHeader.click();
+      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+    }).toPass({ timeout: 15_000 });
     await contentPage.addFilterButton.click();
     await contentPage.filterMenuItem("text").click();
     await contentPage.isDropdown.click();
