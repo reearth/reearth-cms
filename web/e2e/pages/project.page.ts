@@ -263,7 +263,6 @@ export class ProjectPage extends BasePage {
   // ========== Action Methods (POM Pattern) ==========
 
   async createProject(name: string): Promise<void> {
-    await this.page.waitForLoadState("networkidle");
     const newProjectButton = this.getByRole("button", { name: "plus New Project" }).first();
     await expect(newProjectButton).toBeVisible();
     await newProjectButton.click();
@@ -274,7 +273,6 @@ export class ProjectPage extends BasePage {
   }
 
   async gotoProject(name: string): Promise<void> {
-    await this.page.waitForLoadState("networkidle");
     const projectLink = this.getByText(name, { exact: true });
     await expect(projectLink).toBeVisible();
     await projectLink.click();
