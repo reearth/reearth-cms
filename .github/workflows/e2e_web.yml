@@ -137,21 +137,8 @@ jobs:
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
         run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
       - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: blob-report
-          path: web/blob-report/
-          retention-days: 7
-      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results
           path: web/test-results/
-          retention-days: 7
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: gql-error-log
-          path: web/e2e/gql-errors.log
-          if-no-files-found: ignore
           retention-days: 7

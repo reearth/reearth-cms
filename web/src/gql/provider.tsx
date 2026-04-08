@@ -9,7 +9,6 @@ import {
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import { SetContextLink } from "@apollo/client/link/context";
 import { ErrorLink } from "@apollo/client/link/error";
-import { RetryLink } from "@apollo/client/link/retry";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { ApolloProvider } from "@apollo/client/react";
 import { getMainDefinition } from "@apollo/client/utilities";
@@ -126,57 +125,6 @@ const Provider: React.FC<Props> = ({ children }) => {
       }),
   );
 
-  const isE2E = () => !!window.REEARTH_E2E_ACCESS_TOKEN;
-
-  const gqlLog = (entry: Record<string, unknown>) => {
-    if (isE2E()) {
-      console.warn("[GQL_LOG]", JSON.stringify({ ...entry, timestamp: new Date().toISOString() }));
-    }
-  };
-
-  const retryLink = new RetryLink({
-    delay: {
-      initial: 500,
-      max: 3000,
-      jitter: true,
-    },
-    attempts: (attempt, operation, error) => {
-      const isRetryable =
-        !!error && /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? "");
-      if (attempt > 1 && isRetryable) {
-        gqlLog({
-          type: "retry",
-          operation: operation.operationName,
-          attempt,
-          error: error.message,
-        });
-      }
-      return attempt <= 3 && isRetryable;
-    },
-  });
-
-  const loggingLink = new ErrorLink(({ error, operation }) => {
-    if (!error || !isE2E()) return;
-
-    let errorType = "unknown";
-    let message = "";
-
-    if (CombinedGraphQLErrors.is(error)) {
-      errorType = "graphql";
-      message = error.errors.map(e => e.message).join(", ");
-    } else if (CombinedProtocolErrors.is(error)) {
-      errorType = "protocol";
-      message = error.errors.map(e => e.message).join(", ");
-    } else {
-      errorType = /Failed to fetch|NetworkError|Network request failed/.test(error.message ?? "")
-        ? "network"
-        : "unknown";
-      message = error.message;
-    }
-
-    gqlLog({ type: "error", operation: operation.operationName, errorType, message });
-  });
-
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (!error) return;
 
@@ -215,8 +163,6 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const client = new ApolloClient({
     link: ApolloLink.from([
-      retryLink,
-      loggingLink,
       errorLink,
       ApolloLink.split(
         isSubscription,

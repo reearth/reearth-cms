@@ -1,7 +1,3 @@
-import fs from "fs";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-
 import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "../config/config";
@@ -43,9 +39,7 @@ export type Reearth = {
   ) => Promise<T>;
 } & Config;
 
-const GQL_LOG_PATH = path.join(dirname(fileURLToPath(import.meta.url)), "..", "gql-errors.log");
-
-type Fixtures = { reearth: Reearth; gqlErrorLog: undefined; slowMarker: undefined } & PageObjects;
+type Fixtures = { reearth: Reearth; slowMarker: undefined } & PageObjects;
 
 export const test = base.extend<Fixtures>({
   reearth: async ({ page, request }, use) => {
@@ -87,26 +81,6 @@ export const test = base.extend<Fixtures>({
     async ({}, use, testInfo) => {
       if (process.env.CI) testInfo.slow();
       await use(undefined);
-    },
-    { auto: true },
-  ],
-
-  gqlErrorLog: [
-    async ({ page }, use, testInfo) => {
-      const logs: string[] = [];
-      page.on("console", msg => {
-        if (msg.type() === "warning") {
-          const text = msg.text();
-          if (text.startsWith("[GQL_LOG]")) {
-            logs.push(text.replace("[GQL_LOG] ", ""));
-          }
-        }
-      });
-      await use(undefined);
-      if (logs.length > 0) {
-        const header = `\n=== ${testInfo.titlePath.join(" › ")} [${testInfo.status}] ===\n`;
-        fs.appendFileSync(GQL_LOG_PATH, header + logs.join("\n") + "\n");
-      }
     },
     { auto: true },
   ],
