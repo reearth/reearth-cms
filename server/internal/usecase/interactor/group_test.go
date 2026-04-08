@@ -64,7 +64,6 @@ func newGroupGateways(t *testing.T, setup func(*gatewaymock.MockAuthorization)) 
 // ─── FindByID ────────────────────────────────────────────────────────────────
 
 func TestGroup_FindByID(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 	opNoUser := newGroupOpNoUser()
 
@@ -94,9 +93,9 @@ func TestGroup_FindByID(t *testing.T) {
 			},
 		},
 		{
-			name:    "permission check error",
+			name:     "permission check error",
 			operator: op,
-			wantErr: errors.New("cerbos unavailable"),
+			wantErr:  errors.New("cerbos unavailable"),
 			setupAuth: func(m *gatewaymock.MockAuthorization) {
 				m.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceGroup, rbac.ActionRead, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
@@ -146,7 +145,6 @@ func TestGroup_FindByID(t *testing.T) {
 // ─── FindByIDs ───────────────────────────────────────────────────────────────
 
 func TestGroup_FindByIDs(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -159,7 +157,7 @@ func TestGroup_FindByIDs(t *testing.T) {
 			name: "no auth gateway - allowed",
 		},
 		{
-			name: "empty list - no permission check",
+			name:  "empty list - no permission check",
 			empty: true,
 		},
 		{
@@ -221,7 +219,6 @@ func TestGroup_FindByIDs(t *testing.T) {
 // ─── FindByProject ───────────────────────────────────────────────────────────
 
 func TestGroup_FindByProject(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -283,7 +280,6 @@ func TestGroup_FindByProject(t *testing.T) {
 // ─── Filter ──────────────────────────────────────────────────────────────────
 
 func TestGroup_Filter(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -344,7 +340,6 @@ func TestGroup_Filter(t *testing.T) {
 // ─── FindByKey ───────────────────────────────────────────────────────────────
 
 func TestGroup_FindByKey(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -405,7 +400,6 @@ func TestGroup_FindByKey(t *testing.T) {
 // ─── FindByIDOrKey ───────────────────────────────────────────────────────────
 
 func TestGroup_FindByIDOrKey(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -466,7 +460,6 @@ func TestGroup_FindByIDOrKey(t *testing.T) {
 // ─── Create ──────────────────────────────────────────────────────────────────
 
 func TestGroup_Create(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -538,7 +531,6 @@ func TestGroup_Create(t *testing.T) {
 // ─── Update ──────────────────────────────────────────────────────────────────
 
 func TestGroup_Update(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -605,7 +597,6 @@ func TestGroup_Update(t *testing.T) {
 // ─── Delete ──────────────────────────────────────────────────────────────────
 
 func TestGroup_Delete(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -688,7 +679,6 @@ func TestGroup_Delete(t *testing.T) {
 // ─── FindModelsByGroup ───────────────────────────────────────────────────────
 
 func TestGroup_FindModelsByGroup(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -749,7 +739,6 @@ func TestGroup_FindModelsByGroup(t *testing.T) {
 // ─── FindByModel ─────────────────────────────────────────────────────────────
 
 func TestGroup_FindByModel(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
@@ -819,7 +808,6 @@ func TestGroup_FindByModel(t *testing.T) {
 // ─── UpdateOrder ─────────────────────────────────────────────────────────────
 
 func TestGroup_UpdateOrder(t *testing.T) {
-	t.Parallel()
 	op := newGroupOp()
 
 	tests := []struct {
