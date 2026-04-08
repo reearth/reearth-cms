@@ -22,15 +22,7 @@ test("@smoke Int field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create int field with settings", async () => {
-    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Integer).click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("int1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("int1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("int1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField(SchemaFieldType.Integer, "int1", "int1", "int1 description");
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("int1#int1");
     await page.waitForTimeout(300);
   });
@@ -69,7 +61,7 @@ test("Int field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create int field with default value", async () => {
-    await fieldEditorPage.fieldTypeListItem("Int").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Integer).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("int1");
     await fieldEditorPage.settingsKeyInput.click();

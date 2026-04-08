@@ -128,18 +128,18 @@ const Provider: React.FC<Props> = ({ children }) => {
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (!error) return;
 
-    let message = "";
+    let title = "";
 
     if (CombinedGraphQLErrors.is(error)) {
-      message = error.errors.map(e => e.message).join(", ");
+      title = error.errors.map(e => e.message).join(", ");
     } else if (CombinedProtocolErrors.is(error)) {
-      message = error.errors.map(e => e.message).join(", ");
+      title = error.errors.map(e => e.message).join(", ");
     } else {
-      message = error.message;
+      title = error.message;
     }
 
-    if (!!message && operation.operationName !== "GetAsset") {
-      Notification.error({ message });
+    if (!!title && operation.operationName !== "GetAsset") {
+      Notification.error({ title });
     }
   });
 

@@ -3,8 +3,8 @@ import { useCallback, useState } from "react";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import MemberTable from "@reearth-cms/components/molecules/Member/MemberTable";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role, User } from "@reearth-cms/components/molecules/Member/types";
+import { MemberInput, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
   workspaceUserMembers?: UserMember[];

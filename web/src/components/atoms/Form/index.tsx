@@ -1,8 +1,20 @@
-import { Form, FormInstance } from "antd";
-import { Rule, RuleObject } from "antd/lib/form";
-import { FormItemProps } from "antd/lib/form/FormItem";
-import { FormItemLabelProps } from "antd/lib/form/FormItemLabel";
-import { FieldError, ValidateErrorEntity } from "rc-field-form/lib/interface";
+import { Form, FormInstance, FormProps, FormRule } from "antd";
+import type { FormItemProps } from "antd";
+import type { FormItemLabelProps } from "antd/es/form/FormItemLabel";
+
+type Rule = FormRule;
+type RuleObject = Exclude<FormRule, (...args: never[]) => unknown>;
+
+type FieldError = {
+  name: (string | number)[];
+  errors: string[];
+};
+
+type ValidateErrorEntity = {
+  values: Record<string, unknown>;
+  errorFields: FieldError[];
+  outOfDate: boolean;
+};
 
 export default Form;
 
@@ -11,6 +23,8 @@ export type {
   FormItemLabelProps,
   FieldError,
   FormInstance,
+  FormProps,
+  FormRule,
   Rule,
   RuleObject,
   ValidateErrorEntity,

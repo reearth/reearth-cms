@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
@@ -12,8 +12,6 @@ import { CustomToken } from "@reearth-cms/utils/style";
 
 import LocalTab from "./localTab";
 import UrlTab from "./UrlTab";
-
-const { TabPane } = Tabs;
 
 type Props = {
   alsoLink?: boolean;
@@ -47,6 +45,22 @@ const UploadModal: React.FC<Props> = ({
   onCancel,
 }) => {
   const t = useT();
+
+  const tabItems = useMemo<TabsProps["items"]>(
+    () => [
+      {
+        key: "local",
+        label: t("Local"),
+        children: <LocalTab uploadProps={uploadProps} alertList={alertList} />,
+      },
+      {
+        key: "url",
+        label: t("URL"),
+        children: <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />,
+      },
+    ],
+    [t, uploadProps, alertList, uploadUrl, setUploadUrl],
+  );
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -86,14 +100,7 @@ const UploadModal: React.FC<Props> = ({
       <div>
         <h2>{t("Asset Uploader")}</h2>
       </div>
-      <Tabs activeKey={uploadType} onChange={handleTabChange}>
-        <TabPane tab={t("Local")} key="local">
-          <LocalTab uploadProps={uploadProps} alertList={alertList} />
-        </TabPane>
-        <TabPane tab={t("URL")} key="url">
-          <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
-        </TabPane>
-      </Tabs>
+      <Tabs activeKey={uploadType} onChange={handleTabChange} items={tabItems} />
     </StyledModal>
   );
 };

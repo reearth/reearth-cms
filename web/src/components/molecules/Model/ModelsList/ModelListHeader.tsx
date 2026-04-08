@@ -27,7 +27,11 @@ const Header = styled.div`
   padding: 22px ${AntdToken.SPACING.MD}px ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.MD}px;
 `;
 
-const SchemaStyledTitle = styled.h2``;
+const SchemaStyledTitle = styled.h2`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};

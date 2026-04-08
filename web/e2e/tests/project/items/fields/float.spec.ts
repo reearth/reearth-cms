@@ -19,16 +19,12 @@ test("Float field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Number).click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("float1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("float1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("float1 description");
-
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField(
+    SchemaFieldType.Number,
+    "float1",
+    "float1",
+    "float1 description",
+  );
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("float1#float1");
   await schemaPage.contentText.click();
@@ -53,7 +49,7 @@ test("Float field creating and updating has succeeded", async ({
 });
 
 test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  await fieldEditorPage.fieldTypeListItem("Float").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Number).click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("float1");
   await fieldEditorPage.settingsKeyInput.click();

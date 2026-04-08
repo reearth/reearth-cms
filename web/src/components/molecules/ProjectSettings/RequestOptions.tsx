@@ -47,7 +47,7 @@ const RequestOptions: React.FC<Props> = ({
     [initialRequestRoles, requestRoles],
   );
 
-  const columns: TableColumnsType<RequestOptionsData> = useMemo(
+  const columns = useMemo<TableColumnsType<RequestOptionsData>>(
     () => [
       {
         title: t("Role"),
@@ -71,7 +71,7 @@ const RequestOptions: React.FC<Props> = ({
     [handleChange, hasUpdateRight, requestRoles, t],
   );
 
-  const dataSource: RequestOptionsData[] = useMemo(
+  const dataSource = useMemo<RequestOptionsData[]>(
     () => [
       {
         role: t("Owner"),

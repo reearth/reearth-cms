@@ -1,5 +1,6 @@
 // e2e/pages/request.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
 
@@ -52,7 +53,7 @@ export class RequestPage extends BasePage {
     return this.getByLabel("close-circle").locator("svg");
   }
   get selectOverflow(): Locator {
-    return this.locator(".ant-select-selection-overflow");
+    return this.getByRole("combobox");
   }
   get selectItem(): Locator {
     return this.locator(".ant-select-item");
@@ -75,6 +76,10 @@ export class RequestPage extends BasePage {
   // Status text
   statusText(status: string): Locator {
     return this.getByText(status, { exact: true });
+  }
+
+  get sideStatusBadge(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Request__Details__SideWrapper__Badge);
   }
 
   // Comments

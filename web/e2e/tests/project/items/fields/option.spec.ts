@@ -50,7 +50,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
     );
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("option1");
+    await expect(contentPage.mainRole).toContainText("option1");
     await expect(contentPage.mainRole).toContainText("option1 description");
     await page.waitForTimeout(300);
   });
@@ -68,7 +68,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
 
   await test.step("Verify option saved correctly", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("first")).toBeVisible();
+    await expect(contentPage.cellByText("first")).toBeVisible();
     await page.waitForTimeout(300);
   });
 
@@ -85,7 +85,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
 
   await test.step("Verify updated option", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("second")).toBeVisible();
+    await expect(contentPage.cellByText("second")).toBeVisible();
     await page.waitForTimeout(300);
   });
 });
@@ -97,7 +97,8 @@ test("Option field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create option field with three values and default", async () => {
-    await schemaPage.fieldTypeButton("Option").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Select).click();
+
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("option1");
     await fieldEditorPage.settingsKeyInput.click();
@@ -160,7 +161,7 @@ test("Option field editing has succeeded", async ({
 
   await test.step("Verify item saved with default option", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("third")).toBeVisible();
+    await expect(contentPage.cellByText("third")).toBeVisible();
   });
 
   await test.step("Edit field: rename, add fifth option, enable multiple values and validations", async () => {
@@ -190,7 +191,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(contentPage.optionTextByName("third")).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(1).click({ force: true });
     await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
@@ -216,18 +217,18 @@ test("Option field editing has succeeded", async ({
     await expect(contentPage.optionTextByName("third")).toBeHidden();
 
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(0).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(0).click({ force: true });
     await expect(fieldEditorPage.optionDiv("new first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new forth")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new fifth")).toBeVisible();
     await fieldEditorPage.optionDiv("new first").click();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(1).click({ force: true });
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.updateOptionLabel.getByRole("button", { name: "delete" }).last().click();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(1).click({ force: true });
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();

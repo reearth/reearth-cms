@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -21,7 +22,7 @@ test("Text metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create text metadata field", async () => {
     await schemaPage.metaDataTab.click();
-    await fieldEditorPage.fieldTypeButton("Text").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Text).click();
     await fieldEditorPage.displayNameInput.fill("text1");
     await fieldEditorPage.fieldKeyInput.fill("text1");
     await fieldEditorPage.fieldDescriptionInput.fill("text1 description");
@@ -61,19 +62,18 @@ test("Text metadata creating and updating has succeeded", async ({
     await page.waitForTimeout(300);
   });
 
-  await test.step("Update metadata from table view", async () => {
+  await test.step("Update metadata from edit view", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.textBoxes).toHaveValue("text1");
-    await contentPage.textBoxes.fill("new text1");
-    await contentPage.antTableBody.click();
+    await contentPage.editButton.click();
+    await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
+    await contentPage.fieldInput("text1").fill("new text1");
     await contentPage.closeNotification();
-    await expect(contentPage.textBoxes).toHaveValue("new text1");
+    await expect(contentPage.fieldInput("text1")).toHaveValue("new text1");
     await page.waitForTimeout(300);
   });
 
-  await test.step("Update metadata from edit view", async () => {
-    await contentPage.editButton.click();
-    await expect(contentPage.fieldInput("text1")).toHaveValue("new text1");
+  await test.step("Update metadata back to original value", async () => {
     await contentPage.fieldInput("text1").fill("text1");
     await contentPage.closeNotification();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
@@ -95,7 +95,7 @@ test("Text metadata editing has succeeded", async ({
 }) => {
   await test.step("Create text metadata with default value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.textListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Text).click();
     await fieldEditorPage.displayNameInput.fill("text1");
     await fieldEditorPage.fieldKeyInput.fill("text1");
     await fieldEditorPage.fieldDescriptionInput.fill("text1 description");

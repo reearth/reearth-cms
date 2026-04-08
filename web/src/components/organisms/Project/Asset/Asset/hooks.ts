@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -72,7 +72,7 @@ export default (assetId?: string) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const convertedAsset: Asset | undefined = useMemo(() => {
+  const convertedAsset = useMemo<Asset | undefined>(() => {
     return rawAsset?.node?.__typename === "Asset"
       ? fromGraphQLAsset(rawAsset.node as GQLAsset)
       : undefined;
@@ -108,10 +108,10 @@ export default (assetId?: string) => {
         refetchQueries: ["GetAssetItem"],
       });
       if (result.error || !result.data?.updateAsset) {
-        Notification.error({ message: t("Failed to update asset.") });
+        Notification.error({ title: t("Failed to update asset.") });
       }
       if (result) {
-        Notification.success({ message: t("Asset was successfully updated!") });
+        Notification.success({ title: t("Asset was successfully updated!") });
       }
     },
     [t, updateAssetMutation],
@@ -129,10 +129,10 @@ export default (assetId?: string) => {
         });
         setDecompressing(false);
         if (result.error || !result.data?.decompressAsset) {
-          Notification.error({ message: t("Failed to decompress asset.") });
+          Notification.error({ title: t("Failed to decompress asset.") });
         }
         if (result) {
-          Notification.success({ message: t("Asset is being decompressed!") });
+          Notification.success({ title: t("Asset is being decompressed!") });
         }
       })(),
     [t, decompressAssetMutation],
@@ -194,9 +194,22 @@ export default (assetId?: string) => {
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
     } else {
-      viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
+      viewerRef.current?.cesiumElement?.container.requestFullscreen?.()?.catch(() => {});
     }
   }, [viewerType]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      requestAnimationFrame(() => {
+        const viewer = viewerRef.current?.cesiumElement;
+        if (viewer && !viewer.isDestroyed()) {
+          viewer.resize();
+        }
+      });
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   const handleAssetItemSelect = useCallback(
     (assetItem: AssetItem) => {
@@ -249,13 +262,13 @@ export default (assetId?: string) => {
       const blob = await response.blob();
       fileDownload(blob, asset.fileName);
       Notification.success({
-        message: t("Download successful"),
+        title: t("Download successful"),
         description: asset.fileName,
       });
     } catch (err) {
       console.error("Download error:", err);
       Notification.error({
-        message: t("Download failed"),
+        title: t("Download failed"),
         description: asset.fileName,
       });
     }

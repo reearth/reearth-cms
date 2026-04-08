@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
@@ -98,7 +98,7 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const requests: Request[] = useMemo(() => {
+  const requests = useMemo<Request[]>(() => {
     if (!rawRequests?.requests.nodes) return [];
     const requests: Request[] = rawRequests?.requests.nodes
       .map(r => {
@@ -162,10 +162,10 @@ export default () => {
         refetchQueries: ["GetRequests"],
       });
       if (result.error) {
-        Notification.error({ message: t("Failed to delete one or more requests.") });
+        Notification.error({ title: t("Failed to delete one or more requests.") });
       }
       if (result) {
-        Notification.success({ message: t("One or more requests were successfully closed!") });
+        Notification.success({ title: t("One or more requests were successfully closed!") });
         setSelection({ selectedRowKeys: [] });
       }
     },

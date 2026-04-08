@@ -1,4 +1,5 @@
-import AntTextArea, { TextAreaProps } from "antd/lib/input/TextArea";
+import { Input } from "antd";
+import type { TextAreaProps, TextAreaRef } from "antd/es/input/TextArea";
 import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
 
@@ -6,7 +7,7 @@ type Props = {
   isError?: boolean;
 } & TextAreaProps;
 
-const TextArea = forwardRef<HTMLInputElement, Props>(
+const TextArea = forwardRef<TextAreaRef, Props>(
   ({ value, isError, maxLength, required, ...props }, ref) => {
     const status = useMemo(() => {
       if (
@@ -19,7 +20,7 @@ const TextArea = forwardRef<HTMLInputElement, Props>(
     }, [required, isError, maxLength, value]);
 
     return (
-      <AntTextArea
+      <Input.TextArea
         count={{
           max: maxLength,
           strategy: txt => runes(txt).length,
@@ -34,4 +35,4 @@ const TextArea = forwardRef<HTMLInputElement, Props>(
 );
 
 export default TextArea;
-export type { TextAreaProps };
+export type { TextAreaProps, TextAreaRef };

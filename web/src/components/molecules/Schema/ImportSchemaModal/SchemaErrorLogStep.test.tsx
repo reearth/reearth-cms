@@ -45,8 +45,8 @@ describe("SchemaErrorLogStep", () => {
   test("renders table with Location and Detail columns", () => {
     render(<SchemaErrorLogStep errorLogMeta={mockErrorLogMeta} />);
 
-    expect(screen.getByText(t("Location"))).toBeInTheDocument();
-    expect(screen.getByText(t("Detail"))).toBeInTheDocument();
+    expect(screen.getAllByText(t("Location"))[0]).toBeInTheDocument();
+    expect(screen.getAllByText(t("Detail"))[0]).toBeInTheDocument();
   });
 
   test("renders table rows with formatted schema paths", () => {
