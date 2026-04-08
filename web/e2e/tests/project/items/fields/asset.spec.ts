@@ -86,6 +86,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
     await contentPage.backButton.click();
     await contentPage.cancelButton.click();
+    await expect(page.locator(".ant-notification-notice")).toHaveCount(0, { timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
