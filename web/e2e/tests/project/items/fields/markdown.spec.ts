@@ -29,8 +29,7 @@ test("Markdown field editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.lastColumn.click();
   await fieldEditorPage.defaultValueTextInput.fill("text1 default value");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
   await expect(fieldEditorPage.fieldText("text1", "text1")).toBeVisible();
   await fieldEditorPage.ellipsisMenuButton.click();
   await expect(fieldEditorPage.displayNameInput).toBeVisible();
@@ -52,8 +51,7 @@ test("Markdown field editing has succeeded", async ({
   await expect(contentPage.getByText("text1", { exact: true })).toBeVisible();
   await expect(contentPage.mainRole).toContainText("text1 description");
   await expect(contentPage.getByText("text1 default value").last()).toBeVisible();
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButtonLabel.click();
   await contentPage.tableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText("text1text1 default value");
@@ -81,8 +79,7 @@ test("Markdown field editing has succeeded", async ({
   await fieldEditorPage.lastTextbox.fill("text1");
   await fieldEditorPage.firstArrowDownButton.click();
   await expect(fieldEditorPage.secondTextContainer).toContainText("text1");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
   await expect(fieldEditorPage.uniqueFieldText("new text1", "new-text1")).toBeVisible();
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new text1");
@@ -94,8 +91,7 @@ test("Markdown field editing has succeeded", async ({
   await expect(contentPage.fieldDescriptionText("new text1 description")).toBeVisible();
   await expect(contentPage.firstTextContainer).toContainText("text2");
   await expect(contentPage.secondTextContainer).toContainText("text1");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButtonLabel.click();
   await contentPage.x2Button.click();
   await expect(contentPage.mainRole).toContainText("new text1text2text1");
@@ -114,8 +110,7 @@ test("Markdown field editing has succeeded", async ({
   await fieldEditorPage.arrowUpButtonByIndex(1).click();
   await expect(contentPage.firstTextContainer).toContainText("text2");
   await expect(contentPage.secondTextContainer).toContainText("text");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButtonLabel.click();
   await contentPage.getByRole("button", { name: "x2" }).nth(1).click();
   await expect(contentPage.mainRole).toContainText("new text1text2text");

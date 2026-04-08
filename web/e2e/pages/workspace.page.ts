@@ -118,15 +118,13 @@ export class WorkspacePage extends BasePage {
     await this.getByRole("button", { name: "Create a Workspace" }).click();
     await this.getByLabel("Workspace name").click();
     await this.getByLabel("Workspace name").fill(name);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async deleteWorkspace(): Promise<void> {
     await this.getByText("Workspace Settings", { exact: true }).click();
     await this.getByRole("button", { name: "Remove Workspace" }).click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async clickPagination(page: number): Promise<void> {
