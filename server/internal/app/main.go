@@ -29,6 +29,9 @@ func Start(debug bool, version string) {
 	}
 	log.Infof("config: %s", conf.Print())
 
+	// Init telemetry
+	defer initTelemetry(ctx, conf.Otel1())()
+
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
@@ -76,7 +79,7 @@ type ApplicationContext struct {
 	HealthChecker *HealthChecker
 }
 
-func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
+func NewServer(_ context.Context, appCtx *ApplicationContext) *WebServer {
 	w := &WebServer{
 		debug: appCtx.Debug,
 	}
@@ -159,7 +162,7 @@ func (w *WebServer) HttpShutdown(ctx context.Context) error {
 	return nil
 }
 
-func (w *WebServer) GrpcShutdown(ctx context.Context) error {
+func (w *WebServer) GrpcShutdown(_ context.Context) error {
 	if w.internalServer != nil {
 		w.internalServer.GracefulStop()
 	}

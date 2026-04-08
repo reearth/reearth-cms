@@ -57,8 +57,7 @@ test.describe("Json file tests", () => {
     // change type
     await assetsPage.typeSelectTrigger.click();
     await assetsPage.typeOption("GEOJSON/KML/CZML").click();
-    await assetsPage.saveButton.click();
-    await assetsPage.closeNotification();
+    await assetsPage.clickAndExpectSuccess(assetsPage.saveButton);
 
     // Cesium canvas is rendered (attached to DOM) but Playwright considers it
     // hidden because the WebGL canvas is not passing visibility checks.
@@ -105,8 +104,7 @@ test.describe("Json file tests", () => {
     // cleanup
     await assetsPage.backButton.click();
     await assetsPage.selectAssetCheckbox.check();
-    await assetsPage.deleteButton.click();
-    await assetsPage.closeNotification();
+    await assetsPage.clickAndExpectSuccess(assetsPage.deleteButton);
   });
 
   test("Comment CRUD on edit page has succeeded", async ({ assetsPage, contentPage }) => {
@@ -118,6 +116,7 @@ test.describe("Json file tests", () => {
   });
 
   test("Comment CRUD on Asset page has succeeded", async ({ assetsPage, contentPage }) => {
+    await expect(assetsPage.commentsCountButton(0)).toBeVisible();
     await assetsPage.commentsCountButton(0).click();
     await contentPage.createComment("comment");
     await contentPage.updateComment("comment", "new comment");
@@ -128,27 +127,27 @@ test.describe("Json file tests", () => {
 test("Previewing png file on modal has succeeded", async ({ assetsPage, page }) => {
   await test.step("Upload PNG file via URL", async () => {
     await assetsPage.uploadViaUrl(pngUrl);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Open asset editor and verify asset type", async () => {
     await expect(assetsPage.editIconButton).toBeVisible();
     await assetsPage.editIconButton.click();
     await expect(assetsPage.assetTypeText).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Open fullscreen preview and verify image", async () => {
     await expect(assetsPage.fullscreenButton).toBeVisible();
     await assetsPage.fullscreenButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
     await expect(assetsPage.imagePreview).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Close fullscreen preview", async () => {
     await expect(assetsPage.fullscreenCloseButton).toBeVisible();
     await assetsPage.fullscreenCloseButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
