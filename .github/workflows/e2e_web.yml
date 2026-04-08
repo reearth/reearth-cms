@@ -120,6 +120,15 @@ jobs:
           echo "REEARTH_CMS_API is $REEARTH_CMS_API"
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
           echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
+          echo "::group::Playwright setup"
+          echo "smoke: ${{ inputs.smoke_only && 'true' || 'false' }}"
+          echo "workers: 1"
+          echo "retries: 4"
+          echo "maxFailures: 4"
+          echo "fullyParallel: false"
+          echo "slowMo: 300ms"
+          echo "shards: none"
+          echo "::endgroup::"
       - name: Run Playwright tests
         timeout-minutes: 120
         env:
