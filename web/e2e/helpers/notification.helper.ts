@@ -9,9 +9,12 @@ export async function clickAndExpectSuccess(
 ): Promise<void> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
+      // Capture current notification count BEFORE clicking so closeNotification
+      // can wait for a genuinely new notice rather than resolving on a stale one.
+      const initialNoticeCount = await page.locator(".ant-notification-notice").count();
       // Start watching for notification BEFORE clicking to avoid race
       // with the 2s auto-dismiss
-      const notificationPromise = closeNotification(page, true);
+      const notificationPromise = closeNotification(page, true, initialNoticeCount);
       await waitForGraphQL(page, () => clickTarget.click());
       await notificationPromise;
       return;
@@ -26,7 +29,19 @@ export async function clickAndExpectSuccess(
   }
 }
 
-export async function closeNotification(page: Page, isSuccess = true) {
+export async function closeNotification(page: Page, isSuccess = true, initialNoticeCount?: number) {
+  // If an initial count is provided, wait for a new notification to appear
+  // (count must exceed the baseline) before proceeding. This prevents
+  // Promise.race from resolving immediately against a stale notice from a
+  // prior action when called via clickAndExpectSuccess.
+  if (initialNoticeCount !== undefined) {
+    await page.waitForFunction(
+      (count: number) => document.querySelectorAll(".ant-notification-notice").length > count,
+      initialNoticeCount,
+      { timeout: 10_000 },
+    );
+  }
+
   const successNotice = page
     .locator(".ant-notification-notice")
     .filter({

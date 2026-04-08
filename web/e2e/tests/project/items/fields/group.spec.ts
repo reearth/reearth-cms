@@ -9,11 +9,11 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   await projectPage.createModelFromOverview();
 });
 
-test.afterEach(async ({ projectPage }) => {
+test.afterEach(async ({ projectPage }, testInfo) => {
   try {
     await projectPage.deleteProject();
-  } catch {
-    // Cleanup failure should not cascade to next retry
+  } catch (error) {
+    console.error(`[${testInfo.title}] Cleanup (deleteProject) failed:`, error);
   }
 });
 
