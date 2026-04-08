@@ -25,6 +25,7 @@ const (
 	// CMS Schema Resources
 	ResourceModel  Resource = "model"
 	ResourceSchema Resource = "schema"
+	ResourceGroup  Resource = "group"
 
 	// CMS Content Resources
 	ResourceItem  Resource = "item"
@@ -156,6 +157,18 @@ var ResourceRules = []generator.ResourceRule{
 			ActionRead:   {Roles: allRoles},
 			ActionList:   {Roles: allRoles},
 			ActionUpdate: {Roles: writerAndAbove},
+		},
+	},
+
+	// ========== Group ==========
+	{
+		Resource: ResourceGroup,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionCreate: {Roles: maintainerAndAbove},
+			ActionUpdate: {Roles: maintainerAndAbove},
+			ActionDelete: {Roles: maintainerAndAbove},
 		},
 	},
 
