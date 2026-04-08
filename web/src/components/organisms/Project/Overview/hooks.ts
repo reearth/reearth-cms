@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@apollo/client/react";
-import fileDownload from "js-file-download";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -13,18 +12,18 @@ import {
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
-  ExportFormat as GQLExportFormat,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   DeleteModelDocument,
-  ExportModelDocument,
-  ExportModelSchemaDocument,
   GetModelsDocument,
   UpdateModelDocument,
 } from "@reearth-cms/gql/__generated__/model.generated";
 import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
+
+import { useExportContent } from "../hooks/useExportContent";
+import { useExportSchema } from "../hooks/useExportSchema";
 
 export default () => {
   const [currentProject] = useProject();
@@ -77,10 +76,10 @@ export default () => {
         },
       });
       if (Project.error || !Project.data?.updateProject) {
-        Notification.error({ title: t("Failed to update Project.") });
+        Notification.error({ message: t("Failed to update Project.") });
         return;
       }
-      Notification.success({ title: t("Successfully updated Project!") });
+      Notification.success({ message: t("Successfully updated Project!") });
     },
     [updateProjectMutation, t],
   );
@@ -134,9 +133,9 @@ export default () => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
       if (res.error || !res.data?.deleteModel) {
-        Notification.error({ title: t("Failed to delete model.") });
+        Notification.error({ message: t("Failed to delete model.") });
       } else {
-        Notification.success({ title: t("Successfully deleted model!") });
+        Notification.success({ message: t("Successfully deleted model!") });
         handleModelDeletionModalClose();
       }
     },
@@ -159,98 +158,38 @@ export default () => {
         },
       });
       if (model.error || !model.data?.updateModel) {
-        Notification.error({ title: t("Failed to update model.") });
+        Notification.error({ message: t("Failed to update model.") });
         return;
       }
-      Notification.success({ title: t("Successfully updated model!") });
+      Notification.success({ message: t("Successfully updated model!") });
       handleModelModalClose();
     },
     [updateNewModel, handleModelModalClose, t],
   );
 
-  const [exportModel, { loading: exportModelLoading }] = useMutation(ExportModelDocument);
-  const [exportModelSchema, { loading: exportSchemaLoading }] =
-    useMutation(ExportModelSchemaDocument);
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
+  const { handleExportSchema, exportSchemaLoading } = useExportSchema();
 
-  const exportLoading = exportModelLoading || exportSchemaLoading;
-
-  const getFilenameFromFormat = useCallback((modelId: string, format: ExportFormat): string => {
-    switch (format) {
-      case ExportFormat.Schema:
-        return `${modelId}-schema.json`;
-      case ExportFormat.Json:
-        return `${modelId}-data.json`;
-      case ExportFormat.Csv:
-        return `${modelId}-data.csv`;
-      case ExportFormat.Geojson:
-        return `${modelId}-data.geojson`;
-      default:
-        return `${modelId}-data.json`;
-    }
-  }, []);
-
-  const downloadFile = useCallback(
-    async (url: string, filename: string) => {
-      try {
-        const response = await fetch(url, { method: "GET" });
-        if (!response.ok) {
-          throw new Error(`Failed to download ${filename}`);
-        }
-        const blob = await response.blob();
-        fileDownload(blob, filename);
-        Notification.success({
-          title: t("Download successful"),
-          description: filename,
-        });
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("Download error:", errorMessage);
-        Notification.error({
-          title: t("Download failed"),
-          description: errorMessage,
-        });
-      }
-    },
-    [t],
+  const exportLoading = useMemo<boolean>(
+    () => exportContentLoading || exportSchemaLoading,
+    [exportContentLoading, exportSchemaLoading],
   );
 
   const handleModelExport = useCallback(
-    async (modelId?: string, format?: ExportFormat): Promise<void> => {
+    async (
+      modelId?: string,
+      format?: ExportFormat,
+      geometryFieldsCount?: number,
+    ): Promise<void> => {
       if (!modelId || !format) return;
 
-      try {
-        if (format === ExportFormat.Schema) {
-          // Export schema
-          const res = await exportModelSchema({ variables: { modelId } });
-          if (res.error || !res.data?.exportModelSchema) {
-            throw new Error(t("Failed to export schema."));
-          }
-          const url = res.data.exportModelSchema.url;
-          const filename = getFilenameFromFormat(modelId, format);
-          await downloadFile(url, filename);
-        } else {
-          // Export model data (JSON, CSV, or GeoJSON)
-          const exportFormat = format as GQLExportFormat;
-          const res = await exportModel({
-            variables: { modelId, format: exportFormat },
-          });
-          if (res.error || !res.data?.exportModel) {
-            throw new Error(t("Failed to export model data."));
-          }
-          const url = res.data.exportModel.url;
-          const filename = getFilenameFromFormat(modelId, format);
-          await downloadFile(url, filename);
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("Export error:", errorMessage);
-        Notification.error({
-          title: t("Export failed"),
-          description: errorMessage,
-        });
+      if (format === ExportFormat.Schema) {
+        await handleExportSchema(modelId);
+      } else {
+        await handleContentExportClick(modelId, format, geometryFieldsCount);
       }
     },
-    [exportModel, exportModelSchema, t, downloadFile, getFilenameFromFormat],
+    [handleContentExportClick, handleExportSchema],
   );
 
   const handleHomeNavigation = useCallback(() => {
