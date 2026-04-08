@@ -65,12 +65,17 @@ func (p IssueUploadAssetParam) GetOrGuessContentType() string {
 	return mime.TypeByExtension(path.Ext(p.Filename))
 }
 
+type Predicate func(FileEntry) bool
+
 type File interface {
 	ReadAsset(context.Context, string, string, map[string]string) (io.ReadCloser, map[string]string, error)
 	GetAssetFiles(context.Context, string) ([]FileEntry, error)
 	UploadAsset(context.Context, *file.File) (string, int64, error)
 	Read(context.Context, string, map[string]string) (io.ReadCloser, map[string]string, error)
 	Upload(context.Context, *file.File, string) (int64, error)
+	Delete(context.Context, string) error
+	DeleteByPrefix(context.Context, string, Predicate) error
+	ListByPrefix(context.Context, string) ([]string, error)
 	DeleteAsset(context.Context, string, string) error
 	DeleteAssets(context.Context, []string) error
 	PublishAsset(context.Context, string, string) error
