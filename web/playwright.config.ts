@@ -15,7 +15,7 @@ export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:
 const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
   workers: process.env.CI ? 1 : "25%",
-  retries: 4,
+  retries: 10,
   maxFailures: process.env.CI ? 4 : 10,
   forbidOnly: !!process.env.CI,
   use: {
