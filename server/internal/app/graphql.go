@@ -71,7 +71,11 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		Cache: lru.New[string](100),
 	})
 
-	srv.Use(otelgqlgen.Middleware())
+	srv.Use(otelgqlgen.Middleware(
+		otelgqlgen.WithCreateSpanFromFields(func(fCtx *graphql.FieldContext) bool {
+			return fCtx.IsResolver || fCtx.IsMethod
+		}),
+	))
 
 	if conf.ComplexityLimit > 0 {
 		srv.Use(extension.FixedComplexityLimit(conf.ComplexityLimit))

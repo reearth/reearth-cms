@@ -5,14 +5,17 @@ services:
       context: .
     environment:
       REEARTH_DB: mongodb://reearth-cms-mongo
+      REEARTH_CMS_OTEL_ENDPOINT: http://jaeger:4318
     ports:
       - '8080:8080'
     # env_file:
     #   - ./.env
     links:
       - reearth-cms-mongo
+      - jaeger
     depends_on:
       - reearth-cms-mongo
+      - jaeger
     volumes:
       - ./data:/reearth/data
   reearth-cms-mongo:
@@ -21,3 +24,8 @@ services:
       - 27017:27017
     volumes:
       - ./mongo:/data/db
+  jaeger:
+    image: jaegertracing/jaeger:2.17.0
+    ports:
+      - '4318:4318'   # OTLP HTTP (ingest from app)
+      - '16686:16686' # Jaeger UI
