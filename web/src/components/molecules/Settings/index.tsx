@@ -16,6 +16,7 @@ import {
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   loading: boolean;
@@ -209,28 +210,28 @@ const Settings: React.FC<Props> = ({
 export default Settings;
 
 const Title = styled.h3`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
-  margin-bottom: 4px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
 const SecondaryText = styled.p`
-  color: #00000073;
-  margin-bottom: 12px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  margin-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
 const Text = styled.p`
-  color: rgb(0, 0, 0, 0.85);
-  font-weight: 500;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
 `;
 
 const SwitchWrapper = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const ButtonWrapper = styled.div`
-  padding: 12px 0;
+  padding: ${AntdToken.SPACING.SM}px 0;
 `;

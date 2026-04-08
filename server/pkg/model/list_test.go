@@ -86,3 +86,30 @@ func TestList_Model(t *testing.T) {
 	assert.Equal(t, m1, models.Model(m1.ID()))
 	assert.Nil(t, models.Model(id.NewModelID()))
 }
+
+func TestList_SchemaIDs(t *testing.T) {
+	t.Parallel()
+
+	pid := id.NewProjectID()
+	sid1 := id.NewSchemaID()
+	sid2 := id.NewSchemaID()
+	m1 := New().NewID().Project(pid).Schema(sid1).Key(id.NewKey("key1")).Order(0).MustBuild()
+	m2 := New().NewID().Project(pid).Schema(sid2).Key(id.NewKey("key2")).Order(1).MustBuild()
+
+	t.Run("returns schema IDs for all models", func(t *testing.T) {
+		t.Parallel()
+		got := List{m1, m2}.SchemaIDs()
+		assert.Equal(t, id.SchemaIDList{sid1, sid2}, got)
+	})
+
+	t.Run("skips nil entries", func(t *testing.T) {
+		t.Parallel()
+		got := List{m1, nil, m2}.SchemaIDs()
+		assert.Equal(t, id.SchemaIDList{sid1, sid2}, got)
+	})
+
+	t.Run("empty list returns nil", func(t *testing.T) {
+		t.Parallel()
+		assert.Nil(t, List{}.SchemaIDs())
+	})
+}

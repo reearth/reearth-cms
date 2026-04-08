@@ -135,10 +135,14 @@ func (i *Item) UpdateFields(fields []*Field) {
 			if g == nil || f == nil {
 				return false
 			}
-			if g.group == nil || f.group == nil {
-				return g.FieldID() == f.FieldID()
+			if g.FieldID() != f.FieldID() {
+				return false
 			}
-			return g.FieldID() == f.FieldID() && *g.group == *f.group
+			// both must have the same group: both nil or both equal
+			if g.group == nil && f.group == nil {
+				return true
+			}
+			return g.group != nil && f.group != nil && *g.group == *f.group
 		})
 
 		if !found {
@@ -240,6 +244,54 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 	})
 	return lo.FilterMap(ids, func(v *value.Value, _ int) (AssetID, bool) {
 		return v.ValueAsset()
+	})
+}
+
+func (i *Item) refItemsIDs(sp schema.Package, filter func(*schema.Field) bool) IDList {
+	sRefFields := sp.FieldsByType(value.TypeReference)
+	if len(sRefFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sRefFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sRefFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if filter != nil && !filter(sf) {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	validIDs := lo.FilterMap(ids, func(v *value.Value, _ int) (ID, bool) {
+		if refID, ok := v.Value().(ID); ok {
+			return refID, true
+		}
+		return ID{}, false
+	})
+	return lo.Uniq(validIDs)
+}
+
+func (i *Item) RefItemsIDs(sp schema.Package) IDList {
+	return i.refItemsIDs(sp, nil)
+}
+
+func (i *Item) RefItemsIDsByModels(sp schema.Package, modelIDs id.ModelIDList) IDList {
+	return i.refItemsIDs(sp, func(sf *schema.Field) bool {
+		found := false
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(rf *schema.FieldReference) {
+				if modelIDs.Has(rf.Model()) {
+					found = true
+				}
+			},
+		})
+		return found
 	})
 }
 

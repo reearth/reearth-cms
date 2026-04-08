@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string;
@@ -41,9 +42,9 @@ const Wrapper = styled.span`
 `;
 
 const FieldUnique = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const TagWrapper = styled.span`
@@ -53,7 +54,7 @@ const TagWrapper = styled.span`
 `;
 
 const ItemTitleTag = styled(Tag)`
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #fafafa;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
   margin: 0;
 `;

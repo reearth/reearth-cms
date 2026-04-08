@@ -8,6 +8,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
@@ -45,14 +46,14 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             <span
               data-testid={DATA_TEST_ID.QueueItem__CancelIcon}
               onClick={() => void onCancel(queue.jobId)}>
-              <ActionIcon icon="closeCircle" color="#8C8C8C" />
+              <ActionIcon icon="closeCircle" color={AntdColor.GREY.GREY_2} />
             </span>
           </Tooltip>
         );
       case JobStatus.Completed:
         return (
           <span data-testid={DATA_TEST_ID.Uploader__CompleteIcon}>
-            <InfoIcon icon="checkCircle" color="#52C41A" />
+            <InfoIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} />
           </span>
         );
       case JobStatus.Failed:
@@ -62,11 +63,11 @@ const QueueItem: React.FC<Props> = (props: Props) => {
               <span
                 data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
                 onClick={() => void onRetry(queue.jobId)}>
-                <ActionIcon icon="retry" color="#8C8C8C" />
+                <ActionIcon icon="retry" color={AntdColor.GREY.GREY_2} />
               </span>
             </Tooltip>
             <span data-testid={DATA_TEST_ID.QueueItem__ErrorIcon}>
-              <InfoIcon icon="exclamationSolid" color="#F5222D" />
+              <InfoIcon icon="exclamationSolid" color={AntdColor.RED.RED_5} />
             </span>
           </>
         );
@@ -76,7 +77,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             <span
               data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
               onClick={() => void onRetry(queue.jobId)}>
-              <ActionIcon icon="retry" color="#8C8C8C" />
+              <ActionIcon icon="retry" color={AntdColor.GREY.GREY_2} />
             </span>
           </Tooltip>
         );
@@ -103,7 +104,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
     <ItemWrapper data-testid={DATA_TEST_ID.QueueItem__Wrapper}>
       <ItemUpper>
         <UpperLeft>
-          <InfoIcon icon="clip" color="#8C8C8C" />
+          <InfoIcon icon="clip" color={AntdColor.GREY.GREY_2} />
           <Tooltip title={queue.fileName}>
             {queue.jobState.status === JobStatus.Completed ? (
               <Link to={queue.url} target="_blank" data-testid={DATA_TEST_ID.QueueItem__FileLink}>
@@ -133,18 +134,18 @@ const QueueItem: React.FC<Props> = (props: Props) => {
 };
 
 const ItemWrapper = styled.div`
-  padding: 8px 0;
+  padding: ${AntdToken.SPACING.XS}px 0;
 
   :first-of-type {
-    padding: 0 0 8px 0;
+    padding: 0 0 ${AntdToken.SPACING.XS}px 0;
   }
 
   :last-child {
-    padding: 8px 0 0 0;
+    padding: ${AntdToken.SPACING.XS}px 0 0 0;
   }
 
   :not(:last-child) {
-    border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+    border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SPLIT};
   }
 `;
 
@@ -152,20 +153,20 @@ const ItemUpper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  line-height: 22px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 const ItemLower = styled.div``;
 
 const UpperLeft = styled.div`
   display: flex;
-  gap: 8px;
-  font-size: 14px;
+  gap: ${AntdToken.SPACING.XS}px;
+  font-size: ${AntdToken.FONT.SIZE}px;
 `;
 
 const UpperRight = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   align-items: center;
 `;
 
@@ -190,10 +191,10 @@ const InfoIcon = styled(Icon)`
 `;
 
 const ErrorMessage = styled(Tooltip)`
-  color: #f5222d;
-  font-size: 12px;
+  color: ${AntdColor.RED.RED_5};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   padding-left: 22px;
-  line-height: 20px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -201,10 +202,10 @@ const ErrorMessage = styled(Tooltip)`
 `;
 
 const Message = styled.div`
-  color: #8c8c8c;
-  font-size: 12px;
+  color: ${AntdColor.GREY.GREY_2};
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   padding-left: 22px;
-  line-height: 22px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 const FileName = styled.div`

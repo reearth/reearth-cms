@@ -116,7 +116,7 @@ func Test_updateProject(t *testing.T) {
 				got.Accessibility.Keys[0].ID = ""
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
+			assert.Equal(t, &tt.want, got)
 		})
 	}
 }

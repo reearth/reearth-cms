@@ -14,6 +14,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../types";
 
@@ -196,12 +197,12 @@ const LinkItemModal: React.FC<Props> = ({
       open={visible}
       title={linkItemModalTitle}
       centered
-      width="70vw"
+      width={CustomToken.MODAL.WIDTH_LG}
       footer={null}
       onCancel={onLinkItemModalCancel}
       styles={{
         body: {
-          height: "70vh",
+          height: CustomToken.MODAL.HEIGHT_LG,
         },
       }}>
       <ResizableProTable
@@ -227,7 +228,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

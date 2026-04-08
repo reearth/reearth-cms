@@ -772,7 +772,7 @@ func TestCreateItem(t *testing.T) {
 
 	sId, _, _ := getModel(e, mId)
 
-	createItem(e, mId, sId, nil, []map[string]any{
+	iId, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test", "type": "Text"},
 		{"schemaFieldId": fids.textAreaFId, "value": "test", "type": "TextArea"},
 		{"schemaFieldId": fids.markdownFId, "value": "test", "type": "MarkdownText"},
@@ -782,8 +782,24 @@ func TestCreateItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
-		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": map[string]any{"type": "Point", "coordinates": []float64{102.0, 0.5}}, "type": "GeometryEditor"},
 	})
+
+	_, res := getItem(e, iId)
+	fields := res.Path("$.data.node.fields[:].value").Raw().([]any)
+	assert.Equal(t, []any{
+		"test", "test", 
+		"test", 
+		nil, 
+		true, 
+		"s1", 
+		float64(1), 
+		nil, 
+		"https://www.1s.com", 
+		nil, nil, nil, 
+		"{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", 
+		"{\"coordinates\":[102,0.5],\"type\":\"Point\"}",
+	}, fields)
 
 }
 

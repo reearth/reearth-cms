@@ -46,6 +46,8 @@ import {
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
@@ -90,6 +92,7 @@ export type Props = {
   onRequestTableReload: () => void;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
   onImportModalOpen: () => void;
@@ -137,6 +140,7 @@ const ContentTable: React.FC<Props> = ({
   hasDeleteRight,
   hasPublishRight,
   hasRequestUpdateRight,
+  hasCreateRight,
   showPublishAction,
   onImportModalOpen,
   hasModelFields,
@@ -161,7 +165,11 @@ const ContentTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, contentField) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onItemEdit(contentField.id)}
+          />
         ),
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
@@ -182,7 +190,7 @@ const ContentTable: React.FC<Props> = ({
             <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
               <CustomTag
                 value={item.comments?.length || 0}
-                color={item.id === selectedItem?.id ? "#87e8de" : undefined}
+                color={item.id === selectedItem?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </StyledButton>
           );
@@ -299,7 +307,7 @@ const ContentTable: React.FC<Props> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="link"
             size="small"
@@ -784,6 +792,12 @@ const ContentTable: React.FC<Props> = ({
     [setCurrentView, tableColumns],
   );
 
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
+
   return (
     <>
       {contentTableColumns ? (
@@ -830,19 +844,18 @@ const ContentTable: React.FC<Props> = ({
           locale={{
             emptyText: (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
-                <Trans
-                  i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
-                  components={{
-                    l: (
-                      <ImportButton
-                        type="link"
-                        onClick={onImportModalOpen}
-                        disabled={!hasModelFields}>
-                        import
-                      </ImportButton>
-                    ),
-                  }}
-                />
+                {!getImportContentUIMetadata.shouldDisable && (
+                  <Trans
+                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                    components={{
+                      l: (
+                        <ImportButton type="link" onClick={onImportModalOpen}>
+                          import
+                        </ImportButton>
+                      ),
+                    }}
+                  />
+                )}
               </Empty>
             ),
           }}
@@ -878,12 +891,12 @@ const StyledSearchContainer = styled.div`
 `;
 
 const StyledFilterSpace = styled(Space)`
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   overflow-x: auto;
 `;
 
 const StyledFilterButton = styled(Button)`
-  color: rgba(0, 0, 0, 0.25);
+  color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};
 `;
 
 const StyledFilterWrapper = styled.div`
@@ -896,7 +909,7 @@ const StyledFilterWrapper = styled.div`
     text-align: start;
   }
   overflow: auto;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   .ant-pro-form-light-filter-item {
     margin: 0;
   }
@@ -905,12 +918,12 @@ const StyledFilterWrapper = styled.div`
 const IconWrapper = styled.span`
   cursor: pointer;
   &:hover {
-    color: #40a9ff;
+    color: ${AntdColor.BLUE.BLUE_4}; /* originally #40a9ff */
   }
 `;
 
 const InputWrapper = styled.div`
-  padding: 8px 10px;
+  padding: ${AntdToken.SPACING.XS}px 10px;
 `;
 
 const ImportButton = styled(Button)`
@@ -918,11 +931,8 @@ const ImportButton = styled(Button)`
 `;
 
 const Wrapper = styled.div`
-  background-color: #fff;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 6px 16px 0 rgba(0, 0, 0, 0.08),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  box-shadow: ${AntdToken.SHADOW.SECONDARY};
   .ant-dropdown-menu {
     box-shadow: none;
     overflow-y: auto;

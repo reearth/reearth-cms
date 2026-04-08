@@ -16,6 +16,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
@@ -135,18 +136,15 @@ export default DropdownRender;
 
 const StyledForm = styled(Form)`
   background-color: white;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 6px 16px 0 rgba(0, 0, 0, 0.08),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: ${AntdToken.SHADOW.SECONDARY};
 `;
 
 const Container = styled.div`
-  padding: 9px 12px 0;
+  padding: 9px ${AntdToken.SPACING.SM}px 0;
 `;
 
 const StyledFormItem = styled(Form.Item)`
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const TextWrapper = styled.span`
@@ -164,5 +162,5 @@ const StyledDivider = styled(Divider)`
 
 const ButtonsFormItem = styled(Form.Item)`
   text-align: right;
-  padding: 8px 4px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.XXS}px;
 `;

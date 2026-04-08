@@ -43,6 +43,37 @@ func TestNewSchema(t *testing.T) {
 	}
 }
 
+func TestNewSchemas(t *testing.T) {
+	t.Parallel()
+
+	wId, pId := user.NewWorkspaceID(), project.NewID()
+	s1 := schema.New().NewID().Workspace(wId).Project(pId).MustBuild()
+	s2 := schema.New().NewID().Workspace(wId).Project(pId).MustBuild()
+
+	t.Run("converts all schemas", func(t *testing.T) {
+		t.Parallel()
+		docs, ids := NewSchemas(schema.List{s1, s2})
+		assert.Len(t, docs, 2)
+		assert.Len(t, ids, 2)
+		assert.Equal(t, s1.ID().String(), ids[0])
+		assert.Equal(t, s2.ID().String(), ids[1])
+	})
+
+	t.Run("skips nil entries", func(t *testing.T) {
+		t.Parallel()
+		docs, ids := NewSchemas(schema.List{s1, nil, s2})
+		assert.Len(t, docs, 2)
+		assert.Len(t, ids, 2)
+	})
+
+	t.Run("empty list returns empty slices", func(t *testing.T) {
+		t.Parallel()
+		docs, ids := NewSchemas(schema.List{})
+		assert.Empty(t, docs)
+		assert.Empty(t, ids)
+	})
+}
+
 func TestNewSchemaConsumer(t *testing.T) {
 	c := NewSchemaConsumer()
 	assert.NotNil(t, c)

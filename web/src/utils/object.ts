@@ -10,6 +10,10 @@ type JsonObject = {
 };
 type JsonArray = {} & JsonValue[];
 
+type ValidateGeoJson = (
+  raw: Record<string, unknown> | string | GeoJSON,
+) => Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }>;
+
 export abstract class ObjectUtils {
   public static shallowEqual(
     obj1: Record<string, unknown>,
@@ -77,34 +81,26 @@ export abstract class ObjectUtils {
     return typeof value === "object" && value !== null && !Array.isArray(value);
   }
 
-  public static validateGeoJson(
-    raw: Record<string, unknown> | string | GeoJSON,
-  ): Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }> {
-    return new Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }>(
-      (resolve, reject) => {
-        setTimeout(() => {
-          const timer = new PerformanceTimer("validateGeoJson");
+  public static validateGeoJson: ValidateGeoJson = raw => {
+    return new Promise<Awaited<ReturnType<ValidateGeoJson>>>(resolve => {
+      setTimeout(() => {
+        const timer = new PerformanceTimer("validateGeoJson");
 
-          const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
-          const issues: HintIssue[] = getIssues(parseRaw);
+        const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
+        const issues: HintIssue[] = getIssues(parseRaw);
 
-          if (issues.length > 0) {
-            reject({
-              isValid: false,
-              error: JSON.stringify(
-                issues.map(issue => issue.message),
-                null,
-                2,
-              ),
-            });
-          } else {
-            const data = check(parseRaw);
-            resolve({ isValid: true, data });
-          }
+        if (issues.length > 0) {
+          resolve({
+            isValid: false,
+            error: issues.map(issue => issue.message).join(", "),
+          });
+        } else {
+          const data = check(parseRaw);
+          resolve({ isValid: true, data });
+        }
 
-          timer.log();
-        }, 0);
-      },
-    );
-  }
+        timer.log();
+      }, 0);
+    });
+  };
 }

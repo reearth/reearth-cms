@@ -1,6 +1,6 @@
 // e2e/pages/content.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
 
@@ -123,7 +123,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
-    return this.getByLabel("more").locator("svg");
+    return this.page.locator("role=tab[selected]").getByLabel("more");
   }
   get renameViewButton(): Locator {
     return this.getByText("Rename");
@@ -705,8 +705,11 @@ export class ContentPage extends BasePage {
 
   // ========== Import Content Locators ==========
 
-  get importContentButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.Content__List__ImportContentButton);
+  get contentMoreButton(): Locator {
+    return this.getByRole("button", { name: "more" });
+  }
+  get importMenuItem(): Locator {
+    return this.getByText("Import", { exact: true });
   }
 
   get importContentModal(): Locator {
@@ -729,24 +732,8 @@ export class ContentPage extends BasePage {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
   }
 
-  get importContentErrorTitle(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle);
-  }
-
-  get importContentErrorDescription(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription);
-  }
-
-  get importContentErrorHint(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint);
-  }
-
   get importContentGoBackButton(): Locator {
-    return this.getByRole("button", { name: "Go Back" });
-  }
-
-  get importContentImportAnywayButton(): Locator {
-    return this.getByRole("button", { name: "Import Anyway" });
+    return this.getByRole("button", { name: /go back/i });
   }
 
   get uploadSuccessNotification(): Locator {
@@ -768,7 +755,8 @@ export class ContentPage extends BasePage {
   // ========== Import Content Actions ==========
 
   async openImportContentModal(): Promise<void> {
-    await this.importContentButton.click();
+    await this.contentMoreButton.click();
+    await this.importMenuItem.click();
     await this.importContentModal.waitFor({ state: "visible" });
   }
 

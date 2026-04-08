@@ -36,7 +36,7 @@ var (
 	pApiA2UUID    = uuid.NewString()
 	pApiP1M1Id    = id.NewModelID()
 	pApiP1S1Id    = id.NewSchemaID()
-	pApiP1M1Key   = "test-model"
+	pApiP1M1Key   = "Test-Model"
 	pApiP1S1F1Key = "test-field-1"
 	pApiP1S1F2Key = "asset"
 	pApiP1S1F3Key = "test-field-2"

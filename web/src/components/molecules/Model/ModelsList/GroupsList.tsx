@@ -8,6 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   selectedKey?: string;
@@ -119,7 +120,7 @@ const GroupsList: React.FC<Props> = ({
 };
 
 const Header = styled.div`
-  padding: 22px 20px 4px 20px;
+  padding: 22px ${AntdToken.SPACING.MD}px ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.MD}px;
 `;
 
 const SchemaAction = styled.div<{ collapsed?: boolean }>`
@@ -129,20 +130,20 @@ const SchemaAction = styled.div<{ collapsed?: boolean }>`
 `;
 
 const SchemaAddButton = styled(Button)`
-  padding: 4px;
+  padding: ${AntdToken.SPACING.XXS}px;
 `;
 
 const SchemaStyledMenuTitle = styled.h1`
   margin: 0;
-  font-weight: 400;
-  font-size: 14px;
-  color: #00000073;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const MenuWrapper = styled.div`
@@ -150,13 +151,13 @@ const MenuWrapper = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  border-bottom: 1px solid #f0f0f0;
-  padding: 12px 0;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  padding: ${AntdToken.SPACING.SM}px 0;
   justify-content: center;
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
-  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+  color: ${({ collapsed }) => (collapsed ? CustomColor.TEXT_DISABLED : undefined)};
 
   .ant-menu-item {
     display: flex;

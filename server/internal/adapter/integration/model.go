@@ -210,7 +210,12 @@ func (s *Server) ModelDelete(ctx context.Context, request ModelDeleteRequestObje
 		return ModelDelete400Response{}, err
 	}
 
-	err = uc.Model.Delete(ctx, wp.Model.ID(), op)
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
+	if err != nil {
+		return ModelDelete400Response{}, err
+	}
+
+	err = uc.Model.Delete(ctx, wp.Model.ID(), *sp, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ModelDelete400Response{}, err

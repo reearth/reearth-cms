@@ -6,9 +6,12 @@ import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comm
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
+
+const { XXS, SM, BASE, LG } = AntdToken.SPACING;
 
 type Props = {
   me?: User;
@@ -93,45 +96,45 @@ const CommentWrapper = styled.div`
     overflow-wrap: anywhere;
   }
   .ant-comment-avatar {
-    background-color: #f5f5f5;
+    background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
     margin-right: 0;
-    padding-right: 12px;
+    padding-right: ${SM}px;
   }
   .ant-comment-content {
-    padding: 12px 24px;
+    padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.LG}px;
     &:before {
       content: "";
       display: block;
       position: absolute;
-      width: 4px;
-      height: 24px;
-      background-color: #d9d9d9;
-      left: 16px;
+      width: ${XXS}px;
+      height: ${LG}px;
+      background-color: ${AntdColor.NEUTRAL.BORDER};
+      left: ${BASE}px;
       top: -30px;
     }
   }
   .ant-comment-actions {
     position: absolute;
-    top: 12px;
-    right: 24px;
+    top: ${SM}px;
+    right: ${LG}px;
     margin: 0;
   }
 `;
 
 const ThreadDivider = styled.div`
-  border-top: 1px solid #d9d9d9;
-  width: calc(100% - 12px);
-  padding: 0 12px;
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  width: calc(100% - ${SM}px);
+  padding: 0 ${SM}px;
 `;
 
 const StyledAntDComment = styled(AntDComment)`
-  margin-top: 16px;
-  background-color: #f5f5f5;
+  margin-top: ${AntdToken.SPACING.BASE}px;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   .ant-comment-inner {
     padding: 0;
   }
   .ant-comment-avatar {
     margin-right: 0;
-    padding-right: 12px;
+    padding-right: ${SM}px;
   }
 `;

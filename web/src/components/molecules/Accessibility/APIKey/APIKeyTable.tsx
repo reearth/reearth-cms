@@ -7,6 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import { APIKey, APIKeyModelType } from "../types";
 
@@ -118,5 +119,5 @@ const APIKeyTable: React.FC<Props> = ({
 export default APIKeyTable;
 
 const TableWrapper = styled.div`
-  margin: 24px 0;
+  margin: ${AntdToken.SPACING.LG}px 0;
 `;

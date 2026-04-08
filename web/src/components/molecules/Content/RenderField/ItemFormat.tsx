@@ -17,6 +17,7 @@ import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   item: string;
@@ -137,10 +138,16 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
           <Tooltip
             arrow={false}
             placement="right"
-            color="#fff"
+            color={AntdColor.NEUTRAL.BG_WHITE}
             overlayStyle={{ paddingLeft: 0 }}
             overlayInnerStyle={{ transform: "translateX(-40px)" }}
-            title={<Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />}>
+            title={
+              <Icon
+                color={AntdColor.BLUE.BLUE_5}
+                icon={"edit"}
+                onClick={() => setIsEditable(true)}
+              />
+            }>
             <UrlWrapper>
               <a href={itemState} target="_blank" rel="noreferrer">
                 {itemState}
@@ -155,7 +162,8 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       );
     case "Reference":
       return (
-        <StyledTag icon={<StyledIcon icon={fieldTypes.Reference.icon} size={14} />}>
+        <StyledTag
+          icon={<StyledIcon icon={fieldTypes.Reference.icon} size={AntdToken.FONT.SIZE} />}>
           {item}
         </StyledTag>
       );
@@ -178,13 +186,13 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
 const AssetValue = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const StyledTag = styled(Tag)`
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -213,7 +221,7 @@ const StyledInput = styled(Input)`
   }
   :focus {
     cursor: text;
-    border-color: #40a9ff;
+    border-color: ${AntdColor.BLUE.BLUE_4};
     ::placeholder {
       color: transparent;
     }
@@ -244,7 +252,7 @@ const StyledDatePicker = styled(DatePicker)`
     border-color: transparent;
   }
   &.ant-picker-focused {
-    border-color: #40a9ff;
+    border-color: ${AntdColor.BLUE.BLUE_4};
   }
 `;
 

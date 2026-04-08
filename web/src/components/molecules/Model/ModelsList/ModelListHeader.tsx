@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
 
-import Icon from "@reearth-cms/components/atoms/Icon";
+import Icon, { type IconName } from "@reearth-cms/components/atoms/Icon";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string;
   collapsed: boolean;
-  titleIcon: string;
+  titleIcon: IconName;
 };
 
 const ModelListHeader: React.FC<Props> = ({ title, collapsed, titleIcon }) => {
@@ -23,14 +24,14 @@ const ModelListHeader: React.FC<Props> = ({ title, collapsed, titleIcon }) => {
 };
 
 const Header = styled.div`
-  padding: 22px 20px 4px 20px;
+  padding: 22px ${AntdToken.SPACING.MD}px ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.MD}px;
 `;
 
 const SchemaStyledTitle = styled.h2``;
 
 const StyledIcon = styled(Icon)`
-  border-bottom: 1px solid #f0f0f0;
-  padding: 12px 20px;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.MD}px;
 `;
 
 export default ModelListHeader;

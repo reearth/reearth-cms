@@ -9,6 +9,7 @@ import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/R
 import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import { AssetProps } from "../../Form/AssetItem";
 import GroupItem from "../../Form/GroupItem";
@@ -38,8 +39,10 @@ const MultiValueGroup: React.FC<Props> = ({
 }) => {
   const t = useT();
 
+  // NOTE: use === null instead of !value to avoid clearing form values
+  // when value is transiently undefined (e.g. group fields mounted after async schema fetch)
   useEffect(() => {
-    if (!value) onChange?.([]);
+    if (value === null) onChange?.([]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
@@ -142,5 +145,5 @@ export default MultiValueGroup;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;

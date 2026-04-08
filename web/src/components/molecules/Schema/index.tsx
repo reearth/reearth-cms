@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react"
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
-import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -13,6 +13,7 @@ import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
@@ -28,6 +29,10 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
+import { ExportSchemaUtils } from "@reearth-cms/utils/exportSchema";
+import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ItemAsset } from "../Content/types";
 
@@ -86,6 +91,9 @@ type Props = {
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   toFileSelectionStep: () => void;
+  onSchemaExport: () => void;
+  exportSchemaLoading: boolean;
+  schemaErrorLogMeta: ErrorLogMeta | null;
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
@@ -144,6 +152,9 @@ const Schema: React.FC<Props> = ({
   toSchemaPreviewStep,
   toImportingStep,
   toFileSelectionStep,
+  onSchemaExport,
+  exportSchemaLoading,
+  schemaErrorLogMeta,
   dataChecking,
   onFileContentChange,
   onFileRemove,
@@ -152,10 +163,27 @@ const Schema: React.FC<Props> = ({
 
   const [tab, setTab] = useState<Tab>("fields");
 
-  const hasFields = useMemo(() => data && data.schema.fields.length > 0, [data]);
-  const disableImport = useMemo(() => !hasUpdateRight || hasFields, [hasUpdateRight, hasFields]);
+  const hasModelFields = useMemo<boolean>(
+    () => (data ? data.schema.fields.length > 0 : false),
+    [data],
+  );
+  const getImportSchemaUIMetadata = useMemo(
+    () =>
+      ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: hasCreateRight,
+        hasModelFields,
+        isFieldTab: tab === "fields",
+        isModel: selectedSchemaType === "model",
+      }),
+    [hasCreateRight, hasModelFields, tab, selectedSchemaType],
+  );
 
-  const dropdownItems = useMemo(
+  const getExportSchemaUIMetadata = useMemo(
+    () => ExportSchemaUtils.getUIMetadata({ hasModelFields, isExportLoading: exportSchemaLoading }),
+    [exportSchemaLoading, hasModelFields],
+  );
+
+  const dropdownItems = useMemo<MenuProps["items"]>(
     () => [
       {
         key: "edit",
@@ -165,19 +193,6 @@ const Schema: React.FC<Props> = ({
         disabled: !hasUpdateRight,
       },
       {
-        key: "import",
-        label: (
-          <Tooltip
-            title={disableImport ? t("Only empty schemas can be imported into") : undefined}
-            data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
-            {t("Import")}
-          </Tooltip>
-        ),
-        icon: <StyledIcon icon="import" />,
-        onClick: onSchemaImportModalOpen,
-        disabled: disableImport,
-      },
-      {
         key: "delete",
         label: t("Delete"),
         icon: <StyledIcon icon="delete" />,
@@ -185,22 +200,58 @@ const Schema: React.FC<Props> = ({
         danger: true,
         disabled: !hasDeleteRight,
       },
+      {
+        type: "divider",
+      },
+      {
+        key: "import",
+        label: (
+          <Tooltip
+            title={getImportSchemaUIMetadata.tooltipMessage}
+            data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
+            <StyledImportMenuItem>
+              <div>{t("Import")}</div>
+              <ExperimentIcon disabled={getImportSchemaUIMetadata.shouldDisable} />
+            </StyledImportMenuItem>
+          </Tooltip>
+        ),
+        icon: <StyledIcon icon="import" />,
+        onClick: onSchemaImportModalOpen,
+        disabled: getImportSchemaUIMetadata.shouldDisable,
+      },
+      {
+        key: "export",
+        icon: <StyledIcon icon="export" />,
+        label: (
+          <Tooltip title={getExportSchemaUIMetadata.tooltipMessage}>
+            {exportSchemaLoading && <StyledIcon icon="loading" />}
+            <span>{t("Export")}</span>
+          </Tooltip>
+        ),
+        onClick: onSchemaExport,
+        disabled: getExportSchemaUIMetadata.shouldDisable,
+      },
     ],
     [
-      onSchemaImportModalOpen,
-      hasDeleteRight,
+      t,
+      onModalOpen,
       hasUpdateRight,
       onDeletionModalOpen,
-      onModalOpen,
-      t,
-      disableImport,
+      hasDeleteRight,
+      getImportSchemaUIMetadata.tooltipMessage,
+      getImportSchemaUIMetadata.shouldDisable,
+      onSchemaImportModalOpen,
+      exportSchemaLoading,
+      getExportSchemaUIMetadata.tooltipMessage,
+      getExportSchemaUIMetadata.shouldDisable,
+      onSchemaExport,
     ],
   );
 
   const DropdownMenu = useCallback(
     () => (
       <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-        <Button type="text" icon={<Icon icon="more" size={20} />} />
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_XL} />} />
       </Dropdown>
     ),
     [dropdownItems],
@@ -216,6 +267,7 @@ const Schema: React.FC<Props> = ({
             fields={data?.schema.fields}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -234,6 +286,7 @@ const Schema: React.FC<Props> = ({
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -270,7 +323,7 @@ const Schema: React.FC<Props> = ({
               <PageHeader
                 title={data.name}
                 subTitle={`#${data.key}`}
-                style={{ backgroundColor: "#fff" }}
+                style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
                 extra={[
                   Constant.IS_DEV && (
                     <Button
@@ -297,9 +350,11 @@ const Schema: React.FC<Props> = ({
               {selectedSchemaType === "group" && (
                 <GroupFieldsWrapper>
                   <ModelFieldList
+                    isGroup={true}
                     fields={data?.schema?.fields}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
+                    hasCreateRight={hasCreateRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                     onFieldReorder={onFieldReorder}
                     onFieldDelete={onFieldDelete}
@@ -347,6 +402,7 @@ const Schema: React.FC<Props> = ({
             onSelectFile={onSelectFileModalOpen}
             onSelectFileModalCancel={onSelectFileModalCancel}
             onModalClose={onSchemaImportModalCancel}
+            schemaErrorLogMeta={schemaErrorLogMeta}
             dataChecking={dataChecking}
             onFileContentChange={onFileContentChange}
             onFileRemove={onFileRemove}
@@ -372,34 +428,39 @@ export default Schema;
 const Content = styled.div`
   width: 100%;
   height: 100%;
-  background: #fafafa;
+  background: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const FieldListWrapper = styled.div`
   height: 100%;
   width: 272px;
-  padding: 12px 12px 0;
+  padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.SM}px 0;
 `;
 
 const StyledTabs = styled(Tabs)`
   max-height: calc(100% - 72px);
   .ant-tabs-nav {
-    padding: 0 24px;
-    margin-bottom: 12px;
-    background: #fff;
+    padding: 0 ${AntdToken.SPACING.LG}px;
+    margin-bottom: ${AntdToken.SPACING.SM}px;
+    background: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
     overflow-y: auto;
-    padding: 0 24px 24px;
+    padding: 0 ${AntdToken.SPACING.LG}px ${AntdToken.SPACING.LG}px;
   }
 `;
 
 const GroupFieldsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-right: 12px;
+  margin-right: ${AntdToken.SPACING.SM}px;
+`;
+
+const StyledImportMenuItem = styled.div`
+  display: flex;
+  gap: ${AntdToken.SPACING.XS}px;
 `;

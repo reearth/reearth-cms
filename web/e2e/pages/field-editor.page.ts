@@ -1,7 +1,7 @@
 // e2e/pages/field-editor.page.ts
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils.ts";
+import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
 

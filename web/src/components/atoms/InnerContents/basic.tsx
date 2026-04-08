@@ -3,6 +3,7 @@ import { Children, ReactNode } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title?: ReactNode;
@@ -45,19 +46,19 @@ const BasicInnerContents: React.FC<Props> = ({
 const PaddedContent = styled(Content)<{ isFullHeight: boolean }>`
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: ${AntdToken.SPACING.BASE}px;
   ${props => props.isFullHeight && "height: 100%;"}
 `;
 
 const Header = styled(PageHeader)`
-  background-color: #fff !important;
-  padding: 24px;
-  margin-bottom: 16px;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE} !important;
+  padding: ${AntdToken.SPACING.LG}px;
+  margin-bottom: ${AntdToken.SPACING.BASE}px;
 `;
 
 const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`
-  ${({ lastChild }) => !lastChild && "margin-bottom: 16px;"}
-  ${({ flex, lastChild }) => (flex || lastChild) && "flex: 1;"}
+  ${({ lastChild }) => !lastChild && `margin-bottom: ${AntdToken.SPACING.BASE}px;`}
+  ${({ flex, lastChild }) => (flex || lastChild) && "flex: 1; height: 100%;"}
 `;
 
 export default BasicInnerContents;

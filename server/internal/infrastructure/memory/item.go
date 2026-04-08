@@ -217,6 +217,21 @@ func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 	return nil
 }
 
+func (r *Item) RemoveByModel(_ context.Context, modelID id.ModelID) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(version.Latest.OrVersion())
+		if itv != nil && itv.Value().Model() == modelID {
+			r.data.Delete(k)
+		}
+		return true
+	})
+	return nil
+}
+
 func (r *Item) BatchRemove(_ context.Context, itemIDs id.ItemIDList) error {
 	if r.err != nil {
 		return r.err

@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
@@ -18,6 +19,7 @@ type AssetDocument struct {
 	User                    *string
 	Integration             *string
 	FileName                string
+	FileNameNormalized      string
 	Size                    uint64
 	PreviewType             string
 	UUID                    string
@@ -77,6 +79,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		User:                    uid,
 		Integration:             iid,
 		FileName:                a.FileName(),
+		FileNameNormalized:      utils.NormalizeText(a.FileName()),
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),

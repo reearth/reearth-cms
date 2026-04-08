@@ -8,6 +8,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   webhook: Webhook;
@@ -64,13 +65,13 @@ const WebhookCard: React.FC<Props> = ({
         </TitleWrapper>
       }
       extra={
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="text"
             shape="circle"
             size="small"
             onClick={() => onWebhookSelect(webhook.id)}
-            icon={<Icon icon="settings" size={16} />}
+            icon={<Icon icon="settings" size={AntdToken.FONT.SIZE_LG} />}
           />
           <Button
             type="text"
@@ -78,7 +79,7 @@ const WebhookCard: React.FC<Props> = ({
             size="small"
             onClick={handleWebhookDelete}
             loading={isLoading}
-            icon={<Icon icon="delete" size={16} />}
+            icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
           />
         </Space>
       }>
@@ -89,9 +90,9 @@ const WebhookCard: React.FC<Props> = ({
 
 const TitleWrapper = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   align-items: center;
-  padding-right: 4px;
+  padding-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const WebhookTitle = styled.span`
@@ -105,7 +106,7 @@ const SwitchWrapper = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  margin-top: 16px;
+  margin-top: ${AntdToken.SPACING.BASE}px;
 `;
 
 const Content = styled.div`

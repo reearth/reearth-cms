@@ -17,7 +17,7 @@ type Entity interface {
 }
 
 // BatchUpdate processes documents from a MongoDB collection in batches and applies the given update function to each document
-func BatchUpdate[T Entity](ctx context.Context, col *mongo.Collection, filter bson.M, batchSize int, fn func(item T) (T, error)) (int, error) {
+func BatchUpdate[T Entity](ctx context.Context, col *mongo.Collection, filter bson.M, batchSize int, fn func(item T) (*T, error)) (int, error) {
 	opts := options.Find().
 		SetBatchSize(int32(batchSize))
 
@@ -53,16 +53,24 @@ func BatchUpdate[T Entity](ctx context.Context, col *mongo.Collection, filter bs
 			return 0, fmt.Errorf("failed to process document: %w", err)
 		}
 
-		// Create an update model
-		update := mongo.NewUpdateOneModel().
-			SetFilter(bson.M{"_id": item.GetID()}).
-			SetUpdate(bson.M{"$set": updatedItem})
+		if updatedItem != nil {
+			// Create an update model
+			update := mongo.NewUpdateOneModel().
+				SetFilter(bson.M{"_id": item.GetID()}).
+				SetUpdate(bson.M{"$set": updatedItem})
 
-		batch = append(batch, update)
+			batch = append(batch, update)
+		}
+
 		processed++
 
 		// If we've reached the batch size, execute the bulk write
 		if len(batch) >= batchSize {
+			// Check context before bulk write
+			if ctx.Err() != nil {
+				return 0, ctx.Err()
+			}
+
 			if err := executeBatch(ctx, col, batch); err != nil {
 				return 0, err
 			}
@@ -79,6 +87,11 @@ func BatchUpdate[T Entity](ctx context.Context, col *mongo.Collection, filter bs
 
 	// Process any remaining documents in the final batch
 	if len(batch) > 0 {
+		// Check context before final bulk write
+		if ctx.Err() != nil {
+			return 0, ctx.Err()
+		}
+
 		if err := executeBatch(ctx, col, batch); err != nil {
 			return 0, err
 		}

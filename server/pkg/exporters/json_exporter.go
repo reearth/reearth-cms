@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearthx/log"
 )
 
 // JSONExporter handles JSON format exports
@@ -19,8 +17,7 @@ type JSONExporter struct {
 	isStreaming bool
 	itemCount   int
 	writer      io.Writer
-	schema      *schema.Package
-	il          ItemLoader
+	request     *ExportRequest
 }
 
 // NewJSONExporter creates a new JSON exporter
@@ -56,8 +53,7 @@ func (e *JSONExporter) Export(ctx context.Context, req *ExportRequest, il item.L
 func (e *JSONExporter) StartExport(ctx context.Context, req *ExportRequest) error {
 	e.isStreaming = true
 	e.itemCount = 0
-	e.schema = &req.Schema
-	e.il = req.ItemLoader
+	e.request = req
 
 	// Write opening JSON structure
 	_, err := e.writer.Write([]byte(`{"results":[`))
@@ -70,69 +66,28 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 		return ErrInvalidRequest
 	}
 
-	batchStart := time.Now()
-	itemCount := len(items)
-	log.Debugfc(ctx, "exporter: [START] ProcessBatch with %d items", itemCount)
-
-	var totalMapFromItemDuration time.Duration
-	var totalEncodeDuration time.Duration
-	var totalWriteDuration time.Duration
-
-	for idx, itm := range items {
+	for _, itm := range items {
 		// Add comma if not the first item
 		if e.itemCount > 0 {
-			writeStart := time.Now()
 			if _, err := e.writer.Write([]byte(",")); err != nil {
 				return err
 			}
-			totalWriteDuration += time.Since(writeStart)
 		}
 
 		al := func(aids id.AssetIDList) (asset.List, error) {
 			return assets.FilterByIDs(aids), nil
 		}
 
-		//il := func(iids id.ItemIDList) (item.List, error) {
-		//	return items.FilterByIds(iids), nil
-		//}
-
-		// Time MapFromItem conversion
-		mapStart := time.Now()
-		itemData := MapFromItem(itm, e.schema, al, e.il)
-		mapDuration := time.Since(mapStart)
-		totalMapFromItemDuration += mapDuration
-
-		// Log slow items
-		if mapDuration > 10*time.Millisecond {
-			log.Debugfc(ctx, "exporter: Item %d - MapFromItem took %v (slow)", idx, mapDuration)
-		}
-
+		// Convert item to map and encode
+		// Use e.request.ItemLoader directly (updated per batch)
+		itemData := MapFromItem(itm, &e.request.Schema, al, e.request.ItemLoader)
 		if itemData != nil {
-			// Time encoder creation + encoding
-			encodeStart := time.Now()
 			encoder := json.NewEncoder(e.writer)
 			if err := encoder.Encode(itemData); err != nil {
 				return err
 			}
-			encodeDuration := time.Since(encodeStart)
-			totalEncodeDuration += encodeDuration
-
-			// Log slow encodings
-			if encodeDuration > 10*time.Millisecond {
-				log.Debugfc(ctx, "exporter: Item %d - Encode took %v (slow)", idx, encodeDuration)
-			}
-
 			e.itemCount++
 		}
-	}
-
-	batchDuration := time.Since(batchStart)
-
-	if itemCount > 0 {
-		avgMap := totalMapFromItemDuration / time.Duration(itemCount)
-		avgEncode := totalEncodeDuration / time.Duration(itemCount)
-		log.Debugfc(ctx, "exporter: ProcessBatch complete - items=%d, total=%v, MapFromItem=%v (avg=%v), Encode=%v (avg=%v), Write=%v",
-			itemCount, batchDuration, totalMapFromItemDuration, avgMap, totalEncodeDuration, avgEncode, totalWriteDuration)
 	}
 
 	return nil

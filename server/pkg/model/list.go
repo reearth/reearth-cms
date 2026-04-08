@@ -77,3 +77,14 @@ func (l List) Model(modelID id.ModelID) *Model {
 	}
 	return nil
 }
+
+func (l List) SchemaIDs() id.SchemaIDList {
+	var ids id.SchemaIDList
+	for _, m := range l {
+		if m == nil {
+			continue
+		}
+		ids = append(ids, m.Schema())
+	}
+	return ids
+}

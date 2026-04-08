@@ -12,7 +12,7 @@ import {
   DeleteApiKeyDocument,
   UpdateProjectDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
-import { useT } from "@reearth-cms/i18n";
+import { useLang, useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
@@ -57,6 +57,8 @@ export default () => {
         .filter((model): model is Model => !!model) ?? [],
     [modelsData?.models.nodes],
   );
+
+  const currentLang = useLang();
 
   const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
 
@@ -172,5 +174,6 @@ export default () => {
     handleAPIKeyDelete,
     handleAPIKeyEdit,
     handleSettingsPageOpen,
+    currentLang,
   };
 };

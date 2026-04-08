@@ -77,6 +77,22 @@ func (r *Schema) Save(ctx context.Context, schema *schema.Schema) error {
 	return r.client.SaveOne(ctx, sId, doc)
 }
 
+func (r *Schema) SaveAll(ctx context.Context, list schema.List) error {
+	if len(list) == 0 {
+		return nil
+	}
+	for _, s := range list {
+		if s == nil {
+			continue
+		}
+		if !r.f.CanWrite(s.Workspace()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	docs, ids := mongodoc.NewSchemas(list)
+	return r.client.SaveAll(ctx, ids, lo.ToAnySlice(docs))
+}
+
 func (r *Schema) Remove(ctx context.Context, schemaID id.SchemaID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": schemaID.String()}))
 }
