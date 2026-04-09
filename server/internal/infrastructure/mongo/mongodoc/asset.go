@@ -150,9 +150,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 			return nil, err
 		}
 		ab = ab.UpdatedByUser(&uid)
-	}
-
-	if d.UpdatedByIntegration != nil {
+	} else if d.UpdatedByIntegration != nil {
 		iid, err := id.IntegrationIDFrom(*d.UpdatedByIntegration)
 		if err != nil {
 			return nil, err

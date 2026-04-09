@@ -86,11 +86,13 @@ func (b *Builder) UpdatedAt(t time.Time) *Builder {
 
 func (b *Builder) UpdatedByUser(u *accountdomain.UserID) *Builder {
 	b.a.updatedByUser = u
+	b.a.updatedByIntegration = nil
 	return b
 }
 
 func (b *Builder) UpdatedByIntegration(u *IntegrationID) *Builder {
 	b.a.updatedByIntegration = u
+	b.a.updatedByUser = nil
 	return b
 }
 
