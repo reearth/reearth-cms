@@ -78,7 +78,9 @@ func TestNewItem(t *testing.T) {
 	}
 
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": "aaaa",
 			"bbbbb": ItemAsset{
@@ -92,7 +94,9 @@ func TestNewItem(t *testing.T) {
 
 	// no assets
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": "aaaa",
 			"ggggg": resGroup,
@@ -138,7 +142,9 @@ func TestNewItem_Multiple(t *testing.T) {
 		MustBuild()
 
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 			"bbbbb": []ItemAsset{{
@@ -151,7 +157,9 @@ func TestNewItem_Multiple(t *testing.T) {
 
 	// no assets
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
@@ -159,8 +167,11 @@ func TestNewItem_Multiple(t *testing.T) {
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
+	it := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).MustBuild()
 	j := lo.Must(json.Marshal(Item{
-		ID: "xxx",
+		ID:        "xxx",
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields{
 			"aaa": "aa",
 			"bbb": ItemAsset{
@@ -174,13 +185,15 @@ func TestItem_MarshalJSON(t *testing.T) {
 	v := map[string]any{}
 	lo.Must0(json.Unmarshal(j, &v))
 
+	assert.Equal(t, "xxx", v["id"])
+	assert.Equal(t, "aa", v["aaa"])
 	assert.Equal(t, map[string]any{
-		"id":  "xxx",
-		"aaa": "aa",
-		"bbb": map[string]any{
-			"type": "asset",
-			"id":   "xxx",
-			"url":  "https://example.com",
-		},
-	}, v)
+		"type": "asset",
+		"id":   "xxx",
+		"url":  "https://example.com",
+	}, v["bbb"])
+	assert.Contains(t, v, "createdAt")
+	assert.Contains(t, v, "updatedAt")
+	assert.NotContains(t, v, "createdBy")
+	assert.NotContains(t, v, "updatedBy")
 }

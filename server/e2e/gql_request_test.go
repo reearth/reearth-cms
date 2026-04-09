@@ -371,11 +371,19 @@ func TestRequestFlow(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON()
+	v2CreatedAt := res.Path("$.results[0].createdAt").Raw()
+	v2UpdatedAt := res.Path("$.results[0].updatedAt").Raw()
+	v2CreatedBy := res.Path("$.results[0].createdBy").Raw()
+	v2UpdatedBy := res.Path("$.results[0].updatedBy").Raw()
 	res.IsEqual(map[string]any{
 		"results": []map[string]any{
 			{
-				"id":   iid1,
-				"text": "v2",
+				"id":        iid1,
+				"text":      "v2",
+				"createdAt": v2CreatedAt,
+				"createdBy": v2CreatedBy,
+				"updatedAt": v2UpdatedAt,
+				"updatedBy": v2UpdatedBy,
 			},
 		},
 		"totalCount": 1,
@@ -412,11 +420,19 @@ func TestRequestFlow(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON()
+	v3CreatedAt := res.Path("$.results[0].createdAt").Raw()
+	v3UpdatedAt := res.Path("$.results[0].updatedAt").Raw()
+	v3CreatedBy := res.Path("$.results[0].createdBy").Raw()
+	v3UpdatedBy := res.Path("$.results[0].updatedBy").Raw()
 	res.IsEqual(map[string]any{
 		"results": []map[string]any{
 			{
-				"id":   iid1,
-				"text": "v3",
+				"id":        iid1,
+				"text":      "v3",
+				"createdAt": v3CreatedAt,
+				"createdBy": v3CreatedBy,
+				"updatedAt": v3UpdatedAt,
+				"updatedBy": v3UpdatedBy,
 			},
 		},
 		"totalCount": 1,
