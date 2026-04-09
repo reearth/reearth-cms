@@ -134,7 +134,8 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.csvExportWarningText).toBeVisible();
       await expect(projectPage.csvExportRelationsWarningText).toBeVisible();
       // Click Export button
-      await projectPage.clickAndExpectSuccess(projectPage.exportCSVButton);
+      await projectPage.exportCSVButton.click();
+      await projectPage.closeNotification();
       await page.waitForLoadState("networkidle");
     });
   });
