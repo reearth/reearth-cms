@@ -27,22 +27,20 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.integrationNameInput.fill(id);
     await integrationsPage.descriptionInput.click();
     await integrationsPage.descriptionInput.fill("e2e integration description");
-    await integrationsPage.createButton.click();
-    await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.createButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Connect integration", async () => {
     await integrationsPage.integrationsMenuItem.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
     await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.integrationTextById(id)).toBeVisible();
     await integrationsPage.integrationTextById(id).click();
     await expect(integrationsPage.connectButton).toBeVisible();
-    await integrationsPage.connectButton.click();
-    await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.connectButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify integration is connected", async () => {
@@ -52,52 +50,50 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeHidden();
     await expect(integrationsPage.cancelButton).toBeVisible();
     await integrationsPage.cancelButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Search and update role", async () => {
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill(id);
     await integrationsPage.searchButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
     await expect(integrationsPage.settingSvgButton).toBeVisible();
     await integrationsPage.settingSvgButton.click();
     await expect(integrationsPage.readerRoleOption).toBeVisible();
     await integrationsPage.readerRoleOption.click();
     await integrationsPage.writerRoleOption.click();
     await expect(integrationsPage.saveButton).toBeVisible();
-    await integrationsPage.saveButton.click();
-    await integrationsPage.closeNotification();
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.saveButton);
     await expect(integrationsPage.writerCell).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Test search filtering", async () => {
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill("no integration");
     await integrationsPage.searchButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
     await expect(integrationsPage.integrationCellById(id)).toBeHidden();
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill(id);
     await integrationsPage.searchButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
     await expect(integrationsPage.integrationCellById(id)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Remove integration and verify", async () => {
     await expect(integrationsPage.selectAllCheckbox).toBeVisible();
     await integrationsPage.selectAllCheckbox.check();
     await expect(integrationsPage.removeText).toBeVisible();
-    await integrationsPage.removeText.click();
-    await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await integrationsPage.clickAndExpectSuccess(integrationsPage.removeText);
+    await page.waitForLoadState("networkidle");
     await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();
     await expect(integrationsPage.cancelButton).toBeVisible();
     await integrationsPage.cancelButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
