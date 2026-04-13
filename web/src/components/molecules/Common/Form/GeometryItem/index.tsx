@@ -435,13 +435,15 @@ const GeometryItem: React.FC<Props> = ({
         const vectorLayer = new VectorLayer({
           source,
           style: new Style({
-            image: new IconStyle({ src: mapPinFilled, color: AntdColor.NEUTRAL.TEXT }),
+            // OpenLayers renders on canvas, not DOM — needs actual color values, not CSS variables.
+            // Map tiles are always light, so dark stroke/fill colors are appropriate.
+            image: new IconStyle({ src: mapPinFilled, color: "#000000d9" }),
             stroke: new Stroke({
-              color: AntdColor.NEUTRAL.TEXT,
+              color: "#000000d9",
               width: 2,
             }),
             fill: new Fill({
-              color: AntdColor.NEUTRAL.TEXT_QUATERNARY,
+              color: "#00000040",
             }),
           }),
         });
