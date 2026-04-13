@@ -188,53 +188,53 @@ export abstract class AntdColor {
   public static readonly NEUTRAL = {
     // --- Backgrounds ---
     /** theme.useToken(): colorBgContainer / colorBgBase */
-    BG_WHITE: "#ffffff",
+    BG_WHITE: "var(--color-bg-white)",
     /** theme.useToken(): ~table/card background */
-    BG_ELEVATED: "#fafafa",
+    BG_ELEVATED: "var(--color-bg-elevated)",
     /** theme.useToken(): colorBgLayout */
-    BG_LAYOUT: "#f5f5f5",
+    BG_LAYOUT: "var(--color-bg-layout)",
     /** antd v4 layout background */
-    BG_LAYOUT_V4: "#f0f2f5",
+    BG_LAYOUT_V4: "var(--color-bg-layout-v4)",
 
     // --- Borders ---
     /** theme.useToken(): colorBorder */
-    BORDER: "#d9d9d9",
+    BORDER: "var(--color-border)",
     /** theme.useToken(): colorBorderSecondary / colorSplit */
-    BORDER_SECONDARY: "#f0f0f0",
-    /** theme.useToken(): colorSplit — rgba(5,5,5,0.06) */
-    BORDER_SPLIT: "rgba(5, 5, 5, 0.06)",
+    BORDER_SECONDARY: "var(--color-border-secondary)",
+    /** theme.useToken(): colorSplit */
+    BORDER_SPLIT: "var(--color-border-split)",
 
-    // --- Text (black + alpha) ---
-    /** theme.useToken(): colorText — antd v4=rgba(0,0,0,0.85), v5=rgba(0,0,0,0.88) */
-    TEXT: "#000000d9",
-    /** theme.useToken(): colorTextTertiary — rgba(0,0,0,0.45) */
-    TEXT_TERTIARY: "#00000073",
-    /** theme.useToken(): colorTextQuaternary — rgba(0,0,0,0.25) */
-    TEXT_QUATERNARY: "#00000040",
-    /** theme.useToken(): colorText (antd v5) — rgba(0,0,0,0.88) */
-    TEXT_V5: "#000000e0",
+    // --- Text ---
+    /** theme.useToken(): colorText */
+    TEXT: "var(--color-text)",
+    /** theme.useToken(): colorTextTertiary */
+    TEXT_TERTIARY: "var(--color-text-tertiary)",
+    /** theme.useToken(): colorTextQuaternary */
+    TEXT_QUATERNARY: "var(--color-text-quaternary)",
+    /** theme.useToken(): colorText (antd v5) */
+    TEXT_V5: "var(--color-text-v5)",
 
     // --- Fills / Shadows ---
-    /** theme.useToken(): colorFill — rgba(0,0,0,0.15) */
-    FILL: "#00000026",
-    /** theme.useToken(): colorFillTertiary — rgba(0,0,0,0.04) */
-    FILL_TERTIARY: "rgba(0, 0, 0, 0.04)",
-    /** theme.useToken(): ~colorFillQuaternary — rgba(0,0,0,~0.03) */
-    FILL_QUATERNARY: "#00000008",
+    /** theme.useToken(): colorFill */
+    FILL: "var(--color-fill)",
+    /** theme.useToken(): colorFillTertiary */
+    FILL_TERTIARY: "var(--color-fill-tertiary)",
+    /** theme.useToken(): ~colorFillQuaternary */
+    FILL_QUATERNARY: "var(--color-fill-quaternary)",
   };
 }
 
 export abstract class CustomColor {
   /** Custom avatar background for non-anonymous users */
-  public static readonly AVATAR_BG = "#ececec";
-  /** Editor glyph margin error indicator */
+  public static readonly AVATAR_BG = "var(--custom-avatar-bg)";
+  /** Editor glyph margin error indicator (theme-invariant accent) */
   public static readonly EDITOR_ERROR_GLYPH = "#ecabbb";
   /** Blue focus ring with alpha */
-  public static readonly FOCUS_RING_BLUE = "rgba(5, 145, 255, 0.1)";
-  /** Subtle border — rgba(0,0,0,~0.03) */
-  public static readonly BORDER_SUBTLE = "rgba(0, 0, 0, 0.03)";
+  public static readonly FOCUS_RING_BLUE = "var(--custom-focus-ring-blue)";
+  /** Subtle border */
+  public static readonly BORDER_SUBTLE = "var(--custom-border-subtle)";
 
-  // --- Dark Header Theme ---
+  // --- Dark Header Theme (theme-invariant — already dark) ---
   /** Header background */
   public static readonly HEADER_BG = "#1d1d1d";
   /** Header text / icon color on dark bg */
@@ -244,19 +244,19 @@ export abstract class CustomColor {
   /** Header dropdown divider on dark bg */
   public static readonly HEADER_DIVIDER = "#303030";
   /** Sidebar trigger text color */
-  public static readonly SIDEBAR_TEXT = "#002140";
+  public static readonly SIDEBAR_TEXT = "var(--custom-sidebar-text)";
 
   // --- Misc UI ---
-  /** Light border (#dddddd) for markdown/license containers */
-  public static readonly BORDER_LIGHT = "#ddd";
+  /** Light border for markdown/license containers */
+  public static readonly BORDER_LIGHT = "var(--custom-border-light)";
   /** Subtle background tint */
-  public static readonly BG_SUBTLE = "#f8f8f8";
+  public static readonly BG_SUBTLE = "var(--custom-bg-subtle)";
   /** Muted secondary text */
-  public static readonly TEXT_MUTED = "#9a9a9a";
+  public static readonly TEXT_MUTED = "var(--custom-text-muted)";
   /** Disabled / collapsed menu text */
-  public static readonly TEXT_DISABLED = "#c4c4c4";
+  public static readonly TEXT_DISABLED = "var(--custom-text-disabled)";
   /** Muted icon color */
-  public static readonly ICON_MUTED = "#b8b8b8";
+  public static readonly ICON_MUTED = "var(--custom-icon-muted)";
 }
 
 export abstract class AntdToken {

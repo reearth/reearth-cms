@@ -42,3 +42,7 @@ export const useExportSchemaLoading = () => useAtom(exportSchemaLoading);
 
 const exportContentLoading = atom<boolean>(false);
 export const useExportContentLoading = () => useAtom(exportContentLoading);
+
+export type ThemeMode = "light" | "dark";
+const themeMode = atomWithStorage<ThemeMode>("themeMode", "light");
+export const useThemeMode = () => useAtom(themeMode);

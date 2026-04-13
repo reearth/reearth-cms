@@ -78,7 +78,7 @@ const ContentWrapper = styled(Content)`
 `;
 
 const CMSSidebar = styled(Sider)`
-  border-right: 1px solid rgba(5, 5, 5, 0.06);
+  border-right: 1px solid ${AntdColor.NEUTRAL.BORDER_SPLIT};
 
   && {
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
@@ -93,7 +93,7 @@ const CMSSidebar = styled(Sider)`
     margin: 0;
     height: 38px;
     line-height: 38px;
-    border-right: 1px solid rgba(5, 5, 5, 0.06);
+    border-right: 1px solid ${AntdColor.NEUTRAL.BORDER_SPLIT};
   }
   .ant-layout-sider-children {
     display: flex;
@@ -101,7 +101,7 @@ const CMSSidebar = styled(Sider)`
     justify-content: space-between;
   }
   .ant-menu-inline {
-    border-right: 1px solid white;
+    border-right: 1px solid ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-menu-vertical {
     border-right: none;

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { MenuProps } from "antd";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
@@ -10,6 +10,7 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
+import { useThemeMode } from "@reearth-cms/state";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
@@ -44,6 +45,10 @@ const HeaderMolecule: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { logout } = useAuth();
+  const [themeMode, setThemeMode] = useThemeMode();
+  const toggleTheme = useCallback(() => {
+    setThemeMode(prev => (prev === "light" ? "dark" : "light"));
+  }, [setThemeMode]);
   const url = useMemo(() => {
     if (window.REEARTH_CONFIG?.editorUrl && currentWorkspace?.id) {
       return new URL(`dashboard/${currentWorkspace.id}`, window.REEARTH_CONFIG?.editorUrl);
@@ -168,6 +173,9 @@ const HeaderMolecule: React.FC<Props> = ({
           </>
         )}
       </CurrentProject>
+      <ThemeToggle onClick={toggleTheme}>
+        <Icon icon={themeMode === "light" ? "moon" : "sun"} />
+      </ThemeToggle>
       <AccountDropdown
         name={username}
         profilePictureUrl={profilePictureUrl}
@@ -251,6 +259,21 @@ const CurrentProject = styled.div`
   color: ${CustomColor.HEADER_TEXT};
   flex: 1;
   min-width: 0;
+`;
+
+const ThemeToggle = styled.button`
+  background: none;
+  border: none;
+  color: ${CustomColor.HEADER_TEXT};
+  cursor: pointer;
+  padding: ${AntdToken.SPACING.XS}px;
+  display: flex;
+  align-items: center;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 const MenuText = styled.p`
