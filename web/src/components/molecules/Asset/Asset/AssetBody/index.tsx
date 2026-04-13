@@ -11,6 +11,7 @@ import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/Asset
 import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
   commentsPanel: JSX.Element;
@@ -104,5 +105,5 @@ export default AssetWrapper;
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;

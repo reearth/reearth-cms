@@ -106,6 +106,7 @@ const ContentWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   justify-content: center;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Title = styled.h3`

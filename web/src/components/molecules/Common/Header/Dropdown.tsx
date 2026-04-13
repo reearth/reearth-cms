@@ -66,26 +66,26 @@ const StyledDropdownMenu = styled.div`
     padding: ${AntdToken.SPACING.XXS}px 0;
   }
   .ant-dropdown-menu-item-divider {
-    background-color: ${CustomColor.HEADER_DIVIDER};
+    background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   }
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: ${AntdColor.GREY.GREY_8} !important;
+    color: ${AntdColor.NEUTRAL.TEXT} !important;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
     font-size: ${AntdToken.FONT.SIZE_SM}px;
     line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
     user-select: none;
-    color: ${AntdColor.GREY.GREY_8};
+    color: ${AntdColor.NEUTRAL.TEXT};
   }
   .ant-dropdown-menu-item-group-list {
     max-height: 50vh;
     overflow: hidden auto;
   }
   .ant-dropdown-menu-item-active {
-    background-color: ${CustomColor.HEADER_BG};
+    background-color: ${AntdColor.NEUTRAL.FILL_TERTIARY};
   }
 
   svg {
@@ -95,7 +95,7 @@ const StyledDropdownMenu = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  color: ${AntdColor.GREY.GREY_8};
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Text = styled.p`

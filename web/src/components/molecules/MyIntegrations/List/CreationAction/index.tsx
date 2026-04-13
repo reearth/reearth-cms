@@ -43,9 +43,10 @@ const Card = styled.button`
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   cursor: pointer;
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+
   &:hover {
     color: ${AntdColor.BLUE.BLUE_5};
-    background-color: ${AntdColor.BLUE.BLUE_0}; /* originally #E6F7FF */
+    background-color: ${AntdColor.NEUTRAL.FILL_TERTIARY};
   }
 `;
 
