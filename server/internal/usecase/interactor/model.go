@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -38,6 +40,41 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 		repos:    r,
 		gateways: g,
 	}
+}
+
+func (i Model) checkPermissions(ctx context.Context, operator *usecase.Operator, models model.List, caller string, action rbac.Action) error {
+	uniqueProjectIDs := lo.Uniq(lo.Map(models, func(m *model.Model, _ int) id.ProjectID {
+		return m.Project()
+	}))
+	type result struct {
+		wid workspace.ID
+		err error
+	}
+	ch := make(chan result, len(uniqueProjectIDs))
+	for _, pid := range uniqueProjectIDs {
+		pid := pid
+		go func() {
+			wid, err := i.workspaceIDForProject(ctx, pid)
+			ch <- result{wid, err}
+		}()
+	}
+	uniqueWorkspaces := make([]workspace.ID, 0, len(uniqueProjectIDs))
+	for range uniqueProjectIDs {
+		r := <-ch
+		if r.err != nil {
+			return r.err
+		}
+		uniqueWorkspaces = append(uniqueWorkspaces, r.wid)
+	}
+	uniqueWorkspaces = lo.Uniq(uniqueWorkspaces)
+
+	eg, egCtx := errgroup.WithContext(ctx)
+	for _, ws := range uniqueWorkspaces {
+		eg.Go(func() error {
+			return i.checkPermission(egCtx, operator, ws.Ref(), caller, action)
+		})
+	}
+	return eg.Wait()
 }
 
 func (i Model) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
@@ -106,15 +143,7 @@ func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecas
 	if err != nil {
 		return nil, err
 	}
-	var wid *workspace.ID
-	if len(models) > 0 {
-		ws, wsErr := i.workspaceIDForProject(ctx, models[0].Project())
-		if wsErr != nil {
-			return nil, wsErr
-		}
-		wid = ws.Ref()
-	}
-	if err := i.checkPermission(ctx, operator, wid, "model.FindByIDs", rbac.ActionList); err != nil {
+	if err := i.checkPermissions(ctx, operator, models, "model.FindByIDs", rbac.ActionList); err != nil {
 		return nil, err
 	}
 	return models, nil
@@ -342,10 +371,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
-			m, err := i.repos.Model.FindByID(ctx, modelID)
-			if err != nil {
-				return err
-			}
+
 			if !operator.IsWritableProject(m.Project()) {
 				return interfaces.ErrOperationDenied
 			}
@@ -514,7 +540,27 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
-	if err := i.checkPermission(ctx, operator, nil, "model.FindOrCreateSchema", rbac.ActionRead); err != nil {
+	var projectID id.ProjectID
+	if param.ModelID != nil {
+		m, err := i.repos.Model.FindByID(ctx, *param.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		projectID = m.Project()
+	} else if param.GroupID != nil {
+		g, err := i.repos.Group.FindByID(ctx, *param.GroupID)
+		if err != nil {
+			return nil, err
+		}
+		projectID = g.Project()
+	} else {
+		return nil, interfaces.ErrEitherModelOrGroup
+	}
+	wid, err := i.workspaceIDForProject(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "model.FindOrCreateSchema", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),

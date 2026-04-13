@@ -493,7 +493,9 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 			operator: op,
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// both are checked in parallel (post-query)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
 			},
 		},
 		{
@@ -541,6 +543,118 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 			projectUC := NewProject(db, gw).(*Project)
 
 			got, _, err := projectUC.FindByWorkspaces(ctx, tc.wIds, nil, tc.operator)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+			assert.Len(t, got, tc.wantLen)
+		})
+	}
+}
+
+func TestProject_Search(t *testing.T) {
+	t.Parallel()
+
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	p1 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p2 := project.New().NewID().Workspace(wid2).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p3 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
+
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+		},
+	}
+
+	tests := []struct {
+		name      string
+		seeds     project.List
+		filter    interfaces.ProjectFilter
+		operator  *usecase.Operator
+		wantLen   int
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name:     "empty workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{})},
+			operator: op,
+			wantLen:  1, // only p3 is public
+		},
+		{
+			name:     "nil workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{},
+			operator: op,
+			wantLen:  1, // only p3 is public
+		},
+		{
+			name:     "workspace IDs with permission allowed checks all result workspaces",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			operator: op,
+			wantLen:  2,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
+			},
+		},
+		{
+			name:     "permission denied for one result workspace returns error",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			operator: op,
+			wantErr:  interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(false, nil)
+			},
+		},
+		{
+			name:     "no results skips permission check entirely",
+			seeds:    project.List{},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1})},
+			operator: op,
+			wantLen:  0,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// no CheckPermission calls expected
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, p := range tc.seeds {
+				assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+			}
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw).(*Project)
+
+			got, _, err := projectUC.Search(ctx, tc.filter, tc.operator)
 			if tc.wantErr != nil {
 				assert.EqualError(t, err, tc.wantErr.Error())
 				return
