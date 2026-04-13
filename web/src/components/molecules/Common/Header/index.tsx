@@ -1,16 +1,17 @@
 import styled from "@emotion/styled";
-import { MenuProps } from "antd";
-import { useCallback, useMemo } from "react";
+import { Dropdown, MenuProps } from "antd";
+import { useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { IconName } from "@reearth-cms/components/atoms/Icon/icons";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
-import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { ProjectVisibility, Theme } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useThemeMode } from "@reearth-cms/state";
+import { useCurrentTheme } from "@reearth-cms/state";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
@@ -45,10 +46,34 @@ const HeaderMolecule: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { logout } = useAuth();
-  const [themeMode, setThemeMode] = useThemeMode();
-  const toggleTheme = useCallback(() => {
-    setThemeMode(prev => (prev === "light" ? "dark" : "light"));
-  }, [setThemeMode]);
+  const [currentTheme, setCurrentTheme] = useCurrentTheme();
+
+  const themeIcon: IconName =
+    currentTheme === Theme.Dark ? "moon" : currentTheme === Theme.Light ? "sun" : "laptop";
+
+  const themeItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: t("Default"),
+        key: Theme.Default,
+        icon: <Icon icon="laptop" />,
+        onClick: () => setCurrentTheme(Theme.Default),
+      },
+      {
+        label: t("Light"),
+        key: Theme.Light,
+        icon: <Icon icon="sun" />,
+        onClick: () => setCurrentTheme(Theme.Light),
+      },
+      {
+        label: t("Dark"),
+        key: Theme.Dark,
+        icon: <Icon icon="moon" />,
+        onClick: () => setCurrentTheme(Theme.Dark),
+      },
+    ],
+    [t, setCurrentTheme],
+  );
   const url = useMemo(() => {
     if (window.REEARTH_CONFIG?.editorUrl && currentWorkspace?.id) {
       return new URL(`dashboard/${currentWorkspace.id}`, window.REEARTH_CONFIG?.editorUrl);
@@ -173,9 +198,11 @@ const HeaderMolecule: React.FC<Props> = ({
           </>
         )}
       </CurrentProject>
-      <ThemeToggle onClick={toggleTheme}>
-        <Icon icon={themeMode === "light" ? "moon" : "sun"} />
-      </ThemeToggle>
+      <Dropdown menu={{ items: themeItems, selectedKeys: [currentTheme] }} trigger={["click"]}>
+        <ThemeToggle>
+          <Icon icon={themeIcon} />
+        </ThemeToggle>
+      </Dropdown>
       <AccountDropdown
         name={username}
         profilePictureUrl={profilePictureUrl}
@@ -261,9 +288,7 @@ const CurrentProject = styled.div`
   min-width: 0;
 `;
 
-const ThemeToggle = styled.button`
-  background: none;
-  border: none;
+const ThemeToggle = styled.div`
   color: ${CustomColor.HEADER_TEXT};
   cursor: pointer;
   padding: ${AntdToken.SPACING.XS}px;

@@ -1,6 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
+import { Theme } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderState } from "@reearth-cms/components/molecules/Uploader/types";
@@ -43,6 +44,5 @@ export const useExportSchemaLoading = () => useAtom(exportSchemaLoading);
 const exportContentLoading = atom<boolean>(false);
 export const useExportContentLoading = () => useAtom(exportContentLoading);
 
-export type ThemeMode = "light" | "dark";
-const themeMode = atomWithStorage<ThemeMode>("themeMode", "light");
-export const useThemeMode = () => useAtom(themeMode);
+const currentTheme = atom<Theme>(Theme.Default);
+export const useCurrentTheme = () => useAtom(currentTheme);
