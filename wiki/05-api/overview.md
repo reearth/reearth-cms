@@ -101,12 +101,12 @@ Rate limits are enforced by the policy checker (if configured). In the default `
 
 | Resource | GraphQL | REST |
 |---|---|---|
-| Items | `items(...)`, `createItem(...)` | `GET/POST /{ws}/{proj}/models/{model}/items` |
-| Assets | `assets(...)`, `createAsset(...)` | `GET/POST /{ws}/{proj}/assets` |
-| Models | `models(...)`, `createModel(...)` | `GET/POST /{ws}/{proj}/models` |
-| Schema | `schema(...)`, `createField(...)` | `GET /{ws}/{proj}/models/{model}/schema.json` |
-| Projects | `projects(...)` | `GET/POST /{ws}/projects` |
-| Comments | `addComment(...)` | `GET/POST /{ws}/{proj}/models/{model}/items/{id}/comments` |
+| Items | `items(...)`, `createItem(...)` | `GET/POST /api/{ws}/projects/{proj}/models/{model}/items` |
+| Assets | `assets(...)`, `createAsset(...)` | `GET/POST /api/{ws}/projects/{proj}/assets` |
+| Models | `models(...)`, `createModel(...)` | `GET/POST /api/{ws}/projects/{proj}/models` |
+| Schema | `schema(...)`, `createField(...)` | `GET /api/{ws}/projects/{proj}/models/{model}/schema.json` |
+| Projects | `projects(...)` | `GET/POST /api/{ws}/projects` |
+| Comments | `addComment(...)` | `GET/POST /api/{ws}/projects/{proj}/models/{model}/items/{id}/comments` |
 
 For detailed operation documentation:
 - [GraphQL API](./graphql-api.md)

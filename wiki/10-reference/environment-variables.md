@@ -30,8 +30,8 @@ Complete reference for all environment variables used by Re:Earth CMS. All serve
 | Variable | Default | Description |
 |---|---|---|
 | `REEARTH_CMS_ORIGINS` | — | Allowed origins for the GraphQL API (comma-separated) |
-| `REEARTH_CMS_INTEGRATION_ORIGINS` | `*` | Allowed origins for the integration REST API |
-| `REEARTH_CMS_PUBLIC_ORIGINS` | `*` | Allowed origins for the public API |
+| `REEARTH_CMS_INTEGRATION_ORIGINS` | — | Allowed origins for the integration REST API (empty = block all cross-origin) |
+| `REEARTH_CMS_PUBLIC_ORIGINS` | — | Allowed origins for the public API (empty = block all cross-origin) |
 
 ### GraphQL
 
@@ -187,7 +187,7 @@ Complete reference for all environment variables used by Re:Earth CMS. All serve
 
 | Variable | Default | Description |
 |---|---|---|
-| `REEARTH_CMS_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
+| `REEARTH_CMS_OTEL_ENABLED` | `true` | Enable OpenTelemetry tracing |
 | `REEARTH_CMS_OTEL_ENDPOINT` | — | OTLP HTTP endpoint |
 | `REEARTH_CMS_OTEL_SAMPLINGRATIO` | `1.0` | Sampling ratio (0.0–1.0) |
 | `REEARTH_CMS_OTEL_MAXEXPORTBATCHSIZE` | — | Max spans per batch |
@@ -211,7 +211,7 @@ Complete reference for all environment variables used by Re:Earth CMS. All serve
 
 | Variable | Default | Description |
 |---|---|---|
-| `REEARTH_CMS_ACCOUNT_API_ENABLED` | `true` | Enable Accounts API integration |
+| `REEARTH_CMS_ACCOUNT_API_ENABLED` | `false` | Enable Accounts API integration |
 | `REEARTH_CMS_ACCOUNT_API_HOST` | — | Accounts API URL |
 | `REEARTH_CMS_ACCOUNT_API_TIMEOUT` | `30` | Request timeout (seconds) |
 

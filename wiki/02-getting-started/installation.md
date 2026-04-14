@@ -5,7 +5,7 @@ This guide explains how to run Re:Earth CMS locally using Docker Compose, and ho
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
-- For development: [Go 1.26+](https://go.dev/dl/) and [Node.js 24+](https://nodejs.org/) with [Yarn](https://yarnpkg.com/)
+- For development: [Go 1.26+](https://go.dev/dl/) and [Node.js 20.11+](https://nodejs.org/) with [Yarn](https://yarnpkg.com/)
 
 ---
 

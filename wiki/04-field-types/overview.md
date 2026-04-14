@@ -67,7 +67,7 @@ Field keys are used as property names in API responses. Rules:
 - Lowercase letters, numbers, and hyphens only
 - Must be unique within a schema
 - Auto-generated from the field name (spaces → hyphens, lowercased)
-- **Cannot be changed after the field is created**
+- Can be changed after creation via the field editor
 
 Example: a field named "Published Date" gets the key `published-date`.
 

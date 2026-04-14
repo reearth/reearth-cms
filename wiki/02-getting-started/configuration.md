@@ -30,8 +30,8 @@ Re:Earth CMS is configured via environment variables. All server variables are p
 | Variable | Default | Description |
 |---|---|---|
 | `REEARTH_CMS_ORIGINS` | — | Allowed origins for the main GraphQL API (comma-separated) |
-| `REEARTH_CMS_INTEGRATION_ORIGINS` | `*` | Allowed origins for the integration REST API |
-| `REEARTH_CMS_PUBLIC_ORIGINS` | `*` | Allowed origins for the public API |
+| `REEARTH_CMS_INTEGRATION_ORIGINS` | — | Allowed origins for the integration REST API (empty = block all cross-origin) |
+| `REEARTH_CMS_PUBLIC_ORIGINS` | — | Allowed origins for the public API (empty = block all cross-origin) |
 
 ### GraphQL
 
@@ -200,7 +200,7 @@ Three mailer backends are supported: `log` (default), `smtp`, `sendgrid`.
 
 | Variable | Default | Description |
 |---|---|---|
-| `REEARTH_CMS_OTEL_ENABLED` | `false` | Enable OpenTelemetry tracing |
+| `REEARTH_CMS_OTEL_ENABLED` | `true` | Enable OpenTelemetry tracing |
 | `REEARTH_CMS_OTEL_ENDPOINT` | — | OTLP HTTP endpoint (e.g. `http://localhost:4318` for Jaeger) |
 | `REEARTH_CMS_OTEL_SAMPLINGRATIO` | `1.0` | Fraction of requests to sample (0.0–1.0) |
 | `REEARTH_CMS_OTEL_MAXEXPORTBATCHSIZE` | — | Max spans per export batch |
@@ -238,7 +238,7 @@ Controls whether certain operations are allowed (used for SaaS rate-limiting / q
 
 | Variable | Default | Description |
 |---|---|---|
-| `REEARTH_CMS_ACCOUNT_API_ENABLED` | `true` | Enable integration with the Re:Earth Accounts API |
+| `REEARTH_CMS_ACCOUNT_API_ENABLED` | `false` | Enable integration with the Re:Earth Accounts API |
 | `REEARTH_CMS_ACCOUNT_API_HOST` | — | URL of the Accounts API |
 | `REEARTH_CMS_ACCOUNT_API_TIMEOUT` | `30` | Request timeout in seconds |
 

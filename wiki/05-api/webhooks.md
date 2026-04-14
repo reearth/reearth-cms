@@ -50,47 +50,61 @@ Webhooks are delivered as `POST` requests with `Content-Type: application/json`.
 
 ### Common Fields
 
-All webhook payloads include:
+All webhook payloads share this top-level structure:
 
 ```json
 {
-  "type": "onItemCreate",
+  "id": "event-id",
+  "type": "item.create",
   "timestamp": "2024-03-15T09:30:00Z",
-  "workspaceId": "workspace-id",
-  "projectId": "project-id",
   "operator": {
-    "user": { "id": "user-id", "name": "Jane Smith" }
-  }
+    "user": "user-id"
+  },
+  "data": { ... }
 }
 ```
 
-For integration-triggered events:
-```json
-{
-  "operator": {
-    "integration": { "id": "integration-id", "name": "My Integration" }
-  }
-}
-```
+The `operator` field indicates who triggered the event. It contains one of:
+- `"user": "<user-id>"` — a human user
+- `"integration": "<integration-id>"` — an integration token
+- `"machine": true` — an internal worker
+
+Note: `workspaceId` and `projectId` are **not** top-level fields. Project context is available inside `data` depending on the event type.
+
+### Event Type Values
+
+The `type` field uses dot-notation strings (not the GraphQL webhook trigger key names):
+
+| Trigger | `type` value in payload |
+|---|---|
+| Item created | `item.create` |
+| Item updated | `item.update` |
+| Item deleted | `item.delete` |
+| Item published | `item.publish` |
+| Item unpublished | `item.unpublish` |
+| Asset uploaded | `asset.upload` |
+| Asset decompressed | `asset.decompress` |
+| Asset deleted | `asset.delete` |
 
 ### Item Event Payload
 
 ```json
 {
-  "type": "onItemCreate",
+  "id": "event-id",
+  "type": "item.create",
   "timestamp": "2024-03-15T09:30:00Z",
-  "workspaceId": "workspace-id",
-  "projectId": "project-id",
-  "item": {
-    "id": "item-id",
-    "modelId": "model-id",
-    "schemaId": "schema-id",
-    "status": "DRAFT",
-    "fields": [
-      { "schemaFieldId": "title", "type": "text", "value": "My Article" }
-    ],
-    "createdAt": "2024-03-15T09:30:00Z",
-    "updatedAt": "2024-03-15T09:30:00Z"
+  "operator": { "user": "user-id" },
+  "data": {
+    "item": {
+      "id": "item-id",
+      "modelId": "model-id",
+      "schemaId": "schema-id",
+      "fields": [
+        { "schemaFieldId": "title", "type": "text", "value": "My Article" }
+      ],
+      "createdAt": "2024-03-15T09:30:00Z",
+      "updatedAt": "2024-03-15T09:30:00Z"
+    }
   }
 }
 ```
@@ -99,17 +113,19 @@ For integration-triggered events:
 
 ```json
 {
-  "type": "onAssetUpload",
+  "id": "event-id",
+  "type": "asset.upload",
   "timestamp": "2024-03-15T09:30:00Z",
-  "workspaceId": "workspace-id",
-  "projectId": "project-id",
-  "asset": {
-    "id": "asset-id",
-    "fileName": "data.geojson",
-    "size": 102400,
-    "previewType": "geo",
-    "url": "https://storage.example.com/assets/ab/cd.../data.geojson",
-    "createdAt": "2024-03-15T09:30:00Z"
+  "operator": { "user": "user-id" },
+  "data": {
+    "asset": {
+      "id": "asset-id",
+      "fileName": "data.geojson",
+      "size": 102400,
+      "previewType": "geo",
+      "url": "https://storage.example.com/assets/ab/cd.../data.geojson",
+      "createdAt": "2024-03-15T09:30:00Z"
+    }
   }
 }
 ```
@@ -118,45 +134,53 @@ For integration-triggered events:
 
 ## Signature Verification
 
-If a **secret** is configured on the webhook, the CMS signs each payload with HMAC-SHA256 and includes the signature in the `X-Reearth-Signature` HTTP header.
+If a **secret** is configured on the webhook, the CMS signs each payload and includes the signature in the `Reearth-Signature` HTTP header (note: no `X-` prefix).
+
+### Signature Format
+
+The header value has the format:
+
+```
+v1,t=<unix_timestamp>,<hex_digest>
+```
+
+Example:
+```
+Reearth-Signature: v1,t=1710495000,a3f8c2...
+```
+
+The HMAC-SHA256 is computed over the string `v1:<unix_timestamp>:` concatenated with the raw request body bytes. The secret is the webhook secret you configured.
 
 ### Verifying in Node.js
 
 ```javascript
 const crypto = require('crypto');
 
-function verifyWebhook(payload, secret, signature) {
-  const expected = crypto
-    .createHmac('sha256', secret)
-    .update(payload) // raw request body as Buffer or string
-    .digest('hex');
+function verifyWebhook(rawBody, secret, signatureHeader) {
+  // Parse header: "v1,t=<timestamp>,<hex>"
+  const parts = signatureHeader.split(',');
+  const version = parts[0];           // "v1"
+  const timestamp = parts[1].slice(2); // strip "t="
+  const receivedHex = parts[2];
+
+  // Reconstruct the signed string
+  const mac = crypto.createHmac('sha256', secret);
+  mac.update(`${version}:${timestamp}:`);
+  mac.update(rawBody);
+  const expected = mac.digest('hex');
+
   return crypto.timingSafeEqual(
-    Buffer.from(expected),
-    Buffer.from(signature)
+    Buffer.from(expected, 'hex'),
+    Buffer.from(receivedHex, 'hex')
   );
 }
 
 // In your webhook handler:
-const signature = req.headers['x-reearth-signature'];
-const isValid = verifyWebhook(req.rawBody, WEBHOOK_SECRET, signature);
+const sigHeader = req.headers['reearth-signature'];
+const isValid = verifyWebhook(req.rawBody, WEBHOOK_SECRET, sigHeader);
 if (!isValid) {
   return res.status(401).send('Invalid signature');
 }
-```
-
-### Verifying in Python
-
-```python
-import hmac
-import hashlib
-
-def verify_webhook(payload: bytes, secret: str, signature: str) -> bool:
-    expected = hmac.new(
-        secret.encode('utf-8'),
-        payload,
-        hashlib.sha256
-    ).hexdigest()
-    return hmac.compare_digest(expected, signature)
 ```
 
 ### Verifying in Go
@@ -166,13 +190,27 @@ import (
     "crypto/hmac"
     "crypto/sha256"
     "encoding/hex"
+    "fmt"
+    "strconv"
+    "strings"
 )
 
-func verifyWebhook(payload []byte, secret, signature string) bool {
+func verifyWebhook(payload []byte, secret, signatureHeader string) bool {
+    // Parse "v1,t=<timestamp>,<hex>"
+    parts := strings.SplitN(signatureHeader, ",", 3)
+    if len(parts) != 3 {
+        return false
+    }
+    version := parts[0]
+    timestamp := strings.TrimPrefix(parts[1], "t=")
+    received := parts[2]
+
     mac := hmac.New(sha256.New, []byte(secret))
+    fmt.Fprintf(mac, "%s:%s:", version, timestamp)
     mac.Write(payload)
     expected := hex.EncodeToString(mac.Sum(nil))
-    return hmac.Equal([]byte(expected), []byte(signature))
+
+    return hmac.Equal([]byte(expected), []byte(received))
 }
 ```
 

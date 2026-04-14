@@ -16,7 +16,7 @@ The Integration API is the primary REST interface for programmatic access. It is
 ### Base URL
 
 ```
-https://<host>/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...
+https://<host>/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...
 ```
 
 Both IDs and human-readable aliases are accepted in path parameters.
@@ -49,11 +49,11 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/projects` | List projects in a workspace |
-| `POST` | `/{ws}/projects` | Create a project |
-| `GET` | `/{ws}/projects/{proj}` | Get a project |
-| `PATCH` | `/{ws}/projects/{proj}` | Update a project |
-| `DELETE` | `/{ws}/projects/{proj}` | Delete a project |
+| `GET` | `/api/{ws}/projects` | List projects in a workspace |
+| `POST` | `/api/{ws}/projects` | Create a project |
+| `GET` | `/api/{ws}/projects/{proj}` | Get a project |
+| `PATCH` | `/api/{ws}/projects/{proj}` | Update a project |
+| `DELETE` | `/api/{ws}/projects/{proj}` | Delete a project |
 
 ---
 
@@ -61,13 +61,13 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/models` | List models in a project |
-| `POST` | `/{ws}/{proj}/models` | Create a model |
-| `GET` | `/{ws}/{proj}/models/{model}` | Get a model |
-| `PATCH` | `/{ws}/{proj}/models/{model}` | Update a model |
-| `DELETE` | `/{ws}/{proj}/models/{model}` | Delete a model |
-| `GET` | `/{ws}/{proj}/models/{model}/schema.json` | Get model schema as JSON |
-| `GET` | `/{ws}/{proj}/models/{model}/metadata_schema.json` | Get metadata schema as JSON |
+| `GET` | `/api/{ws}/projects/{proj}/models` | List models in a project |
+| `POST` | `/api/{ws}/projects/{proj}/models` | Create a model |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}` | Get a model |
+| `PATCH` | `/api/{ws}/projects/{proj}/models/{model}` | Update a model |
+| `DELETE` | `/api/{ws}/projects/{proj}/models/{model}` | Delete a model |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/schema.json` | Get model schema as JSON |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/metadata_schema.json` | Get metadata schema as JSON |
 
 ---
 
@@ -75,10 +75,10 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/schemata/{schemaId}/fields` | List fields in a schema |
-| `POST` | `/{ws}/{proj}/schemata/{schemaId}/fields` | Add a field |
-| `PATCH` | `/{ws}/{proj}/schemata/{schemaId}/fields/{field}` | Update a field |
-| `DELETE` | `/{ws}/{proj}/schemata/{schemaId}/fields/{field}` | Delete a field |
+| `GET` | `/api/{ws}/projects/{proj}/schemata/{schemaId}/fields` | List fields in a schema |
+| `POST` | `/api/{ws}/projects/{proj}/schemata/{schemaId}/fields` | Add a field |
+| `PATCH` | `/api/{ws}/projects/{proj}/schemata/{schemaId}/fields/{field}` | Update a field |
+| `DELETE` | `/api/{ws}/projects/{proj}/schemata/{schemaId}/fields/{field}` | Delete a field |
 
 ---
 
@@ -86,26 +86,26 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/models/{model}/items` | List items (paginated) |
-| `POST` | `/{ws}/{proj}/models/{model}/items` | Create an item |
-| `POST` | `/{ws}/{proj}/models/{model}/items/filter` | Filter items with a request body |
-| `GET` | `/{ws}/{proj}/models/{model}/items/{id}` | Get a single item |
-| `PATCH` | `/{ws}/{proj}/models/{model}/items/{id}` | Update an item |
-| `DELETE` | `/{ws}/{proj}/models/{model}/items/{id}` | Delete an item |
-| `POST` | `/{ws}/{proj}/models/{model}/items/{id}/publish` | Publish/unpublish an item |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/items` | List items (paginated) |
+| `POST` | `/api/{ws}/projects/{proj}/models/{model}/items` | Create an item |
+| `POST` | `/api/{ws}/projects/{proj}/models/{model}/items/filter` | Filter items with a request body |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}` | Get a single item |
+| `PATCH` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}` | Update an item |
+| `DELETE` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}` | Delete an item |
+| `POST` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}/publish` | Publish/unpublish an item |
 
 ### Export Formats
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/models/{model}/items.geojson` | Export items as GeoJSON |
-| `GET` | `/{ws}/{proj}/models/{model}/items.csv` | Export items as CSV |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/items.geojson` | Export items as GeoJSON |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/items.csv` | Export items as CSV |
 
 ### Import
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/{ws}/{proj}/models/{model}/import` | Bulk import items (JSON, CSV, GeoJSON) |
+| `POST` | `/api/{ws}/projects/{proj}/models/{model}/import` | Bulk import items (JSON, CSV, GeoJSON) |
 
 ---
 
@@ -113,15 +113,15 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/assets` | List assets |
-| `POST` | `/{ws}/{proj}/assets` | Upload an asset |
-| `POST` | `/{ws}/{proj}/assets/uploads` | Get a presigned upload URL |
-| `GET` | `/{ws}/{proj}/assets/{id}` | Get asset metadata |
-| `PATCH` | `/{ws}/{proj}/assets/{id}` | Update asset metadata |
-| `DELETE` | `/{ws}/{proj}/assets/{id}` | Delete an asset |
-| `POST` | `/{ws}/{proj}/assets/{id}/publish` | Publish an asset |
-| `POST` | `/{ws}/{proj}/assets/{id}/unpublish` | Unpublish an asset |
-| `GET` | `/{ws}/{proj}/assets/{uuid1}/{uuid2}/{filename}` | Download asset file directly |
+| `GET` | `/api/{ws}/projects/{proj}/assets` | List assets |
+| `POST` | `/api/{ws}/projects/{proj}/assets` | Upload an asset |
+| `POST` | `/api/{ws}/projects/{proj}/assets/uploads` | Get a presigned upload URL |
+| `GET` | `/api/{ws}/projects/{proj}/assets/{id}` | Get asset metadata |
+| `PATCH` | `/api/{ws}/projects/{proj}/assets/{id}` | Update asset metadata |
+| `DELETE` | `/api/{ws}/projects/{proj}/assets/{id}` | Delete an asset |
+| `POST` | `/api/{ws}/projects/{proj}/assets/{id}/publish` | Publish an asset |
+| `POST` | `/api/{ws}/projects/{proj}/assets/{id}/unpublish` | Unpublish an asset |
+| `GET` | `/api/{ws}/projects/{proj}/assets/{uuid1}/{uuid2}/{filename}` | Download asset file directly |
 
 ---
 
@@ -129,12 +129,12 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/models/{model}/items/{id}/comments` | List comments on an item |
-| `POST` | `/{ws}/{proj}/models/{model}/items/{id}/comments` | Post a comment |
-| `PATCH` | `/{ws}/{proj}/models/{model}/items/{id}/comments/{commentId}` | Edit a comment |
-| `DELETE` | `/{ws}/{proj}/models/{model}/items/{id}/comments/{commentId}` | Delete a comment |
-| `GET` | `/{ws}/{proj}/assets/{id}/comments` | List comments on an asset |
-| `POST` | `/{ws}/{proj}/assets/{id}/comments` | Post a comment on an asset |
+| `GET` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}/comments` | List comments on an item |
+| `POST` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}/comments` | Post a comment |
+| `PATCH` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}/comments/{commentId}` | Edit a comment |
+| `DELETE` | `/api/{ws}/projects/{proj}/models/{model}/items/{id}/comments/{commentId}` | Delete a comment |
+| `GET` | `/api/{ws}/projects/{proj}/assets/{id}/comments` | List comments on an asset |
+| `POST` | `/api/{ws}/projects/{proj}/assets/{id}/comments` | Post a comment on an asset |
 
 ---
 
@@ -142,11 +142,11 @@ This API is intended for consuming published content in front-end applications w
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/{ws}/{proj}/groups` | List groups in a project |
-| `POST` | `/{ws}/{proj}/groups` | Create a group |
-| `GET` | `/{ws}/{proj}/groups/{group}` | Get a group |
-| `PATCH` | `/{ws}/{proj}/groups/{group}` | Update a group |
-| `DELETE` | `/{ws}/{proj}/groups/{group}` | Delete a group |
+| `GET` | `/api/{ws}/projects/{proj}/groups` | List groups in a project |
+| `POST` | `/api/{ws}/projects/{proj}/groups` | Create a group |
+| `GET` | `/api/{ws}/projects/{proj}/groups/{group}` | Get a group |
+| `PATCH` | `/api/{ws}/projects/{proj}/groups/{group}` | Update a group |
+| `DELETE` | `/api/{ws}/projects/{proj}/groups/{group}` | Delete a group |
 
 ---
 
@@ -205,7 +205,7 @@ Common query parameters for list endpoints:
 | `page` | Page number (default: 1) |
 | `perPage` | Items per page (default: 50, max: 100) |
 | `sort` | Sort field (e.g. `createdAt`, `updatedAt`) |
-| `sortDir` | Sort direction: `asc` or `desc` |
+| `dir` | Sort direction: `asc` or `desc` (default: `desc`) |
 | `keyword` | Keyword search |
 
 ---

@@ -50,7 +50,7 @@ func (o *Operator) CanUpdate(obj Ownable) bool {
 }
 
 func (o *Operator) Owns(obj Ownable) bool {
-    return (o.User != nil && obj.User() != nil && *o.User == *obj.User()) ||
+    return (o.AcOperator != nil && o.AcOperator.User != nil && obj.User() != nil && *o.AcOperator.User == *obj.User()) ||
            (o.Integration != nil && obj.Integration() != nil && *o.Integration == *obj.Integration())
 }
 ```
@@ -91,9 +91,9 @@ This means:
 |---|---|
 | Read model/schema | `IsReadableProject` |
 | Create model | `IsWritableProject` |
-| Update model | `IsMaintainingProject` |
-| Delete model | `IsMaintainingProject` |
-| Create/update/delete field | `IsMaintainingProject` |
+| Update model | `IsWritableProject` |
+| Delete model | `IsWritableProject` |
+| Create/update/delete field | `IsWritableProject` |
 
 ### Items
 

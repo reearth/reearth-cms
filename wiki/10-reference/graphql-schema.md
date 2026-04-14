@@ -158,7 +158,7 @@ enum SchemaFieldType {
   RichText
   MarkdownText
   Asset
-  DateTime
+  Date
   Bool
   Select
   Tag

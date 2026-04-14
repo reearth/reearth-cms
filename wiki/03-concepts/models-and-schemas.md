@@ -108,7 +108,7 @@ A schema is the set of fields attached to a model. Fields define the type, const
 
 ### Field Types
 
-Re:Earth CMS supports **19 field types**:
+Re:Earth CMS supports **17 field types**:
 
 | Category | Types |
 |---|---|
@@ -158,7 +158,7 @@ The **key** is the machine-readable identifier for a field. It is used:
 - As the column name in CSV exports
 - As the field identifier in filter expressions
 
-Keys must be lowercase, and can contain letters, numbers, and hyphens. They cannot be changed after creation.
+Keys must be lowercase, and can contain letters, numbers, and hyphens.
 
 ### Title Field
 
@@ -170,7 +170,7 @@ Fields can be reordered using drag-and-drop in the schema editor. The order is r
 
 ### Editing and Deleting Fields
 
-Fields can be edited (name, description, validation, default value) but the **type and key cannot be changed** after creation. If you need a different type or key, delete the field and create a new one.
+Fields can be edited (name, key, description, validation, default value) but the **type cannot be changed** after creation. If you need a different type, delete the field and create a new one.
 
 > **Warning:** Deleting a field permanently removes all stored values for that field across all items.
 
