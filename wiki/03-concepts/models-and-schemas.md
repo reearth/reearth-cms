@@ -61,6 +61,47 @@ Models can be reordered within a project using drag-and-drop in the sidebar. The
 
 ---
 
+## Groups (Model Organizer)
+
+**Groups** are a project-level feature for organizing models into named sections in the left sidebar. A group is a container that holds zero or more models and helps keep large projects navigable.
+
+> **Important:** This is distinct from the [Group field type](../04-field-types/group-fields.md), which is a field that holds repeatable sub-fields inside an item. Model organizer groups are purely a navigation/display feature.
+
+### Group Properties
+
+| Property | Description |
+|---|---|
+| **Name** | Display name shown in the sidebar |
+| **Key** | URL-safe identifier (must be more than 2 characters) |
+| **Description** | Optional description |
+| **Order** | Display order among sibling groups |
+
+When a group is created, a linked schema is automatically provisioned (for internal use). The group appears in the left sidebar above the models it contains.
+
+### Creating and Managing Groups
+
+1. In the left sidebar, click the **+** button at the project level.
+2. Select **New Group**.
+3. Enter a name and optional key/description.
+4. Drag models into the group to associate them.
+5. Groups and their contained models can be reordered using drag-and-drop.
+
+> **Note:** A group cannot be deleted if any models are still associated with it. Move or delete all models from the group first.
+
+### Group API Operations
+
+| GraphQL Operation | Description |
+|---|---|
+| `groups(projectId: ...)` | List all groups in a project |
+| `groups(modelID: ...)` | Get the group(s) a model belongs to |
+| `modelsByGroup(groupId: ...)` | List models in a specific group |
+| `createGroup(input: ...)` | Create a new group |
+| `updateGroup(input: ...)` | Update group name, key, or description |
+| `updateGroupsOrder(input: ...)` | Reorder groups within a project |
+| `deleteGroup(input: ...)` | Delete a group (must be empty) |
+
+---
+
 ## Schemas
 
 A schema is the set of fields attached to a model. Fields define the type, constraints, and behavior of each piece of data within an item.

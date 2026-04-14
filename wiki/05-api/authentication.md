@@ -78,7 +78,23 @@ Authorization: Bearer <api-key-token>
 
 ---
 
-### 4. Machine-to-Machine (M2M)
+### 4. Identity-Aware Proxy (IAP)
+
+Google Cloud's **Identity-Aware Proxy** (IAP) can be placed in front of the Re:Earth CMS server to handle authentication at the infrastructure level. When IAP is enabled, it injects a signed `X-Goog-IAP-JWT-Assertion` header into every request that reaches the application.
+
+The frontend supports IAP by reading this header and using the embedded identity rather than performing a separate login flow.
+
+**When to use:**
+- GCP-hosted deployments where you want centralized access control at the load balancer/proxy layer
+- Organizations already using Google Workspace identity management
+- Removing the need to configure Auth0/Firebase/Cognito for internal tools
+
+**Configuration:**
+IAP is enabled on the frontend when `AUTH_PROVIDER` is set to `google-cloud-iap` in the frontend environment configuration.
+
+---
+
+### 5. Machine-to-Machine (M2M)
 
 Used for internal service communication (e.g., worker → server). Configured via `REEARTH_CMS_AUTHM2M_*` environment variables.
 

@@ -62,6 +62,69 @@ Accessible at **Settings** → **General**:
 - **Name** — the display name of the workspace
 - **Workspace ID** — a unique identifier (read-only)
 
+### 3D Viewer Resources (Tile & Terrain)
+
+Re:Earth CMS workspaces support configuring **tile map** and **terrain** resources for the built-in 3D geospatial viewer. These settings are used by projects that render geographic content.
+
+#### Tile Resources
+
+Tile resources define the base map layers displayed in the viewer. Each tile resource has:
+
+| Property | Description |
+|---|---|
+| **Type** | One of the built-in tile types or `URL` for a custom tile source |
+| **Name** | Display label |
+| **URL** | Tile endpoint (only for `URL` type) |
+| **Image** | Preview thumbnail URL |
+
+Built-in tile types:
+
+| Type | Description |
+|---|---|
+| `DEFAULT` | Default base map |
+| `LABELLED` | Base map with labels |
+| `ROAD_MAP` | Road map style |
+| `OPEN_STREET_MAP` | OpenStreetMap |
+| `ESRI_TOPOGRAPHY` | ESRI topographic map |
+| `EARTH_AT_NIGHT` | NASA Earth at Night imagery |
+| `JAPAN_GSI_STANDARD_MAP` | Japan GSI standard map |
+| `URL` | Custom tile endpoint |
+
+#### Terrain Resources
+
+Terrain resources control elevation data used for 3D terrain rendering. Each terrain resource has:
+
+| Property | Description |
+|---|---|
+| **Type** | One of the built-in terrain providers or `CESIUM_ION` for a custom Cesium Ion asset |
+| **Name** | Display label |
+| **URL** | Terrain data endpoint |
+| **Image** | Preview thumbnail URL |
+| **Cesium Ion Asset ID** | Asset ID for Cesium Ion terrain (only for `CESIUM_ION` type) |
+| **Cesium Ion Access Token** | Access token for Cesium Ion (only for `CESIUM_ION` type) |
+
+Built-in terrain types:
+
+| Type | Description |
+|---|---|
+| `CESIUM_WORLD_TERRAIN` | Cesium World Terrain (default) |
+| `ARC_GIS_TERRAIN` | ArcGIS terrain service |
+| `CESIUM_ION` | Custom Cesium Ion asset |
+
+#### Configuring via API
+
+```graphql
+mutation {
+  updateWorkspaceSettings(
+    id: "workspace-id"
+    tiles: [{ tileType: DEFAULT, name: "Default Map" }]
+    terrains: [{ terrainType: CESIUM_WORLD_TERRAIN, name: "World Terrain" }]
+  ) {
+    workspaceSettings { id tiles { type name } }
+  }
+}
+```
+
 ## API Access
 
 The GraphQL API exposes workspace operations:
