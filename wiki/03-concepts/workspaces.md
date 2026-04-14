@@ -116,11 +116,37 @@ Built-in terrain types:
 ```graphql
 mutation {
   updateWorkspaceSettings(
-    id: "workspace-id"
-    tiles: [{ tileType: DEFAULT, name: "Default Map" }]
-    terrains: [{ terrainType: CESIUM_WORLD_TERRAIN, name: "World Terrain" }]
+    input: {
+      id: "workspace-id"
+      tiles: {
+        resources: [
+          {
+            tile: {
+              id: "tile-resource-id"
+              type: DEFAULT
+              props: { name: "Default Map", url: "", image: "" }
+            }
+          }
+        ]
+        selectedResource: "tile-resource-id"
+        enabled: true
+      }
+      terrains: {
+        resources: [
+          {
+            terrain: {
+              id: "terrain-resource-id"
+              type: CESIUM_WORLD_TERRAIN
+              props: { name: "World Terrain", url: "", image: "", cesiumIonAssetId: "", cesiumIonAccessToken: "" }
+            }
+          }
+        ]
+        selectedResource: "terrain-resource-id"
+        enabled: true
+      }
+    }
   ) {
-    workspaceSettings { id tiles { type name } }
+    workspaceSettings { id }
   }
 }
 ```
