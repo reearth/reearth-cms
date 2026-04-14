@@ -1,10 +1,19 @@
-# Public REST API
+# REST APIs
 
-Re:Earth CMS provides a REST API for external integrations and programmatic access. It is defined using OpenAPI 3.0 and covers the most common content operations.
+Re:Earth CMS exposes two distinct REST APIs:
 
-## Base URL
+| API | Base path | Purpose | Auth required |
+|---|---|---|---|
+| **Integration API** | `/api/{ws}/projects/{proj}/...` | Full CRUD for integrations and API key users | Yes (token/API key) |
+| **Public Read API** | `/api/p/{ws}/{proj}/...` | Read-only access to published content | No (public projects) |
 
-All endpoints are relative to the server's base URL, using the workspace and project identifiers as path prefixes:
+---
+
+## Integration API
+
+The Integration API is the primary REST interface for programmatic access. It is defined using OpenAPI 3.0 (`server/schemas/integration/integration.yml`) and supports full CRUD operations.
+
+### Base URL
 
 ```
 https://<host>/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...
@@ -12,13 +21,27 @@ https://<host>/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...
 
 Both IDs and human-readable aliases are accepted in path parameters.
 
-## Authentication
+### Authentication
 
 ```
 Authorization: Bearer <integration-token-or-api-key>
 ```
 
-For public projects, read endpoints work without authentication. Private resources return `404` (not `401`) to avoid leaking resource existence.
+Private resources return `404` (not `401`) to avoid leaking resource existence.
+
+---
+
+## Public Read API
+
+The Public Read API provides unauthenticated read access to published content in public projects. It is mounted at `/api/p` and exposes only `GET` endpoints.
+
+```
+https://<host>/api/p/{workspace}/{project}/...
+```
+
+This API is intended for consuming published content in front-end applications without requiring authentication.
+
+---
 
 ---
 

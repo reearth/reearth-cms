@@ -106,7 +106,7 @@ Built using a **multi-stage Go build** with a `scratch` base image for minimal s
 
 ```dockerfile
 # Build stage
-FROM golang:1.26 AS builder
+FROM golang:1.26.1-alpine AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o reearth-cms ./cmd/reearth-cms
@@ -119,11 +119,11 @@ ENTRYPOINT ["/reearth-cms"]
 
 ### Web Image
 
-Built with **Node.js 24.14.0** for the React build, then served by **Nginx 1.29 Alpine**:
+Built with **Node.js 24.14.1** for the React build, then served by **Nginx 1.29 Alpine**:
 
 ```dockerfile
 # Build stage
-FROM node:24.14.0 AS builder
+FROM node:24.14.1-slim AS builder
 WORKDIR /app
 COPY web/ .
 RUN yarn install && yarn build

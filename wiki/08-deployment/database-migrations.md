@@ -4,7 +4,7 @@ Re:Earth CMS includes a standalone migration tool for applying schema changes to
 
 ## Overview
 
-The migration tool is located at `server/tools/db-migrations/`. It applies data transformations to the MongoDB database to support schema changes introduced in new versions.
+The migration tool is located at `server/cmd/db-migrations/`. It applies data transformations to the MongoDB database to support schema changes introduced in new versions.
 
 ## Running Migrations
 
@@ -13,7 +13,7 @@ The migration tool is located at `server/tools/db-migrations/`. It applies data 
 By default, the migration tool runs in **dry-run** mode — it reports what changes would be made without actually modifying the database:
 
 ```bash
-cd server/tools/db-migrations
+cd server/cmd/db-migrations
 go run . \
   --db "mongodb://localhost:27017" \
   --db-name "reearth_cms"

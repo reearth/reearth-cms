@@ -104,7 +104,7 @@ All providers issue JWTs that the backend validates. The provider is selected at
 | Image | Base | Notes |
 |---|---|---|
 | `cms-api` / `cms-worker` | `scratch` (multi-stage Go build) | Minimal attack surface |
-| `cms-web` | Node.js 24.14.0 (build) + Nginx 1.29 Alpine (serve) | Uses `envsubst` for runtime config injection |
+| `cms-web` | Node.js 24.14.1 (build) + Nginx 1.29 Alpine (serve) | Uses `envsubst` for runtime config injection |
 
 ---
 

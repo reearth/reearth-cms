@@ -42,7 +42,8 @@ Content contributor role. WRITERs can create and manage content but with ownersh
 **Can do:**
 - Create, read, and publish items and assets
 - Edit and delete **their own** items and assets (ownership-based)
-- Create and read saved views (cannot create/edit/delete views)
+- Manage models (create, update, delete)
+- Manage schema fields (create, update, delete)
 - Create requests and update their own requests
 - Post and edit their own comments
 - Create and read API keys (cannot update/delete)
@@ -53,7 +54,7 @@ Content contributor role. WRITERs can create and manage content but with ownersh
 - Manage workspace settings
 - Invite, remove, or change roles of other members
 - Connect, update, or delete integrations
-- Create or edit saved views
+- Create, update, or delete saved views
 - Approve requests
 
 **Special behavior:**

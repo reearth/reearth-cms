@@ -14,11 +14,9 @@ The import feature lets you:
 
 | Limit | Value |
 |---|---|
-| Maximum records per import | 50,000 |
-| Maximum file size | 100 MB |
 | Batch processing size | 1,000 items per chunk |
 
-Imports exceeding these limits must be split into multiple files.
+The import worker processes items in batches of 1,000 and uses streaming to avoid loading the entire file into memory. For very large datasets, splitting the file into multiple imports is recommended.
 
 ## Supported Formats
 

@@ -1,6 +1,6 @@
 # Field Types Overview
 
-Re:Earth CMS supports **19 field types** for defining the structure of your content models. Each field type controls what kind of data can be stored in a field and how it is displayed and edited in the UI.
+Re:Earth CMS supports **17 field types** for defining the structure of your content models. Each field type controls what kind of data can be stored in a field and how it is displayed and edited in the UI.
 
 ## All Field Types
 

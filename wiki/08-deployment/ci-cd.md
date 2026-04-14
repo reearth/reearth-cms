@@ -1,6 +1,6 @@
 # CI/CD Pipeline
 
-Re:Earth CMS uses **GitHub Actions** for continuous integration and deployment. The pipeline consists of 17 workflow files covering testing, building, and deploying all components.
+Re:Earth CMS uses **GitHub Actions** for continuous integration and deployment. The pipeline consists of 16 workflow files covering testing, building, and deploying all components.
 
 ## Workflow Files
 

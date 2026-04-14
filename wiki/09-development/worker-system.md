@@ -80,14 +80,7 @@ Cloud Build is used for heavy tasks because it supports:
 
 ## Asset Decompression Worker
 
-The decompressor is the most compute-intensive worker. It is configured with performance flags:
-
-| Flag | Value | Description |
-|---|---|---|
-| `-n` | `192` | Number of parallel decompression workers |
-| `-gc` | `5000` | GC threshold (items processed before GC) |
-| `-chunk` | `1m` | Chunk size for streaming (1 MB) |
-| `-disk-limit` | `20g` | Maximum disk usage (20 GB) |
+The decompressor is the most compute-intensive worker. It runs with high parallelism to process ZIP archives efficiently.
 
 ### Progress Tracking
 

@@ -21,6 +21,8 @@ This workflow is particularly useful in teams where content must be verified bef
 | **APPROVED** | A reviewer has approved the request. The items are published. |
 | **CLOSED** | The request was rejected or withdrawn by the creator. Items return to DRAFT status. |
 
+> **Note:** In the API and database, state values are lowercase strings: `"draft"`, `"waiting"`, `"approved"`, `"closed"`.
+
 ### State Transitions
 
 ```
