@@ -201,6 +201,21 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		assert.Equal(t, int64(0), l.TotalCount)
 		assert.Equal(t, 0, len(l.Projects))
 	})
+
+	t.Run("List Projects for workspace with non-existing user should return only public projects", func(t *testing.T) {
+		mdNonMember := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       id.NewUserID().String(),
+		})
+		mdCtxNonMember := metadata.NewOutgoingContext(t.Context(), mdNonMember)
+
+		l, err := client.ListProjects(mdCtxNonMember, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+		assert.Equal(t, pid.String(), l.Projects[0].Id)
+	})
 }
 
 // GRPC Get Project
@@ -568,6 +583,27 @@ func TestInternalGetModelAPI(t *testing.T) {
 	assert.Equal(t, pid.String(), m.Model.ProjectId)
 	assert.Equal(t, "m1 desc", m.Model.Description)
 	assert.NotNil(t, m.Model.Schema)
+
+	// region Private Project
+	// Get model from private project owned by the user = should return the model
+	m, err = client.GetModel(mdCtx, &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias2, ModelIdOrAlias: mId6.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, mId6.String(), m.Model.Id)
+	assert.Equal(t, "m6", m.Model.Name)
+	assert.Equal(t, pid2.String(), m.Model.ProjectId)
+
+	// Get model from private project with non-existing user = should return not found
+	mdNonMember := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       id.NewUserID().String(),
+	})
+	mdCtxNonMember := metadata.NewOutgoingContext(t.Context(), mdNonMember)
+
+	m, err = client.GetModel(mdCtxNonMember, &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias2, ModelIdOrAlias: mId6.String()})
+	assert.Error(t, err)
+	assert.Equal(t, "rpc error: code = Unknown desc = not found", err.Error())
+	assert.Nil(t, m)
+	// endregion
 }
 
 // GRPC List Items in Model

@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
+	"go.opentelemetry.io/otel"
 )
 
 type HealthChecker struct {
@@ -83,10 +84,11 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 		}
 	}
 
-	h, err := health.New(health.WithComponent(health.Component{
-		Name:    "reearth-cms",
-		Version: ver,
-	}), health.WithChecks(checks...))
+	h, err := health.New(
+		health.WithComponent(health.Component{Name: "reearth-cms", Version: ver}),
+		health.WithChecks(checks...),
+		health.WithTracerProvider(otel.GetTracerProvider(), "reearth-cms"),
+	)
 	if err != nil {
 		log.Fatalf("failed to create health check: %v", err)
 	}

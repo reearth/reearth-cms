@@ -11,10 +11,13 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/text/language"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -31,7 +34,10 @@ func initGrpc(appCtx *ApplicationContext) *grpc.Server {
 		unaryAttachOperatorInterceptor(appCtx),
 		unaryAttachUsecaseInterceptor(appCtx),
 	)
-	s := grpc.NewServer(ui)
+	s := grpc.NewServer(
+		ui,
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 	pb.RegisterReEarthCMSServer(s, internalapi.NewServer(appCtx.Config.Host_Web, appCtx.Config.Host))
 
 	return s
@@ -123,10 +129,19 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		}
 
 		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
-		uc := interactor.New(r, g, ar, ag, interactor.ContainerConfig{})
+		var r2 *repo.Container
+		var ar2 *accountrepo.Container
+		op := adapter.Operator(ctx)
+		r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
+		if op != nil {
+			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
+		} else {
+			ar2 = ar
+		}
+		uc := interactor.New(r2, g, ar2, ag, interactor.ContainerConfig{})
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		ctx = adapter.AttachGateways(ctx, g)
-		ctx = adapter.AttachAcRepos(ctx, ar)
+		ctx = adapter.AttachAcRepos(ctx, ar2)
 
 		return handler(ctx, req)
 	}
