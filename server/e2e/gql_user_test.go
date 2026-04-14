@@ -135,7 +135,7 @@ func TestUpdateMe(t *testing.T) {
 	o.Value("name").String().IsEqual("updated")
 	o.Value("email").String().IsEqual("hoge@test.com")
 	o.Value("lang").String().IsEqual("ja")
-	o.Value("theme").String().IsEqual("default")
+	o.Value("theme").String().IsEqual("DEFAULT")
 }
 
 func TestRemoveMyAuth(t *testing.T) {
@@ -209,7 +209,7 @@ func TestMe(t *testing.T) {
 	o.Value("name").String().IsEqual("e2e")
 	o.Value("email").String().IsEqual("e2e@e2e.com")
 	o.Value("lang").String().IsEqual("en")
-	o.Value("theme").String().IsEqual("dark")
+	o.Value("theme").String().IsEqual("DARK")
 	o.Value("myWorkspaceId").String().IsEqual(wId.String())
 	o.Value("profilePictureUrl").String().IsEqual("")
 
@@ -222,7 +222,7 @@ func TestMe(t *testing.T) {
 	o.Value("name").String().IsEqual("e2e2")
 	o.Value("email").String().IsEqual("e2e2@e2e.com")
 	o.Value("lang").String().IsEqual("ja")
-	o.Value("theme").String().IsEqual("default")
+	o.Value("theme").String().IsEqual("DEFAULT")
 	o.Value("myWorkspaceId").String().IsEqual(wId2.String())
 	o.Value("profilePictureUrl").String().IsEqual("")
 }
