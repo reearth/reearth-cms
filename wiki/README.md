@@ -1,7 +1,14 @@
+# Re:Earth CMS Documentation
 
+Welcome to the Re:Earth CMS wiki. Re:Earth CMS is an open-source headless CMS purpose-built for GIS data and general structured content, developed by [Eukarya Inc.](https://eukarya.io).
 
+---
 
+## Table of Contents
 
+### 01 — Overview
+- [Introduction](01-overview/introduction.md) — What Re:Earth CMS is and what it does
+- [Architecture](01-overview/architecture.md) — High-level system architecture
 - [Tech Stack](01-overview/tech-stack.md) — Technologies, frameworks, and libraries used
 
 ### 02 — Getting Started
@@ -36,7 +43,7 @@
 ### 05 — API
 - [API Overview](05-api/overview.md) — GraphQL and REST API capabilities
 - [GraphQL API](05-api/graphql-api.md) — GraphQL operations reference
-- [Public REST API](05-api/public-rest-api.md) — REST API for integrations
+- [REST APIs](05-api/public-rest-api.md) — Integration and public REST APIs
 - [Authentication](05-api/authentication.md) — Auth methods, API keys, and tokens
 - [Webhooks](05-api/webhooks.md) — Webhook events and payloads
 

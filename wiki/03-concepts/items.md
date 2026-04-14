@@ -136,8 +136,8 @@ From the content list, you can select multiple items and perform bulk operations
 | `deleteItem(input: ...)` | Delete an item |
 | `itemsByIDs(ids: ...)` | Fetch multiple items by ID |
 
-Public REST API:
+Public REST API (published items only, public projects):
 ```
-GET /api/projects/{projectAlias}/models/{modelKey}/items
-GET /api/projects/{projectAlias}/models/{modelKey}/items/{itemId}
+GET /api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/{modelIdOrKey}
+GET /api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/{modelIdOrKey}/{itemId}
 ```

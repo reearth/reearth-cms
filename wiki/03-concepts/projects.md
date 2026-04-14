@@ -30,13 +30,18 @@ A project's visibility controls how its content can be accessed via the public A
 
 > Changing visibility to **Public** does not automatically make all content visible. Only **published** items (status `PUBLIC`) are returned by the public API.
 
-### Publication Settings
+### Publication Settings (Accessibility)
 
-Within a public project, you can further control which models and assets are publicly accessible:
-- **Public models** — select which models appear in the public API
-- **Public assets** — choose whether uploaded files can be accessed without a token
+Within a project, the **Accessibility** page has two sections:
+
+| Section | Description |
+|---|---|
+| **Access API** | Lists all models in the project. For each model you can enable a public endpoint — a dedicated URL that allows external applications to retrieve the model's published data without authentication. Only available on public projects. |
+| **API Key** | Generates a token to restrict access to published models. Only available on **private** projects. |
 
 ## API Keys
+
+> **API keys are only available when the project visibility is set to Private.** Public projects do not use API keys — they rely on the unauthenticated public API instead.
 
 Projects support API keys for programmatic access from external systems (integrations, scripts, pipelines).
 
@@ -104,7 +109,7 @@ Key GraphQL operations:
 | `deleteProject(input: ...)` | Delete a project |
 | `publishProject(input: ...)` | Change publication settings |
 
-The public REST API path structure uses the project alias:
+The public REST API path structure:
 ```
-/api/projects/{projectAlias}/...
+/api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/...
 ```

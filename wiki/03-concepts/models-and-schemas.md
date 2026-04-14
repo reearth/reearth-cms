@@ -31,9 +31,29 @@ A model is roughly equivalent to a database table, a content type, or a spreadsh
 Each model can optionally have a **metadata schema** — a secondary set of fields for administrative metadata that is separate from the main content fields. Metadata items are linked to the main item but stored and versioned independently.
 
 Common uses for metadata schemas:
-- SEO fields (meta title, description)
-- Internal workflow fields (editor notes, priority)
-- Localization-specific fields
+- Administrative labels (categories, status flags)
+- Workflow fields (approver notes, priority)
+- Custom date fields (publication date, expiry date)
+
+The metadata schema supports a limited set of field types:
+
+| Supported Field Types |
+|---|
+| Tag |
+| Bool (Boolean) |
+| Checkbox |
+| Date |
+| Text |
+| URL |
+
+### Adding Metadata Fields
+
+1. Open a model in the schema editor.
+2. Click the **Metadata** tab at the top of the field list.
+3. Click **Add Field** and select a field type.
+4. Once added, the metadata field appears on every item's editing form for that model.
+
+> **Warning:** Changes to metadata fields (edits or deletions) are immediately reflected across all existing items in that model.
 
 ### Model Ordering
 

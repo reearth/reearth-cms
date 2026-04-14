@@ -113,6 +113,8 @@ item-id,My Article,42,PUBLIC,2024-03-15T09:30:00Z,2024-03-15T10:00:00Z
 
 If an item has no geometry field or the geometry is empty, `"geometry": null` is used.
 
+> **Multiple geometry fields:** GeoJSON format supports only one geometry per feature. If a model has more than one geometry field, only the **first** geometry field is exported. Subsequent geometry fields are dropped. To preserve all geometry fields, use JSON export instead.
+
 ---
 
 ## Filtering Exports
@@ -136,6 +138,28 @@ For very large models (thousands of items), exports are processed asynchronously
 2. A progress indicator is shown in the UI.
 3. When complete, a download link is provided.
 4. The export file is stored temporarily and expires after a period.
+
+---
+
+## Re-importing Exported Files
+
+Exported JSON files **cannot be directly re-imported** into Re:Earth CMS. The export format wraps items in a `{"results": [...], "totalCount": N}` envelope, whereas the import endpoint expects a bare JSON array `[...]`. To re-import exported data, strip the wrapper and extract the `results` array before importing.
+
+---
+
+## CSV Export Limitations
+
+CSV export does not correctly represent all field types. The following fields are not reliably exported in CSV format:
+
+| Field Type | CSV Behavior |
+|---|---|
+| Geometry (GeometryObject, GeometryEditor) | Not exported |
+| Reference | Exported as item ID only (no nested data) |
+| Asset | Exported as asset URL only |
+| Group | Not correctly exported |
+| Tag (multi-select) | May not export all selected values correctly |
+
+For models containing these field types, **JSON or GeoJSON export** is recommended.
 
 ---
 

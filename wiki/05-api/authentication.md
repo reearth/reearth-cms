@@ -91,7 +91,7 @@ Not intended for external use.
 If a project has **Public** visibility and **public publication** settings, certain resources can be accessed **without any authentication**:
 
 ```
-GET /{workspaceAlias}/projects/{projectAlias}/models/{modelKey}/items
+GET /api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/{modelIdOrKey}
 ```
 
 Resources that are not public return `404` (not `401`) to avoid leaking the existence of private resources.

@@ -40,49 +40,62 @@ GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/meta
 
 ## Schema JSON Format
 
-The exported schema JSON follows the structure:
+The exported schema uses **JSON Schema** format (`draft/2020-12`) with custom `x-fieldType` extensions:
 
 ```json
 {
-  "id": "schema-id",
-  "fields": [
-    {
-      "id": "field-id",
-      "key": "title",
-      "name": "Title",
-      "type": "text",
+  "$id": "01kj7r1a009ct8ansz9xw8yhcr",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "My Model",
+  "type": "object",
+  "properties": {
+    "title": {
+      "title": "Title",
       "description": "The article title",
-      "required": true,
-      "multiple": false,
-      "unique": false,
-      "isTitle": true,
-      "typeProperty": {}
+      "type": "string",
+      "x-fieldType": "text",
+      "x-required": true,
+      "x-unique": true
     },
-    {
-      "id": "field-id-2",
-      "key": "status",
-      "name": "Status",
-      "type": "select",
-      "required": false,
-      "multiple": false,
-      "typeProperty": {
-        "selectDefaultValue": "draft",
-        "selectValues": ["draft", "review", "published"]
-      }
+    "status": {
+      "title": "Status",
+      "type": "string",
+      "x-fieldType": "select",
+      "x-selectValues": ["draft", "review", "published"]
     },
-    {
-      "id": "field-id-3",
-      "key": "count",
-      "name": "Count",
+    "count": {
+      "title": "Count",
       "type": "integer",
-      "typeProperty": {
-        "integerMin": 0,
-        "integerMax": 1000
-      }
+      "x-fieldType": "integer"
+    },
+    "location": {
+      "title": "Location",
+      "type": "object",
+      "x-fieldType": "geometryEditor",
+      "x-geoSupportedType": "POINT"
     }
-  ]
+  }
 }
 ```
+
+The `x-fieldType` property identifies the Re:Earth CMS field type. Common values:
+
+| `x-fieldType` | Field |
+|---|---|
+| `text` | Text (single line) |
+| `textArea` | TextArea (multi-line) |
+| `markdown` | Markdown |
+| `datetime` | Date |
+| `bool` | Bool |
+| `integer` | Integer |
+| `number` | Number |
+| `url` | URL |
+| `select` | Select (add `"x-multiple": true` for multi-select) |
+| `asset` | Asset |
+| `geometryEditor` | Geometry Editor |
+| `geometryObject` | Geometry Object |
+| `group` | Group (not importable) |
+| `reference` | Reference (not importable) |
 
 ---
 
@@ -96,7 +109,9 @@ The exported schema JSON follows the structure:
 4. The system previews the fields to be created.
 5. Confirm to import — fields are added to the model.
 
-> **Note:** Schema import **adds** fields to the existing schema. It does not delete existing fields. If a field with the same key already exists, it is skipped.
+> **Important:** Schema import only works on models that have **no existing fields**. If the target model already has fields, the import will be rejected. Create a new empty model first, then import the schema into it.
+
+> **Note:** Reference and Group fields in the schema JSON are **not supported** and will be skipped during import. Add these fields manually after importing.
 
 ### Via the REST API (as part of item import)
 

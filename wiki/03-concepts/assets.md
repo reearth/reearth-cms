@@ -72,6 +72,8 @@ The CMS automatically detects the preview type from the file's MIME type and ext
 | **CSV** | `csv` | Comma-separated value files |
 | **Unknown** | `unknown` | Any unrecognized file type |
 
+> **CSV preview note:** CSV files can only be previewed if they contain columns named `lat` and `lng` (latitude and longitude). Files without these columns will show as Unknown.
+
 Detection is performed in this order:
 1. MIME type (Content-Type header)
 2. File extension
@@ -161,8 +163,7 @@ Assets can be deleted from the asset list or from the asset detail view. Deletio
 | `updateAsset(input: ...)` | Update asset metadata |
 | `deleteAsset(input: ...)` | Delete an asset |
 
-Public REST API:
+Public REST API (read-only, public assets only):
 ```
-GET /api/projects/{projectAlias}/assets
-GET /api/projects/{projectAlias}/assets/{assetId}
+GET /api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/assets/{assetId}
 ```

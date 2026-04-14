@@ -5,10 +5,11 @@ Re:Earth CMS exposes three APIs for different use cases:
 | API | Protocol | Base Path | Use Case |
 |---|---|---|---|
 | **GraphQL API** | HTTP POST + WebSocket | `/api/graphql` | Used by the web frontend; full read/write access |
-| **Public REST API** | HTTP (OpenAPI 3.0) | `/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...` | External integrations, data pipelines, programmatic access |
+| **Integration REST API** | HTTP (OpenAPI 3.0) | `/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...` | External integrations, data pipelines, programmatic access |
+| **Public Read API** | HTTP | `/api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/...` | Unauthenticated read access to published content in public projects |
 | **Internal gRPC API** | gRPC | port `50051` | Machine-to-machine (worker ↔ server) |
 
-Most developers and integrators use the **Public REST API** or **GraphQL API**.
+Most developers and integrators use the **Integration REST API**, **Public Read API**, or **GraphQL API**.
 
 ---
 
@@ -20,12 +21,19 @@ Most developers and integrators use the **Public REST API** or **GraphQL API**.
 - All operations (create, read, update, delete, publish)
 - Supports complex filtering, pagination, and nested field fetching
 
-### Public REST API
+### Integration REST API
 - Best for: external integrations, data pipelines, simple CRUD, language-agnostic access
 - Authentication: integration secret token or API key
 - OpenAPI 3.0 spec — generate client code in any language
 - Includes GeoJSON and CSV export endpoints
-- Returns `404` (not `401`) for inaccessible resources in public projects (to avoid leaking resource existence)
+- Returns `404` (not `401`) for inaccessible resources to avoid leaking resource existence
+
+### Public Read API
+- Best for: delivering published content to websites, dashboards, and apps without authentication
+- Authentication: none required (public projects only)
+- Read-only (`GET` endpoints only)
+- Returns only items with `PUBLIC` status and assets marked public
+- Returns `404` for private or unpublished resources
 
 ### Internal gRPC API
 - For internal service communication only (worker → server)

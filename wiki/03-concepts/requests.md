@@ -4,13 +4,15 @@ A **request** is a proposal to publish (or change) one or more content items. Re
 
 ## Overview
 
-Requests are the mechanism for content governance in Re:Earth CMS. Instead of publishing items directly, a contributor can:
+Requests are the mechanism for content governance in Re:Earth CMS. When the request feature is enabled for a role, members of that role **cannot publish items directly** — they must go through the request workflow:
 1. Create a request containing one or more items
 2. Assign reviewers
 3. Discuss changes in a thread
 4. Have a reviewer approve or reject the request
 
-This workflow is particularly useful in teams where content must be verified before publication, or where a separation between content authors and publishers is required.
+This ensures that content from those roles is always reviewed before going live, providing a clear separation between content authors and publishers.
+
+> **The request feature is opt-in and disabled by default.** A workspace Owner or Maintainer must enable it per role in the project settings (**Settings → Roles**). Once enabled for a role, members of that role must submit a request to publish — direct publishing is no longer available to them.
 
 ## Request States
 

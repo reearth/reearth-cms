@@ -13,6 +13,13 @@ Re:Earth CMS supports two types of integrations:
 
 Integrations authenticate using a **secret token** — a long-lived credential issued when the integration is created.
 
+The workspace navigation bar has two integration-related tabs:
+
+| Tab | Available in | Purpose |
+|---|---|---|
+| **Integration** | Personal and team workspaces | Connect integrations to the workspace and its projects |
+| **My Integration** | Personal workspace only | Create and manage integrations you own |
+
 ## Creating an Integration
 
 To create a private integration:
