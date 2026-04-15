@@ -44,7 +44,10 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 	// TODO: implement sort & pagination
 
 	result := project.List(r.data.FindAll(func(pid id.ProjectID, v *project.Project) bool {
-		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+		if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 && !f.WorkspaceIds.Has(v.Workspace()) {
+			return false
+		}
+		if !r.f.CanRead(v.Workspace()) {
 			return false
 		}
 		if f.Visibility != nil {

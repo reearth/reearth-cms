@@ -30,9 +30,8 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
     await expect(settingsPage.okButton).toBeVisible();
     await settingsPage.okButton.click();
     await expect(settingsPage.saveButton).toBeVisible();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update tile to 'URL' type with custom values", async () => {
@@ -52,9 +51,8 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
     await expect(settingsPage.okButton).toBeVisible();
     await settingsPage.okButton.click();
     await expect(settingsPage.saveButton).toBeVisible();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify tile updated with correct values", async () => {
@@ -71,17 +69,16 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
     await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
     await expect(settingsPage.closeButton).toBeVisible();
     await settingsPage.closeButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete tile", async () => {
     await expect(settingsPage.deleteCardButton).toBeVisible();
     await settingsPage.deleteCardButton.click();
     await expect(settingsPage.saveButton).toBeVisible();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await expect(settingsPage.textByName("url", true)).toBeHidden();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -95,9 +92,8 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => 
     await settingsPage.cesiumWorldTerrainOption.click();
     await settingsPage.arcGisTerrainOption.click();
     await settingsPage.okButton.click();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update terrain to 'Cesium Ion' type with custom values", async () => {
@@ -116,9 +112,8 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => 
     await settingsPage.imageUrlInput.click();
     await settingsPage.imageUrlInput.fill("http://image.com");
     await settingsPage.okButton.click();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify terrain updated with correct values", async () => {
@@ -131,24 +126,22 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => 
     await expect(settingsPage.terrainUrlInput).toHaveValue("http://terrain.com");
     await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
     await settingsPage.closeButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete terrain", async () => {
     await settingsPage.deleteIconButton.click();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await expect(settingsPage.textByName("name", true)).toBeHidden();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Disable terrain and verify UI updated", async () => {
     await settingsPage.terrainSwitch.click();
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "false");
     await expect(settingsPage.addTerrainButton).toBeHidden();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -162,18 +155,16 @@ test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
     await settingsPage.okButton.click();
     await expect(settingsPage.cardByIndex(0)).toHaveText("DEFAULT");
     await expect(settingsPage.cardByIndex(1)).toHaveText("LABELLED");
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Drag first tile below second tile and verify order", async () => {
     await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
     await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
     await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify tile order persists after navigation", async () => {
@@ -181,7 +172,7 @@ test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
     await settingsPage.settingsMenuItem.click();
     await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
     await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -199,18 +190,16 @@ test("Terrain reordering has succeeded", async ({ settingsPage, page }) => {
     await settingsPage.okButton.click();
     await expect(settingsPage.cardByIndex(0)).toHaveText("CESIUM_WORLD_TERRAIN");
     await expect(settingsPage.cardByIndex(1)).toHaveText("ARC_GIS_TERRAIN");
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Drag first terrain below second terrain and verify order", async () => {
     await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
     await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
     await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
-    await settingsPage.saveButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
+    await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify terrain order persists after navigation", async () => {
@@ -218,6 +207,6 @@ test("Terrain reordering has succeeded", async ({ settingsPage, page }) => {
     await settingsPage.settingsMenuItem.click();
     await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
     await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

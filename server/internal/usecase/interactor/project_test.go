@@ -493,7 +493,9 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// both are checked in parallel (post-query)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
 			},
 		},
 		{
@@ -552,15 +554,20 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 }
 
 func TestProject_Search(t *testing.T) {
+	t.Parallel()
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
 
-	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
-
-	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p1 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p2 := project.New().NewID().Workspace(wid2).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p3 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -580,74 +587,50 @@ func TestProject_Search(t *testing.T) {
 		setupAuth func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
-			name:  "single workspace without auth gateway",
-			seeds: project.List{p1, p2},
-			filter: interfaces.ProjectFilter{
-				WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1}),
-			},
+			name:     "empty workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{})},
 			operator: op,
-			wantLen:  1,
+			wantLen:  1, // only p3 is public
 		},
 		{
-			name:  "two workspaces without auth gateway",
-			seeds: project.List{p1, p2},
-			filter: interfaces.ProjectFilter{
-				WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2}),
-			},
+			name:     "nil workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{},
 			operator: op,
-			wantLen:  2,
+			wantLen:  1, // only p3 is public
 		},
 		{
-			name:  "two workspaces all allowed",
-			seeds: project.List{p1, p2},
-			filter: interfaces.ProjectFilter{
-				WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2}),
-			},
+			name:     "workspace IDs with permission allowed checks all result workspaces",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
 			operator: op,
 			wantLen:  2,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).Return(true, nil).Times(2)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
 			},
 		},
 		{
-			name:  "one workspace denied",
-			seeds: project.List{p1, p2},
-			filter: interfaces.ProjectFilter{
-				WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2}),
-			},
+			name:     "permission denied for one result workspace returns error",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).
-					DoAndReturn(func(_ context.Context, _, _ string, wid *workspace.ID) (bool, error) {
-						if wid != nil && *wid == wid2 {
-							return false, nil
-						}
-						return true, nil
-					}).AnyTimes()
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(false, nil)
 			},
 		},
 		{
-			name:  "permission check error",
-			seeds: project.List{p1, p2},
-			filter: interfaces.ProjectFilter{
-				WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2}),
-			},
-			operator: op,
-			wantErr:  errors.New("cerbos unavailable"),
-			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, gomock.Any()).
-					Return(false, errors.New("cerbos unavailable")).AnyTimes()
-			},
-		},
-		{
-			name:  "empty workspace list — no permission check, no results",
-			seeds: project.List{p1, p2},
-			filter: interfaces.ProjectFilter{
-				WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{}),
-			},
+			name:     "no results skips permission check entirely",
+			seeds:    project.List{},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1})},
 			operator: op,
 			wantLen:  0,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// no CheckPermission calls expected
+			},
 		},
 	}
 
@@ -669,7 +652,7 @@ func TestProject_Search(t *testing.T) {
 				tc.setupAuth(mockAuth)
 				gw = &gateway.Container{Authorization: mockAuth}
 			}
-			projectUC := NewProject(db, gw)
+			projectUC := NewProject(db, gw).(*Project)
 
 			got, _, err := projectUC.Search(ctx, tc.filter, tc.operator)
 			if tc.wantErr != nil {

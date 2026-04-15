@@ -4,8 +4,6 @@ import (
 	"context"
 	"slices"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -15,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -34,23 +31,17 @@ func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
 	}
 }
 
+func (i *Project) checkPermissions(ctx context.Context, operator *usecase.Operator, projects project.List, caller string, action rbac.Action) error {
+	uniqueWorkspaces := lo.Uniq(lo.Map(projects, func(p *project.Project, _ int) workspace.ID {
+		return p.Workspace()
+	}))
+	return checkWorkspacePermissions(ctx, uniqueWorkspaces, func(ctx context.Context, ws workspace.ID) error {
+		return i.checkPermission(ctx, operator, ws.Ref(), caller, action)
+	})
+}
+
 func (i *Project) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceProject, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceProject, action, workspaceID, operator, caller)
 }
 
 func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *usecase.Operator) (project.List, error) {
@@ -58,16 +49,7 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 	if err != nil {
 		return nil, err
 	}
-	uniqueWorkspaces := lo.Uniq(lo.Map(projects, func(p *project.Project, _ int) workspace.ID {
-		return p.Workspace()
-	}))
-	eg, egCtx := errgroup.WithContext(ctx)
-	for _, ws := range uniqueWorkspaces {
-		eg.Go(func() error {
-			return i.checkPermission(egCtx, operator, ws.Ref(), "project.Fetch", rbac.ActionList)
-		})
-	}
-	if err := eg.Wait(); err != nil {
+	if err := i.checkPermissions(ctx, operator, projects, "project.Fetch", rbac.ActionList); err != nil {
 		return nil, err
 	}
 	return projects, nil
@@ -88,11 +70,8 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 }
 
 func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	for _, ws := range wIds {
-		ws := ws
-		if err := i.checkPermission(ctx, operator, ws.Ref(), "project.FindByWorkspaces", rbac.ActionList); err != nil {
-			return nil, nil, err
-		}
+	if len(wIds) == 0 {
+		return project.List{}, nil, nil
 	}
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
@@ -101,26 +80,32 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
-	return i.repos.Project.Search(ctx, *f)
+	projects, pageInfo, err := i.repos.Project.Search(ctx, *f)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermissions(ctx, operator, projects, "project.FindByWorkspaces", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
+	return projects, pageInfo, nil
 }
 
 func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
-		eg, egCtx := errgroup.WithContext(ctx)
-		for _, ws := range *f.WorkspaceIds {
-			ws := ws
-			eg.Go(func() error {
-				return i.checkPermission(egCtx, operator, ws.Ref(), "project.Search", rbac.ActionList)
-			})
-		}
-		if err := eg.Wait(); err != nil {
-			return nil, nil, err
-		}
-	}
-	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
+	publicOnly := f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0
+	if publicOnly {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
 	}
-	return i.repos.Project.Search(ctx, f)
+	projects, pageInfo, err := i.repos.Project.Search(ctx, f)
+	if err != nil {
+		return nil, nil, err
+	}
+	if publicOnly {
+		return projects, pageInfo, nil
+	}
+	if err := i.checkPermissions(ctx, operator, projects, "project.Search", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
+	return projects, pageInfo, nil
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, operator *usecase.Operator) (*project.Project, error) {
