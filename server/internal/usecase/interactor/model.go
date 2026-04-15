@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -66,34 +64,13 @@ func (i Model) checkPermissions(ctx context.Context, operator *usecase.Operator,
 		}
 		uniqueWorkspaces = append(uniqueWorkspaces, r.wid)
 	}
-	uniqueWorkspaces = lo.Uniq(uniqueWorkspaces)
-
-	eg, egCtx := errgroup.WithContext(ctx)
-	for _, ws := range uniqueWorkspaces {
-		eg.Go(func() error {
-			return i.checkPermission(egCtx, operator, ws.Ref(), caller, action)
-		})
-	}
-	return eg.Wait()
+	return checkWorkspacePermissions(ctx, lo.Uniq(uniqueWorkspaces), func(ctx context.Context, ws workspace.ID) error {
+		return i.checkPermission(ctx, operator, ws.Ref(), caller, action)
+	})
 }
 
 func (i Model) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceModel, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceModel, action, workspaceID, operator, caller)
 }
 
 // workspaceIDForProject returns the workspace ID of the given project

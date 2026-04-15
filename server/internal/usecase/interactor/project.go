@@ -4,8 +4,6 @@ import (
 	"context"
 	"slices"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -15,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -38,32 +35,13 @@ func (i *Project) checkPermissions(ctx context.Context, operator *usecase.Operat
 	uniqueWorkspaces := lo.Uniq(lo.Map(projects, func(p *project.Project, _ int) workspace.ID {
 		return p.Workspace()
 	}))
-	eg, egCtx := errgroup.WithContext(ctx)
-	for _, ws := range uniqueWorkspaces {
-		eg.Go(func() error {
-			return i.checkPermission(egCtx, operator, ws.Ref(), caller, action)
-		})
-	}
-	return eg.Wait()
+	return checkWorkspacePermissions(ctx, uniqueWorkspaces, func(ctx context.Context, ws workspace.ID) error {
+		return i.checkPermission(ctx, operator, ws.Ref(), caller, action)
+	})
 }
 
 func (i *Project) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceProject, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceProject, action, workspaceID, operator, caller)
 }
 
 func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *usecase.Operator) (project.List, error) {
