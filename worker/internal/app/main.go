@@ -70,7 +70,6 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
-	debug     bool
 	address   string
 	appServer *echo.Echo
 }
@@ -106,7 +105,7 @@ func NewServer(ctx context.Context, cfg *ServerConfig, handler *Handler) *WebSer
 }
 
 func (w *WebServer) Run(ctx context.Context) {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	sc := echo.StartConfig{
