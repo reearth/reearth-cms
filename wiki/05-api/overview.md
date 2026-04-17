@@ -1,11 +1,11 @@
 # API Overview
 
-Re:Earth CMS exposes three APIs for different use cases:
+Re:Earth CMS exposes four APIs for different use cases:
 
 | API | Protocol | Base Path | Use Case |
 |---|---|---|---|
 | **GraphQL API** | HTTP POST + WebSocket | `/api/graphql` | Used by the web frontend; full read/write access |
-| **Integration REST API** | HTTP (OpenAPI 3.0) | `/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...` | External integrations, data pipelines, programmatic access |
+| **Integration REST API** | HTTP (OpenAPI 3.0) | `/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/...` | External integrations, data pipelines, programmatic access |
 | **Public Read API** | HTTP | `/api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/...` | Unauthenticated read access to published content in public projects |
 | **Internal gRPC API** | gRPC | port `50051` | Machine-to-machine (worker ↔ server) |
 

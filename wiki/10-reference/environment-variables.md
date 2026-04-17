@@ -92,7 +92,7 @@ Complete reference for all environment variables used by Re:Earth CMS. All serve
 | `REEARTH_CMS_AUTH_TTL` | Token TTL in seconds |
 | `REEARTH_CMS_AUTH_CLIENTID` | OAuth client ID |
 | `REEARTH_CMS_AUTH_JWKSURI` | JWKS endpoint URL |
-| `REEARTH_AUTH` | JSON array of multiple auth configs |
+| `REEARTH_AUTH` | JSON array of multiple auth configs (intentionally no `_CMS_` prefix) |
 
 ### Machine-to-Machine (M2M)
 

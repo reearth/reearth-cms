@@ -26,7 +26,7 @@ services:
   reearth-cms-server:
     image: reearth/reearth-cms:nightly
     environment:
-      REEARTH_DB: mongodb://reearth-cms-mongo
+      REEARTH_CMS_DB: mongodb://reearth-cms-mongo
     ports:
       - '8080:8080'
     links:

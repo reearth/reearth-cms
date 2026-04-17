@@ -143,7 +143,7 @@ For very large models (thousands of items), exports are processed asynchronously
 
 ## Re-importing Exported Files
 
-Exported JSON files **cannot be directly re-imported** into Re:Earth CMS. The export format wraps items in a `{"results": [...], "totalCount": N}` envelope, whereas the import endpoint expects a bare JSON array `[...]`. To re-import exported data, strip the wrapper and extract the `results` array before importing.
+Exported JSON files **cannot be directly re-imported** into Re:Earth CMS. The export format wraps items in a `{"items": [...], "totalCount": N, "page": N, "perPage": N}` envelope, whereas the import endpoint expects a bare JSON array `[...]`. To re-import exported data, strip the wrapper and extract the `items` array before importing.
 
 ---
 

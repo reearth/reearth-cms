@@ -100,14 +100,7 @@ Delivery is best-effort. Failed deliveries are not automatically retried — con
 
 ### Verifying Webhook Signatures
 
-If a **secret** is set on the webhook, the CMS includes an HMAC-SHA256 signature in the `X-Reearth-Signature` header. Verify this in your endpoint to confirm the payload came from Re:Earth CMS:
-
-```python
-import hmac, hashlib
-
-expected = hmac.new(secret.encode(), payload_body, hashlib.sha256).hexdigest()
-assert request.headers['X-Reearth-Signature'] == expected
-```
+If a **secret** is set on the webhook, the CMS includes an HMAC-SHA256 signature in the `Reearth-Signature` header (no `X-` prefix). The header value has the format `v1,t=<unix_timestamp>,<hex_digest>`. See [Webhooks](../05-api/webhooks.md#signature-verification) for full verification examples.
 
 ## Integration as a Workspace Member
 

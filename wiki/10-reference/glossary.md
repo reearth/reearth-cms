@@ -48,7 +48,7 @@ A typed data attribute in a schema. Fields define what data items can store (tex
 The machine-readable API identifier for a field. Used in API responses and import/export files.
 
 **Field Type**
-The data type of a field. Re:Earth CMS supports 19 field types: Text, TextArea, RichText, Markdown, Integer, Number, Bool, Checkbox, Date, Select, Tag, Asset, Reference, URL, GeometryObject, GeometryEditor, Group, (plus Json and DateTime internally).
+The data type of a field. Re:Earth CMS exposes 17 user-facing field types: Text, TextArea, RichText, Markdown, Integer, Number, Bool, Checkbox, Date, Select, Tag, Asset, Reference, URL, GeometryObject, GeometryEditor, Group. Two additional types (`json`, `datetime`) are used internally.
 
 ---
 

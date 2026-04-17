@@ -15,7 +15,7 @@ For backend contributions, familiarize yourself with the [Clean Architecture pat
 ### Prerequisites
 
 - **Go 1.26+** — [download](https://go.dev/dl/)
-- **Node.js 24+** with **Yarn** — [download](https://nodejs.org/)
+- **Node.js 20.11+** with **Yarn** — [download](https://nodejs.org/)
 - **Docker + Docker Compose** — [download](https://docs.docker.com/get-docker/)
 - **Git**
 

@@ -81,7 +81,7 @@ For custom or multiple auth providers, use the generic JWT settings:
 | `REEARTH_CMS_AUTH_CLIENTID` | OAuth client ID |
 | `REEARTH_CMS_AUTH_JWKSURI` | JWKS endpoint URL |
 
-For multiple providers, use the JSON array format:
+For multiple providers, use the `REEARTH_AUTH` JSON array format (note: no `_CMS_` prefix — this variable is an intentional exception):
 
 ```bash
 REEARTH_AUTH='[{"ISS":"https://...","AUD":["..."],"ALG":"RS256","JWKSURI":"..."}]'

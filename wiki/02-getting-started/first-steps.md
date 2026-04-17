@@ -96,7 +96,7 @@ To make an item publicly accessible:
 
 It is now accessible via the public API at:
 ```
-GET /api/projects/{projectAlias}/models/{modelKey}/items
+GET /api/p/{workspaceIdOrAlias}/{projectIdOrAlias}/{modelIdOrKey}
 ```
 
 ---
