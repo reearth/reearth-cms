@@ -192,8 +192,8 @@ func TestItem_MarshalJSON(t *testing.T) {
 		"id":   "xxx",
 		"url":  "https://example.com",
 	}, v["bbb"])
-	assert.Contains(t, v, "createdAt")
-	assert.Contains(t, v, "updatedAt")
-	assert.NotContains(t, v, "createdBy")
-	assert.NotContains(t, v, "updatedBy")
+	assert.Contains(t, v, "$createdAt")
+	assert.Contains(t, v, "$updatedAt")
+	assert.NotContains(t, v, "$createdBy")
+	assert.NotContains(t, v, "$updatedBy")
 }

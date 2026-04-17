@@ -26,13 +26,13 @@ type Item struct {
 func (i Item) MarshalJSON() ([]byte, error) {
 	m := i.Fields
 	m["id"] = i.ID
-	m["createdAt"] = i.CreatedAt
-	m["updatedAt"] = i.UpdatedAt
+	m["$createdAt"] = i.CreatedAt
+	m["$updatedAt"] = i.UpdatedAt
 	if i.CreatedBy != "" {
-		m["createdBy"] = i.CreatedBy
+		m["$createdBy"] = i.CreatedBy
 	}
 	if i.UpdatedBy != "" {
-		m["updatedBy"] = i.UpdatedBy
+		m["$updatedBy"] = i.UpdatedBy
 	}
 
 	return json.Marshal(m)

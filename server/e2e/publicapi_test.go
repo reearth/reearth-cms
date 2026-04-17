@@ -169,10 +169,10 @@ func TestPublicAPI_Item(t *testing.T) {
 				"id":   pApiP1A1Id.String(),
 				"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 			},
-			"createdAt": pApiP1M1I1Id.Timestamp(),
-			"createdBy": pApiUid.String(),
-			"updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
-			"updatedBy": pApiUid.String(),
+			"$createdAt": pApiP1M1I1Id.Timestamp(),
+			"$createdBy": pApiUid.String(),
+			"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+			"$updatedBy": pApiUid.String(),
 		})
 
 	// test reference field
@@ -191,15 +191,15 @@ func TestPublicAPI_Item(t *testing.T) {
 					"id":   pApiP1A1Id.String(),
 					"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 				},
-				"createdAt": pApiP1M1I1Id.Timestamp(),
-				"createdBy": pApiUid.String(),
-				"updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
-				"updatedBy": pApiUid.String(),
+				"$createdAt": pApiP1M1I1Id.Timestamp(),
+				"$createdBy": pApiUid.String(),
+				"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+				"$updatedBy": pApiUid.String(),
 			},
-			"createdAt": pApiP1M2I1Id.Timestamp(),
-			"createdBy": pApiUid.String(),
-			"updatedAt": pApiP1M2I1Ts.UTC().Truncate(time.Millisecond),
-			"updatedBy": pApiUid.String(),
+			"$createdAt": pApiP1M2I1Id.Timestamp(),
+			"$createdBy": pApiUid.String(),
+			"$updatedAt": pApiP1M2I1Ts.UTC().Truncate(time.Millisecond),
+			"$updatedBy": pApiUid.String(),
 		})
 
 	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, "___", pApiP1M1I1Id).
@@ -231,10 +231,10 @@ func TestPublicAPI_Item(t *testing.T) {
 			"id":          pApiP1M1I1Id.String(),
 			pApiP1S1F1Key: "aaa",
 			// pApiP1S1F2Key should be removed
-			"createdAt": pApiP1M1I1Id.Timestamp().Local(),
-			"createdBy": pApiUid.String(),
-			"updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
-			"updatedBy": pApiUid.String(),
+			"$createdAt": pApiP1M1I1Id.Timestamp().Local(),
+			"$createdBy": pApiUid.String(),
+			"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+			"$updatedBy": pApiUid.String(),
 		})
 
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
