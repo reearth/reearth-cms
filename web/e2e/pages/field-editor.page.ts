@@ -124,6 +124,13 @@ export class FieldEditorPage extends BasePage {
     return this.getByRole("button", { name: "delete" });
   }
 
+  deleteOptionByIndex(index: number): Locator {
+    return this.locator(".ant-form-item")
+      .filter({ has: this.page.locator("label", { hasText: "Set Options" }) })
+      .getByRole("button", { name: "delete" })
+      .nth(index);
+  }
+
   get setOptionsLabel(): Locator {
     return this.getByLabel("Set Options");
   }
@@ -490,13 +497,11 @@ export class FieldEditorPage extends BasePage {
       if (unique) await this.uniqueFieldCheckbox.check();
     }
 
-    await this.okButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.okButton);
   }
 
   async deleteField(): Promise<void> {
     await this.deleteFieldButton.click();
-    await this.confirmDeleteFieldButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.confirmDeleteFieldButton);
   }
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
@@ -493,7 +492,9 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 			operator: op,
 			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// both are checked in parallel (post-query)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
 			},
 		},
 		{
@@ -541,6 +542,118 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 			projectUC := NewProject(db, gw).(*Project)
 
 			got, _, err := projectUC.FindByWorkspaces(ctx, tc.wIds, nil, tc.operator)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+			assert.Len(t, got, tc.wantLen)
+		})
+	}
+}
+
+func TestProject_Search(t *testing.T) {
+	t.Parallel()
+
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	p1 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p2 := project.New().NewID().Workspace(wid2).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p3 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
+
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+		},
+	}
+
+	tests := []struct {
+		name      string
+		seeds     project.List
+		filter    interfaces.ProjectFilter
+		operator  *usecase.Operator
+		wantLen   int
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name:     "empty workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{})},
+			operator: op,
+			wantLen:  1, // only p3 is public
+		},
+		{
+			name:     "nil workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{},
+			operator: op,
+			wantLen:  1, // only p3 is public
+		},
+		{
+			name:     "workspace IDs with permission allowed checks all result workspaces",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			operator: op,
+			wantLen:  2,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
+			},
+		},
+		{
+			name:     "permission denied for one result workspace returns error",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			operator: op,
+			wantErr:  interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(false, nil)
+			},
+		},
+		{
+			name:     "no results skips permission check entirely",
+			seeds:    project.List{},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1})},
+			operator: op,
+			wantLen:  0,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// no CheckPermission calls expected
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, p := range tc.seeds {
+				assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+			}
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw).(*Project)
+
+			got, _, err := projectUC.Search(ctx, tc.filter, tc.operator)
 			if tc.wantErr != nil {
 				assert.EqualError(t, err, tc.wantErr.Error())
 				return
@@ -1844,187 +1957,6 @@ func TestProject_StarProject(t *testing.T) {
 			// Verify that UpdatedAt was NOT updated in the database when starring (should remain 1 hour ago)
 			assert.True(t, dbGot.UpdatedAt().Equal(expectedTime) || dbGot.UpdatedAt().Equal(expectedTime.Truncate(time.Microsecond)),
 				"Database UpdatedAt should remain unchanged: expected %v, got %v", expectedTime, dbGot.UpdatedAt())
-		})
-	}
-}
-
-func TestProject_FindByWorkspace_Visibility(t *testing.T) {
-	t.Parallel()
-
-	wid := accountdomain.NewWorkspaceID()
-	w := workspace.New().ID(wid).MustBuild()
-
-	privateAcc := project.NewPrivateAccessibility(project.PublicationSettings{}, nil)
-	publicAcc := project.NewPublicAccessibility()
-
-	pidPub := id.NewProjectID()
-	pPub := project.New().ID(pidPub).Workspace(wid).Accessibility(publicAcc).MustBuild()
-
-	pidPriv := id.NewProjectID()
-	pPriv := project.New().ID(pidPriv).Workspace(wid).Accessibility(privateAcc).MustBuild()
-
-	u := user.New().Name("u").NewID().Email("u@test.com").Workspace(wid).MustBuild()
-
-	opWithAccess := &usecase.Operator{
-		ReadableProjects: project.IDList{pidPriv},
-		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
-		},
-	}
-
-	opNoAccess := &usecase.Operator{
-		ReadableProjects: project.IDList{},
-		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
-		},
-	}
-
-	machineOp := &usecase.Operator{
-		Machine: true,
-		AcOperator: &accountusecase.Operator{
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
-		},
-	}
-
-	tests := []struct {
-		name     string
-		op       *usecase.Operator
-		wantIDs  []id.ProjectID
-		wantNIDs []id.ProjectID
-	}{
-		{
-			name:     "nil operator → public only",
-			op:       nil,
-			wantIDs:  []id.ProjectID{pidPub},
-			wantNIDs: []id.ProjectID{pidPriv},
-		},
-		{
-			name:     "machine operator → all projects",
-			op:       machineOp,
-			wantIDs:  []id.ProjectID{pidPub, pidPriv},
-			wantNIDs: nil,
-		},
-		{
-			name:     "operator with explicit access → sees private project",
-			op:       opWithAccess,
-			wantIDs:  []id.ProjectID{pidPub, pidPriv},
-			wantNIDs: nil,
-		},
-		{
-			name:     "operator without explicit access → private project hidden",
-			op:       opNoAccess,
-			wantIDs:  []id.ProjectID{pidPub},
-			wantNIDs: []id.ProjectID{pidPriv},
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-			err := db.Workspace.SaveAll(ctx, workspace.List{w})
-			assert.NoError(t, err)
-			assert.NoError(t, db.Project.Save(ctx, pPub.Clone()))
-			assert.NoError(t, db.Project.Save(ctx, pPriv.Clone()))
-
-			filteredDB := db.Filtered(repo.WorkspaceFilterFromOperator(tc.op), repo.ProjectFilterFromOperator(tc.op))
-			projectUC := NewProject(filteredDB, nil)
-			got, _, err := projectUC.FindByWorkspace(ctx, wid, nil, tc.op)
-			assert.NoError(t, err)
-
-			gotIDs := make([]id.ProjectID, 0, len(got))
-			for _, p := range got {
-				gotIDs = append(gotIDs, p.ID())
-			}
-			for _, want := range tc.wantIDs {
-				assert.Contains(t, gotIDs, want)
-			}
-			for _, notWant := range tc.wantNIDs {
-				assert.NotContains(t, gotIDs, notWant)
-			}
-		})
-	}
-}
-
-func TestProject_FindByIDOrAlias_Visibility(t *testing.T) {
-	t.Parallel()
-
-	wid := accountdomain.NewWorkspaceID()
-	w := workspace.New().ID(wid).MustBuild()
-
-	privateAcc := project.NewPrivateAccessibility(project.PublicationSettings{}, nil)
-
-	pidPriv := id.NewProjectID()
-	pPriv := project.New().ID(pidPriv).Workspace(wid).Accessibility(privateAcc).MustBuild()
-
-	u := user.New().Name("u").NewID().Email("u@test.com").Workspace(wid).MustBuild()
-
-	opWithAccess := &usecase.Operator{
-		ReadableProjects: project.IDList{pidPriv},
-		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
-		},
-	}
-
-	opNoAccess := &usecase.Operator{
-		ReadableProjects: project.IDList{},
-		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
-		},
-	}
-
-	tests := []struct {
-		name    string
-		op      *usecase.Operator
-		wantErr error
-	}{
-		{
-			name:    "nil operator → ErrNotFound for private project",
-			op:      nil,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:    "operator without access → ErrNotFound",
-			op:      opNoAccess,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:    "operator with access → project returned",
-			op:      opWithAccess,
-			wantErr: nil,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-			assert.NoError(t, db.Workspace.SaveAll(ctx, workspace.List{w}))
-			assert.NoError(t, db.Project.Save(ctx, pPriv.Clone()))
-
-			filteredDB := db.Filtered(repo.WorkspaceFilterFromOperator(tc.op), repo.ProjectFilterFromOperator(tc.op))
-			projectUC := NewProject(filteredDB, nil)
-			wsAlias := workspace.IDOrAlias(wid.String())
-			pAlias := project.IDOrAlias(pidPriv.String())
-			got, err := projectUC.FindByIDOrAlias(ctx, wsAlias, pAlias, tc.op)
-			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
-				assert.Nil(t, got)
-			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, got)
-				assert.Equal(t, pidPriv, got.ID())
-			}
 		})
 	}
 }

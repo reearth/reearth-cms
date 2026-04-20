@@ -141,4 +141,75 @@ describe("Test ModelCard component", () => {
     expect(importSchema).not.toHaveClass("ant-dropdown-menu-item-disabled");
     expect(importContent).toHaveClass("ant-dropdown-menu-item-disabled");
   });
+
+  test("Disables export schema when schema is empty", async () => {
+    render(<ModelCard {...buildProps()} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+
+    const exportSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportSchema,
+    );
+    const exportContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportContent,
+    );
+
+    expect(exportSchema).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(exportContent).not.toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Enables export schema when schema has fields", async () => {
+    const baseProps = buildProps();
+    const withFields = buildProps({
+      model: {
+        ...baseProps.model,
+        schema: {
+          id: "test-schema-id",
+          fields: [
+            {
+              id: "field-1",
+              type: SchemaFieldType.Text,
+              title: "Title",
+              key: "title",
+              description: "",
+              required: false,
+              unique: false,
+              multiple: false,
+              isTitle: false,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ModelCard {...withFields} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+
+    const exportSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportSchema,
+    );
+    const exportContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportContent,
+    );
+
+    expect(exportSchema).not.toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(exportContent).not.toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Disables export options when export is loading", async () => {
+    render(<ModelCard {...buildProps({ exportLoading: true })} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+
+    const exportSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportSchema,
+    );
+    const exportContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportContent,
+    );
+
+    expect(exportSchema).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(exportContent).toHaveClass("ant-dropdown-menu-submenu-disabled");
+  });
 });
