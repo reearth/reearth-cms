@@ -46,7 +46,12 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 				return false
 			}
 		}
-		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
+			if !f.WorkspaceIds.Has(v.Workspace()) {
+				return false
+			}
+		}
+		return r.f.CanRead(v.Workspace())
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
