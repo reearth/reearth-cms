@@ -18,6 +18,10 @@ jobs:
       run:
         working-directory: web
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*
@@ -61,6 +65,10 @@ jobs:
     name: Deploy server to AWS
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
       - uses: actions/checkout@v6
 
       - name: Configure AWS credentials
@@ -87,6 +95,10 @@ jobs:
     name: Deploy worker to AWS
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
       - uses: actions/checkout@v6
 
       - name: Configure AWS credentials

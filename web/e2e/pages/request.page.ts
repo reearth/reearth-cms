@@ -155,18 +155,15 @@ export class RequestPage extends BasePage {
   }
 
   async approveRequest(): Promise<void> {
-    await this.approveButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.approveButton);
   }
 
   async closeRequest(): Promise<void> {
-    await this.closeButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.closeButton);
   }
 
   async reopenRequest(): Promise<void> {
-    await this.reopenButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.reopenButton);
   }
 
   getCurrentItemId(): string {

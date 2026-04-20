@@ -40,23 +40,37 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	}
 }
 
-func (i Model) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
+func (i Model) checkPermissions(ctx context.Context, operator *usecase.Operator, models model.List, caller string, action rbac.Action) error {
+	uniqueProjectIDs := lo.Uniq(lo.Map(models, func(m *model.Model, _ int) id.ProjectID {
+		return m.Project()
+	}))
+	type result struct {
+		wid workspace.ID
+		err error
 	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceModel, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator.User() != nil {
-			userID = operator.User().String()
+	ch := make(chan result, len(uniqueProjectIDs))
+	for _, pid := range uniqueProjectIDs {
+		pid := pid
+		go func() {
+			wid, err := i.workspaceIDForProject(ctx, pid)
+			ch <- result{wid, err}
+		}()
+	}
+	uniqueWorkspaces := make([]workspace.ID, 0, len(uniqueProjectIDs))
+	for range uniqueProjectIDs {
+		r := <-ch
+		if r.err != nil {
+			return r.err
 		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
+		uniqueWorkspaces = append(uniqueWorkspaces, r.wid)
 	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return checkWorkspacePermissions(ctx, lo.Uniq(uniqueWorkspaces), func(ctx context.Context, ws workspace.ID) error {
+		return i.checkPermission(ctx, operator, ws.Ref(), caller, action)
+	})
+}
+
+func (i Model) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceModel, action, workspaceID, operator, caller)
 }
 
 // workspaceIDForProject returns the workspace ID of the given project
@@ -106,15 +120,7 @@ func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecas
 	if err != nil {
 		return nil, err
 	}
-	var wid *workspace.ID
-	if len(models) > 0 {
-		ws, wsErr := i.workspaceIDForProject(ctx, models[0].Project())
-		if wsErr != nil {
-			return nil, wsErr
-		}
-		wid = ws.Ref()
-	}
-	if err := i.checkPermission(ctx, operator, wid, "model.FindByIDs", rbac.ActionList); err != nil {
+	if err := i.checkPermissions(ctx, operator, models, "model.FindByIDs", rbac.ActionList); err != nil {
 		return nil, err
 	}
 	return models, nil
@@ -342,10 +348,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
-			m, err := i.repos.Model.FindByID(ctx, modelID)
-			if err != nil {
-				return err
-			}
+
 			if !operator.IsWritableProject(m.Project()) {
 				return interfaces.ErrOperationDenied
 			}
@@ -514,7 +517,27 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
-	if err := i.checkPermission(ctx, operator, nil, "model.FindOrCreateSchema", rbac.ActionRead); err != nil {
+	var projectID id.ProjectID
+	if param.ModelID != nil {
+		m, err := i.repos.Model.FindByID(ctx, *param.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		projectID = m.Project()
+	} else if param.GroupID != nil {
+		g, err := i.repos.Group.FindByID(ctx, *param.GroupID)
+		if err != nil {
+			return nil, err
+		}
+		projectID = g.Project()
+	} else {
+		return nil, interfaces.ErrEitherModelOrGroup
+	}
+	wid, err := i.workspaceIDForProject(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "model.FindOrCreateSchema", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),

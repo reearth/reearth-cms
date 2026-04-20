@@ -27,8 +27,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await projectPage.contentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput(fieldName).fill("1");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
 
   await contentPage.versionHistoryTab.click();
 });
@@ -54,8 +53,7 @@ test("@smoke Read versions successfully", async ({ contentPage }) => {
   await expect(contentPage.tooltipByName("REVIEW")).toBeVisible();
   const itemId = contentPage.url().split("/").at(-1) as string;
   await request.click();
-  await contentPage.approveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.approveButton);
   await contentPage.itemIdButton(itemId).click();
   await contentPage.versionHistoryTab.click();
   await expect(request).toBeHidden();
@@ -64,8 +62,7 @@ test("@smoke Read versions successfully", async ({ contentPage }) => {
   await expect(contentPage.tooltipByName("PUBLIC")).toBeVisible();
 
   await contentPage.fieldInput(fieldName).fill("2");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
 
   await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
   await expect(contentPage.textByRegex(/Updated by .*/)).toBeVisible();
@@ -77,8 +74,7 @@ test.describe("Version details", () => {
   test.beforeEach(async ({ contentPage }) => {
     await expect(contentPage.fieldInput(fieldName)).toHaveValue("1");
     await contentPage.fieldInput(fieldName).fill("2");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
     await expect(contentPage.fieldInput(fieldName)).toHaveValue("2");
 

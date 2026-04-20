@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
@@ -866,14 +867,23 @@ func TestModel_FindByIDs(t *testing.T) {
 		AcOperator: &accountusecase.Operator{},
 	}
 
-	// each case gets its own model instances to avoid shared-pointer mutation races
+	// newM creates a model with a unique project ID each time.
 	newM := func() *model.Model {
 		return model.New().NewID().Key(id.RandomKey()).Schema(id.NewSchemaID()).Project(id.NewProjectID()).MustBuild()
 	}
 
+	// newMWithPid creates a model in a given project so all models share one workspace,
+	// resulting in exactly one CheckPermission call per test case.
+	sharedPid := id.NewProjectID()
+	newMShared := func() *model.Model {
+		return model.New().NewID().Key(id.RandomKey()).Schema(id.NewSchemaID()).Project(sharedPid).MustBuild()
+	}
+
 	mFind1, mFind2 := newM(), newM()
-	mAllowed1, mAllowed2 := newM(), newM()
-	mNoUser1, mNoUser2 := newM(), newM()
+	mAllowed1, mAllowed2 := newMShared(), newMShared()
+	mDenied := newMShared()
+	mError := newMShared()
+	mNoUser1, mNoUser2 := newMShared(), newMShared()
 
 	tests := []struct {
 		name      string
@@ -898,27 +908,28 @@ func TestModel_FindByIDs(t *testing.T) {
 			operator: op,
 			want:     model.List{mAllowed1, mAllowed2},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				// both models share sharedPid → one unique workspace → one check
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(true, nil)
 			},
 		},
 		{
-			name:     "permission denied - returns error",
-			seeds:    model.List{},
-			ids:      []id.ModelID{id.NewModelID()},
+			name:    "permission denied - returns error",
+			seeds:   model.List{mDenied},
+			ids:     []id.ModelID{mDenied.ID()},
 			operator: op,
-			wantErr:  interfaces.ErrOperationDenied,
+			wantErr: interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, nil).Return(false, nil)
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(false, nil)
 			},
 		},
 		{
-			name:     "permission check error - returns error",
-			seeds:    model.List{},
-			ids:      []id.ModelID{id.NewModelID()},
+			name:    "permission check error - returns error",
+			seeds:   model.List{mError},
+			ids:     []id.ModelID{mError.ID()},
 			operator: op,
-			wantErr:  errors.New("cerbos unavailable"),
+			wantErr: errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
-				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, nil).Return(false, errors.New("cerbos unavailable"))
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionList, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
 			},
 		},
 		{
@@ -1324,6 +1335,158 @@ func TestModel_Copy(t *testing.T) {
 				assert.NoError(t, err)
 				tt.validate(t, got)
 			}
+		})
+	}
+}
+
+func TestModel_FindOrCreateSchema(t *testing.T) {
+	t.Parallel()
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(user.NewID()),
+		},
+	}
+
+	// model path fixtures
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	sid := id.NewSchemaID()
+	m := model.New().NewID().Key(id.RandomKey()).Schema(sid).Project(pid).MustBuild()
+	p := project.New().ID(pid).Workspace(wid).MustBuild()
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).TitleField(nil).MustBuild()
+
+	// group path fixtures
+	gwid := accountdomain.NewWorkspaceID()
+	gpid := id.NewProjectID()
+	gsid := id.NewSchemaID()
+	gp := project.New().ID(gpid).Workspace(gwid).MustBuild()
+	gs := schema.New().ID(gsid).Workspace(gwid).Project(gpid).TitleField(nil).MustBuild()
+	g := group.New().NewID().Key(id.RandomKey()).Schema(gsid).Project(gpid).MustBuild()
+
+	tests := []struct {
+		name      string
+		param     interfaces.FindOrCreateSchemaParam
+		seedModel *model.Model
+		seedGroup *group.Group
+		seedProj  *project.Project
+		seedSch   *schema.Schema
+		want      *schema.Schema
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name:    "neither model nor group - returns error",
+			param:   interfaces.FindOrCreateSchemaParam{},
+			wantErr: interfaces.ErrEitherModelOrGroup,
+		},
+		{
+			name:    "model not found - returns error",
+			param:   interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(id.NewModelID())},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:      "group not found - returns error",
+			param:     interfaces.FindOrCreateSchemaParam{GroupID: lo.ToPtr(id.NewGroupID())},
+			seedProj:  gp,
+			wantErr:   rerror.ErrNotFound,
+		},
+		{
+			name:      "model path - without auth gateway",
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			seedModel: m,
+			seedProj:  p,
+			seedSch:   s,
+			want:      s,
+		},
+		{
+			name:      "model path - permission allowed",
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			seedModel: m,
+			seedProj:  p,
+			seedSch:   s,
+			want:      s,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(true, nil)
+			},
+		},
+		{
+			name:      "model path - permission denied",
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			seedModel: m,
+			seedProj:  p,
+			wantErr:   interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(false, nil)
+			},
+		},
+		{
+			name:      "model path - permission check error",
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			seedModel: m,
+			seedProj:  p,
+			wantErr:   errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+		{
+			name:      "group path - without auth gateway",
+			param:     interfaces.FindOrCreateSchemaParam{GroupID: lo.ToPtr(g.ID())},
+			seedGroup: g,
+			seedProj:  gp,
+			seedSch:   gs,
+			want:      gs,
+		},
+		{
+			name:      "group path - permission allowed",
+			param:     interfaces.FindOrCreateSchemaParam{GroupID: lo.ToPtr(g.ID())},
+			seedGroup: g,
+			seedProj:  gp,
+			seedSch:   gs,
+			want:      gs,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceModel, rbac.ActionRead, gomock.Any()).Return(true, nil)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			if tc.seedModel != nil {
+				assert.NoError(t, db.Model.Save(ctx, tc.seedModel.Clone()))
+			}
+			if tc.seedGroup != nil {
+				assert.NoError(t, db.Group.Save(ctx, tc.seedGroup.Clone()))
+			}
+			if tc.seedProj != nil {
+				assert.NoError(t, db.Project.Save(ctx, tc.seedProj.Clone()))
+			}
+			if tc.seedSch != nil {
+				assert.NoError(t, db.Schema.Save(ctx, tc.seedSch.Clone()))
+			}
+
+			var gateways *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways = &gateway.Container{Authorization: mockAuth}
+			}
+
+			modelUC := NewModel(db, gateways)
+			got, err := modelUC.FindOrCreateSchema(ctx, tc.param, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
