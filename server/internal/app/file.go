@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearthx/rerror"
 )
@@ -21,12 +21,12 @@ func serveFiles(e *echo.Group, appCtx *ApplicationContext) {
 }
 
 func privateAssetsMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
-	eh := func(c echo.Context) error { return nil }
+	eh := func(c *echo.Context) error { return nil }
 	authHandler := authMiddleware(appCtx)(eh)
 	jwtHandler := jwtParseMiddleware(appCtx)(eh)
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx echo.Context) error {
+		return func(ctx *echo.Context) error {
 			token := ctx.Request().Header.Get("Authorization")
 
 			if appCtx.Config.Asset_Public || token == "" || !strings.HasPrefix(token, "Bearer ") {
@@ -46,7 +46,7 @@ func privateAssetsMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 }
 
 func handleAssetByUUID(appCtx *ApplicationContext) echo.HandlerFunc {
-	return func(ctx echo.Context) error {
+	return func(ctx *echo.Context) error {
 		filename := ctx.Param("filename")
 		uuid := ctx.Param("uuid1") + ctx.Param("uuid2")
 		if !appCtx.Config.Asset_Public {
@@ -72,7 +72,7 @@ func handleAssetByUUID(appCtx *ApplicationContext) echo.HandlerFunc {
 }
 
 func handleAssetByFileName(appCtx *ApplicationContext) echo.HandlerFunc {
-	return func(ctx echo.Context) error {
+	return func(ctx *echo.Context) error {
 		filename := ctx.Param("filename")
 		r, h, err := appCtx.Gateways.File.Read(
 			ctx.Request().Context(), filename, assetHeaders(ctx.Request().Header),
@@ -84,7 +84,7 @@ func handleAssetByFileName(appCtx *ApplicationContext) echo.HandlerFunc {
 	}
 }
 
-func streamFile(c echo.Context, fileName string, reader io.Reader, headers map[string]string) error {
+func streamFile(c *echo.Context, fileName string, reader io.Reader, headers map[string]string) error {
 	if headers == nil {
 		headers = make(map[string]string)
 	}
