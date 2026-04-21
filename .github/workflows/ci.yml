@@ -90,7 +90,7 @@ jobs:
         uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: audit
-      - uses: reearth/actions/prepare-build@4a7719ea2bfbcf3841b58eaedb01e91d3520227a # main
+      - uses: reearth/actions/prepare-build@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
         id: prepare
         with:
           repo: ${{ github.repository }}
@@ -170,7 +170,7 @@ jobs:
         uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: audit
-      - uses: reearth/actions/deploy-cloud-run-with-tag@4a7719ea2bfbcf3841b58eaedb01e91d3520227a # main
+      - uses: reearth/actions/deploy-cloud-run-with-tag@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
         id: deploy
         with:
           image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
