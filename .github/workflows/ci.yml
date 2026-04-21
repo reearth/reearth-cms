@@ -12,14 +12,14 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: audit
       - name: checkout
         uses: actions/checkout@v6
       - name: changed files for web
         id: web
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
+        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
         with:
           files: |
             web/**
@@ -29,7 +29,7 @@ jobs:
 
       - name: changed files for server
         id: server
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
+        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
         with:
           files: |
             server/**
@@ -39,7 +39,7 @@ jobs:
 
       - name: changed files for worker
         id: worker
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47.0.1
+        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
         with:
           files: |
             worker/**
@@ -71,7 +71,7 @@ jobs:
     if: '!failure()'
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: audit
       - run: echo OK
@@ -87,7 +87,7 @@ jobs:
       name: ${{ steps.prepare.outputs.name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: audit
       - uses: reearth/actions/prepare-build@4a7719ea2bfbcf3841b58eaedb01e91d3520227a # main
@@ -167,7 +167,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
         with:
           egress-policy: audit
       - uses: reearth/actions/deploy-cloud-run-with-tag@4a7719ea2bfbcf3841b58eaedb01e91d3520227a # main
