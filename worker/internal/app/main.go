@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -115,10 +117,12 @@ func (w *WebServer) Run(ctx context.Context) {
 		HidePort:        true,
 	}
 
-	log.Infof("server started at http://%s\n", w.address)
+	log.Infof("server started at http://%s", w.address)
 	defer log.Infoc(ctx, "shutting down server...")
 
-	if err := sc.Start(ctx, h2c.NewHandler(w.appServer, &http2.Server{})); err != nil {
-		log.Errorc(ctx, err.Error())
+	if err := sc.Start(ctx, h2c.NewHandler(w.appServer, &http2.Server{})); err != nil &&
+		!errors.Is(err, context.Canceled) &&
+		!errors.Is(err, http.ErrServerClosed) {
+		log.Fatalc(ctx, err.Error())
 	}
 }

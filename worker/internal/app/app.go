@@ -66,8 +66,12 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 		return http.StatusNotFound, "not found"
 	}
 
-	log("echo internal err: %+v", err)
-	return http.StatusInternalServerError, "internal server error"
+	if rerror.UnwrapErrInternal(err) != nil {
+		log("echo internal err: %+v", err)
+		return http.StatusInternalServerError, "internal server error"
+	}
+
+	return http.StatusBadRequest, err.Error()
 }
 
 func errorHandler(next echo.HTTPErrorHandler) echo.HTTPErrorHandler {

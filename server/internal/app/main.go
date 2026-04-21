@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"os"
@@ -131,11 +132,13 @@ func (w *WebServer) Run(ctx context.Context) {
 				HideBanner:      true,
 				HidePort:        true,
 			}
-			if err := sc.Start(ctx, w.appServer.Handler); err != nil {
-				log.Errorc(ctx, err.Error())
+			if err := sc.Start(ctx, w.appServer.Handler); err != nil &&
+				!errors.Is(err, context.Canceled) &&
+				!errors.Is(err, http.ErrServerClosed) {
+				log.Fatalc(ctx, err.Error())
 			}
 		}()
-		log.Infof("server: started%s  at http://%s\n", debugLog, w.appAddress)
+		log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
 		defer log.Infof("server: http server shutdown")
 	} else {
 		log.Info("server: http server is not configured")
@@ -157,7 +160,7 @@ func (w *WebServer) Run(ctx context.Context) {
 	}
 
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 }
 
