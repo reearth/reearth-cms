@@ -147,16 +147,9 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
-	}
-	if p == nil {
-		return nil, rerror.ErrNotFound
-	}
-
-	if p.Accessibility().Visibility() == project.VisibilityPrivate && (op == nil || !op.IsReadableProject(p.ID())) {
-		return nil, rerror.ErrNotFound
 	}
 
 	return &pb.ProjectResponse{
@@ -173,10 +166,6 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
-	if req.PublicOnly {
-		f.Visibility = lo.ToPtr(project.VisibilityPublic)
-	}
-
 	wIds := lo.FilterMap(req.WorkspaceIds, func(wid string, _ int) (accountdomain.WorkspaceID, bool) {
 		wId, err := accountdomain.WorkspaceIDFrom(wid)
 		if err != nil {
@@ -184,9 +173,13 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		}
 		return wId, true
 	})
+	if req.PublicOnly || len(wIds) == 0 {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	}
 
-	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
-
+	if len(wIds) > 0 {
+		f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
+	}
 	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {
 		return nil, err
@@ -272,12 +265,9 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
 	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
-	}
-	if p == nil {
-		return nil, rerror.ErrNotFound
 	}
 
 	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(req.ModelIdOrAlias), op)

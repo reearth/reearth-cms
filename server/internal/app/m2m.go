@@ -7,8 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	compose "github.com/hallazzang/echo-compose"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -21,7 +20,7 @@ import (
 )
 
 func NotifyHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		var input rhttp.NotifyInput
 		var err error
@@ -54,7 +53,7 @@ func NotifyHandler() echo.HandlerFunc {
 	}
 }
 
-func handleSubscriptionConfirmation(c echo.Context) error {
+func handleSubscriptionConfirmation(c *echo.Context) error {
 	var payload sns.Payload
 	if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
 		log.Errorf("failed to decode request body: %s", err.Error())
@@ -103,7 +102,7 @@ func parseSNSMessage(body io.Reader) (rhttp.NotifyInput, error) {
 	return input, nil
 }
 
-func parsePubSubMessage(c echo.Context) (rhttp.NotifyInput, error) {
+func parsePubSubMessage(c *echo.Context) (rhttp.NotifyInput, error) {
 	var input rhttp.NotifyInput
 	var b pubsubBody
 	if err := c.Bind(&b); err != nil {
@@ -159,15 +158,14 @@ func M2MAuthMiddleware(cfg *Config) echo.MiddlewareFunc {
 		))
 	}
 
-	return compose.Compose(
-		m2MGenerateOperatorMiddleware(cfg.AuthM2M.Email),
-		m2mAuthMiddleware,
-	)
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return m2MGenerateOperatorMiddleware(cfg.AuthM2M.Email)(m2mAuthMiddleware(next))
+	}
 }
 
 func awsM2MAuthTokenMiddleware(token string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			t := c.QueryParam("token")
 			if t != token {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
@@ -187,7 +185,7 @@ func awsM2MAuthTokenMiddleware(token string) echo.MiddlewareFunc {
 
 func m2MGenerateOperatorMiddleware(email string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			ctx := c.Request().Context()
 			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {

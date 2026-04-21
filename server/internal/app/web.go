@@ -3,8 +3,8 @@ package app
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/spf13/afero"
 )
 
@@ -22,7 +22,7 @@ func Web(e *echo.Echo, config map[string]any, disabled bool, fs afero.Fs) {
 
 	e.Logger.Info("web: web directory will be delivered\n")
 
-	e.GET("/reearth_config.json", func(c echo.Context) error {
+	e.GET("/reearth_config.json", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, config)
 	})
 
@@ -31,6 +31,6 @@ func Web(e *echo.Echo, config map[string]any, disabled bool, fs afero.Fs) {
 		Index:      "index.html",
 		Browse:     false,
 		HTML5:      true,
-		Filesystem: afero.NewHttpFs(fs),
+		Filesystem: afero.NewIOFS(fs),
 	}))
 }

@@ -5,14 +5,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 )
 
 func M2MAssetHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		if strings.HasSuffix(c.Path(), "/is-private") {
 			return handleAssetIsPrivate(c)
 		}
@@ -21,7 +21,7 @@ func M2MAssetHandler() echo.HandlerFunc {
 	}
 }
 
-func handleAssetIsPrivate(c echo.Context) error {
+func handleAssetIsPrivate(c *echo.Context) error {
 	ctx := c.Request().Context()
 
 	uuid := c.Param("uuid")
@@ -70,7 +70,7 @@ func handleAssetIsPrivate(c echo.Context) error {
 
 func M2MTokenAuthMiddleware(token string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			if token == "" {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "m2m not configured"})
 			}
