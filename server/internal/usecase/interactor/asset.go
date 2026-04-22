@@ -155,12 +155,35 @@ func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams
 				}
 			}
 
+			createdAt := a.CreatedAt()
+			updatedAt := a.UpdatedAt()
+
+			createdBy := ""
+			if a.User() != nil {
+				createdBy = a.User().String()
+			} else if a.Integration() != nil {
+				createdBy = a.Integration().String()
+			}
+
+			updatedBy := ""
+			if a.UpdatedByUser() != nil {
+				updatedBy = a.UpdatedByUser().String()
+			} else if a.UpdatedByIntegration() != nil {
+				updatedBy = a.UpdatedByIntegration().String()
+			} else {
+				updatedBy = createdBy
+			}
+
 			return types.Asset{
 				Type:        "asset",
 				ID:          a.ID().String(),
 				URL:         a.AccessInfo().Url,
 				ContentType: f.ContentType(),
 				Files:       files,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				CreatedBy:   createdBy,
+				UpdatedBy:   updatedBy,
 			}
 		})
 
@@ -486,6 +509,12 @@ func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecas
 
 			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusPending))
 
+			if operator.AcOperator.User != nil {
+				a.SetUpdatedByUser(*operator.AcOperator.User)
+			} else if operator.Integration != nil {
+				a.SetUpdatedByIntegration(*operator.Integration)
+			}
+
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -521,6 +550,12 @@ func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.O
 
 		a.UpdatePublic(true)
 
+		if operator.AcOperator.User != nil {
+			a.SetUpdatedByUser(*operator.AcOperator.User)
+		} else if operator.Integration != nil {
+			a.SetUpdatedByIntegration(*operator.Integration)
+		}
+
 		if err := i.repos.Asset.Save(ctx, a); err != nil {
 			return nil, err
 		}
@@ -554,6 +589,12 @@ func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase
 		}
 
 		a.UpdatePublic(false)
+
+		if operator.AcOperator.User != nil {
+			a.SetUpdatedByUser(*operator.AcOperator.User)
+		} else if operator.Integration != nil {
+			a.SetUpdatedByIntegration(*operator.Integration)
+		}
 
 		if err := i.repos.Asset.Save(ctx, a); err != nil {
 			return nil, err
@@ -768,6 +809,12 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 
 			if inp.PreviewType != nil {
 				a.UpdatePreviewType(inp.PreviewType)
+			}
+
+			if operator.AcOperator.User != nil {
+				a.SetUpdatedByUser(*operator.AcOperator.User)
+			} else if operator.Integration != nil {
+				a.SetUpdatedByIntegration(*operator.Integration)
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
