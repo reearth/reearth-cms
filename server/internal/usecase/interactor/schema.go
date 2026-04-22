@@ -18,7 +18,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
@@ -35,22 +34,7 @@ func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 }
 
 func (i Schema) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceSchema, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator != nil && operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceSchema, action, workspaceID, operator, caller)
 }
 
 func (i Schema) FindByID(ctx context.Context, id id.SchemaID, op *usecase.Operator) (*schema.Schema, error) {

@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -33,22 +32,7 @@ func NewIntegration(r *repo.Container, g *gateway.Container) interfaces.Integrat
 }
 
 func (i Integration) checkPermission(ctx context.Context, operator *usecase.Operator, caller, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceIntegration, action, (*workspace.ID)(nil))
-	if authErr != nil {
-		userID := "unknown"
-		if operator != nil && operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceIntegration, action, (*workspace.ID)(nil), operator, caller)
 }
 
 func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (integration.List, error) {
