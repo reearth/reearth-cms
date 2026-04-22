@@ -53,7 +53,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Group:             c.Group.Filtered(project),
 		Item:              c.Item.Filtered(project),
 		View:              c.View.Filtered(project),
-		Project:           c.Project.Filtered(workspace),
+		Project:           c.Project.Filtered(workspace, project),
 		Model:             c.Model.Filtered(project),
 		Schema:            c.Schema.Filtered(workspace),
 		Thread:            c.Thread.Filtered(workspace),
@@ -70,6 +70,9 @@ type WorkspaceFilter struct {
 }
 
 func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
+	if o == nil {
+		return WorkspaceFilter{}
+	}
 	return WorkspaceFilter{
 		Readable: o.AllReadableWorkspaces(),
 		Writable: o.AllWritableWorkspaces(),
@@ -114,11 +117,20 @@ func (f WorkspaceFilter) CanWrite(id accountdomain.WorkspaceID) bool {
 }
 
 type ProjectFilter struct {
-	Readable project.IDList
-	Writable project.IDList
+	Readable   project.IDList
+	Writable   project.IDList
+	PublicOnly bool
 }
 
 func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
+	if o == nil {
+		return ProjectFilter{PublicOnly: true}
+	}
+	if o.Machine {
+		return ProjectFilter{
+			Writable: o.AllWritableProjects(),
+		}
+	}
 	return ProjectFilter{
 		Readable: o.AllReadableProjects(),
 		Writable: o.AllWritableProjects(),
@@ -127,8 +139,9 @@ func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
 
 func (f ProjectFilter) Clone() ProjectFilter {
 	return ProjectFilter{
-		Readable: f.Readable.Clone(),
-		Writable: f.Writable.Clone(),
+		Readable:   f.Readable.Clone(),
+		Writable:   f.Writable.Clone(),
+		PublicOnly: f.PublicOnly,
 	}
 }
 
@@ -149,8 +162,9 @@ func (f ProjectFilter) Merge(g ProjectFilter) ProjectFilter {
 		}
 	}
 	return ProjectFilter{
-		Readable: r,
-		Writable: w,
+		Readable:   r,
+		Writable:   w,
+		PublicOnly: f.PublicOnly || g.PublicOnly,
 	}
 }
 
