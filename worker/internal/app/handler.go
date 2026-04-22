@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
 	"github.com/reearth/reearth-cms/worker/pkg/webhook"
 	"github.com/reearth/reearthx/log"
@@ -23,7 +23,7 @@ func NewHandler(c *rhttp.Controller) *Handler {
 }
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		var input rhttp.DecompressInput
 		var err error
 
@@ -50,7 +50,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 }
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		var webhook webhook.Webhook
 		var err error
 
@@ -106,7 +106,7 @@ func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
 	return input, nil
 }
 
-func parsePubSubDecompressMessage(c echo.Context, body io.Reader) (rhttp.DecompressInput, error) {
+func parsePubSubDecompressMessage(c *echo.Context, body io.Reader) (rhttp.DecompressInput, error) {
 	var input rhttp.DecompressInput
 
 	if err := c.Bind(&input); err != nil {
@@ -137,7 +137,7 @@ func parseSNSWebhookMessage(body io.Reader) (webhook.Webhook, error) {
 	return w, nil
 }
 
-func parsePubSubWebhookMessage(c echo.Context, body io.Reader) (webhook.Webhook, error) {
+func parsePubSubWebhookMessage(c *echo.Context, body io.Reader) (webhook.Webhook, error) {
 	var msg msgBody
 	var w webhook.Webhook
 
