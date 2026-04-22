@@ -17,16 +17,16 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.15.1
+	github.com/labstack/echo-opentelemetry v0.0.2
+	github.com/labstack/echo/v5 v5.1.0
 	github.com/oklog/ulid v1.3.1
 	github.com/reearth/reearth-cms/server v0.0.0-20260324093430-f42f954d7a2d
-	github.com/reearth/reearthx v0.0.0-20260303053047-71650b1e0cb5
+	github.com/reearth/reearthx v0.0.0-20260414051326-c14ecf22eb33
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.53.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
 	go.mongodb.org/mongo-driver v1.17.9
-	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.67.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.67.0
 	golang.org/x/net v0.52.0
 )
@@ -82,6 +82,7 @@ require (
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/klauspost/compress v1.18.4 // indirect
+	github.com/labstack/echo/v4 v4.15.1 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/maruel/panicparse/v2 v2.5.0 // indirect

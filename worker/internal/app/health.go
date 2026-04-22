@@ -9,7 +9,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -40,7 +40,7 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		log.Fatalf("failed to create health check: %v", err)
 	}
 
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		// Optional HTTP Basic Auth
 		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
 			username, password, ok := c.Request().BasicAuth()
