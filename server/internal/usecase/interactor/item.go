@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -21,7 +22,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -43,22 +43,7 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 }
 
 func (i Item) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
-	if i.gateways == nil || i.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceItem, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator != nil && operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceItem, action, workspaceID, operator, caller)
 }
 
 // checkPermissionForAllItems checks the given action against every unique workspace
@@ -69,34 +54,22 @@ func (i Item) checkPermissionForAllItems(ctx context.Context, operator *usecase.
 		return nil
 	}
 
-	uniqueSchemaIDs := lo.Uniq(lo.Map(
-		lo.Filter(items, func(itm item.Versioned, _ int) bool { return itm != nil }),
-		func(itm item.Versioned, _ int) id.SchemaID { return itm.Value().Schema() },
-	))
+	uniqueSchemaIDs := items.SchemaIDs()
 	if len(uniqueSchemaIDs) == 0 {
 		return nil
 	}
 
-	errCh := make(chan error, len(uniqueSchemaIDs))
-	var wg sync.WaitGroup
+	eg, egCtx := errgroup.WithContext(ctx)
 	for _, sid := range uniqueSchemaIDs {
-		wg.Add(1)
-		go func(schemaID id.SchemaID) {
-			defer wg.Done()
-			wid, err := i.workspaceIDForSchema(ctx, schemaID)
+		eg.Go(func() error {
+			wid, err := i.workspaceIDForSchema(egCtx, sid)
 			if err != nil {
-				errCh <- err
-				return
+				return err
 			}
-			if err := i.checkPermission(ctx, operator, wid, caller, action); err != nil {
-				errCh <- err
-			}
-		}(sid)
+			return i.checkPermission(egCtx, operator, wid, caller, action)
+		})
 	}
-	wg.Wait()
-	close(errCh)
-
-	return <-errCh
+	return eg.Wait()
 }
 
 // workspaceIDForSchema returns the workspace ID for the given schema by fetching it from

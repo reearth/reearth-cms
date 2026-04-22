@@ -7,6 +7,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -27,6 +29,10 @@ func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 		repos:    r,
 		gateways: g,
 	}
+}
+
+func (i Schema) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceSchema, action, workspaceID, operator, caller)
 }
 
 func (i Schema) FindByID(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*schema.Schema, error) {
