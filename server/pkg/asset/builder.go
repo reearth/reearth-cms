@@ -79,6 +79,23 @@ func (b *Builder) CreatedByIntegration(createdBy IntegrationID) *Builder {
 	return b
 }
 
+func (b *Builder) UpdatedAt(t time.Time) *Builder {
+	b.a.updatedAt = t
+	return b
+}
+
+func (b *Builder) UpdatedByUser(u *accountdomain.UserID) *Builder {
+	b.a.updatedByUser = u
+	b.a.updatedByIntegration = nil
+	return b
+}
+
+func (b *Builder) UpdatedByIntegration(u *IntegrationID) *Builder {
+	b.a.updatedByIntegration = u
+	b.a.updatedByUser = nil
+	return b
+}
+
 func (b *Builder) FileName(name string) *Builder {
 	b.a.fileName = name
 	return b

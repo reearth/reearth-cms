@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
@@ -67,6 +68,14 @@ var (
 	pApiP1S3F1Key = "group"
 	pApiP1S3F2Key = "multiple-group"
 	pApiP1S3F3Key = "geometry-object"
+
+	// populated by publicAPISeeder; used in expected response assertions
+	pApiUid      accountdomain.UserID
+	pApiP1M1I1Ts time.Time
+	pApiP1M1I2Ts time.Time
+	pApiP1M1I3Ts time.Time
+	pApiP1M1I5Ts time.Time
+	pApiP1M2I1Ts time.Time
 )
 
 func TestPublicAPI_NotFound(t *testing.T) {
@@ -181,6 +190,10 @@ func TestPublicAPI_Item(t *testing.T) {
 				"id":   pApiP1A1Id.String(),
 				"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 			},
+			"$createdAt": pApiP1M1I1Id.Timestamp(),
+			"$createdBy": pApiUid.String(),
+			"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+			"$updatedBy": pApiUid.String(),
 		})
 
 	// test reference field
@@ -199,7 +212,15 @@ func TestPublicAPI_Item(t *testing.T) {
 					"id":   pApiP1A1Id.String(),
 					"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 				},
+				"$createdAt": pApiP1M1I1Id.Timestamp(),
+				"$createdBy": pApiUid.String(),
+				"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+				"$updatedBy": pApiUid.String(),
 			},
+			"$createdAt": pApiP1M2I1Id.Timestamp(),
+			"$createdBy": pApiUid.String(),
+			"$updatedAt": pApiP1M2I1Ts.UTC().Truncate(time.Millisecond),
+			"$updatedBy": pApiUid.String(),
 		})
 
 	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, "___", pApiP1M1I1Id).
@@ -231,6 +252,10 @@ func TestPublicAPI_Item(t *testing.T) {
 			"id":          pApiP1M1I1Id.String(),
 			pApiP1S1F1Key: "aaa",
 			// pApiP1S1F2Key should be removed
+			"$createdAt": pApiP1M1I1Id.Timestamp().Local(),
+			"$createdBy": pApiUid.String(),
+			"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+			"$updatedBy": pApiUid.String(),
 		})
 
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
@@ -276,6 +301,10 @@ func TestPublicAPI_Assets(t *testing.T) {
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
+						"createdAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"createdBy": pApiUid.String(),
+						"updatedAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 2,
@@ -298,6 +327,10 @@ func TestPublicAPI_Assets(t *testing.T) {
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
+						"createdAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"createdBy": pApiUid.String(),
+						"updatedAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"updatedBy": pApiUid.String(),
 					},
 					{
 						"id":          pApiP1A2Id.String(),
@@ -308,6 +341,10 @@ func TestPublicAPI_Assets(t *testing.T) {
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"createdAt": pApiP1A2Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"createdBy": pApiUid.String(),
+						"updatedAt": pApiP1A2Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 2,
@@ -328,6 +365,10 @@ func TestPublicAPI_Assets(t *testing.T) {
 					fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 					fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 				},
+				"createdAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+				"createdBy": pApiUid.String(),
+				"updatedAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+				"updatedBy": pApiUid.String(),
 			})
 	})
 
@@ -405,6 +446,10 @@ func TestPublicAPI_Assets(t *testing.T) {
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
+						"createdAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"createdBy": pApiUid.String(),
+						"updatedAt": pApiP1A1Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"updatedBy": pApiUid.String(),
 					},
 					{
 						"id":          pApiP1A2Id.String(),
@@ -415,6 +460,10 @@ func TestPublicAPI_Assets(t *testing.T) {
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"createdAt": pApiP1A2Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"createdBy": pApiUid.String(),
+						"updatedAt": pApiP1A2Id.Timestamp().UTC().Truncate(time.Millisecond),
+						"updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 2,
@@ -459,10 +508,18 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A1Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I1Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
+						"$createdAt":   pApiP1M1I2Id.Timestamp(),
+						"$createdBy":   pApiUid.String(),
+						"$updatedAt":   pApiP1M1I2Ts,
+						"$updatedBy":   pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -480,6 +537,10 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A2Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I3Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I3Ts,
+						"$updatedBy": pApiUid.String(),
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -513,6 +574,10 @@ func TestPublicAPI_Model(t *testing.T) {
 								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 							},
 						},
+						"$createdAt": pApiP1M1I5Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I5Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -538,6 +603,10 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":          pApiP1M1I1Id.String(),
 							pApiP1S1F1Key: "aaa",
 						},
+						"$createdAt": pApiP1M2I1Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M2I1Ts,
+						"$updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 1,
@@ -563,10 +632,18 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A1Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I1Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
+						"$createdAt":   pApiP1M1I2Id.Timestamp(),
+						"$createdBy":   pApiUid.String(),
+						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":   pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -584,6 +661,10 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A2Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I3Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I3Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -617,6 +698,10 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A2Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I5Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I5Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -635,6 +720,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
+						"$createdAt":   pApiP1M1I2Id.Timestamp(),
+						"$createdBy":   pApiUid.String(),
+						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":   pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -657,6 +746,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
+						"$createdAt":   pApiP1M1I2Id.Timestamp(),
+						"$createdBy":   pApiUid.String(),
+						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":   pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -680,16 +773,28 @@ func TestPublicAPI_Model(t *testing.T) {
 						"id":          pApiP1M1I1Id.String(),
 						pApiP1S1F1Key: "aaa",
 						// pApiP1S1F2Key should be removed
+						"$createdAt": pApiP1M1I1Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
+						"$createdAt":   pApiP1M1I2Id.Timestamp(),
+						"$createdBy":   pApiUid.String(),
+						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":   pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
 						pApiP1S1F1Key: "ccc",
 						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
 						// pApiP1S1F4Key should be removed (not public asset)
+						"$createdAt": pApiP1M1I3Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I3Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -719,6 +824,10 @@ func TestPublicAPI_Model(t *testing.T) {
 								[]any{139.61688622815393, 35.910803456352724},
 							},
 						},
+						"$createdAt": pApiP1M1I5Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I5Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -803,10 +912,18 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A1Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I1Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I1Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
+						"$createdAt":   pApiP1M1I2Id.Timestamp(),
+						"$createdBy":   pApiUid.String(),
+						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":   pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -824,6 +941,10 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A2Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I3Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I3Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -857,6 +978,10 @@ func TestPublicAPI_Model(t *testing.T) {
 							"id":   pApiP1A2Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
+						"$createdAt": pApiP1M1I5Id.Timestamp(),
+						"$createdBy": pApiUid.String(),
+						"$updatedAt": pApiP1M1I5Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy": pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -1031,6 +1156,7 @@ func TestPublicAPI_Model_Schema(t *testing.T) {
 
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
+	pApiUid = uid
 
 	/// Workspace
 	wid := accountdomain.WorkspaceID(pApiW1Id)
@@ -1141,6 +1267,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			item.NewField(p1s1.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 			item.NewField(p1s1.Fields()[1].ID(), value.TypeAsset.Value(p1a1.ID()).AsMultiple(), nil),
 		}).MustBuild()
+	pApiP1M1I1Ts = p1m1i1.Timestamp().UTC().Truncate(time.Millisecond)
 
 	p1m1i2 := item.New().
 		ID(pApiP1M1I2Id).
@@ -1152,6 +1279,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		Fields([]*item.Field{
 			item.NewField(p1s1.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple(), nil),
 		}).MustBuild()
+	pApiP1M1I2Ts = p1m1i2.Timestamp().UTC().Truncate(time.Millisecond)
 
 	p1m1i3 := item.New().
 		ID(pApiP1M1I3Id).
@@ -1166,6 +1294,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			item.NewField(p1s1.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
 			item.NewField(p1s1.Fields()[3].ID(), value.TypeAsset.Value(p1a1.ID()).AsMultiple(), nil),
 		}).MustBuild()
+	pApiP1M1I3Ts = p1m1i3.Timestamp().UTC().Truncate(time.Millisecond)
 
 	p1m1i4 := item.New().
 		ID(pApiP1M1I4Id).
@@ -1193,6 +1322,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			item.NewField(p1s1.Fields()[4].ID(), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
 			item.NewField(p1s1.Fields()[5].ID(), value.TypeGeometryEditor.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil),
 		}).MustBuild()
+	pApiP1M1I5Ts = p1m1i5.Timestamp().UTC().Truncate(time.Millisecond)
 
 	p1m2i1 := item.New().
 		ID(pApiP1M2I1Id).
@@ -1205,6 +1335,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			item.NewField(p1s2.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple(), nil),
 			item.NewField(p1s2.Fields()[1].ID(), value.TypeReference.Value(p1m1i1.ID()).AsMultiple(), nil),
 		}).MustBuild()
+	pApiP1M2I1Ts = p1m2i1.Timestamp().UTC().Truncate(time.Millisecond)
 
 	p1m3i1 := item.New().
 		ID(pApiP1M3I1Id).
