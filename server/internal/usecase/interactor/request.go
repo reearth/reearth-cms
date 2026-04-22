@@ -17,7 +17,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -37,22 +36,7 @@ func NewRequest(r *repo.Container, g *gateway.Container) *Request {
 }
 
 func (r Request) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
-	if r.gateways == nil || r.gateways.Authorization == nil {
-		return nil
-	}
-	allowed, authErr := r.gateways.Authorization.CheckPermission(ctx, rbac.ResourceRequest, action, workspaceID)
-	if authErr != nil {
-		userID := "unknown"
-		if operator.User() != nil {
-			userID = operator.User().String()
-		}
-		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
-		return authErr
-	}
-	if !allowed {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
+	return doCheckPermission(ctx, r.gateways, rbac.ResourceRequest, action, workspaceID, operator, caller)
 }
 
 func (r Request) workspaceIDForProject(ctx context.Context, projectID id.ProjectID) (*workspace.ID, error) {
