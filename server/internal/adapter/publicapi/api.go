@@ -51,10 +51,6 @@ func Echo(e *echo.Group) {
 	// /:ws/:p/:m.zip
 	// /:ws/:p/:m/:i
 
-	// register dummy OPTIONS route so CORS middleware works fine!
-	noopHandler := func(ctx *echo.Context) error { return nil }
-	e.OPTIONS("/*", noopHandler)
-
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
