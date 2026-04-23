@@ -135,6 +135,9 @@ func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
 	origins := allowedOrigins(appCtx)
 	if len(origins) > 0 {
 		fileServeGroup.Use(middleware.CORS(origins...))
+
+		// register dummy OPTIONS route so CORS middleware works fine!
+		fileServeGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 	serveFiles(fileServeGroup, appCtx)
 }
