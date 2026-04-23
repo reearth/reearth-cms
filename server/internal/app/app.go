@@ -73,19 +73,19 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 	api.Use(private)
 	api.GET("/ping", Ping())
 	api.GET("/health", appCtx.HealthChecker.Handler())
-	graphqlHandler := GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev)
-	graphqlMiddlewares := []echo.MiddlewareFunc{
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
+
+	graphqlMiddlewares := []echo.MiddlewareFunc{}
+	if o := allowedOrigins(appCtx); len(o) > 0 {
+		graphqlMiddlewares = append(graphqlMiddlewares, middleware.CORS(o...))
+	}
+	graphqlMiddlewares = append(graphqlMiddlewares,
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
 		usecaseMiddleware,
-	}
-	api.Any("/graphql", graphqlHandler, graphqlMiddlewares...)
-	api.POST(
-		"/notify", NotifyHandler(),
-		M2MAuthMiddleware(appCtx.Config),
-		usecaseMiddleware,
 	)
+	api.Any("/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev), graphqlMiddlewares...)
+
+	api.POST("/notify", NotifyHandler(), M2MAuthMiddleware(appCtx.Config), usecaseMiddleware)
 
 	// M2M API endpoints
 	if appCtx.Config.AuthM2M.Token != "" {
@@ -104,7 +104,11 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 	publicOrigins := allowedPublicOrigins(appCtx)
 	if len(publicOrigins) > 0 {
 		publicAPIGroup.Use(middleware.CORS(publicOrigins...))
+
+		// register dummy OPTIONS route so CORS middleware works fine!
+		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
+
 	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
 	publicapi.Echo(publicAPIGroup)
 }
@@ -112,7 +116,10 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	integrationOrigins := allowedIntegrationOrigins(appCtx)
 	if len(integrationOrigins) > 0 {
-		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
+		integrationAPIGroup.Use(middleware.CORS(integrationOrigins...))
+
+		// register dummy OPTIONS route so CORS middleware works fine!
+		integrationAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 
 	// OpenAPI spec endpoint - no auth required
@@ -127,7 +134,7 @@ func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Gr
 func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
 	origins := allowedOrigins(appCtx)
 	if len(origins) > 0 {
-		fileServeGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
+		fileServeGroup.Use(middleware.CORS(origins...))
 	}
 	serveFiles(fileServeGroup, appCtx)
 }
@@ -143,10 +150,10 @@ func allowedOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.Origins...)
-	if appCtx.Debug {
-		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	if appCtx.Config.Dev {
+		origins = append(origins, "*")
 	}
-	return origins
+	return lo.Uniq(origins)
 }
 
 func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
@@ -154,10 +161,10 @@ func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.Integration_Origins...)
-	if appCtx.Debug {
-		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	if appCtx.Config.Dev {
+		origins = append(origins, "*")
 	}
-	return origins
+	return lo.Uniq(origins)
 }
 
 func allowedPublicOrigins(appCtx *ApplicationContext) []string {
