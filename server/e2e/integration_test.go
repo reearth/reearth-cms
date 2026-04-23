@@ -49,7 +49,7 @@ func TestIntegrationAPI_CORS(t *testing.T) {
 		}
 	})
 
-	t.Run("specific public domain in dev mod", func(t *testing.T) {
+	t.Run("specific integration domain in dev mode", func(t *testing.T) {
 		e, _, _ := StartServerWithRepos(t, &app.Config{
 			AssetBaseURL:        "https://example.com",
 			Integration_Origins: []string{"https://example.com"},
