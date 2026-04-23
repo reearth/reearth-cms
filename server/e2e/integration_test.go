@@ -39,7 +39,7 @@ func TestIntegrationAPI_CORS(t *testing.T) {
 		}, true, publicAPISeeder)
 
 		for _, endpoint := range endpoints {
-		res := e.OPTIONS(endpoint).
+			res := e.OPTIONS(endpoint).
 				WithHeader("Origin", "https://example.com").
 				WithHeader("Access-Control-Request-Method", "POST").
 				Expect().
