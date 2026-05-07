@@ -43,7 +43,7 @@ func TestAuth0(t *testing.T) {
 	a.disableLogging = true
 
 	assert.True(t, a.needsFetchToken())
-	assert.NoError(t, a.updateToken())
+	assert.NoError(t, a.updateToken(context.Background()))
 	assert.Equal(t, token, a.token)
 	assert.Equal(t, current.Add(time.Second*expiresIn), a.expireAt)
 	assert.False(t, a.needsFetchToken())
