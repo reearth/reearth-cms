@@ -20,6 +20,8 @@ import { createClient } from "graphql-ws";
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
 
+import { validationLink } from "./validationLink";
+
 type Props = {
   children?: React.ReactNode;
 };
@@ -164,6 +166,7 @@ const Provider: React.FC<Props> = ({ children }) => {
   const client = new ApolloClient({
     link: ApolloLink.from([
       errorLink,
+      validationLink,
       ApolloLink.split(
         isSubscription,
         ApolloLink.split(shouldUseWebSocket, wsLink, sseLink), // Subscriptions: WS or SSE
