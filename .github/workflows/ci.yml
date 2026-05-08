@@ -150,6 +150,9 @@ jobs:
   deploy-web:
     needs: [build-web, ci-web]
     if: needs.ci-web.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
@@ -184,6 +187,9 @@ jobs:
   deploy-server:
     needs: [build-server, ci-server]
     if: needs.ci-server.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
@@ -192,6 +198,9 @@ jobs:
   deploy-worker:
     needs: [build-worker, ci-worker]
     if: needs.ci-worker.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker
