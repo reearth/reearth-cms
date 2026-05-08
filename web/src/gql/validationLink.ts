@@ -1,6 +1,6 @@
 import { ApolloLink, Observable } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
-import type { ZodType } from "zod";
+import type { ZodType, core } from "zod";
 
 import * as Schemas from "./__generated__/graphql.schemas.generated";
 
@@ -18,6 +18,9 @@ const getResponseSchema = (operation: ApolloLink.Operation): ZodType | undefined
   return isSchemaFactory(factory) ? factory() : undefined;
 };
 
+const formatIssues = (issues: readonly core.$ZodIssue[]): string =>
+  issues.map(i => `  ${i.path.map(String).join(".") || "(root)"}: ${i.code} — ${i.message}`).join("\n");
+
 export const validationLink = new ApolloLink((operation, forward) => {
   const schema = getResponseSchema(operation);
   if (!schema) return forward(operation);
@@ -29,8 +32,8 @@ export const validationLink = new ApolloLink((operation, forward) => {
           const parsed = schema.safeParse(result.data);
           if (!parsed.success) {
             console.warn(
-              `[gql-validate] response data failed validation for ${operation.operationName}`,
-              parsed.error.message,
+              `[gql-validate] response data failed validation for ${operation.operationName}\n${formatIssues(parsed.error.issues)}`,
+              parsed.error.issues,
             );
           }
         }

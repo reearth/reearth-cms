@@ -1,4 +1,3 @@
-// @ts-nocheck — generated zod schemas; type assertions clash with zod 4.
 import * as z from "zod";
 import {
   ApiKeyPayload,
@@ -397,9 +396,7 @@ import {
   UpdateWorkspaceSettingsMutation,
 } from "./all-types.generated";
 
-type Properties<T> = {
-  [K in keyof T]: z.ZodType<T[K], T[K] | undefined>;
-};
+type Properties<T> = Required<{ [K in keyof T]: z.ZodType<T[K]> }>;
 
 type definedNonNullAny = {};
 
@@ -2858,7 +2855,7 @@ export function WorkspaceUserMemberSchema(): z.ZodObject<Properties<WorkspaceUse
   });
 }
 
-export function GetAssetsQuerySchema(): z.ZodType<GetAssetsQuery> {
+export function GetAssetsQuerySchema() {
   return z.object({
     assets: z.object({
       nodes: z.array(
@@ -2963,7 +2960,7 @@ export function GetAssetsQuerySchema(): z.ZodType<GetAssetsQuery> {
   });
 }
 
-export function GetAssetsItemsQuerySchema(): z.ZodType<GetAssetsItemsQuery> {
+export function GetAssetsItemsQuerySchema() {
   return z.object({
     assets: z.object({
       nodes: z.array(
@@ -3076,7 +3073,7 @@ export function GetAssetsItemsQuerySchema(): z.ZodType<GetAssetsItemsQuery> {
   });
 }
 
-export function GetAssetQuerySchema(): z.ZodType<GetAssetQuery> {
+export function GetAssetQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -3184,7 +3181,7 @@ export function GetAssetQuerySchema(): z.ZodType<GetAssetQuery> {
   });
 }
 
-export function GetAssetFileQuerySchema(): z.ZodType<GetAssetFileQuery> {
+export function GetAssetFileQuerySchema() {
   return z.object({
     assetFile: z.object({
       name: z.string(),
@@ -3194,7 +3191,7 @@ export function GetAssetFileQuerySchema(): z.ZodType<GetAssetFileQuery> {
   });
 }
 
-export function GetAssetItemQuerySchema(): z.ZodType<GetAssetItemQuery> {
+export function GetAssetItemQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -3310,7 +3307,7 @@ export function GetAssetItemQuerySchema(): z.ZodType<GetAssetItemQuery> {
   });
 }
 
-export function GuessSchemaFieldsQuerySchema(): z.ZodType<GuessSchemaFieldsQuery> {
+export function GuessSchemaFieldsQuerySchema() {
   return z.object({
     guessSchemaFields: z.object({
       total_count: z.number(),
@@ -3324,7 +3321,7 @@ export function GuessSchemaFieldsQuerySchema(): z.ZodType<GuessSchemaFieldsQuery
   });
 }
 
-export function CreateAssetMutationSchema(): z.ZodType<CreateAssetMutation> {
+export function CreateAssetMutationSchema() {
   return z.object({
     createAsset: z
       .object({
@@ -3420,7 +3417,7 @@ export function CreateAssetMutationSchema(): z.ZodType<CreateAssetMutation> {
   });
 }
 
-export function UpdateAssetMutationSchema(): z.ZodType<UpdateAssetMutation> {
+export function UpdateAssetMutationSchema() {
   return z.object({
     updateAsset: z
       .object({
@@ -3516,7 +3513,7 @@ export function UpdateAssetMutationSchema(): z.ZodType<UpdateAssetMutation> {
   });
 }
 
-export function DeleteAssetMutationSchema(): z.ZodType<DeleteAssetMutation> {
+export function DeleteAssetMutationSchema() {
   return z.object({
     deleteAsset: z
       .object({
@@ -3526,7 +3523,7 @@ export function DeleteAssetMutationSchema(): z.ZodType<DeleteAssetMutation> {
   });
 }
 
-export function DeleteAssetsMutationSchema(): z.ZodType<DeleteAssetsMutation> {
+export function DeleteAssetsMutationSchema() {
   return z.object({
     deleteAssets: z
       .object({
@@ -3536,7 +3533,7 @@ export function DeleteAssetsMutationSchema(): z.ZodType<DeleteAssetsMutation> {
   });
 }
 
-export function DecompressAssetMutationSchema(): z.ZodType<DecompressAssetMutation> {
+export function DecompressAssetMutationSchema() {
   return z.object({
     decompressAsset: z
       .object({
@@ -3632,7 +3629,7 @@ export function DecompressAssetMutationSchema(): z.ZodType<DecompressAssetMutati
   });
 }
 
-export function CreateAssetUploadMutationSchema(): z.ZodType<CreateAssetUploadMutation> {
+export function CreateAssetUploadMutationSchema() {
   return z.object({
     createAssetUpload: z
       .object({
@@ -3647,7 +3644,7 @@ export function CreateAssetUploadMutationSchema(): z.ZodType<CreateAssetUploadMu
   });
 }
 
-export function AddCommentMutationSchema(): z.ZodType<AddCommentMutation> {
+export function AddCommentMutationSchema() {
   return z.object({
     addComment: z
       .object({
@@ -3676,7 +3673,7 @@ export function AddCommentMutationSchema(): z.ZodType<AddCommentMutation> {
   });
 }
 
-export function UpdateCommentMutationSchema(): z.ZodType<UpdateCommentMutation> {
+export function UpdateCommentMutationSchema() {
   return z.object({
     updateComment: z
       .object({
@@ -3705,7 +3702,7 @@ export function UpdateCommentMutationSchema(): z.ZodType<UpdateCommentMutation> 
   });
 }
 
-export function DeleteCommentMutationSchema(): z.ZodType<DeleteCommentMutation> {
+export function DeleteCommentMutationSchema() {
   return z.object({
     deleteComment: z
       .object({
@@ -3715,7 +3712,7 @@ export function DeleteCommentMutationSchema(): z.ZodType<DeleteCommentMutation> 
   });
 }
 
-export function CreateFieldMutationSchema(): z.ZodType<CreateFieldMutation> {
+export function CreateFieldMutationSchema() {
   return z.object({
     createField: z
       .object({
@@ -3727,7 +3724,7 @@ export function CreateFieldMutationSchema(): z.ZodType<CreateFieldMutation> {
   });
 }
 
-export function CreateFieldsMutationSchema(): z.ZodType<CreateFieldsMutation> {
+export function CreateFieldsMutationSchema() {
   return z.object({
     createFields: z
       .object({
@@ -3741,7 +3738,7 @@ export function CreateFieldsMutationSchema(): z.ZodType<CreateFieldsMutation> {
   });
 }
 
-export function UpdateFieldMutationSchema(): z.ZodType<UpdateFieldMutation> {
+export function UpdateFieldMutationSchema() {
   return z.object({
     updateField: z
       .object({
@@ -3753,7 +3750,7 @@ export function UpdateFieldMutationSchema(): z.ZodType<UpdateFieldMutation> {
   });
 }
 
-export function UpdateFieldsMutationSchema(): z.ZodType<UpdateFieldsMutation> {
+export function UpdateFieldsMutationSchema() {
   return z.object({
     updateFields: z
       .object({
@@ -3767,7 +3764,7 @@ export function UpdateFieldsMutationSchema(): z.ZodType<UpdateFieldsMutation> {
   });
 }
 
-export function DeleteFieldMutationSchema(): z.ZodType<DeleteFieldMutation> {
+export function DeleteFieldMutationSchema() {
   return z.object({
     deleteField: z
       .object({
@@ -3777,7 +3774,7 @@ export function DeleteFieldMutationSchema(): z.ZodType<DeleteFieldMutation> {
   });
 }
 
-export function GetGroupsQuerySchema(): z.ZodType<GetGroupsQuery> {
+export function GetGroupsQuerySchema() {
   return z.object({
     groups: z.array(
       z
@@ -3792,7 +3789,7 @@ export function GetGroupsQuerySchema(): z.ZodType<GetGroupsQuery> {
   });
 }
 
-export function GetGroupQuerySchema(): z.ZodType<GetGroupQuery> {
+export function GetGroupQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -3888,7 +3885,7 @@ export function GetGroupQuerySchema(): z.ZodType<GetGroupQuery> {
   });
 }
 
-export function CreateGroupMutationSchema(): z.ZodType<CreateGroupMutation> {
+export function CreateGroupMutationSchema() {
   return z.object({
     createGroup: z
       .object({
@@ -3900,7 +3897,7 @@ export function CreateGroupMutationSchema(): z.ZodType<CreateGroupMutation> {
   });
 }
 
-export function UpdateGroupMutationSchema(): z.ZodType<UpdateGroupMutation> {
+export function UpdateGroupMutationSchema() {
   return z.object({
     updateGroup: z
       .object({
@@ -3912,7 +3909,7 @@ export function UpdateGroupMutationSchema(): z.ZodType<UpdateGroupMutation> {
   });
 }
 
-export function DeleteGroupMutationSchema(): z.ZodType<DeleteGroupMutation> {
+export function DeleteGroupMutationSchema() {
   return z.object({
     deleteGroup: z
       .object({
@@ -3922,7 +3919,7 @@ export function DeleteGroupMutationSchema(): z.ZodType<DeleteGroupMutation> {
   });
 }
 
-export function CheckGroupKeyAvailabilityQuerySchema(): z.ZodType<CheckGroupKeyAvailabilityQuery> {
+export function CheckGroupKeyAvailabilityQuerySchema() {
   return z.object({
     checkGroupKeyAvailability: z.object({
       key: z.string(),
@@ -3931,7 +3928,7 @@ export function CheckGroupKeyAvailabilityQuerySchema(): z.ZodType<CheckGroupKeyA
   });
 }
 
-export function ModelsByGroupQuerySchema(): z.ZodType<ModelsByGroupQuery> {
+export function ModelsByGroupQuerySchema() {
   return z.object({
     modelsByGroup: z.array(
       z
@@ -3943,7 +3940,7 @@ export function ModelsByGroupQuerySchema(): z.ZodType<ModelsByGroupQuery> {
   });
 }
 
-export function UpdateGroupsOrderMutationSchema(): z.ZodType<UpdateGroupsOrderMutation> {
+export function UpdateGroupsOrderMutationSchema() {
   return z.object({
     updateGroupsOrder: z
       .object({
@@ -3957,7 +3954,7 @@ export function UpdateGroupsOrderMutationSchema(): z.ZodType<UpdateGroupsOrderMu
   });
 }
 
-export function CreateIntegrationMutationSchema(): z.ZodType<CreateIntegrationMutation> {
+export function CreateIntegrationMutationSchema() {
   return z.object({
     createIntegration: z
       .object({
@@ -3973,7 +3970,7 @@ export function CreateIntegrationMutationSchema(): z.ZodType<CreateIntegrationMu
   });
 }
 
-export function UpdateIntegrationMutationSchema(): z.ZodType<UpdateIntegrationMutation> {
+export function UpdateIntegrationMutationSchema() {
   return z.object({
     updateIntegration: z
       .object({
@@ -3989,7 +3986,7 @@ export function UpdateIntegrationMutationSchema(): z.ZodType<UpdateIntegrationMu
   });
 }
 
-export function DeleteIntegrationMutationSchema(): z.ZodType<DeleteIntegrationMutation> {
+export function DeleteIntegrationMutationSchema() {
   return z.object({
     deleteIntegration: z
       .object({
@@ -3999,7 +3996,7 @@ export function DeleteIntegrationMutationSchema(): z.ZodType<DeleteIntegrationMu
   });
 }
 
-export function RegenerateIntegrationTokenMutationSchema(): z.ZodType<RegenerateIntegrationTokenMutation> {
+export function RegenerateIntegrationTokenMutationSchema() {
   return z.object({
     regenerateIntegrationToken: z
       .object({
@@ -4015,7 +4012,7 @@ export function RegenerateIntegrationTokenMutationSchema(): z.ZodType<Regenerate
   });
 }
 
-export function GetItemsQuerySchema(): z.ZodType<GetItemsQuery> {
+export function GetItemsQuerySchema() {
   return z.object({
     searchItem: z.object({
       nodes: z.array(
@@ -4118,7 +4115,7 @@ export function GetItemsQuerySchema(): z.ZodType<GetItemsQuery> {
   });
 }
 
-export function GetItemQuerySchema(): z.ZodType<GetItemQuery> {
+export function GetItemQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -4259,13 +4256,13 @@ export function GetItemQuerySchema(): z.ZodType<GetItemQuery> {
   });
 }
 
-export function IsItemReferencedQuerySchema(): z.ZodType<IsItemReferencedQuery> {
+export function IsItemReferencedQuerySchema() {
   return z.object({
     isItemReferenced: z.boolean(),
   });
 }
 
-export function VersionsByItemQuerySchema(): z.ZodType<VersionsByItemQuery> {
+export function VersionsByItemQuerySchema() {
   return z.object({
     versionsByItem: z.array(
       z.object({
@@ -4334,7 +4331,7 @@ export function VersionsByItemQuerySchema(): z.ZodType<VersionsByItemQuery> {
   });
 }
 
-export function SearchItemQuerySchema(): z.ZodType<SearchItemQuery> {
+export function SearchItemQuerySchema() {
   return z.object({
     searchItem: z.object({
       nodes: z.array(
@@ -4464,7 +4461,7 @@ export function SearchItemQuerySchema(): z.ZodType<SearchItemQuery> {
   });
 }
 
-export function CreateItemMutationSchema(): z.ZodType<CreateItemMutation> {
+export function CreateItemMutationSchema() {
   return z.object({
     createItem: z
       .object({
@@ -4509,7 +4506,7 @@ export function CreateItemMutationSchema(): z.ZodType<CreateItemMutation> {
   });
 }
 
-export function DeleteItemMutationSchema(): z.ZodType<DeleteItemMutation> {
+export function DeleteItemMutationSchema() {
   return z.object({
     deleteItem: z
       .object({
@@ -4519,7 +4516,7 @@ export function DeleteItemMutationSchema(): z.ZodType<DeleteItemMutation> {
   });
 }
 
-export function DeleteItemsMutationSchema(): z.ZodType<DeleteItemsMutation> {
+export function DeleteItemsMutationSchema() {
   return z.object({
     deleteItems: z
       .object({
@@ -4529,7 +4526,7 @@ export function DeleteItemsMutationSchema(): z.ZodType<DeleteItemsMutation> {
   });
 }
 
-export function UpdateItemMutationSchema(): z.ZodType<UpdateItemMutation> {
+export function UpdateItemMutationSchema() {
   return z.object({
     updateItem: z
       .object({
@@ -4574,7 +4571,7 @@ export function UpdateItemMutationSchema(): z.ZodType<UpdateItemMutation> {
   });
 }
 
-export function UnpublishItemMutationSchema(): z.ZodType<UnpublishItemMutation> {
+export function UnpublishItemMutationSchema() {
   return z.object({
     unpublishItem: z
       .object({
@@ -4612,7 +4609,7 @@ export function UnpublishItemMutationSchema(): z.ZodType<UnpublishItemMutation> 
   });
 }
 
-export function PublishItemMutationSchema(): z.ZodType<PublishItemMutation> {
+export function PublishItemMutationSchema() {
   return z.object({
     publishItem: z
       .object({
@@ -4650,7 +4647,7 @@ export function PublishItemMutationSchema(): z.ZodType<PublishItemMutation> {
   });
 }
 
-export function ImportItemsMutationSchema(): z.ZodType<ImportItemsMutation> {
+export function ImportItemsMutationSchema() {
   return z.object({
     importItems: z
       .object({
@@ -4664,7 +4661,7 @@ export function ImportItemsMutationSchema(): z.ZodType<ImportItemsMutation> {
   });
 }
 
-export function ImportItemsAsyncMutationSchema(): z.ZodType<ImportItemsAsyncMutation> {
+export function ImportItemsAsyncMutationSchema() {
   return z.object({
     importItemsAsync: z
       .object({
@@ -4684,7 +4681,7 @@ export function ImportItemsAsyncMutationSchema(): z.ZodType<ImportItemsAsyncMuta
   });
 }
 
-export function JobQuerySchema(): z.ZodType<JobQuery> {
+export function JobQuerySchema() {
   return z.object({
     job: z
       .object({
@@ -4707,7 +4704,7 @@ export function JobQuerySchema(): z.ZodType<JobQuery> {
   });
 }
 
-export function JobsQuerySchema(): z.ZodType<JobsQuery> {
+export function JobsQuerySchema() {
   return z.object({
     jobs: z.array(
       z.object({
@@ -4725,7 +4722,7 @@ export function JobsQuerySchema(): z.ZodType<JobsQuery> {
   });
 }
 
-export function JobStateSubscriptionSchema(): z.ZodType<JobStateSubscription> {
+export function JobStateSubscriptionSchema() {
   return z.object({
     jobState: z.object({
       status: JobStatusSchema,
@@ -4741,7 +4738,7 @@ export function JobStateSubscriptionSchema(): z.ZodType<JobStateSubscription> {
   });
 }
 
-export function CancelJobMutationSchema(): z.ZodType<CancelJobMutation> {
+export function CancelJobMutationSchema() {
   return z.object({
     cancelJob: z
       .object({
@@ -4752,7 +4749,7 @@ export function CancelJobMutationSchema(): z.ZodType<CancelJobMutation> {
   });
 }
 
-export function GetModelsQuerySchema(): z.ZodType<GetModelsQuery> {
+export function GetModelsQuerySchema() {
   return z.object({
     models: z.object({
       nodes: z.array(
@@ -4781,7 +4778,7 @@ export function GetModelsQuerySchema(): z.ZodType<GetModelsQuery> {
   });
 }
 
-export function GetModelQuerySchema(): z.ZodType<GetModelQuery> {
+export function GetModelQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -4962,7 +4959,7 @@ export function GetModelQuerySchema(): z.ZodType<GetModelQuery> {
   });
 }
 
-export function CreateModelMutationSchema(): z.ZodType<CreateModelMutation> {
+export function CreateModelMutationSchema() {
   return z.object({
     createModel: z
       .object({
@@ -4975,7 +4972,7 @@ export function CreateModelMutationSchema(): z.ZodType<CreateModelMutation> {
   });
 }
 
-export function DeleteModelMutationSchema(): z.ZodType<DeleteModelMutation> {
+export function DeleteModelMutationSchema() {
   return z.object({
     deleteModel: z
       .object({
@@ -4985,7 +4982,7 @@ export function DeleteModelMutationSchema(): z.ZodType<DeleteModelMutation> {
   });
 }
 
-export function UpdateModelMutationSchema(): z.ZodType<UpdateModelMutation> {
+export function UpdateModelMutationSchema() {
   return z.object({
     updateModel: z
       .object({
@@ -4998,7 +4995,7 @@ export function UpdateModelMutationSchema(): z.ZodType<UpdateModelMutation> {
   });
 }
 
-export function CheckModelKeyAvailabilityQuerySchema(): z.ZodType<CheckModelKeyAvailabilityQuery> {
+export function CheckModelKeyAvailabilityQuerySchema() {
   return z.object({
     checkModelKeyAvailability: z.object({
       key: z.string(),
@@ -5007,7 +5004,7 @@ export function CheckModelKeyAvailabilityQuerySchema(): z.ZodType<CheckModelKeyA
   });
 }
 
-export function UpdateModelsOrderMutationSchema(): z.ZodType<UpdateModelsOrderMutation> {
+export function UpdateModelsOrderMutationSchema() {
   return z.object({
     updateModelsOrder: z
       .object({
@@ -5021,7 +5018,7 @@ export function UpdateModelsOrderMutationSchema(): z.ZodType<UpdateModelsOrderMu
   });
 }
 
-export function ExportModelMutationSchema(): z.ZodType<ExportModelMutation> {
+export function ExportModelMutationSchema() {
   return z.object({
     exportModel: z
       .object({
@@ -5032,7 +5029,7 @@ export function ExportModelMutationSchema(): z.ZodType<ExportModelMutation> {
   });
 }
 
-export function ExportModelSchemaMutationSchema(): z.ZodType<ExportModelSchemaMutation> {
+export function ExportModelSchemaMutationSchema() {
   return z.object({
     exportModelSchema: z
       .object({
@@ -5043,7 +5040,7 @@ export function ExportModelSchemaMutationSchema(): z.ZodType<ExportModelSchemaMu
   });
 }
 
-export function GetProjectQuerySchema(): z.ZodType<GetProjectQuery> {
+export function GetProjectQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -5120,7 +5117,7 @@ export function GetProjectQuerySchema(): z.ZodType<GetProjectQuery> {
   });
 }
 
-export function GetProjectsQuerySchema(): z.ZodType<GetProjectsQuery> {
+export function GetProjectsQuerySchema() {
   return z.object({
     projects: z.object({
       nodes: z.array(
@@ -5166,7 +5163,7 @@ export function GetProjectsQuerySchema(): z.ZodType<GetProjectsQuery> {
   });
 }
 
-export function CheckProjectAliasQuerySchema(): z.ZodType<CheckProjectAliasQuery> {
+export function CheckProjectAliasQuerySchema() {
   return z.object({
     checkProjectAlias: z.object({
       alias: z.string(),
@@ -5175,7 +5172,7 @@ export function CheckProjectAliasQuerySchema(): z.ZodType<CheckProjectAliasQuery
   });
 }
 
-export function CheckProjectLimitsQuerySchema(): z.ZodType<CheckProjectLimitsQuery> {
+export function CheckProjectLimitsQuerySchema() {
   return z.object({
     checkWorkspaceProjectLimits: z.object({
       publicProjectsAllowed: z.boolean(),
@@ -5184,7 +5181,7 @@ export function CheckProjectLimitsQuerySchema(): z.ZodType<CheckProjectLimitsQue
   });
 }
 
-export function CreateProjectMutationSchema(): z.ZodType<CreateProjectMutation> {
+export function CreateProjectMutationSchema() {
   return z.object({
     createProject: z
       .object({
@@ -5224,7 +5221,7 @@ export function CreateProjectMutationSchema(): z.ZodType<CreateProjectMutation> 
   });
 }
 
-export function DeleteProjectMutationSchema(): z.ZodType<DeleteProjectMutation> {
+export function DeleteProjectMutationSchema() {
   return z.object({
     deleteProject: z
       .object({
@@ -5234,7 +5231,7 @@ export function DeleteProjectMutationSchema(): z.ZodType<DeleteProjectMutation> 
   });
 }
 
-export function UpdateProjectMutationSchema(): z.ZodType<UpdateProjectMutation> {
+export function UpdateProjectMutationSchema() {
   return z.object({
     updateProject: z
       .object({
@@ -5275,7 +5272,7 @@ export function UpdateProjectMutationSchema(): z.ZodType<UpdateProjectMutation> 
   });
 }
 
-export function CreateApiKeyMutationSchema(): z.ZodType<CreateApiKeyMutation> {
+export function CreateApiKeyMutationSchema() {
   return z.object({
     createAPIKey: z
       .object({
@@ -5294,7 +5291,7 @@ export function CreateApiKeyMutationSchema(): z.ZodType<CreateApiKeyMutation> {
   });
 }
 
-export function UpdateApiKeyMutationSchema(): z.ZodType<UpdateApiKeyMutation> {
+export function UpdateApiKeyMutationSchema() {
   return z.object({
     updateAPIKey: z
       .object({
@@ -5313,7 +5310,7 @@ export function UpdateApiKeyMutationSchema(): z.ZodType<UpdateApiKeyMutation> {
   });
 }
 
-export function DeleteApiKeyMutationSchema(): z.ZodType<DeleteApiKeyMutation> {
+export function DeleteApiKeyMutationSchema() {
   return z.object({
     deleteAPIKey: z
       .object({
@@ -5323,7 +5320,7 @@ export function DeleteApiKeyMutationSchema(): z.ZodType<DeleteApiKeyMutation> {
   });
 }
 
-export function RegenerateApiKeyMutationSchema(): z.ZodType<RegenerateApiKeyMutation> {
+export function RegenerateApiKeyMutationSchema() {
   return z.object({
     regenerateAPIKey: z
       .object({
@@ -5342,7 +5339,7 @@ export function RegenerateApiKeyMutationSchema(): z.ZodType<RegenerateApiKeyMuta
   });
 }
 
-export function GetRequestsQuerySchema(): z.ZodType<GetRequestsQuery> {
+export function GetRequestsQuerySchema() {
   return z.object({
     requests: z.object({
       nodes: z.array(
@@ -5409,7 +5406,7 @@ export function GetRequestsQuerySchema(): z.ZodType<GetRequestsQuery> {
   });
 }
 
-export function GetModalRequestsQuerySchema(): z.ZodType<GetModalRequestsQuery> {
+export function GetModalRequestsQuerySchema() {
   return z.object({
     requests: z.object({
       nodes: z.array(
@@ -5445,7 +5442,7 @@ export function GetModalRequestsQuerySchema(): z.ZodType<GetModalRequestsQuery> 
   });
 }
 
-export function GetRequestQuerySchema(): z.ZodType<GetRequestQuery> {
+export function GetRequestQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -5670,7 +5667,7 @@ export function GetRequestQuerySchema(): z.ZodType<GetRequestQuery> {
   });
 }
 
-export function CreateRequestMutationSchema(): z.ZodType<CreateRequestMutation> {
+export function CreateRequestMutationSchema() {
   return z.object({
     createRequest: z
       .object({
@@ -5859,7 +5856,7 @@ export function CreateRequestMutationSchema(): z.ZodType<CreateRequestMutation> 
   });
 }
 
-export function UpdateRequestMutationSchema(): z.ZodType<UpdateRequestMutation> {
+export function UpdateRequestMutationSchema() {
   return z.object({
     updateRequest: z
       .object({
@@ -6048,7 +6045,7 @@ export function UpdateRequestMutationSchema(): z.ZodType<UpdateRequestMutation> 
   });
 }
 
-export function ApproveRequestMutationSchema(): z.ZodType<ApproveRequestMutation> {
+export function ApproveRequestMutationSchema() {
   return z.object({
     approveRequest: z
       .object({
@@ -6237,7 +6234,7 @@ export function ApproveRequestMutationSchema(): z.ZodType<ApproveRequestMutation
   });
 }
 
-export function DeleteRequestMutationSchema(): z.ZodType<DeleteRequestMutation> {
+export function DeleteRequestMutationSchema() {
   return z.object({
     deleteRequest: z
       .object({
@@ -6247,7 +6244,7 @@ export function DeleteRequestMutationSchema(): z.ZodType<DeleteRequestMutation> 
   });
 }
 
-export function CreateThreadWithCommentMutationSchema(): z.ZodType<CreateThreadWithCommentMutation> {
+export function CreateThreadWithCommentMutationSchema() {
   return z.object({
     createThreadWithComment: z
       .object({
@@ -6282,7 +6279,7 @@ export function CreateThreadWithCommentMutationSchema(): z.ZodType<CreateThreadW
   });
 }
 
-export function GetUserByNameOrEmailQuerySchema(): z.ZodType<GetUserByNameOrEmailQuery> {
+export function GetUserByNameOrEmailQuerySchema() {
   return z.object({
     userByNameOrEmail: z
       .object({
@@ -6294,7 +6291,7 @@ export function GetUserByNameOrEmailQuerySchema(): z.ZodType<GetUserByNameOrEmai
   });
 }
 
-export function GetUsersQuerySchema(): z.ZodType<GetUsersQuery> {
+export function GetUsersQuerySchema() {
   return z.object({
     userSearch: z.array(
       z.object({
@@ -6306,7 +6303,7 @@ export function GetUsersQuerySchema(): z.ZodType<GetUsersQuery> {
   });
 }
 
-export function GetMeQuerySchema(): z.ZodType<GetMeQuery> {
+export function GetMeQuerySchema() {
   return z.object({
     me: z
       .object({
@@ -6449,7 +6446,7 @@ export function GetMeQuerySchema(): z.ZodType<GetMeQuery> {
   });
 }
 
-export function GetProfileQuerySchema(): z.ZodType<GetProfileQuery> {
+export function GetProfileQuerySchema() {
   return z.object({
     me: z
       .object({
@@ -6471,7 +6468,7 @@ export function GetProfileQuerySchema(): z.ZodType<GetProfileQuery> {
   });
 }
 
-export function GetLanguageQuerySchema(): z.ZodType<GetLanguageQuery> {
+export function GetLanguageQuerySchema() {
   return z.object({
     me: z
       .object({
@@ -6482,7 +6479,7 @@ export function GetLanguageQuerySchema(): z.ZodType<GetLanguageQuery> {
   });
 }
 
-export function GetThemeQuerySchema(): z.ZodType<GetThemeQuery> {
+export function GetThemeQuerySchema() {
   return z.object({
     me: z
       .object({
@@ -6493,7 +6490,7 @@ export function GetThemeQuerySchema(): z.ZodType<GetThemeQuery> {
   });
 }
 
-export function UpdateMeMutationSchema(): z.ZodType<UpdateMeMutation> {
+export function UpdateMeMutationSchema() {
   return z.object({
     updateMe: z
       .object({
@@ -6516,7 +6513,7 @@ export function UpdateMeMutationSchema(): z.ZodType<UpdateMeMutation> {
   });
 }
 
-export function DeleteMeMutationSchema(): z.ZodType<DeleteMeMutation> {
+export function DeleteMeMutationSchema() {
   return z.object({
     deleteMe: z
       .object({
@@ -6526,7 +6523,7 @@ export function DeleteMeMutationSchema(): z.ZodType<DeleteMeMutation> {
   });
 }
 
-export function GetViewsQuerySchema(): z.ZodType<GetViewsQuery> {
+export function GetViewsQuerySchema() {
   return z.object({
     view: z.array(
       z.object({
@@ -6648,7 +6645,7 @@ export function GetViewsQuerySchema(): z.ZodType<GetViewsQuery> {
   });
 }
 
-export function CreateViewMutationSchema(): z.ZodType<CreateViewMutation> {
+export function CreateViewMutationSchema() {
   return z.object({
     createView: z
       .object({
@@ -6770,7 +6767,7 @@ export function CreateViewMutationSchema(): z.ZodType<CreateViewMutation> {
   });
 }
 
-export function UpdateViewMutationSchema(): z.ZodType<UpdateViewMutation> {
+export function UpdateViewMutationSchema() {
   return z.object({
     updateView: z
       .object({
@@ -6892,7 +6889,7 @@ export function UpdateViewMutationSchema(): z.ZodType<UpdateViewMutation> {
   });
 }
 
-export function DeleteViewMutationSchema(): z.ZodType<DeleteViewMutation> {
+export function DeleteViewMutationSchema() {
   return z.object({
     deleteView: z
       .object({
@@ -6902,7 +6899,7 @@ export function DeleteViewMutationSchema(): z.ZodType<DeleteViewMutation> {
   });
 }
 
-export function UpdateViewsOrderMutationSchema(): z.ZodType<UpdateViewsOrderMutation> {
+export function UpdateViewsOrderMutationSchema() {
   return z.object({
     updateViewsOrder: z
       .object({
@@ -6916,7 +6913,7 @@ export function UpdateViewsOrderMutationSchema(): z.ZodType<UpdateViewsOrderMuta
   });
 }
 
-export function CreateWebhookMutationSchema(): z.ZodType<CreateWebhookMutation> {
+export function CreateWebhookMutationSchema() {
   return z.object({
     createWebhook: z
       .object({
@@ -6944,7 +6941,7 @@ export function CreateWebhookMutationSchema(): z.ZodType<CreateWebhookMutation> 
   });
 }
 
-export function UpdateWebhookMutationSchema(): z.ZodType<UpdateWebhookMutation> {
+export function UpdateWebhookMutationSchema() {
   return z.object({
     updateWebhook: z
       .object({
@@ -6972,7 +6969,7 @@ export function UpdateWebhookMutationSchema(): z.ZodType<UpdateWebhookMutation> 
   });
 }
 
-export function DeleteWebhookMutationSchema(): z.ZodType<DeleteWebhookMutation> {
+export function DeleteWebhookMutationSchema() {
   return z.object({
     deleteWebhook: z
       .object({
@@ -6982,7 +6979,7 @@ export function DeleteWebhookMutationSchema(): z.ZodType<DeleteWebhookMutation> 
   });
 }
 
-export function GetWorkspacesQuerySchema(): z.ZodType<GetWorkspacesQuery> {
+export function GetWorkspacesQuerySchema() {
   return z.object({
     me: z
       .object({
@@ -7151,7 +7148,7 @@ export function GetWorkspacesQuerySchema(): z.ZodType<GetWorkspacesQuery> {
   });
 }
 
-export function GetWorkspaceQuerySchema(): z.ZodType<GetWorkspaceQuery> {
+export function GetWorkspaceQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -7249,7 +7246,7 @@ export function GetWorkspaceQuerySchema(): z.ZodType<GetWorkspaceQuery> {
   });
 }
 
-export function UpdateWorkspaceMutationSchema(): z.ZodType<UpdateWorkspaceMutation> {
+export function UpdateWorkspaceMutationSchema() {
   return z.object({
     updateWorkspace: z
       .object({
@@ -7335,7 +7332,7 @@ export function UpdateWorkspaceMutationSchema(): z.ZodType<UpdateWorkspaceMutati
   });
 }
 
-export function DeleteWorkspaceMutationSchema(): z.ZodType<DeleteWorkspaceMutation> {
+export function DeleteWorkspaceMutationSchema() {
   return z.object({
     deleteWorkspace: z
       .object({
@@ -7345,7 +7342,7 @@ export function DeleteWorkspaceMutationSchema(): z.ZodType<DeleteWorkspaceMutati
   });
 }
 
-export function AddUsersToWorkspaceMutationSchema(): z.ZodType<AddUsersToWorkspaceMutation> {
+export function AddUsersToWorkspaceMutationSchema() {
   return z.object({
     addUsersToWorkspace: z
       .object({
@@ -7431,7 +7428,7 @@ export function AddUsersToWorkspaceMutationSchema(): z.ZodType<AddUsersToWorkspa
   });
 }
 
-export function UpdateMemberOfWorkspaceMutationSchema(): z.ZodType<UpdateMemberOfWorkspaceMutation> {
+export function UpdateMemberOfWorkspaceMutationSchema() {
   return z.object({
     updateUserOfWorkspace: z
       .object({
@@ -7517,7 +7514,7 @@ export function UpdateMemberOfWorkspaceMutationSchema(): z.ZodType<UpdateMemberO
   });
 }
 
-export function RemoveMultipleMembersFromWorkspaceMutationSchema(): z.ZodType<RemoveMultipleMembersFromWorkspaceMutation> {
+export function RemoveMultipleMembersFromWorkspaceMutationSchema() {
   return z.object({
     removeMultipleMembersFromWorkspace: z
       .object({
@@ -7603,7 +7600,7 @@ export function RemoveMultipleMembersFromWorkspaceMutationSchema(): z.ZodType<Re
   });
 }
 
-export function AddIntegrationToWorkspaceMutationSchema(): z.ZodType<AddIntegrationToWorkspaceMutation> {
+export function AddIntegrationToWorkspaceMutationSchema() {
   return z.object({
     addIntegrationToWorkspace: z
       .object({
@@ -7689,7 +7686,7 @@ export function AddIntegrationToWorkspaceMutationSchema(): z.ZodType<AddIntegrat
   });
 }
 
-export function UpdateIntegrationOfWorkspaceMutationSchema(): z.ZodType<UpdateIntegrationOfWorkspaceMutation> {
+export function UpdateIntegrationOfWorkspaceMutationSchema() {
   return z.object({
     updateIntegrationOfWorkspace: z
       .object({
@@ -7775,7 +7772,7 @@ export function UpdateIntegrationOfWorkspaceMutationSchema(): z.ZodType<UpdateIn
   });
 }
 
-export function RemoveIntegrationFromWorkspaceMutationSchema(): z.ZodType<RemoveIntegrationFromWorkspaceMutation> {
+export function RemoveIntegrationFromWorkspaceMutationSchema() {
   return z.object({
     removeIntegrationFromWorkspace: z
       .object({
@@ -7861,7 +7858,7 @@ export function RemoveIntegrationFromWorkspaceMutationSchema(): z.ZodType<Remove
   });
 }
 
-export function CreateWorkspaceMutationSchema(): z.ZodType<CreateWorkspaceMutation> {
+export function CreateWorkspaceMutationSchema() {
   return z.object({
     createWorkspace: z
       .object({
@@ -7947,7 +7944,7 @@ export function CreateWorkspaceMutationSchema(): z.ZodType<CreateWorkspaceMutati
   });
 }
 
-export function GetWorkspaceSettingsQuerySchema(): z.ZodType<GetWorkspaceSettingsQuery> {
+export function GetWorkspaceSettingsQuerySchema() {
   return z.object({
     node: z
       .union([
@@ -8041,7 +8038,7 @@ export function GetWorkspaceSettingsQuerySchema(): z.ZodType<GetWorkspaceSetting
   });
 }
 
-export function UpdateWorkspaceSettingsMutationSchema(): z.ZodType<UpdateWorkspaceSettingsMutation> {
+export function UpdateWorkspaceSettingsMutationSchema() {
   return z.object({
     updateWorkspaceSettings: z
       .object({

@@ -50,14 +50,7 @@ const config: CodegenConfig = {
       },
     },
     [`src/gql/__${GENERATED}__/graphql.schemas.${GENERATED}.ts`]: {
-      // The validation-schema plugin's `Properties<T>` helper produces
-      // assignments that fail strict TS-checks against zod 4's inferred types
-      // (the schemas are runtime-correct — only the type annotations clash).
-      // Prepend `@ts-nocheck` to keep the project compiling.
-      plugins: [
-        { add: { content: "// @ts-nocheck — generated zod schemas; type assertions clash with zod 4." } },
-        "typescript-validation-schema",
-      ],
+      plugins: ["typescript-validation-schema"],
       config: {
         schema: "zodv4",
         withObjectType: true,
@@ -69,8 +62,11 @@ const config: CodegenConfig = {
         importFrom: "./all-types.generated",
         useTypeImports: false,
         scalarSchemas: {
-          // DateTime arrives over the wire as an ISO string before any custom
-          // parsing — keep it lenient at the schema level to avoid noise.
+          // DateTime is `Date` in TS but Apollo doesn't materialize it at the
+          // link layer — values are still ISO strings when validationLink runs.
+          // If we ever add an Apollo cache `typePolicies` entry (or a response
+          // transformer) that converts DateTime → Date before the link tap,
+          // tighten this to `z.date()` or `z.iso.datetime()`.
           DateTime: "z.string()",
           FileSize: "z.number()",
           ID: "z.string()",
@@ -83,7 +79,16 @@ const config: CodegenConfig = {
       },
     },
   },
-  hooks: { afterAllFileWrite: ["prettier --write"] },
+  hooks: {
+    afterAllFileWrite: [
+      "node scripts/build-types-barrel.mjs",
+      // Patch the validation-schema plugin's outdated `Properties<T>` helper —
+      // it emits a zod-3-shaped form on the withOperationType path that fails
+      // TS unification under zod 4. See scripts/fix-schemas-properties.mjs.
+      "node scripts/fix-schemas-properties.mjs",
+      "prettier --write",
+    ],
+  },
 };
 
 export default config;
