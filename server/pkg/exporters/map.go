@@ -23,7 +23,7 @@ func (i ItemMap) DropEmptyFields() ItemMap {
 		}
 		rv := reflect.ValueOf(v)
 		// Check for nil pointers, interfaces, slices, arrays, maps
-		if (rv.Kind() == reflect.Ptr && rv.IsNil()) ||
+		if (rv.Kind() == reflect.Pointer && rv.IsNil()) ||
 			(rv.Kind() == reflect.Interface && rv.IsNil()) ||
 			((rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array || rv.Kind() == reflect.Map) && (rv.IsNil() || rv.Len() == 0)) {
 			delete(i, k)
