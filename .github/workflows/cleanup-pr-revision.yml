@@ -44,7 +44,7 @@ jobs:
         with:
           egress-policy: audit
       - name: Remove Cloud Run Tag
-        uses: reearth/actions/remove-cloud-run-tag@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
+        uses: reearth/actions/remove-cloud-run-tag@ee8a23fc9256524828d4074e0e607904cfd8dffc # main
         with:
           region: ${{ secrets.GC_REGION }}
           service: reearth-scaffold-web
