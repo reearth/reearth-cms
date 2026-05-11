@@ -12,7 +12,7 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
       - name: checkout
@@ -71,7 +71,7 @@ jobs:
     if: '!failure()'
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
       - run: echo OK
@@ -87,7 +87,7 @@ jobs:
       name: ${{ steps.prepare.outputs.name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
       - uses: reearth/actions/prepare-build@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
@@ -170,7 +170,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
       - uses: reearth/actions/deploy-cloud-run-with-tag@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
