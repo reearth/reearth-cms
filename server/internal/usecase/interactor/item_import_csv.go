@@ -22,6 +22,7 @@ import (
 
 // importCSV handles CSV format import (synchronous)
 func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
+	param.Reader = io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1)
 	reader := csv.NewReader(param.Reader)
 
 	// Read header row

@@ -80,6 +80,8 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return res.Into(), interfaces.ErrOperationDenied
 	}
 
+	param.Reader = io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1)
+
 	prj, err := i.repos.Project.FindByID(ctx, s.Project())
 	if err != nil {
 		return res.Into(), err
@@ -228,11 +230,16 @@ func (i Item) ImportAsync(ctx context.Context, param interfaces.ImportItemsAsync
 		return id.JobID{}, interfaces.ErrOperationDenied
 	}
 
-	// Buffer the file content before starting the goroutine
-	// The original reader (from HTTP multipart) will be invalid after the request completes
-	fileData, err := io.ReadAll(param.Reader)
+	// Buffer the file content before starting the goroutine.
+	// The original reader (from HTTP multipart) will be invalid after the request completes.
+	// LimitReader enforces the 100 MB cap regardless of the Content-Length header.
+	lr := io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1)
+	fileData, err := io.ReadAll(lr)
 	if err != nil {
 		return id.JobID{}, fmt.Errorf("failed to read import file: %w", err)
+	}
+	if int64(len(fileData)) > interfaces.MaxImportFileSize {
+		return id.JobID{}, interfaces.ErrImportFileTooLarge
 	}
 
 	// Create import payload
