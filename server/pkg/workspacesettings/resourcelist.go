@@ -1,8 +1,9 @@
 package workspacesettings
 
 import (
+	"slices"
+
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type ResourceList struct {
