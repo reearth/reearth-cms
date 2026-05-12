@@ -77,7 +77,6 @@ func (t *TaskRunner) HealthCheck(ctx context.Context) error {
 		return rerror.ErrInternalBy(fmt.Errorf("pubsub client is not initialized"))
 	}
 
-	// Check if topic exists
 	topicName := fmt.Sprintf("projects/%s/topics/%s", t.conf.GCPProject, t.conf.Topic)
 	if _, err := t.pubsub.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName}); err != nil {
 		return rerror.ErrInternalBy(fmt.Errorf("pubsub topic %s does not exist or is inaccessible: %w", t.conf.Topic, err))
@@ -101,13 +100,11 @@ func (t *TaskRunner) HealthCheck(ctx context.Context) error {
 
 	// Check if worker pool exists if configured
 	if t.conf.WorkerPool != "" {
-		project := t.conf.GCPProject
-		region := t.conf.GCPRegion
-		if region == "" {
+		if t.conf.GCPRegion == "" {
 			return rerror.ErrInternalBy(fmt.Errorf("GCP region is not configured but worker pool is specified"))
 		}
 
-		poolName := fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, t.conf.WorkerPool)
+		poolName := fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", t.conf.GCPProject, t.conf.GCPRegion, t.conf.WorkerPool)
 		call := cb.Projects.Locations.WorkerPools.Get(poolName)
 		_, err = call.Do()
 		if err != nil {
