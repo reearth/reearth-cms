@@ -2,11 +2,11 @@ package project
 
 import (
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"golang.org/x/exp/slices"
 )
 
 type Builder struct {

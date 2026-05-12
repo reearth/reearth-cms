@@ -1,11 +1,11 @@
 package schema
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type GeometryObjectSupportedTypeList []GeometryObjectSupportedType
