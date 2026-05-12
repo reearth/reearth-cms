@@ -36,6 +36,29 @@ func TestURLFromDomain(t *testing.T) {
 	assert.Equal(t, "https://a/", urlFromDomain("a/"))
 }
 
+func TestNew_ClientTimeout(t *testing.T) {
+	t.Parallel()
+	a := New(domain, clientID, clientSecret)
+	assert.NotNil(t, a.client)
+	assert.Equal(t, defaultTimeout, a.client.Timeout)
+}
+
+func TestExec_NilClientFallback(t *testing.T) {
+	t.Parallel()
+	a := &Auth0{
+		domain:         domain,
+		disableLogging: true,
+	}
+	assert.Nil(t, a.client)
+
+	// exec with a nil body so it reaches the http.Client.Do call, which
+	// will fail (no real server), but by then a.client must be populated.
+	_, _ = a.exec(context.Background(), http.MethodGet, "api/v2/users/test", "", nil)
+
+	assert.NotNil(t, a.client)
+	assert.Equal(t, defaultTimeout, a.client.Timeout)
+}
+
 func TestAuth0(t *testing.T) {
 	a := New(domain, clientID, clientSecret)
 	a.client = client(t) // inject mock
