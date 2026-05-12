@@ -21,9 +21,6 @@ import (
 func TestSend(t *testing.T) {
 	now := time.Date(2022, 10, 10, 1, 1, 1, 1, time.UTC)
 	defer util.MockNow(now)()
-	//original := httpClient
-	//httpClient = http.DefaultClient
-	//defer func() { httpClient = original }()
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
