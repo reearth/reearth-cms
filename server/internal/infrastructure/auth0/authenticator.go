@@ -67,16 +67,19 @@ func (u response) Error() string {
 	return u.Message
 }
 
+const defaultTimeout = 30 * time.Second
+
 func New(domain, clientID, clientSecret string) *Auth0 {
 	return &Auth0{
 		domain:       urlFromDomain(domain),
 		clientID:     clientID,
 		clientSecret: clientSecret,
+		client:       &http.Client{Timeout: defaultTimeout},
 	}
 }
 
 func (a *Auth0) UpdateUser(ctx context.Context, p accountgateway.AuthenticatorUpdateUserParam) (data accountgateway.AuthenticatorUser, err error) {
-	err = a.updateToken()
+	err = a.updateToken(ctx)
 	if err != nil {
 		return
 	}
@@ -97,7 +100,7 @@ func (a *Auth0) UpdateUser(ctx context.Context, p accountgateway.AuthenticatorUp
 	}
 
 	var r response
-	r, err = a.exec(http.MethodPatch, "api/v2/users/"+p.ID, a.token, payload)
+	r, err = a.exec(ctx, http.MethodPatch, "api/v2/users/"+p.ID, a.token, payload)
 	if err != nil {
 		if !a.disableLogging {
 			log.Errorf("auth0: update user: %+v", err)
@@ -120,7 +123,7 @@ func (a *Auth0) needsFetchToken() bool {
 	return a.expireAt.IsZero() || a.expireAt.Sub(a.current()) <= time.Hour
 }
 
-func (a *Auth0) updateToken() error {
+func (a *Auth0) updateToken(ctx context.Context) error {
 	if a == nil || !a.needsFetchToken() {
 		return nil
 	}
@@ -136,7 +139,7 @@ func (a *Auth0) updateToken() error {
 		return nil
 	}
 
-	r, err := a.exec(http.MethodPost, "oauth/token", "", map[string]string{
+	r, err := a.exec(ctx, http.MethodPost, "oauth/token", "", map[string]string{
 		"client_id":     a.clientID,
 		"client_secret": a.clientSecret,
 		"audience":      urlFromDomain(a.domain) + "api/v2/",
@@ -166,13 +169,13 @@ func (a *Auth0) updateToken() error {
 	return nil
 }
 
-func (a *Auth0) exec(method, path, token string, b interface{}) (r response, err error) {
+func (a *Auth0) exec(ctx context.Context, method, path, token string, b interface{}) (r response, err error) {
 	if a == nil || a.domain == "" {
 		err = rerror.NewE(i18n.T("auth0: domain is not set"))
 		return
 	}
 	if a.client == nil {
-		a.client = http.DefaultClient
+		a.client = &http.Client{Timeout: defaultTimeout}
 	}
 
 	var body io.Reader = nil
@@ -190,7 +193,7 @@ func (a *Auth0) exec(method, path, token string, b interface{}) (r response, err
 	}
 
 	var req *http.Request
-	req, err = http.NewRequest(method, urlFromDomain(a.domain)+path, body)
+	req, err = http.NewRequestWithContext(ctx, method, urlFromDomain(a.domain)+path, body)
 	if err != nil {
 		return
 	}
