@@ -1,8 +1,9 @@
 package project
 
 import (
+	"slices"
+
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type List []*Project

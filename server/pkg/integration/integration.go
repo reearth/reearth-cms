@@ -2,11 +2,11 @@ package integration
 
 import (
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 const charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"

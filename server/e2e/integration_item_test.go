@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -34,7 +35,6 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 var (
@@ -1651,9 +1651,9 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 		ContainsAll("id", "modelId", "fields", "createdAt", "metadataFields", "isMetadata", "updatedAt", "version", "parents", "refs")
 	r.Path("$.fields[:]").Array().Length().IsEqual(4)
 	raw := r.Path("$.fields[:].value").Array().Raw()
-	assert.True(t, slices.Contains(raw, "default"))
-	assert.True(t, slices.Contains(raw, "default group"))
-	assert.True(t, slices.Contains(raw, "test value"))
+	assert.True(t, slices.Contains(raw, any("default")))
+	assert.True(t, slices.Contains(raw, any("default group")))
+	assert.True(t, slices.Contains(raw, any("test value")))
 	r.Path("$.metadataFields[:]").Array().Length().IsEqual(1)
 	raw2 := r.Path("$.metadataFields[:].value").Array().Raw()
 	assert.True(t, slices.Contains(raw2, true))

@@ -1,8 +1,9 @@
 package thread
 
 import (
+	"slices"
+
 	"github.com/reearth/reearthx/account/accountdomain"
-	"golang.org/x/exp/slices"
 )
 
 type Builder struct {
