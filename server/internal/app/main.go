@@ -41,7 +41,7 @@ func Start(debug bool, version string) {
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
 	// Create health checker instance
-	healthChecker := NewHealthChecker(conf, version, gateways.File)
+	healthChecker := NewHealthChecker(conf, version, gateways)
 
 	// Run initial health check
 	if conf.HealthCheck.RunOnInit {
@@ -67,9 +67,9 @@ func Start(debug bool, version string) {
 
 type WebServer struct {
 	debug          bool
-	appAddress   string
-	appServer    *http.Server
-	internalPort string
+	appAddress     string
+	appServer      *http.Server
+	internalPort   string
 	internalServer *grpc.Server
 }
 
