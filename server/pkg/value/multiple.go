@@ -1,8 +1,9 @@
 package value
 
 import (
+	"slices"
+
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Multiple struct {

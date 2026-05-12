@@ -80,7 +80,7 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 		}
 		rv := reflect.ValueOf(v)
 		// Check for nil pointers, interfaces, slices, maps, and empty arrays
-		if (rv.Kind() == reflect.Ptr && rv.IsNil()) ||
+		if (rv.Kind() == reflect.Pointer && rv.IsNil()) ||
 			(rv.Kind() == reflect.Interface && rv.IsNil()) ||
 			((rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array || rv.Kind() == reflect.Map) && (rv.IsNil() || rv.Len() == 0)) {
 			delete(i, k)
@@ -188,15 +188,15 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 }
 
 type Asset struct {
-	Type        string     `json:"type"`
-	ID          string     `json:"id,omitempty"`
-	URL         string     `json:"url,omitempty"`
-	ContentType string     `json:"contentType,omitempty"`
-	Files       []string   `json:"files,omitempty"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
-	CreatedBy   string     `json:"createdBy,omitempty"`
-	UpdatedBy   string     `json:"updatedBy,omitempty"`
+	Type        string    `json:"type"`
+	ID          string    `json:"id,omitempty"`
+	URL         string    `json:"url,omitempty"`
+	ContentType string    `json:"contentType,omitempty"`
+	Files       []string  `json:"files,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	CreatedBy   string    `json:"createdBy,omitempty"`
+	UpdatedBy   string    `json:"updatedBy,omitempty"`
 }
 
 func NewAsset(a *asset.Asset, f *asset.File) Asset {

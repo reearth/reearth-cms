@@ -24,7 +24,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/app/node_modules/.cache,sharing=locked \
     yarn build
 
-FROM nginx:1.29-alpine
+FROM nginx:1.30-alpine
 WORKDIR /usr/share/nginx/html
 
 # Quiet the Nginx startup logs.
