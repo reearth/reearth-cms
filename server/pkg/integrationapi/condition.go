@@ -75,7 +75,7 @@ func (i *Condition) Into() *view.Condition {
 			BasicCondition: &view.BasicCondition{
 				Field: i.Basic.FieldId.Into(),
 				Op:    i.Basic.Operator.Into(),
-				Value: *i.Basic.Value,
+				Value: i.Basic.Value,
 			},
 		}
 	}

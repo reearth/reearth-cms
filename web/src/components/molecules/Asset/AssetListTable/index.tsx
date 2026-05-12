@@ -16,7 +16,6 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
   Asset,
@@ -26,8 +25,9 @@ import {
 } from "@reearth-cms/components/molecules/Asset/types";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
-import { getExtension } from "@reearth-cms/utils/file";
+import { FileUtils } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
@@ -96,7 +96,11 @@ const AssetListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onEdit(asset.id)}
+          />
         ),
         key: "EDIT_ICON",
         align: "center",
@@ -113,7 +117,7 @@ const AssetListTable: React.FC<Props> = ({
             <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
               <CustomTag
                 value={asset.comments?.length || 0}
-                color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
+                color={asset.id === selectedAsset?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </CommentsButton>
           );
@@ -154,7 +158,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "archiveExtractionStatus",
         key: "archiveExtractionStatus",
         render: (_, asset) => {
-          const assetExtension = getExtension(asset.fileName);
+          const assetExtension = FileUtils.getExtension(asset.fileName);
           return (
             compressedFileFormats.includes(assetExtension) && (
               <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
@@ -178,12 +182,7 @@ const AssetListTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         key: "createdBy",
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy.name} size={"small"} />
-            {item.createdBy.name}
-          </Space>
-        ),
+        render: (_, item) => <span>{item.createdBy.name}</span>,
         width: 105,
         minWidth: 105,
         ellipsis: true,
@@ -284,7 +283,7 @@ const AssetListTable: React.FC<Props> = ({
       const selected = props.selectedRows as Asset[];
       const disabled = !selected || selected.length <= 0;
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <DownloadButton
             displayDefaultIcon
             size="small"
@@ -362,11 +361,11 @@ const CommentsButton = styled(Button)`
 `;
 
 const MoreItemsButton = styled(Button)`
-  padding: 4px;
+  padding: ${AntdToken.SPACING.XXS}px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #1890ff;
+  gap: ${AntdToken.SPACING.XS}px;
+  color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
 `;
 
 const StyledButton = styled(Button)`

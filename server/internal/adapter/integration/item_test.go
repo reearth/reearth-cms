@@ -40,7 +40,7 @@ func Test_convertMetaFields(t *testing.T) {
 					Id:    sf1.ID().Ref(),
 					Key:   lo.ToPtr(sf1.Key().String()),
 					Type:  lo.ToPtr(integrationapi.ValueTypeTag),
-					Value: lo.ToPtr(vi),
+					Value: vi,
 				}},
 				s: sp,
 			},
@@ -59,11 +59,11 @@ func Test_convertMetaFields(t *testing.T) {
 				fields: []integrationapi.Field{
 					{
 						Key:   lo.ToPtr(sf1.Key().String()),
-						Value: lo.ToPtr(vi2),
+						Value: vi2,
 					},
 					{
 						Key:   lo.ToPtr(sf2.Key().String()),
-						Value: lo.ToPtr(any("xxx")),
+						Value: any("xxx"),
 					},
 				},
 				s: sp,
@@ -82,7 +82,11 @@ func Test_convertMetaFields(t *testing.T) {
 			},
 		},
 	}
-	for _, tt := range tests {
-		assert.Equal(t, tt.want, convertFields(&tt.args.fields, tt.args.s, true, false))
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, convertFields(&tc.args.fields, tc.args.s, true, false))
+		})
 	}
 }

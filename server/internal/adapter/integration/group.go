@@ -18,7 +18,7 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupFilter404Response{}, err
@@ -28,7 +28,7 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	sort := toGroupSort(request.Params.Sort, request.Params.Dir)
-	gl, pi, err := uc.Group.Filter(ctx, prj.ID(), sort, p, op)
+	gl, pi, err := uc.Group.Filter(ctx, wp.Project.ID(), sort, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupFilter404Response{}, err
@@ -70,7 +70,7 @@ func (s *Server) GroupCreate(ctx context.Context, request GroupCreateRequestObje
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupCreate400Response{}, err
@@ -79,7 +79,7 @@ func (s *Server) GroupCreate(ctx context.Context, request GroupCreateRequestObje
 	}
 
 	input := interfaces.CreateGroupParam{
-		ProjectId:   prj.ID(),
+		ProjectId:   wp.Project.ID(),
 		Name:        request.Body.Name,
 		Key:         request.Body.Key,
 		Description: request.Body.Description,
@@ -100,7 +100,15 @@ func (s *Server) GroupGet(ctx context.Context, request GroupGetRequestObject) (G
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	g, err := uc.Group.FindByID(ctx, request.GroupId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return GroupGet404Response{}, err
+		}
+		return GroupGet500Response{}, err
+	}
+
+	g, err := uc.Group.FindByIDOrKey(ctx, wp.Project.ID(), request.GroupIdOrKey, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupGet404Response{}, err
@@ -120,13 +128,29 @@ func (s *Server) GroupUpdate(ctx context.Context, request GroupUpdateRequestObje
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return GroupUpdate404Response{}, err
+		}
+		return GroupUpdate400Response{}, err
+	}
+
+	g, err := uc.Group.FindByIDOrKey(ctx, wp.Project.ID(), request.GroupIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return GroupUpdate404Response{}, err
+		}
+		return GroupUpdate400Response{}, err
+	}
+
 	input := interfaces.UpdateGroupParam{
-		GroupID:     request.GroupId,
+		GroupID:     g.ID(),
 		Name:        request.Body.Name,
 		Key:         request.Body.Key,
 		Description: request.Body.Description,
 	}
-	g, err := uc.Group.Update(ctx, input, op)
+	g, err = uc.Group.Update(ctx, input, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupUpdate404Response{}, err
@@ -145,7 +169,23 @@ func (s *Server) GroupDelete(ctx context.Context, request GroupDeleteRequestObje
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	err := uc.Group.Delete(ctx, request.GroupId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return GroupDelete404Response{}, err
+		}
+		return GroupDelete400Response{}, err
+	}
+
+	g, err := uc.Group.FindByIDOrKey(ctx, wp.Project.ID(), request.GroupIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return GroupDelete404Response{}, err
+		}
+		return GroupDelete400Response{}, err
+	}
+
+	err = uc.Group.Delete(ctx, g.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupDelete404Response{}, err
@@ -154,104 +194,6 @@ func (s *Server) GroupDelete(ctx context.Context, request GroupDeleteRequestObje
 	}
 
 	return GroupDelete200JSONResponse{
-		Id: request.GroupId.Ref(),
-	}, nil
-}
-
-func (s *Server) GroupGetWithProject(ctx context.Context, request GroupGetWithProjectRequestObject) (GroupGetWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupGetWithProject404Response{}, err
-		}
-		return GroupGetWithProject500Response{}, err
-	}
-
-	g, err := uc.Group.FindByIDOrKey(ctx, prj.ID(), request.GroupIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupGetWithProject404Response{}, err
-		}
-		return GroupGetWithProject500Response{}, err
-	}
-	gs, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
-	if err != nil {
-		return GroupGetWithProject500Response{}, err
-	}
-
-	return GroupGetWithProject200JSONResponse(integrationapi.NewGroup(g, gs)), nil
-}
-
-func (s *Server) GroupUpdateWithProject(ctx context.Context, request GroupUpdateWithProjectRequestObject) (GroupUpdateWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupUpdateWithProject404Response{}, err
-		}
-		return GroupUpdateWithProject500Response{}, err
-	}
-
-	g, err := uc.Group.FindByIDOrKey(ctx, prj.ID(), request.GroupIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupUpdateWithProject404Response{}, err
-		}
-		return GroupUpdateWithProject500Response{}, err
-	}
-
-	input := interfaces.UpdateGroupParam{
-		GroupID:     g.ID(),
-		Name:        request.Body.Name,
-		Key:         request.Body.Key,
-		Description: request.Body.Description,
-	}
-	g, err = uc.Group.Update(ctx, input, op)
-	if err != nil {
-		return GroupUpdateWithProject400Response{}, err
-	}
-	gs, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
-	if err != nil {
-		return GroupUpdateWithProject500Response{}, err
-	}
-
-	return GroupUpdateWithProject200JSONResponse(integrationapi.NewGroup(g, gs)), nil
-}
-
-func (s *Server) GroupDeleteWithProject(ctx context.Context, request GroupDeleteWithProjectRequestObject) (GroupDeleteWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupDeleteWithProject404Response{}, err
-		}
-		return GroupDeleteWithProject500Response{}, err
-	}
-
-	g, err := uc.Group.FindByIDOrKey(ctx, prj.ID(), request.GroupIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupDeleteWithProject404Response{}, err
-		}
-		return GroupDeleteWithProject500Response{}, err
-	}
-
-	err = uc.Group.Delete(ctx, g.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return GroupDeleteWithProject404Response{}, err
-		}
-		return GroupDeleteWithProject400Response{}, err
-	}
-
-	return GroupDeleteWithProject200JSONResponse{
 		Id: g.ID().Ref(),
 	}, nil
 }

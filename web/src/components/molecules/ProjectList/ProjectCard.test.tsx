@@ -17,7 +17,6 @@ test("Project card displays successfully", () => {
 
   render(<ProjectCard project={project} onProjectNavigation={onProjectNavigation} />);
 
-  expect(screen.getByText(name.charAt(0))).toBeInTheDocument();
   expect(screen.getByText(name)).toBeInTheDocument();
   expect(screen.getByText(description)).toBeInTheDocument();
 });

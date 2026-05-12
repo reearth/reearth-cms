@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,7 +43,7 @@ func TestNewItem(t *testing.T) {
 
 	g := group.New().
 		NewID().
-		Name("test group").
+		Name("WPMContext group").
 		Project(id.NewProjectID()).
 		Key(id.NewKey("group1")).
 		Schema(s2.ID()).
@@ -79,7 +78,9 @@ func TestNewItem(t *testing.T) {
 	}
 
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": "aaaa",
 			"bbbbb": ItemAsset{
@@ -93,7 +94,9 @@ func TestNewItem(t *testing.T) {
 
 	// no assets
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": "aaaa",
 			"ggggg": resGroup,
@@ -139,7 +142,9 @@ func TestNewItem_Multiple(t *testing.T) {
 		MustBuild()
 
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 			"bbbbb": []ItemAsset{{
@@ -152,7 +157,9 @@ func TestNewItem_Multiple(t *testing.T) {
 
 	// no assets
 	assert.Equal(t, Item{
-		ID: it.ID().String(),
+		ID:        it.ID().String(),
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
@@ -160,8 +167,11 @@ func TestNewItem_Multiple(t *testing.T) {
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
+	it := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).MustBuild()
 	j := lo.Must(json.Marshal(Item{
-		ID: "xxx",
+		ID:        "xxx",
+		CreatedAt: it.ID().Timestamp(),
+		UpdatedAt: it.Timestamp(),
 		Fields: ItemFields{
 			"aaa": "aa",
 			"bbb": ItemAsset{
@@ -175,70 +185,15 @@ func TestItem_MarshalJSON(t *testing.T) {
 	v := map[string]any{}
 	lo.Must0(json.Unmarshal(j, &v))
 
+	assert.Equal(t, "xxx", v["id"])
+	assert.Equal(t, "aa", v["aaa"])
 	assert.Equal(t, map[string]any{
-		"id":  "xxx",
-		"aaa": "aa",
-		"bbb": map[string]any{
-			"type": "asset",
-			"id":   "xxx",
-			"url":  "https://example.com",
-		},
-	}, v)
-}
-
-func TestNewListResult(t *testing.T) {
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 1010,
-		HasMore:    lo.ToPtr(true),
-		Limit:      lo.ToPtr(int64(100)),
-		Offset:     lo.ToPtr(int64(250)),
-		Page:       lo.ToPtr(int64(3)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 1010,
-	}, usecasex.OffsetPagination{
-		Offset: 250,
-		Limit:  100,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 150,
-		HasMore:    lo.ToPtr(false),
-		Limit:      lo.ToPtr(int64(100)),
-		Offset:     lo.ToPtr(int64(100)),
-		Page:       lo.ToPtr(int64(2)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 150,
-	}, usecasex.OffsetPagination{
-		Offset: 100,
-		Limit:  100,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 50,
-		HasMore:    lo.ToPtr(false),
-		Limit:      lo.ToPtr(int64(50)),
-		Offset:     lo.ToPtr(int64(0)),
-		Page:       lo.ToPtr(int64(1)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 50,
-	}, usecasex.OffsetPagination{
-		Offset: 0,
-		Limit:  50,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 50,
-		HasMore:    lo.ToPtr(true),
-		NextCursor: lo.ToPtr("cur"),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount:  50,
-		EndCursor:   usecasex.Cursor("cur").Ref(),
-		HasNextPage: true,
-	}, usecasex.CursorPagination{
-		First: lo.ToPtr(int64(100)),
-	}.Wrap()))
+		"type": "asset",
+		"id":   "xxx",
+		"url":  "https://example.com",
+	}, v["bbb"])
+	assert.Contains(t, v, "$createdAt")
+	assert.Contains(t, v, "$updatedAt")
+	assert.NotContains(t, v, "$createdBy")
+	assert.NotContains(t, v, "$updatedBy")
 }

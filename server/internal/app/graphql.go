@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -9,10 +10,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/labstack/echo/v4"
+	"github.com/gorilla/websocket"
+	"github.com/labstack/echo/v5"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -31,8 +34,29 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	})
 
 	srv := handler.New(schema)
+
+	srv.AddTransport(transport.SSE{
+		KeepAlivePingInterval: 10 * time.Second,
+	})
 	srv.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true // Allow all origins for WebSocket connections
+			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, *transport.InitPayload, error) {
+			log.Infof("gql: websocket connection initialized")
+			return ctx, &initPayload, nil
+		},
+		ErrorFunc: func(ctx context.Context, err error) {
+			log.Errorf("gql: websocket error: %v", err)
+		},
+		CloseFunc: func(ctx context.Context, closeCode int) {
+			log.Infof("gql: websocket connection closed with code %d", closeCode)
+		},
 	})
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
@@ -47,7 +71,11 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		Cache: lru.New[string](100),
 	})
 
-	srv.Use(otelgqlgen.Middleware())
+	srv.Use(otelgqlgen.Middleware(
+		otelgqlgen.WithCreateSpanFromFields(func(fCtx *graphql.FieldContext) bool {
+			return fCtx.IsResolver || fCtx.IsMethod
+		}),
+	))
 
 	if conf.ComplexityLimit > 0 {
 		srv.Use(extension.FixedComplexityLimit(conf.ComplexityLimit))
@@ -61,7 +89,7 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		Cache: lru.New[string](30),
 	})
 
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		req := c.Request()
 		ctx := req.Context()
 

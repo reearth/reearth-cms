@@ -1,0 +1,215 @@
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, test, vi } from "vitest";
+
+import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+
+import ModelCard, { Props } from "./ModelCard";
+
+const user = userEvent.setup();
+
+const buildProps = (overrides: Partial<Props> = {}): Props => ({
+  model: {
+    id: "test-id",
+    name: "test model",
+    description: "test description",
+    key: "test-key",
+    schemaId: "test-schema-id",
+    schema: {
+      id: "test-schema-id",
+      fields: [],
+    },
+    metadataSchema: {},
+    order: 1,
+  },
+  hasUpdateRight: true,
+  hasDeleteRight: true,
+  hasSchemaCreateRight: true,
+  hasContentCreateRight: true,
+  exportLoading: false,
+  onSchemaNavigate: vi.fn(),
+  onImportSchemaNavigate: vi.fn(),
+  onContentNavigate: vi.fn(),
+  onImportContentNavigate: vi.fn(),
+  onModelDeletionModalOpen: vi.fn().mockResolvedValue(undefined),
+  onModelUpdateModalOpen: vi.fn().mockResolvedValue(undefined),
+  onModelExport: vi.fn().mockResolvedValue(undefined),
+  ...overrides,
+});
+
+const openMiscDropdown = async () => {
+  await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon));
+  await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscEdit);
+};
+
+const openFileOperationDropdown = async () => {
+  await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__FileOperationIcon));
+  await screen.findByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
+};
+
+const openSubmenu = async (testId: DATA_TEST_ID) => {
+  const submenu = await screen.findByTestId(testId);
+  const trigger = within(submenu).getByRole("menuitem");
+  await user.hover(trigger);
+};
+
+describe("Test ModelCard component", () => {
+  test("Renders model details and utility menu", async () => {
+    render(<ModelCard {...buildProps()} />);
+
+    expect(screen.getByText("test model")).toBeVisible();
+    expect(screen.getByText("test description")).toBeVisible();
+
+    await openMiscDropdown();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete)).toBeInTheDocument();
+
+    await openFileOperationDropdown();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExport)).toBeInTheDocument();
+  });
+
+  test("Fires menu actions when enabled", async () => {
+    const props = buildProps();
+    render(<ModelCard {...props} />);
+
+    await openMiscDropdown();
+    await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit));
+
+    expect(props.onModelUpdateModalOpen).toHaveBeenCalledWith(props.model);
+
+    await openMiscDropdown();
+    await user.click(screen.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete));
+
+    expect(props.onModelDeletionModalOpen).toHaveBeenCalledWith(props.model);
+
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExportContent);
+    await user.click(
+      await screen.findByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentJSON),
+    );
+
+    expect(props.onModelExport).toHaveBeenCalledWith(props.model.id, ExportFormat.Json);
+  });
+
+  test("Toggles import options based on schema fields", async () => {
+    const baseProps = buildProps();
+    const withFields = buildProps({
+      model: {
+        ...baseProps.model,
+        schema: {
+          id: "test-schema-id",
+          fields: [
+            {
+              id: "field-1",
+              type: SchemaFieldType.Text,
+              title: "Title",
+              key: "title",
+              description: "",
+              required: false,
+              unique: false,
+              multiple: false,
+              isTitle: false,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ModelCard {...withFields} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationImport);
+
+    const importSchema = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
+    const importContent = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
+
+    expect(importSchema).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(importContent).not.toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Disables import content when schema is empty", async () => {
+    render(<ModelCard {...buildProps()} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationImport);
+
+    const importSchema = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
+    const importContent = await screen.findByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
+
+    expect(importSchema).not.toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(importContent).toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Disables export schema when schema is empty", async () => {
+    render(<ModelCard {...buildProps()} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+
+    const exportSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportSchema,
+    );
+    const exportContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportContent,
+    );
+
+    expect(exportSchema).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(exportContent).not.toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Enables export schema when schema has fields", async () => {
+    const baseProps = buildProps();
+    const withFields = buildProps({
+      model: {
+        ...baseProps.model,
+        schema: {
+          id: "test-schema-id",
+          fields: [
+            {
+              id: "field-1",
+              type: SchemaFieldType.Text,
+              title: "Title",
+              key: "title",
+              description: "",
+              required: false,
+              unique: false,
+              multiple: false,
+              isTitle: false,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ModelCard {...withFields} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+
+    const exportSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportSchema,
+    );
+    const exportContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportContent,
+    );
+
+    expect(exportSchema).not.toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(exportContent).not.toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Disables export options when export is loading", async () => {
+    render(<ModelCard {...buildProps({ exportLoading: true })} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+
+    const exportSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportSchema,
+    );
+    const exportContent = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__FileOperationExportContent,
+    );
+
+    expect(exportSchema).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(exportContent).toHaveClass("ant-dropdown-menu-submenu-disabled");
+  });
+});

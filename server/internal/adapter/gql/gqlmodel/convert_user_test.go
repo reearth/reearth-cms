@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,8 +36,9 @@ func TestToWorkspace(t *testing.T) {
 			name: "ok",
 			arg:  w,
 			want: &Workspace{
-				ID:   IDFrom(w.ID()),
-				Name: "workspace",
+				ID:    IDFrom(w.ID()),
+				Name:  "workspace",
+				Alias: lo.ToPtr(""),
 				Members: []WorkspaceMember{
 					&WorkspaceUserMember{
 						UserID: IDFrom(uid),

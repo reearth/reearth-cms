@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"golang.org/x/text/language"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -17,9 +19,12 @@ type ContextKey string
 const (
 	contextUser     ContextKey = "user"
 	contextOperator ContextKey = "operator"
-	ContextAuthInfo ContextKey = "authinfo"
+	contextAPIKeyId ContextKey = "api-key-id"
+	ContextAuthInfo ContextKey = "auth-info"
 	contextUsecases ContextKey = "usecases"
 	contextGateways ContextKey = "gateways"
+	contextAcRepos  ContextKey = "ac-repos"
+	contextJWTToken ContextKey = "jwtToken"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
@@ -74,6 +79,32 @@ func Gateways(ctx context.Context) *gateway.Container {
 	return nil
 }
 
+func AttachAcRepos(ctx context.Context, r *accountrepo.Container) context.Context {
+	return context.WithValue(ctx, contextAcRepos, r)
+}
+
+func AcRepos(ctx context.Context) *accountrepo.Container {
+	if v := ctx.Value(contextAcRepos); v != nil {
+		if r, ok := v.(*accountrepo.Container); ok {
+			return r
+		}
+	}
+	return nil
+}
+
+func AttachAPIKeyId(ctx context.Context, a *project.APIKeyID) context.Context {
+	return context.WithValue(ctx, contextAPIKeyId, a)
+}
+
+func APIKeyId(ctx context.Context) *project.APIKeyID {
+	if v := ctx.Value(contextAPIKeyId); v != nil {
+		if a, ok := v.(*project.APIKeyID); ok {
+			return a
+		}
+	}
+	return nil
+}
+
 func Lang(ctx context.Context, lang *language.Tag) string {
 	if lang != nil && !lang.IsRoot() {
 		return lang.String()
@@ -84,12 +115,13 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 		return "en" // default language
 	}
 
-	l := u.Lang()
-	if l.IsRoot() {
-		return "en" // default language
+	if metadata := u.Metadata(); metadata != nil {
+		if l := metadata.Lang(); !l.IsRoot() {
+			return l.String()
+		}
 	}
 
-	return l.String()
+	return "en" // default language
 }
 
 func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
@@ -99,4 +131,11 @@ func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
 		}
 	}
 	return nil
+}
+
+func GetJWTToken(ctx context.Context) string {
+	if token, ok := ctx.Value(contextJWTToken).(string); ok {
+		return token
+	}
+	return ""
 }

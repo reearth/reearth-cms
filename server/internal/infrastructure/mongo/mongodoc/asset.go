@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
@@ -17,7 +18,11 @@ type AssetDocument struct {
 	CreatedAt               time.Time
 	User                    *string
 	Integration             *string
+	UpdatedAt               time.Time
+	UpdatedByUser           *string
+	UpdatedByIntegration    *string
 	FileName                string
+	FileNameNormalized      string
 	Size                    uint64
 	PreviewType             string
 	UUID                    string
@@ -70,13 +75,25 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		iid = a.Integration().StringRef()
 	}
 
+	var ubuid, ubiid *string
+	if a.UpdatedByUser() != nil {
+		ubuid = a.UpdatedByUser().StringRef()
+	}
+	if a.UpdatedByIntegration() != nil {
+		ubiid = a.UpdatedByIntegration().StringRef()
+	}
+
 	return &AssetDocument{
 		ID:                      aid,
 		Project:                 a.Project().String(),
 		CreatedAt:               a.CreatedAt(),
 		User:                    uid,
 		Integration:             iid,
+		UpdatedAt:               a.UpdatedAtRaw(),
+		UpdatedByUser:           ubuid,
+		UpdatedByIntegration:    ubiid,
 		FileName:                a.FileName(),
+		FileNameNormalized:      utils.NormalizeText(a.FileName()),
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),
@@ -101,6 +118,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		ID(aid).
 		Project(pid).
 		CreatedAt(d.CreatedAt).
+		UpdatedAt(d.UpdatedAt).
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
@@ -124,6 +142,20 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 			return nil, err
 		}
 		ab = ab.CreatedByIntegration(iid)
+	}
+
+	if d.UpdatedByUser != nil {
+		uid, err := accountdomain.UserIDFrom(*d.UpdatedByUser)
+		if err != nil {
+			return nil, err
+		}
+		ab = ab.UpdatedByUser(&uid)
+	} else if d.UpdatedByIntegration != nil {
+		iid, err := id.IntegrationIDFrom(*d.UpdatedByIntegration)
+		if err != nil {
+			return nil, err
+		}
+		ab = ab.UpdatedByIntegration(&iid)
 	}
 
 	return ab.Build()

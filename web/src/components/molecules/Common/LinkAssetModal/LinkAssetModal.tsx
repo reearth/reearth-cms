@@ -10,10 +10,8 @@ import {
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
@@ -21,6 +19,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 type Props = {
   visible: boolean;
@@ -134,7 +133,9 @@ const LinkAssetModal: React.FC<Props> = ({
           return (
             <Button
               type="link"
-              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              icon={
+                <Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />
+              }
               onClick={() => onLinkClick(isLink, asset)}
             />
           );
@@ -181,12 +182,7 @@ const LinkAssetModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy.name} size="small" />
-            {item.createdBy.name}
-          </Space>
-        ),
+        render: (_, item) => item.createdBy.name,
       },
     ],
     [linkedAsset?.id, onLinkClick, t],
@@ -245,10 +241,10 @@ const LinkAssetModal: React.FC<Props> = ({
           onUploadModalClose={onLinkAssetModalCancel}
         />,
       ]}
-      width="70vw"
+      width={CustomToken.MODAL.WIDTH_LG}
       styles={{
         body: {
-          height: "70vh",
+          height: CustomToken.MODAL.HEIGHT_LG,
         },
       }}>
       <ResizableProTable
@@ -274,7 +270,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

@@ -28,7 +28,7 @@ type fileRepo struct {
 	public      bool
 }
 
-func NewFile(fs afero.Fs, publicBase string) (gateway.File, error) {
+func NewFile(fs afero.Fs, publicBase string, replaceUploadURL bool) (gateway.File, error) {
 	var b *url.URL
 	if publicBase == "" {
 		publicBase = defaultBase
@@ -47,8 +47,8 @@ func NewFile(fs afero.Fs, publicBase string) (gateway.File, error) {
 	}, nil
 }
 
-func NewFileWithACL(fs afero.Fs, publicBase, privateBase string) (gateway.File, error) {
-	f, err := NewFile(fs, publicBase)
+func NewFileWithACL(fs afero.Fs, publicBase, privateBase string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(fs, publicBase, replaceUploadURL)
 	if err != nil {
 		return nil, err
 	}
@@ -261,6 +261,65 @@ func (f *fileRepo) delete(filename string) error {
 	return nil
 }
 
+func (f *fileRepo) Delete(_ context.Context, filename string) error {
+	return f.delete(filename)
+}
+
+func (f *fileRepo) DeleteByPrefix(_ context.Context, prefix string, p gateway.Predicate) error {
+	if prefix == "" {
+		return gateway.ErrInvalidInput
+	}
+	var errs []error
+	err := afero.Walk(f.fs, ".", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if !strings.HasPrefix(path, prefix) {
+			return nil
+		}
+		if p != nil {
+			fe := gateway.FileEntry{
+				Name: path,
+				Size: info.Size(),
+			}
+			if !p(fe) {
+				return nil
+			}
+		}
+		if err := f.delete(path); err != nil {
+			errs = append(errs, err)
+		}
+		return nil
+	})
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	return nil
+}
+
+func (f *fileRepo) ListByPrefix(_ context.Context, prefix string) ([]string, error) {
+	var result []string
+	err := afero.Walk(f.fs, ".", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasPrefix(path, prefix) {
+			result = append(result, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return result, nil
+}
+
 func getFSObjectPath(fileUUID, objectName string) string {
 	if fileUUID == "" || !IsValidUUID(fileUUID) {
 		return ""
@@ -305,5 +364,9 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 	if len(errs) > 0 {
 		return rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", errs))
 	}
+	return nil
+}
+
+func (f *fileRepo) Check(ctx context.Context) error {
 	return nil
 }

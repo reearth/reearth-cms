@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
@@ -10,13 +11,13 @@ import {
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useCreateWorkspaceMutation,
-  useGetMeQuery,
-  useGetProjectQuery,
   WorkspaceMember,
   Workspace as GQLWorkspace,
   Project as GQLProject,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
 import {
   useWorkspace,
@@ -24,8 +25,9 @@ import {
   useUserId,
   useWorkspaceId,
   useUserRights,
+  useCollapsedMainMenu,
 } from "@reearth-cms/state";
-import { splitPathname } from "@reearth-cms/utils/path";
+import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
 
 import { userRightsGet } from "./utils";
 
@@ -35,6 +37,7 @@ export default () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const logoUrl = window.REEARTH_CONFIG?.logoUrl;
+  const dashboardBaseUrl = window.REEARTH_CONFIG?.dashboardBaseUrl;
 
   const [currentUserId, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
@@ -42,19 +45,27 @@ export default () => {
   const [currentProject, setCurrentProject] = useProject();
   const [, setUserRights] = useUserRights();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsedMainMenu, setCollapsedMainMenu] = useCollapsedMainMenu();
 
-  const { data, refetch } = useGetMeQuery();
+  const { data, refetch } = useQuery(GetMeDocument);
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
 
+  const profilePictureUrl = useMemo(
+    () => data?.me?.profilePictureUrl ?? undefined,
+    [data?.me?.profilePictureUrl],
+  );
+
   setCurrentUserId(data?.me?.id);
 
-  const handleCollapse = useCallback((collapse: boolean) => {
-    setCollapsed(collapse);
-  }, []);
+  const handleCollapse = useCallback(
+    (collapse: boolean) => {
+      setCollapsedMainMenu(collapse);
+    },
+    [setCollapsedMainMenu],
+  );
 
   const workspaces = data?.me?.workspaces?.map(workspace =>
     fromGraphQLWorkspace(workspace as GQLWorkspace),
@@ -68,6 +79,7 @@ export default () => {
       ? {
           id: foundWorkspace.id,
           name: foundWorkspace.name,
+          alias: foundWorkspace.alias,
           members: foundWorkspace.members?.map(member =>
             fromGraphQLMember(member as WorkspaceMember),
           ),
@@ -110,7 +122,7 @@ export default () => {
     }
   }, [currentUserId, currentWorkspace, data?.me?.id, setUserRights]);
 
-  const [createWorkspaceMutation] = useCreateWorkspaceMutation();
+  const [createWorkspaceMutation] = useMutation(CreateWorkspaceDocument);
   const handleWorkspaceCreate = useCallback(
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
@@ -135,10 +147,14 @@ export default () => {
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    navigate(`/workspace/${personalWorkspace?.id}/account`);
-  }, [personalWorkspace?.id, navigate]);
+    if (dashboardBaseUrl) {
+      window.open(joinPaths(dashboardBaseUrl, "settings/profile"), "_blank", "noopener,noreferrer");
+    } else {
+      navigate(`/workspace/${personalWorkspace?.id}/account`);
+    }
+  }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
-  const { data: projectData } = useGetProjectQuery({
+  const { data: projectData } = useQuery(GetProjectDocument, {
     variables: { projectId: projectId ?? "" },
     skip: !projectId,
   });
@@ -158,7 +174,7 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
-      } else if (info.key === "overview") {
+      } else if (info.key === "models") {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
       } else {
         navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
@@ -171,11 +187,29 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
+      } else if (info.key === "members" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "members"),
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (info.key === "workspaceSettings" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/general"),
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (info.key === "account" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, "settings/profile"),
+          "_blank",
+          "noopener,noreferrer",
+        );
       } else {
         navigate(`/workspace/${workspaceId}/${info.key}`);
       }
     },
-    [navigate, workspaceId],
+    [currentWorkspace?.alias, dashboardBaseUrl, navigate, workspaceId],
   );
 
   const handleWorkspaceNavigation = useCallback(
@@ -191,6 +225,7 @@ export default () => {
 
   return {
     username,
+    profilePictureUrl,
     personalWorkspace,
     workspaces,
     currentWorkspace,
@@ -198,7 +233,7 @@ export default () => {
     currentProject,
     selectedKey: subRoute,
     secondaryRoute,
-    collapsed,
+    collapsedMainMenu,
     handleCollapse,
     handleProjectMenuNavigate,
     handleWorkspaceMenuNavigate,

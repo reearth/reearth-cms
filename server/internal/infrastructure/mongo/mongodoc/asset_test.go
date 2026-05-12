@@ -81,7 +81,7 @@ func TestNewAsset(t *testing.T) {
 				UUID:                    uuId.String(),
 				Thread:                  tId.StringRef(),
 				ArchiveExtractionStatus: "",
-				Public: true,
+				Public:                  true,
 			},
 			aDocId: aId.String(),
 		},

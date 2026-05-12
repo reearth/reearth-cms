@@ -1,10 +1,11 @@
 import { type Dayjs } from "dayjs";
+import type { GeoJSON } from "geojson";
 
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
 
@@ -17,6 +18,8 @@ export type FormValue =
   | number[]
   | boolean
   | boolean[]
+  | GeoJSON
+  | GeoJSON[]
   | Dayjs
   | ("" | Dayjs)[]
   | null
@@ -24,12 +27,20 @@ export type FormValue =
 
 export type FormGroupValue = Record<string, FormValue>;
 
-export type ItemValue = string | string[] | number | number[] | boolean | boolean[];
+export type ItemValue =
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | GeoJSON
+  | GeoJSON[];
 
 export type ItemField = {
   schemaFieldId: string;
   itemGroupId?: string;
-  type: FieldType;
+  type: SchemaFieldType;
   value: ItemValue;
 };
 

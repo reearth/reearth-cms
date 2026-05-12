@@ -1,10 +1,11 @@
 package schema
 
 import (
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type List []*Schema
@@ -37,6 +38,16 @@ func (l List) Schema(sID *id.SchemaID) *Schema {
 		return s.ID() == *sID
 	})
 	return s
+}
+
+func (l List) IDs() IDList {
+	ids := make(IDList, 0, len(l))
+	for _, s := range l {
+		if s != nil {
+			ids = ids.AddUniq(s.ID())
+		}
+	}
+	return ids
 }
 
 type FieldList []*Field

@@ -14,9 +14,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
@@ -105,7 +108,6 @@ func TestModel_FindByID(t *testing.T) {
 }
 
 func TestModel_CheckKey(t *testing.T) {
-	mockTime := time.Now()
 	pId := id.NewProjectID()
 	type args struct {
 		pId id.ProjectID
@@ -201,7 +203,6 @@ func TestModel_CheckKey(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -224,19 +225,24 @@ func TestModel_CheckKey(t *testing.T) {
 }
 
 func TestModel_Create(t *testing.T) {
-	mockTime := time.Now()
 	// mId := id.NewModelID()
 	// sId := id.NewSchemaID()
-	// wid1 := accountdomain.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	// wid2 := accountdomain.NewWorkspaceID()
 	//
-	// pid1 := id.NewProjectID()
-	// p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()
+	pid1 := id.NewProjectID()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 	//
 	// pid2 := id.NewProjectID()
 	// p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mockTime).MustBuild()
 	//
-	// u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		OwningProjects: []id.ProjectID{pid1},
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
+	}
 	// op := &usecase.Operator{
 	// 	User:               u.ID(),
 	// 	ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -252,13 +258,15 @@ func TestModel_Create(t *testing.T) {
 		model   model.List
 		project project.List
 	}
+
 	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		want    *model.Model
-		mockErr bool
-		wantErr error
+		name            string
+		seeds           seeds
+		args            args
+		setupPolicyMock func(*gatewaymock.MockPolicyChecker)
+		want            *model.Model
+		mockErr         bool
+		wantErr         error
 	}{
 		// TODO: fix
 		// {
@@ -281,7 +289,84 @@ func TestModel_Create(t *testing.T) {
 		// 	mockErr: false,
 		// 	wantErr: nil,
 		// },
+		{
+			name: "policy checker allows creation",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(&gateway.PolicyCheckResponse{
+					Allowed: true,
+				}, nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "policy checker denies creation - limit exceeded",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(&gateway.PolicyCheckResponse{
+					Allowed: false,
+				}, nil)
+			},
+			wantErr: interfaces.ErrModelCountPerProjectExceeded,
+		},
+		{
+			name: "policy checker error",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(nil, errors.New("policy check service error"))
+			},
+			wantErr: errors.New("policy check service error"),
+		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -289,10 +374,19 @@ func TestModel_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockPolicyChecker := gatewaymock.NewMockPolicyChecker(mockCtrl)
+			gw := &gateway.Container{PolicyChecker: mockPolicyChecker}
+
+			if tt.setupPolicyMock != nil {
+				tt.setupPolicyMock(mockPolicyChecker)
+			}
+
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -301,7 +395,8 @@ func TestModel_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db, nil)
+
+			u := NewModel(db, gw)
 
 			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -310,58 +405,205 @@ func TestModel_Create(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
+			if tt.want != nil {
+				assert.Equal(t, tt.want, got)
+			} else {
+				assert.NotNil(t, got)
+			}
 		})
 	}
 }
 
 func TestModel_Delete(t *testing.T) {
-	mockTime := time.Now()
-	type args struct {
-		modelID  id.ModelID
-		operator *usecase.Operator
-	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
-	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		mockErr bool
-		wantErr error
-	}{
-		// {},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+	t.Parallel()
 
-			ctx := context.Background()
-			db := memory.New()
-			if tt.mockErr {
-				memory.SetModelError(db.Model, tt.wantErr)
-			}
-			defer memory.MockNow(db, mockTime)()
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
-			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-			u := NewModel(db, nil)
-
-			assert.Equal(t, tt.wantErr, u.Delete(ctx, tt.args.modelID, tt.args.operator))
-		})
+	wid := accountdomain.NewWorkspaceID()
+	op := &usecase.Operator{
+		OwningProjects: []id.ProjectID{},
+		AcOperator: &accountusecase.Operator{
+			User: accountdomain.NewUserID().Ref(),
+		},
 	}
+
+	newModel := func(pid id.ProjectID, sid id.SchemaID) *model.Model {
+		return model.New().NewID().Key(id.RandomKey()).Project(pid).Schema(sid).MustBuild()
+	}
+	newSchema := func(pid id.ProjectID) *schema.Schema {
+		return schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	}
+
+	t.Run("not found", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+		u := NewModel(db, nil)
+
+		sp := *schema.NewPackage(nil, nil, nil, nil)
+		err := u.Delete(ctx, id.NewModelID(), sp, op)
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("operation denied", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		m := newModel(p.ID(), s.ID())
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+
+		// operator does not own this project
+		restrictedOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+		sp := *schema.NewPackage(s, nil, nil, nil)
+		u := NewModel(db, nil)
+		err := u.Delete(ctx, m.ID(), sp, restrictedOp)
+		assert.ErrorIs(t, err, interfaces.ErrOperationDenied)
+	})
+
+	t.Run("deletes model with views and items", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		m := newModel(p.ID(), s.ID())
+
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+
+		// seed a view for the model
+		v := view.New().NewID().Model(m.ID()).Project(p.ID()).MustBuild()
+		assert.NoError(t, db.View.Save(ctx, v))
+
+		// seed an item for the model
+		it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+		assert.NoError(t, db.Item.Save(ctx, it))
+
+		sp := *schema.NewPackage(s, nil, nil, nil)
+		u := NewModel(db, nil)
+		err := u.Delete(ctx, m.ID(), sp, ownerOp)
+		assert.NoError(t, err)
+
+		// model should be gone
+		_, err = db.Model.FindByID(ctx, m.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+
+		// view should be gone
+		views, _ := db.View.FindByModel(ctx, m.ID())
+		assert.Empty(t, views)
+
+		// item should be gone
+		_, err = db.Item.FindByID(ctx, it.ID(), nil)
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+
+		// schema should be gone
+		_, err = db.Schema.FindByID(ctx, s.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("deletes metadata schema when present", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		meta := newSchema(p.ID())
+		m := model.New().NewID().Key(id.RandomKey()).Project(p.ID()).Schema(s.ID()).Metadata(meta.ID().Ref()).MustBuild()
+
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, meta.Clone()))
+
+		sp := *schema.NewPackage(s, meta, nil, nil)
+		u := NewModel(db, nil)
+		err := u.Delete(ctx, m.ID(), sp, ownerOp)
+		assert.NoError(t, err)
+
+		_, err = db.Schema.FindByID(ctx, s.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+		_, err = db.Schema.FindByID(ctx, meta.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("removes dangling reference field from sibling schema on delete (two-way)", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+
+		// model1 (to be deleted)
+		s1 := newSchema(p.ID())
+		m1 := newModel(p.ID(), s1.ID())
+
+		// model2 (sibling)
+		s2 := newSchema(p.ID())
+		m2 := newModel(p.ID(), s2.ID())
+
+		// Two-way reference:
+		f1ID := id.NewFieldID()
+		f2ID := id.NewFieldID()
+
+		f1, err := schema.NewField(schema.NewReference(m2.ID(), s2.ID(), lo.ToPtr(f2ID), nil).TypeProperty()).
+			ID(f1ID).
+			Key(id.RandomKey()).
+			Build()
+		assert.NoError(t, err)
+		s1.AddField(f1)
+
+		f2, err := schema.NewField(schema.NewReference(m1.ID(), s1.ID(), lo.ToPtr(f1ID), nil).TypeProperty()).
+			ID(f2ID).
+			Key(id.RandomKey()).
+			Build()
+		assert.NoError(t, err)
+		s2.AddField(f2)
+
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m1))
+		assert.NoError(t, db.Schema.Save(ctx, s1.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m2))
+		assert.NoError(t, db.Schema.Save(ctx, s2.Clone()))
+
+		sp := *schema.NewPackage(s1, nil, nil, nil)
+		u := NewModel(db, nil)
+		assert.NoError(t, u.Delete(ctx, m1.ID(), sp, ownerOp))
+
+		// s2 should still exist
+		s2After, err := db.Schema.FindByID(ctx, s2.ID())
+		assert.NoError(t, err)
+
+		// f2 (back-reference pointing at s1) must be gone; s2 has no reference fields left
+		assert.Empty(t, s2After.FieldsByType(value.TypeReference), "dangling back-reference field should have been removed from sibling schema")
+	})
 }
 
 func TestModel_FindByIDs(t *testing.T) {
-	mockTime := time.Now()
 	type args struct {
 		ids      []id.ModelID
 		operator *usecase.Operator
@@ -390,7 +632,6 @@ func TestModel_FindByIDs(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -411,137 +652,7 @@ func TestModel_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestModel_Publish(t *testing.T) {
-	mockTime := time.Now()
-	pId := id.NewProjectID()
-	sid := id.NewSchemaID()
-	mId1 := id.NewModelID()
-	m1 := model.New().ID(mId1).Key(id.RandomKey()).Schema(sid).Project(pId).MustBuild()
-	mId2 := id.NewModelID()
-	m2 := model.New().ID(mId2).Key(id.RandomKey()).Schema(sid).Project(pId).MustBuild()
-
-	op := &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
-		},
-		OwningProjects: id.ProjectIDList{pId},
-	}
-
-	type args struct {
-		params   []interfaces.PublishModelParam
-		operator *usecase.Operator
-	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
-	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		mockErr bool
-		wantErr error
-	}{
-		{
-			name:  "empty params",
-			seeds: seeds{},
-			args: args{
-				params:   nil,
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrInvalidParams,
-		},
-		{
-			name:  "empty params",
-			seeds: seeds{},
-			args: args{
-				params:   []interfaces.PublishModelParam{},
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrInvalidParams,
-		},
-		{
-			name:  "not found model",
-			seeds: seeds{},
-			args: args{
-				params: []interfaces.PublishModelParam{{
-					ModelID: id.ModelID{},
-					Public:  false,
-				}},
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:  "not found model",
-			seeds: seeds{model.List{m1, m2}, project.List{}},
-			args: args{
-				params: []interfaces.PublishModelParam{{
-					ModelID: id.NewModelID(),
-					Public:  false,
-				}},
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:  "not found model",
-			seeds: seeds{model.List{m1, m2}, project.List{}},
-			args: args{
-				params: []interfaces.PublishModelParam{
-					{
-						ModelID: mId1,
-						Public:  false,
-					},
-					{
-						ModelID: mId2,
-						Public:  true,
-					},
-				},
-				operator: op,
-			},
-			mockErr: false,
-			wantErr: nil,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-			if tt.mockErr {
-				memory.SetModelError(db.Model, tt.wantErr)
-			}
-			defer memory.MockNow(db, mockTime)()
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
-			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-			u := NewModel(db, nil)
-
-			err := u.Publish(ctx, tt.args.params, tt.args.operator)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-			} else {
-				assert.NoError(t, err)
-			}
-
-		})
-	}
-}
-
 func TestModel_Update(t *testing.T) {
-	mockTime := time.Now()
 	type args struct {
 		param    interfaces.UpdateModelParam
 		operator *usecase.Operator
@@ -570,7 +681,6 @@ func TestModel_Update(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -614,7 +724,6 @@ func TestNewModel(t *testing.T) {
 }
 
 func TestModel_Copy(t *testing.T) {
-	mockTime := time.Now()
 	wid := accountdomain.NewWorkspaceID()
 	p := project.New().NewID().Workspace(wid).MustBuild()
 	op := &usecase.Operator{
@@ -642,8 +751,6 @@ func TestModel_Copy(t *testing.T) {
 	mRunner := gatewaymock.NewMockTaskRunner(mockCtrl)
 	gw := &gateway.Container{TaskRunner: mRunner}
 	u := NewModel(db, gw)
-
-	defer memory.MockNow(db, mockTime)()
 
 	err := db.Project.Save(ctx, p.Clone())
 	assert.NoError(t, err)
@@ -676,7 +783,6 @@ func TestModel_Copy(t *testing.T) {
 				assert.NotEqual(t, m.Key(), got.Key())
 				assert.Equal(t, "Copied Model", got.Name())
 				assert.Equal(t, m.Description(), got.Description())
-				assert.Equal(t, m.Public(), got.Public())
 			},
 		},
 		{

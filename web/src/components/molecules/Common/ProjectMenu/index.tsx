@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { ItemType } from "antd/lib/menu/interface";
 import { useCallback, useEffect, useState } from "react";
 
@@ -15,14 +16,13 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: t("Home"), key: "home", icon: <Icon icon="home" /> },
-    { label: t("Overview"), key: "overview", icon: <Icon icon="dashboard" /> },
+    { label: t("Models"), key: "models", icon: <Icon icon="block" /> },
     { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
     { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
     { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
   ];
-  const [selected, changeSelected] = useState([defaultSelectedKey ?? "overview"]);
+  const [selected, changeSelected] = useState([defaultSelectedKey ?? "models"]);
 
   useEffect(() => {
     if (defaultSelectedKey && defaultSelectedKey !== selected[0]) {
@@ -35,6 +35,16 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
       label: t("Accessibility"),
       key: "accessibility",
       icon: <Icon icon="send" />,
+    },
+    {
+      label: t("Readme"),
+      key: "readme",
+      icon: <Icon icon="read" />,
+    },
+    {
+      label: t("License"),
+      key: "license",
+      icon: <Icon icon="copyright" />,
     },
     {
       label: t("Settings"),
@@ -53,14 +63,14 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   return (
     <>
-      <Menu
+      <StyledMenu
         onClick={onClick}
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
-      <Menu
+      <StyledMenu
         onClick={onClick}
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
@@ -72,3 +82,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 };
 
 export default ProjectMenu;
+
+const StyledMenu = styled(Menu)`
+  border-right: none !important;
+`;

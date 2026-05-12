@@ -21,20 +21,21 @@ import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/Fiel
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
-  FieldType,
+  SchemaFieldType,
   Group,
   FormValues,
   Tag,
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
 type Props = {
   groups?: Group[];
-  selectedType: FieldType;
+  selectedType: SchemaFieldType;
   selectedSchemaType: SelectedSchemaType;
   isMeta: boolean;
   open: boolean;
@@ -222,7 +223,7 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
+              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
@@ -391,17 +392,17 @@ const FieldModal: React.FC<Props> = ({
 };
 
 const Required = styled.span`
-  color: #ff4d4f;
-  margin-right: 4px;
+  color: ${AntdColor.RED.RED_4};
+  margin-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Optional = styled.span`
-  color: #8c8c8c;
-  margin-left: 4px;
+  color: ${AntdColor.GREY.GREY_2};
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const OptionTitle = styled.p`
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const FieldThumbnail = styled.div`
@@ -410,7 +411,7 @@ const FieldThumbnail = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -422,15 +423,15 @@ const StyledIcon = styled(Icon)`
 `;
 
 const StyledTitle = styled.p`
-  color: #000000d9;
-  font-size: 16px;
-  margin: 0 20px 0 12px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  margin: 0 ${AntdToken.SPACING.MD}px 0 ${AntdToken.SPACING.SM}px;
   overflow: auto;
 `;
 
 const StyledGroupKey = styled.span`
-  font-size: 12px;
-  margin-left: 4px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledCheckboxGroup = styled(Checkbox.Group)`

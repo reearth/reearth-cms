@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 export type FormValues = {
   items: string[];
@@ -22,16 +23,16 @@ const WarningText: React.FC<Props> = ({ text }) => {
 const RequestWarning = styled.div`
   .anticon {
     float: left;
-    margin-right: 8px;
-    font-size: 16px;
-    color: #faad14;
+    margin-right: ${AntdToken.SPACING.XS}px;
+    font-size: ${AntdToken.FONT.SIZE_LG}px;
+    color: ${AntdColor.GOLD.GOLD_5};
   }
   p {
     display: block;
     overflow: hidden;
-    color: #000000d9;
-    font-weight: 500;
-    font-size: 14px;
+    color: ${AntdColor.NEUTRAL.TEXT};
+    font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+    font-size: ${AntdToken.FONT.SIZE}px;
     line-height: 1.4;
     margin-top: 2px;
   }

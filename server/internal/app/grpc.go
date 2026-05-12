@@ -14,8 +14,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/text/language"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -32,8 +34,11 @@ func initGrpc(appCtx *ApplicationContext) *grpc.Server {
 		unaryAttachOperatorInterceptor(appCtx),
 		unaryAttachUsecaseInterceptor(appCtx),
 	)
-	s := grpc.NewServer(ui)
-	pb.RegisterReEarthCMSServer(s, internalapi.NewServer())
+	s := grpc.NewServer(
+		ui,
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
+	pb.RegisterReEarthCMSServer(s, internalapi.NewServer(appCtx.Config.Host_Web, appCtx.Config.Host))
 
 	return s
 }
@@ -93,23 +98,18 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 			log.Errorf("unaryAttachOperatorInterceptor: no metadata found")
 			return nil, errors.New("unauthorized")
 		}
-		if len(md["user-id"]) < 1 {
-			log.Errorf("unaryAttachOperatorInterceptor: no user id found")
-			return nil, errors.New("unauthorized")
-		}
 
-		userID, err := accountdomain.UserIDFrom(md["user-id"][0])
-		if err != nil {
-			log.Errorf("unaryAttachOperatorInterceptor: invalid user id")
-			return nil, errors.New("unauthorized")
-		}
-		u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
-		if err != nil {
-			log.Errorf("unaryAttachOperatorInterceptor: %v", err)
-			return nil, rerror.ErrInternalBy(err)
-		}
+		userID := userIdFromGrpcMetadata(md)
+		if !userID.IsEmpty() {
+			u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
+			if errors.Is(err, rerror.ErrNotFound) {
+				return handler(ctx, req)
+			}
+			if err != nil {
+				log.Errorf("unaryAttachOperatorInterceptor: %v", err)
+				return nil, rerror.ErrInternalBy(err)
+			}
 
-		if u != nil {
 			op, err := generateUserOperator(ctx, appCtx, u, language.English.String())
 			if err != nil {
 				return nil, err
@@ -127,21 +127,21 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		if appCtx == nil || appCtx.Repos == nil || appCtx.AcRepos == nil || appCtx.Gateways == nil || appCtx.AcGateways == nil {
 			return nil, errors.New("internal error")
 		}
+
+		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
 		var r2 *repo.Container
 		var ar2 *accountrepo.Container
-		if op := adapter.Operator(ctx); op != nil {
-			// apply filters to repos
-			r2 = appCtx.Repos.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
-			ar2 = appCtx.AcRepos.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
-
+		op := adapter.Operator(ctx)
+		r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
+		if op != nil {
+			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
 		} else {
-			r2 = appCtx.Repos
-			ar2 = appCtx.AcRepos
+			ar2 = ar
 		}
-
-		uc := interactor.New(r2, appCtx.Gateways, ar2, appCtx.AcGateways, interactor.ContainerConfig{})
+		uc := interactor.New(r2, g, ar2, ag, interactor.ContainerConfig{})
 		ctx = adapter.AttachUsecases(ctx, &uc)
-		ctx = adapter.AttachGateways(ctx, appCtx.Gateways)
+		ctx = adapter.AttachGateways(ctx, g)
+		ctx = adapter.AttachAcRepos(ctx, ar2)
 
 		return handler(ctx, req)
 	}
@@ -162,4 +162,17 @@ func tokenFromGrpcMetadata(md metadata.MD) string {
 		return ""
 	}
 	return token
+}
+
+func userIdFromGrpcMetadata(md metadata.MD) idx.ID[accountdomain.User] {
+	if len(md["user-id"]) < 1 {
+		return idx.ID[accountdomain.User]{}
+	}
+
+	userID, err := accountdomain.UserIDFrom(md["user-id"][0])
+	if err != nil {
+		log.Errorf("unaryAttachOperatorInterceptor: invalid user id")
+		return idx.ID[accountdomain.User]{}
+	}
+	return userID
 }

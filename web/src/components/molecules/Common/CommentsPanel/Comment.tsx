@@ -4,15 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   userId: string;
@@ -31,6 +31,7 @@ const Comment: React.FC<Props> = ({
   onCommentUpdate,
   onCommentDelete,
 }) => {
+  const t = useT();
   const [showEditor, setShowEditor] = useState(false);
   const [value, setValue] = useState(comment.content);
 
@@ -65,7 +66,7 @@ const Comment: React.FC<Props> = ({
           color="default"
           variant="link"
           size="small"
-          icon={<Icon icon="delete" size={12} />}
+          icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_SM} />}
           onClick={() => onCommentDelete(comment.id)}
         />,
       );
@@ -76,7 +77,7 @@ const Comment: React.FC<Props> = ({
           color="default"
           variant="link"
           size="small"
-          icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
+          icon={<Icon icon={showEditor ? "check" : "edit"} size={AntdToken.FONT.SIZE_SM} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
         />,
       );
@@ -93,19 +94,18 @@ const Comment: React.FC<Props> = ({
     showEditor,
   ]);
 
+  const displayAuthor = useMemo<string>(
+    () =>
+      comment.author.id === userId
+        ? `${comment.author.name} (${t("Myself")})`
+        : comment.author.name,
+    [comment.author.id, comment.author.name, t, userId],
+  );
+
   return (
-    <AntDComment
+    <StyledAntDComment
       actions={actions}
-      author={comment.author.name}
-      avatar={
-        comment.author.type === "Integration" ? (
-          <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>
-            <UserAvatar username={comment.author.name} />
-          </Badge>
-        ) : (
-          <UserAvatar username={comment.author.name} />
-        )
-      }
+      author={displayAuthor}
       content={
         showEditor ? (
           <TextArea onChange={handleChange} value={value} autoSize={{ maxRows: 4 }} />
@@ -127,10 +127,20 @@ const Comment: React.FC<Props> = ({
   );
 };
 
-const StyledIcon = styled(Icon)`
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  padding: 3px;
+const StyledAntDComment = styled(AntDComment)`
+  .ant-comment-content-author {
+    .ant-comment-content-author-name {
+      font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+      font-size: ${AntdToken.FONT.SIZE}px;
+      color: ${AntdColor.GREY.GREY_8};
+      overflow: hidden;
+    }
+
+    .ant-comment-content-author-time {
+      display: flex;
+      align-items: center;
+    }
+  }
 `;
 
 export default Comment;

@@ -1,0 +1,102 @@
+type Model implements Node {
+  id: ID!
+  projectId: ID!
+  schemaId: ID!
+  metadataSchemaId: ID
+  name: String!
+  description: String!
+  key: String!
+  project: Project!
+  schema: Schema!
+  metadataSchema: Schema
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  order: Int
+}
+
+enum ExportFormat{
+  JSON
+  CSV
+  GEOJSON
+}
+
+# Inputs
+input CreateModelInput {
+  projectId: ID!
+  name: String
+  description: String
+  key: String
+}
+
+input UpdateModelInput {
+  modelId: ID!
+  name: String
+  description: String
+  key: String
+}
+
+input UpdateModelsOrderInput {
+  modelIds: [ID!]!
+}
+
+input DeleteModelInput {
+  modelId: ID!
+}
+
+input ExportModelInput {
+  modelId: ID!
+  format: ExportFormat!
+}
+
+input ExportModelSchemaInput {
+  modelId: ID!
+}
+
+# Payloads
+type ModelPayload {
+  model: Model!
+}
+
+type DeleteModelPayload {
+  modelId: ID!
+}
+
+type ExportModelPayload {
+  modelId: ID!
+  url: URL!
+}
+
+type ExportModelSchemaPayload {
+  modelId: ID!
+  url: URL!
+}
+
+type ModelsPayload {
+  models: [Model!]!
+}
+
+type ModelConnection {
+  edges: [ModelEdge!]!
+  nodes: [Model]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ModelEdge {
+  cursor: Cursor!
+  node: Model
+}
+
+extend type Query {
+  models(projectId: ID!, keyword: String, sort: Sort, pagination: Pagination): ModelConnection!
+  checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
+}
+
+extend type Mutation {
+  createModel(input: CreateModelInput!): ModelPayload
+  updateModel(input: UpdateModelInput!): ModelPayload
+  updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
+  deleteModel(input: DeleteModelInput!): DeleteModelPayload
+  exportModel(input: ExportModelInput!): ExportModelPayload
+  exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
+}

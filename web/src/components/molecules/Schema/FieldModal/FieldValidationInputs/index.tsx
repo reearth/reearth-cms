@@ -4,10 +4,10 @@ import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import { useT } from "@reearth-cms/i18n";
 
-import { FieldType } from "../../types";
+import { SchemaFieldType } from "../../types";
 
 type Props = {
-  selectedType: FieldType;
+  selectedType: SchemaFieldType;
   min?: number;
   max?: number;
 };

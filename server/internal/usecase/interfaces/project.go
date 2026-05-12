@@ -13,41 +13,92 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
+type ProjectFilter struct {
+	WorkspaceIds *accountdomain.WorkspaceIDList
+	Visibility   *project.Visibility
+	Keyword      *string
+	Topics       []string
+	Sort         *usecasex.Sort
+	Pagination   *usecasex.Pagination
+}
 type CreateProjectParam struct {
-	WorkspaceID  accountdomain.WorkspaceID
-	Name         *string
-	Description  *string
-	Alias        *string
-	RequestRoles []workspace.Role
+	WorkspaceID   accountdomain.WorkspaceID
+	Name          *string
+	Description   *string
+	License       *string
+	Readme        *string
+	Alias         *string
+	Topics        *[]string
+	RequestRoles  []workspace.Role
+	Accessibility *AccessibilityParam
 }
 
 type UpdateProjectParam struct {
-	ID           id.ProjectID
-	Name         *string
-	Description  *string
-	Alias        *string
-	Publication  *UpdateProjectPublicationParam
-	RequestRoles []workspace.Role
+	ID            id.ProjectID
+	Name          *string
+	Description   *string
+	License       *string
+	Readme        *string
+	Alias         *string
+	Topics        *[]string
+	RequestRoles  []workspace.Role
+	Accessibility *AccessibilityParam
 }
 
-type UpdateProjectPublicationParam struct {
-	Scope       *project.PublicationScope
-	AssetPublic *bool
+type AccessibilityParam struct {
+	Visibility  *project.Visibility
+	Publication *PublicationSettingsParam
+}
+
+type PublicationSettingsParam struct {
+	PublicModels project.ModelIDList
+	PublicAssets bool
+}
+
+type RegenerateKeyParam struct {
+	ProjectId id.ProjectID
+	KeyId     id.APIKeyID
+}
+
+type CreateAPITokenParam struct {
+	ProjectID   id.ProjectID
+	Name        string
+	Description string
+	Publication PublicationSettingsParam
+}
+
+type UpdateAPITokenParam struct {
+	ProjectID   id.ProjectID
+	TokenId     id.APIKeyID
+	Name        *string
+	Description *string
+	Publication *PublicationSettingsParam
 }
 
 var (
-	ErrProjectAliasIsNotSet    error = rerror.NewE(i18n.T("project alias is not set"))
-	ErrProjectAliasAlreadyUsed error = rerror.NewE(i18n.T("project alias is already used by another project"))
-	ErrInvalidProject                = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectAliasAlreadyUsed      error = rerror.NewE(i18n.T("project alias is already used by another project"))
+	ErrInvalidProject                     = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectCreationLimitExceeded error = rerror.NewE(i18n.T("project creation limit exceeded"))
 )
+
+type ProjectLimitsResult struct {
+	PublicProjectsAllowed  bool
+	PrivateProjectsAllowed bool
+}
 
 type Project interface {
 	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
-	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
-	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *usecasex.Pagination, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	FindByIDOrAlias(context.Context, accountdomain.WorkspaceIDOrAlias, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
+	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	Search(context.Context, ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
-	CheckAlias(context.Context, string) (bool, error)
+	CheckAlias(context.Context, accountdomain.WorkspaceID, string) (bool, error)
 	Delete(context.Context, id.ProjectID, *usecase.Operator) error
-	RegenerateToken(context.Context, id.ProjectID, *usecase.Operator) (*project.Project, error)
+	CreateAPIKey(context.Context, CreateAPITokenParam, *usecase.Operator) (*project.Project, *project.APIKeyID, error)
+	UpdateAPIKey(context.Context, UpdateAPITokenParam, *usecase.Operator) (*project.Project, error)
+	DeleteAPIKey(context.Context, id.ProjectID, id.APIKeyID, *usecase.Operator) (*project.Project, error)
+	RegenerateAPIKeyKey(context.Context, RegenerateKeyParam, *usecase.Operator) (*project.Project, error)
+	CheckProjectLimits(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*ProjectLimitsResult, error)
+	StarProject(context.Context, accountdomain.WorkspaceIDOrAlias, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
 }

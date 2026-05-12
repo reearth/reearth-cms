@@ -10,9 +10,13 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
@@ -73,9 +77,10 @@ func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKe
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			if !operator.IsMaintainingProject(param.ProjectId) {
+			if !operator.IsWritableProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
 			}
+
 			return i.create(ctx, param)
 		})
 }
@@ -85,6 +90,26 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if err != nil {
 		return nil, err
 	}
+
+	currentModelNumber, err := i.repos.Model.CountByProject(ctx, p.ID())
+	if err != nil {
+		return nil, err
+	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: p.Workspace(),
+			CheckType:   gateway.PolicyCheckModelCountPerProject,
+			Value:       int64(currentModelNumber),
+		})
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrModelCountPerProjectExceeded
+		}
+	}
+
 	m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
@@ -92,6 +117,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if m != nil {
 		return nil, id.ErrDuplicatedKey
 	}
+
 	s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 	if err != nil {
 		return nil, err
@@ -105,7 +131,6 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 		New().
 		NewID().
 		Schema(s.ID()).
-		Public(false).
 		Project(param.ProjectId)
 
 	if param.Name != nil {
@@ -113,9 +138,6 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	}
 	if param.Description != nil {
 		mb = mb.Description(*param.Description)
-	}
-	if param.Public != nil {
-		mb = mb.Public(*param.Public)
 	}
 	if param.Key != nil {
 		mb = mb.Key(id.NewKey(*param.Key))
@@ -151,7 +173,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				return nil, err
 			}
 
-			if !operator.IsMaintainingProject(m.Project()) {
+			if !operator.IsWritableProject(m.Project()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -165,9 +187,6 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				if err := m.SetKey(id.NewKey(*param.Key)); err != nil {
 					return nil, err
 				}
-			}
-			if param.Public != nil {
-				m.SetPublic(*param.Public)
 			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {
@@ -193,17 +212,50 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 		})
 }
 
-func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) error {
+func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
 			if err != nil {
 				return err
 			}
-			if !operator.IsMaintainingProject(m.Project()) {
+			if !operator.IsWritableProject(m.Project()) {
 				return interfaces.ErrOperationDenied
 			}
 
+			// delete all views for this model
+			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
+				return err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, m.Project())
+			if err != nil {
+				return err
+			}
+
+			// delete all items for this model
+			if err := i.deleteItemsByModel(ctx, prj, m, sp, operator); err != nil {
+				return err
+			}
+
+			// remove reference fields in sibling schemas that point to this model's schema
+			if err := i.removeReferenceFieldsPointingToSchema(ctx, m); err != nil {
+				return err
+			}
+
+			// delete the model's schema
+			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
+				return err
+			}
+
+			// delete the metadata schema if present
+			if m.Metadata() != nil {
+				if err := i.repos.Schema.Remove(ctx, *m.Metadata()); err != nil {
+					return err
+				}
+			}
+
+			// delete the model and reorder siblings
 			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
 				return err
@@ -212,47 +264,126 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
 				return err
 			}
-			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
-				return err
-			}
-			return nil
+			return i.repos.Model.SaveAll(ctx, res)
 		})
 }
 
-func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
-	if len(params) == 0 {
-		return rerror.ErrInvalidParams
+func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
+	var models model.List
+	p := usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap()
+	for {
+		page, pageInfo, err := i.repos.Model.FindByProject(ctx, m.Project(), p)
+		if err != nil {
+			return err
+		}
+		for _, mm := range page {
+			if mm.ID() != m.ID() {
+				models = append(models, mm)
+			}
+		}
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+		p = usecasex.CursorPagination{First: lo.ToPtr(int64(1000)), After: pageInfo.EndCursor}.Wrap()
 	}
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) error {
-			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
-			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
-			if err != nil {
-				return err
-			}
-			if len(ml) != len(mIds) {
-				return rerror.ErrNotFound
-			}
-			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
-				return rerror.ErrInvalidParams
-			}
-			if !operator.IsMaintainingProject(ml[0].Project()) {
-				return interfaces.ErrOperationDenied
-			}
 
-			for _, p := range params {
-				m := ml.Model(p.ModelID)
-				if m == nil {
-					return rerror.ErrNotFound
+	schemaIDs := models.SchemaIDs()
+	if len(schemaIDs) == 0 {
+		return nil
+	}
+	schemas, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+	if err != nil {
+		return err
+	}
+
+	var toSave schema.List
+	for _, s := range schemas {
+		if s == nil {
+			continue
+		}
+		before := s.Fields().Count()
+		for _, f := range s.FieldsByType(value.TypeReference) {
+			fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+			if ok && fr.Schema() == m.Schema() {
+				s.RemoveField(f.ID())
+			}
+		}
+		if s.Fields().Count() != before {
+			toSave = append(toSave, s)
+		}
+	}
+
+	return i.repos.Schema.SaveAll(ctx, toSave)
+}
+
+func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {
+	const pageSize = int64(100)
+	var cursor *usecasex.Cursor
+
+	itemInteractor := NewItem(i.repos, i.gateways)
+
+	var allThreadIDs id.ThreadIDList
+	var allEvents []Event
+
+	// collect thread IDs, events, and clean up cross-model references
+	for {
+		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, m.ID(), nil, nil,
+			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
+		if err != nil {
+			return err
+		}
+
+		items := vList.Unwrap()
+		if len(items) > 0 {
+			for idx, itm := range items {
+				if itm.Thread() != nil {
+					allThreadIDs = append(allThreadIDs, *itm.Thread())
 				}
-				m.SetPublic(p.Public)
+				allEvents = append(allEvents, Event{
+					Project:   prj,
+					Workspace: sp.Schema().Workspace(),
+					Type:      event.ItemDelete,
+					Object:    vList[idx],
+					WebhookObject: item.ItemModelSchema{
+						Item:   itm,
+						Model:  m,
+						Schema: sp.Schema(),
+					},
+					Operator: operator.Operator(),
+				})
 			}
 
-			if err := i.repos.Model.SaveAll(ctx, ml); err != nil {
+			if err := itemInteractor.handleRelatedReferenceFields(ctx, items.IDs(), sp); err != nil {
 				return err
 			}
-			return nil
-		})
+		}
+
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+		cursor = pageInfo.EndCursor
+	}
+
+	// delete all items and metadata items for this model in one query
+	if err := i.repos.Item.RemoveByModel(ctx, m.ID()); err != nil {
+		return err
+	}
+
+	// delete threads that belonged to the deleted items
+	if len(allThreadIDs) > 0 {
+		if err := i.repos.Thread.RemoveByIDs(ctx, allThreadIDs); err != nil {
+			return err
+		}
+	}
+
+	// publish item.delete events
+	if len(allEvents) > 0 {
+		if _, err := createEvents(ctx, i.repos, i.gateways, allEvents); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
@@ -276,7 +407,7 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 						if err != nil {
 							return nil, err
 						}
-						if !operator.IsMaintainingProject(p.ID()) {
+						if !operator.IsWritableProject(p.ID()) {
 							return nil, interfaces.ErrOperationDenied
 						}
 
@@ -328,7 +459,7 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 				return nil, rerror.ErrNotFound
 			}
 
-			if !operator.IsMaintainingProject(models.Projects()...) {
+			if !operator.IsWritableProject(models.Projects()...) {
 				return nil, interfaces.ErrOperationDenied
 			}
 			ordered := models.OrderByIDs(ids)
@@ -347,7 +478,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-			if !operator.IsMaintainingProject(oldModel.Project()) {
+			if !operator.IsWritableProject(oldModel.Project()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -365,7 +496,6 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				Name:        name,
 				Description: lo.ToPtr(oldModel.Description()),
 				Key:         key,
-				Public:      lo.ToPtr(oldModel.Public()),
 			})
 			if err != nil {
 				return nil, err

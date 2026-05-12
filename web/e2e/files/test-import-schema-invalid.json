@@ -1,0 +1,37 @@
+{
+  "properties": {
+    "invalidFieldType": {
+      "title": "Bad Field Type",
+      "x-fieldType": "invalid"
+    },
+    "textWithBadDefault": {
+      "title": "Text With Bad Default",
+      "x-fieldType": "text",
+      "maxLength": 5,
+      "x-defaultValue": "this string is way too long for maxLength"
+    },
+    "numberOutOfRange": {
+      "title": "Number Out Of Range",
+      "x-fieldType": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "x-defaultValue": 999
+    },
+    "integerWithStringDefault": {
+      "title": "Integer With String Default",
+      "x-fieldType": "integer",
+      "x-defaultValue": "not-a-number"
+    },
+    "selectBadDefault": {
+      "title": "Select Bad Default",
+      "x-fieldType": "select",
+      "x-options": ["red", "green", "blue"],
+      "x-defaultValue": "purple"
+    },
+    "geoObjectBadSupportedTypes": {
+      "title": "Geo Object Bad Types",
+      "x-fieldType": "geometryObject",
+      "x-geoSupportedTypes": ["INVALID_TYPE"]
+    }
+  }
+}

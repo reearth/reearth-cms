@@ -24,7 +24,6 @@ describe("Integration wrapper", () => {
   const pageSize = 10;
   const onTableChange = () => {};
   const loading = false;
-  const onReload = () => {};
   const hasConnectRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
@@ -51,7 +50,6 @@ describe("Integration wrapper", () => {
         loading={loading}
         workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
-        onReload={onReload}
         setSelectedIntegration={setSelectedIntegration}
         onIntegrationRemove={onIntegrationRemove}
         deleteLoading={deleteLoading}
@@ -70,7 +68,7 @@ describe("Integration wrapper", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "api Connect Integration" }));
+    await user.click(screen.getByRole("button", { name: "apiConnect Integration" }));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -82,7 +80,6 @@ describe("Integration wrapper", () => {
         loading={loading}
         workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
-        onReload={onReload}
         setSelectedIntegration={setSelectedIntegration}
         onIntegrationRemove={onIntegrationRemove}
         deleteLoading={deleteLoading}

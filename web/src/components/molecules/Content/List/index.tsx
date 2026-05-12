@@ -1,24 +1,33 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, Key } from "react";
+import { Dispatch, Key, SetStateAction, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
-  ItemSort,
   ConditionInput,
   CurrentView,
+  ItemSort,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { ExportContentUtils } from "@reearth-cms/utils/exportContent";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-type Props = {
+import { Field } from "../../Schema/types";
+
+export type Props = {
   commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
   collapsed: boolean;
@@ -67,6 +76,11 @@ type Props = {
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
+  onImportModalOpen: () => void;
+  onContentExport: (format: ExportFormat, geometryFieldsCount?: number) => void;
+  exportContentLoading: boolean;
+  modelFields: Field[];
+  hasModelFields: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -118,8 +132,112 @@ const ContentListMolecule: React.FC<Props> = ({
   hasPublishRight,
   hasRequestUpdateRight,
   showPublishAction,
+  onImportModalOpen,
+  onContentExport,
+  exportContentLoading,
+  hasModelFields,
 }) => {
   const t = useT();
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
+
+  const getExportContentUIMetadata = useMemo(
+    () =>
+      ExportContentUtils.getUIMetadata({
+        isExportLoading: exportContentLoading,
+        hasContent: totalCount > 0,
+      }),
+    [exportContentLoading, totalCount],
+  );
+
+  const getGeometryFieldsCount = useMemo(
+    () =>
+      model?.schema?.fields?.filter(
+        field =>
+          field.type === SchemaFieldType.GeometryEditor ||
+          field.type === SchemaFieldType.GeometryObject,
+      ).length ?? 0,
+    [model?.schema?.fields],
+  );
+
+  const exportContentMenuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "export-json",
+        label: t("JSON"),
+        onClick: () => onContentExport(ExportFormat.Json),
+      },
+      {
+        key: "export-csv",
+        label: t("CSV"),
+        onClick: () => onContentExport(ExportFormat.Csv),
+      },
+      {
+        key: "export-geojson",
+        label: t("GeoJSON"),
+        onClick: () => onContentExport(ExportFormat.Geojson, getGeometryFieldsCount),
+      },
+    ],
+    [t, onContentExport, getGeometryFieldsCount],
+  );
+
+  const dropdownItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "import content",
+        label: (
+          <Tooltip title={getImportContentUIMetadata.tooltipMessage}>
+            <StyledMenuItem>
+              <span>{t("Import")}</span>
+              <ExperimentIcon disabled={getImportContentUIMetadata.shouldDisable} />
+            </StyledMenuItem>
+          </Tooltip>
+        ),
+        icon: <Icon icon="import" />,
+        onClick: onImportModalOpen,
+        disabled: getImportContentUIMetadata.shouldDisable,
+      },
+      {
+        key: "export content",
+        icon: (
+          <IconWrapper>
+            <Icon icon={exportContentLoading ? "loading" : "export"} size={AntdToken.FONT.SIZE} />
+          </IconWrapper>
+        ),
+        label: (
+          <Tooltip title={getExportContentUIMetadata.tooltipMessage}>
+            <StyledMenuItem>
+              <span>{t("Export")}</span>
+            </StyledMenuItem>
+          </Tooltip>
+        ),
+        disabled: getExportContentUIMetadata.shouldDisable,
+        children: exportContentMenuItems,
+      },
+    ],
+    [
+      getImportContentUIMetadata.tooltipMessage,
+      getImportContentUIMetadata.shouldDisable,
+      t,
+      onImportModalOpen,
+      exportContentLoading,
+      getExportContentUIMetadata.tooltipMessage,
+      getExportContentUIMetadata.shouldDisable,
+      exportContentMenuItems,
+    ],
+  );
+
+  const DropdownMenu = useCallback(
+    () => (
+      <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_XL} />} />
+      </Dropdown>
+    ),
+    [dropdownItems],
+  );
 
   return (
     <ComplexInnerContents
@@ -141,13 +259,16 @@ const ContentListMolecule: React.FC<Props> = ({
                 title={model?.name}
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
-                  <Button
-                    type="primary"
-                    onClick={onItemAdd}
-                    icon={<Icon icon="plus" />}
-                    disabled={!model || !hasCreateRight}>
-                    {t("New Item")}
-                  </Button>
+                  <>
+                    <DropdownMenu key="more" />
+                    <Button
+                      type="primary"
+                      onClick={onItemAdd}
+                      icon={<Icon icon="plus" />}
+                      disabled={!model || !hasCreateRight}>
+                      {t("New Item")}
+                    </Button>
+                  </>
                 }
               />
               {viewsMenu}
@@ -192,7 +313,10 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasDeleteRight={hasDeleteRight}
                 hasPublishRight={hasPublishRight}
                 hasRequestUpdateRight={hasRequestUpdateRight}
+                hasCreateRight={hasCreateRight}
                 showPublishAction={showPublishAction}
+                onImportModalOpen={onImportModalOpen}
+                hasModelFields={hasModelFields}
               />
             </>
           )}
@@ -205,11 +329,22 @@ const ContentListMolecule: React.FC<Props> = ({
 
 const Content = styled.div`
   width: 100%;
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const StyledPageHeder = styled(PageHeader)`
-  padding: 16px 24px 0px 24px !important;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px 0px ${AntdToken.SPACING.LG}px !important;
+`;
+
+const IconWrapper = styled.span`
+  display: inline-flex;
+  align-items: center;
+`;
+
+const StyledMenuItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 export default ContentListMolecule;

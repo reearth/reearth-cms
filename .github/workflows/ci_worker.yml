@@ -6,18 +6,22 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: go setup
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'worker/go.mod'
           check-latest: true
           cache-dependency-path: 'worker/go.sum'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.1.0
+          version: v2.12.1
           working-directory: worker
           args: --config=../.golangci.yml
           skip-cache: true
@@ -40,10 +44,14 @@ jobs:
         ports:
           - 27017:27017
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: go setup
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'worker/go.mod'
           check-latest: true
@@ -54,7 +62,7 @@ jobs:
         env:
           REEARTH_CMS_DB: mongodb://localhost
       - name: Send coverage report
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           flags: worker
           file: coverage.txt

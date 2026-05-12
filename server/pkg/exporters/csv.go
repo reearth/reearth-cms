@@ -7,63 +7,74 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
-var (
-	noPointFieldError = rerror.NewE(i18n.T("no point field in this model"))
-)
-
-func BuildCSVHeaders(s *schema.Schema) []string {
-	keys := []string{"id", "location_lat", "location_lng"}
-	for _, f := range s.Fields() {
-		if !f.IsGeometryField() {
-			keys = append(keys, f.Name())
-		}
-	}
-	return keys
-}
-
-func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
-	geoField, err := extractFirstPointField(itm)
-	if err != nil {
-		return nil, false
-	}
-
-	id := itm.ID().String()
-	lat, lng := float64ToString(geoField[1]), float64ToString(geoField[0])
-	row := []string{id, lat, lng}
-
-	for _, sf := range nonGeoFields {
-		f := itm.Field(sf.ID())
-		v := toCSVProp(f)
-		row = append(row, v)
-	}
-
-	return row, true
-}
-
-func extractFirstPointField(itm *item.Item) ([]float64, error) {
-	for _, f := range itm.Fields() {
-		if !f.Type().IsGeometryFieldType() {
-			continue
-		}
-		ss, ok := f.Value().First().ValueString()
+func CSVFromItems(l item.List, sp *schema.Package) ([][]string, error) {
+	header := BuildCSVHeaders(sp)
+	data := lo.Map(l, func(itm *item.Item, _ int) []string {
+		row, ok := RowFromItem(itm, sp)
 		if !ok {
-			continue
+			return nil
 		}
-		g, err := stringToGeometry(ss)
-		if err != nil || g == nil || g.Type == nil || *g.Type != GeometryTypePoint {
-			continue
-		}
-		return g.Coordinates.AsPoint()
-	}
-	return nil, noPointFieldError
+		return row
+	})
+	rows := [][]string{header}
+
+	return append(rows, data...), nil
 }
 
-func float64ToString(f float64) string {
-	return strconv.FormatFloat(f, 'f', -1, 64)
+func BuildCSVHeaders(sp *schema.Package) []string {
+	sfl := supportedFields(sp)
+	keys := lo.Map(sfl, func(f *schema.Field, _ int) string {
+		return f.Key().String()
+	})
+
+	return append([]string{"id"}, keys...)
+}
+
+func RowFromItem(itm *item.Item, sp *schema.Package) ([]string, bool) {
+	sfl := supportedFields(sp)
+	primitiveValues := lo.Map(sfl, func(sf *schema.Field, _ int) string {
+		f := itm.Field(sf.ID())
+		return toCSVProp(f)
+	})
+	row := []string{itm.ID().String()}
+
+	return append(row, primitiveValues...), true
+}
+
+func csvSupportedFieldTypes() []value.Type {
+	return []value.Type{
+		value.TypeText,
+		value.TypeTextArea,
+		value.TypeRichText,
+		value.TypeMarkdown,
+		value.TypeSelect,
+		value.TypeTag,
+		value.TypeURL,
+		value.TypeInteger,
+		value.TypeNumber,
+		value.TypeBool,
+		value.TypeCheckbox,
+		value.TypeDateTime,
+	}
+}
+
+func isFieldSupported(f *schema.Field) bool {
+	if f == nil {
+		return false
+	}
+	return lo.Contains(csvSupportedFieldTypes(), f.Type()) && !f.Multiple()
+}
+
+func supportedFields(sp *schema.Package) schema.FieldList {
+	if sp == nil || sp.Schema() == nil {
+		return nil
+	}
+	return lo.Filter(sp.Schema().Fields(), func(f *schema.Field, _ int) bool {
+		return isFieldSupported(f)
+	})
 }
 
 func toCSVProp(f *item.Field) string {

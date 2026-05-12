@@ -187,7 +187,7 @@ func Test_updateItem(t *testing.T) {
 				assert.ErrorIs(t, err, tt.wantErr)
 				return
 			}
-			assert.Equal(t, tt.want, got)
+			assert.Equal(t, &tt.want, got)
 		})
 	}
 }

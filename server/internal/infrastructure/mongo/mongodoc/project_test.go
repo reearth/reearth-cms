@@ -13,7 +13,7 @@ import (
 
 func TestNewProject(t *testing.T) {
 	now := time.Now()
-	pp := project.NewPublication(project.PublicationScopePublic, true)
+	pp := project.NewPublicAccessibility()
 	pId, wId := project.NewID(), project.NewWorkspaceID()
 	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 	tests := []struct {
@@ -32,7 +32,7 @@ func TestNewProject(t *testing.T) {
 				ImageURL(lo.Must1(url.Parse("https://huho.com/xzy"))).
 				UpdatedAt(now).
 				Workspace(wId).
-				Publication(pp).
+				Accessibility(pp).
 				RequestRoles(r).
 				MustBuild(),
 			want: &ProjectDocument{
@@ -43,9 +43,8 @@ func TestNewProject(t *testing.T) {
 				Alias:       "ppp123",
 				ImageURL:    "https://huho.com/xzy",
 				Workspace:   wId.String(),
-				Publication: &ProjectPublicationDocument{
-					AssetPublic: true,
-					Scope:       "public",
+				Accessibility: &ProjectAccessibilityDocument{
+					Visibility: "public",
 				},
 				RequestRoles: fromRequestRoles(r),
 			},
@@ -71,24 +70,21 @@ func TestNewProjectConsumer(t *testing.T) {
 func TestNewProjectPublication(t *testing.T) {
 	tests := []struct {
 		name string
-		args *project.Publication
-		want *ProjectPublicationDocument
+		args *project.Accessibility
+		want *ProjectAccessibilityDocument
 	}{
 		{
 			name: "new project publication",
-			args: project.NewPublication(project.PublicationScopePublic, true),
-			want: &ProjectPublicationDocument{
-				AssetPublic: true,
-				Scope:       "public",
+			args: project.NewPublicAccessibility(),
+			want: &ProjectAccessibilityDocument{
+				Visibility: "public",
 			},
 		},
 		{
 			name: "new project publication",
-			args: project.NewPublicationWithToken(project.PublicationScopePublic, true, ""),
-			want: &ProjectPublicationDocument{
-				AssetPublic: true,
-				Scope:       "public",
-				Token:       nil,
+			args: project.NewPublicAccessibility(),
+			want: &ProjectAccessibilityDocument{
+				Visibility: "public",
 			},
 		},
 		{
@@ -100,7 +96,7 @@ func TestNewProjectPublication(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, NewProjectPublication(tt.args))
+			assert.Equal(t, tt.want, NewProjectAccessibility(tt.args))
 		})
 	}
 }
@@ -108,7 +104,7 @@ func TestNewProjectPublication(t *testing.T) {
 func TestProjectDocument_Model(t *testing.T) {
 	now := time.Now()
 	pId, wId := project.NewID(), project.NewWorkspaceID()
-	pp := project.NewPublication(project.PublicationScopePublic, true)
+	pp := project.NewPublicAccessibility()
 	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 
 	tests := []struct {
@@ -127,9 +123,8 @@ func TestProjectDocument_Model(t *testing.T) {
 				Alias:       "ppp123",
 				ImageURL:    "https://hugo.com",
 				Workspace:   wId.String(),
-				Publication: &ProjectPublicationDocument{
-					AssetPublic: true,
-					Scope:       "public",
+				Accessibility: &ProjectAccessibilityDocument{
+					Visibility: "public",
 				},
 				RequestRoles: fromRequestRoles(r),
 			},
@@ -141,7 +136,8 @@ func TestProjectDocument_Model(t *testing.T) {
 				ImageURL(lo.Must(url.Parse("https://hugo.com"))).
 				UpdatedAt(now).
 				Workspace(wId).
-				Publication(pp).
+				Accessibility(pp).
+				Topics([]string{}).
 				RequestRoles(r).
 				MustBuild(),
 			wantErr: false,
@@ -156,9 +152,8 @@ func TestProjectDocument_Model(t *testing.T) {
 				Alias:       "ppp123",
 				ImageURL:    "abc",
 				Workspace:   wId.String(),
-				Publication: &ProjectPublicationDocument{
-					AssetPublic: true,
-					Scope:       "public",
+				Accessibility: &ProjectAccessibilityDocument{
+					Visibility: "public",
 				},
 			},
 			want: project.New().
@@ -169,7 +164,8 @@ func TestProjectDocument_Model(t *testing.T) {
 				ImageURL(nil).
 				UpdatedAt(now).
 				Workspace(wId).
-				Publication(pp).
+				Accessibility(pp).
+				Topics([]string{}).
 				MustBuild(),
 			wantErr: false,
 		},
@@ -183,9 +179,8 @@ func TestProjectDocument_Model(t *testing.T) {
 				Alias:       "ppp123",
 				ImageURL:    "abc",
 				Workspace:   wId.String(),
-				Publication: &ProjectPublicationDocument{
-					AssetPublic: true,
-					Scope:       "public",
+				Accessibility: &ProjectAccessibilityDocument{
+					Visibility: "public",
 				},
 			},
 			want:    nil,
@@ -201,9 +196,8 @@ func TestProjectDocument_Model(t *testing.T) {
 				Alias:       "ppp123",
 				ImageURL:    "abc",
 				Workspace:   "abc",
-				Publication: &ProjectPublicationDocument{
-					AssetPublic: true,
-					Scope:       "public",
+				Accessibility: &ProjectAccessibilityDocument{
+					Visibility: "public",
 				},
 			},
 			want:    nil,
@@ -227,21 +221,20 @@ func TestProjectDocument_Model(t *testing.T) {
 func TestProjectPublicationDocument_Model(t *testing.T) {
 	tests := []struct {
 		name  string
-		ppDoc *ProjectPublicationDocument
-		want  *project.Publication
+		ppDoc *ProjectAccessibilityDocument
+		want  *project.Accessibility
 	}{
 		{
 			name: "test model",
-			ppDoc: &ProjectPublicationDocument{
-				AssetPublic: true,
-				Scope:       "public",
+			ppDoc: &ProjectAccessibilityDocument{
+				Visibility: "public",
 			},
-			want: project.NewPublication(project.PublicationScopePublic, true),
+			want: project.NewPublicAccessibility(),
 		},
 		{
 			name:  "nil",
 			ppDoc: nil,
-			want:  nil,
+			want:  project.NewPublicAccessibility(),
 		},
 	}
 	for _, tt := range tests {

@@ -167,50 +167,57 @@ export type TimeFieldCondition = {
   value: boolean;
 };
 
-export enum BasicOperator {
-  Equals = "EQUALS",
-  NotEquals = "NOT_EQUALS",
-}
+export const BasicOperator = {
+  Equals: "EQUALS",
+  NotEquals: "NOT_EQUALS",
+} as const;
+export type BasicOperator = (typeof BasicOperator)[keyof typeof BasicOperator];
 
-export enum BoolOperator {
-  Equals = "EQUALS",
-  NotEquals = "NOT_EQUALS",
-}
+export const BoolOperator = {
+  Equals: "EQUALS",
+  NotEquals: "NOT_EQUALS",
+} as const;
+export type BoolOperator = (typeof BoolOperator)[keyof typeof BoolOperator];
 
-export enum NullableOperator {
-  Empty = "EMPTY",
-  NotEmpty = "NOT_EMPTY",
-}
+export const NullableOperator = {
+  Empty: "EMPTY",
+  NotEmpty: "NOT_EMPTY",
+} as const;
+export type NullableOperator = (typeof NullableOperator)[keyof typeof NullableOperator];
 
-export enum MultipleOperator {
-  IncludesAll = "INCLUDES_ALL",
-  IncludesAny = "INCLUDES_ANY",
-  NotIncludesAll = "NOT_INCLUDES_ALL",
-  NotIncludesAny = "NOT_INCLUDES_ANY",
-}
+export const MultipleOperator = {
+  IncludesAll: "INCLUDES_ALL",
+  IncludesAny: "INCLUDES_ANY",
+  NotIncludesAll: "NOT_INCLUDES_ALL",
+  NotIncludesAny: "NOT_INCLUDES_ANY",
+} as const;
+export type MultipleOperator = (typeof MultipleOperator)[keyof typeof MultipleOperator];
 
-export enum StringOperator {
-  Contains = "CONTAINS",
-  EndsWith = "ENDS_WITH",
-  NotContains = "NOT_CONTAINS",
-  NotEndsWith = "NOT_ENDS_WITH",
-  NotStartsWith = "NOT_STARTS_WITH",
-  StartsWith = "STARTS_WITH",
-}
+export const StringOperator = {
+  Contains: "CONTAINS",
+  EndsWith: "ENDS_WITH",
+  NotContains: "NOT_CONTAINS",
+  NotEndsWith: "NOT_ENDS_WITH",
+  NotStartsWith: "NOT_STARTS_WITH",
+  StartsWith: "STARTS_WITH",
+} as const;
+export type StringOperator = (typeof StringOperator)[keyof typeof StringOperator];
 
-export enum NumberOperator {
-  GreaterThan = "GREATER_THAN",
-  GreaterThanOrEqualTo = "GREATER_THAN_OR_EQUAL_TO",
-  LessThan = "LESS_THAN",
-  LessThanOrEqualTo = "LESS_THAN_OR_EQUAL_TO",
-}
+export const NumberOperator = {
+  GreaterThan: "GREATER_THAN",
+  GreaterThanOrEqualTo: "GREATER_THAN_OR_EQUAL_TO",
+  LessThan: "LESS_THAN",
+  LessThanOrEqualTo: "LESS_THAN_OR_EQUAL_TO",
+} as const;
+export type NumberOperator = (typeof NumberOperator)[keyof typeof NumberOperator];
 
-export enum TimeOperator {
-  After = "AFTER",
-  AfterOrOn = "AFTER_OR_ON",
-  Before = "BEFORE",
-  BeforeOrOn = "BEFORE_OR_ON",
-  OfThisMonth = "OF_THIS_MONTH",
-  OfThisWeek = "OF_THIS_WEEK",
-  OfThisYear = "OF_THIS_YEAR",
-}
+export const TimeOperator = {
+  After: "AFTER",
+  AfterOrOn: "AFTER_OR_ON",
+  Before: "BEFORE",
+  BeforeOrOn: "BEFORE_OR_ON",
+  OfThisMonth: "OF_THIS_MONTH",
+  OfThisWeek: "OF_THIS_WEEK",
+  OfThisYear: "OF_THIS_YEAR",
+} as const;
+export type TimeOperator = (typeof TimeOperator)[keyof typeof TimeOperator];

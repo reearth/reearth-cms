@@ -48,3 +48,14 @@ func (f *Field) ItemGroup() *ItemGroupID {
 func (f *Field) IsGeometryField() bool {
 	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
 }
+
+func (f *Field) Clone() *Field {
+	if f == nil {
+		return nil
+	}
+	return &Field{
+		field: f.field,
+		value: f.value.Clone(),
+		group: util.CloneRef(f.group),
+	}
+}

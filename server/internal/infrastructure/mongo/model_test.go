@@ -512,8 +512,8 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 
 	type args struct {
 		pId     id.ProjectID
-		keyword string
-		sort    *model.Sort
+		keyword *string
+		sort    *usecasex.Sort
 		pInfo   *usecasex.Pagination
 	}
 	tests := []struct {
@@ -527,7 +527,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 		{
 			name:    "0 count in empty db",
 			seeds:   model.List{},
-			args:    args{id.NewProjectID(), "", nil, nil},
+			args:    args{id.NewProjectID(), nil, nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -536,7 +536,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			seeds: model.List{
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{id.NewProjectID(), "", nil, nil},
+			args:    args{id.NewProjectID(), nil, nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -545,7 +545,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			seeds: model.List{
 				m1,
 			},
-			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, nil, &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -556,7 +556,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, nil, &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -568,7 +568,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, nil, &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1, m2},
 			wantErr: nil,
 		},
@@ -580,7 +580,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "1", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, lo.ToPtr("1"), &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -592,7 +592,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "2", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, lo.ToPtr("2"), &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m2},
 			wantErr: nil,
 		},
@@ -603,7 +603,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, lo.ToPtr(""), &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    model.List{m1},
 			wantErr: nil,
@@ -615,7 +615,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, lo.ToPtr(""), &usecasex.Sort{Key: "CREATED_AT"}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
 			want:    nil,
 			wantErr: nil,
@@ -656,7 +656,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 func TestSortModels(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    *model.Sort
+		input    *usecasex.Sort
 		expected *usecasex.Sort
 	}{
 		{
@@ -664,14 +664,14 @@ func TestSortModels(t *testing.T) {
 			input: nil,
 			expected: &usecasex.Sort{
 				Key:      "order",
-				Reverted: false,
+				Reverted: true,
 			},
 		},
 		{
 			name: "sort by CreatedAt ascending",
-			input: &model.Sort{
-				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionAsc,
+			input: &usecasex.Sort{
+				Key:      "CREATED_AT",
+				Reverted: false,
 			},
 			expected: &usecasex.Sort{
 				Key:      "id",
@@ -680,9 +680,9 @@ func TestSortModels(t *testing.T) {
 		},
 		{
 			name: "sort by CreatedAt descending",
-			input: &model.Sort{
-				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionDesc,
+			input: &usecasex.Sort{
+				Key:      "CREATED_AT",
+				Reverted: true,
 			},
 			expected: &usecasex.Sort{
 				Key:      "id",
@@ -691,9 +691,9 @@ func TestSortModels(t *testing.T) {
 		},
 		{
 			name: "sort by UpdatedAt ascending",
-			input: &model.Sort{
-				Column:    model.ColumnUpdatedAt,
-				Direction: model.DirectionAsc,
+			input: &usecasex.Sort{
+				Key:      "UPDATED_AT",
+				Reverted: false,
 			},
 			expected: &usecasex.Sort{
 				Key:      "updatedat",
@@ -702,9 +702,9 @@ func TestSortModels(t *testing.T) {
 		},
 		{
 			name: "sort by UpdatedAt descending",
-			input: &model.Sort{
-				Column:    model.ColumnUpdatedAt,
-				Direction: model.DirectionDesc,
+			input: &usecasex.Sort{
+				Key:      "UPDATED_AT",
+				Reverted: true,
 			},
 			expected: &usecasex.Sort{
 				Key:      "updatedat",
@@ -713,32 +713,114 @@ func TestSortModels(t *testing.T) {
 		},
 		{
 			name: "invalid column",
-			input: &model.Sort{
-				Column:    "invalid_column",
-				Direction: model.DirectionDesc,
+			input: &usecasex.Sort{
+				Key:      "invalid_column",
+				Reverted: true,
 			},
 			expected: &usecasex.Sort{
 				Key:      "order",
 				Reverted: true,
 			},
 		},
-		{
-			name: "invalid direction",
-			input: &model.Sort{
-				Column:    model.ColumnUpdatedAt,
-				Direction: "invalid_direction",
-			},
-			expected: &usecasex.Sort{
-				Key:      "updatedat",
-				Reverted: false,
-			},
-		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := sortModels(tc.input)
+			result := normalize(tc.input)
 			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestModel_CountByProject(t *testing.T) {
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
+	pid3 := id.NewProjectID()
+	sid1 := id.NewSchemaID()
+	sid2 := id.NewSchemaID()
+	sid3 := id.NewSchemaID()
+	k := id.NewKey("T123456")
+
+	m1 := model.New().NewID().Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
+	m2 := model.New().NewID().Project(pid1).Schema(sid2).Key(k).UpdatedAt(mocknow).MustBuild()
+	m3 := model.New().NewID().Project(pid2).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
+	m4 := model.New().NewID().Project(pid3).Schema(sid3).Key(k).UpdatedAt(mocknow).MustBuild()
+
+	tests := []struct {
+		name        string
+		projectID   id.ProjectID
+		seeds       model.List
+		filter      repo.ProjectFilter
+		expected    int
+		expectedErr error
+	}{
+		{
+			name:      "count models for project with 2 models",
+			projectID: pid1,
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			expected: 2,
+		},
+		{
+			name:      "count models for project with 1 model",
+			projectID: pid2,
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1, pid2},
+				Writable: []id.ProjectID{pid1, pid2},
+			},
+			expected: 1,
+		},
+		{
+			name:      "count models for project with no models",
+			projectID: id.NewProjectID(),
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1, pid2},
+				Writable: []id.ProjectID{pid1, pid2},
+			},
+			expected: 0,
+		},
+		{
+			name:      "count models with permission filter (no access)",
+			projectID: pid1,
+			seeds:     model.List{m4},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			expected: 0,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			repo := NewModel(client)
+
+			ctx := context.Background()
+			// Clone all models to avoid mutations
+			seedModels := make(model.List, len(tc.seeds))
+			for i, m := range tc.seeds {
+				seedModels[i] = m.Clone()
+			}
+			err := repo.SaveAll(ctx, seedModels)
+			assert.NoError(t, err)
+
+			filteredRepo := repo.Filtered(tc.filter)
+			got, err := filteredRepo.CountByProject(ctx, tc.projectID)
+			assert.Equal(t, tc.expectedErr, err)
+			assert.Equal(t, tc.expected, got)
 		})
 	}
 }

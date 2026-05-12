@@ -301,6 +301,96 @@ func TestItem_Remove(t *testing.T) {
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
 
+func TestItem_BatchRemove(t *testing.T) {
+
+	id1 := id.NewItemID()
+	id2 := id.NewItemID()
+	id3 := id.NewItemID()
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
+
+	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().ID(id2).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().ID(id3).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	tests := []struct {
+		Name     string
+		ToRemove id.ItemIDList
+		Seeds    item.List
+		Expected id.ItemIDList
+	}{
+		{
+			Name:     "remove multiple items",
+			ToRemove: id.ItemIDList{id1, id2},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{id3},
+		},
+		{
+			Name:     "remove all items",
+			ToRemove: id.ItemIDList{id1, id2, id3},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{},
+		},
+		{
+			Name:     "remove empty list",
+			ToRemove: id.ItemIDList{},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{id1, id2, id3},
+		},
+		{
+			Name:     "remove non-existent items",
+			ToRemove: id.ItemIDList{id.NewItemID()},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{id1, id2, id3},
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(tt))
+			r := NewItem(client).Filtered(repo.ProjectFilter{
+				Readable: []id.ProjectID{pid},
+				Writable: []id.ProjectID{pid},
+			})
+			ctx := context.Background()
+
+			// Save all test items
+			for _, i := range tc.Seeds {
+				err := r.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			// Execute batch remove
+			err := r.BatchRemove(ctx, tc.ToRemove)
+			assert.NoError(tt, err)
+
+			// Verify remaining items
+			for _, expectedID := range tc.Expected {
+				got, err := r.FindByID(ctx, expectedID, nil)
+				assert.NoError(tt, err)
+				assert.NotNil(tt, got)
+				assert.Equal(tt, expectedID, got.Value().ID())
+			}
+
+			// Verify removed items are gone
+			for _, removedID := range tc.ToRemove {
+				if !tc.Expected.Has(removedID) {
+					got, err := r.FindByID(ctx, removedID, nil)
+					assert.Nil(tt, got)
+					assert.Equal(tt, rerror.ErrNotFound, err)
+				}
+			}
+		})
+	}
+}
+
 func TestItem_Archive(t *testing.T) {
 	iid := id.NewItemID()
 	pid := id.NewProjectID()
@@ -613,4 +703,104 @@ func TestItem_Copy(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
+}
+
+func TestItem_CountByModel(t *testing.T) {
+	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
+
+	mid1 := id.NewModelID()
+	mid2 := id.NewModelID()
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
+	sid := id.NewSchemaID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
+
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
+	i5 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	tests := []struct {
+		Name        string
+		ModelID     id.ModelID
+		Seeds       item.List
+		Filter      repo.ProjectFilter
+		Expected    int
+		ExpectedErr error
+	}{
+		{
+			Name:    "count items for model with 2 items",
+			ModelID: mid1,
+			Seeds:   item.List{i1, i2, i3},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 2,
+		},
+		{
+			Name:    "count items for model with 1 item",
+			ModelID: mid2,
+			Seeds:   item.List{i1, i2, i3},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 1,
+		},
+		{
+			Name:    "count items for model with no items",
+			ModelID: id.NewModelID(),
+			Seeds:   item.List{i1, i2, i3},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 0,
+		},
+		{
+			Name:    "count items with cross-project permission filtering",
+			ModelID: mid1,
+			Seeds:   item.List{i1, i2, i5},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 2,
+		},
+		{
+			Name:    "count items with no accessible projects",
+			ModelID: mid1,
+			Seeds:   item.List{i1, i2},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			Expected: 0, // no items should be counted due to permission restrictions
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+			// First save items without filter restrictions
+			repo := NewItem(client)
+
+			ctx := context.Background()
+			err := repo.SaveAll(ctx, tc.Seeds)
+			assert.NoError(tt, err)
+
+			// Then apply the filter for counting
+			filteredRepo := repo.Filtered(tc.Filter)
+			got, err := filteredRepo.CountByModel(ctx, tc.ModelID)
+			assert.Equal(tt, tc.ExpectedErr, err)
+			assert.Equal(tt, tc.Expected, got)
+		})
+	}
 }

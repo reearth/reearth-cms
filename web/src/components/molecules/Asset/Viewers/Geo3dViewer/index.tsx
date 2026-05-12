@@ -6,7 +6,7 @@ import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { compressedFileFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useAuthHeader } from "@reearth-cms/gql";
-import { getExtension } from "@reearth-cms/utils/file";
+import { FileUtils } from "@reearth-cms/utils/file";
 
 import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
@@ -28,7 +28,7 @@ const Geo3dViewer: React.FC<Props> = ({
   const { getHeader } = useAuthHeader();
 
   useEffect(() => {
-    const assetExtension = getExtension(url);
+    const assetExtension = FileUtils.getExtension(url);
     if (compressedFileFormats.includes(assetExtension)) {
       const baseUrl = url.replace(/\.\w+$/, "");
       setAssetUrl(`${baseUrl}/tileset.json`);

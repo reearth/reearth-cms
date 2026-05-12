@@ -5,7 +5,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/usecasex"
@@ -41,60 +40,60 @@ func TestToModelSort(t *testing.T) {
 		name     string
 		sort     *integrationapi.SortParam
 		dir      *integrationapi.SortDirParam
-		expected *model.Sort
+		expected *usecasex.Sort
 	}{
 		{
 			name: "Default direction (nil dir)",
 			sort: lo.ToPtr(integrationapi.SortParamCreatedAt),
 			dir:  nil,
-			expected: &model.Sort{
-				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionDesc,
+			expected: &usecasex.Sort{
+				Key:      "id",
+				Reverted: true,
 			},
 		},
 		{
 			name: "Sort by CreatedAt Asc",
 			sort: lo.ToPtr(integrationapi.SortParamCreatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamAsc),
-			expected: &model.Sort{
-				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionAsc,
+			expected: &usecasex.Sort{
+				Key:      "id",
+				Reverted: false,
 			},
 		},
 		{
 			name: "Sort by CreatedAt Desc",
 			sort: lo.ToPtr(integrationapi.SortParamCreatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamDesc),
-			expected: &model.Sort{
-				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionDesc,
+			expected: &usecasex.Sort{
+				Key:      "id",
+				Reverted: true,
 			},
 		},
 		{
 			name: "Sort by UpdatedAt Asc",
 			sort: lo.ToPtr(integrationapi.SortParamUpdatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamAsc),
-			expected: &model.Sort{
-				Column:    model.ColumnUpdatedAt,
-				Direction: model.DirectionAsc,
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: false,
 			},
 		},
 		{
 			name: "Sort by UpdatedAt Desc",
 			sort: lo.ToPtr(integrationapi.SortParamUpdatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamDesc),
-			expected: &model.Sort{
-				Column:    model.ColumnUpdatedAt,
-				Direction: model.DirectionDesc,
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: true,
 			},
 		},
 		{
 			name: "Unknown sort param, defaults to ColumnCreatedAt",
 			sort: lo.ToPtr(integrationapi.SortParam("unknown")),
 			dir:  lo.ToPtr(integrationapi.SortDirParamAsc),
-			expected: &model.Sort{
-				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionAsc,
+			expected: &usecasex.Sort{
+				Key:      "order",
+				Reverted: false,
 			},
 		},
 	}
@@ -162,18 +161,18 @@ func TestToGroupSort(t *testing.T) {
 
 func Test_fromProjectPublicationScope(t *testing.T) {
 	// public
-	expected := lo.ToPtr(project.PublicationScopePublic)
-	actual := fromProjectPublicationScope(integrationapi.PUBLIC)
+	expected := lo.ToPtr(project.VisibilityPublic)
+	actual := fromProjectVisibility(integrationapi.PUBLIC)
 	assert.Equal(t, expected, actual)
 
 	// private
-	expected = lo.ToPtr(project.PublicationScopePrivate)
-	actual = fromProjectPublicationScope(integrationapi.PRIVATE)
+	expected = lo.ToPtr(project.VisibilityPrivate)
+	actual = fromProjectVisibility(integrationapi.PRIVATE)
 	assert.Equal(t, expected, actual)
 
-	// limited
-	expected = lo.ToPtr(project.PublicationScopeLimited)
-	actual = fromProjectPublicationScope(integrationapi.LIMITED)
+	// unknown
+	expected = nil
+	actual = fromProjectVisibility(integrationapi.AccessibilityVisibility("unknown"))
 	assert.Equal(t, expected, actual)
 }
 
@@ -252,5 +251,213 @@ func Test_fromRequestRole(t *testing.T) {
 		actual, ok := fromRequestRole(input)
 		assert.False(t, ok)
 		assert.Nil(t, actual)
+	})
+}
+
+func TestSortParamTypeConversions(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ItemFilterParamsSort to SortParam", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			name     string
+			input    integrationapi.ItemFilterParamsSort
+			expected integrationapi.SortParam
+		}{
+			{
+				name:     "createdAt",
+				input:    integrationapi.ItemFilterParamsSortCreatedAt,
+				expected: integrationapi.SortParamCreatedAt,
+			},
+			{
+				name:     "updatedAt",
+				input:    integrationapi.ItemFilterParamsSortUpdatedAt,
+				expected: integrationapi.SortParamUpdatedAt,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				result := integrationapi.SortParam(tt.input)
+				assert.Equal(t, tt.expected, result)
+			})
+		}
+	})
+
+	t.Run("ItemFilterPostParamsSort to SortParam", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			name     string
+			input    integrationapi.ItemFilterPostParamsSort
+			expected integrationapi.SortParam
+		}{
+			{
+				name:     "createdAt",
+				input:    integrationapi.ItemFilterPostParamsSortCreatedAt,
+				expected: integrationapi.SortParamCreatedAt,
+			},
+			{
+				name:     "updatedAt",
+				input:    integrationapi.ItemFilterPostParamsSortUpdatedAt,
+				expected: integrationapi.SortParamUpdatedAt,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				result := integrationapi.SortParam(tt.input)
+				assert.Equal(t, tt.expected, result)
+			})
+		}
+	})
+
+	t.Run("AssetFilterParamsSort to SortParam", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			name     string
+			input    integrationapi.AssetFilterParamsSort
+			expected integrationapi.SortParam
+		}{
+			{
+				name:     "createdAt",
+				input:    integrationapi.AssetFilterParamsSortCreatedAt,
+				expected: integrationapi.SortParamCreatedAt,
+			},
+			{
+				name:     "updatedAt",
+				input:    integrationapi.AssetFilterParamsSortUpdatedAt,
+				expected: integrationapi.SortParamUpdatedAt,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				result := integrationapi.SortParam(tt.input)
+				assert.Equal(t, tt.expected, result)
+			})
+		}
+	})
+}
+
+func TestSortDirParamTypeConversions(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ItemFilterParamsDir to SortDirParam", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			name     string
+			input    integrationapi.ItemFilterParamsDir
+			expected integrationapi.SortDirParam
+		}{
+			{
+				name:     "asc",
+				input:    integrationapi.ItemFilterParamsDirAsc,
+				expected: integrationapi.SortDirParamAsc,
+			},
+			{
+				name:     "desc",
+				input:    integrationapi.ItemFilterParamsDirDesc,
+				expected: integrationapi.SortDirParamDesc,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				result := integrationapi.SortDirParam(tt.input)
+				assert.Equal(t, tt.expected, result)
+			})
+		}
+	})
+
+	t.Run("ItemFilterPostParamsDir to SortDirParam", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			name     string
+			input    integrationapi.ItemFilterPostParamsDir
+			expected integrationapi.SortDirParam
+		}{
+			{
+				name:     "asc",
+				input:    integrationapi.ItemFilterPostParamsDirAsc,
+				expected: integrationapi.SortDirParamAsc,
+			},
+			{
+				name:     "desc",
+				input:    integrationapi.ItemFilterPostParamsDirDesc,
+				expected: integrationapi.SortDirParamDesc,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				result := integrationapi.SortDirParam(tt.input)
+				assert.Equal(t, tt.expected, result)
+			})
+		}
+	})
+
+	t.Run("AssetFilterParamsDir to SortDirParam", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			name     string
+			input    integrationapi.AssetFilterParamsDir
+			expected integrationapi.SortDirParam
+		}{
+			{
+				name:     "asc",
+				input:    integrationapi.AssetFilterParamsDirAsc,
+				expected: integrationapi.SortDirParamAsc,
+			},
+			{
+				name:     "desc",
+				input:    integrationapi.AssetFilterParamsDirDesc,
+				expected: integrationapi.SortDirParamDesc,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				result := integrationapi.SortDirParam(tt.input)
+				assert.Equal(t, tt.expected, result)
+			})
+		}
+	})
+}
+
+func TestSortParamPointerConversions(t *testing.T) {
+	t.Parallel()
+
+	t.Run("pointer conversion for ItemFilterParamsSort", func(t *testing.T) {
+		t.Parallel()
+		input := lo.ToPtr(integrationapi.ItemFilterParamsSortCreatedAt)
+		result := integrationapi.SortParam(*input)
+		assert.Equal(t, integrationapi.SortParamCreatedAt, result)
+	})
+
+	t.Run("pointer conversion for ItemFilterParamsDir", func(t *testing.T) {
+		t.Parallel()
+		input := lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+		result := (*integrationapi.SortDirParam)(input)
+		assert.Equal(t, integrationapi.SortDirParamAsc, *result)
+	})
+
+	t.Run("pointer conversion for ItemFilterPostParamsSort", func(t *testing.T) {
+		t.Parallel()
+		input := lo.ToPtr(integrationapi.ItemFilterPostParamsSortUpdatedAt)
+		result := integrationapi.SortParam(*input)
+		assert.Equal(t, integrationapi.SortParamUpdatedAt, result)
+	})
+
+	t.Run("pointer conversion for ItemFilterPostParamsDir", func(t *testing.T) {
+		t.Parallel()
+		input := lo.ToPtr(integrationapi.ItemFilterPostParamsDirDesc)
+		result := (*integrationapi.SortDirParam)(input)
+		assert.Equal(t, integrationapi.SortDirParamDesc, *result)
 	})
 }

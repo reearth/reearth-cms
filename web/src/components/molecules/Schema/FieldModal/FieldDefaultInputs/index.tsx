@@ -6,7 +6,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 
-import { FieldType } from "../../types";
+import { SchemaFieldType } from "../../types";
 
 import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
@@ -23,7 +23,7 @@ import TextField from "./TextField";
 import URLField from "./URLField";
 
 type Props = {
-  selectedType: FieldType;
+  selectedType: SchemaFieldType;
   selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
   selectedSupportedTypes?: ObjectSupportedType[] | EditorSupportedType;

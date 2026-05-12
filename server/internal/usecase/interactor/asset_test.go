@@ -35,7 +35,7 @@ import (
 
 func TestAsset_FindByID(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	pid := id.NewProjectID()
 	id1 := id.NewAssetID()
@@ -152,7 +152,7 @@ func TestAsset_FindByID(t *testing.T) {
 
 func TestAsset_DecompressByID(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	ws1 := workspace.New().NewID().MustBuild()
 	pid1 := id.NewProjectID()
@@ -349,7 +349,7 @@ func TestAsset_FindFileByID(t *testing.T) {
 
 func TestAsset_FindByIDs(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	pid1 := id.NewProjectID()
 	uid1 := accountdomain.NewUserID()
@@ -464,7 +464,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 
 func TestAsset_Search(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	pid := id.NewProjectID()
 	aid1 := id.NewAssetID()
@@ -926,14 +926,17 @@ func TestAsset_Create(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
-			f, _ := fs.NewFile(mfs, "")
+			f, _ := fs.NewFile(mfs, "", false)
 			runnerGw := NewMockRunner()
 
 			err := db.User.Save(ctx, u)
 			assert.NoError(t, err)
 
-			err2 := db.Project.Save(ctx, p1.Clone())
+			err2 := db.Workspace.Save(ctx, ws)
 			assert.Nil(t, err2)
+
+			err3 := db.Project.Save(ctx, p1.Clone())
+			assert.Nil(t, err3)
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())
@@ -979,7 +982,7 @@ func TestAsset_Create(t *testing.T) {
 
 func TestAsset_Update(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	uid := accountdomain.NewUserID()
 	ws := workspace.New().NewID().MustBuild()
@@ -994,7 +997,7 @@ func TestAsset_Update(t *testing.T) {
 	a1 := asset.New().ID(aid1).Project(pid1).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(thid).MustBuild()
 	a1Updated := asset.New().ID(aid1).Project(pid1).UUID(a1.UUID()).
-		CreatedByUser(uid).Size(1000).Thread(thid).Type(&pti).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(thid).Type(&pti).UpdatedByUser(&uid).MustBuild()
 
 	pid2 := id.NewProjectID()
 	aid2 := id.NewAssetID()
@@ -1106,7 +1109,15 @@ func TestAsset_Update(t *testing.T) {
 			assert.NoError(t, err)
 			// assert always fails on comparing functions
 			got.SetAccessInfoResolver(nil)
-			assert.Equal(t, tc.want, got)
+			// Update() stamps updatedAt dynamically; check fields individually
+			assert.Equal(t, tc.want.ID(), got.ID())
+			assert.Equal(t, tc.want.Project(), got.Project())
+			assert.Equal(t, tc.want.UUID(), got.UUID())
+			assert.Equal(t, tc.want.Size(), got.Size())
+			assert.Equal(t, tc.want.Thread(), got.Thread())
+			assert.Equal(t, tc.want.PreviewType(), got.PreviewType())
+			assert.Equal(t, tc.want.UpdatedByUser(), got.UpdatedByUser())
+			assert.NotZero(t, got.UpdatedAt())
 		})
 	}
 }
@@ -1275,7 +1286,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), ""))
+			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", false))
 
 			err := db.Project.Save(ctx, proj)
 			assert.NoError(t, err)

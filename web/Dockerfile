@@ -1,4 +1,4 @@
-FROM node:22.16.0-slim AS builder
+FROM node:24.14.1-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -9,6 +9,7 @@ ENV GITHUB_SHA=$GITHUB_SHA
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=yarn.lock,target=yarn.lock \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
+    --mount=type=cache,target=/app/node_modules,sharing=locked \
     yarn install --frozen-lockfile --production=false
 
 RUN --mount=type=bind,source=package.json,target=package.json \
@@ -17,13 +18,16 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=tsconfig.json,target=tsconfig.json \
     --mount=type=bind,source=vite.config.ts,target=vite.config.ts \
     --mount=type=bind,source=src,target=src \
+    --mount=type=bind,source=public,target=public \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
+    --mount=type=cache,target=/app/node_modules,sharing=locked \
+    --mount=type=cache,target=/app/node_modules/.cache,sharing=locked \
     yarn build
 
-FROM nginx:1.28-alpine
+FROM nginx:1.30-alpine
 WORKDIR /usr/share/nginx/html
 
-# Quite the Nginx startup logs.
+# Quiet the Nginx startup logs.
 ENV NGINX_ENTRYPOINT_QUIET_LOGS=true
 
 # Default to Cloud Run port.
@@ -46,9 +50,11 @@ ENV REEARTH_CMS_COVER_IMAGE_URL=null
 ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
+ENV REEARTH_CMS_DISABLE_WORKSPACE_UI=null
+ENV REEARTH_CMS_DASHBOARD_BASE_URL=null
 
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --no-cache jq
+    apk add jq
 
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template

@@ -11,11 +11,15 @@ jobs:
       server: ${{ steps.server.outputs.any_modified }}
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: changed files for web
         id: web
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1 # v45.0.1
+        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
         with:
           files: |
             web/**
@@ -25,7 +29,7 @@ jobs:
 
       - name: changed files for server
         id: server
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1 # v45.0.1
+        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
         with:
           files: |
             server/**
@@ -35,7 +39,7 @@ jobs:
 
       - name: changed files for worker
         id: worker
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1 # v45.0.1
+        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
         with:
           files: |
             worker/**
@@ -66,6 +70,10 @@ jobs:
       - ci-worker
     if: '!failure()'
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
       - run: echo OK
 
   build-prepare:
@@ -78,7 +86,11 @@ jobs:
       new_tag_short: ${{ steps.prepare.outputs.new_tag_short }}
       name: ${{ steps.prepare.outputs.name }}
     steps:
-      - uses: reearth/actions/prepare-build@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+      - uses: reearth/actions/prepare-build@ee8a23fc9256524828d4074e0e607904cfd8dffc # main
         id: prepare
         with:
           repo: ${{ github.repository }}
@@ -138,6 +150,9 @@ jobs:
   deploy-web:
     needs: [build-web, ci-web]
     if: needs.ci-web.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
@@ -154,7 +169,11 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: reearth/actions/deploy-cloud-run-with-tag@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+      - uses: reearth/actions/deploy-cloud-run-with-tag@ee8a23fc9256524828d4074e0e607904cfd8dffc # main
         id: deploy
         with:
           image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
@@ -168,6 +187,9 @@ jobs:
   deploy-server:
     needs: [build-server, ci-server]
     if: needs.ci-server.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
@@ -176,6 +198,9 @@ jobs:
   deploy-worker:
     needs: [build-worker, ci-worker]
     if: needs.ci-worker.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker

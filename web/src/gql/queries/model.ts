@@ -1,17 +1,22 @@
 import { gql } from "@apollo/client";
 
 export const GET_MODELS = gql`
-  query GetModels($projectId: ID!, $pagination: Pagination) {
-    models(projectId: $projectId, pagination: $pagination) {
+  query GetModels($projectId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
+    models(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
       nodes {
         id
         name
         description
         key
-        public
         order
+        createdAt
+        updatedAt
         schema {
           id
+          fields {
+            id
+            type
+          }
         }
       }
     }
@@ -26,7 +31,6 @@ export const GET_MODEL_NODE = gql`
         name
         description
         key
-        public
         order
         metadataSchema {
           id
@@ -180,36 +184,11 @@ export const DELETE_MODEL = gql`
 `;
 
 export const UPDATE_MODEL = gql`
-  mutation UpdateModel(
-    $modelId: ID!
-    $name: String
-    $description: String
-    $key: String
-    $public: Boolean!
-  ) {
-    updateModel(
-      input: {
-        modelId: $modelId
-        name: $name
-        description: $description
-        key: $key
-        public: $public
-      }
-    ) {
+  mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
+    updateModel(input: { modelId: $modelId, name: $name, description: $description, key: $key }) {
       model {
         id
         name
-      }
-    }
-  }
-`;
-
-export const PUBLISH_MODELS = gql`
-  mutation PublishModels($models: [PublishModelInput!]!) {
-    publishModels(input: { models: $models }) {
-      models {
-        modelId
-        status
       }
     }
   }
@@ -232,6 +211,24 @@ export const UPDATE_MODELS_ORDER = gql`
           id
         }
       }
+    }
+  }
+`;
+
+export const EXPORT_MODEL = gql`
+  mutation ExportModel($modelId: ID!, $format: ExportFormat!) {
+    exportModel(input: { modelId: $modelId, format: $format }) {
+      modelId
+      url
+    }
+  }
+`;
+
+export const EXPORT_MODEL_SCHEMA = gql`
+  mutation ExportModelSchema($modelId: ID!) {
+    exportModelSchema(input: { modelId: $modelId }) {
+      modelId
+      url
     }
   }
 `;

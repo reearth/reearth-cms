@@ -1,0 +1,156 @@
+type ProjectAliasAvailability {
+  alias: String!
+  available: Boolean!
+}
+
+type WorkspaceProjectLimits {
+  publicProjectsAllowed: Boolean!
+  privateProjectsAllowed: Boolean!
+}
+
+enum ProjectVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+type PublicationSettings {
+  publicModels: [ID!]!
+  publicAssets: Boolean!
+}
+
+type ProjectAPIKey {
+  id: ID!
+  name: String!
+  description: String!
+  key: String!
+  publication: PublicationSettings!
+}
+
+type ProjectAccessibility {
+  visibility: ProjectVisibility!
+  publication: PublicationSettings
+  apiKeys: [ProjectAPIKey!]
+}
+
+type Project implements Node {
+  id: ID!
+  name: String!
+  description: String!
+  license: String!
+  readme: String!
+  alias: String!
+  workspaceId: ID!
+  workspace: Workspace
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  accessibility: ProjectAccessibility!
+  requestRoles: [Role!]
+}
+
+# Inputs
+input CreateProjectInput {
+  workspaceId: ID!
+  name: String
+  description: String
+  license: String
+  readme: String
+  alias: String
+  visibility: ProjectVisibility
+  requestRoles: [Role!]
+}
+
+input UpdatePublicationSettingsInput{
+  publicModels: [ID!]!
+  publicAssets: Boolean!
+}
+
+input UpdateProjectAccessibilityInput {
+  visibility: ProjectVisibility
+  publication: UpdatePublicationSettingsInput
+}
+
+input UpdateProjectInput {
+  projectId: ID!
+  name: String
+  description: String
+  license: String
+  readme: String
+  alias: String
+  accessibility: UpdateProjectAccessibilityInput
+  requestRoles: [Role!]
+}
+
+input DeleteProjectInput {
+  projectId: ID!
+}
+
+input CreateAPIKeyInput {
+  projectId: ID!
+  name: String!
+  description: String!
+  publication: UpdatePublicationSettingsInput!
+}
+
+input UpdateAPIKeyInput {
+  id: ID!
+  projectId: ID!
+  name: String
+  description: String
+  publication: UpdatePublicationSettingsInput
+}
+
+input DeleteAPIKeyInput {
+  projectId: ID!
+  id: ID!
+}
+
+input RegenerateAPIKeyInput {
+  projectId: ID!
+  id: ID!
+}
+
+# Payload
+type ProjectPayload {
+  project: Project!
+}
+
+type DeleteProjectPayload {
+  projectId: ID!
+}
+
+type APIKeyPayload {
+  apiKey: ProjectAPIKey!
+  public: PublicationSettings!
+}
+
+type DeleteAPIKeyPayload {
+  apiKeyId: ID!
+}
+
+type ProjectConnection {
+  edges: [ProjectEdge!]!
+  nodes: [Project]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProjectEdge {
+  cursor: Cursor!
+  node: Project
+}
+
+extend type Query {
+  projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
+  checkProjectAlias(workspaceId: ID!, alias: String!): ProjectAliasAvailability!
+  checkWorkspaceProjectLimits(workspaceId: ID!): WorkspaceProjectLimits!
+}
+
+extend type Mutation {
+  createProject(input: CreateProjectInput!): ProjectPayload
+  updateProject(input: UpdateProjectInput!): ProjectPayload
+  deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
+  createAPIKey(input: CreateAPIKeyInput!): APIKeyPayload
+  updateAPIKey(input: UpdateAPIKeyInput!): APIKeyPayload
+  deleteAPIKey(input: DeleteAPIKeyInput!): DeleteAPIKeyPayload
+  regenerateAPIKey(input: RegenerateAPIKeyInput!): APIKeyPayload
+}

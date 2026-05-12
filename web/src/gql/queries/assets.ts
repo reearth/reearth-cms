@@ -92,6 +92,18 @@ export const GET_ASSET_ITEM = gql`
   }
 `;
 
+export const GUESS_SCHEMA_FIELDS = gql`
+  query GuessSchemaFields($assetId: ID!, $modelId: ID!) {
+    guessSchemaFields(input: { assetId: $assetId, modelId: $modelId }) {
+      total_count
+      fields {
+        name
+        type
+      }
+    }
+  }
+`;
+
 export const CREATE_ASSET = gql`
   mutation CreateAsset(
     $projectId: ID!
@@ -130,6 +142,14 @@ export const DELETE_ASSET = gql`
   mutation DeleteAsset($assetId: ID!) {
     deleteAsset(input: { assetId: $assetId }) {
       assetId
+    }
+  }
+`;
+
+export const DELETE_ASSETS = gql`
+  mutation DeleteAssets($assetIds: [ID!]!) {
+    deleteAssets(input: { assetIds: $assetIds }) {
+      assetIds
     }
   }
 `;

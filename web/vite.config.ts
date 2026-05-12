@@ -35,7 +35,7 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
   },
   plugins: [
     react(),
@@ -43,7 +43,8 @@ export default defineConfig({
     cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
     serverHeaders(),
     config(),
-    tsconfigPaths()
+    tsconfigPaths(),
+    injectCommitHashMeta(process.env.GITHUB_SHA || commitHash),
   ],
   css: {
     preprocessorOptions: {
@@ -56,8 +57,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
     exclude: [...configDefaults.exclude, "e2e/**/*"],
+    testTimeout: 30 * 1000,
     coverage: {
-      all: true,
       include: ["src/**/*.ts", "src/**/*.tsx"],
       exclude: [
         "src/**/*.d.ts",
@@ -146,4 +147,17 @@ function loadJSON(path: string): object {
   } catch (_) {
     return {};
   }
+}
+
+function injectCommitHashMeta(commitHash: string): Plugin {
+  const trimmedCommitHash = commitHash.slice(0, 7);
+  return {
+    name: "inject-commit-hash-meta",
+    transformIndexHtml(html) {
+      return html.replace(
+        "</head>",
+        `    <meta name="reearth-commit-hash" content="${trimmedCommitHash}" />\n  </head>`,
+      );
+    },
+  };
 }

@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
 type Props = {
   title: string;
   children?: ReactNode;
@@ -16,27 +18,27 @@ const SideBarCard: React.FC<Props> = ({ title, children }) => {
 };
 
 const SideBarCardWrapper = styled.div`
-  padding: 12px;
-  margin-bottom: 8px;
+  padding: ${AntdToken.SPACING.SM}px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  border: 1px solid #f0f0f0;
-  border-radius: 2px;
-  background-color: #fff;
+  gap: ${AntdToken.SPACING.XXS}px;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  border-radius: ${AntdToken.RADIUS.XS}px;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const CardTitle = styled.span`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: 13px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const CardValue = styled.span`
-  font-weight: 400;
-  font-size: 16px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 
 export default SideBarCard;

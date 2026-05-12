@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp/v3"
@@ -23,28 +24,31 @@ func init() {
 }
 
 type Config struct {
-	Port         string            `default:"8080" envconfig:"PORT"`
-	ServerHost   string            `pp:",omitempty"`
-	Host         string            `default:"http://localhost:8080"`
-	Dev          bool              `pp:",omitempty"`
-	Host_Web     string            `pp:",omitempty"`
-	GraphQL      GraphQLConfig     `pp:",omitempty"`
-	Origins      []string          `pp:",omitempty"`
-	DB           string            `default:"mongodb://localhost"`
-	Mailer       string            `pp:",omitempty"`
-	SMTP         SMTPConfig        `pp:",omitempty"`
-	SendGrid     SendGridConfig    `pp:",omitempty"`
-	SignupSecret string            `pp:",omitempty"`
-	GCS          GCSConfig         `pp:",omitempty"`
-	S3           S3Config          `pp:",omitempty"`
-	Task         gcp.TaskConfig    `pp:",omitempty"`
-	AWSTask      aws.TaskConfig    `pp:",omitempty"`
-	Web          map[string]string `pp:",omitempty"`
-	Web_Config   JSON              `pp:",omitempty"`
-	Web_Disabled bool              `pp:",omitempty"`
+	Port                string            `default:"8080" envconfig:"PORT"`
+	ServerHost          string            `pp:",omitempty"`
+	Host                string            `default:"http://localhost:8080"`
+	Dev                 bool              `pp:",omitempty"`
+	Host_Web            string            `pp:",omitempty"`
+	GraphQL             GraphQLConfig     `pp:",omitempty"`
+	Origins             []string          `pp:",omitempty"`
+	Integration_Origins []string          `pp:",omitempty"`
+	Public_Origins      []string          `pp:",omitempty"`
+	DB                  string            `default:"mongodb://localhost"`
+	Mailer              string            `pp:",omitempty"`
+	SMTP                SMTPConfig        `pp:",omitempty"`
+	SendGrid            SendGridConfig    `pp:",omitempty"`
+	SignupSecret        string            `pp:",omitempty"`
+	GCS                 GCSConfig         `pp:",omitempty"`
+	S3                  S3Config          `pp:",omitempty"`
+	Task                gcp.TaskConfig    `pp:",omitempty"`
+	AWSTask             aws.TaskConfig    `pp:",omitempty"`
+	Web                 map[string]string `pp:",omitempty"`
+	Web_Config          JSON              `pp:",omitempty"`
+	Web_Disabled        bool              `pp:",omitempty"`
 	// asset
-	Asset_Public bool   `default:"true" pp:",omitempty"`
-	AssetBaseURL string `pp:",omitempty"`
+	Asset_Public              bool   `default:"true" pp:",omitempty"`
+	AssetBaseURL              string `pp:",omitempty"`
+	AssetUploadURLReplacement bool   `default:"false" pp:",omitempty"` // Replace upload URLs to go through proxy
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
 	Auth0         Auth0Config    `pp:",omitempty"`
@@ -71,11 +75,42 @@ type Config struct {
 
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
+
+	Otel OtelConfig `pp:",omitempty"`
+
+	// Account API Configuration
+	Account_Api AccountAPIConfig `pp:",omitempty"`
+
+	// Policy Checker Configuration
+	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+}
+
+type OtelConfig struct {
+	Enabled            bool          `default:"true" pp:",omitempty"`
+	Endpoint           string        `pp:",omitempty"`
+	MaxExportBatchSize int           `pp:",omitempty"`
+	BatchTimeout       time.Duration `pp:",omitempty"`
+	MaxQueueSize       int           `pp:",omitempty"`
+	SamplingRatio      float64       `default:"1" pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
-	Username string `pp:",omitempty"`
-	Password string `pp:",omitempty"`
+	Username  string `pp:",omitempty"`
+	Password  string `pp:",omitempty"`
+	RunOnInit bool   `default:"true" pp:",omitempty"`
+}
+
+type AccountAPIConfig struct {
+	Enabled bool   `pp:",omitempty"`
+	Host    string `pp:",omitempty"`
+	Timeout int    `pp:",omitempty"`
+}
+
+type PolicyCheckerConfig struct {
+	Type     string `default:"permissive"`
+	Endpoint string
+	Token    string
+	Timeout  int `default:"30"`
 }
 
 type ServerConfig struct {
@@ -154,6 +189,15 @@ type AuthM2MConfig struct {
 	TTL     *int     `pp:",omitempty"`
 	Email   string   `pp:",omitempty"`
 	JWKSURI *string  `pp:",omitempty"`
+	Token   string   `pp:",omitempty"`
+}
+
+func (c *Config) Otel1() OtelConfig {
+	oc := c.Otel
+	if oc.Enabled && oc.Endpoint == "" && c.Dev {
+		oc.Endpoint = "http://localhost:4318"
+	}
+	return oc
 }
 
 func (c *Config) Auths() (res AuthConfigs) {
@@ -371,6 +415,7 @@ func (c *Config) secrets() []string {
 		c.InternalApi.Token,
 		c.HealthCheck.Username,
 		c.HealthCheck.Password,
+		c.Policy_Checker.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

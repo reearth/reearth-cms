@@ -1,9 +1,10 @@
 package group
 
 import (
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type List []*Group

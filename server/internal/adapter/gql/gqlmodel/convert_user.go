@@ -1,9 +1,11 @@
 package gqlmodel
 
 import (
+	apiuser "github.com/reearth/reearth-accounts/server/pkg/user"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
+	"golang.org/x/text/language"
 
 	"github.com/reearth/reearthx/util"
 )
@@ -39,17 +41,56 @@ func ToMe(u *user.User) *Me {
 		return nil
 	}
 
+	// Handle metadata safely
+	var lang language.Tag
+	var theme user.Theme
+	var photoURL string
+
+	if metadata := u.Metadata(); metadata != nil {
+		lang = metadata.Lang()
+		theme = metadata.Theme()
+		photoURL = metadata.PhotoURL()
+	}
+
 	return &Me{
-		ID:            IDFrom(u.ID()),
-		Name:          u.Name(),
-		Email:         u.Email(),
-		Lang:          u.Lang(),
-		Host:          lo.EmptyableToPtr(u.Host()),
-		Theme:         Theme(u.Theme()),
-		MyWorkspaceID: IDFrom(u.Workspace()),
-		Auths: util.Map(u.Auths(), func(a user.Auth) string {
-			return a.Provider
-		}),
+		ID:                IDFrom(u.ID()),
+		Name:              u.Name(),
+		Email:             u.Email(),
+		Lang:              lang,
+		Host:              lo.EmptyableToPtr(u.Host()),
+		Theme:             Theme(theme),
+		MyWorkspaceID:     IDFrom(u.Workspace()),
+		Auths:             util.Map(u.Auths(), func(a user.Auth) string { return a.Provider }),
+		ProfilePictureURL: lo.ToPtr(photoURL),
+	}
+}
+
+func ToMeFromAPI(u *apiuser.User) *Me {
+	if u == nil {
+		return nil
+	}
+
+	// Handle metadata safely
+	var lang language.Tag
+	var theme user.Theme
+	var photoURL string
+
+	if metadata := u.Metadata(); metadata != nil {
+		lang = metadata.Lang()
+		theme = user.Theme(metadata.Theme())
+		photoURL = metadata.PhotoURL()
+	}
+
+	return &Me{
+		ID:                IDFrom(u.ID()),
+		Name:              u.Name(),
+		Email:             u.Email(),
+		Lang:              lang,
+		Host:              lo.EmptyableToPtr(u.Host()),
+		Theme:             Theme(theme),
+		MyWorkspaceID:     IDFrom(u.Workspace()),
+		Auths:             util.Map((u.Auths()), func(a apiuser.Auth) string { return a.Provider }),
+		ProfilePictureURL: lo.ToPtr(photoURL),
 	}
 }
 
@@ -97,6 +138,7 @@ func ToWorkspace(t *workspace.Workspace) *Workspace {
 	return &Workspace{
 		ID:       IDFrom(t.ID()),
 		Name:     t.Name(),
+		Alias:    lo.ToPtr(t.Alias()),
 		Personal: t.IsPersonal(),
 		Members:  members,
 	}

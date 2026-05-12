@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -74,18 +75,16 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 
 	// with geometry fields
-	ver1 := item.VersionedList{vi1}
+	ver1 := item.List{vi1.Value()}
 	lineString := [][]float64{
 		{139.65439725962517, 36.34793305387103},
 		{139.61688622815393, 35.910803456352724},
 	}
 	jsonBytes, err := json.Marshal(lineString)
 	assert.Nil(t, err)
-	c := Geometry_Coordinates{
-		union: jsonBytes,
-	}
-	g := Geometry{
-		Type:        lo.ToPtr(GeometryTypeLineString),
+	c := types.GeometryCoordinates(jsonBytes)
+	g := types.Geometry{
+		Type:        lo.ToPtr(types.GeometryTypeLineString),
 		Coordinates: &c,
 	}
 	p := orderedmap.New()
@@ -93,27 +92,27 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	p.Set(key4.String(), int64(30))
 	p.Set(key5.String(), true)
 
-	f := Feature{
-		Type:       lo.ToPtr(FeatureTypeFeature),
+	f := types.Feature{
+		Type:       lo.ToPtr(types.FeatureTypeFeature),
 		Geometry:   &g,
 		Properties: p,
 		Id:         vi1.Value().ID().Ref().StringRef(),
 	}
 
-	expected1 := &FeatureCollection{
-		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
-		Features: &[]Feature{f},
+	expected1 := &types.FeatureCollection{
+		Type:     lo.ToPtr(types.FeatureCollectionTypeFeatureCollection),
+		Features: &[]types.Feature{f},
 	}
 
-	fc1, err1 := FeatureCollectionFromItems(ver1, sp1)
+	fc1, err1 := FeatureCollectionFromItems(ver1, sp1, nil)
 	assert.Nil(t, err1)
 	assert.Equal(t, expected1, fc1)
 
 	// no geometry fields
-	ver2 := item.VersionedList{vi2}
+	ver2 := item.List{vi2.Value()}
 	expectErr2 := noGeometryFieldError
 
-	fc, err := FeatureCollectionFromItems(ver2, sp2)
+	fc, err := FeatureCollectionFromItems(ver2, sp2, nil)
 	assert.Equal(t, expectErr2, err)
 	assert.Nil(t, fc)
 }
@@ -129,7 +128,7 @@ func TestExtractGeometry(t *testing.T) {
 	geometry1, ok1 := extractGeometry(fi1)
 	assert.True(t, ok1)
 	assert.NotNil(t, geometry1)
-	assert.Equal(t, GeometryTypeLineString, *geometry1.Type)
+	assert.Equal(t, types.GeometryTypeLineString, *geometry1.Type)
 
 	// Test with non-geometry field
 	geometry2, ok2 := extractGeometry(fi2)
@@ -186,7 +185,7 @@ func TestExtractProperties(t *testing.T) {
 		MustBuild()
 
 	// Test with item containing geometry fields and non geometry fields
-	properties1 := extractProperties(i1, sp1)
+	properties1 := extractProperties(i1, sp1, nil)
 	expectedProperties1 := orderedmap.New()
 
 	expectedProperties1.Set(key2.String(), []any{"a", "b", "c"})
@@ -197,17 +196,17 @@ func TestExtractProperties(t *testing.T) {
 	assert.Equal(t, expectedProperties1, properties1)
 
 	// Test with item containing only geometry fields
-	properties3 := extractProperties(i2, sp1)
+	properties3 := extractProperties(i2, sp1, nil)
 	expectedProperties3 := orderedmap.New()
 	assert.NotNil(t, properties3)
 	assert.Equal(t, expectedProperties3, properties3)
 
 	// Test with nil item
-	properties4 := extractProperties(nil, sp1)
+	properties4 := extractProperties(nil, sp1, nil)
 	assert.Nil(t, properties4)
 
 	// Test with nil schema
-	properties5 := extractProperties(i1, nil)
+	properties5 := extractProperties(i1, nil, nil)
 	assert.Nil(t, properties5)
 }
 
@@ -220,7 +219,7 @@ func TestStringToGeometry(t *testing.T) {
 	geo, err := stringToGeometry(validGeoStringPoint)
 	assert.NoError(t, err)
 	assert.NotNil(t, geo)
-	assert.Equal(t, GeometryTypePoint, *geo.Type)
+	assert.Equal(t, types.GeometryTypePoint, *geo.Type)
 	expected := []float64{139.7112596, 35.6424892}
 	actual, err := geo.Coordinates.AsPoint()
 	assert.NoError(t, err)

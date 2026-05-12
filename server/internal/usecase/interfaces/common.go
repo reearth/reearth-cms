@@ -29,4 +29,5 @@ type Container struct {
 	Integration       Integration
 	Thread            Thread
 	Group             Group
+	Job               Job
 }

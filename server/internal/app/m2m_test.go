@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +24,7 @@ func TestM2MAuthMiddleware(t *testing.T) {
 		w := httptest.NewRecorder()
 		c := e.NewContext(r, w)
 
-		err := m(func(c echo.Context) error {
+		err := m(func(c *echo.Context) error {
 			o := adapter.Operator(c.Request().Context())
 			assert.True(t, o.Machine)
 
@@ -47,7 +47,7 @@ func TestM2MAuthMiddleware(t *testing.T) {
 		w := httptest.NewRecorder()
 		c := e.NewContext(r, w)
 
-		err := m(func(c echo.Context) error {
+		err := m(func(c *echo.Context) error {
 			return c.String(200, "ok")
 		})(c)
 

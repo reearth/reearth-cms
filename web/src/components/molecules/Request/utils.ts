@@ -1,10 +1,10 @@
+import { AntdColor } from "@reearth-cms/utils/style";
+
 import { RequestState } from "./types";
 
-export const badgeColors: {
-  [K in RequestState]: string;
-} = {
-  APPROVED: "#52C41A",
-  CLOSED: "#F5222D",
-  WAITING: "#FA8C16",
+export const badgeColors: Record<RequestState, string> = {
+  APPROVED: AntdColor.GREEN.GREEN_5,
+  CLOSED: AntdColor.RED.RED_5,
+  WAITING: AntdColor.ORANGE.ORANGE_5,
   DRAFT: "",
 };

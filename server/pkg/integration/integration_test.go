@@ -811,7 +811,7 @@ func TestIntegration_Token(t *testing.T) {
 				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
-			assert.Equalf(t, tt.want, i.Token(), "Token()")
+			assert.Equalf(t, tt.want, i.Token(), "Key()")
 		})
 	}
 }

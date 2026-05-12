@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   hasCommentCreateRight: boolean;
@@ -57,7 +58,7 @@ const RequestEditor: React.FC<Props> = ({ hasCommentCreateRight, onCommentCreate
 export default RequestEditor;
 
 const TextAreaItem = styled(Form.Item)`
-  margin-bottom: 12px;
+  margin-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
 const ButtonItem = styled(Form.Item)`

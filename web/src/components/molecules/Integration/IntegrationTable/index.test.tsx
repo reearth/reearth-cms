@@ -21,7 +21,6 @@ describe("Integration table", () => {
   const pageSize = 10;
   const onTableChange = () => {};
   const loading = false;
-  const onReload = () => {};
   const hasConnectRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
@@ -36,40 +35,6 @@ describe("Integration table", () => {
     role,
   };
 
-  test("Table options works successfully", async () => {
-    const reloadMock = vi.fn();
-
-    render(
-      <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
-        deleteLoading={deleteLoading}
-        onIntegrationRemove={onIntegrationRemove}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={reloadMock}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-      />,
-    );
-
-    const reloadIcon = screen.getByLabelText("reload");
-    const heightIcon = screen.getByLabelText("column-height");
-    const settingIcon = screen.getByLabelText("setting");
-    const fullscreenIcon = screen.getByLabelText("fullscreen");
-
-    await user.click(reloadIcon);
-    expect(reloadMock).toHaveBeenCalled();
-    expect(heightIcon).toBeVisible();
-    expect(settingIcon).toBeVisible();
-    expect(fullscreenIcon).toBeVisible();
-  });
-
   test("Page number and number of items per page are displayed successfully", async () => {
     render(
       <IntegrationTable
@@ -83,7 +48,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -107,14 +71,13 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
       />,
     );
 
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByPlaceholderText("input search text")).toBeVisible();
   });
 
   test("Connecting buttons works successfully", async () => {
@@ -132,18 +95,15 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
       />,
     );
 
-    const connectButtons = screen.getAllByRole("button", { name: "api Connect Integration" });
-    for (const button of connectButtons) {
-      await user.click(button);
-    }
-    expect(connectModalOpenMock).toBeCalledTimes(2);
+    const connectButton = screen.getByRole("button", { name: "apiConnect Integration" });
+    await user.click(connectButton);
+    expect(connectModalOpenMock).toBeCalledTimes(1);
   });
 
   test("Searching works successfully", async () => {
@@ -161,7 +121,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -189,7 +148,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -219,7 +177,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -227,7 +184,7 @@ describe("Integration table", () => {
     );
 
     await user.click(screen.getByLabelText("Select all"));
-    await user.click(screen.getByRole("button", { name: "delete Remove" }));
+    await user.click(screen.getByRole("button", { name: "deleteRemove" }));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
 
@@ -244,7 +201,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -268,14 +224,13 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={false}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
       />,
     );
 
-    for (const button of screen.getAllByRole("button", { name: "api Connect Integration" })) {
+    for (const button of screen.getAllByRole("button", { name: "apiConnect Integration" })) {
       expect(button).toBeDisabled();
     }
   });
@@ -293,7 +248,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={false}
         hasDeleteRight={false}
@@ -303,6 +257,6 @@ describe("Integration table", () => {
     expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
 
     await user.click(screen.getByLabelText("Select all"));
-    expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "deleteRemove" })).toBeDisabled();
   });
 });

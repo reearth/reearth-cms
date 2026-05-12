@@ -4,11 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
@@ -61,13 +64,14 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	acGateways := &accountgateway.Container{}
 
 	// Mongo
+	monitor := otelmongo.NewMonitor()
+	if conf.Dev {
+		monitor = combineMonitors(monitor, NewLogMonitor())
+	}
 	co := options.Client().
 		ApplyURI(conf.DB).
 		SetConnectTimeout(time.Second * 10).
-		SetMonitor(otelmongo.NewMonitor())
-	if conf.Dev {
-		co.SetMonitor(NewLogMonitor())
-	}
+		SetMonitor(monitor)
 	client, err := mongo.Connect(ctx, co)
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
@@ -84,9 +88,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
 		if conf.Asset_Public {
-			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl)
+			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		}
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
@@ -94,9 +98,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
 		if conf.Asset_Public {
-			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl)
+			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		}
 		if err != nil {
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
@@ -105,9 +109,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		if conf.Asset_Public {
-			fileRepo, err = fs.NewFile(datafs, conf.Host)
+			fileRepo, err = fs.NewFile(datafs, conf.Host, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase)
+			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase, conf.AssetUploadURLReplacement)
 		}
 	}
 	if err != nil {
@@ -142,6 +146,44 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("task runner: not used")
 	}
 
+	// Policy Checker - configurable via environment
+	var policyChecker gateway.PolicyChecker
+	switch conf.Policy_Checker.Type {
+	case "http":
+		if conf.Policy_Checker.Endpoint == "" {
+			log.Fatalf("policy checker HTTP endpoint is required")
+		}
+		policyChecker = policy.NewHTTPPolicyChecker(
+			conf.Policy_Checker.Endpoint,
+			conf.Policy_Checker.Token,
+			conf.Policy_Checker.Timeout,
+		)
+		log.Infof("policy checker: using HTTP checker with endpoint: %s", conf.Policy_Checker.Endpoint)
+	case "permissive":
+		fallthrough
+	default:
+		policyChecker = policy.NewPermissiveChecker()
+		log.Infof("policy checker: using permissive checker (OSS mode)")
+	}
+	gateways.PolicyChecker = policyChecker
+
+	// Accounts API - External GraphQL client for accounts operations
+	if conf.Account_Api.Enabled && conf.Account_Api.Host != "" {
+		timeout := conf.Account_Api.Timeout
+		if timeout == 0 {
+			timeout = 30 // Default 30 seconds
+		}
+		transport := NewDynamicAuthTransport()
+		gateways.Accounts = account.New(conf.Account_Api.Host, timeout, transport)
+		log.Infof("accounts api: external GraphQL API configured: %s (timeout: %ds)", conf.Account_Api.Host, timeout)
+	} else {
+		log.Infof("accounts api: not configured or disabled")
+	}
+
+	// Job PubSub - In-memory pub/sub for job progress notifications
+	gateways.JobPubSub = memory.NewJobPubSub()
+	log.Infof("job pubsub: in-memory pub/sub initialized")
+
 	return cmsRepos, gateways, acRepos, acGateways
 }
 
@@ -152,5 +194,34 @@ func NewLogMonitor() *event.CommandMonitor {
 		},
 		Succeeded: nil,
 		Failed:    nil,
+	}
+}
+
+func combineMonitors(a, b *event.CommandMonitor) *event.CommandMonitor {
+	return &event.CommandMonitor{
+		Started: func(ctx context.Context, evt *event.CommandStartedEvent) {
+			if a.Started != nil {
+				a.Started(ctx, evt)
+			}
+			if b.Started != nil {
+				b.Started(ctx, evt)
+			}
+		},
+		Succeeded: func(ctx context.Context, evt *event.CommandSucceededEvent) {
+			if a.Succeeded != nil {
+				a.Succeeded(ctx, evt)
+			}
+			if b.Succeeded != nil {
+				b.Succeeded(ctx, evt)
+			}
+		},
+		Failed: func(ctx context.Context, evt *event.CommandFailedEvent) {
+			if a.Failed != nil {
+				a.Failed(ctx, evt)
+			}
+			if b.Failed != nil {
+				b.Failed(ctx, evt)
+			}
+		},
 	}
 }

@@ -1,6 +1,6 @@
 import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
-import { FieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
+import { SchemaFieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
 import {
   BasicOperator,
   BoolOperator,
@@ -12,13 +12,13 @@ import {
   FieldType as ColumnType,
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import { t } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/style";
 
-export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+export type ColorType =
+  | typeof AntdColor.GREY.GREY_0
+  | typeof AntdColor.GREEN.GREEN_5
+  | typeof AntdColor.ORANGE.ORANGE_5;
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
-t("DRAFT");
-t("PUBLIC");
-t("REVIEW");
 
 export type DefaultFilterValueType = {
   operatorType: string;
@@ -26,7 +26,7 @@ export type DefaultFilterValueType = {
   value?: string;
 };
 
-export type FilterType = FieldType | "Person";
+export type FilterType = SchemaFieldType | "Person";
 
 export type DropdownFilterType = {
   dataIndex: string | string[];
@@ -49,7 +49,7 @@ export type Operator =
   | MultipleOperator;
 
 export type ExtendedColumns = StretchColumn<ContentTableField> & {
-  type?: FieldType | "Person";
+  type?: SchemaFieldType | "Person";
   fieldType: ColumnType | "EDIT_ICON" | "commentsCount";
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: TypeProperty;

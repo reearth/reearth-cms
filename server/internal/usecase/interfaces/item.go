@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -16,6 +16,11 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+)
+
+const (
+	MaxImportFileSize    = 100 * 1024 * 1024 // 100 MB
+	MaxImportRecordCount = 50_000
 )
 
 var (
@@ -27,6 +32,8 @@ var (
 	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
 	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
+	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 100MB)"))
+	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 50,000)"))
 )
 
 type ItemFieldParam struct {
@@ -56,6 +63,7 @@ type ImportFormatType string
 const (
 	ImportFormatTypeGeoJSON ImportFormatType = "geoJson"
 	ImportFormatTypeJSON    ImportFormatType = "json"
+	ImportFormatTypeCSV     ImportFormatType = "csv"
 )
 
 func ImportFormatTypeFromString(s string) ImportFormatType {
@@ -64,6 +72,8 @@ func ImportFormatTypeFromString(s string) ImportFormatType {
 		return ImportFormatTypeGeoJSON
 	case "json":
 		return ImportFormatTypeJSON
+	case "csv":
+		return ImportFormatTypeCSV
 	default:
 		return ""
 	}
@@ -114,14 +124,21 @@ type ImportItemsResponse struct {
 	NewFields schema.FieldList
 }
 
-// ExportItemsToCSVResponse contains exported csv data from items
-type ExportItemsToCSVResponse struct {
-	PipeReader *io.PipeReader
+type ImportItemsAsyncParam struct {
+	ModelID      id.ModelID
+	SP           schema.Package
+	Strategy     ImportStrategyType
+	Format       ImportFormatType
+	MutateSchema bool
+	Reader       io.Reader
+	GeoField     *string
 }
 
-type ExportItemsToGeoJSONResponse struct {
-	FeatureCollections *integrationapi.FeatureCollection
-	PageInfo           *usecasex.PageInfo
+type ExportItemParams struct {
+	ModelID       id.ModelID
+	Format        exporters.ExportFormat
+	Options       exporters.ExportOptions
+	SchemaPackage schema.Package
 }
 
 type Item interface {
@@ -130,22 +147,21 @@ type Item interface {
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	FindByAssets(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]item.VersionedList, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
-	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindVersionByID(context.Context, id.ItemID, version.VersionOrRef, *usecase.Operator) (item.Versioned, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
 	Search(context.Context, schema.Package, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	Export(context.Context, ExportItemParams, io.Writer, *usecase.Operator) error
 	ItemStatus(context.Context, id.ItemIDList, *usecase.Operator) (map[id.ItemID]item.Status, error)
 	LastModifiedByModel(context.Context, id.ModelID, *usecase.Operator) (time.Time, error)
 	IsItemReferenced(context.Context, id.ItemID, id.FieldID, *usecase.Operator) (bool, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
-	Delete(context.Context, id.ItemID, *usecase.Operator) error
+	Delete(context.Context, id.ItemID, schema.Package, *usecase.Operator) error
+	BatchDelete(context.Context, id.ItemIDList, schema.Package, *usecase.Operator) (id.ItemIDList, error)
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
+	ImportAsync(context.Context, ImportItemsAsyncParam, *usecase.Operator) (id.JobID, error)
 	TriggerImportJob(context.Context, id.AssetID, id.ModelID, string, string, string, bool, *usecase.Operator) error
-	// ItemsAsCSV exports items data in content to csv file by schema package.
-	ItemsAsCSV(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToCSVResponse, error)
-	// ItemsAsGeoJSON converts items to Geo JSON type given thge schema package.
-	ItemsAsGeoJSON(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToGeoJSONResponse, error)
 }

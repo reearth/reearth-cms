@@ -112,6 +112,17 @@ func filterThreads(ids []id.ThreadID, rows []*thread.Thread) []*thread.Thread {
 	return res
 }
 
+func (r *ThreadRepo) Remove(ctx context.Context, threadID id.ThreadID) error {
+	return r.client.RemoveOne(ctx, bson.M{"id": threadID.String()})
+}
+
+func (r *ThreadRepo) RemoveByIDs(ctx context.Context, ids id.ThreadIDList) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.RemoveAll(ctx, bson.M{"id": bson.M{"$in": ids.Strings()}})
+}
+
 func (r *ThreadRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }

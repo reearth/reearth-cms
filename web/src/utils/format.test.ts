@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { test, expect } from "vitest";
 
-import { dateTimeFormat, bytesFormat, transformDayjsToString } from "./format";
+import { dateTimeFormat, bytesFormat, transformDayjsToString, parseConfigBoolean } from "./format";
 
 dayjs.extend(utc);
 
@@ -38,4 +38,19 @@ test("transformMomentToString function returns formatted string for array of mom
 test("transformMomentToString function returns original value for non-moment objects", () => {
   const value = "2022-01-01T12:00:00";
   expect(transformDayjsToString(value)).toBe(value);
+});
+
+test("toBoolean", () => {
+  expect(parseConfigBoolean(true)).toBe(true);
+  expect(parseConfigBoolean("true")).toBe(true);
+  expect(parseConfigBoolean("TRUE")).toBe(true);
+  expect(parseConfigBoolean("TrUe")).toBe(true);
+  expect(parseConfigBoolean(false)).toBe(false);
+  expect(parseConfigBoolean("false")).toBe(false);
+  expect(parseConfigBoolean("yes")).toBe(false);
+  expect(parseConfigBoolean("1")).toBe(false);
+  expect(parseConfigBoolean("")).toBe(false);
+  expect(parseConfigBoolean("abc")).toBe(false);
+  expect(parseConfigBoolean(null)).toBe(false);
+  expect(parseConfigBoolean(undefined)).toBe(false);
 });

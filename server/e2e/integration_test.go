@@ -1,112 +1,69 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
-	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 )
 
-func createIntegration(e *httpexpect.Expect, name, desc, logoUrl, iType string) (string, *httpexpect.Value) {
-	requestBody := GraphQLRequest{
-		Query: `
-		mutation CreateIntegration(
-		  $name: String!
-		  $description: String
-		  $logoUrl: URL!
-		  $type: IntegrationType!
-		) {
-		  createIntegration(
-			input: { name: $name, description: $description, logoUrl: $logoUrl, type: $type }
-		  ) {
-			integration {
-			  id
-			  name
-			  description
-			  logoUrl
-			  iType
-			  config {
-				token
-			  }
-			}
-		  }
+func TestIntegrationAPI_CORS(t *testing.T) {
+	endpoints := []string{
+		"/api/openapi.json",
+		fmt.Sprintf("/api/%s/projects", wId0.String()),
+	}
+
+	t.Run("specific domain", func(t *testing.T) {
+		e, _, _ := StartServerWithRepos(t, &app.Config{
+			AssetBaseURL:        "https://example.com",
+			Integration_Origins: []string{"https://example.com"},
+			Dev:                 false,
+		}, true, publicAPISeeder)
+
+		for _, endpoint := range endpoints {
+			res := e.OPTIONS(endpoint).
+				WithHeader("Origin", "https://example.com").
+				WithHeader("Access-Control-Request-Method", "GET").
+				Expect().
+				Status(http.StatusNoContent)
+			res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+			res.Header("Access-Control-Allow-Methods").Contains("GET")
 		}
-	  `,
-		Variables: map[string]any{
-			"name":        name,
-			"description": desc,
-			"logoUrl":     logoUrl,
-			"type":        iType,
-		},
-	}
+	})
 
-	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+	t.Run("*", func(t *testing.T) {
+		e, _, _ := StartServerWithRepos(t, &app.Config{
+			AssetBaseURL:        "https://example.com",
+			Integration_Origins: []string{"*"},
+		}, true, publicAPISeeder)
 
-	return res.Path("$.data.createIntegration.integration.id").Raw().(string), res
-}
+		for _, endpoint := range endpoints {
+			res := e.OPTIONS(endpoint).
+				WithHeader("Origin", "https://example.com").
+				WithHeader("Access-Control-Request-Method", "POST").
+				Expect().
+				Status(http.StatusNoContent)
+			res.Header("Access-Control-Allow-Origin").IsEqual("*")
+			res.Header("Access-Control-Allow-Methods").Contains("POST")
+		}
+	})
 
-func regenerateToken(e *httpexpect.Expect, iId string) (string, *httpexpect.Value) {
-	requestBody := GraphQLRequest{
-		Query: `
-		mutation regenerateIntegrationToken($integrationId: ID!) {
-			regenerateIntegrationToken(input: { integrationId: $integrationId }) {
-			  integration {
-				id
-				name
-				description
-				logoUrl
-				iType
-				config {
-					token
-				}
-			  }
-			}
-		  }
-		`,
-		Variables: map[string]any{
-			"integrationId": iId,
-		},
-	}
+	t.Run("specific integration domain in dev mode", func(t *testing.T) {
+		e, _, _ := StartServerWithRepos(t, &app.Config{
+			AssetBaseURL:        "https://example.com",
+			Integration_Origins: []string{"https://example.com"},
+			Dev:                 true,
+		}, true, publicAPISeeder)
 
-	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-
-	return res.Path("$.data.regenerateIntegrationToken.integration.config.token").Raw().(string), res
-}
-
-func TestRegenerateToken(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	iId, integration := createIntegration(e, "test", "test", "https://example.com/logo.png", "Public")
-	oldToken := integration.Object().
-		Value("data").Object().
-		Value("createIntegration").Object().
-		Value("integration").Object().
-		Value("config").Object().
-		Value("token")
-
-	_, updatedIntegration := regenerateToken(e, iId)
-	newToken := updatedIntegration.Object().
-		Value("data").Object().
-		Value("regenerateIntegrationToken").Object().
-		Value("integration").Object().
-		Value("config").Object().
-		Value("token")
-
-	// Check if the token is regenerated
-	newToken.NotEqual(oldToken)
+		for _, endpoint := range endpoints {
+			res := e.OPTIONS(endpoint).
+				WithHeader("Origin", "https://example.com").
+				WithHeader("Access-Control-Request-Method", "POST").
+				Expect().
+				Status(http.StatusNoContent)
+			res.Header("Access-Control-Allow-Origin").IsEqual("*")
+			res.Header("Access-Control-Allow-Methods").Contains("POST")
+		}
+	})
 }

@@ -84,4 +84,10 @@ export type UserRights = {
     update: boolean | null;
     delete: boolean | null;
   };
+  apiKey: {
+    create: boolean;
+    read: boolean;
+    update: boolean;
+    delete: boolean;
+  };
 };

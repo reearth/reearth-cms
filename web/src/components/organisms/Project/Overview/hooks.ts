@@ -1,19 +1,29 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
-  useDeleteModelMutation,
-  useGetModelsQuery,
-  useUpdateModelMutation,
   Model as GQLModel,
-} from "@reearth-cms/gql/graphql-client-api";
+  Role as GQLRole,
+  ProjectAccessibility as GQLProjectAccessibility,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  DeleteModelDocument,
+  GetModelsDocument,
+  UpdateModelDocument,
+} from "@reearth-cms/gql/__generated__/model.generated";
+import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
+
+import { useExportContent } from "../hooks/useExportContent";
+import { useExportSchema } from "../hooks/useExportSchema";
 
 export default () => {
   const [currentProject] = useProject();
@@ -22,9 +32,19 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
   const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.model.delete, [userRights?.model.delete]);
+  const hasSchemaCreateRight = useMemo(
+    () => !!userRights?.schema.create,
+    [userRights?.schema.create],
+  );
+  const hasContentCreateRight = useMemo(
+    () => !!userRights?.content.create,
+    [userRights?.content.create],
+  );
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const [searchedModelName, setSearchedModelName] = useState<string>("");
+  const [modelSort, setModelSort] = useState<SortBy>("updatedat");
   const t = useT();
   const navigate = useNavigate();
 
@@ -36,16 +56,52 @@ export default () => {
     handleModelKeyCheck,
   } = useModelHooks({});
 
-  const { data } = useGetModelsQuery({
-    variables: { projectId: currentProject?.id ?? "", pagination: { first: 100 } },
-    skip: !currentProject?.id,
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument, {
+    refetchQueries: ["GetProject"],
   });
 
-  const models = useMemo(() => {
-    return data?.models.nodes
-      ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
-      .filter((model): model is Model => !!model);
-  }, [data?.models.nodes]);
+  const handleProjectUpdate = useCallback(
+    async (data: UpdateProjectInput) => {
+      if (!data.projectId) return;
+      const Project = await updateProjectMutation({
+        variables: {
+          projectId: data.projectId,
+          name: data.name,
+          description: data.description,
+          readme: data.readme,
+          license: data.license,
+          alias: data.alias,
+          requestRoles: data.requestRoles as GQLRole[],
+          accessibility: data.accessibility as GQLProjectAccessibility,
+        },
+      });
+      if (Project.error || !Project.data?.updateProject) {
+        Notification.error({ message: t("Failed to update Project.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated Project!") });
+    },
+    [updateProjectMutation, t],
+  );
+
+  const { data } = useQuery(GetModelsDocument, {
+    variables: {
+      projectId: currentProject?.id ?? "",
+      keyword: searchedModelName,
+      sort: { key: modelSort, reverted: false },
+      pagination: { first: 100 },
+    },
+    skip: !currentProject?.id,
+    fetchPolicy: "cache-and-network",
+  });
+
+  const models = useMemo(
+    () =>
+      data?.models.nodes
+        .map(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
+        .filter(model => !!model) ?? [],
+    [data?.models.nodes],
+  );
 
   const handleModelUpdateModalOpen = useCallback(
     async (model: Model) => {
@@ -68,7 +124,7 @@ export default () => {
     setModelDeletionModalShown(false);
   }, [setSelectedModel, setModelDeletionModalShown]);
 
-  const [deleteModel, { loading: deleteLoading }] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteLoading }] = useMutation(DeleteModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -76,7 +132,7 @@ export default () => {
     async (modelId?: string) => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
-      if (res.errors || !res.data?.deleteModel) {
+      if (res.error || !res.data?.deleteModel) {
         Notification.error({ message: t("Failed to delete model.") });
       } else {
         Notification.success({ message: t("Successfully deleted model!") });
@@ -86,7 +142,7 @@ export default () => {
     [deleteModel, handleModelDeletionModalClose, t],
   );
 
-  const [updateNewModel] = useUpdateModelMutation({
+  const [updateNewModel] = useMutation(UpdateModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -99,10 +155,9 @@ export default () => {
           name: data.name,
           description: data.description,
           key: data.key,
-          public: false,
         },
       });
-      if (model.errors || !model.data?.updateModel) {
+      if (model.error || !model.data?.updateModel) {
         Notification.error({ message: t("Failed to update model.") });
         return;
       }
@@ -112,10 +167,49 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
+  const { handleExportSchema, exportSchemaLoading } = useExportSchema();
+
+  const exportLoading = useMemo<boolean>(
+    () => exportContentLoading || exportSchemaLoading,
+    [exportContentLoading, exportSchemaLoading],
+  );
+
+  const handleModelExport = useCallback(
+    async (
+      modelId?: string,
+      format?: ExportFormat,
+      geometryFieldsCount?: number,
+    ): Promise<void> => {
+      if (!modelId || !format) return;
+
+      if (format === ExportFormat.Schema) {
+        await handleExportSchema(modelId);
+      } else {
+        await handleContentExportClick(modelId, format, geometryFieldsCount);
+      }
+    },
+    [handleContentExportClick, handleExportSchema],
+  );
+
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
+
   const handleSchemaNavigation = useCallback(
     (modelId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/schema/${modelId}`,
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
+  const handleImportSchemaNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/schema/${modelId}`,
+        { state: { isImportModalOpen: true } },
       );
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
@@ -130,10 +224,28 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleImportContentNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+        { state: { isImportModalOpen: true } },
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
   const handleModelModalReset = useCallback(() => {
     setSelectedModel(undefined);
     handleModelModalClose();
   }, [handleModelModalClose]);
+
+  const handleModelSearch = useCallback((value: string) => {
+    setSearchedModelName(value);
+  }, []);
+
+  const handleModelSort = useCallback((sort: SortBy) => {
+    setModelSort(sort);
+  }, []);
 
   return {
     currentProject,
@@ -142,11 +254,20 @@ export default () => {
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasSchemaCreateRight,
+    hasContentCreateRight,
+    handleProjectUpdate,
+    handleModelSearch,
+    handleModelSort,
+    handleHomeNavigation,
     handleSchemaNavigation,
+    handleImportSchemaNavigation,
     handleContentNavigation,
+    handleImportContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,
@@ -155,6 +276,7 @@ export default () => {
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   };
 };

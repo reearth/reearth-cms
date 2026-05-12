@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"cloud.google.com/go/pubsub"
+	"cloud.google.com/go/pubsub/v2"
 	"github.com/reearth/reearth-cms/worker/pkg/asset"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
@@ -34,7 +34,7 @@ func (c *PubSub) NotifyAssetDecompressed(ctx context.Context, assetID string, st
 		return err
 	}
 
-	t := client.Topic(c.topic)
+	t := client.Publisher(c.topic)
 	result := t.Publish(ctx, &pubsub.Message{
 		Data: body,
 	})

@@ -3,19 +3,18 @@ import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
   StretchColumn,
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../types";
 
@@ -65,7 +64,8 @@ const LinkItemModal: React.FC<Props> = ({
   onCheckItemReference,
 }) => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm } = useModal();
+
   const { value, pagination, handleInput } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
@@ -107,7 +107,6 @@ const LinkItemModal: React.FC<Props> = ({
           content: t(
             "Are you going to refer to it? The previous reference will be canceled automatically",
           ),
-          icon: <Icon icon="exclamationCircle" />,
           onOk() {
             handleChange(item.id);
           },
@@ -162,12 +161,6 @@ const LinkItemModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy} size="small" />
-            {item.createdBy}
-          </Space>
-        ),
       },
       {
         title: t("Created At"),
@@ -204,12 +197,12 @@ const LinkItemModal: React.FC<Props> = ({
       open={visible}
       title={linkItemModalTitle}
       centered
-      width="70vw"
+      width={CustomToken.MODAL.WIDTH_LG}
       footer={null}
       onCancel={onLinkItemModalCancel}
       styles={{
         body: {
-          height: "70vh",
+          height: CustomToken.MODAL.HEIGHT_LG,
         },
       }}>
       <ResizableProTable
@@ -235,7 +228,7 @@ const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

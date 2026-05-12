@@ -49,32 +49,10 @@ describe("Comments panel", () => {
       />,
     );
 
-    expect(screen.getByText(name.charAt(0))).toBeVisible();
     expect(screen.queryByLabelText("api")).not.toBeInTheDocument();
-    expect(screen.getByText(name)).toBeVisible();
+    expect(screen.getByText(name + " (Myself)")).toBeVisible();
     expect(screen.getByText(fromNow)).toBeVisible();
     expect(screen.getByText(content)).toBeVisible();
-  });
-
-  test("Integration thumbnail is visible successfully", async () => {
-    render(
-      <Comment
-        userId={userId}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        comment={{
-          id: commentId,
-          author: { id: userId, name, type: "Integration" },
-          content,
-          createdAt,
-        }}
-        onCommentUpdate={onCommentUpdate}
-        onCommentDelete={onCommentDelete}
-      />,
-    );
-
-    expect(screen.getByText(name.charAt(0))).toBeVisible();
-    expect(screen.getByLabelText("api")).toBeVisible();
   });
 
   test("Accurate creation time is visible when hovering createdAt text successfully", async () => {

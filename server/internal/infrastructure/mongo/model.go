@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -12,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -82,7 +84,7 @@ func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination 
 	}, nil, pagination)
 }
 
-func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, sort *model.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k *string, sort *usecasex.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -91,13 +93,13 @@ func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k
 		"project": pid.String(),
 	}
 
-	if k != "" {
+	if k != nil && *k != "" {
 		filter["name"] = bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(k)), Options: "i"},
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*k)), Options: "i"},
 		}
 	}
 
-	return r.paginate(ctx, filter, sortModels(sort), pagination)
+	return r.paginate(ctx, filter, normalize(sort), pagination)
 }
 
 func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {
@@ -208,24 +210,24 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 	return res
 }
 
-func sortModels(ms *model.Sort) *usecasex.Sort {
-	res := usecasex.Sort{Key: "order", Reverted: false}
+func normalize(ms *usecasex.Sort) *usecasex.Sort {
 	if ms == nil {
-		return &res
+		return &usecasex.Sort{Key: "order", Reverted: true}
 	}
-
-	switch ms.Column {
-	case model.ColumnCreatedAt:
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(ms.Key)),
+		Reverted: ms.Reverted,
+	}
+	switch res.Key {
+	case "createdat", "created_at":
 		res.Key = "id"
-	case model.ColumnUpdatedAt:
+	case "updated_at":
 		res.Key = "updatedat"
 	}
-
-	if ms.Direction == model.DirectionDesc {
-		res.Reverted = true
+	if !lo.Contains([]string{"id", "name", "description", "key", "project", "schema", "metadata", "updatedat", "order"}, res.Key) {
+		res.Key = "order"
 	}
-
-	return &res
+	return res
 }
 
 func (r *Model) readFilter(filter interface{}) interface{} {

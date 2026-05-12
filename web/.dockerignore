@@ -2,6 +2,7 @@
 
 !docker/
 !src/
+!public/
 
 !index.html
 !i18next-parser.config.js

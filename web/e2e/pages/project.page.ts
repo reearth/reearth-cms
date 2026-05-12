@@ -1,0 +1,354 @@
+// e2e/pages/project.page.ts
+import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+
+import { BasePage } from "./base.page";
+
+export class ProjectPage extends BasePage {
+  readonly modelName = "e2e model name";
+  // Navigation menu items
+  get schemaMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Schema" });
+  }
+  get contentMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Content" });
+  }
+  get assetMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Asset" });
+  }
+
+  // Common buttons
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+
+  // Overview page - Model management
+  get noModelsYetText(): Locator {
+    return this.getByText("No Models yet");
+  }
+  get newModelButtonFirst(): Locator {
+    return this.getByRole("button", { name: "plus New Model" }).first();
+  }
+  get newModelButtonLast(): Locator {
+    return this.getByRole("button", { name: "plus New Model" }).last();
+  }
+  get newModelLabelText(): Locator {
+    return this.getByLabel("New Model").getByText("New Model");
+  }
+  get modelDescriptionInput(): Locator {
+    return this.getByLabel("Model description");
+  }
+  get modelNameInput(): Locator {
+    return this.getByLabel("Model name");
+  }
+  get modelKeyInput(): Locator {
+    return this.getByLabel("Model key");
+  }
+  get modelsMenuItem(): Locator {
+    return this.getByText("Models").first();
+  }
+
+  // ModelCard action icons (dropdown triggers)
+  get modelFileOperationIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationIcon);
+  }
+  get modelMiscIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon);
+  }
+
+  // ModelCard > Misc dropdown menu items
+  get modelMiscEdit(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit);
+  }
+  get modelMiscDelete(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete);
+  }
+
+  // ModelCard > File Operation > Export menu items
+  get modelFileOperationExport(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExport);
+  }
+  get exportSchemaText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportSchema);
+  }
+  get exportContentSubmenu(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContent);
+  }
+  get exportContentJSONText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentJSON);
+  }
+  get exportContentCSVText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentCSV);
+  }
+  get exportContentGeoJSONText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON);
+  }
+
+  // ModelCard > File Operation > Import menu items
+  get modelFileOperationImport(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
+  }
+  get importSchemaText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
+  }
+  get importContentText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
+  }
+  get deleteModelButton(): Locator {
+    return this.getByRole("button", { name: "Delete Model" });
+  }
+  get rootElement(): Locator {
+    return this.locator("#root");
+  }
+  get dialogNewModelText(): Locator {
+    return this.getByRole("dialog").getByText("New Model");
+  }
+
+  // Export modal locators
+  get csvExportWarningText(): Locator {
+    return this.getByText("CSV export only supports simple fields");
+  }
+  get csvExportRelationsWarningText(): Locator {
+    return this.getByText("Relations, arrays, objects, and geometry fields are not included.");
+  }
+  get exportCSVButton(): Locator {
+    return this.getByRole("button", { name: "Export CSV" });
+  }
+  get cancelButton(): Locator {
+    return this.getByRole("button", { name: "Cancel" });
+  }
+  get cannotExportGeoJSONText(): Locator {
+    return this.getByText("Cannot export GeoJSON");
+  }
+  get noGeometryFieldText(): Locator {
+    return this.getByText(
+      "No Geometry field was found in this model, so GeoJSON export is not available.",
+    );
+  }
+  get multipleGeometryFieldsText(): Locator {
+    return this.getByText("Multiple Geometry fields detected");
+  }
+  get multipleGeometryWarningText(): Locator {
+    return this.getByText("This model has multiple Geometry fields.");
+  }
+  get geoJSONSingleFieldWarningText(): Locator {
+    return this.getByText("GeoJSON format supports only one geometry field.");
+  }
+  get exportAnywayButton(): Locator {
+    return this.getByRole("button", { name: "Export Anyway" });
+  }
+
+  // Dynamic locators for model-specific content
+  modelTitleByName(name: string): Locator {
+    return this.getByTitle(name);
+  }
+  modelKeyTextByKey(key: string): Locator {
+    return this.getByText(`#${key}`);
+  }
+  modelMenuItemByName(name: string): Locator {
+    return this.getByRole("menuitem", { name }).locator("span");
+  }
+
+  // Simple model menu item for clicking
+  modelMenuItemClick(name: string): Locator {
+    return this.getByRole("menuitem", { name });
+  }
+
+  // Project Settings page locators
+  get deleteProjectButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__DangerZone__DeleteProjectButton);
+  }
+  get confirmDeleteProjectButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__DangerZone__ConfirmDeleteProjectButton);
+  }
+  get settingsMenuItem(): Locator {
+    return this.getByText("Settings").first();
+  }
+  get nameInput(): Locator {
+    return this.getByLabel("Name");
+  }
+  get descriptionInput(): Locator {
+    return this.getByLabel("Description");
+  }
+  get formSaveChangesButton(): Locator {
+    return this.locator("form").getByRole("button", { name: "Save changes" });
+  }
+  get saveChangesButtonSecond(): Locator {
+    return this.getByRole("button", { name: "Save changes" }).nth(1);
+  }
+  get ownerSwitch(): Locator {
+    return this.getByRole("row", { name: "Owner" }).getByRole("switch");
+  }
+  get banner(): Locator {
+    return this.getByRole("banner");
+  }
+
+  // Dynamic project settings locators
+  projectSettingsHeading(projectName: string): Locator {
+    return this.getByRole("heading", { name: `Project Settings / ${projectName}` });
+  }
+
+  // Accessibility page locators
+  get accessibilityMenuItem(): Locator {
+    return this.getByText("Accessibility");
+  }
+  get accessibilityHeadingFirst(): Locator {
+    return this.getByText("Accessibility").first();
+  }
+  get accessApiText(): Locator {
+    return this.getByText("Access API").first();
+  }
+  get apiKeyText(): Locator {
+    return this.getByText("API Key").first();
+  }
+  get newKeyButton(): Locator {
+    return this.getByRole("button", { name: "New Key" });
+  }
+  get changeProjectVisibilityButton(): Locator {
+    return this.getByRole("button", { name: "Change project visibility" });
+  }
+
+  // ========== ModelCard Action Methods ==========
+
+  async openModelEditModal(): Promise<void> {
+    await this.modelMiscIcon.click();
+    await this.modelMiscEdit.click();
+  }
+
+  async openModelDeleteModal(): Promise<void> {
+    await this.modelMiscIcon.click();
+    await this.modelMiscDelete.click();
+    await this.getByRole("button", { name: "Delete model" }).click();
+  }
+
+  async clickExportSchema(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportSchemaText.click();
+  }
+
+  async clickExportContentJSON(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentJSONText.click();
+  }
+
+  async clickExportContentCSV(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentCSVText.click();
+  }
+
+  async clickExportContentGeoJSON(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentGeoJSONText.click();
+  }
+
+  async clickImportSchema(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationImport.click();
+    await this.importSchemaText.click();
+  }
+
+  async clickImportContent(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationImport.click();
+    await this.importContentText.click();
+  }
+
+  // ========== Action Methods (POM Pattern) ==========
+
+  async createProject(name: string): Promise<void> {
+    const newProjectButton = this.getByRole("button", { name: "plus New Project" }).first();
+    await expect(newProjectButton).toBeVisible();
+    await newProjectButton.click();
+    await expect(this.getByRole("dialog")).toBeVisible();
+    await this.getByRole("dialog").locator("#name").fill(name);
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
+  }
+
+  async gotoProject(name: string): Promise<void> {
+    const projectLink = this.getByText(name, { exact: true });
+    await expect(projectLink).toBeVisible();
+    await projectLink.click();
+    const projectName = this.locator(".ant-layout-header p").nth(2);
+    await expect(projectName).toHaveText(name);
+  }
+
+  async deleteProject(): Promise<void> {
+    try {
+      // Close any open modals/dialogs before attempting to delete
+      const modalWrap = this.page.locator(".ant-modal-wrap");
+      const isModalVisible = await modalWrap
+        .first()
+        .isVisible({ timeout: 500 })
+        .catch(() => false);
+
+      if (isModalVisible) {
+        const modalStyle = await modalWrap
+          .first()
+          .evaluate(el => window.getComputedStyle(el).pointerEvents)
+          .catch(() => "auto");
+
+        if (modalStyle !== "none") {
+          const modalClose = this.page.locator(".ant-modal-close");
+          const isCloseButtonVisible = await modalClose
+            .first()
+            .isVisible({ timeout: 500 })
+            .catch(() => false);
+
+          if (isCloseButtonVisible) {
+            try {
+              await modalClose.first().click({ timeout: 2_000 });
+              await modalWrap
+                .first()
+                .waitFor({ state: "hidden", timeout: 2_000 })
+                .catch(() => {});
+            } catch {
+              await this.page.keyboard.press("Escape");
+              await modalWrap
+                .first()
+                .waitFor({ state: "hidden", timeout: 2_000 })
+                .catch(() => {});
+            }
+          } else {
+            await this.page.keyboard.press("Escape");
+            await modalWrap
+              .first()
+              .waitFor({ state: "hidden", timeout: 2_000 })
+              .catch(() => {});
+          }
+        }
+      }
+
+      await this.page.waitForLoadState("networkidle");
+      await expect(this.getByText("Settings").first()).toBeVisible();
+      await this.getByText("Settings").first().click();
+      await this.deleteProjectButton.click();
+      await this.clickAndExpectSuccess(this.confirmDeleteProjectButton);
+    } catch (error) {
+      console.warn(`[E2E] deleteProject cleanup failed: ${error}`);
+    }
+  }
+
+  async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
+    await this.getByRole("button", { name: "plus New Model" }).first().click();
+    await expect(this.getByLabel("Model name")).toBeVisible();
+    await this.getByLabel("Model name").fill(name);
+    await expect(this.getByLabel("Model name")).toHaveValue(name);
+    if (key) {
+      await this.getByLabel("Model key").fill(key);
+    }
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
+  }
+
+  projectCardDescription(description: string): Locator {
+    return this.locator(".ant-card").getByText(description);
+  }
+}

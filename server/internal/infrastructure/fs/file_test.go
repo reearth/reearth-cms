@@ -18,17 +18,17 @@ import (
 )
 
 func TestNewFile(t *testing.T) {
-	f, err := NewFile(mockFs(), "")
+	f, err := NewFile(mockFs(), "", false)
 	assert.NoError(t, err)
 	assert.NotNil(t, f)
 
-	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk")
+	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk", false)
 	assert.Equal(t, err, ErrInvalidBaseURL)
 	assert.Nil(t, f1)
 }
 
 func TestFile_ReadAsset(t *testing.T) {
-	f, _ := NewFile(mockFs(), "")
+	f, _ := NewFile(mockFs(), "", false)
 	u := "5130c89f-8f67-4766-b127-49ee6796d464"
 
 	r, h, err := f.ReadAsset(context.Background(), u, "xxx.txt", nil)
@@ -61,7 +61,7 @@ func TestFile_ReadAsset(t *testing.T) {
 
 func TestFile_GetAssetFiles(t *testing.T) {
 	fs := mockFs()
-	f, _ := NewFile(fs, "")
+	f, _ := NewFile(fs, "", false)
 
 	files, err := f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464")
 	assert.NoError(t, err)
@@ -73,7 +73,7 @@ func TestFile_GetAssetFiles(t *testing.T) {
 
 func TestFile_UploadAsset(t *testing.T) {
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", false)
 
 	u, _, err := f.UploadAsset(context.Background(), &file.File{
 		Name:    "aaa.txt",
@@ -109,7 +109,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u := newUUID()
 	n := "aaa.txt"
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", false)
 	err := f.DeleteAsset(context.Background(), u, n)
 	assert.NoError(t, err)
 
@@ -119,7 +119,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u1 := ""
 	n1 := ""
 	fs1 := mockFs()
-	f1, _ := NewFile(fs1, "https://example.com/assets")
+	f1, _ := NewFile(fs1, "https://example.com/assets", false)
 	err1 := f1.DeleteAsset(context.Background(), u1, n1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }
@@ -162,7 +162,7 @@ func TestFile_DeleteAssets(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			fs := mockFs()
-			f, _ := NewFile(fs, "xxx.txt")
+			f, _ := NewFile(fs, "xxx.txt", false)
 
 			err := f.DeleteAssets(context.Background(), tt.args.ids)
 			assert.Equal(t, tt.want, err)
@@ -190,6 +190,100 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 	u1 := "xxxxxx"
 	assert.Equal(t, false, IsValidUUID(u1))
+}
+
+func TestFile_Delete(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		filename string
+		wantErr  error
+	}{
+		{
+			name:     "deletes existing file",
+			filename: filepath.Join("published", "s.json"),
+			wantErr:  nil,
+		},
+		{
+			name:     "no error for non-existent file",
+			filename: "nonexistent.txt",
+			wantErr:  nil,
+		},
+		{
+			name:     "empty filename returns error",
+			filename: "",
+			wantErr:  gateway.ErrFailedToUploadFile,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fs := mockFs()
+			f, _ := NewFile(fs, "https://example.com", false)
+
+			err := f.Delete(context.Background(), tt.filename)
+
+			if tt.wantErr != nil {
+				assert.Same(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+				if tt.filename != "" {
+					_, statErr := fs.Stat(tt.filename)
+					assert.ErrorIs(t, statErr, os.ErrNotExist)
+				}
+			}
+		})
+	}
+}
+
+func TestFile_ListByPrefix(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		prefix   string
+		wantLen  int
+		wantPaths []string
+	}{
+		{
+			name:      "matches files with given prefix",
+			prefix:    filepath.Join("published", "s"),
+			wantLen:   1,
+			wantPaths: []string{filepath.Join("published", "s.json")},
+		},
+		{
+			name:    "returns multiple matching files",
+			prefix:  filepath.Join("assets", "51"),
+			wantLen: 2,
+		},
+		{
+			name:    "no matches returns empty slice",
+			prefix:  "no-such-prefix",
+			wantLen: 0,
+		},
+		{
+			name:    "empty prefix matches all files",
+			prefix:  "",
+			wantLen: 4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			f, _ := NewFile(mockFs(), "https://example.com", false)
+
+			result, err := f.ListByPrefix(context.Background(), tt.prefix)
+
+			assert.NoError(t, err)
+			assert.Len(t, result, tt.wantLen)
+			for _, want := range tt.wantPaths {
+				assert.Contains(t, result, want)
+			}
+		})
+	}
 }
 
 func mockFs() afero.Fs {

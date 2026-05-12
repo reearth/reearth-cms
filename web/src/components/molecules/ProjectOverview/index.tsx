@@ -4,53 +4,72 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+import { SortBy, UpdateProjectInput } from "../Workspace/types";
 
 import ModelCard from "./ModelCard";
+import ProjectHeader from "./ProjectHeader";
 
 type Props = {
-  projectName?: string;
-  projectDescription?: string;
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasSchemaCreateRight: boolean;
+  hasContentCreateRight: boolean;
+  exportLoading?: boolean;
+  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  onModelSearch: (value: string) => void;
+  onModelSort: (sort: SortBy) => void;
   onModelModalOpen: () => void;
+  onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
+  onImportSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
+  onImportContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
+  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
 };
 
 const ProjectOverview: React.FC<Props> = ({
-  projectName,
-  projectDescription,
   models,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  hasSchemaCreateRight,
+  hasContentCreateRight,
+  exportLoading,
+  onModelSearch,
+  onModelSort,
   onModelModalOpen,
   onSchemaNavigate,
+  onImportSchemaNavigate,
   onContentNavigate,
+  onImportContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
+  onModelExport,
 }) => {
   const t = useT();
 
   return (
-    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
-      <ContentSection
-        title={t("Models")}
-        headerActions={
-          <Button
-            type="primary"
-            icon={<Icon icon="plus" />}
-            onClick={onModelModalOpen}
-            disabled={!hasCreateRight}>
-            {t("New Model")}
-          </Button>
-        }>
+    <InnerContent
+      title={t("Models")}
+      extra={
+        <Button
+          type="primary"
+          icon={<Icon icon="plus" />}
+          onClick={onModelModalOpen}
+          disabled={!hasCreateRight}>
+          {t("New Model")}
+        </Button>
+      }>
+      <ContentSection>
+        <ProjectHeader onModelSearch={onModelSearch} onModelSort={onModelSort} />
         {models?.length ? (
           <GridArea>
             {models.map(m => (
@@ -59,10 +78,16 @@ const ProjectOverview: React.FC<Props> = ({
                 model={m}
                 hasUpdateRight={hasUpdateRight}
                 hasDeleteRight={hasDeleteRight}
+                hasSchemaCreateRight={hasSchemaCreateRight}
+                hasContentCreateRight={hasContentCreateRight}
+                exportLoading={exportLoading}
                 onSchemaNavigate={onSchemaNavigate}
+                onImportSchemaNavigate={onImportSchemaNavigate}
                 onContentNavigate={onContentNavigate}
+                onImportContentNavigate={onImportContentNavigate}
                 onModelDeletionModalOpen={onModelDeletionModalOpen}
                 onModelUpdateModalOpen={onModelUpdateModalOpen}
+                onModelExport={onModelExport}
               />
             ))}
           </GridArea>
@@ -94,8 +119,9 @@ const ProjectOverview: React.FC<Props> = ({
 export default ProjectOverview;
 
 const GridArea = styled.div`
+  margin-top: ${AntdToken.SPACING.SM}px;
   display: grid;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   justify-content: space-between;
 `;
@@ -105,24 +131,24 @@ const Placeholder = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
 `;
 
 const Heading = styled.span`
-  font-size: 16px;
-  font-weight: 500;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  gap: ${AntdToken.SPACING.SM}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Actions = styled.div`
   display: flex;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   align-items: center;
 `;

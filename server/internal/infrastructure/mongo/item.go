@@ -144,6 +144,13 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
+func (r *Item) CountByModel(ctx context.Context, modelID id.ModelID) (int, error) {
+	count, err := r.client.Count(ctx, r.readFilter(bson.M{
+		"modelid": modelID.String(),
+	}), version.Eq(version.Latest.OrVersion()))
+	return int(count), err
+}
+
 func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
 	if al.Len() == 0 {
 		return nil, nil
@@ -225,6 +232,17 @@ func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, v
 
 func (r *Item) Remove(ctx context.Context, id id.ItemID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
+}
+
+func (r *Item) BatchRemove(ctx context.Context, ids id.ItemIDList) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.RemoveMany(ctx, r.writeFilter(bson.M{"id": bson.M{"$in": ids.Strings()}}))
+}
+
+func (r *Item) RemoveByModel(ctx context.Context, modelID id.ModelID) error {
+	return r.client.RemoveMany(ctx, r.writeFilter(bson.M{"modelid": modelID.String()}))
 }
 
 func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bool) error {

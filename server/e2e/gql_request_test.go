@@ -303,11 +303,11 @@ func TestRequestFlow(t *testing.T) {
 
 	// 1- create public project
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", true)
+	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", false, []string{})
 
 	// 2- create public model
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"), true)
+	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"))
 
 	fid, _ := createField(e, mId, "text", "text", "text",
 		false, false, false, false, "Text",
@@ -329,7 +329,8 @@ func TestRequestFlow(t *testing.T) {
 	ver2 := i1.Path("$.data.updateItem.item.version").Raw().(string)
 
 	// check public item: should return no results
-	res := e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res := e.GET("/api/p/{workspace}/{project}/{model}", "test-workspace", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -365,15 +366,25 @@ func TestRequestFlow(t *testing.T) {
 	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC_DRAFT")
 
 	// check public item: should return version 2
-	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res = e.GET("/api/p/{workspace}/{project}/{model}", "test-workspace", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
+	v2Result0 := res.Object().Value("results").Array().Value(0).Object()
+	v2CreatedAt := v2Result0.Value("$createdAt").Raw()
+	v2UpdatedAt := v2Result0.Value("$updatedAt").Raw()
+	v2CreatedBy := v2Result0.Value("$createdBy").Raw()
+	v2UpdatedBy := v2Result0.Value("$updatedBy").Raw()
 	res.IsEqual(map[string]any{
 		"results": []map[string]any{
 			{
-				"id":   iid1,
-				"text": "v2",
+				"id":         iid1,
+				"text":       "v2",
+				"$createdAt": v2CreatedAt,
+				"$createdBy": v2CreatedBy,
+				"$updatedAt": v2UpdatedAt,
+				"$updatedBy": v2UpdatedBy,
 			},
 		},
 		"totalCount": 1,
@@ -405,15 +416,25 @@ func TestRequestFlow(t *testing.T) {
 	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC")
 
 	// check public item: should return version 3
-	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res = e.GET("/api/p/{workspace}/{project}/{model}", "test-workspace", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
+	v3Result0 := res.Object().Value("results").Array().Value(0).Object()
+	v3CreatedAt := v3Result0.Value("$createdAt").Raw()
+	v3UpdatedAt := v3Result0.Value("$updatedAt").Raw()
+	v3CreatedBy := v3Result0.Value("$createdBy").Raw()
+	v3UpdatedBy := v3Result0.Value("$updatedBy").Raw()
 	res.IsEqual(map[string]any{
 		"results": []map[string]any{
 			{
-				"id":   iid1,
-				"text": "v3",
+				"id":         iid1,
+				"text":       "v3",
+				"$createdAt": v3CreatedAt,
+				"$createdBy": v3CreatedBy,
+				"$updatedAt": v3UpdatedAt,
+				"$updatedBy": v3UpdatedBy,
 			},
 		},
 		"totalCount": 1,

@@ -6,6 +6,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type RequestOptionsData = {
   role: string;
@@ -106,26 +107,30 @@ const RequestOptions: React.FC<Props> = ({
 
   return (
     <>
-      <SeondaryText>
+      <SecondaryText>
         {t("If this option is chosen, all new model within the project will default follow it.")}
-      </SeondaryText>
+      </SecondaryText>
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
-      <Button type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
+      <StyledButton type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
         {t("Save changes")}
-      </Button>
+      </StyledButton>
     </>
   );
 };
 
 export default RequestOptions;
 
-const SeondaryText = styled.div`
-  color: #00000073;
+const SecondaryText = styled.div`
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const TableWrapper = styled.div`
-  margin: 24px 0;
+  margin: ${AntdToken.SPACING.LG}px 0;
   max-width: 400px;
+`;
+
+const StyledButton = styled(Button)`
+  width: fit-content;
 `;
