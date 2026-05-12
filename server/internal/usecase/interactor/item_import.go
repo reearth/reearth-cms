@@ -80,7 +80,8 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return res.Into(), interfaces.ErrOperationDenied
 	}
 
-	param.Reader = io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1)
+	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
+	param.Reader = lr
 
 	prj, err := i.repos.Project.FindByID(ctx, s.Project())
 	if err != nil {
@@ -124,6 +125,9 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		for {
 			token, err := decoder.Token()
 			if err != nil {
+				if lr.N == 0 {
+					return res.Into(), interfaces.ErrImportFileTooLarge
+				}
 				return res.Into(), fmt.Errorf("error reading token: %v", err)
 			}
 			if str, ok := token.(string); ok && str == "features" {
@@ -135,6 +139,9 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 	// Read the opening bracket of array
 	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
 		if err != nil {
+			if lr.N == 0 {
+				return res.Into(), interfaces.ErrImportFileTooLarge
+			}
 			return res.Into(), fmt.Errorf("error reading array start: %v", err)
 		}
 		return res.Into(), fmt.Errorf("expected array start, got %v", t)
@@ -152,7 +159,13 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 
 		var obj map[string]any
 		if err := decoder.Decode(&obj); err != nil {
+			if lr.N == 0 {
+				return res.Into(), interfaces.ErrImportFileTooLarge
+			}
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+		if lr.N == 0 {
+			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
 		jsonChunk = append(jsonChunk, obj)
 
