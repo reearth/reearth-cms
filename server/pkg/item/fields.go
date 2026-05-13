@@ -1,10 +1,11 @@
 package item
 
 import (
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Fields []*Field

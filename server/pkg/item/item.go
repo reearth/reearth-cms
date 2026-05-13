@@ -1,6 +1,7 @@
 package item
 
 import (
+	"slices"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {

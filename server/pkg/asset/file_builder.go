@@ -3,9 +3,8 @@ package asset
 import (
 	"mime"
 	"path"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 type FileBuilder struct {
