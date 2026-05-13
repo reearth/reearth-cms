@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/hellofresh/health-go/v5"
@@ -126,7 +127,7 @@ func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *He
 func workerHealthURL(base string) string {
 	u, err := url.JoinPath(base, "health")
 	if err != nil {
-		return base + "/health"
+		return strings.TrimRight(base, "/") + "/health"
 	}
 	return u
 }
