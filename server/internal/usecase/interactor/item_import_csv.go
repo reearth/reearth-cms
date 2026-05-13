@@ -22,7 +22,8 @@ import (
 
 // importCSV handles CSV format import (synchronous)
 func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	reader := csv.NewReader(param.Reader)
+	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
+	reader := csv.NewReader(lr)
 
 	// Read header row
 	headers, err := reader.Read()
@@ -47,6 +48,10 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 		}
 		if err != nil {
 			return res.Into(), fmt.Errorf("error reading CSV row: %v", err)
+		}
+
+		if lr.N == 0 {
+			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
 
 		count++
@@ -92,7 +97,8 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	reader := csv.NewReader(param.Reader)
+	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
+	reader := csv.NewReader(lr)
 
 	// Read header row
 	headers, err := reader.Read()
@@ -115,6 +121,9 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		}
 		if err != nil {
 			return res.Into(), fmt.Errorf("error reading CSV row: %v", err)
+		}
+		if lr.N == 0 {
+			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
 		allRows = append(allRows, record)
 	}
