@@ -2,10 +2,10 @@ package asset
 
 import (
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type File struct {

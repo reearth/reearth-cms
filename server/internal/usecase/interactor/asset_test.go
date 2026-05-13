@@ -1251,7 +1251,7 @@ func TestAsset_Update(t *testing.T) {
 	a1 := asset.New().ID(aid1).Project(pid1).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(thid).MustBuild()
 	a1Updated := asset.New().ID(aid1).Project(pid1).UUID(a1.UUID()).
-		CreatedByUser(uid).Size(1000).Thread(thid).Type(&pti).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(thid).Type(&pti).UpdatedByUser(&uid).MustBuild()
 
 	pid2 := id.NewProjectID()
 	aid2 := id.NewAssetID()
@@ -1425,7 +1425,15 @@ func TestAsset_Update(t *testing.T) {
 			assert.NoError(t, err)
 			// assert always fails on comparing functions
 			got.SetAccessInfoResolver(nil)
-			assert.Equal(t, tc.want, got)
+			// Update() stamps updatedAt dynamically; check fields individually
+			assert.Equal(t, tc.want.ID(), got.ID())
+			assert.Equal(t, tc.want.Project(), got.Project())
+			assert.Equal(t, tc.want.UUID(), got.UUID())
+			assert.Equal(t, tc.want.Size(), got.Size())
+			assert.Equal(t, tc.want.Thread(), got.Thread())
+			assert.Equal(t, tc.want.PreviewType(), got.PreviewType())
+			assert.Equal(t, tc.want.UpdatedByUser(), got.UpdatedByUser())
+			assert.NotZero(t, got.UpdatedAt())
 		})
 	}
 }

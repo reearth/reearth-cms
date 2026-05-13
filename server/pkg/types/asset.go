@@ -10,4 +10,7 @@ type Asset struct {
 	Size        int64      `json:"size,omitempty"`
 	Files       []string   `json:"files,omitempty"`
 	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
+	CreatedBy   string     `json:"createdBy,omitempty"`
+	UpdatedBy   string     `json:"updatedBy,omitempty"`
 }

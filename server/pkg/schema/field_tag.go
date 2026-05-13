@@ -2,12 +2,12 @@ package schema
 
 import (
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 var ErrDuplicatedTag = errors.New("duplicated tag")
