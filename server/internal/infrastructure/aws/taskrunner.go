@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -85,7 +86,7 @@ func (t *TaskRunner) checkTopic(ctx context.Context, topicARN string) error {
 		TopicArn: aws.String(topicARN),
 	})
 	if err != nil {
-		return rerror.ErrInternalBy(err)
+		return rerror.ErrInternalBy(fmt.Errorf("SNS topic %s is inaccessible: %w", topicARN, err))
 	}
 	return nil
 }
