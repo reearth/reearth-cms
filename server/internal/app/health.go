@@ -84,7 +84,7 @@ func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *He
 			Timeout:   time.Second * 5,
 			SkipOnErr: false,
 			Check: httpCheck.New(httpCheck.Config{
-				URL:            conf.Task.WorkerURL + "/health",
+				URL:            workerHealthURL(conf.Task.WorkerURL),
 				RequestTimeout: time.Second * 5,
 			}),
 		})
@@ -121,6 +121,14 @@ func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *He
 		health: h,
 		config: conf,
 	}
+}
+
+func workerHealthURL(base string) string {
+	u, err := url.JoinPath(base, "health")
+	if err != nil {
+		return base + "/health"
+	}
+	return u
 }
 
 func (hc *HealthChecker) Check(ctx context.Context) error {

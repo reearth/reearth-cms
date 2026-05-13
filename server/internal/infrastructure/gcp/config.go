@@ -19,5 +19,5 @@ type TaskConfig struct {
 	CmsImage                string `default:"reearth/reearth-cms"`
 	BuildServiceAccount     string `pp:",omitempty"`
 	WorkerPool              string `pp:",omitempty"`
-	WorkerURL               string `default:"http://localhost:8080" pp:",omitempty"`
+	WorkerURL               string `pp:",omitempty"`
 }

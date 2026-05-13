@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"sync"
+	"time"
 
 	"cloud.google.com/go/pubsub/v2"
 	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
@@ -17,9 +19,16 @@ import (
 
 var defaultDiskSizeGb int64 = 2000 // 2TB
 
+const healthCheckCacheTTL = 30 * time.Second
+
 type TaskRunner struct {
-	conf   *TaskConfig
-	pubsub *pubsub.Client
+	conf      *TaskConfig
+	pubsub    *pubsub.Client
+	cbService *cloudbuild.Service
+
+	hcMu       sync.Mutex
+	hcResult   error
+	hcResultAt time.Time
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
@@ -28,9 +37,15 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 		return nil, err
 	}
 
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create cloud build service: %w", err)
+	}
+
 	return &TaskRunner{
-		conf:   conf,
-		pubsub: pubsub,
+		conf:      conf,
+		pubsub:    pubsub,
+		cbService: cb,
 	}, nil
 }
 
@@ -70,44 +85,55 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 	return nil
 }
 
-// HealthCheck implements gateway.TaskRunner
+// HealthCheck implements gateway.TaskRunner.
+// Results are cached for healthCheckCacheTTL to avoid hammering external APIs
+// on frequent live-probe calls while still returning a fresh result on startup.
 func (t *TaskRunner) HealthCheck(ctx context.Context) error {
-	// Check PubSub connection
+	t.hcMu.Lock()
+	if time.Since(t.hcResultAt) < healthCheckCacheTTL {
+		err := t.hcResult
+		t.hcMu.Unlock()
+		return err
+	}
+	t.hcMu.Unlock()
+
+	err := t.doHealthCheck(ctx)
+
+	t.hcMu.Lock()
+	t.hcResult = err
+	t.hcResultAt = time.Now()
+	t.hcMu.Unlock()
+
+	return err
+}
+
+func (t *TaskRunner) doHealthCheck(ctx context.Context) error {
 	if t.pubsub == nil {
 		return rerror.ErrInternalBy(fmt.Errorf("pubsub client is not initialized"))
 	}
 
-	topicName := fmt.Sprintf("projects/%s/topics/%s", t.conf.GCPProject, t.conf.Topic)
-	if _, err := t.pubsub.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName}); err != nil {
-		return rerror.ErrInternalBy(fmt.Errorf("pubsub topic %s does not exist or is inaccessible: %w", t.conf.Topic, err))
+	if t.conf.Topic != "" {
+		topicName := fmt.Sprintf("projects/%s/topics/%s", t.conf.GCPProject, t.conf.Topic)
+		if _, err := t.pubsub.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName}); err != nil {
+			return rerror.ErrInternalBy(fmt.Errorf("pubsub topic %s does not exist or is inaccessible: %w", t.conf.Topic, err))
+		}
 	}
 
-	// Check Cloud Build API access
-	cb, err := cloudbuild.NewService(ctx)
-	if err != nil {
-		return rerror.ErrInternalBy(fmt.Errorf("failed to create cloud build service: %w", err))
-	}
-
-	// Check service account permissions
 	if t.conf.BuildServiceAccount == "" {
 		return rerror.ErrInternalBy(fmt.Errorf("build service account is not configured"))
 	}
 
-	// Check service account permissions using IAM API
 	if err := CheckServiceAccountPermissions(ctx, t.conf.GCPProject, t.conf.BuildServiceAccount); err != nil {
 		return err
 	}
 
-	// Check if worker pool exists if configured
 	if t.conf.WorkerPool != "" {
 		if t.conf.GCPRegion == "" {
 			return rerror.ErrInternalBy(fmt.Errorf("GCP region is not configured but worker pool is specified"))
 		}
 
 		poolName := fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", t.conf.GCPProject, t.conf.GCPRegion, t.conf.WorkerPool)
-		call := cb.Projects.Locations.WorkerPools.Get(poolName)
-		_, err = call.Do()
-		if err != nil {
+		if _, err := t.cbService.Projects.Locations.WorkerPools.Get(poolName).Do(); err != nil {
 			return rerror.ErrInternalBy(fmt.Errorf("failed to access worker pool %s: %w", t.conf.WorkerPool, err))
 		}
 	}

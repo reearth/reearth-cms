@@ -24,7 +24,7 @@ func CheckServiceAccountPermissions(ctx context.Context, project, serviceAccount
 	// Define the permissions to check
 	permissionsToCheck := []string{
 		"logging.logEntries.create",
-		"secretmanager.secrets.access",
+		"secretmanager.versions.access",
 		"storage.objects.get",
 		"storage.objects.create",
 	}
