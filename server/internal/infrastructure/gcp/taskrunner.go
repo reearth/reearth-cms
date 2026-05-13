@@ -236,12 +236,7 @@ func (t *TaskRunner) copyItems(ctx context.Context, p task.Payload) error {
 			},
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
-		Options: &cloudbuild.BuildOptions{
-			Logging: "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
-		},
+		Options:        buildOptions(conf),
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
 				{
@@ -324,13 +319,8 @@ func (t *TaskRunner) importItems(ctx context.Context, p task.Payload) error {
 				Args:      args,
 			},
 		},
-		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
-		Options: &cloudbuild.BuildOptions{
-			Logging: "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
-		},
+		ServiceAccount:   fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
+		Options:          buildOptions(conf),
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: availableSecrets,
 		},
@@ -346,6 +336,19 @@ func (t *TaskRunner) importItems(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
+}
+
+// buildOptions returns Cloud Build options with Pool set only when WorkerPool
+// and GCPRegion are both configured; omitting Pool when either is absent avoids
+// sending a malformed resource name to the API.
+func buildOptions(conf *TaskConfig) *cloudbuild.BuildOptions {
+	opts := &cloudbuild.BuildOptions{Logging: "CLOUD_LOGGING_ONLY"}
+	if conf.WorkerPool != "" && conf.GCPRegion != "" {
+		opts.Pool = &cloudbuild.PoolOption{
+			Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", conf.GCPProject, conf.GCPRegion, conf.WorkerPool),
+		}
+	}
+	return opts
 }
 
 func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
