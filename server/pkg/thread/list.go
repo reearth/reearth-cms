@@ -1,9 +1,10 @@
 package thread
 
 import (
+	"slices"
+
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type List []*Thread

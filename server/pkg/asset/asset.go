@@ -14,6 +14,9 @@ type Asset struct {
 	createdAt               time.Time
 	user                    *accountdomain.UserID
 	integration             *IntegrationID
+	updatedAt               time.Time
+	updatedByUser           *accountdomain.UserID
+	updatedByIntegration    *IntegrationID
 	fileName                string
 	size                    uint64
 	previewType             *PreviewType
@@ -56,6 +59,31 @@ func (a *Asset) User() *accountdomain.UserID {
 
 func (a *Asset) Integration() *IntegrationID {
 	return a.integration
+}
+
+func (a *Asset) UpdatedAt() time.Time {
+	if a == nil {
+		return time.Time{}
+	}
+	if a.updatedAt.IsZero() {
+		return a.createdAt
+	}
+	return a.updatedAt
+}
+
+func (a *Asset) UpdatedAtRaw() time.Time {
+	if a == nil {
+		return time.Time{}
+	}
+	return a.updatedAt
+}
+
+func (a *Asset) UpdatedByUser() *accountdomain.UserID {
+	return a.updatedByUser
+}
+
+func (a *Asset) UpdatedByIntegration() *IntegrationID {
+	return a.updatedByIntegration
 }
 
 func (a *Asset) FileName() string {
@@ -114,6 +142,18 @@ func (a *Asset) AccessInfo() AccessInfo {
 
 // setters
 
+func (a *Asset) SetUpdatedByUser(u accountdomain.UserID) {
+	a.updatedByUser = &u
+	a.updatedByIntegration = nil
+	a.updatedAt = util.Now()
+}
+
+func (a *Asset) SetUpdatedByIntegration(u IntegrationID) {
+	a.updatedByIntegration = &u
+	a.updatedByUser = nil
+	a.updatedAt = util.Now()
+}
+
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
 }
@@ -151,6 +191,9 @@ func (a *Asset) Clone() *Asset {
 		createdAt:               a.createdAt,
 		user:                    a.user.CloneRef(),
 		integration:             a.integration.CloneRef(),
+		updatedAt:               a.updatedAt,
+		updatedByUser:           a.updatedByUser.CloneRef(),
+		updatedByIntegration:    a.updatedByIntegration.CloneRef(),
 		fileName:                a.fileName,
 		size:                    a.size,
 		previewType:             a.previewType,

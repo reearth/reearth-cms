@@ -15,6 +15,8 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
+var httpClient = &http.Client{Timeout: 30 * time.Second}
+
 type Webhook struct {
 	URL       string    `json:"url"`
 	Secret    string    `json:"secret"`
@@ -50,7 +52,7 @@ func Send(ctx context.Context, w *Webhook) error {
 
 	req.Header.Set("Reearth-Signature", signature)
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send a request: %w", err)
 	}

@@ -2,12 +2,12 @@ package memory
 
 import (
 	"context"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type AssetFile struct {
