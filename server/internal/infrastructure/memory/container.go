@@ -24,6 +24,7 @@ func New() *repo.Container {
 		Event:             NewEvent(),
 		Group:             NewGroup(),
 		WorkspaceSettings: NewWorkspaceSettings(),
+		Job:               NewJob(),
 		Transaction:       &usecasex.NopTransaction{},
 	}
 }

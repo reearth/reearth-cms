@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -26,20 +25,10 @@ import (
 
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
-	return &executableSchema{
-		schema:     cfg.Schema,
-		resolvers:  cfg.Resolvers,
-		directives: cfg.Directives,
-		complexity: cfg.Complexity,
-	}
+	return &executableSchema{SchemaData: cfg.Schema, Resolvers: cfg.Resolvers, Directives: cfg.Directives, ComplexityRoot: cfg.Complexity}
 }
 
-type Config struct {
-	Schema     *ast.Schema
-	Resolvers  ResolverRoot
-	Directives DirectiveRoot
-	Complexity ComplexityRoot
-}
+type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 
 type ResolverRoot interface {
 	Asset() AssetResolver
@@ -57,6 +46,7 @@ type ResolverRoot interface {
 	Schema() SchemaResolver
 	SchemaField() SchemaFieldResolver
 	SchemaFieldReference() SchemaFieldReferenceResolver
+	Subscription() SubscriptionResolver
 	Thread() ThreadResolver
 	WorkspaceIntegrationMember() WorkspaceIntegrationMemberResolver
 	WorkspaceUserMember() WorkspaceUserMemberResolver
@@ -227,6 +217,10 @@ type ComplexityRoot struct {
 		ItemID func(childComplexity int) int
 	}
 
+	DeleteItemsPayload struct {
+		ItemIds func(childComplexity int) int
+	}
+
 	DeleteMePayload struct {
 		UserID func(childComplexity int) int
 	}
@@ -308,6 +302,18 @@ type ComplexityRoot struct {
 	GuessSchemaFieldResult struct {
 		Fields     func(childComplexity int) int
 		TotalCount func(childComplexity int) int
+	}
+
+	ImportItemsAsyncPayload struct {
+		Job func(childComplexity int) int
+	}
+
+	ImportItemsPayload struct {
+		IgnoredCount  func(childComplexity int) int
+		InsertedCount func(childComplexity int) int
+		ModelID       func(childComplexity int) int
+		TotalCount    func(childComplexity int) int
+		UpdatedCount  func(childComplexity int) int
 	}
 
 	Integration struct {
@@ -392,6 +398,31 @@ type ComplexityRoot struct {
 		Field     func(childComplexity int) int
 	}
 
+	Job struct {
+		CompletedAt func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Error       func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Progress    func(childComplexity int) int
+		ProjectID   func(childComplexity int) int
+		StartedAt   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		Type        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
+	JobProgress struct {
+		Percentage func(childComplexity int) int
+		Processed  func(childComplexity int) int
+		Total      func(childComplexity int) int
+	}
+
+	JobState struct {
+		Error    func(childComplexity int) int
+		Progress func(childComplexity int) int
+		Status   func(childComplexity int) int
+	}
+
 	KeyAvailability struct {
 		Available func(childComplexity int) int
 		Key       func(childComplexity int) int
@@ -459,6 +490,7 @@ type ComplexityRoot struct {
 		AddIntegrationToWorkspace          func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
 		AddUsersToWorkspace                func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
 		ApproveRequest                     func(childComplexity int, input gqlmodel.ApproveRequestInput) int
+		CancelJob                          func(childComplexity int, jobID gqlmodel.ID) int
 		CreateAPIKey                       func(childComplexity int, input gqlmodel.CreateAPIKeyInput) int
 		CreateAsset                        func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateAssetUpload                  func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
@@ -484,6 +516,7 @@ type ComplexityRoot struct {
 		DeleteIntegration                  func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
 		DeleteIntegrations                 func(childComplexity int, input gqlmodel.DeleteIntegrationsInput) int
 		DeleteItem                         func(childComplexity int, input gqlmodel.DeleteItemInput) int
+		DeleteItems                        func(childComplexity int, input gqlmodel.DeleteItemsInput) int
 		DeleteMe                           func(childComplexity int, input gqlmodel.DeleteMeInput) int
 		DeleteModel                        func(childComplexity int, input gqlmodel.DeleteModelInput) int
 		DeleteProject                      func(childComplexity int, input gqlmodel.DeleteProjectInput) int
@@ -493,6 +526,8 @@ type ComplexityRoot struct {
 		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		ExportModel                        func(childComplexity int, input gqlmodel.ExportModelInput) int
 		ExportModelSchema                  func(childComplexity int, input gqlmodel.ExportModelSchemaInput) int
+		ImportItems                        func(childComplexity int, input gqlmodel.ImportItemsInput) int
+		ImportItemsAsync                   func(childComplexity int, input gqlmodel.ImportItemsInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
 		RegenerateAPIKey                   func(childComplexity int, input gqlmodel.RegenerateAPIKeyInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
@@ -610,11 +645,13 @@ type ComplexityRoot struct {
 		Assets                      func(childComplexity int, input gqlmodel.SearchAssetsInput) int
 		CheckGroupKeyAvailability   func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckModelKeyAvailability   func(childComplexity int, projectID gqlmodel.ID, key string) int
-		CheckProjectAlias           func(childComplexity int, alias string) int
+		CheckProjectAlias           func(childComplexity int, workspaceID gqlmodel.ID, alias string) int
 		CheckWorkspaceProjectLimits func(childComplexity int, workspaceID gqlmodel.ID) int
 		Groups                      func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
 		GuessSchemaFields           func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
 		IsItemReferenced            func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
+		Job                         func(childComplexity int, jobID gqlmodel.ID) int
+		Jobs                        func(childComplexity int, projectID gqlmodel.ID, typeArg *gqlmodel.JobType, status *gqlmodel.JobStatus) int
 		Me                          func(childComplexity int) int
 		Models                      func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) int
 		ModelsByGroup               func(childComplexity int, groupID gqlmodel.ID) int
@@ -815,6 +852,10 @@ type ComplexityRoot struct {
 		FieldID  func(childComplexity int) int
 		Operator func(childComplexity int) int
 		Value    func(childComplexity int) int
+	}
+
+	Subscription struct {
+		JobState func(childComplexity int, jobID gqlmodel.ID) int
 	}
 
 	TerrainResource struct {
@@ -1040,12 +1081,16 @@ type MutationResolver interface {
 	CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error)
 	UpdateItem(ctx context.Context, input gqlmodel.UpdateItemInput) (*gqlmodel.ItemPayload, error)
 	DeleteItem(ctx context.Context, input gqlmodel.DeleteItemInput) (*gqlmodel.DeleteItemPayload, error)
+	DeleteItems(ctx context.Context, input gqlmodel.DeleteItemsInput) (*gqlmodel.DeleteItemsPayload, error)
 	PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error)
 	UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error)
+	ImportItems(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsPayload, error)
+	ImportItemsAsync(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsAsyncPayload, error)
 	CreateView(ctx context.Context, input gqlmodel.CreateViewInput) (*gqlmodel.ViewPayload, error)
 	UpdateView(ctx context.Context, input gqlmodel.UpdateViewInput) (*gqlmodel.ViewPayload, error)
 	UpdateViewsOrder(ctx context.Context, input gqlmodel.UpdateViewsOrderInput) (*gqlmodel.ViewsPayload, error)
 	DeleteView(ctx context.Context, input gqlmodel.DeleteViewInput) (*gqlmodel.DeleteViewPayload, error)
+	CancelJob(ctx context.Context, jobID gqlmodel.ID) (*gqlmodel.Job, error)
 	CreateModel(ctx context.Context, input gqlmodel.CreateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
@@ -1098,10 +1143,12 @@ type QueryResolver interface {
 	SearchItem(ctx context.Context, input gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error)
 	IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 	View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error)
+	Job(ctx context.Context, jobID gqlmodel.ID) (*gqlmodel.Job, error)
+	Jobs(ctx context.Context, projectID gqlmodel.ID, typeArg *gqlmodel.JobType, status *gqlmodel.JobStatus) ([]*gqlmodel.Job, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
-	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
+	CheckProjectAlias(ctx context.Context, workspaceID gqlmodel.ID, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error)
 	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
@@ -1130,6 +1177,9 @@ type SchemaFieldReferenceResolver interface {
 
 	CorrespondingField(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.SchemaField, error)
 }
+type SubscriptionResolver interface {
+	JobState(ctx context.Context, jobID gqlmodel.ID) (<-chan *gqlmodel.JobState, error)
+}
 type ThreadResolver interface {
 	Workspace(ctx context.Context, obj *gqlmodel.Thread) (*gqlmodel.Workspace, error)
 }
@@ -1141,1312 +1191,1451 @@ type WorkspaceUserMemberResolver interface {
 	User(ctx context.Context, obj *gqlmodel.WorkspaceUserMember) (*gqlmodel.User, error)
 }
 
-type executableSchema struct {
-	schema     *ast.Schema
-	resolvers  ResolverRoot
-	directives DirectiveRoot
-	complexity ComplexityRoot
-}
+type executableSchema graphql.ExecutableSchemaState[ResolverRoot, DirectiveRoot, ComplexityRoot]
 
 func (e *executableSchema) Schema() *ast.Schema {
-	if e.schema != nil {
-		return e.schema
+	if e.SchemaData != nil {
+		return e.SchemaData
 	}
 	return parsedSchema
 }
 
 func (e *executableSchema) Complexity(ctx context.Context, typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
-	ec := executionContext{nil, e, 0, 0, nil}
+	ec := newExecutionContext(nil, e, nil)
 	_ = ec
 	switch typeName + "." + field {
 
 	case "APIKeyPayload.apiKey":
-		if e.complexity.APIKeyPayload.APIKey == nil {
+		if e.ComplexityRoot.APIKeyPayload.APIKey == nil {
 			break
 		}
 
-		return e.complexity.APIKeyPayload.APIKey(childComplexity), true
+		return e.ComplexityRoot.APIKeyPayload.APIKey(childComplexity), true
 	case "APIKeyPayload.public":
-		if e.complexity.APIKeyPayload.Public == nil {
+		if e.ComplexityRoot.APIKeyPayload.Public == nil {
 			break
 		}
 
-		return e.complexity.APIKeyPayload.Public(childComplexity), true
+		return e.ComplexityRoot.APIKeyPayload.Public(childComplexity), true
 
 	case "AddUsersToWorkspacePayload.workspace":
-		if e.complexity.AddUsersToWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.AddUsersToWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.AddUsersToWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.AddUsersToWorkspacePayload.Workspace(childComplexity), true
 
 	case "AndCondition.conditions":
-		if e.complexity.AndCondition.Conditions == nil {
+		if e.ComplexityRoot.AndCondition.Conditions == nil {
 			break
 		}
 
-		return e.complexity.AndCondition.Conditions(childComplexity), true
+		return e.ComplexityRoot.AndCondition.Conditions(childComplexity), true
 
 	case "Asset.archiveExtractionStatus":
-		if e.complexity.Asset.ArchiveExtractionStatus == nil {
+		if e.ComplexityRoot.Asset.ArchiveExtractionStatus == nil {
 			break
 		}
 
-		return e.complexity.Asset.ArchiveExtractionStatus(childComplexity), true
+		return e.ComplexityRoot.Asset.ArchiveExtractionStatus(childComplexity), true
 	case "Asset.contentEncoding":
-		if e.complexity.Asset.ContentEncoding == nil {
+		if e.ComplexityRoot.Asset.ContentEncoding == nil {
 			break
 		}
 
-		return e.complexity.Asset.ContentEncoding(childComplexity), true
+		return e.ComplexityRoot.Asset.ContentEncoding(childComplexity), true
 	case "Asset.contentType":
-		if e.complexity.Asset.ContentType == nil {
+		if e.ComplexityRoot.Asset.ContentType == nil {
 			break
 		}
 
-		return e.complexity.Asset.ContentType(childComplexity), true
+		return e.ComplexityRoot.Asset.ContentType(childComplexity), true
 	case "Asset.createdAt":
-		if e.complexity.Asset.CreatedAt == nil {
+		if e.ComplexityRoot.Asset.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Asset.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Asset.CreatedAt(childComplexity), true
 	case "Asset.createdBy":
-		if e.complexity.Asset.CreatedBy == nil {
+		if e.ComplexityRoot.Asset.CreatedBy == nil {
 			break
 		}
 
-		return e.complexity.Asset.CreatedBy(childComplexity), true
+		return e.ComplexityRoot.Asset.CreatedBy(childComplexity), true
 	case "Asset.createdById":
-		if e.complexity.Asset.CreatedByID == nil {
+		if e.ComplexityRoot.Asset.CreatedByID == nil {
 			break
 		}
 
-		return e.complexity.Asset.CreatedByID(childComplexity), true
+		return e.ComplexityRoot.Asset.CreatedByID(childComplexity), true
 	case "Asset.createdByType":
-		if e.complexity.Asset.CreatedByType == nil {
+		if e.ComplexityRoot.Asset.CreatedByType == nil {
 			break
 		}
 
-		return e.complexity.Asset.CreatedByType(childComplexity), true
+		return e.ComplexityRoot.Asset.CreatedByType(childComplexity), true
 	case "Asset.fileName":
-		if e.complexity.Asset.FileName == nil {
+		if e.ComplexityRoot.Asset.FileName == nil {
 			break
 		}
 
-		return e.complexity.Asset.FileName(childComplexity), true
+		return e.ComplexityRoot.Asset.FileName(childComplexity), true
 	case "Asset.id":
-		if e.complexity.Asset.ID == nil {
+		if e.ComplexityRoot.Asset.ID == nil {
 			break
 		}
 
-		return e.complexity.Asset.ID(childComplexity), true
+		return e.ComplexityRoot.Asset.ID(childComplexity), true
 	case "Asset.items":
-		if e.complexity.Asset.Items == nil {
+		if e.ComplexityRoot.Asset.Items == nil {
 			break
 		}
 
-		return e.complexity.Asset.Items(childComplexity), true
+		return e.ComplexityRoot.Asset.Items(childComplexity), true
 	case "Asset.previewType":
-		if e.complexity.Asset.PreviewType == nil {
+		if e.ComplexityRoot.Asset.PreviewType == nil {
 			break
 		}
 
-		return e.complexity.Asset.PreviewType(childComplexity), true
+		return e.ComplexityRoot.Asset.PreviewType(childComplexity), true
 	case "Asset.project":
-		if e.complexity.Asset.Project == nil {
+		if e.ComplexityRoot.Asset.Project == nil {
 			break
 		}
 
-		return e.complexity.Asset.Project(childComplexity), true
+		return e.ComplexityRoot.Asset.Project(childComplexity), true
 	case "Asset.projectId":
-		if e.complexity.Asset.ProjectID == nil {
+		if e.ComplexityRoot.Asset.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.Asset.ProjectID(childComplexity), true
+		return e.ComplexityRoot.Asset.ProjectID(childComplexity), true
 	case "Asset.public":
-		if e.complexity.Asset.Public == nil {
+		if e.ComplexityRoot.Asset.Public == nil {
 			break
 		}
 
-		return e.complexity.Asset.Public(childComplexity), true
+		return e.ComplexityRoot.Asset.Public(childComplexity), true
 	case "Asset.size":
-		if e.complexity.Asset.Size == nil {
+		if e.ComplexityRoot.Asset.Size == nil {
 			break
 		}
 
-		return e.complexity.Asset.Size(childComplexity), true
+		return e.ComplexityRoot.Asset.Size(childComplexity), true
 	case "Asset.thread":
-		if e.complexity.Asset.Thread == nil {
+		if e.ComplexityRoot.Asset.Thread == nil {
 			break
 		}
 
-		return e.complexity.Asset.Thread(childComplexity), true
+		return e.ComplexityRoot.Asset.Thread(childComplexity), true
 	case "Asset.threadId":
-		if e.complexity.Asset.ThreadID == nil {
+		if e.ComplexityRoot.Asset.ThreadID == nil {
 			break
 		}
 
-		return e.complexity.Asset.ThreadID(childComplexity), true
+		return e.ComplexityRoot.Asset.ThreadID(childComplexity), true
 	case "Asset.url":
-		if e.complexity.Asset.URL == nil {
+		if e.ComplexityRoot.Asset.URL == nil {
 			break
 		}
 
-		return e.complexity.Asset.URL(childComplexity), true
+		return e.ComplexityRoot.Asset.URL(childComplexity), true
 	case "Asset.uuid":
-		if e.complexity.Asset.UUID == nil {
+		if e.ComplexityRoot.Asset.UUID == nil {
 			break
 		}
 
-		return e.complexity.Asset.UUID(childComplexity), true
+		return e.ComplexityRoot.Asset.UUID(childComplexity), true
 
 	case "AssetConnection.edges":
-		if e.complexity.AssetConnection.Edges == nil {
+		if e.ComplexityRoot.AssetConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.AssetConnection.Edges(childComplexity), true
+		return e.ComplexityRoot.AssetConnection.Edges(childComplexity), true
 	case "AssetConnection.nodes":
-		if e.complexity.AssetConnection.Nodes == nil {
+		if e.ComplexityRoot.AssetConnection.Nodes == nil {
 			break
 		}
 
-		return e.complexity.AssetConnection.Nodes(childComplexity), true
+		return e.ComplexityRoot.AssetConnection.Nodes(childComplexity), true
 	case "AssetConnection.pageInfo":
-		if e.complexity.AssetConnection.PageInfo == nil {
+		if e.ComplexityRoot.AssetConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.AssetConnection.PageInfo(childComplexity), true
+		return e.ComplexityRoot.AssetConnection.PageInfo(childComplexity), true
 	case "AssetConnection.totalCount":
-		if e.complexity.AssetConnection.TotalCount == nil {
+		if e.ComplexityRoot.AssetConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.AssetConnection.TotalCount(childComplexity), true
+		return e.ComplexityRoot.AssetConnection.TotalCount(childComplexity), true
 
 	case "AssetEdge.cursor":
-		if e.complexity.AssetEdge.Cursor == nil {
+		if e.ComplexityRoot.AssetEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.AssetEdge.Cursor(childComplexity), true
+		return e.ComplexityRoot.AssetEdge.Cursor(childComplexity), true
 	case "AssetEdge.node":
-		if e.complexity.AssetEdge.Node == nil {
+		if e.ComplexityRoot.AssetEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.AssetEdge.Node(childComplexity), true
+		return e.ComplexityRoot.AssetEdge.Node(childComplexity), true
 
 	case "AssetFile.contentEncoding":
-		if e.complexity.AssetFile.ContentEncoding == nil {
+		if e.ComplexityRoot.AssetFile.ContentEncoding == nil {
 			break
 		}
 
-		return e.complexity.AssetFile.ContentEncoding(childComplexity), true
+		return e.ComplexityRoot.AssetFile.ContentEncoding(childComplexity), true
 	case "AssetFile.contentType":
-		if e.complexity.AssetFile.ContentType == nil {
+		if e.ComplexityRoot.AssetFile.ContentType == nil {
 			break
 		}
 
-		return e.complexity.AssetFile.ContentType(childComplexity), true
+		return e.ComplexityRoot.AssetFile.ContentType(childComplexity), true
 	case "AssetFile.filePaths":
-		if e.complexity.AssetFile.FilePaths == nil {
+		if e.ComplexityRoot.AssetFile.FilePaths == nil {
 			break
 		}
 
-		return e.complexity.AssetFile.FilePaths(childComplexity), true
+		return e.ComplexityRoot.AssetFile.FilePaths(childComplexity), true
 	case "AssetFile.name":
-		if e.complexity.AssetFile.Name == nil {
+		if e.ComplexityRoot.AssetFile.Name == nil {
 			break
 		}
 
-		return e.complexity.AssetFile.Name(childComplexity), true
+		return e.ComplexityRoot.AssetFile.Name(childComplexity), true
 	case "AssetFile.path":
-		if e.complexity.AssetFile.Path == nil {
+		if e.ComplexityRoot.AssetFile.Path == nil {
 			break
 		}
 
-		return e.complexity.AssetFile.Path(childComplexity), true
+		return e.ComplexityRoot.AssetFile.Path(childComplexity), true
 	case "AssetFile.size":
-		if e.complexity.AssetFile.Size == nil {
+		if e.ComplexityRoot.AssetFile.Size == nil {
 			break
 		}
 
-		return e.complexity.AssetFile.Size(childComplexity), true
+		return e.ComplexityRoot.AssetFile.Size(childComplexity), true
 
 	case "AssetItem.itemId":
-		if e.complexity.AssetItem.ItemID == nil {
+		if e.ComplexityRoot.AssetItem.ItemID == nil {
 			break
 		}
 
-		return e.complexity.AssetItem.ItemID(childComplexity), true
+		return e.ComplexityRoot.AssetItem.ItemID(childComplexity), true
 	case "AssetItem.modelId":
-		if e.complexity.AssetItem.ModelID == nil {
+		if e.ComplexityRoot.AssetItem.ModelID == nil {
 			break
 		}
 
-		return e.complexity.AssetItem.ModelID(childComplexity), true
+		return e.ComplexityRoot.AssetItem.ModelID(childComplexity), true
 
 	case "BasicFieldCondition.fieldId":
-		if e.complexity.BasicFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.BasicFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.BasicFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.BasicFieldCondition.FieldID(childComplexity), true
 	case "BasicFieldCondition.operator":
-		if e.complexity.BasicFieldCondition.Operator == nil {
+		if e.ComplexityRoot.BasicFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.BasicFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.BasicFieldCondition.Operator(childComplexity), true
 	case "BasicFieldCondition.value":
-		if e.complexity.BasicFieldCondition.Value == nil {
+		if e.ComplexityRoot.BasicFieldCondition.Value == nil {
 			break
 		}
 
-		return e.complexity.BasicFieldCondition.Value(childComplexity), true
+		return e.ComplexityRoot.BasicFieldCondition.Value(childComplexity), true
 
 	case "BoolFieldCondition.fieldId":
-		if e.complexity.BoolFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.BoolFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.BoolFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.BoolFieldCondition.FieldID(childComplexity), true
 	case "BoolFieldCondition.operator":
-		if e.complexity.BoolFieldCondition.Operator == nil {
+		if e.ComplexityRoot.BoolFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.BoolFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.BoolFieldCondition.Operator(childComplexity), true
 	case "BoolFieldCondition.value":
-		if e.complexity.BoolFieldCondition.Value == nil {
+		if e.ComplexityRoot.BoolFieldCondition.Value == nil {
 			break
 		}
 
-		return e.complexity.BoolFieldCondition.Value(childComplexity), true
+		return e.ComplexityRoot.BoolFieldCondition.Value(childComplexity), true
 
 	case "CesiumResourceProps.cesiumIonAccessToken":
-		if e.complexity.CesiumResourceProps.CesiumIonAccessToken == nil {
+		if e.ComplexityRoot.CesiumResourceProps.CesiumIonAccessToken == nil {
 			break
 		}
 
-		return e.complexity.CesiumResourceProps.CesiumIonAccessToken(childComplexity), true
+		return e.ComplexityRoot.CesiumResourceProps.CesiumIonAccessToken(childComplexity), true
 	case "CesiumResourceProps.cesiumIonAssetId":
-		if e.complexity.CesiumResourceProps.CesiumIonAssetID == nil {
+		if e.ComplexityRoot.CesiumResourceProps.CesiumIonAssetID == nil {
 			break
 		}
 
-		return e.complexity.CesiumResourceProps.CesiumIonAssetID(childComplexity), true
+		return e.ComplexityRoot.CesiumResourceProps.CesiumIonAssetID(childComplexity), true
 	case "CesiumResourceProps.image":
-		if e.complexity.CesiumResourceProps.Image == nil {
+		if e.ComplexityRoot.CesiumResourceProps.Image == nil {
 			break
 		}
 
-		return e.complexity.CesiumResourceProps.Image(childComplexity), true
+		return e.ComplexityRoot.CesiumResourceProps.Image(childComplexity), true
 	case "CesiumResourceProps.name":
-		if e.complexity.CesiumResourceProps.Name == nil {
+		if e.ComplexityRoot.CesiumResourceProps.Name == nil {
 			break
 		}
 
-		return e.complexity.CesiumResourceProps.Name(childComplexity), true
+		return e.ComplexityRoot.CesiumResourceProps.Name(childComplexity), true
 	case "CesiumResourceProps.url":
-		if e.complexity.CesiumResourceProps.URL == nil {
+		if e.ComplexityRoot.CesiumResourceProps.URL == nil {
 			break
 		}
 
-		return e.complexity.CesiumResourceProps.URL(childComplexity), true
+		return e.ComplexityRoot.CesiumResourceProps.URL(childComplexity), true
 
 	case "Column.field":
-		if e.complexity.Column.Field == nil {
+		if e.ComplexityRoot.Column.Field == nil {
 			break
 		}
 
-		return e.complexity.Column.Field(childComplexity), true
+		return e.ComplexityRoot.Column.Field(childComplexity), true
 	case "Column.visible":
-		if e.complexity.Column.Visible == nil {
+		if e.ComplexityRoot.Column.Visible == nil {
 			break
 		}
 
-		return e.complexity.Column.Visible(childComplexity), true
+		return e.ComplexityRoot.Column.Visible(childComplexity), true
 
 	case "Comment.author":
-		if e.complexity.Comment.Author == nil {
+		if e.ComplexityRoot.Comment.Author == nil {
 			break
 		}
 
-		return e.complexity.Comment.Author(childComplexity), true
+		return e.ComplexityRoot.Comment.Author(childComplexity), true
 	case "Comment.authorId":
-		if e.complexity.Comment.AuthorID == nil {
+		if e.ComplexityRoot.Comment.AuthorID == nil {
 			break
 		}
 
-		return e.complexity.Comment.AuthorID(childComplexity), true
+		return e.ComplexityRoot.Comment.AuthorID(childComplexity), true
 	case "Comment.authorType":
-		if e.complexity.Comment.AuthorType == nil {
+		if e.ComplexityRoot.Comment.AuthorType == nil {
 			break
 		}
 
-		return e.complexity.Comment.AuthorType(childComplexity), true
+		return e.ComplexityRoot.Comment.AuthorType(childComplexity), true
 	case "Comment.content":
-		if e.complexity.Comment.Content == nil {
+		if e.ComplexityRoot.Comment.Content == nil {
 			break
 		}
 
-		return e.complexity.Comment.Content(childComplexity), true
+		return e.ComplexityRoot.Comment.Content(childComplexity), true
 	case "Comment.createdAt":
-		if e.complexity.Comment.CreatedAt == nil {
+		if e.ComplexityRoot.Comment.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Comment.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Comment.CreatedAt(childComplexity), true
 	case "Comment.id":
-		if e.complexity.Comment.ID == nil {
+		if e.ComplexityRoot.Comment.ID == nil {
 			break
 		}
 
-		return e.complexity.Comment.ID(childComplexity), true
+		return e.ComplexityRoot.Comment.ID(childComplexity), true
 	case "Comment.threadId":
-		if e.complexity.Comment.ThreadID == nil {
+		if e.ComplexityRoot.Comment.ThreadID == nil {
 			break
 		}
 
-		return e.complexity.Comment.ThreadID(childComplexity), true
+		return e.ComplexityRoot.Comment.ThreadID(childComplexity), true
 	case "Comment.workspaceId":
-		if e.complexity.Comment.WorkspaceID == nil {
+		if e.ComplexityRoot.Comment.WorkspaceID == nil {
 			break
 		}
 
-		return e.complexity.Comment.WorkspaceID(childComplexity), true
+		return e.ComplexityRoot.Comment.WorkspaceID(childComplexity), true
 
 	case "CommentPayload.comment":
-		if e.complexity.CommentPayload.Comment == nil {
+		if e.ComplexityRoot.CommentPayload.Comment == nil {
 			break
 		}
 
-		return e.complexity.CommentPayload.Comment(childComplexity), true
+		return e.ComplexityRoot.CommentPayload.Comment(childComplexity), true
 	case "CommentPayload.thread":
-		if e.complexity.CommentPayload.Thread == nil {
+		if e.ComplexityRoot.CommentPayload.Thread == nil {
 			break
 		}
 
-		return e.complexity.CommentPayload.Thread(childComplexity), true
+		return e.ComplexityRoot.CommentPayload.Thread(childComplexity), true
 
 	case "CreateAssetPayload.asset":
-		if e.complexity.CreateAssetPayload.Asset == nil {
+		if e.ComplexityRoot.CreateAssetPayload.Asset == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetPayload.Asset(childComplexity), true
+		return e.ComplexityRoot.CreateAssetPayload.Asset(childComplexity), true
 
 	case "CreateAssetUploadPayload.contentEncoding":
-		if e.complexity.CreateAssetUploadPayload.ContentEncoding == nil {
+		if e.ComplexityRoot.CreateAssetUploadPayload.ContentEncoding == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetUploadPayload.ContentEncoding(childComplexity), true
+		return e.ComplexityRoot.CreateAssetUploadPayload.ContentEncoding(childComplexity), true
 	case "CreateAssetUploadPayload.contentLength":
-		if e.complexity.CreateAssetUploadPayload.ContentLength == nil {
+		if e.ComplexityRoot.CreateAssetUploadPayload.ContentLength == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetUploadPayload.ContentLength(childComplexity), true
+		return e.ComplexityRoot.CreateAssetUploadPayload.ContentLength(childComplexity), true
 	case "CreateAssetUploadPayload.contentType":
-		if e.complexity.CreateAssetUploadPayload.ContentType == nil {
+		if e.ComplexityRoot.CreateAssetUploadPayload.ContentType == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetUploadPayload.ContentType(childComplexity), true
+		return e.ComplexityRoot.CreateAssetUploadPayload.ContentType(childComplexity), true
 	case "CreateAssetUploadPayload.next":
-		if e.complexity.CreateAssetUploadPayload.Next == nil {
+		if e.ComplexityRoot.CreateAssetUploadPayload.Next == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetUploadPayload.Next(childComplexity), true
+		return e.ComplexityRoot.CreateAssetUploadPayload.Next(childComplexity), true
 	case "CreateAssetUploadPayload.token":
-		if e.complexity.CreateAssetUploadPayload.Token == nil {
+		if e.ComplexityRoot.CreateAssetUploadPayload.Token == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetUploadPayload.Token(childComplexity), true
+		return e.ComplexityRoot.CreateAssetUploadPayload.Token(childComplexity), true
 	case "CreateAssetUploadPayload.url":
-		if e.complexity.CreateAssetUploadPayload.URL == nil {
+		if e.ComplexityRoot.CreateAssetUploadPayload.URL == nil {
 			break
 		}
 
-		return e.complexity.CreateAssetUploadPayload.URL(childComplexity), true
+		return e.ComplexityRoot.CreateAssetUploadPayload.URL(childComplexity), true
 
 	case "CreateWorkspacePayload.workspace":
-		if e.complexity.CreateWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.CreateWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.CreateWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.CreateWorkspacePayload.Workspace(childComplexity), true
 
 	case "DecompressAssetPayload.asset":
-		if e.complexity.DecompressAssetPayload.Asset == nil {
+		if e.ComplexityRoot.DecompressAssetPayload.Asset == nil {
 			break
 		}
 
-		return e.complexity.DecompressAssetPayload.Asset(childComplexity), true
+		return e.ComplexityRoot.DecompressAssetPayload.Asset(childComplexity), true
 
 	case "DeleteAPIKeyPayload.apiKeyId":
-		if e.complexity.DeleteAPIKeyPayload.APIKeyID == nil {
+		if e.ComplexityRoot.DeleteAPIKeyPayload.APIKeyID == nil {
 			break
 		}
 
-		return e.complexity.DeleteAPIKeyPayload.APIKeyID(childComplexity), true
+		return e.ComplexityRoot.DeleteAPIKeyPayload.APIKeyID(childComplexity), true
 
 	case "DeleteAssetPayload.assetId":
-		if e.complexity.DeleteAssetPayload.AssetID == nil {
+		if e.ComplexityRoot.DeleteAssetPayload.AssetID == nil {
 			break
 		}
 
-		return e.complexity.DeleteAssetPayload.AssetID(childComplexity), true
+		return e.ComplexityRoot.DeleteAssetPayload.AssetID(childComplexity), true
 
 	case "DeleteAssetsPayload.assetIds":
-		if e.complexity.DeleteAssetsPayload.AssetIds == nil {
+		if e.ComplexityRoot.DeleteAssetsPayload.AssetIds == nil {
 			break
 		}
 
-		return e.complexity.DeleteAssetsPayload.AssetIds(childComplexity), true
+		return e.ComplexityRoot.DeleteAssetsPayload.AssetIds(childComplexity), true
 
 	case "DeleteCommentPayload.commentId":
-		if e.complexity.DeleteCommentPayload.CommentID == nil {
+		if e.ComplexityRoot.DeleteCommentPayload.CommentID == nil {
 			break
 		}
 
-		return e.complexity.DeleteCommentPayload.CommentID(childComplexity), true
+		return e.ComplexityRoot.DeleteCommentPayload.CommentID(childComplexity), true
 	case "DeleteCommentPayload.thread":
-		if e.complexity.DeleteCommentPayload.Thread == nil {
+		if e.ComplexityRoot.DeleteCommentPayload.Thread == nil {
 			break
 		}
 
-		return e.complexity.DeleteCommentPayload.Thread(childComplexity), true
+		return e.ComplexityRoot.DeleteCommentPayload.Thread(childComplexity), true
 
 	case "DeleteFieldPayload.fieldId":
-		if e.complexity.DeleteFieldPayload.FieldID == nil {
+		if e.ComplexityRoot.DeleteFieldPayload.FieldID == nil {
 			break
 		}
 
-		return e.complexity.DeleteFieldPayload.FieldID(childComplexity), true
+		return e.ComplexityRoot.DeleteFieldPayload.FieldID(childComplexity), true
 
 	case "DeleteGroupPayload.groupId":
-		if e.complexity.DeleteGroupPayload.GroupID == nil {
+		if e.ComplexityRoot.DeleteGroupPayload.GroupID == nil {
 			break
 		}
 
-		return e.complexity.DeleteGroupPayload.GroupID(childComplexity), true
+		return e.ComplexityRoot.DeleteGroupPayload.GroupID(childComplexity), true
 
 	case "DeleteIntegrationPayload.integrationId":
-		if e.complexity.DeleteIntegrationPayload.IntegrationID == nil {
+		if e.ComplexityRoot.DeleteIntegrationPayload.IntegrationID == nil {
 			break
 		}
 
-		return e.complexity.DeleteIntegrationPayload.IntegrationID(childComplexity), true
+		return e.ComplexityRoot.DeleteIntegrationPayload.IntegrationID(childComplexity), true
 
 	case "DeleteIntegrationsPayload.integrationIDs":
-		if e.complexity.DeleteIntegrationsPayload.IntegrationIDs == nil {
+		if e.ComplexityRoot.DeleteIntegrationsPayload.IntegrationIDs == nil {
 			break
 		}
 
-		return e.complexity.DeleteIntegrationsPayload.IntegrationIDs(childComplexity), true
+		return e.ComplexityRoot.DeleteIntegrationsPayload.IntegrationIDs(childComplexity), true
 
 	case "DeleteItemPayload.itemId":
-		if e.complexity.DeleteItemPayload.ItemID == nil {
+		if e.ComplexityRoot.DeleteItemPayload.ItemID == nil {
 			break
 		}
 
-		return e.complexity.DeleteItemPayload.ItemID(childComplexity), true
+		return e.ComplexityRoot.DeleteItemPayload.ItemID(childComplexity), true
+
+	case "DeleteItemsPayload.itemIds":
+		if e.ComplexityRoot.DeleteItemsPayload.ItemIds == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteItemsPayload.ItemIds(childComplexity), true
 
 	case "DeleteMePayload.userId":
-		if e.complexity.DeleteMePayload.UserID == nil {
+		if e.ComplexityRoot.DeleteMePayload.UserID == nil {
 			break
 		}
 
-		return e.complexity.DeleteMePayload.UserID(childComplexity), true
+		return e.ComplexityRoot.DeleteMePayload.UserID(childComplexity), true
 
 	case "DeleteModelPayload.modelId":
-		if e.complexity.DeleteModelPayload.ModelID == nil {
+		if e.ComplexityRoot.DeleteModelPayload.ModelID == nil {
 			break
 		}
 
-		return e.complexity.DeleteModelPayload.ModelID(childComplexity), true
+		return e.ComplexityRoot.DeleteModelPayload.ModelID(childComplexity), true
 
 	case "DeleteProjectPayload.projectId":
-		if e.complexity.DeleteProjectPayload.ProjectID == nil {
+		if e.ComplexityRoot.DeleteProjectPayload.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.DeleteProjectPayload.ProjectID(childComplexity), true
+		return e.ComplexityRoot.DeleteProjectPayload.ProjectID(childComplexity), true
 
 	case "DeleteRequestPayload.requests":
-		if e.complexity.DeleteRequestPayload.Requests == nil {
+		if e.ComplexityRoot.DeleteRequestPayload.Requests == nil {
 			break
 		}
 
-		return e.complexity.DeleteRequestPayload.Requests(childComplexity), true
+		return e.ComplexityRoot.DeleteRequestPayload.Requests(childComplexity), true
 
 	case "DeleteViewPayload.viewId":
-		if e.complexity.DeleteViewPayload.ViewID == nil {
+		if e.ComplexityRoot.DeleteViewPayload.ViewID == nil {
 			break
 		}
 
-		return e.complexity.DeleteViewPayload.ViewID(childComplexity), true
+		return e.ComplexityRoot.DeleteViewPayload.ViewID(childComplexity), true
 
 	case "DeleteWebhookPayload.webhookId":
-		if e.complexity.DeleteWebhookPayload.WebhookID == nil {
+		if e.ComplexityRoot.DeleteWebhookPayload.WebhookID == nil {
 			break
 		}
 
-		return e.complexity.DeleteWebhookPayload.WebhookID(childComplexity), true
+		return e.ComplexityRoot.DeleteWebhookPayload.WebhookID(childComplexity), true
 
 	case "DeleteWorkspacePayload.workspaceId":
-		if e.complexity.DeleteWorkspacePayload.WorkspaceID == nil {
+		if e.ComplexityRoot.DeleteWorkspacePayload.WorkspaceID == nil {
 			break
 		}
 
-		return e.complexity.DeleteWorkspacePayload.WorkspaceID(childComplexity), true
+		return e.ComplexityRoot.DeleteWorkspacePayload.WorkspaceID(childComplexity), true
 
 	case "ExportModelPayload.modelId":
-		if e.complexity.ExportModelPayload.ModelID == nil {
+		if e.ComplexityRoot.ExportModelPayload.ModelID == nil {
 			break
 		}
 
-		return e.complexity.ExportModelPayload.ModelID(childComplexity), true
+		return e.ComplexityRoot.ExportModelPayload.ModelID(childComplexity), true
 	case "ExportModelPayload.url":
-		if e.complexity.ExportModelPayload.URL == nil {
+		if e.ComplexityRoot.ExportModelPayload.URL == nil {
 			break
 		}
 
-		return e.complexity.ExportModelPayload.URL(childComplexity), true
+		return e.ComplexityRoot.ExportModelPayload.URL(childComplexity), true
 
 	case "ExportModelSchemaPayload.modelId":
-		if e.complexity.ExportModelSchemaPayload.ModelID == nil {
+		if e.ComplexityRoot.ExportModelSchemaPayload.ModelID == nil {
 			break
 		}
 
-		return e.complexity.ExportModelSchemaPayload.ModelID(childComplexity), true
+		return e.ComplexityRoot.ExportModelSchemaPayload.ModelID(childComplexity), true
 	case "ExportModelSchemaPayload.url":
-		if e.complexity.ExportModelSchemaPayload.URL == nil {
+		if e.ComplexityRoot.ExportModelSchemaPayload.URL == nil {
 			break
 		}
 
-		return e.complexity.ExportModelSchemaPayload.URL(childComplexity), true
+		return e.ComplexityRoot.ExportModelSchemaPayload.URL(childComplexity), true
 
 	case "FieldPayload.field":
-		if e.complexity.FieldPayload.Field == nil {
+		if e.ComplexityRoot.FieldPayload.Field == nil {
 			break
 		}
 
-		return e.complexity.FieldPayload.Field(childComplexity), true
+		return e.ComplexityRoot.FieldPayload.Field(childComplexity), true
 
 	case "FieldSelector.id":
-		if e.complexity.FieldSelector.ID == nil {
+		if e.ComplexityRoot.FieldSelector.ID == nil {
 			break
 		}
 
-		return e.complexity.FieldSelector.ID(childComplexity), true
+		return e.ComplexityRoot.FieldSelector.ID(childComplexity), true
 	case "FieldSelector.type":
-		if e.complexity.FieldSelector.Type == nil {
+		if e.ComplexityRoot.FieldSelector.Type == nil {
 			break
 		}
 
-		return e.complexity.FieldSelector.Type(childComplexity), true
+		return e.ComplexityRoot.FieldSelector.Type(childComplexity), true
 
 	case "FieldsPayload.fields":
-		if e.complexity.FieldsPayload.Fields == nil {
+		if e.ComplexityRoot.FieldsPayload.Fields == nil {
 			break
 		}
 
-		return e.complexity.FieldsPayload.Fields(childComplexity), true
+		return e.ComplexityRoot.FieldsPayload.Fields(childComplexity), true
 
 	case "Group.description":
-		if e.complexity.Group.Description == nil {
+		if e.ComplexityRoot.Group.Description == nil {
 			break
 		}
 
-		return e.complexity.Group.Description(childComplexity), true
+		return e.ComplexityRoot.Group.Description(childComplexity), true
 	case "Group.fields":
-		if e.complexity.Group.Fields == nil {
+		if e.ComplexityRoot.Group.Fields == nil {
 			break
 		}
 
-		return e.complexity.Group.Fields(childComplexity), true
+		return e.ComplexityRoot.Group.Fields(childComplexity), true
 	case "Group.id":
-		if e.complexity.Group.ID == nil {
+		if e.ComplexityRoot.Group.ID == nil {
 			break
 		}
 
-		return e.complexity.Group.ID(childComplexity), true
+		return e.ComplexityRoot.Group.ID(childComplexity), true
 	case "Group.key":
-		if e.complexity.Group.Key == nil {
+		if e.ComplexityRoot.Group.Key == nil {
 			break
 		}
 
-		return e.complexity.Group.Key(childComplexity), true
+		return e.ComplexityRoot.Group.Key(childComplexity), true
 	case "Group.name":
-		if e.complexity.Group.Name == nil {
+		if e.ComplexityRoot.Group.Name == nil {
 			break
 		}
 
-		return e.complexity.Group.Name(childComplexity), true
+		return e.ComplexityRoot.Group.Name(childComplexity), true
 	case "Group.order":
-		if e.complexity.Group.Order == nil {
+		if e.ComplexityRoot.Group.Order == nil {
 			break
 		}
 
-		return e.complexity.Group.Order(childComplexity), true
+		return e.ComplexityRoot.Group.Order(childComplexity), true
 	case "Group.project":
-		if e.complexity.Group.Project == nil {
+		if e.ComplexityRoot.Group.Project == nil {
 			break
 		}
 
-		return e.complexity.Group.Project(childComplexity), true
+		return e.ComplexityRoot.Group.Project(childComplexity), true
 	case "Group.projectId":
-		if e.complexity.Group.ProjectID == nil {
+		if e.ComplexityRoot.Group.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.Group.ProjectID(childComplexity), true
+		return e.ComplexityRoot.Group.ProjectID(childComplexity), true
 	case "Group.schema":
-		if e.complexity.Group.Schema == nil {
+		if e.ComplexityRoot.Group.Schema == nil {
 			break
 		}
 
-		return e.complexity.Group.Schema(childComplexity), true
+		return e.ComplexityRoot.Group.Schema(childComplexity), true
 	case "Group.schemaId":
-		if e.complexity.Group.SchemaID == nil {
+		if e.ComplexityRoot.Group.SchemaID == nil {
 			break
 		}
 
-		return e.complexity.Group.SchemaID(childComplexity), true
+		return e.ComplexityRoot.Group.SchemaID(childComplexity), true
 
 	case "GroupPayload.group":
-		if e.complexity.GroupPayload.Group == nil {
+		if e.ComplexityRoot.GroupPayload.Group == nil {
 			break
 		}
 
-		return e.complexity.GroupPayload.Group(childComplexity), true
+		return e.ComplexityRoot.GroupPayload.Group(childComplexity), true
 
 	case "GroupsPayload.groups":
-		if e.complexity.GroupsPayload.Groups == nil {
+		if e.ComplexityRoot.GroupsPayload.Groups == nil {
 			break
 		}
 
-		return e.complexity.GroupsPayload.Groups(childComplexity), true
+		return e.ComplexityRoot.GroupsPayload.Groups(childComplexity), true
 
 	case "GuessSchemaField.key":
-		if e.complexity.GuessSchemaField.Key == nil {
+		if e.ComplexityRoot.GuessSchemaField.Key == nil {
 			break
 		}
 
-		return e.complexity.GuessSchemaField.Key(childComplexity), true
+		return e.ComplexityRoot.GuessSchemaField.Key(childComplexity), true
 	case "GuessSchemaField.name":
-		if e.complexity.GuessSchemaField.Name == nil {
+		if e.ComplexityRoot.GuessSchemaField.Name == nil {
 			break
 		}
 
-		return e.complexity.GuessSchemaField.Name(childComplexity), true
+		return e.ComplexityRoot.GuessSchemaField.Name(childComplexity), true
 	case "GuessSchemaField.type":
-		if e.complexity.GuessSchemaField.Type == nil {
+		if e.ComplexityRoot.GuessSchemaField.Type == nil {
 			break
 		}
 
-		return e.complexity.GuessSchemaField.Type(childComplexity), true
+		return e.ComplexityRoot.GuessSchemaField.Type(childComplexity), true
 
 	case "GuessSchemaFieldResult.fields":
-		if e.complexity.GuessSchemaFieldResult.Fields == nil {
+		if e.ComplexityRoot.GuessSchemaFieldResult.Fields == nil {
 			break
 		}
 
-		return e.complexity.GuessSchemaFieldResult.Fields(childComplexity), true
+		return e.ComplexityRoot.GuessSchemaFieldResult.Fields(childComplexity), true
 	case "GuessSchemaFieldResult.total_count":
-		if e.complexity.GuessSchemaFieldResult.TotalCount == nil {
+		if e.ComplexityRoot.GuessSchemaFieldResult.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.GuessSchemaFieldResult.TotalCount(childComplexity), true
+		return e.ComplexityRoot.GuessSchemaFieldResult.TotalCount(childComplexity), true
+
+	case "ImportItemsAsyncPayload.job":
+		if e.ComplexityRoot.ImportItemsAsyncPayload.Job == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsAsyncPayload.Job(childComplexity), true
+
+	case "ImportItemsPayload.ignoredCount":
+		if e.ComplexityRoot.ImportItemsPayload.IgnoredCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsPayload.IgnoredCount(childComplexity), true
+	case "ImportItemsPayload.insertedCount":
+		if e.ComplexityRoot.ImportItemsPayload.InsertedCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsPayload.InsertedCount(childComplexity), true
+	case "ImportItemsPayload.modelId":
+		if e.ComplexityRoot.ImportItemsPayload.ModelID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsPayload.ModelID(childComplexity), true
+	case "ImportItemsPayload.totalCount":
+		if e.ComplexityRoot.ImportItemsPayload.TotalCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsPayload.TotalCount(childComplexity), true
+	case "ImportItemsPayload.updatedCount":
+		if e.ComplexityRoot.ImportItemsPayload.UpdatedCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsPayload.UpdatedCount(childComplexity), true
 
 	case "Integration.config":
-		if e.complexity.Integration.Config == nil {
+		if e.ComplexityRoot.Integration.Config == nil {
 			break
 		}
 
-		return e.complexity.Integration.Config(childComplexity), true
+		return e.ComplexityRoot.Integration.Config(childComplexity), true
 	case "Integration.createdAt":
-		if e.complexity.Integration.CreatedAt == nil {
+		if e.ComplexityRoot.Integration.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Integration.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Integration.CreatedAt(childComplexity), true
 	case "Integration.description":
-		if e.complexity.Integration.Description == nil {
+		if e.ComplexityRoot.Integration.Description == nil {
 			break
 		}
 
-		return e.complexity.Integration.Description(childComplexity), true
+		return e.ComplexityRoot.Integration.Description(childComplexity), true
 	case "Integration.developer":
-		if e.complexity.Integration.Developer == nil {
+		if e.ComplexityRoot.Integration.Developer == nil {
 			break
 		}
 
-		return e.complexity.Integration.Developer(childComplexity), true
+		return e.ComplexityRoot.Integration.Developer(childComplexity), true
 	case "Integration.developerId":
-		if e.complexity.Integration.DeveloperID == nil {
+		if e.ComplexityRoot.Integration.DeveloperID == nil {
 			break
 		}
 
-		return e.complexity.Integration.DeveloperID(childComplexity), true
+		return e.ComplexityRoot.Integration.DeveloperID(childComplexity), true
 	case "Integration.id":
-		if e.complexity.Integration.ID == nil {
+		if e.ComplexityRoot.Integration.ID == nil {
 			break
 		}
 
-		return e.complexity.Integration.ID(childComplexity), true
+		return e.ComplexityRoot.Integration.ID(childComplexity), true
 	case "Integration.iType":
-		if e.complexity.Integration.IType == nil {
+		if e.ComplexityRoot.Integration.IType == nil {
 			break
 		}
 
-		return e.complexity.Integration.IType(childComplexity), true
+		return e.ComplexityRoot.Integration.IType(childComplexity), true
 	case "Integration.logoUrl":
-		if e.complexity.Integration.LogoURL == nil {
+		if e.ComplexityRoot.Integration.LogoURL == nil {
 			break
 		}
 
-		return e.complexity.Integration.LogoURL(childComplexity), true
+		return e.ComplexityRoot.Integration.LogoURL(childComplexity), true
 	case "Integration.name":
-		if e.complexity.Integration.Name == nil {
+		if e.ComplexityRoot.Integration.Name == nil {
 			break
 		}
 
-		return e.complexity.Integration.Name(childComplexity), true
+		return e.ComplexityRoot.Integration.Name(childComplexity), true
 	case "Integration.updatedAt":
-		if e.complexity.Integration.UpdatedAt == nil {
+		if e.ComplexityRoot.Integration.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Integration.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.Integration.UpdatedAt(childComplexity), true
 
 	case "IntegrationConfig.token":
-		if e.complexity.IntegrationConfig.Token == nil {
+		if e.ComplexityRoot.IntegrationConfig.Token == nil {
 			break
 		}
 
-		return e.complexity.IntegrationConfig.Token(childComplexity), true
+		return e.ComplexityRoot.IntegrationConfig.Token(childComplexity), true
 	case "IntegrationConfig.webhooks":
-		if e.complexity.IntegrationConfig.Webhooks == nil {
+		if e.ComplexityRoot.IntegrationConfig.Webhooks == nil {
 			break
 		}
 
-		return e.complexity.IntegrationConfig.Webhooks(childComplexity), true
+		return e.ComplexityRoot.IntegrationConfig.Webhooks(childComplexity), true
 
 	case "IntegrationPayload.integration":
-		if e.complexity.IntegrationPayload.Integration == nil {
+		if e.ComplexityRoot.IntegrationPayload.Integration == nil {
 			break
 		}
 
-		return e.complexity.IntegrationPayload.Integration(childComplexity), true
+		return e.ComplexityRoot.IntegrationPayload.Integration(childComplexity), true
 
 	case "Item.assets":
-		if e.complexity.Item.Assets == nil {
+		if e.ComplexityRoot.Item.Assets == nil {
 			break
 		}
 
-		return e.complexity.Item.Assets(childComplexity), true
+		return e.ComplexityRoot.Item.Assets(childComplexity), true
 	case "Item.createdAt":
-		if e.complexity.Item.CreatedAt == nil {
+		if e.ComplexityRoot.Item.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Item.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Item.CreatedAt(childComplexity), true
 	case "Item.createdBy":
-		if e.complexity.Item.CreatedBy == nil {
+		if e.ComplexityRoot.Item.CreatedBy == nil {
 			break
 		}
 
-		return e.complexity.Item.CreatedBy(childComplexity), true
+		return e.ComplexityRoot.Item.CreatedBy(childComplexity), true
 	case "Item.fields":
-		if e.complexity.Item.Fields == nil {
+		if e.ComplexityRoot.Item.Fields == nil {
 			break
 		}
 
-		return e.complexity.Item.Fields(childComplexity), true
+		return e.ComplexityRoot.Item.Fields(childComplexity), true
 	case "Item.id":
-		if e.complexity.Item.ID == nil {
+		if e.ComplexityRoot.Item.ID == nil {
 			break
 		}
 
-		return e.complexity.Item.ID(childComplexity), true
+		return e.ComplexityRoot.Item.ID(childComplexity), true
 	case "Item.integrationId":
-		if e.complexity.Item.IntegrationID == nil {
+		if e.ComplexityRoot.Item.IntegrationID == nil {
 			break
 		}
 
-		return e.complexity.Item.IntegrationID(childComplexity), true
+		return e.ComplexityRoot.Item.IntegrationID(childComplexity), true
 	case "Item.isMetadata":
-		if e.complexity.Item.IsMetadata == nil {
+		if e.ComplexityRoot.Item.IsMetadata == nil {
 			break
 		}
 
-		return e.complexity.Item.IsMetadata(childComplexity), true
+		return e.ComplexityRoot.Item.IsMetadata(childComplexity), true
 	case "Item.metadata":
-		if e.complexity.Item.Metadata == nil {
+		if e.ComplexityRoot.Item.Metadata == nil {
 			break
 		}
 
-		return e.complexity.Item.Metadata(childComplexity), true
+		return e.ComplexityRoot.Item.Metadata(childComplexity), true
 	case "Item.metadataId":
-		if e.complexity.Item.MetadataID == nil {
+		if e.ComplexityRoot.Item.MetadataID == nil {
 			break
 		}
 
-		return e.complexity.Item.MetadataID(childComplexity), true
+		return e.ComplexityRoot.Item.MetadataID(childComplexity), true
 	case "Item.model":
-		if e.complexity.Item.Model == nil {
+		if e.ComplexityRoot.Item.Model == nil {
 			break
 		}
 
-		return e.complexity.Item.Model(childComplexity), true
+		return e.ComplexityRoot.Item.Model(childComplexity), true
 	case "Item.modelId":
-		if e.complexity.Item.ModelID == nil {
+		if e.ComplexityRoot.Item.ModelID == nil {
 			break
 		}
 
-		return e.complexity.Item.ModelID(childComplexity), true
+		return e.ComplexityRoot.Item.ModelID(childComplexity), true
 	case "Item.original":
-		if e.complexity.Item.Original == nil {
+		if e.ComplexityRoot.Item.Original == nil {
 			break
 		}
 
-		return e.complexity.Item.Original(childComplexity), true
+		return e.ComplexityRoot.Item.Original(childComplexity), true
 	case "Item.originalId":
-		if e.complexity.Item.OriginalID == nil {
+		if e.ComplexityRoot.Item.OriginalID == nil {
 			break
 		}
 
-		return e.complexity.Item.OriginalID(childComplexity), true
+		return e.ComplexityRoot.Item.OriginalID(childComplexity), true
 	case "Item.project":
-		if e.complexity.Item.Project == nil {
+		if e.ComplexityRoot.Item.Project == nil {
 			break
 		}
 
-		return e.complexity.Item.Project(childComplexity), true
+		return e.ComplexityRoot.Item.Project(childComplexity), true
 	case "Item.projectId":
-		if e.complexity.Item.ProjectID == nil {
+		if e.ComplexityRoot.Item.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.Item.ProjectID(childComplexity), true
+		return e.ComplexityRoot.Item.ProjectID(childComplexity), true
 	case "Item.referencedItems":
-		if e.complexity.Item.ReferencedItems == nil {
+		if e.ComplexityRoot.Item.ReferencedItems == nil {
 			break
 		}
 
-		return e.complexity.Item.ReferencedItems(childComplexity), true
+		return e.ComplexityRoot.Item.ReferencedItems(childComplexity), true
 	case "Item.requests":
-		if e.complexity.Item.Requests == nil {
+		if e.ComplexityRoot.Item.Requests == nil {
 			break
 		}
 
-		return e.complexity.Item.Requests(childComplexity), true
+		return e.ComplexityRoot.Item.Requests(childComplexity), true
 	case "Item.schema":
-		if e.complexity.Item.Schema == nil {
+		if e.ComplexityRoot.Item.Schema == nil {
 			break
 		}
 
-		return e.complexity.Item.Schema(childComplexity), true
+		return e.ComplexityRoot.Item.Schema(childComplexity), true
 	case "Item.schemaId":
-		if e.complexity.Item.SchemaID == nil {
+		if e.ComplexityRoot.Item.SchemaID == nil {
 			break
 		}
 
-		return e.complexity.Item.SchemaID(childComplexity), true
+		return e.ComplexityRoot.Item.SchemaID(childComplexity), true
 	case "Item.status":
-		if e.complexity.Item.Status == nil {
+		if e.ComplexityRoot.Item.Status == nil {
 			break
 		}
 
-		return e.complexity.Item.Status(childComplexity), true
+		return e.ComplexityRoot.Item.Status(childComplexity), true
 	case "Item.thread":
-		if e.complexity.Item.Thread == nil {
+		if e.ComplexityRoot.Item.Thread == nil {
 			break
 		}
 
-		return e.complexity.Item.Thread(childComplexity), true
+		return e.ComplexityRoot.Item.Thread(childComplexity), true
 	case "Item.threadId":
-		if e.complexity.Item.ThreadID == nil {
+		if e.ComplexityRoot.Item.ThreadID == nil {
 			break
 		}
 
-		return e.complexity.Item.ThreadID(childComplexity), true
+		return e.ComplexityRoot.Item.ThreadID(childComplexity), true
 	case "Item.title":
-		if e.complexity.Item.Title == nil {
+		if e.ComplexityRoot.Item.Title == nil {
 			break
 		}
 
-		return e.complexity.Item.Title(childComplexity), true
+		return e.ComplexityRoot.Item.Title(childComplexity), true
 	case "Item.updatedAt":
-		if e.complexity.Item.UpdatedAt == nil {
+		if e.ComplexityRoot.Item.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Item.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.Item.UpdatedAt(childComplexity), true
 	case "Item.updatedBy":
-		if e.complexity.Item.UpdatedBy == nil {
+		if e.ComplexityRoot.Item.UpdatedBy == nil {
 			break
 		}
 
-		return e.complexity.Item.UpdatedBy(childComplexity), true
+		return e.ComplexityRoot.Item.UpdatedBy(childComplexity), true
 	case "Item.updatedByIntegrationId":
-		if e.complexity.Item.UpdatedByIntegrationID == nil {
+		if e.ComplexityRoot.Item.UpdatedByIntegrationID == nil {
 			break
 		}
 
-		return e.complexity.Item.UpdatedByIntegrationID(childComplexity), true
+		return e.ComplexityRoot.Item.UpdatedByIntegrationID(childComplexity), true
 	case "Item.updatedByUserId":
-		if e.complexity.Item.UpdatedByUserID == nil {
+		if e.ComplexityRoot.Item.UpdatedByUserID == nil {
 			break
 		}
 
-		return e.complexity.Item.UpdatedByUserID(childComplexity), true
+		return e.ComplexityRoot.Item.UpdatedByUserID(childComplexity), true
 	case "Item.userId":
-		if e.complexity.Item.UserID == nil {
+		if e.ComplexityRoot.Item.UserID == nil {
 			break
 		}
 
-		return e.complexity.Item.UserID(childComplexity), true
+		return e.ComplexityRoot.Item.UserID(childComplexity), true
 	case "Item.version":
-		if e.complexity.Item.Version == nil {
+		if e.ComplexityRoot.Item.Version == nil {
 			break
 		}
 
-		return e.complexity.Item.Version(childComplexity), true
+		return e.ComplexityRoot.Item.Version(childComplexity), true
 
 	case "ItemConnection.edges":
-		if e.complexity.ItemConnection.Edges == nil {
+		if e.ComplexityRoot.ItemConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.ItemConnection.Edges(childComplexity), true
+		return e.ComplexityRoot.ItemConnection.Edges(childComplexity), true
 	case "ItemConnection.nodes":
-		if e.complexity.ItemConnection.Nodes == nil {
+		if e.ComplexityRoot.ItemConnection.Nodes == nil {
 			break
 		}
 
-		return e.complexity.ItemConnection.Nodes(childComplexity), true
+		return e.ComplexityRoot.ItemConnection.Nodes(childComplexity), true
 	case "ItemConnection.pageInfo":
-		if e.complexity.ItemConnection.PageInfo == nil {
+		if e.ComplexityRoot.ItemConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.ItemConnection.PageInfo(childComplexity), true
+		return e.ComplexityRoot.ItemConnection.PageInfo(childComplexity), true
 	case "ItemConnection.totalCount":
-		if e.complexity.ItemConnection.TotalCount == nil {
+		if e.ComplexityRoot.ItemConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.ItemConnection.TotalCount(childComplexity), true
+		return e.ComplexityRoot.ItemConnection.TotalCount(childComplexity), true
 
 	case "ItemEdge.cursor":
-		if e.complexity.ItemEdge.Cursor == nil {
+		if e.ComplexityRoot.ItemEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.ItemEdge.Cursor(childComplexity), true
+		return e.ComplexityRoot.ItemEdge.Cursor(childComplexity), true
 	case "ItemEdge.node":
-		if e.complexity.ItemEdge.Node == nil {
+		if e.ComplexityRoot.ItemEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.ItemEdge.Node(childComplexity), true
+		return e.ComplexityRoot.ItemEdge.Node(childComplexity), true
 
 	case "ItemField.itemGroupId":
-		if e.complexity.ItemField.ItemGroupID == nil {
+		if e.ComplexityRoot.ItemField.ItemGroupID == nil {
 			break
 		}
 
-		return e.complexity.ItemField.ItemGroupID(childComplexity), true
+		return e.ComplexityRoot.ItemField.ItemGroupID(childComplexity), true
 	case "ItemField.schemaFieldId":
-		if e.complexity.ItemField.SchemaFieldID == nil {
+		if e.ComplexityRoot.ItemField.SchemaFieldID == nil {
 			break
 		}
 
-		return e.complexity.ItemField.SchemaFieldID(childComplexity), true
+		return e.ComplexityRoot.ItemField.SchemaFieldID(childComplexity), true
 	case "ItemField.type":
-		if e.complexity.ItemField.Type == nil {
+		if e.ComplexityRoot.ItemField.Type == nil {
 			break
 		}
 
-		return e.complexity.ItemField.Type(childComplexity), true
+		return e.ComplexityRoot.ItemField.Type(childComplexity), true
 	case "ItemField.value":
-		if e.complexity.ItemField.Value == nil {
+		if e.ComplexityRoot.ItemField.Value == nil {
 			break
 		}
 
-		return e.complexity.ItemField.Value(childComplexity), true
+		return e.ComplexityRoot.ItemField.Value(childComplexity), true
 
 	case "ItemPayload.item":
-		if e.complexity.ItemPayload.Item == nil {
+		if e.ComplexityRoot.ItemPayload.Item == nil {
 			break
 		}
 
-		return e.complexity.ItemPayload.Item(childComplexity), true
+		return e.ComplexityRoot.ItemPayload.Item(childComplexity), true
 
 	case "ItemSort.direction":
-		if e.complexity.ItemSort.Direction == nil {
+		if e.ComplexityRoot.ItemSort.Direction == nil {
 			break
 		}
 
-		return e.complexity.ItemSort.Direction(childComplexity), true
+		return e.ComplexityRoot.ItemSort.Direction(childComplexity), true
 	case "ItemSort.field":
-		if e.complexity.ItemSort.Field == nil {
+		if e.ComplexityRoot.ItemSort.Field == nil {
 			break
 		}
 
-		return e.complexity.ItemSort.Field(childComplexity), true
+		return e.ComplexityRoot.ItemSort.Field(childComplexity), true
+
+	case "Job.completedAt":
+		if e.ComplexityRoot.Job.CompletedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.CompletedAt(childComplexity), true
+	case "Job.createdAt":
+		if e.ComplexityRoot.Job.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.CreatedAt(childComplexity), true
+	case "Job.error":
+		if e.ComplexityRoot.Job.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.Error(childComplexity), true
+	case "Job.id":
+		if e.ComplexityRoot.Job.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.ID(childComplexity), true
+	case "Job.progress":
+		if e.ComplexityRoot.Job.Progress == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.Progress(childComplexity), true
+	case "Job.projectId":
+		if e.ComplexityRoot.Job.ProjectID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.ProjectID(childComplexity), true
+	case "Job.startedAt":
+		if e.ComplexityRoot.Job.StartedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.StartedAt(childComplexity), true
+	case "Job.status":
+		if e.ComplexityRoot.Job.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.Status(childComplexity), true
+	case "Job.type":
+		if e.ComplexityRoot.Job.Type == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.Type(childComplexity), true
+	case "Job.updatedAt":
+		if e.ComplexityRoot.Job.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.UpdatedAt(childComplexity), true
+
+	case "JobProgress.percentage":
+		if e.ComplexityRoot.JobProgress.Percentage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobProgress.Percentage(childComplexity), true
+	case "JobProgress.processed":
+		if e.ComplexityRoot.JobProgress.Processed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobProgress.Processed(childComplexity), true
+	case "JobProgress.total":
+		if e.ComplexityRoot.JobProgress.Total == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobProgress.Total(childComplexity), true
+
+	case "JobState.error":
+		if e.ComplexityRoot.JobState.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobState.Error(childComplexity), true
+	case "JobState.progress":
+		if e.ComplexityRoot.JobState.Progress == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobState.Progress(childComplexity), true
+	case "JobState.status":
+		if e.ComplexityRoot.JobState.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobState.Status(childComplexity), true
 
 	case "KeyAvailability.available":
-		if e.complexity.KeyAvailability.Available == nil {
+		if e.ComplexityRoot.KeyAvailability.Available == nil {
 			break
 		}
 
-		return e.complexity.KeyAvailability.Available(childComplexity), true
+		return e.ComplexityRoot.KeyAvailability.Available(childComplexity), true
 	case "KeyAvailability.key":
-		if e.complexity.KeyAvailability.Key == nil {
+		if e.ComplexityRoot.KeyAvailability.Key == nil {
 			break
 		}
 
-		return e.complexity.KeyAvailability.Key(childComplexity), true
+		return e.ComplexityRoot.KeyAvailability.Key(childComplexity), true
 
 	case "Me.auths":
-		if e.complexity.Me.Auths == nil {
+		if e.ComplexityRoot.Me.Auths == nil {
 			break
 		}
 
-		return e.complexity.Me.Auths(childComplexity), true
+		return e.ComplexityRoot.Me.Auths(childComplexity), true
 	case "Me.email":
-		if e.complexity.Me.Email == nil {
+		if e.ComplexityRoot.Me.Email == nil {
 			break
 		}
 
-		return e.complexity.Me.Email(childComplexity), true
+		return e.ComplexityRoot.Me.Email(childComplexity), true
 	case "Me.host":
-		if e.complexity.Me.Host == nil {
+		if e.ComplexityRoot.Me.Host == nil {
 			break
 		}
 
-		return e.complexity.Me.Host(childComplexity), true
+		return e.ComplexityRoot.Me.Host(childComplexity), true
 	case "Me.id":
-		if e.complexity.Me.ID == nil {
+		if e.ComplexityRoot.Me.ID == nil {
 			break
 		}
 
-		return e.complexity.Me.ID(childComplexity), true
+		return e.ComplexityRoot.Me.ID(childComplexity), true
 	case "Me.integrations":
-		if e.complexity.Me.Integrations == nil {
+		if e.ComplexityRoot.Me.Integrations == nil {
 			break
 		}
 
-		return e.complexity.Me.Integrations(childComplexity), true
+		return e.ComplexityRoot.Me.Integrations(childComplexity), true
 	case "Me.lang":
-		if e.complexity.Me.Lang == nil {
+		if e.ComplexityRoot.Me.Lang == nil {
 			break
 		}
 
-		return e.complexity.Me.Lang(childComplexity), true
+		return e.ComplexityRoot.Me.Lang(childComplexity), true
 	case "Me.myWorkspace":
-		if e.complexity.Me.MyWorkspace == nil {
+		if e.ComplexityRoot.Me.MyWorkspace == nil {
 			break
 		}
 
-		return e.complexity.Me.MyWorkspace(childComplexity), true
+		return e.ComplexityRoot.Me.MyWorkspace(childComplexity), true
 	case "Me.myWorkspaceId":
-		if e.complexity.Me.MyWorkspaceID == nil {
+		if e.ComplexityRoot.Me.MyWorkspaceID == nil {
 			break
 		}
 
-		return e.complexity.Me.MyWorkspaceID(childComplexity), true
+		return e.ComplexityRoot.Me.MyWorkspaceID(childComplexity), true
 	case "Me.name":
-		if e.complexity.Me.Name == nil {
+		if e.ComplexityRoot.Me.Name == nil {
 			break
 		}
 
-		return e.complexity.Me.Name(childComplexity), true
+		return e.ComplexityRoot.Me.Name(childComplexity), true
 	case "Me.profilePictureUrl":
-		if e.complexity.Me.ProfilePictureURL == nil {
+		if e.ComplexityRoot.Me.ProfilePictureURL == nil {
 			break
 		}
 
-		return e.complexity.Me.ProfilePictureURL(childComplexity), true
+		return e.ComplexityRoot.Me.ProfilePictureURL(childComplexity), true
 	case "Me.theme":
-		if e.complexity.Me.Theme == nil {
+		if e.ComplexityRoot.Me.Theme == nil {
 			break
 		}
 
-		return e.complexity.Me.Theme(childComplexity), true
+		return e.ComplexityRoot.Me.Theme(childComplexity), true
 	case "Me.workspaces":
-		if e.complexity.Me.Workspaces == nil {
+		if e.ComplexityRoot.Me.Workspaces == nil {
 			break
 		}
 
-		return e.complexity.Me.Workspaces(childComplexity), true
+		return e.ComplexityRoot.Me.Workspaces(childComplexity), true
 
 	case "Model.createdAt":
-		if e.complexity.Model.CreatedAt == nil {
+		if e.ComplexityRoot.Model.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Model.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Model.CreatedAt(childComplexity), true
 	case "Model.description":
-		if e.complexity.Model.Description == nil {
+		if e.ComplexityRoot.Model.Description == nil {
 			break
 		}
 
-		return e.complexity.Model.Description(childComplexity), true
+		return e.ComplexityRoot.Model.Description(childComplexity), true
 	case "Model.id":
-		if e.complexity.Model.ID == nil {
+		if e.ComplexityRoot.Model.ID == nil {
 			break
 		}
 
-		return e.complexity.Model.ID(childComplexity), true
+		return e.ComplexityRoot.Model.ID(childComplexity), true
 	case "Model.key":
-		if e.complexity.Model.Key == nil {
+		if e.ComplexityRoot.Model.Key == nil {
 			break
 		}
 
-		return e.complexity.Model.Key(childComplexity), true
+		return e.ComplexityRoot.Model.Key(childComplexity), true
 	case "Model.metadataSchema":
-		if e.complexity.Model.MetadataSchema == nil {
+		if e.ComplexityRoot.Model.MetadataSchema == nil {
 			break
 		}
 
-		return e.complexity.Model.MetadataSchema(childComplexity), true
+		return e.ComplexityRoot.Model.MetadataSchema(childComplexity), true
 	case "Model.metadataSchemaId":
-		if e.complexity.Model.MetadataSchemaID == nil {
+		if e.ComplexityRoot.Model.MetadataSchemaID == nil {
 			break
 		}
 
-		return e.complexity.Model.MetadataSchemaID(childComplexity), true
+		return e.ComplexityRoot.Model.MetadataSchemaID(childComplexity), true
 	case "Model.name":
-		if e.complexity.Model.Name == nil {
+		if e.ComplexityRoot.Model.Name == nil {
 			break
 		}
 
-		return e.complexity.Model.Name(childComplexity), true
+		return e.ComplexityRoot.Model.Name(childComplexity), true
 	case "Model.order":
-		if e.complexity.Model.Order == nil {
+		if e.ComplexityRoot.Model.Order == nil {
 			break
 		}
 
-		return e.complexity.Model.Order(childComplexity), true
+		return e.ComplexityRoot.Model.Order(childComplexity), true
 	case "Model.project":
-		if e.complexity.Model.Project == nil {
+		if e.ComplexityRoot.Model.Project == nil {
 			break
 		}
 
-		return e.complexity.Model.Project(childComplexity), true
+		return e.ComplexityRoot.Model.Project(childComplexity), true
 	case "Model.projectId":
-		if e.complexity.Model.ProjectID == nil {
+		if e.ComplexityRoot.Model.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.Model.ProjectID(childComplexity), true
+		return e.ComplexityRoot.Model.ProjectID(childComplexity), true
 	case "Model.schema":
-		if e.complexity.Model.Schema == nil {
+		if e.ComplexityRoot.Model.Schema == nil {
 			break
 		}
 
-		return e.complexity.Model.Schema(childComplexity), true
+		return e.ComplexityRoot.Model.Schema(childComplexity), true
 	case "Model.schemaId":
-		if e.complexity.Model.SchemaID == nil {
+		if e.ComplexityRoot.Model.SchemaID == nil {
 			break
 		}
 
-		return e.complexity.Model.SchemaID(childComplexity), true
+		return e.ComplexityRoot.Model.SchemaID(childComplexity), true
 	case "Model.updatedAt":
-		if e.complexity.Model.UpdatedAt == nil {
+		if e.ComplexityRoot.Model.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Model.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.Model.UpdatedAt(childComplexity), true
 
 	case "ModelConnection.edges":
-		if e.complexity.ModelConnection.Edges == nil {
+		if e.ComplexityRoot.ModelConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.ModelConnection.Edges(childComplexity), true
+		return e.ComplexityRoot.ModelConnection.Edges(childComplexity), true
 	case "ModelConnection.nodes":
-		if e.complexity.ModelConnection.Nodes == nil {
+		if e.ComplexityRoot.ModelConnection.Nodes == nil {
 			break
 		}
 
-		return e.complexity.ModelConnection.Nodes(childComplexity), true
+		return e.ComplexityRoot.ModelConnection.Nodes(childComplexity), true
 	case "ModelConnection.pageInfo":
-		if e.complexity.ModelConnection.PageInfo == nil {
+		if e.ComplexityRoot.ModelConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.ModelConnection.PageInfo(childComplexity), true
+		return e.ComplexityRoot.ModelConnection.PageInfo(childComplexity), true
 	case "ModelConnection.totalCount":
-		if e.complexity.ModelConnection.TotalCount == nil {
+		if e.ComplexityRoot.ModelConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.ModelConnection.TotalCount(childComplexity), true
+		return e.ComplexityRoot.ModelConnection.TotalCount(childComplexity), true
 
 	case "ModelEdge.cursor":
-		if e.complexity.ModelEdge.Cursor == nil {
+		if e.ComplexityRoot.ModelEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.ModelEdge.Cursor(childComplexity), true
+		return e.ComplexityRoot.ModelEdge.Cursor(childComplexity), true
 	case "ModelEdge.node":
-		if e.complexity.ModelEdge.Node == nil {
+		if e.ComplexityRoot.ModelEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.ModelEdge.Node(childComplexity), true
+		return e.ComplexityRoot.ModelEdge.Node(childComplexity), true
 
 	case "ModelPayload.model":
-		if e.complexity.ModelPayload.Model == nil {
+		if e.ComplexityRoot.ModelPayload.Model == nil {
 			break
 		}
 
-		return e.complexity.ModelPayload.Model(childComplexity), true
+		return e.ComplexityRoot.ModelPayload.Model(childComplexity), true
 
 	case "ModelsPayload.models":
-		if e.complexity.ModelsPayload.Models == nil {
+		if e.ComplexityRoot.ModelsPayload.Models == nil {
 			break
 		}
 
-		return e.complexity.ModelsPayload.Models(childComplexity), true
+		return e.ComplexityRoot.ModelsPayload.Models(childComplexity), true
 
 	case "MultipleFieldCondition.fieldId":
-		if e.complexity.MultipleFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.MultipleFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.MultipleFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.MultipleFieldCondition.FieldID(childComplexity), true
 	case "MultipleFieldCondition.operator":
-		if e.complexity.MultipleFieldCondition.Operator == nil {
+		if e.ComplexityRoot.MultipleFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.MultipleFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.MultipleFieldCondition.Operator(childComplexity), true
 	case "MultipleFieldCondition.value":
-		if e.complexity.MultipleFieldCondition.Value == nil {
+		if e.ComplexityRoot.MultipleFieldCondition.Value == nil {
 			break
 		}
 
-		return e.complexity.MultipleFieldCondition.Value(childComplexity), true
+		return e.ComplexityRoot.MultipleFieldCondition.Value(childComplexity), true
 
 	case "Mutation.addComment":
-		if e.complexity.Mutation.AddComment == nil {
+		if e.ComplexityRoot.Mutation.AddComment == nil {
 			break
 		}
 
@@ -2455,9 +2644,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddComment(childComplexity, args["input"].(gqlmodel.AddCommentInput)), true
+		return e.ComplexityRoot.Mutation.AddComment(childComplexity, args["input"].(gqlmodel.AddCommentInput)), true
 	case "Mutation.addIntegrationToWorkspace":
-		if e.complexity.Mutation.AddIntegrationToWorkspace == nil {
+		if e.ComplexityRoot.Mutation.AddIntegrationToWorkspace == nil {
 			break
 		}
 
@@ -2466,9 +2655,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddIntegrationToWorkspace(childComplexity, args["input"].(gqlmodel.AddIntegrationToWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.AddIntegrationToWorkspace(childComplexity, args["input"].(gqlmodel.AddIntegrationToWorkspaceInput)), true
 	case "Mutation.addUsersToWorkspace":
-		if e.complexity.Mutation.AddUsersToWorkspace == nil {
+		if e.ComplexityRoot.Mutation.AddUsersToWorkspace == nil {
 			break
 		}
 
@@ -2477,9 +2666,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddUsersToWorkspace(childComplexity, args["input"].(gqlmodel.AddUsersToWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.AddUsersToWorkspace(childComplexity, args["input"].(gqlmodel.AddUsersToWorkspaceInput)), true
 	case "Mutation.approveRequest":
-		if e.complexity.Mutation.ApproveRequest == nil {
+		if e.ComplexityRoot.Mutation.ApproveRequest == nil {
 			break
 		}
 
@@ -2488,9 +2677,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ApproveRequest(childComplexity, args["input"].(gqlmodel.ApproveRequestInput)), true
+		return e.ComplexityRoot.Mutation.ApproveRequest(childComplexity, args["input"].(gqlmodel.ApproveRequestInput)), true
+	case "Mutation.cancelJob":
+		if e.ComplexityRoot.Mutation.CancelJob == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_cancelJob_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CancelJob(childComplexity, args["jobId"].(gqlmodel.ID)), true
 	case "Mutation.createAPIKey":
-		if e.complexity.Mutation.CreateAPIKey == nil {
+		if e.ComplexityRoot.Mutation.CreateAPIKey == nil {
 			break
 		}
 
@@ -2499,9 +2699,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateAPIKey(childComplexity, args["input"].(gqlmodel.CreateAPIKeyInput)), true
+		return e.ComplexityRoot.Mutation.CreateAPIKey(childComplexity, args["input"].(gqlmodel.CreateAPIKeyInput)), true
 	case "Mutation.createAsset":
-		if e.complexity.Mutation.CreateAsset == nil {
+		if e.ComplexityRoot.Mutation.CreateAsset == nil {
 			break
 		}
 
@@ -2510,9 +2710,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateAsset(childComplexity, args["input"].(gqlmodel.CreateAssetInput)), true
+		return e.ComplexityRoot.Mutation.CreateAsset(childComplexity, args["input"].(gqlmodel.CreateAssetInput)), true
 	case "Mutation.createAssetUpload":
-		if e.complexity.Mutation.CreateAssetUpload == nil {
+		if e.ComplexityRoot.Mutation.CreateAssetUpload == nil {
 			break
 		}
 
@@ -2521,9 +2721,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateAssetUpload(childComplexity, args["input"].(gqlmodel.CreateAssetUploadInput)), true
+		return e.ComplexityRoot.Mutation.CreateAssetUpload(childComplexity, args["input"].(gqlmodel.CreateAssetUploadInput)), true
 	case "Mutation.createField":
-		if e.complexity.Mutation.CreateField == nil {
+		if e.ComplexityRoot.Mutation.CreateField == nil {
 			break
 		}
 
@@ -2532,9 +2732,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateField(childComplexity, args["input"].(gqlmodel.CreateFieldInput)), true
+		return e.ComplexityRoot.Mutation.CreateField(childComplexity, args["input"].(gqlmodel.CreateFieldInput)), true
 	case "Mutation.createFields":
-		if e.complexity.Mutation.CreateFields == nil {
+		if e.ComplexityRoot.Mutation.CreateFields == nil {
 			break
 		}
 
@@ -2543,9 +2743,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateFields(childComplexity, args["input"].([]*gqlmodel.CreateFieldInput)), true
+		return e.ComplexityRoot.Mutation.CreateFields(childComplexity, args["input"].([]*gqlmodel.CreateFieldInput)), true
 	case "Mutation.createGroup":
-		if e.complexity.Mutation.CreateGroup == nil {
+		if e.ComplexityRoot.Mutation.CreateGroup == nil {
 			break
 		}
 
@@ -2554,9 +2754,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateGroup(childComplexity, args["input"].(gqlmodel.CreateGroupInput)), true
+		return e.ComplexityRoot.Mutation.CreateGroup(childComplexity, args["input"].(gqlmodel.CreateGroupInput)), true
 	case "Mutation.createIntegration":
-		if e.complexity.Mutation.CreateIntegration == nil {
+		if e.ComplexityRoot.Mutation.CreateIntegration == nil {
 			break
 		}
 
@@ -2565,9 +2765,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateIntegration(childComplexity, args["input"].(gqlmodel.CreateIntegrationInput)), true
+		return e.ComplexityRoot.Mutation.CreateIntegration(childComplexity, args["input"].(gqlmodel.CreateIntegrationInput)), true
 	case "Mutation.createItem":
-		if e.complexity.Mutation.CreateItem == nil {
+		if e.ComplexityRoot.Mutation.CreateItem == nil {
 			break
 		}
 
@@ -2576,9 +2776,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateItem(childComplexity, args["input"].(gqlmodel.CreateItemInput)), true
+		return e.ComplexityRoot.Mutation.CreateItem(childComplexity, args["input"].(gqlmodel.CreateItemInput)), true
 	case "Mutation.createModel":
-		if e.complexity.Mutation.CreateModel == nil {
+		if e.ComplexityRoot.Mutation.CreateModel == nil {
 			break
 		}
 
@@ -2587,9 +2787,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateModel(childComplexity, args["input"].(gqlmodel.CreateModelInput)), true
+		return e.ComplexityRoot.Mutation.CreateModel(childComplexity, args["input"].(gqlmodel.CreateModelInput)), true
 	case "Mutation.createProject":
-		if e.complexity.Mutation.CreateProject == nil {
+		if e.ComplexityRoot.Mutation.CreateProject == nil {
 			break
 		}
 
@@ -2598,9 +2798,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateProject(childComplexity, args["input"].(gqlmodel.CreateProjectInput)), true
+		return e.ComplexityRoot.Mutation.CreateProject(childComplexity, args["input"].(gqlmodel.CreateProjectInput)), true
 	case "Mutation.createRequest":
-		if e.complexity.Mutation.CreateRequest == nil {
+		if e.ComplexityRoot.Mutation.CreateRequest == nil {
 			break
 		}
 
@@ -2609,9 +2809,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateRequest(childComplexity, args["input"].(gqlmodel.CreateRequestInput)), true
+		return e.ComplexityRoot.Mutation.CreateRequest(childComplexity, args["input"].(gqlmodel.CreateRequestInput)), true
 	case "Mutation.createThreadWithComment":
-		if e.complexity.Mutation.CreateThreadWithComment == nil {
+		if e.ComplexityRoot.Mutation.CreateThreadWithComment == nil {
 			break
 		}
 
@@ -2620,9 +2820,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateThreadWithComment(childComplexity, args["input"].(gqlmodel.CreateThreadWithCommentInput)), true
+		return e.ComplexityRoot.Mutation.CreateThreadWithComment(childComplexity, args["input"].(gqlmodel.CreateThreadWithCommentInput)), true
 	case "Mutation.createView":
-		if e.complexity.Mutation.CreateView == nil {
+		if e.ComplexityRoot.Mutation.CreateView == nil {
 			break
 		}
 
@@ -2631,9 +2831,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateView(childComplexity, args["input"].(gqlmodel.CreateViewInput)), true
+		return e.ComplexityRoot.Mutation.CreateView(childComplexity, args["input"].(gqlmodel.CreateViewInput)), true
 	case "Mutation.createWebhook":
-		if e.complexity.Mutation.CreateWebhook == nil {
+		if e.ComplexityRoot.Mutation.CreateWebhook == nil {
 			break
 		}
 
@@ -2642,9 +2842,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateWebhook(childComplexity, args["input"].(gqlmodel.CreateWebhookInput)), true
+		return e.ComplexityRoot.Mutation.CreateWebhook(childComplexity, args["input"].(gqlmodel.CreateWebhookInput)), true
 	case "Mutation.createWorkspace":
-		if e.complexity.Mutation.CreateWorkspace == nil {
+		if e.ComplexityRoot.Mutation.CreateWorkspace == nil {
 			break
 		}
 
@@ -2653,9 +2853,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateWorkspace(childComplexity, args["input"].(gqlmodel.CreateWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.CreateWorkspace(childComplexity, args["input"].(gqlmodel.CreateWorkspaceInput)), true
 	case "Mutation.decompressAsset":
-		if e.complexity.Mutation.DecompressAsset == nil {
+		if e.ComplexityRoot.Mutation.DecompressAsset == nil {
 			break
 		}
 
@@ -2664,9 +2864,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DecompressAsset(childComplexity, args["input"].(gqlmodel.DecompressAssetInput)), true
+		return e.ComplexityRoot.Mutation.DecompressAsset(childComplexity, args["input"].(gqlmodel.DecompressAssetInput)), true
 	case "Mutation.deleteAPIKey":
-		if e.complexity.Mutation.DeleteAPIKey == nil {
+		if e.ComplexityRoot.Mutation.DeleteAPIKey == nil {
 			break
 		}
 
@@ -2675,9 +2875,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteAPIKey(childComplexity, args["input"].(gqlmodel.DeleteAPIKeyInput)), true
+		return e.ComplexityRoot.Mutation.DeleteAPIKey(childComplexity, args["input"].(gqlmodel.DeleteAPIKeyInput)), true
 	case "Mutation.deleteAsset":
-		if e.complexity.Mutation.DeleteAsset == nil {
+		if e.ComplexityRoot.Mutation.DeleteAsset == nil {
 			break
 		}
 
@@ -2686,9 +2886,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteAsset(childComplexity, args["input"].(gqlmodel.DeleteAssetInput)), true
+		return e.ComplexityRoot.Mutation.DeleteAsset(childComplexity, args["input"].(gqlmodel.DeleteAssetInput)), true
 	case "Mutation.deleteAssets":
-		if e.complexity.Mutation.DeleteAssets == nil {
+		if e.ComplexityRoot.Mutation.DeleteAssets == nil {
 			break
 		}
 
@@ -2697,9 +2897,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteAssets(childComplexity, args["input"].(gqlmodel.DeleteAssetsInput)), true
+		return e.ComplexityRoot.Mutation.DeleteAssets(childComplexity, args["input"].(gqlmodel.DeleteAssetsInput)), true
 	case "Mutation.deleteComment":
-		if e.complexity.Mutation.DeleteComment == nil {
+		if e.ComplexityRoot.Mutation.DeleteComment == nil {
 			break
 		}
 
@@ -2708,9 +2908,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteComment(childComplexity, args["input"].(gqlmodel.DeleteCommentInput)), true
+		return e.ComplexityRoot.Mutation.DeleteComment(childComplexity, args["input"].(gqlmodel.DeleteCommentInput)), true
 	case "Mutation.deleteField":
-		if e.complexity.Mutation.DeleteField == nil {
+		if e.ComplexityRoot.Mutation.DeleteField == nil {
 			break
 		}
 
@@ -2719,9 +2919,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteField(childComplexity, args["input"].(gqlmodel.DeleteFieldInput)), true
+		return e.ComplexityRoot.Mutation.DeleteField(childComplexity, args["input"].(gqlmodel.DeleteFieldInput)), true
 	case "Mutation.deleteGroup":
-		if e.complexity.Mutation.DeleteGroup == nil {
+		if e.ComplexityRoot.Mutation.DeleteGroup == nil {
 			break
 		}
 
@@ -2730,9 +2930,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteGroup(childComplexity, args["input"].(gqlmodel.DeleteGroupInput)), true
+		return e.ComplexityRoot.Mutation.DeleteGroup(childComplexity, args["input"].(gqlmodel.DeleteGroupInput)), true
 	case "Mutation.deleteIntegration":
-		if e.complexity.Mutation.DeleteIntegration == nil {
+		if e.ComplexityRoot.Mutation.DeleteIntegration == nil {
 			break
 		}
 
@@ -2741,9 +2941,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteIntegration(childComplexity, args["input"].(gqlmodel.DeleteIntegrationInput)), true
+		return e.ComplexityRoot.Mutation.DeleteIntegration(childComplexity, args["input"].(gqlmodel.DeleteIntegrationInput)), true
 	case "Mutation.deleteIntegrations":
-		if e.complexity.Mutation.DeleteIntegrations == nil {
+		if e.ComplexityRoot.Mutation.DeleteIntegrations == nil {
 			break
 		}
 
@@ -2752,9 +2952,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteIntegrations(childComplexity, args["input"].(gqlmodel.DeleteIntegrationsInput)), true
+		return e.ComplexityRoot.Mutation.DeleteIntegrations(childComplexity, args["input"].(gqlmodel.DeleteIntegrationsInput)), true
 	case "Mutation.deleteItem":
-		if e.complexity.Mutation.DeleteItem == nil {
+		if e.ComplexityRoot.Mutation.DeleteItem == nil {
 			break
 		}
 
@@ -2763,9 +2963,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteItem(childComplexity, args["input"].(gqlmodel.DeleteItemInput)), true
+		return e.ComplexityRoot.Mutation.DeleteItem(childComplexity, args["input"].(gqlmodel.DeleteItemInput)), true
+	case "Mutation.deleteItems":
+		if e.ComplexityRoot.Mutation.DeleteItems == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteItems_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteItems(childComplexity, args["input"].(gqlmodel.DeleteItemsInput)), true
 	case "Mutation.deleteMe":
-		if e.complexity.Mutation.DeleteMe == nil {
+		if e.ComplexityRoot.Mutation.DeleteMe == nil {
 			break
 		}
 
@@ -2774,9 +2985,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteMe(childComplexity, args["input"].(gqlmodel.DeleteMeInput)), true
+		return e.ComplexityRoot.Mutation.DeleteMe(childComplexity, args["input"].(gqlmodel.DeleteMeInput)), true
 	case "Mutation.deleteModel":
-		if e.complexity.Mutation.DeleteModel == nil {
+		if e.ComplexityRoot.Mutation.DeleteModel == nil {
 			break
 		}
 
@@ -2785,9 +2996,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteModel(childComplexity, args["input"].(gqlmodel.DeleteModelInput)), true
+		return e.ComplexityRoot.Mutation.DeleteModel(childComplexity, args["input"].(gqlmodel.DeleteModelInput)), true
 	case "Mutation.deleteProject":
-		if e.complexity.Mutation.DeleteProject == nil {
+		if e.ComplexityRoot.Mutation.DeleteProject == nil {
 			break
 		}
 
@@ -2796,9 +3007,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteProject(childComplexity, args["input"].(gqlmodel.DeleteProjectInput)), true
+		return e.ComplexityRoot.Mutation.DeleteProject(childComplexity, args["input"].(gqlmodel.DeleteProjectInput)), true
 	case "Mutation.deleteRequest":
-		if e.complexity.Mutation.DeleteRequest == nil {
+		if e.ComplexityRoot.Mutation.DeleteRequest == nil {
 			break
 		}
 
@@ -2807,9 +3018,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteRequest(childComplexity, args["input"].(gqlmodel.DeleteRequestInput)), true
+		return e.ComplexityRoot.Mutation.DeleteRequest(childComplexity, args["input"].(gqlmodel.DeleteRequestInput)), true
 	case "Mutation.deleteView":
-		if e.complexity.Mutation.DeleteView == nil {
+		if e.ComplexityRoot.Mutation.DeleteView == nil {
 			break
 		}
 
@@ -2818,9 +3029,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteView(childComplexity, args["input"].(gqlmodel.DeleteViewInput)), true
+		return e.ComplexityRoot.Mutation.DeleteView(childComplexity, args["input"].(gqlmodel.DeleteViewInput)), true
 	case "Mutation.deleteWebhook":
-		if e.complexity.Mutation.DeleteWebhook == nil {
+		if e.ComplexityRoot.Mutation.DeleteWebhook == nil {
 			break
 		}
 
@@ -2829,9 +3040,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteWebhook(childComplexity, args["input"].(gqlmodel.DeleteWebhookInput)), true
+		return e.ComplexityRoot.Mutation.DeleteWebhook(childComplexity, args["input"].(gqlmodel.DeleteWebhookInput)), true
 	case "Mutation.deleteWorkspace":
-		if e.complexity.Mutation.DeleteWorkspace == nil {
+		if e.ComplexityRoot.Mutation.DeleteWorkspace == nil {
 			break
 		}
 
@@ -2840,9 +3051,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteWorkspace(childComplexity, args["input"].(gqlmodel.DeleteWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.DeleteWorkspace(childComplexity, args["input"].(gqlmodel.DeleteWorkspaceInput)), true
 	case "Mutation.exportModel":
-		if e.complexity.Mutation.ExportModel == nil {
+		if e.ComplexityRoot.Mutation.ExportModel == nil {
 			break
 		}
 
@@ -2851,9 +3062,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ExportModel(childComplexity, args["input"].(gqlmodel.ExportModelInput)), true
+		return e.ComplexityRoot.Mutation.ExportModel(childComplexity, args["input"].(gqlmodel.ExportModelInput)), true
 	case "Mutation.exportModelSchema":
-		if e.complexity.Mutation.ExportModelSchema == nil {
+		if e.ComplexityRoot.Mutation.ExportModelSchema == nil {
 			break
 		}
 
@@ -2862,9 +3073,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ExportModelSchema(childComplexity, args["input"].(gqlmodel.ExportModelSchemaInput)), true
+		return e.ComplexityRoot.Mutation.ExportModelSchema(childComplexity, args["input"].(gqlmodel.ExportModelSchemaInput)), true
+	case "Mutation.importItems":
+		if e.ComplexityRoot.Mutation.ImportItems == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_importItems_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ImportItems(childComplexity, args["input"].(gqlmodel.ImportItemsInput)), true
+	case "Mutation.importItemsAsync":
+		if e.ComplexityRoot.Mutation.ImportItemsAsync == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_importItemsAsync_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ImportItemsAsync(childComplexity, args["input"].(gqlmodel.ImportItemsInput)), true
 	case "Mutation.publishItem":
-		if e.complexity.Mutation.PublishItem == nil {
+		if e.ComplexityRoot.Mutation.PublishItem == nil {
 			break
 		}
 
@@ -2873,9 +3106,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.PublishItem(childComplexity, args["input"].(gqlmodel.PublishItemInput)), true
+		return e.ComplexityRoot.Mutation.PublishItem(childComplexity, args["input"].(gqlmodel.PublishItemInput)), true
 	case "Mutation.regenerateAPIKey":
-		if e.complexity.Mutation.RegenerateAPIKey == nil {
+		if e.ComplexityRoot.Mutation.RegenerateAPIKey == nil {
 			break
 		}
 
@@ -2884,9 +3117,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RegenerateAPIKey(childComplexity, args["input"].(gqlmodel.RegenerateAPIKeyInput)), true
+		return e.ComplexityRoot.Mutation.RegenerateAPIKey(childComplexity, args["input"].(gqlmodel.RegenerateAPIKeyInput)), true
 	case "Mutation.regenerateIntegrationToken":
-		if e.complexity.Mutation.RegenerateIntegrationToken == nil {
+		if e.ComplexityRoot.Mutation.RegenerateIntegrationToken == nil {
 			break
 		}
 
@@ -2895,9 +3128,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RegenerateIntegrationToken(childComplexity, args["input"].(gqlmodel.RegenerateIntegrationTokenInput)), true
+		return e.ComplexityRoot.Mutation.RegenerateIntegrationToken(childComplexity, args["input"].(gqlmodel.RegenerateIntegrationTokenInput)), true
 	case "Mutation.removeIntegrationFromWorkspace":
-		if e.complexity.Mutation.RemoveIntegrationFromWorkspace == nil {
+		if e.ComplexityRoot.Mutation.RemoveIntegrationFromWorkspace == nil {
 			break
 		}
 
@@ -2906,9 +3139,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveIntegrationFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.RemoveIntegrationFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput)), true
 	case "Mutation.removeIntegrationsFromWorkspace":
-		if e.complexity.Mutation.RemoveIntegrationsFromWorkspace == nil {
+		if e.ComplexityRoot.Mutation.RemoveIntegrationsFromWorkspace == nil {
 			break
 		}
 
@@ -2917,9 +3150,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveIntegrationsFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationsFromWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.RemoveIntegrationsFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationsFromWorkspaceInput)), true
 	case "Mutation.removeMultipleMembersFromWorkspace":
-		if e.complexity.Mutation.RemoveMultipleMembersFromWorkspace == nil {
+		if e.ComplexityRoot.Mutation.RemoveMultipleMembersFromWorkspace == nil {
 			break
 		}
 
@@ -2928,9 +3161,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveMultipleMembersFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.RemoveMultipleMembersFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput)), true
 	case "Mutation.removeMyAuth":
-		if e.complexity.Mutation.RemoveMyAuth == nil {
+		if e.ComplexityRoot.Mutation.RemoveMyAuth == nil {
 			break
 		}
 
@@ -2939,9 +3172,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveMyAuth(childComplexity, args["input"].(gqlmodel.RemoveMyAuthInput)), true
+		return e.ComplexityRoot.Mutation.RemoveMyAuth(childComplexity, args["input"].(gqlmodel.RemoveMyAuthInput)), true
 	case "Mutation.unpublishItem":
-		if e.complexity.Mutation.UnpublishItem == nil {
+		if e.ComplexityRoot.Mutation.UnpublishItem == nil {
 			break
 		}
 
@@ -2950,9 +3183,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UnpublishItem(childComplexity, args["input"].(gqlmodel.UnpublishItemInput)), true
+		return e.ComplexityRoot.Mutation.UnpublishItem(childComplexity, args["input"].(gqlmodel.UnpublishItemInput)), true
 	case "Mutation.updateAPIKey":
-		if e.complexity.Mutation.UpdateAPIKey == nil {
+		if e.ComplexityRoot.Mutation.UpdateAPIKey == nil {
 			break
 		}
 
@@ -2961,9 +3194,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateAPIKey(childComplexity, args["input"].(gqlmodel.UpdateAPIKeyInput)), true
+		return e.ComplexityRoot.Mutation.UpdateAPIKey(childComplexity, args["input"].(gqlmodel.UpdateAPIKeyInput)), true
 	case "Mutation.updateAsset":
-		if e.complexity.Mutation.UpdateAsset == nil {
+		if e.ComplexityRoot.Mutation.UpdateAsset == nil {
 			break
 		}
 
@@ -2972,9 +3205,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateAsset(childComplexity, args["input"].(gqlmodel.UpdateAssetInput)), true
+		return e.ComplexityRoot.Mutation.UpdateAsset(childComplexity, args["input"].(gqlmodel.UpdateAssetInput)), true
 	case "Mutation.updateComment":
-		if e.complexity.Mutation.UpdateComment == nil {
+		if e.ComplexityRoot.Mutation.UpdateComment == nil {
 			break
 		}
 
@@ -2983,9 +3216,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateComment(childComplexity, args["input"].(gqlmodel.UpdateCommentInput)), true
+		return e.ComplexityRoot.Mutation.UpdateComment(childComplexity, args["input"].(gqlmodel.UpdateCommentInput)), true
 	case "Mutation.updateField":
-		if e.complexity.Mutation.UpdateField == nil {
+		if e.ComplexityRoot.Mutation.UpdateField == nil {
 			break
 		}
 
@@ -2994,9 +3227,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateField(childComplexity, args["input"].(gqlmodel.UpdateFieldInput)), true
+		return e.ComplexityRoot.Mutation.UpdateField(childComplexity, args["input"].(gqlmodel.UpdateFieldInput)), true
 	case "Mutation.updateFields":
-		if e.complexity.Mutation.UpdateFields == nil {
+		if e.ComplexityRoot.Mutation.UpdateFields == nil {
 			break
 		}
 
@@ -3005,9 +3238,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateFields(childComplexity, args["input"].([]*gqlmodel.UpdateFieldInput)), true
+		return e.ComplexityRoot.Mutation.UpdateFields(childComplexity, args["input"].([]*gqlmodel.UpdateFieldInput)), true
 	case "Mutation.updateGroup":
-		if e.complexity.Mutation.UpdateGroup == nil {
+		if e.ComplexityRoot.Mutation.UpdateGroup == nil {
 			break
 		}
 
@@ -3016,9 +3249,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateGroup(childComplexity, args["input"].(gqlmodel.UpdateGroupInput)), true
+		return e.ComplexityRoot.Mutation.UpdateGroup(childComplexity, args["input"].(gqlmodel.UpdateGroupInput)), true
 	case "Mutation.updateGroupsOrder":
-		if e.complexity.Mutation.UpdateGroupsOrder == nil {
+		if e.ComplexityRoot.Mutation.UpdateGroupsOrder == nil {
 			break
 		}
 
@@ -3027,9 +3260,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateGroupsOrder(childComplexity, args["input"].(gqlmodel.UpdateGroupsOrderInput)), true
+		return e.ComplexityRoot.Mutation.UpdateGroupsOrder(childComplexity, args["input"].(gqlmodel.UpdateGroupsOrderInput)), true
 	case "Mutation.updateIntegration":
-		if e.complexity.Mutation.UpdateIntegration == nil {
+		if e.ComplexityRoot.Mutation.UpdateIntegration == nil {
 			break
 		}
 
@@ -3038,9 +3271,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateIntegration(childComplexity, args["input"].(gqlmodel.UpdateIntegrationInput)), true
+		return e.ComplexityRoot.Mutation.UpdateIntegration(childComplexity, args["input"].(gqlmodel.UpdateIntegrationInput)), true
 	case "Mutation.updateIntegrationOfWorkspace":
-		if e.complexity.Mutation.UpdateIntegrationOfWorkspace == nil {
+		if e.ComplexityRoot.Mutation.UpdateIntegrationOfWorkspace == nil {
 			break
 		}
 
@@ -3049,9 +3282,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateIntegrationOfWorkspace(childComplexity, args["input"].(gqlmodel.UpdateIntegrationOfWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.UpdateIntegrationOfWorkspace(childComplexity, args["input"].(gqlmodel.UpdateIntegrationOfWorkspaceInput)), true
 	case "Mutation.updateItem":
-		if e.complexity.Mutation.UpdateItem == nil {
+		if e.ComplexityRoot.Mutation.UpdateItem == nil {
 			break
 		}
 
@@ -3060,9 +3293,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateItem(childComplexity, args["input"].(gqlmodel.UpdateItemInput)), true
+		return e.ComplexityRoot.Mutation.UpdateItem(childComplexity, args["input"].(gqlmodel.UpdateItemInput)), true
 	case "Mutation.updateMe":
-		if e.complexity.Mutation.UpdateMe == nil {
+		if e.ComplexityRoot.Mutation.UpdateMe == nil {
 			break
 		}
 
@@ -3071,9 +3304,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateMe(childComplexity, args["input"].(gqlmodel.UpdateMeInput)), true
+		return e.ComplexityRoot.Mutation.UpdateMe(childComplexity, args["input"].(gqlmodel.UpdateMeInput)), true
 	case "Mutation.updateModel":
-		if e.complexity.Mutation.UpdateModel == nil {
+		if e.ComplexityRoot.Mutation.UpdateModel == nil {
 			break
 		}
 
@@ -3082,9 +3315,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateModel(childComplexity, args["input"].(gqlmodel.UpdateModelInput)), true
+		return e.ComplexityRoot.Mutation.UpdateModel(childComplexity, args["input"].(gqlmodel.UpdateModelInput)), true
 	case "Mutation.updateModelsOrder":
-		if e.complexity.Mutation.UpdateModelsOrder == nil {
+		if e.ComplexityRoot.Mutation.UpdateModelsOrder == nil {
 			break
 		}
 
@@ -3093,9 +3326,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateModelsOrder(childComplexity, args["input"].(gqlmodel.UpdateModelsOrderInput)), true
+		return e.ComplexityRoot.Mutation.UpdateModelsOrder(childComplexity, args["input"].(gqlmodel.UpdateModelsOrderInput)), true
 	case "Mutation.updateProject":
-		if e.complexity.Mutation.UpdateProject == nil {
+		if e.ComplexityRoot.Mutation.UpdateProject == nil {
 			break
 		}
 
@@ -3104,9 +3337,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateProject(childComplexity, args["input"].(gqlmodel.UpdateProjectInput)), true
+		return e.ComplexityRoot.Mutation.UpdateProject(childComplexity, args["input"].(gqlmodel.UpdateProjectInput)), true
 	case "Mutation.updateRequest":
-		if e.complexity.Mutation.UpdateRequest == nil {
+		if e.ComplexityRoot.Mutation.UpdateRequest == nil {
 			break
 		}
 
@@ -3115,9 +3348,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateRequest(childComplexity, args["input"].(gqlmodel.UpdateRequestInput)), true
+		return e.ComplexityRoot.Mutation.UpdateRequest(childComplexity, args["input"].(gqlmodel.UpdateRequestInput)), true
 	case "Mutation.updateUserOfWorkspace":
-		if e.complexity.Mutation.UpdateUserOfWorkspace == nil {
+		if e.ComplexityRoot.Mutation.UpdateUserOfWorkspace == nil {
 			break
 		}
 
@@ -3126,9 +3359,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUserOfWorkspace(childComplexity, args["input"].(gqlmodel.UpdateUserOfWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.UpdateUserOfWorkspace(childComplexity, args["input"].(gqlmodel.UpdateUserOfWorkspaceInput)), true
 	case "Mutation.updateView":
-		if e.complexity.Mutation.UpdateView == nil {
+		if e.ComplexityRoot.Mutation.UpdateView == nil {
 			break
 		}
 
@@ -3137,9 +3370,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateView(childComplexity, args["input"].(gqlmodel.UpdateViewInput)), true
+		return e.ComplexityRoot.Mutation.UpdateView(childComplexity, args["input"].(gqlmodel.UpdateViewInput)), true
 	case "Mutation.updateViewsOrder":
-		if e.complexity.Mutation.UpdateViewsOrder == nil {
+		if e.ComplexityRoot.Mutation.UpdateViewsOrder == nil {
 			break
 		}
 
@@ -3148,9 +3381,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateViewsOrder(childComplexity, args["input"].(gqlmodel.UpdateViewsOrderInput)), true
+		return e.ComplexityRoot.Mutation.UpdateViewsOrder(childComplexity, args["input"].(gqlmodel.UpdateViewsOrderInput)), true
 	case "Mutation.updateWebhook":
-		if e.complexity.Mutation.UpdateWebhook == nil {
+		if e.ComplexityRoot.Mutation.UpdateWebhook == nil {
 			break
 		}
 
@@ -3159,9 +3392,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateWebhook(childComplexity, args["input"].(gqlmodel.UpdateWebhookInput)), true
+		return e.ComplexityRoot.Mutation.UpdateWebhook(childComplexity, args["input"].(gqlmodel.UpdateWebhookInput)), true
 	case "Mutation.updateWorkspace":
-		if e.complexity.Mutation.UpdateWorkspace == nil {
+		if e.ComplexityRoot.Mutation.UpdateWorkspace == nil {
 			break
 		}
 
@@ -3170,9 +3403,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateWorkspace(childComplexity, args["input"].(gqlmodel.UpdateWorkspaceInput)), true
+		return e.ComplexityRoot.Mutation.UpdateWorkspace(childComplexity, args["input"].(gqlmodel.UpdateWorkspaceInput)), true
 	case "Mutation.updateWorkspaceSettings":
-		if e.complexity.Mutation.UpdateWorkspaceSettings == nil {
+		if e.ComplexityRoot.Mutation.UpdateWorkspaceSettings == nil {
 			break
 		}
 
@@ -3181,275 +3414,275 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateWorkspaceSettings(childComplexity, args["input"].(gqlmodel.UpdateWorkspaceSettingsInput)), true
+		return e.ComplexityRoot.Mutation.UpdateWorkspaceSettings(childComplexity, args["input"].(gqlmodel.UpdateWorkspaceSettingsInput)), true
 
 	case "NullableFieldCondition.fieldId":
-		if e.complexity.NullableFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.NullableFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.NullableFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.NullableFieldCondition.FieldID(childComplexity), true
 	case "NullableFieldCondition.operator":
-		if e.complexity.NullableFieldCondition.Operator == nil {
+		if e.ComplexityRoot.NullableFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.NullableFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.NullableFieldCondition.Operator(childComplexity), true
 
 	case "NumberFieldCondition.fieldId":
-		if e.complexity.NumberFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.NumberFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.NumberFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.NumberFieldCondition.FieldID(childComplexity), true
 	case "NumberFieldCondition.operator":
-		if e.complexity.NumberFieldCondition.Operator == nil {
+		if e.ComplexityRoot.NumberFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.NumberFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.NumberFieldCondition.Operator(childComplexity), true
 	case "NumberFieldCondition.value":
-		if e.complexity.NumberFieldCondition.Value == nil {
+		if e.ComplexityRoot.NumberFieldCondition.Value == nil {
 			break
 		}
 
-		return e.complexity.NumberFieldCondition.Value(childComplexity), true
+		return e.ComplexityRoot.NumberFieldCondition.Value(childComplexity), true
 
 	case "OrCondition.conditions":
-		if e.complexity.OrCondition.Conditions == nil {
+		if e.ComplexityRoot.OrCondition.Conditions == nil {
 			break
 		}
 
-		return e.complexity.OrCondition.Conditions(childComplexity), true
+		return e.ComplexityRoot.OrCondition.Conditions(childComplexity), true
 
 	case "PageInfo.endCursor":
-		if e.complexity.PageInfo.EndCursor == nil {
+		if e.ComplexityRoot.PageInfo.EndCursor == nil {
 			break
 		}
 
-		return e.complexity.PageInfo.EndCursor(childComplexity), true
+		return e.ComplexityRoot.PageInfo.EndCursor(childComplexity), true
 	case "PageInfo.hasNextPage":
-		if e.complexity.PageInfo.HasNextPage == nil {
+		if e.ComplexityRoot.PageInfo.HasNextPage == nil {
 			break
 		}
 
-		return e.complexity.PageInfo.HasNextPage(childComplexity), true
+		return e.ComplexityRoot.PageInfo.HasNextPage(childComplexity), true
 	case "PageInfo.hasPreviousPage":
-		if e.complexity.PageInfo.HasPreviousPage == nil {
+		if e.ComplexityRoot.PageInfo.HasPreviousPage == nil {
 			break
 		}
 
-		return e.complexity.PageInfo.HasPreviousPage(childComplexity), true
+		return e.ComplexityRoot.PageInfo.HasPreviousPage(childComplexity), true
 	case "PageInfo.startCursor":
-		if e.complexity.PageInfo.StartCursor == nil {
+		if e.ComplexityRoot.PageInfo.StartCursor == nil {
 			break
 		}
 
-		return e.complexity.PageInfo.StartCursor(childComplexity), true
+		return e.ComplexityRoot.PageInfo.StartCursor(childComplexity), true
 
 	case "Project.accessibility":
-		if e.complexity.Project.Accessibility == nil {
+		if e.ComplexityRoot.Project.Accessibility == nil {
 			break
 		}
 
-		return e.complexity.Project.Accessibility(childComplexity), true
+		return e.ComplexityRoot.Project.Accessibility(childComplexity), true
 	case "Project.alias":
-		if e.complexity.Project.Alias == nil {
+		if e.ComplexityRoot.Project.Alias == nil {
 			break
 		}
 
-		return e.complexity.Project.Alias(childComplexity), true
+		return e.ComplexityRoot.Project.Alias(childComplexity), true
 	case "Project.createdAt":
-		if e.complexity.Project.CreatedAt == nil {
+		if e.ComplexityRoot.Project.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Project.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Project.CreatedAt(childComplexity), true
 	case "Project.description":
-		if e.complexity.Project.Description == nil {
+		if e.ComplexityRoot.Project.Description == nil {
 			break
 		}
 
-		return e.complexity.Project.Description(childComplexity), true
+		return e.ComplexityRoot.Project.Description(childComplexity), true
 	case "Project.id":
-		if e.complexity.Project.ID == nil {
+		if e.ComplexityRoot.Project.ID == nil {
 			break
 		}
 
-		return e.complexity.Project.ID(childComplexity), true
+		return e.ComplexityRoot.Project.ID(childComplexity), true
 	case "Project.license":
-		if e.complexity.Project.License == nil {
+		if e.ComplexityRoot.Project.License == nil {
 			break
 		}
 
-		return e.complexity.Project.License(childComplexity), true
+		return e.ComplexityRoot.Project.License(childComplexity), true
 	case "Project.name":
-		if e.complexity.Project.Name == nil {
+		if e.ComplexityRoot.Project.Name == nil {
 			break
 		}
 
-		return e.complexity.Project.Name(childComplexity), true
+		return e.ComplexityRoot.Project.Name(childComplexity), true
 	case "Project.readme":
-		if e.complexity.Project.Readme == nil {
+		if e.ComplexityRoot.Project.Readme == nil {
 			break
 		}
 
-		return e.complexity.Project.Readme(childComplexity), true
+		return e.ComplexityRoot.Project.Readme(childComplexity), true
 	case "Project.requestRoles":
-		if e.complexity.Project.RequestRoles == nil {
+		if e.ComplexityRoot.Project.RequestRoles == nil {
 			break
 		}
 
-		return e.complexity.Project.RequestRoles(childComplexity), true
+		return e.ComplexityRoot.Project.RequestRoles(childComplexity), true
 	case "Project.updatedAt":
-		if e.complexity.Project.UpdatedAt == nil {
+		if e.ComplexityRoot.Project.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Project.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.Project.UpdatedAt(childComplexity), true
 	case "Project.workspace":
-		if e.complexity.Project.Workspace == nil {
+		if e.ComplexityRoot.Project.Workspace == nil {
 			break
 		}
 
-		return e.complexity.Project.Workspace(childComplexity), true
+		return e.ComplexityRoot.Project.Workspace(childComplexity), true
 	case "Project.workspaceId":
-		if e.complexity.Project.WorkspaceID == nil {
+		if e.ComplexityRoot.Project.WorkspaceID == nil {
 			break
 		}
 
-		return e.complexity.Project.WorkspaceID(childComplexity), true
+		return e.ComplexityRoot.Project.WorkspaceID(childComplexity), true
 
 	case "ProjectAPIKey.description":
-		if e.complexity.ProjectAPIKey.Description == nil {
+		if e.ComplexityRoot.ProjectAPIKey.Description == nil {
 			break
 		}
 
-		return e.complexity.ProjectAPIKey.Description(childComplexity), true
+		return e.ComplexityRoot.ProjectAPIKey.Description(childComplexity), true
 	case "ProjectAPIKey.id":
-		if e.complexity.ProjectAPIKey.ID == nil {
+		if e.ComplexityRoot.ProjectAPIKey.ID == nil {
 			break
 		}
 
-		return e.complexity.ProjectAPIKey.ID(childComplexity), true
+		return e.ComplexityRoot.ProjectAPIKey.ID(childComplexity), true
 	case "ProjectAPIKey.key":
-		if e.complexity.ProjectAPIKey.Key == nil {
+		if e.ComplexityRoot.ProjectAPIKey.Key == nil {
 			break
 		}
 
-		return e.complexity.ProjectAPIKey.Key(childComplexity), true
+		return e.ComplexityRoot.ProjectAPIKey.Key(childComplexity), true
 	case "ProjectAPIKey.name":
-		if e.complexity.ProjectAPIKey.Name == nil {
+		if e.ComplexityRoot.ProjectAPIKey.Name == nil {
 			break
 		}
 
-		return e.complexity.ProjectAPIKey.Name(childComplexity), true
+		return e.ComplexityRoot.ProjectAPIKey.Name(childComplexity), true
 	case "ProjectAPIKey.publication":
-		if e.complexity.ProjectAPIKey.Publication == nil {
+		if e.ComplexityRoot.ProjectAPIKey.Publication == nil {
 			break
 		}
 
-		return e.complexity.ProjectAPIKey.Publication(childComplexity), true
+		return e.ComplexityRoot.ProjectAPIKey.Publication(childComplexity), true
 
 	case "ProjectAccessibility.apiKeys":
-		if e.complexity.ProjectAccessibility.APIKeys == nil {
+		if e.ComplexityRoot.ProjectAccessibility.APIKeys == nil {
 			break
 		}
 
-		return e.complexity.ProjectAccessibility.APIKeys(childComplexity), true
+		return e.ComplexityRoot.ProjectAccessibility.APIKeys(childComplexity), true
 	case "ProjectAccessibility.publication":
-		if e.complexity.ProjectAccessibility.Publication == nil {
+		if e.ComplexityRoot.ProjectAccessibility.Publication == nil {
 			break
 		}
 
-		return e.complexity.ProjectAccessibility.Publication(childComplexity), true
+		return e.ComplexityRoot.ProjectAccessibility.Publication(childComplexity), true
 	case "ProjectAccessibility.visibility":
-		if e.complexity.ProjectAccessibility.Visibility == nil {
+		if e.ComplexityRoot.ProjectAccessibility.Visibility == nil {
 			break
 		}
 
-		return e.complexity.ProjectAccessibility.Visibility(childComplexity), true
+		return e.ComplexityRoot.ProjectAccessibility.Visibility(childComplexity), true
 
 	case "ProjectAliasAvailability.alias":
-		if e.complexity.ProjectAliasAvailability.Alias == nil {
+		if e.ComplexityRoot.ProjectAliasAvailability.Alias == nil {
 			break
 		}
 
-		return e.complexity.ProjectAliasAvailability.Alias(childComplexity), true
+		return e.ComplexityRoot.ProjectAliasAvailability.Alias(childComplexity), true
 	case "ProjectAliasAvailability.available":
-		if e.complexity.ProjectAliasAvailability.Available == nil {
+		if e.ComplexityRoot.ProjectAliasAvailability.Available == nil {
 			break
 		}
 
-		return e.complexity.ProjectAliasAvailability.Available(childComplexity), true
+		return e.ComplexityRoot.ProjectAliasAvailability.Available(childComplexity), true
 
 	case "ProjectConnection.edges":
-		if e.complexity.ProjectConnection.Edges == nil {
+		if e.ComplexityRoot.ProjectConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.ProjectConnection.Edges(childComplexity), true
+		return e.ComplexityRoot.ProjectConnection.Edges(childComplexity), true
 	case "ProjectConnection.nodes":
-		if e.complexity.ProjectConnection.Nodes == nil {
+		if e.ComplexityRoot.ProjectConnection.Nodes == nil {
 			break
 		}
 
-		return e.complexity.ProjectConnection.Nodes(childComplexity), true
+		return e.ComplexityRoot.ProjectConnection.Nodes(childComplexity), true
 	case "ProjectConnection.pageInfo":
-		if e.complexity.ProjectConnection.PageInfo == nil {
+		if e.ComplexityRoot.ProjectConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.ProjectConnection.PageInfo(childComplexity), true
+		return e.ComplexityRoot.ProjectConnection.PageInfo(childComplexity), true
 	case "ProjectConnection.totalCount":
-		if e.complexity.ProjectConnection.TotalCount == nil {
+		if e.ComplexityRoot.ProjectConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.ProjectConnection.TotalCount(childComplexity), true
+		return e.ComplexityRoot.ProjectConnection.TotalCount(childComplexity), true
 
 	case "ProjectEdge.cursor":
-		if e.complexity.ProjectEdge.Cursor == nil {
+		if e.ComplexityRoot.ProjectEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.ProjectEdge.Cursor(childComplexity), true
+		return e.ComplexityRoot.ProjectEdge.Cursor(childComplexity), true
 	case "ProjectEdge.node":
-		if e.complexity.ProjectEdge.Node == nil {
+		if e.ComplexityRoot.ProjectEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.ProjectEdge.Node(childComplexity), true
+		return e.ComplexityRoot.ProjectEdge.Node(childComplexity), true
 
 	case "ProjectPayload.project":
-		if e.complexity.ProjectPayload.Project == nil {
+		if e.ComplexityRoot.ProjectPayload.Project == nil {
 			break
 		}
 
-		return e.complexity.ProjectPayload.Project(childComplexity), true
+		return e.ComplexityRoot.ProjectPayload.Project(childComplexity), true
 
 	case "PublicationSettings.publicAssets":
-		if e.complexity.PublicationSettings.PublicAssets == nil {
+		if e.ComplexityRoot.PublicationSettings.PublicAssets == nil {
 			break
 		}
 
-		return e.complexity.PublicationSettings.PublicAssets(childComplexity), true
+		return e.ComplexityRoot.PublicationSettings.PublicAssets(childComplexity), true
 	case "PublicationSettings.publicModels":
-		if e.complexity.PublicationSettings.PublicModels == nil {
+		if e.ComplexityRoot.PublicationSettings.PublicModels == nil {
 			break
 		}
 
-		return e.complexity.PublicationSettings.PublicModels(childComplexity), true
+		return e.ComplexityRoot.PublicationSettings.PublicModels(childComplexity), true
 
 	case "PublishItemPayload.items":
-		if e.complexity.PublishItemPayload.Items == nil {
+		if e.ComplexityRoot.PublishItemPayload.Items == nil {
 			break
 		}
 
-		return e.complexity.PublishItemPayload.Items(childComplexity), true
+		return e.ComplexityRoot.PublishItemPayload.Items(childComplexity), true
 
 	case "Query.assetFile":
-		if e.complexity.Query.AssetFile == nil {
+		if e.ComplexityRoot.Query.AssetFile == nil {
 			break
 		}
 
@@ -3458,9 +3691,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.AssetFile(childComplexity, args["assetId"].(gqlmodel.ID)), true
+		return e.ComplexityRoot.Query.AssetFile(childComplexity, args["assetId"].(gqlmodel.ID)), true
 	case "Query.assets":
-		if e.complexity.Query.Assets == nil {
+		if e.ComplexityRoot.Query.Assets == nil {
 			break
 		}
 
@@ -3469,9 +3702,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Assets(childComplexity, args["input"].(gqlmodel.SearchAssetsInput)), true
+		return e.ComplexityRoot.Query.Assets(childComplexity, args["input"].(gqlmodel.SearchAssetsInput)), true
 	case "Query.checkGroupKeyAvailability":
-		if e.complexity.Query.CheckGroupKeyAvailability == nil {
+		if e.ComplexityRoot.Query.CheckGroupKeyAvailability == nil {
 			break
 		}
 
@@ -3480,9 +3713,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckGroupKeyAvailability(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(string)), true
+		return e.ComplexityRoot.Query.CheckGroupKeyAvailability(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(string)), true
 	case "Query.checkModelKeyAvailability":
-		if e.complexity.Query.CheckModelKeyAvailability == nil {
+		if e.ComplexityRoot.Query.CheckModelKeyAvailability == nil {
 			break
 		}
 
@@ -3491,9 +3724,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckModelKeyAvailability(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(string)), true
+		return e.ComplexityRoot.Query.CheckModelKeyAvailability(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(string)), true
 	case "Query.checkProjectAlias":
-		if e.complexity.Query.CheckProjectAlias == nil {
+		if e.ComplexityRoot.Query.CheckProjectAlias == nil {
 			break
 		}
 
@@ -3502,9 +3735,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckProjectAlias(childComplexity, args["alias"].(string)), true
+		return e.ComplexityRoot.Query.CheckProjectAlias(childComplexity, args["workspaceId"].(gqlmodel.ID), args["alias"].(string)), true
 	case "Query.checkWorkspaceProjectLimits":
-		if e.complexity.Query.CheckWorkspaceProjectLimits == nil {
+		if e.ComplexityRoot.Query.CheckWorkspaceProjectLimits == nil {
 			break
 		}
 
@@ -3513,9 +3746,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckWorkspaceProjectLimits(childComplexity, args["workspaceId"].(gqlmodel.ID)), true
+		return e.ComplexityRoot.Query.CheckWorkspaceProjectLimits(childComplexity, args["workspaceId"].(gqlmodel.ID)), true
 	case "Query.groups":
-		if e.complexity.Query.Groups == nil {
+		if e.ComplexityRoot.Query.Groups == nil {
 			break
 		}
 
@@ -3524,9 +3757,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Groups(childComplexity, args["projectId"].(*gqlmodel.ID), args["modelID"].(*gqlmodel.ID)), true
+		return e.ComplexityRoot.Query.Groups(childComplexity, args["projectId"].(*gqlmodel.ID), args["modelID"].(*gqlmodel.ID)), true
 	case "Query.guessSchemaFields":
-		if e.complexity.Query.GuessSchemaFields == nil {
+		if e.ComplexityRoot.Query.GuessSchemaFields == nil {
 			break
 		}
 
@@ -3535,9 +3768,10 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.GuessSchemaFields(childComplexity, args["input"].(gqlmodel.GuessSchemaFieldsInput)), true
+		return e.ComplexityRoot.Query.GuessSchemaFields(childComplexity, args["input"].(gqlmodel.GuessSchemaFieldsInput)), true
+
 	case "Query.isItemReferenced":
-		if e.complexity.Query.IsItemReferenced == nil {
+		if e.ComplexityRoot.Query.IsItemReferenced == nil {
 			break
 		}
 
@@ -3546,15 +3780,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.IsItemReferenced(childComplexity, args["itemId"].(gqlmodel.ID), args["correspondingFieldId"].(gqlmodel.ID)), true
-	case "Query.me":
-		if e.complexity.Query.Me == nil {
+		return e.ComplexityRoot.Query.IsItemReferenced(childComplexity, args["itemId"].(gqlmodel.ID), args["correspondingFieldId"].(gqlmodel.ID)), true
+	case "Query.job":
+		if e.ComplexityRoot.Query.Job == nil {
 			break
 		}
 
-		return e.complexity.Query.Me(childComplexity), true
+		args, err := ec.field_Query_job_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.Job(childComplexity, args["jobId"].(gqlmodel.ID)), true
+	case "Query.jobs":
+		if e.ComplexityRoot.Query.Jobs == nil {
+			break
+		}
+
+		args, err := ec.field_Query_jobs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.Jobs(childComplexity, args["projectId"].(gqlmodel.ID), args["type"].(*gqlmodel.JobType), args["status"].(*gqlmodel.JobStatus)), true
+	case "Query.me":
+		if e.ComplexityRoot.Query.Me == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.Me(childComplexity), true
 	case "Query.models":
-		if e.complexity.Query.Models == nil {
+		if e.ComplexityRoot.Query.Models == nil {
 			break
 		}
 
@@ -3563,9 +3819,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.ComplexityRoot.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
 	case "Query.modelsByGroup":
-		if e.complexity.Query.ModelsByGroup == nil {
+		if e.ComplexityRoot.Query.ModelsByGroup == nil {
 			break
 		}
 
@@ -3574,9 +3830,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.ModelsByGroup(childComplexity, args["groupId"].(gqlmodel.ID)), true
+		return e.ComplexityRoot.Query.ModelsByGroup(childComplexity, args["groupId"].(gqlmodel.ID)), true
 	case "Query.node":
-		if e.complexity.Query.Node == nil {
+		if e.ComplexityRoot.Query.Node == nil {
 			break
 		}
 
@@ -3585,9 +3841,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Node(childComplexity, args["id"].(gqlmodel.ID), args["type"].(gqlmodel.NodeType)), true
+		return e.ComplexityRoot.Query.Node(childComplexity, args["id"].(gqlmodel.ID), args["type"].(gqlmodel.NodeType)), true
 	case "Query.nodes":
-		if e.complexity.Query.Nodes == nil {
+		if e.ComplexityRoot.Query.Nodes == nil {
 			break
 		}
 
@@ -3596,9 +3852,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Nodes(childComplexity, args["id"].([]gqlmodel.ID), args["type"].(gqlmodel.NodeType)), true
+		return e.ComplexityRoot.Query.Nodes(childComplexity, args["id"].([]gqlmodel.ID), args["type"].(gqlmodel.NodeType)), true
 	case "Query.projects":
-		if e.complexity.Query.Projects == nil {
+		if e.ComplexityRoot.Query.Projects == nil {
 			break
 		}
 
@@ -3607,9 +3863,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Projects(childComplexity, args["workspaceId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.ComplexityRoot.Query.Projects(childComplexity, args["workspaceId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
 	case "Query.requests":
-		if e.complexity.Query.Requests == nil {
+		if e.ComplexityRoot.Query.Requests == nil {
 			break
 		}
 
@@ -3618,9 +3874,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].([]gqlmodel.RequestState), args["createdBy"].(*gqlmodel.ID), args["reviewer"].(*gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination), args["sort"].(*gqlmodel.Sort)), true
+		return e.ComplexityRoot.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].([]gqlmodel.RequestState), args["createdBy"].(*gqlmodel.ID), args["reviewer"].(*gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination), args["sort"].(*gqlmodel.Sort)), true
 	case "Query.searchItem":
-		if e.complexity.Query.SearchItem == nil {
+		if e.ComplexityRoot.Query.SearchItem == nil {
 			break
 		}
 
@@ -3629,9 +3885,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchItem(childComplexity, args["input"].(gqlmodel.SearchItemInput)), true
+		return e.ComplexityRoot.Query.SearchItem(childComplexity, args["input"].(gqlmodel.SearchItemInput)), true
 	case "Query.userByNameOrEmail":
-		if e.complexity.Query.UserByNameOrEmail == nil {
+		if e.ComplexityRoot.Query.UserByNameOrEmail == nil {
 			break
 		}
 
@@ -3640,9 +3896,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.UserByNameOrEmail(childComplexity, args["nameOrEmail"].(string)), true
+		return e.ComplexityRoot.Query.UserByNameOrEmail(childComplexity, args["nameOrEmail"].(string)), true
 	case "Query.userSearch":
-		if e.complexity.Query.UserSearch == nil {
+		if e.ComplexityRoot.Query.UserSearch == nil {
 			break
 		}
 
@@ -3651,9 +3907,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.UserSearch(childComplexity, args["keyword"].(string)), true
+		return e.ComplexityRoot.Query.UserSearch(childComplexity, args["keyword"].(string)), true
 	case "Query.versionsByItem":
-		if e.complexity.Query.VersionsByItem == nil {
+		if e.ComplexityRoot.Query.VersionsByItem == nil {
 			break
 		}
 
@@ -3662,9 +3918,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.VersionsByItem(childComplexity, args["itemId"].(gqlmodel.ID)), true
+		return e.ComplexityRoot.Query.VersionsByItem(childComplexity, args["itemId"].(gqlmodel.ID)), true
 	case "Query.view":
-		if e.complexity.Query.View == nil {
+		if e.ComplexityRoot.Query.View == nil {
 			break
 		}
 
@@ -3673,1111 +3929,1123 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.View(childComplexity, args["modelId"].(gqlmodel.ID)), true
+		return e.ComplexityRoot.Query.View(childComplexity, args["modelId"].(gqlmodel.ID)), true
 
 	case "RemoveIntegrationFromWorkspacePayload.workspace":
-		if e.complexity.RemoveIntegrationFromWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.RemoveIntegrationFromWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.RemoveIntegrationFromWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.RemoveIntegrationFromWorkspacePayload.Workspace(childComplexity), true
 
 	case "RemoveIntegrationsFromWorkspacePayload.workspace":
-		if e.complexity.RemoveIntegrationsFromWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.RemoveIntegrationsFromWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.RemoveIntegrationsFromWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.RemoveIntegrationsFromWorkspacePayload.Workspace(childComplexity), true
 
 	case "RemoveMultipleMembersFromWorkspacePayload.workspace":
-		if e.complexity.RemoveMultipleMembersFromWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.RemoveMultipleMembersFromWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.RemoveMultipleMembersFromWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.RemoveMultipleMembersFromWorkspacePayload.Workspace(childComplexity), true
 
 	case "Request.approvedAt":
-		if e.complexity.Request.ApprovedAt == nil {
+		if e.ComplexityRoot.Request.ApprovedAt == nil {
 			break
 		}
 
-		return e.complexity.Request.ApprovedAt(childComplexity), true
+		return e.ComplexityRoot.Request.ApprovedAt(childComplexity), true
 	case "Request.closedAt":
-		if e.complexity.Request.ClosedAt == nil {
+		if e.ComplexityRoot.Request.ClosedAt == nil {
 			break
 		}
 
-		return e.complexity.Request.ClosedAt(childComplexity), true
+		return e.ComplexityRoot.Request.ClosedAt(childComplexity), true
 	case "Request.createdAt":
-		if e.complexity.Request.CreatedAt == nil {
+		if e.ComplexityRoot.Request.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Request.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Request.CreatedAt(childComplexity), true
 	case "Request.createdBy":
-		if e.complexity.Request.CreatedBy == nil {
+		if e.ComplexityRoot.Request.CreatedBy == nil {
 			break
 		}
 
-		return e.complexity.Request.CreatedBy(childComplexity), true
+		return e.ComplexityRoot.Request.CreatedBy(childComplexity), true
 	case "Request.createdById":
-		if e.complexity.Request.CreatedByID == nil {
+		if e.ComplexityRoot.Request.CreatedByID == nil {
 			break
 		}
 
-		return e.complexity.Request.CreatedByID(childComplexity), true
+		return e.ComplexityRoot.Request.CreatedByID(childComplexity), true
 	case "Request.description":
-		if e.complexity.Request.Description == nil {
+		if e.ComplexityRoot.Request.Description == nil {
 			break
 		}
 
-		return e.complexity.Request.Description(childComplexity), true
+		return e.ComplexityRoot.Request.Description(childComplexity), true
 	case "Request.id":
-		if e.complexity.Request.ID == nil {
+		if e.ComplexityRoot.Request.ID == nil {
 			break
 		}
 
-		return e.complexity.Request.ID(childComplexity), true
+		return e.ComplexityRoot.Request.ID(childComplexity), true
 	case "Request.items":
-		if e.complexity.Request.Items == nil {
+		if e.ComplexityRoot.Request.Items == nil {
 			break
 		}
 
-		return e.complexity.Request.Items(childComplexity), true
+		return e.ComplexityRoot.Request.Items(childComplexity), true
 	case "Request.project":
-		if e.complexity.Request.Project == nil {
+		if e.ComplexityRoot.Request.Project == nil {
 			break
 		}
 
-		return e.complexity.Request.Project(childComplexity), true
+		return e.ComplexityRoot.Request.Project(childComplexity), true
 	case "Request.projectId":
-		if e.complexity.Request.ProjectID == nil {
+		if e.ComplexityRoot.Request.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.Request.ProjectID(childComplexity), true
+		return e.ComplexityRoot.Request.ProjectID(childComplexity), true
 	case "Request.reviewers":
-		if e.complexity.Request.Reviewers == nil {
+		if e.ComplexityRoot.Request.Reviewers == nil {
 			break
 		}
 
-		return e.complexity.Request.Reviewers(childComplexity), true
+		return e.ComplexityRoot.Request.Reviewers(childComplexity), true
 	case "Request.reviewersId":
-		if e.complexity.Request.ReviewersID == nil {
+		if e.ComplexityRoot.Request.ReviewersID == nil {
 			break
 		}
 
-		return e.complexity.Request.ReviewersID(childComplexity), true
+		return e.ComplexityRoot.Request.ReviewersID(childComplexity), true
 	case "Request.state":
-		if e.complexity.Request.State == nil {
+		if e.ComplexityRoot.Request.State == nil {
 			break
 		}
 
-		return e.complexity.Request.State(childComplexity), true
+		return e.ComplexityRoot.Request.State(childComplexity), true
 	case "Request.thread":
-		if e.complexity.Request.Thread == nil {
+		if e.ComplexityRoot.Request.Thread == nil {
 			break
 		}
 
-		return e.complexity.Request.Thread(childComplexity), true
+		return e.ComplexityRoot.Request.Thread(childComplexity), true
 	case "Request.threadId":
-		if e.complexity.Request.ThreadID == nil {
+		if e.ComplexityRoot.Request.ThreadID == nil {
 			break
 		}
 
-		return e.complexity.Request.ThreadID(childComplexity), true
+		return e.ComplexityRoot.Request.ThreadID(childComplexity), true
 	case "Request.title":
-		if e.complexity.Request.Title == nil {
+		if e.ComplexityRoot.Request.Title == nil {
 			break
 		}
 
-		return e.complexity.Request.Title(childComplexity), true
+		return e.ComplexityRoot.Request.Title(childComplexity), true
 	case "Request.updatedAt":
-		if e.complexity.Request.UpdatedAt == nil {
+		if e.ComplexityRoot.Request.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Request.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.Request.UpdatedAt(childComplexity), true
 	case "Request.workspace":
-		if e.complexity.Request.Workspace == nil {
+		if e.ComplexityRoot.Request.Workspace == nil {
 			break
 		}
 
-		return e.complexity.Request.Workspace(childComplexity), true
+		return e.ComplexityRoot.Request.Workspace(childComplexity), true
 	case "Request.workspaceId":
-		if e.complexity.Request.WorkspaceID == nil {
+		if e.ComplexityRoot.Request.WorkspaceID == nil {
 			break
 		}
 
-		return e.complexity.Request.WorkspaceID(childComplexity), true
+		return e.ComplexityRoot.Request.WorkspaceID(childComplexity), true
 
 	case "RequestConnection.edges":
-		if e.complexity.RequestConnection.Edges == nil {
+		if e.ComplexityRoot.RequestConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.RequestConnection.Edges(childComplexity), true
+		return e.ComplexityRoot.RequestConnection.Edges(childComplexity), true
 	case "RequestConnection.nodes":
-		if e.complexity.RequestConnection.Nodes == nil {
+		if e.ComplexityRoot.RequestConnection.Nodes == nil {
 			break
 		}
 
-		return e.complexity.RequestConnection.Nodes(childComplexity), true
+		return e.ComplexityRoot.RequestConnection.Nodes(childComplexity), true
 	case "RequestConnection.pageInfo":
-		if e.complexity.RequestConnection.PageInfo == nil {
+		if e.ComplexityRoot.RequestConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.RequestConnection.PageInfo(childComplexity), true
+		return e.ComplexityRoot.RequestConnection.PageInfo(childComplexity), true
 	case "RequestConnection.totalCount":
-		if e.complexity.RequestConnection.TotalCount == nil {
+		if e.ComplexityRoot.RequestConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.RequestConnection.TotalCount(childComplexity), true
+		return e.ComplexityRoot.RequestConnection.TotalCount(childComplexity), true
 
 	case "RequestEdge.cursor":
-		if e.complexity.RequestEdge.Cursor == nil {
+		if e.ComplexityRoot.RequestEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.RequestEdge.Cursor(childComplexity), true
+		return e.ComplexityRoot.RequestEdge.Cursor(childComplexity), true
 	case "RequestEdge.node":
-		if e.complexity.RequestEdge.Node == nil {
+		if e.ComplexityRoot.RequestEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.RequestEdge.Node(childComplexity), true
+		return e.ComplexityRoot.RequestEdge.Node(childComplexity), true
 
 	case "RequestItem.item":
-		if e.complexity.RequestItem.Item == nil {
+		if e.ComplexityRoot.RequestItem.Item == nil {
 			break
 		}
 
-		return e.complexity.RequestItem.Item(childComplexity), true
+		return e.ComplexityRoot.RequestItem.Item(childComplexity), true
 	case "RequestItem.itemId":
-		if e.complexity.RequestItem.ItemID == nil {
+		if e.ComplexityRoot.RequestItem.ItemID == nil {
 			break
 		}
 
-		return e.complexity.RequestItem.ItemID(childComplexity), true
+		return e.ComplexityRoot.RequestItem.ItemID(childComplexity), true
 	case "RequestItem.ref":
-		if e.complexity.RequestItem.Ref == nil {
+		if e.ComplexityRoot.RequestItem.Ref == nil {
 			break
 		}
 
-		return e.complexity.RequestItem.Ref(childComplexity), true
+		return e.ComplexityRoot.RequestItem.Ref(childComplexity), true
 	case "RequestItem.version":
-		if e.complexity.RequestItem.Version == nil {
+		if e.ComplexityRoot.RequestItem.Version == nil {
 			break
 		}
 
-		return e.complexity.RequestItem.Version(childComplexity), true
+		return e.ComplexityRoot.RequestItem.Version(childComplexity), true
 
 	case "RequestPayload.request":
-		if e.complexity.RequestPayload.Request == nil {
+		if e.ComplexityRoot.RequestPayload.Request == nil {
 			break
 		}
 
-		return e.complexity.RequestPayload.Request(childComplexity), true
+		return e.ComplexityRoot.RequestPayload.Request(childComplexity), true
 
 	case "ResourceList.enabled":
-		if e.complexity.ResourceList.Enabled == nil {
+		if e.ComplexityRoot.ResourceList.Enabled == nil {
 			break
 		}
 
-		return e.complexity.ResourceList.Enabled(childComplexity), true
+		return e.ComplexityRoot.ResourceList.Enabled(childComplexity), true
 	case "ResourceList.resources":
-		if e.complexity.ResourceList.Resources == nil {
+		if e.ComplexityRoot.ResourceList.Resources == nil {
 			break
 		}
 
-		return e.complexity.ResourceList.Resources(childComplexity), true
+		return e.ComplexityRoot.ResourceList.Resources(childComplexity), true
 	case "ResourceList.selectedResource":
-		if e.complexity.ResourceList.SelectedResource == nil {
+		if e.ComplexityRoot.ResourceList.SelectedResource == nil {
 			break
 		}
 
-		return e.complexity.ResourceList.SelectedResource(childComplexity), true
+		return e.ComplexityRoot.ResourceList.SelectedResource(childComplexity), true
 
 	case "Schema.fields":
-		if e.complexity.Schema.Fields == nil {
+		if e.ComplexityRoot.Schema.Fields == nil {
 			break
 		}
 
-		return e.complexity.Schema.Fields(childComplexity), true
+		return e.ComplexityRoot.Schema.Fields(childComplexity), true
 	case "Schema.id":
-		if e.complexity.Schema.ID == nil {
+		if e.ComplexityRoot.Schema.ID == nil {
 			break
 		}
 
-		return e.complexity.Schema.ID(childComplexity), true
+		return e.ComplexityRoot.Schema.ID(childComplexity), true
 	case "Schema.project":
-		if e.complexity.Schema.Project == nil {
+		if e.ComplexityRoot.Schema.Project == nil {
 			break
 		}
 
-		return e.complexity.Schema.Project(childComplexity), true
+		return e.ComplexityRoot.Schema.Project(childComplexity), true
 	case "Schema.projectId":
-		if e.complexity.Schema.ProjectID == nil {
+		if e.ComplexityRoot.Schema.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.Schema.ProjectID(childComplexity), true
+		return e.ComplexityRoot.Schema.ProjectID(childComplexity), true
 	case "Schema.titleField":
-		if e.complexity.Schema.TitleField == nil {
+		if e.ComplexityRoot.Schema.TitleField == nil {
 			break
 		}
 
-		return e.complexity.Schema.TitleField(childComplexity), true
+		return e.ComplexityRoot.Schema.TitleField(childComplexity), true
 	case "Schema.titleFieldId":
-		if e.complexity.Schema.TitleFieldID == nil {
+		if e.ComplexityRoot.Schema.TitleFieldID == nil {
 			break
 		}
 
-		return e.complexity.Schema.TitleFieldID(childComplexity), true
+		return e.ComplexityRoot.Schema.TitleFieldID(childComplexity), true
 
 	case "SchemaField.createdAt":
-		if e.complexity.SchemaField.CreatedAt == nil {
+		if e.ComplexityRoot.SchemaField.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.SchemaField.CreatedAt(childComplexity), true
 	case "SchemaField.description":
-		if e.complexity.SchemaField.Description == nil {
+		if e.ComplexityRoot.SchemaField.Description == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Description(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Description(childComplexity), true
 	case "SchemaField.group":
-		if e.complexity.SchemaField.Group == nil {
+		if e.ComplexityRoot.SchemaField.Group == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Group(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Group(childComplexity), true
 	case "SchemaField.groupId":
-		if e.complexity.SchemaField.GroupID == nil {
+		if e.ComplexityRoot.SchemaField.GroupID == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.GroupID(childComplexity), true
+		return e.ComplexityRoot.SchemaField.GroupID(childComplexity), true
 	case "SchemaField.id":
-		if e.complexity.SchemaField.ID == nil {
+		if e.ComplexityRoot.SchemaField.ID == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.ID(childComplexity), true
+		return e.ComplexityRoot.SchemaField.ID(childComplexity), true
 	case "SchemaField.isTitle":
-		if e.complexity.SchemaField.IsTitle == nil {
+		if e.ComplexityRoot.SchemaField.IsTitle == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.IsTitle(childComplexity), true
+		return e.ComplexityRoot.SchemaField.IsTitle(childComplexity), true
 	case "SchemaField.key":
-		if e.complexity.SchemaField.Key == nil {
+		if e.ComplexityRoot.SchemaField.Key == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Key(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Key(childComplexity), true
 	case "SchemaField.model":
-		if e.complexity.SchemaField.Model == nil {
+		if e.ComplexityRoot.SchemaField.Model == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Model(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Model(childComplexity), true
 	case "SchemaField.modelId":
-		if e.complexity.SchemaField.ModelID == nil {
+		if e.ComplexityRoot.SchemaField.ModelID == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.ModelID(childComplexity), true
+		return e.ComplexityRoot.SchemaField.ModelID(childComplexity), true
 	case "SchemaField.multiple":
-		if e.complexity.SchemaField.Multiple == nil {
+		if e.ComplexityRoot.SchemaField.Multiple == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Multiple(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Multiple(childComplexity), true
 	case "SchemaField.order":
-		if e.complexity.SchemaField.Order == nil {
+		if e.ComplexityRoot.SchemaField.Order == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Order(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Order(childComplexity), true
 	case "SchemaField.required":
-		if e.complexity.SchemaField.Required == nil {
+		if e.ComplexityRoot.SchemaField.Required == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Required(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Required(childComplexity), true
 	case "SchemaField.title":
-		if e.complexity.SchemaField.Title == nil {
+		if e.ComplexityRoot.SchemaField.Title == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Title(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Title(childComplexity), true
 	case "SchemaField.type":
-		if e.complexity.SchemaField.Type == nil {
+		if e.ComplexityRoot.SchemaField.Type == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Type(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Type(childComplexity), true
 	case "SchemaField.typeProperty":
-		if e.complexity.SchemaField.TypeProperty == nil {
+		if e.ComplexityRoot.SchemaField.TypeProperty == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.TypeProperty(childComplexity), true
+		return e.ComplexityRoot.SchemaField.TypeProperty(childComplexity), true
 	case "SchemaField.unique":
-		if e.complexity.SchemaField.Unique == nil {
+		if e.ComplexityRoot.SchemaField.Unique == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.Unique(childComplexity), true
+		return e.ComplexityRoot.SchemaField.Unique(childComplexity), true
 	case "SchemaField.updatedAt":
-		if e.complexity.SchemaField.UpdatedAt == nil {
+		if e.ComplexityRoot.SchemaField.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.SchemaField.UpdatedAt(childComplexity), true
 
 	case "SchemaFieldAsset.defaultValue":
-		if e.complexity.SchemaFieldAsset.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldAsset.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldAsset.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldAsset.DefaultValue(childComplexity), true
 
 	case "SchemaFieldBool.defaultValue":
-		if e.complexity.SchemaFieldBool.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldBool.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldBool.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldBool.DefaultValue(childComplexity), true
 
 	case "SchemaFieldCheckbox.defaultValue":
-		if e.complexity.SchemaFieldCheckbox.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldCheckbox.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldCheckbox.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldCheckbox.DefaultValue(childComplexity), true
 
 	case "SchemaFieldDate.defaultValue":
-		if e.complexity.SchemaFieldDate.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldDate.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldDate.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldDate.DefaultValue(childComplexity), true
 
 	case "SchemaFieldGeometryEditor.defaultValue":
-		if e.complexity.SchemaFieldGeometryEditor.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldGeometryEditor.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldGeometryEditor.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldGeometryEditor.DefaultValue(childComplexity), true
 	case "SchemaFieldGeometryEditor.supportedTypes":
-		if e.complexity.SchemaFieldGeometryEditor.SupportedTypes == nil {
+		if e.ComplexityRoot.SchemaFieldGeometryEditor.SupportedTypes == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldGeometryEditor.SupportedTypes(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldGeometryEditor.SupportedTypes(childComplexity), true
 
 	case "SchemaFieldGeometryObject.defaultValue":
-		if e.complexity.SchemaFieldGeometryObject.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldGeometryObject.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldGeometryObject.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldGeometryObject.DefaultValue(childComplexity), true
 	case "SchemaFieldGeometryObject.supportedTypes":
-		if e.complexity.SchemaFieldGeometryObject.SupportedTypes == nil {
+		if e.ComplexityRoot.SchemaFieldGeometryObject.SupportedTypes == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldGeometryObject.SupportedTypes(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldGeometryObject.SupportedTypes(childComplexity), true
 
 	case "SchemaFieldGroup.groupId":
-		if e.complexity.SchemaFieldGroup.GroupID == nil {
+		if e.ComplexityRoot.SchemaFieldGroup.GroupID == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldGroup.GroupID(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldGroup.GroupID(childComplexity), true
 
 	case "SchemaFieldInteger.defaultValue":
-		if e.complexity.SchemaFieldInteger.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldInteger.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldInteger.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldInteger.DefaultValue(childComplexity), true
 	case "SchemaFieldInteger.max":
-		if e.complexity.SchemaFieldInteger.Max == nil {
+		if e.ComplexityRoot.SchemaFieldInteger.Max == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldInteger.Max(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldInteger.Max(childComplexity), true
 	case "SchemaFieldInteger.min":
-		if e.complexity.SchemaFieldInteger.Min == nil {
+		if e.ComplexityRoot.SchemaFieldInteger.Min == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldInteger.Min(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldInteger.Min(childComplexity), true
 
 	case "SchemaFieldMarkdown.defaultValue":
-		if e.complexity.SchemaFieldMarkdown.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldMarkdown.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldMarkdown.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldMarkdown.DefaultValue(childComplexity), true
 	case "SchemaFieldMarkdown.maxLength":
-		if e.complexity.SchemaFieldMarkdown.MaxLength == nil {
+		if e.ComplexityRoot.SchemaFieldMarkdown.MaxLength == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldMarkdown.MaxLength(childComplexity), true
 
 	case "SchemaFieldNumber.defaultValue":
-		if e.complexity.SchemaFieldNumber.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldNumber.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldNumber.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldNumber.DefaultValue(childComplexity), true
 	case "SchemaFieldNumber.max":
-		if e.complexity.SchemaFieldNumber.Max == nil {
+		if e.ComplexityRoot.SchemaFieldNumber.Max == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldNumber.Max(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldNumber.Max(childComplexity), true
 	case "SchemaFieldNumber.min":
-		if e.complexity.SchemaFieldNumber.Min == nil {
+		if e.ComplexityRoot.SchemaFieldNumber.Min == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldNumber.Min(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldNumber.Min(childComplexity), true
 
 	case "SchemaFieldReference.correspondingField":
-		if e.complexity.SchemaFieldReference.CorrespondingField == nil {
+		if e.ComplexityRoot.SchemaFieldReference.CorrespondingField == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldReference.CorrespondingField(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldReference.CorrespondingField(childComplexity), true
 	case "SchemaFieldReference.correspondingFieldId":
-		if e.complexity.SchemaFieldReference.CorrespondingFieldID == nil {
+		if e.ComplexityRoot.SchemaFieldReference.CorrespondingFieldID == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
 	case "SchemaFieldReference.modelId":
-		if e.complexity.SchemaFieldReference.ModelID == nil {
+		if e.ComplexityRoot.SchemaFieldReference.ModelID == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldReference.ModelID(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldReference.ModelID(childComplexity), true
 	case "SchemaFieldReference.schema":
-		if e.complexity.SchemaFieldReference.Schema == nil {
+		if e.ComplexityRoot.SchemaFieldReference.Schema == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldReference.Schema(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldReference.Schema(childComplexity), true
 	case "SchemaFieldReference.schemaId":
-		if e.complexity.SchemaFieldReference.SchemaID == nil {
+		if e.ComplexityRoot.SchemaFieldReference.SchemaID == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldReference.SchemaID(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldReference.SchemaID(childComplexity), true
 
 	case "SchemaFieldRichText.defaultValue":
-		if e.complexity.SchemaFieldRichText.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldRichText.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldRichText.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldRichText.DefaultValue(childComplexity), true
 	case "SchemaFieldRichText.maxLength":
-		if e.complexity.SchemaFieldRichText.MaxLength == nil {
+		if e.ComplexityRoot.SchemaFieldRichText.MaxLength == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldRichText.MaxLength(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldRichText.MaxLength(childComplexity), true
 
 	case "SchemaFieldSelect.defaultValue":
-		if e.complexity.SchemaFieldSelect.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldSelect.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldSelect.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldSelect.DefaultValue(childComplexity), true
 	case "SchemaFieldSelect.values":
-		if e.complexity.SchemaFieldSelect.Values == nil {
+		if e.ComplexityRoot.SchemaFieldSelect.Values == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldSelect.Values(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldSelect.Values(childComplexity), true
 
 	case "SchemaFieldTag.defaultValue":
-		if e.complexity.SchemaFieldTag.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldTag.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTag.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTag.DefaultValue(childComplexity), true
 	case "SchemaFieldTag.tags":
-		if e.complexity.SchemaFieldTag.Tags == nil {
+		if e.ComplexityRoot.SchemaFieldTag.Tags == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTag.Tags(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTag.Tags(childComplexity), true
 
 	case "SchemaFieldTagValue.color":
-		if e.complexity.SchemaFieldTagValue.Color == nil {
+		if e.ComplexityRoot.SchemaFieldTagValue.Color == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTagValue.Color(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTagValue.Color(childComplexity), true
 	case "SchemaFieldTagValue.id":
-		if e.complexity.SchemaFieldTagValue.ID == nil {
+		if e.ComplexityRoot.SchemaFieldTagValue.ID == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTagValue.ID(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTagValue.ID(childComplexity), true
 	case "SchemaFieldTagValue.name":
-		if e.complexity.SchemaFieldTagValue.Name == nil {
+		if e.ComplexityRoot.SchemaFieldTagValue.Name == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTagValue.Name(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTagValue.Name(childComplexity), true
 
 	case "SchemaFieldText.defaultValue":
-		if e.complexity.SchemaFieldText.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldText.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldText.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldText.DefaultValue(childComplexity), true
 	case "SchemaFieldText.maxLength":
-		if e.complexity.SchemaFieldText.MaxLength == nil {
+		if e.ComplexityRoot.SchemaFieldText.MaxLength == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldText.MaxLength(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldText.MaxLength(childComplexity), true
 
 	case "SchemaFieldTextArea.defaultValue":
-		if e.complexity.SchemaFieldTextArea.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldTextArea.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTextArea.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTextArea.DefaultValue(childComplexity), true
 	case "SchemaFieldTextArea.maxLength":
-		if e.complexity.SchemaFieldTextArea.MaxLength == nil {
+		if e.ComplexityRoot.SchemaFieldTextArea.MaxLength == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTextArea.MaxLength(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldTextArea.MaxLength(childComplexity), true
 
 	case "SchemaFieldURL.defaultValue":
-		if e.complexity.SchemaFieldURL.DefaultValue == nil {
+		if e.ComplexityRoot.SchemaFieldURL.DefaultValue == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldURL.DefaultValue(childComplexity), true
+		return e.ComplexityRoot.SchemaFieldURL.DefaultValue(childComplexity), true
 
 	case "StringFieldCondition.fieldId":
-		if e.complexity.StringFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.StringFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.StringFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.StringFieldCondition.FieldID(childComplexity), true
 	case "StringFieldCondition.operator":
-		if e.complexity.StringFieldCondition.Operator == nil {
+		if e.ComplexityRoot.StringFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.StringFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.StringFieldCondition.Operator(childComplexity), true
 	case "StringFieldCondition.value":
-		if e.complexity.StringFieldCondition.Value == nil {
+		if e.ComplexityRoot.StringFieldCondition.Value == nil {
 			break
 		}
 
-		return e.complexity.StringFieldCondition.Value(childComplexity), true
+		return e.ComplexityRoot.StringFieldCondition.Value(childComplexity), true
+
+	case "Subscription.jobState":
+		if e.ComplexityRoot.Subscription.JobState == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_jobState_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Subscription.JobState(childComplexity, args["jobId"].(gqlmodel.ID)), true
 
 	case "TerrainResource.id":
-		if e.complexity.TerrainResource.ID == nil {
+		if e.ComplexityRoot.TerrainResource.ID == nil {
 			break
 		}
 
-		return e.complexity.TerrainResource.ID(childComplexity), true
+		return e.ComplexityRoot.TerrainResource.ID(childComplexity), true
 	case "TerrainResource.props":
-		if e.complexity.TerrainResource.Props == nil {
+		if e.ComplexityRoot.TerrainResource.Props == nil {
 			break
 		}
 
-		return e.complexity.TerrainResource.Props(childComplexity), true
+		return e.ComplexityRoot.TerrainResource.Props(childComplexity), true
 	case "TerrainResource.type":
-		if e.complexity.TerrainResource.Type == nil {
+		if e.ComplexityRoot.TerrainResource.Type == nil {
 			break
 		}
 
-		return e.complexity.TerrainResource.Type(childComplexity), true
+		return e.ComplexityRoot.TerrainResource.Type(childComplexity), true
 
 	case "Thread.comments":
-		if e.complexity.Thread.Comments == nil {
+		if e.ComplexityRoot.Thread.Comments == nil {
 			break
 		}
 
-		return e.complexity.Thread.Comments(childComplexity), true
+		return e.ComplexityRoot.Thread.Comments(childComplexity), true
 	case "Thread.id":
-		if e.complexity.Thread.ID == nil {
+		if e.ComplexityRoot.Thread.ID == nil {
 			break
 		}
 
-		return e.complexity.Thread.ID(childComplexity), true
+		return e.ComplexityRoot.Thread.ID(childComplexity), true
 	case "Thread.workspace":
-		if e.complexity.Thread.Workspace == nil {
+		if e.ComplexityRoot.Thread.Workspace == nil {
 			break
 		}
 
-		return e.complexity.Thread.Workspace(childComplexity), true
+		return e.ComplexityRoot.Thread.Workspace(childComplexity), true
 	case "Thread.workspaceId":
-		if e.complexity.Thread.WorkspaceID == nil {
+		if e.ComplexityRoot.Thread.WorkspaceID == nil {
 			break
 		}
 
-		return e.complexity.Thread.WorkspaceID(childComplexity), true
+		return e.ComplexityRoot.Thread.WorkspaceID(childComplexity), true
 
 	case "TileResource.id":
-		if e.complexity.TileResource.ID == nil {
+		if e.ComplexityRoot.TileResource.ID == nil {
 			break
 		}
 
-		return e.complexity.TileResource.ID(childComplexity), true
+		return e.ComplexityRoot.TileResource.ID(childComplexity), true
 	case "TileResource.props":
-		if e.complexity.TileResource.Props == nil {
+		if e.ComplexityRoot.TileResource.Props == nil {
 			break
 		}
 
-		return e.complexity.TileResource.Props(childComplexity), true
+		return e.ComplexityRoot.TileResource.Props(childComplexity), true
 	case "TileResource.type":
-		if e.complexity.TileResource.Type == nil {
+		if e.ComplexityRoot.TileResource.Type == nil {
 			break
 		}
 
-		return e.complexity.TileResource.Type(childComplexity), true
+		return e.ComplexityRoot.TileResource.Type(childComplexity), true
 
 	case "TimeFieldCondition.fieldId":
-		if e.complexity.TimeFieldCondition.FieldID == nil {
+		if e.ComplexityRoot.TimeFieldCondition.FieldID == nil {
 			break
 		}
 
-		return e.complexity.TimeFieldCondition.FieldID(childComplexity), true
+		return e.ComplexityRoot.TimeFieldCondition.FieldID(childComplexity), true
 	case "TimeFieldCondition.operator":
-		if e.complexity.TimeFieldCondition.Operator == nil {
+		if e.ComplexityRoot.TimeFieldCondition.Operator == nil {
 			break
 		}
 
-		return e.complexity.TimeFieldCondition.Operator(childComplexity), true
+		return e.ComplexityRoot.TimeFieldCondition.Operator(childComplexity), true
 	case "TimeFieldCondition.value":
-		if e.complexity.TimeFieldCondition.Value == nil {
+		if e.ComplexityRoot.TimeFieldCondition.Value == nil {
 			break
 		}
 
-		return e.complexity.TimeFieldCondition.Value(childComplexity), true
+		return e.ComplexityRoot.TimeFieldCondition.Value(childComplexity), true
 
 	case "UnpublishItemPayload.items":
-		if e.complexity.UnpublishItemPayload.Items == nil {
+		if e.ComplexityRoot.UnpublishItemPayload.Items == nil {
 			break
 		}
 
-		return e.complexity.UnpublishItemPayload.Items(childComplexity), true
+		return e.ComplexityRoot.UnpublishItemPayload.Items(childComplexity), true
 
 	case "UpdateAssetPayload.asset":
-		if e.complexity.UpdateAssetPayload.Asset == nil {
+		if e.ComplexityRoot.UpdateAssetPayload.Asset == nil {
 			break
 		}
 
-		return e.complexity.UpdateAssetPayload.Asset(childComplexity), true
+		return e.ComplexityRoot.UpdateAssetPayload.Asset(childComplexity), true
 
 	case "UpdateMePayload.me":
-		if e.complexity.UpdateMePayload.Me == nil {
+		if e.ComplexityRoot.UpdateMePayload.Me == nil {
 			break
 		}
 
-		return e.complexity.UpdateMePayload.Me(childComplexity), true
+		return e.ComplexityRoot.UpdateMePayload.Me(childComplexity), true
 
 	case "UpdateMemberOfWorkspacePayload.workspace":
-		if e.complexity.UpdateMemberOfWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.UpdateMemberOfWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.UpdateMemberOfWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.UpdateMemberOfWorkspacePayload.Workspace(childComplexity), true
 
 	case "UpdateWorkspacePayload.workspace":
-		if e.complexity.UpdateWorkspacePayload.Workspace == nil {
+		if e.ComplexityRoot.UpdateWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.UpdateWorkspacePayload.Workspace(childComplexity), true
+		return e.ComplexityRoot.UpdateWorkspacePayload.Workspace(childComplexity), true
 
 	case "UpdateWorkspaceSettingsPayload.workspaceSettings":
-		if e.complexity.UpdateWorkspaceSettingsPayload.WorkspaceSettings == nil {
+		if e.ComplexityRoot.UpdateWorkspaceSettingsPayload.WorkspaceSettings == nil {
 			break
 		}
 
-		return e.complexity.UpdateWorkspaceSettingsPayload.WorkspaceSettings(childComplexity), true
+		return e.ComplexityRoot.UpdateWorkspaceSettingsPayload.WorkspaceSettings(childComplexity), true
 
 	case "UrlResourceProps.image":
-		if e.complexity.UrlResourceProps.Image == nil {
+		if e.ComplexityRoot.UrlResourceProps.Image == nil {
 			break
 		}
 
-		return e.complexity.UrlResourceProps.Image(childComplexity), true
+		return e.ComplexityRoot.UrlResourceProps.Image(childComplexity), true
 	case "UrlResourceProps.name":
-		if e.complexity.UrlResourceProps.Name == nil {
+		if e.ComplexityRoot.UrlResourceProps.Name == nil {
 			break
 		}
 
-		return e.complexity.UrlResourceProps.Name(childComplexity), true
+		return e.ComplexityRoot.UrlResourceProps.Name(childComplexity), true
 	case "UrlResourceProps.url":
-		if e.complexity.UrlResourceProps.URL == nil {
+		if e.ComplexityRoot.UrlResourceProps.URL == nil {
 			break
 		}
 
-		return e.complexity.UrlResourceProps.URL(childComplexity), true
+		return e.ComplexityRoot.UrlResourceProps.URL(childComplexity), true
 
 	case "User.email":
-		if e.complexity.User.Email == nil {
+		if e.ComplexityRoot.User.Email == nil {
 			break
 		}
 
-		return e.complexity.User.Email(childComplexity), true
+		return e.ComplexityRoot.User.Email(childComplexity), true
 	case "User.host":
-		if e.complexity.User.Host == nil {
+		if e.ComplexityRoot.User.Host == nil {
 			break
 		}
 
-		return e.complexity.User.Host(childComplexity), true
+		return e.ComplexityRoot.User.Host(childComplexity), true
 	case "User.id":
-		if e.complexity.User.ID == nil {
+		if e.ComplexityRoot.User.ID == nil {
 			break
 		}
 
-		return e.complexity.User.ID(childComplexity), true
+		return e.ComplexityRoot.User.ID(childComplexity), true
 	case "User.name":
-		if e.complexity.User.Name == nil {
+		if e.ComplexityRoot.User.Name == nil {
 			break
 		}
 
-		return e.complexity.User.Name(childComplexity), true
+		return e.ComplexityRoot.User.Name(childComplexity), true
 
 	case "VersionedItem.parents":
-		if e.complexity.VersionedItem.Parents == nil {
+		if e.ComplexityRoot.VersionedItem.Parents == nil {
 			break
 		}
 
-		return e.complexity.VersionedItem.Parents(childComplexity), true
+		return e.ComplexityRoot.VersionedItem.Parents(childComplexity), true
 	case "VersionedItem.refs":
-		if e.complexity.VersionedItem.Refs == nil {
+		if e.ComplexityRoot.VersionedItem.Refs == nil {
 			break
 		}
 
-		return e.complexity.VersionedItem.Refs(childComplexity), true
+		return e.ComplexityRoot.VersionedItem.Refs(childComplexity), true
 	case "VersionedItem.value":
-		if e.complexity.VersionedItem.Value == nil {
+		if e.ComplexityRoot.VersionedItem.Value == nil {
 			break
 		}
 
-		return e.complexity.VersionedItem.Value(childComplexity), true
+		return e.ComplexityRoot.VersionedItem.Value(childComplexity), true
 	case "VersionedItem.version":
-		if e.complexity.VersionedItem.Version == nil {
+		if e.ComplexityRoot.VersionedItem.Version == nil {
 			break
 		}
 
-		return e.complexity.VersionedItem.Version(childComplexity), true
+		return e.ComplexityRoot.VersionedItem.Version(childComplexity), true
 
 	case "View.columns":
-		if e.complexity.View.Columns == nil {
+		if e.ComplexityRoot.View.Columns == nil {
 			break
 		}
 
-		return e.complexity.View.Columns(childComplexity), true
+		return e.ComplexityRoot.View.Columns(childComplexity), true
 	case "View.filter":
-		if e.complexity.View.Filter == nil {
+		if e.ComplexityRoot.View.Filter == nil {
 			break
 		}
 
-		return e.complexity.View.Filter(childComplexity), true
+		return e.ComplexityRoot.View.Filter(childComplexity), true
 	case "View.id":
-		if e.complexity.View.ID == nil {
+		if e.ComplexityRoot.View.ID == nil {
 			break
 		}
 
-		return e.complexity.View.ID(childComplexity), true
+		return e.ComplexityRoot.View.ID(childComplexity), true
 	case "View.modelId":
-		if e.complexity.View.ModelID == nil {
+		if e.ComplexityRoot.View.ModelID == nil {
 			break
 		}
 
-		return e.complexity.View.ModelID(childComplexity), true
+		return e.ComplexityRoot.View.ModelID(childComplexity), true
 	case "View.name":
-		if e.complexity.View.Name == nil {
+		if e.ComplexityRoot.View.Name == nil {
 			break
 		}
 
-		return e.complexity.View.Name(childComplexity), true
+		return e.ComplexityRoot.View.Name(childComplexity), true
 	case "View.order":
-		if e.complexity.View.Order == nil {
+		if e.ComplexityRoot.View.Order == nil {
 			break
 		}
 
-		return e.complexity.View.Order(childComplexity), true
+		return e.ComplexityRoot.View.Order(childComplexity), true
 	case "View.projectId":
-		if e.complexity.View.ProjectID == nil {
+		if e.ComplexityRoot.View.ProjectID == nil {
 			break
 		}
 
-		return e.complexity.View.ProjectID(childComplexity), true
+		return e.ComplexityRoot.View.ProjectID(childComplexity), true
 	case "View.sort":
-		if e.complexity.View.Sort == nil {
+		if e.ComplexityRoot.View.Sort == nil {
 			break
 		}
 
-		return e.complexity.View.Sort(childComplexity), true
+		return e.ComplexityRoot.View.Sort(childComplexity), true
 
 	case "ViewPayload.view":
-		if e.complexity.ViewPayload.View == nil {
+		if e.ComplexityRoot.ViewPayload.View == nil {
 			break
 		}
 
-		return e.complexity.ViewPayload.View(childComplexity), true
+		return e.ComplexityRoot.ViewPayload.View(childComplexity), true
 
 	case "ViewsPayload.views":
-		if e.complexity.ViewsPayload.Views == nil {
+		if e.ComplexityRoot.ViewsPayload.Views == nil {
 			break
 		}
 
-		return e.complexity.ViewsPayload.Views(childComplexity), true
+		return e.ComplexityRoot.ViewsPayload.Views(childComplexity), true
 
 	case "Webhook.active":
-		if e.complexity.Webhook.Active == nil {
+		if e.ComplexityRoot.Webhook.Active == nil {
 			break
 		}
 
-		return e.complexity.Webhook.Active(childComplexity), true
+		return e.ComplexityRoot.Webhook.Active(childComplexity), true
 	case "Webhook.createdAt":
-		if e.complexity.Webhook.CreatedAt == nil {
+		if e.ComplexityRoot.Webhook.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Webhook.CreatedAt(childComplexity), true
+		return e.ComplexityRoot.Webhook.CreatedAt(childComplexity), true
 	case "Webhook.id":
-		if e.complexity.Webhook.ID == nil {
+		if e.ComplexityRoot.Webhook.ID == nil {
 			break
 		}
 
-		return e.complexity.Webhook.ID(childComplexity), true
+		return e.ComplexityRoot.Webhook.ID(childComplexity), true
 	case "Webhook.name":
-		if e.complexity.Webhook.Name == nil {
+		if e.ComplexityRoot.Webhook.Name == nil {
 			break
 		}
 
-		return e.complexity.Webhook.Name(childComplexity), true
+		return e.ComplexityRoot.Webhook.Name(childComplexity), true
 	case "Webhook.secret":
-		if e.complexity.Webhook.Secret == nil {
+		if e.ComplexityRoot.Webhook.Secret == nil {
 			break
 		}
 
-		return e.complexity.Webhook.Secret(childComplexity), true
+		return e.ComplexityRoot.Webhook.Secret(childComplexity), true
 	case "Webhook.trigger":
-		if e.complexity.Webhook.Trigger == nil {
+		if e.ComplexityRoot.Webhook.Trigger == nil {
 			break
 		}
 
-		return e.complexity.Webhook.Trigger(childComplexity), true
+		return e.ComplexityRoot.Webhook.Trigger(childComplexity), true
 	case "Webhook.url":
-		if e.complexity.Webhook.URL == nil {
+		if e.ComplexityRoot.Webhook.URL == nil {
 			break
 		}
 
-		return e.complexity.Webhook.URL(childComplexity), true
+		return e.ComplexityRoot.Webhook.URL(childComplexity), true
 	case "Webhook.updatedAt":
-		if e.complexity.Webhook.UpdatedAt == nil {
+		if e.ComplexityRoot.Webhook.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Webhook.UpdatedAt(childComplexity), true
+		return e.ComplexityRoot.Webhook.UpdatedAt(childComplexity), true
 
 	case "WebhookPayload.webhook":
-		if e.complexity.WebhookPayload.Webhook == nil {
+		if e.ComplexityRoot.WebhookPayload.Webhook == nil {
 			break
 		}
 
-		return e.complexity.WebhookPayload.Webhook(childComplexity), true
+		return e.ComplexityRoot.WebhookPayload.Webhook(childComplexity), true
 
 	case "WebhookTrigger.onAssetDecompress":
-		if e.complexity.WebhookTrigger.OnAssetDecompress == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnAssetDecompress == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnAssetDecompress(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnAssetDecompress(childComplexity), true
 	case "WebhookTrigger.onAssetDelete":
-		if e.complexity.WebhookTrigger.OnAssetDelete == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnAssetDelete == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnAssetDelete(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnAssetDelete(childComplexity), true
 	case "WebhookTrigger.onAssetUpload":
-		if e.complexity.WebhookTrigger.OnAssetUpload == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnAssetUpload == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnAssetUpload(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnAssetUpload(childComplexity), true
 	case "WebhookTrigger.onItemCreate":
-		if e.complexity.WebhookTrigger.OnItemCreate == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnItemCreate == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnItemCreate(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnItemCreate(childComplexity), true
 	case "WebhookTrigger.onItemDelete":
-		if e.complexity.WebhookTrigger.OnItemDelete == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnItemDelete == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnItemDelete(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnItemDelete(childComplexity), true
 	case "WebhookTrigger.onItemPublish":
-		if e.complexity.WebhookTrigger.OnItemPublish == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnItemPublish == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnItemPublish(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnItemPublish(childComplexity), true
 	case "WebhookTrigger.onItemUnPublish":
-		if e.complexity.WebhookTrigger.OnItemUnPublish == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnItemUnPublish == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnItemUnPublish(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnItemUnPublish(childComplexity), true
 	case "WebhookTrigger.onItemUpdate":
-		if e.complexity.WebhookTrigger.OnItemUpdate == nil {
+		if e.ComplexityRoot.WebhookTrigger.OnItemUpdate == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnItemUpdate(childComplexity), true
+		return e.ComplexityRoot.WebhookTrigger.OnItemUpdate(childComplexity), true
 
 	case "Workspace.alias":
-		if e.complexity.Workspace.Alias == nil {
+		if e.ComplexityRoot.Workspace.Alias == nil {
 			break
 		}
 
-		return e.complexity.Workspace.Alias(childComplexity), true
+		return e.ComplexityRoot.Workspace.Alias(childComplexity), true
 	case "Workspace.id":
-		if e.complexity.Workspace.ID == nil {
+		if e.ComplexityRoot.Workspace.ID == nil {
 			break
 		}
 
-		return e.complexity.Workspace.ID(childComplexity), true
+		return e.ComplexityRoot.Workspace.ID(childComplexity), true
 	case "Workspace.members":
-		if e.complexity.Workspace.Members == nil {
+		if e.ComplexityRoot.Workspace.Members == nil {
 			break
 		}
 
-		return e.complexity.Workspace.Members(childComplexity), true
+		return e.ComplexityRoot.Workspace.Members(childComplexity), true
 	case "Workspace.name":
-		if e.complexity.Workspace.Name == nil {
+		if e.ComplexityRoot.Workspace.Name == nil {
 			break
 		}
 
-		return e.complexity.Workspace.Name(childComplexity), true
+		return e.ComplexityRoot.Workspace.Name(childComplexity), true
 	case "Workspace.personal":
-		if e.complexity.Workspace.Personal == nil {
+		if e.ComplexityRoot.Workspace.Personal == nil {
 			break
 		}
 
-		return e.complexity.Workspace.Personal(childComplexity), true
+		return e.ComplexityRoot.Workspace.Personal(childComplexity), true
 
 	case "WorkspaceIntegrationMember.active":
-		if e.complexity.WorkspaceIntegrationMember.Active == nil {
+		if e.ComplexityRoot.WorkspaceIntegrationMember.Active == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceIntegrationMember.Active(childComplexity), true
+		return e.ComplexityRoot.WorkspaceIntegrationMember.Active(childComplexity), true
 	case "WorkspaceIntegrationMember.integration":
-		if e.complexity.WorkspaceIntegrationMember.Integration == nil {
+		if e.ComplexityRoot.WorkspaceIntegrationMember.Integration == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceIntegrationMember.Integration(childComplexity), true
+		return e.ComplexityRoot.WorkspaceIntegrationMember.Integration(childComplexity), true
 	case "WorkspaceIntegrationMember.integrationId":
-		if e.complexity.WorkspaceIntegrationMember.IntegrationID == nil {
+		if e.ComplexityRoot.WorkspaceIntegrationMember.IntegrationID == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceIntegrationMember.IntegrationID(childComplexity), true
+		return e.ComplexityRoot.WorkspaceIntegrationMember.IntegrationID(childComplexity), true
 	case "WorkspaceIntegrationMember.invitedBy":
-		if e.complexity.WorkspaceIntegrationMember.InvitedBy == nil {
+		if e.ComplexityRoot.WorkspaceIntegrationMember.InvitedBy == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceIntegrationMember.InvitedBy(childComplexity), true
+		return e.ComplexityRoot.WorkspaceIntegrationMember.InvitedBy(childComplexity), true
 	case "WorkspaceIntegrationMember.invitedById":
-		if e.complexity.WorkspaceIntegrationMember.InvitedByID == nil {
+		if e.ComplexityRoot.WorkspaceIntegrationMember.InvitedByID == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceIntegrationMember.InvitedByID(childComplexity), true
+		return e.ComplexityRoot.WorkspaceIntegrationMember.InvitedByID(childComplexity), true
 	case "WorkspaceIntegrationMember.role":
-		if e.complexity.WorkspaceIntegrationMember.Role == nil {
+		if e.ComplexityRoot.WorkspaceIntegrationMember.Role == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceIntegrationMember.Role(childComplexity), true
+		return e.ComplexityRoot.WorkspaceIntegrationMember.Role(childComplexity), true
 
 	case "WorkspaceProjectLimits.privateProjectsAllowed":
-		if e.complexity.WorkspaceProjectLimits.PrivateProjectsAllowed == nil {
+		if e.ComplexityRoot.WorkspaceProjectLimits.PrivateProjectsAllowed == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceProjectLimits.PrivateProjectsAllowed(childComplexity), true
+		return e.ComplexityRoot.WorkspaceProjectLimits.PrivateProjectsAllowed(childComplexity), true
 	case "WorkspaceProjectLimits.publicProjectsAllowed":
-		if e.complexity.WorkspaceProjectLimits.PublicProjectsAllowed == nil {
+		if e.ComplexityRoot.WorkspaceProjectLimits.PublicProjectsAllowed == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceProjectLimits.PublicProjectsAllowed(childComplexity), true
+		return e.ComplexityRoot.WorkspaceProjectLimits.PublicProjectsAllowed(childComplexity), true
 
 	case "WorkspaceSettings.id":
-		if e.complexity.WorkspaceSettings.ID == nil {
+		if e.ComplexityRoot.WorkspaceSettings.ID == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceSettings.ID(childComplexity), true
+		return e.ComplexityRoot.WorkspaceSettings.ID(childComplexity), true
 	case "WorkspaceSettings.terrains":
-		if e.complexity.WorkspaceSettings.Terrains == nil {
+		if e.ComplexityRoot.WorkspaceSettings.Terrains == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceSettings.Terrains(childComplexity), true
+		return e.ComplexityRoot.WorkspaceSettings.Terrains(childComplexity), true
 	case "WorkspaceSettings.tiles":
-		if e.complexity.WorkspaceSettings.Tiles == nil {
+		if e.ComplexityRoot.WorkspaceSettings.Tiles == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceSettings.Tiles(childComplexity), true
+		return e.ComplexityRoot.WorkspaceSettings.Tiles(childComplexity), true
 
 	case "WorkspaceUserMember.host":
-		if e.complexity.WorkspaceUserMember.Host == nil {
+		if e.ComplexityRoot.WorkspaceUserMember.Host == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceUserMember.Host(childComplexity), true
+		return e.ComplexityRoot.WorkspaceUserMember.Host(childComplexity), true
 	case "WorkspaceUserMember.role":
-		if e.complexity.WorkspaceUserMember.Role == nil {
+		if e.ComplexityRoot.WorkspaceUserMember.Role == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceUserMember.Role(childComplexity), true
+		return e.ComplexityRoot.WorkspaceUserMember.Role(childComplexity), true
 	case "WorkspaceUserMember.user":
-		if e.complexity.WorkspaceUserMember.User == nil {
+		if e.ComplexityRoot.WorkspaceUserMember.User == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceUserMember.User(childComplexity), true
+		return e.ComplexityRoot.WorkspaceUserMember.User(childComplexity), true
 	case "WorkspaceUserMember.userId":
-		if e.complexity.WorkspaceUserMember.UserID == nil {
+		if e.ComplexityRoot.WorkspaceUserMember.UserID == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceUserMember.UserID(childComplexity), true
+		return e.ComplexityRoot.WorkspaceUserMember.UserID(childComplexity), true
 
 	}
 	return 0, false
@@ -4785,7 +5053,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
-	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
+	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddCommentInput,
 		ec.unmarshalInputAddIntegrationToWorkspaceInput,
@@ -4824,6 +5092,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteIntegrationInput,
 		ec.unmarshalInputDeleteIntegrationsInput,
 		ec.unmarshalInputDeleteItemInput,
+		ec.unmarshalInputDeleteItemsInput,
 		ec.unmarshalInputDeleteMeInput,
 		ec.unmarshalInputDeleteModelInput,
 		ec.unmarshalInputDeleteProjectInput,
@@ -4835,6 +5104,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputExportModelSchemaInput,
 		ec.unmarshalInputFieldSelectorInput,
 		ec.unmarshalInputGuessSchemaFieldsInput,
+		ec.unmarshalInputImportItemsInput,
 		ec.unmarshalInputItemFieldInput,
 		ec.unmarshalInputItemQueryInput,
 		ec.unmarshalInputItemSortInput,
@@ -4920,9 +5190,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 				data = ec._Query(ctx, opCtx.Operation.SelectionSet)
 			} else {
-				if atomic.LoadInt32(&ec.pendingDeferred) > 0 {
-					result := <-ec.deferredResults
-					atomic.AddInt32(&ec.pendingDeferred, -1)
+				if atomic.LoadInt32(&ec.PendingDeferred) > 0 {
+					result := <-ec.DeferredResults
+					atomic.AddInt32(&ec.PendingDeferred, -1)
 					data = result.Result
 					response.Path = result.Path
 					response.Label = result.Label
@@ -4934,8 +5204,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 			response.Data = buf.Bytes()
-			if atomic.LoadInt32(&ec.deferred) > 0 {
-				hasNext := atomic.LoadInt32(&ec.pendingDeferred) > 0
+			if atomic.LoadInt32(&ec.Deferred) > 0 {
+				hasNext := atomic.LoadInt32(&ec.PendingDeferred) > 0
 				response.HasNext = &hasNext
 			}
 
@@ -4956,6 +5226,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, opCtx.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -4963,48 +5250,26 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 }
 
 type executionContext struct {
-	*graphql.OperationContext
-	*executableSchema
-	deferred        int32
-	pendingDeferred int32
-	deferredResults chan graphql.DeferredResult
+	*graphql.ExecutionContextState[ResolverRoot, DirectiveRoot, ComplexityRoot]
 }
 
-func (ec *executionContext) processDeferredGroup(dg graphql.DeferredGroup) {
-	atomic.AddInt32(&ec.pendingDeferred, 1)
-	go func() {
-		ctx := graphql.WithFreshResponseContext(dg.Context)
-		dg.FieldSet.Dispatch(ctx)
-		ds := graphql.DeferredResult{
-			Path:   dg.Path,
-			Label:  dg.Label,
-			Result: dg.FieldSet,
-			Errors: graphql.GetErrors(ctx),
-		}
-		// null fields should bubble up
-		if dg.FieldSet.Invalids > 0 {
-			ds.Result = graphql.Null
-		}
-		ec.deferredResults <- ds
-	}()
-}
-
-func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
-	if ec.DisableIntrospection {
-		return nil, errors.New("introspection disabled")
+func newExecutionContext(
+	opCtx *graphql.OperationContext,
+	execSchema *executableSchema,
+	deferredResults chan graphql.DeferredResult,
+) executionContext {
+	return executionContext{
+		ExecutionContextState: graphql.NewExecutionContextState[ResolverRoot, DirectiveRoot, ComplexityRoot](
+			opCtx,
+			(*graphql.ExecutableSchemaState[ResolverRoot, DirectiveRoot, ComplexityRoot])(execSchema),
+			parsedSchema,
+			deferredResults,
+		),
 	}
-	return introspection.WrapSchema(ec.Schema()), nil
-}
-
-func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
-	if ec.DisableIntrospection {
-		return nil, errors.New("introspection disabled")
-	}
-	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
 var sources = []*ast.Source{
-	{Name: "../../../schemas/_shared.graphql", Input: `# Built-in
+	{Name: "../../../schemas/gql/_shared.graphql", Input: `# Built-in
 
 union Operator = User | Integration
 
@@ -5101,11 +5366,14 @@ type Query {
 
 type Mutation
 
+type Subscription
+
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }`, BuiltIn: false},
-	{Name: "../../../schemas/asset.graphql", Input: `type Asset implements Node {
+	{Name: "../../../schemas/gql/asset.graphql", Input: `type Asset implements Node {
   id: ID!
   project: Project!
   projectId: ID!
@@ -5299,7 +5567,7 @@ extend type Mutation {
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
+	{Name: "../../../schemas/gql/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
   RichText
@@ -5682,7 +5950,7 @@ extend type Mutation {
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/group.graphql", Input: `type Group implements Node {
+	{Name: "../../../schemas/gql/group.graphql", Input: `type Group implements Node {
     id: ID!
     schemaId: ID!
     projectId: ID!
@@ -5743,7 +6011,7 @@ extend type Mutation {
     updateGroupsOrder(input: UpdateGroupsOrderInput!): GroupsPayload
     deleteGroup(input: DeleteGroupInput!): DeleteGroupPayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/integration.graphql", Input: `enum IntegrationType {
+	{Name: "../../../schemas/gql/integration.graphql", Input: `enum IntegrationType {
   Public
   Private
 }
@@ -5817,7 +6085,7 @@ extend type Mutation {
   regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger {
+	{Name: "../../../schemas/gql/integration_webhook.graphql", Input: `type WebhookTrigger {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
@@ -5893,7 +6161,7 @@ extend type Mutation {
   deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
+	{Name: "../../../schemas/gql/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
   threadId: ID
@@ -5975,6 +6243,16 @@ input DeleteItemInput {
   itemId: ID!
 }
 
+input DeleteItemsInput {
+  itemIds: [ID!]!
+}
+
+input ImportItemsInput {
+  modelId: ID!
+  file: Upload!
+  geoField: String
+}
+
 input UnpublishItemInput {
   itemIds: [ID!]!
 }
@@ -6006,12 +6284,28 @@ type DeleteItemPayload {
   itemId: ID!
 }
 
+type DeleteItemsPayload {
+  itemIds: [ID!]!
+}
+
 type UnpublishItemPayload {
   items: [Item!]!
 }
 
 type PublishItemPayload {
   items: [Item!]!
+}
+
+type ImportItemsPayload {
+  modelId: ID!
+  totalCount: Int!
+  insertedCount: Int!
+  updatedCount: Int!
+  ignoredCount: Int!
+}
+
+type ImportItemsAsyncPayload {
+  job: Job!
 }
 
 type ItemConnection {
@@ -6036,10 +6330,13 @@ extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
+  deleteItems(input: DeleteItemsInput!): DeleteItemsPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
+  importItems(input: ImportItemsInput!): ImportItemsPayload
+  importItemsAsync(input: ImportItemsInput!): ImportItemsAsyncPayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/item_filter.graphql", Input: `## data Types: string, number, boolean, date, reference, asset, group, groupField
+	{Name: "../../../schemas/gql/item_filter.graphql", Input: `## data Types: string, number, boolean, date, reference, asset, group, groupField
 
 #basic op: equals, not equals
 #string op: contains, not contains, start with, end with, not start with, not end with
@@ -6283,7 +6580,7 @@ input TimeFieldConditionInput {
   value: DateTime!
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/item_view.graphql", Input: `type View implements Node {
+	{Name: "../../../schemas/gql/item_view.graphql", Input: `type View implements Node {
   id: ID!
   name: String!
   modelId: ID!
@@ -6355,7 +6652,63 @@ extend type Mutation {
   updateViewsOrder(input: UpdateViewsOrderInput!): ViewsPayload
   deleteView(input: DeleteViewInput!): DeleteViewPayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/model.graphql", Input: `type Model implements Node {
+	{Name: "../../../schemas/gql/job.graphql", Input: `# Job - Generic async job system for long-running operations
+
+enum JobType {
+  IMPORT
+  # Future: EXPORT, BULK_UPDATE, etc.
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+type Job implements Node {
+  id: ID!
+  type: JobType!
+  projectId: ID!
+  status: JobStatus!
+  progress: JobProgress!
+  error: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  startedAt: DateTime
+  completedAt: DateTime
+}
+
+type JobProgress {
+  processed: Int!
+  total: Int!
+  percentage: Float!
+}
+
+type JobState {
+  status: JobStatus!
+  progress: JobProgress  # nullable - only present when status is IN_PROGRESS
+  error: String          # only present when status is FAILED
+}
+
+# Query extensions
+extend type Query {
+  job(jobId: ID!): Job
+  jobs(projectId: ID!, type: JobType, status: JobStatus): [Job!]!
+}
+
+# Mutation extensions
+extend type Mutation {
+  cancelJob(jobId: ID!): Job
+}
+
+# Subscription extensions
+extend type Subscription {
+  jobState(jobId: ID!): JobState!
+}
+`, BuiltIn: false},
+	{Name: "../../../schemas/gql/model.graphql", Input: `type Model implements Node {
   id: ID!
   projectId: ID!
   schemaId: ID!
@@ -6458,7 +6811,7 @@ extend type Mutation {
   exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
+	{Name: "../../../schemas/gql/project.graphql", Input: `type ProjectAliasAvailability {
   alias: String!
   available: Boolean!
 }
@@ -6601,7 +6954,7 @@ type ProjectEdge {
 
 extend type Query {
   projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
+  checkProjectAlias(workspaceId: ID!, alias: String!): ProjectAliasAvailability!
   checkWorkspaceProjectLimits(workspaceId: ID!): WorkspaceProjectLimits!
 }
 
@@ -6615,7 +6968,7 @@ extend type Mutation {
   regenerateAPIKey(input: RegenerateAPIKeyInput!): APIKeyPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/request.graphql", Input: `type Request implements Node {
+	{Name: "../../../schemas/gql/request.graphql", Input: `type Request implements Node {
   id: ID!
   items: [RequestItem!]!
   title: String!
@@ -6725,7 +7078,7 @@ extend type Mutation {
   deleteRequest(input: DeleteRequestInput!): DeleteRequestPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/schema.graphql", Input: `type Schema implements Node {
+	{Name: "../../../schemas/gql/schema.graphql", Input: `type Schema implements Node {
   id: ID!
   projectId: ID!
   fields: [SchemaField!]!
@@ -6734,7 +7087,7 @@ extend type Mutation {
   project: Project!
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/thread.graphql", Input: `type Thread {
+	{Name: "../../../schemas/gql/thread.graphql", Input: `type Thread {
   id: ID!
   workspace: Workspace
   workspaceId: ID!
@@ -6798,7 +7151,7 @@ extend type Mutation {
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/user.graphql", Input: `type User implements Node {
+	{Name: "../../../schemas/gql/user.graphql", Input: `type User implements Node {
   id: ID!
   name: String!
   email: String!
@@ -6857,7 +7210,7 @@ extend type Mutation {
   deleteMe(input: DeleteMeInput!): DeleteMePayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/workspace.graphql", Input: `type Workspace implements Node {
+	{Name: "../../../schemas/gql/workspace.graphql", Input: `type Workspace implements Node {
     id: ID!
     name: String!
     alias: String
@@ -6997,7 +7350,7 @@ extend type Mutation {
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/workspacesettings.graphql", Input: `type WorkspaceSettings implements Node {
+	{Name: "../../../schemas/gql/workspacesettings.graphql", Input: `type WorkspaceSettings implements Node {
     id: ID! # same as workspaceId
     tiles: ResourceList
     terrains: ResourceList
@@ -7157,6 +7510,17 @@ func (ec *executionContext) field_Mutation_approveRequest_args(ctx context.Conte
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_cancelJob_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "jobId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["jobId"] = arg0
 	return args, nil
 }
 
@@ -7435,6 +7799,17 @@ func (ec *executionContext) field_Mutation_deleteItem_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteItems_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteMe_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -7527,6 +7902,28 @@ func (ec *executionContext) field_Mutation_exportModel_args(ctx context.Context,
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNExportModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_importItemsAsync_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNImportItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_importItems_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNImportItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -7921,11 +8318,16 @@ func (ec *executionContext) field_Query_checkModelKeyAvailability_args(ctx conte
 func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "alias", ec.unmarshalNString2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "workspaceId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
 	if err != nil {
 		return nil, err
 	}
-	args["alias"] = arg0
+	args["workspaceId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "alias", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["alias"] = arg1
 	return args, nil
 }
 
@@ -7980,6 +8382,38 @@ func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Contex
 		return nil, err
 	}
 	args["correspondingFieldId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_job_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "jobId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["jobId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_jobs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "projectId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["projectId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "type", ec.unmarshalOJobType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType)
+	if err != nil {
+		return nil, err
+	}
+	args["type"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "status", ec.unmarshalOJobStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus)
+	if err != nil {
+		return nil, err
+	}
+	args["status"] = arg2
 	return args, nil
 }
 
@@ -8171,6 +8605,17 @@ func (ec *executionContext) field_Query_view_args(ctx context.Context, rawArgs m
 		return nil, err
 	}
 	args["modelId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_jobState_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "jobId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["jobId"] = arg0
 	return args, nil
 }
 
@@ -8408,7 +8853,7 @@ func (ec *executionContext) _Asset_project(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Asset_project,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Asset().Project(ctx, obj)
+			return ec.Resolvers.Asset().Project(ctx, obj)
 		},
 		nil,
 		ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject,
@@ -8521,7 +8966,7 @@ func (ec *executionContext) _Asset_createdBy(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_Asset_createdBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Asset().CreatedBy(ctx, obj)
+			return ec.Resolvers.Asset().CreatedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator,
@@ -8608,7 +9053,7 @@ func (ec *executionContext) _Asset_items(ctx context.Context, field graphql.Coll
 		field,
 		ec.fieldContext_Asset_items,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Asset().Items(ctx, obj)
+			return ec.Resolvers.Asset().Items(ctx, obj)
 		},
 		nil,
 		ec.marshalOAssetItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItemᚄ,
@@ -8759,7 +9204,7 @@ func (ec *executionContext) _Asset_thread(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Asset_thread,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Asset().Thread(ctx, obj)
+			return ec.Resolvers.Asset().Thread(ctx, obj)
 		},
 		nil,
 		ec.marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread,
@@ -9956,7 +10401,7 @@ func (ec *executionContext) _Comment_author(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Comment_author,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Comment().Author(ctx, obj)
+			return ec.Resolvers.Comment().Author(ctx, obj)
 		},
 		nil,
 		ec.marshalOOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator,
@@ -10833,6 +11278,35 @@ func (ec *executionContext) fieldContext_DeleteItemPayload_itemId(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteItemsPayload_itemIds(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeleteItemsPayload_itemIds,
+		func(ctx context.Context) (any, error) {
+			return obj.ItemIds, nil
+		},
+		nil,
+		ec.marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeleteItemsPayload_itemIds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteMePayload_userId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteMePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -11521,7 +11995,7 @@ func (ec *executionContext) _Group_schema(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Group_schema,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Group().Schema(ctx, obj)
+			return ec.Resolvers.Group().Schema(ctx, obj)
 		},
 		nil,
 		ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema,
@@ -11564,7 +12038,7 @@ func (ec *executionContext) _Group_project(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Group_project,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Group().Project(ctx, obj)
+			return ec.Resolvers.Group().Project(ctx, obj)
 		},
 		nil,
 		ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject,
@@ -11961,6 +12435,202 @@ func (ec *executionContext) fieldContext_GuessSchemaFieldResult_fields(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _ImportItemsAsyncPayload_job(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsAsyncPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsAsyncPayload_job,
+		func(ctx context.Context) (any, error) {
+			return obj.Job, nil
+		},
+		nil,
+		ec.marshalNJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsAsyncPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsAsyncPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportItemsPayload_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsPayload_modelId,
+		func(ctx context.Context) (any, error) {
+			return obj.ModelID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsPayload_modelId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportItemsPayload_totalCount(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsPayload_totalCount,
+		func(ctx context.Context) (any, error) {
+			return obj.TotalCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsPayload_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportItemsPayload_insertedCount(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsPayload_insertedCount,
+		func(ctx context.Context) (any, error) {
+			return obj.InsertedCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsPayload_insertedCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportItemsPayload_updatedCount(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsPayload_updatedCount,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsPayload_updatedCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportItemsPayload_ignoredCount(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsPayload_ignoredCount,
+		func(ctx context.Context) (any, error) {
+			return obj.IgnoredCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsPayload_ignoredCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Integration_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Integration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -12142,7 +12812,7 @@ func (ec *executionContext) _Integration_developer(ctx context.Context, field gr
 		field,
 		ec.fieldContext_Integration_developer,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Integration().Developer(ctx, obj)
+			return ec.Resolvers.Integration().Developer(ctx, obj)
 		},
 		nil,
 		ec.marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser,
@@ -12749,7 +13419,7 @@ func (ec *executionContext) _Item_createdBy(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Item_createdBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().CreatedBy(ctx, obj)
+			return ec.Resolvers.Item().CreatedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalOOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator,
@@ -12778,7 +13448,7 @@ func (ec *executionContext) _Item_schema(ctx context.Context, field graphql.Coll
 		field,
 		ec.fieldContext_Item_schema,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Schema(ctx, obj)
+			return ec.Resolvers.Item().Schema(ctx, obj)
 		},
 		nil,
 		ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema,
@@ -12821,7 +13491,7 @@ func (ec *executionContext) _Item_model(ctx context.Context, field graphql.Colle
 		field,
 		ec.fieldContext_Item_model,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Model(ctx, obj)
+			return ec.Resolvers.Item().Model(ctx, obj)
 		},
 		nil,
 		ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel,
@@ -12878,7 +13548,7 @@ func (ec *executionContext) _Item_status(ctx context.Context, field graphql.Coll
 		field,
 		ec.fieldContext_Item_status,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Status(ctx, obj)
+			return ec.Resolvers.Item().Status(ctx, obj)
 		},
 		nil,
 		ec.marshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus,
@@ -12907,7 +13577,7 @@ func (ec *executionContext) _Item_project(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Item_project,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Project(ctx, obj)
+			return ec.Resolvers.Item().Project(ctx, obj)
 		},
 		nil,
 		ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject,
@@ -12962,7 +13632,7 @@ func (ec *executionContext) _Item_thread(ctx context.Context, field graphql.Coll
 		field,
 		ec.fieldContext_Item_thread,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Thread(ctx, obj)
+			return ec.Resolvers.Item().Thread(ctx, obj)
 		},
 		nil,
 		ec.marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread,
@@ -13040,7 +13710,7 @@ func (ec *executionContext) _Item_assets(ctx context.Context, field graphql.Coll
 		field,
 		ec.fieldContext_Item_assets,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Assets(ctx, obj)
+			return ec.Resolvers.Item().Assets(ctx, obj)
 		},
 		nil,
 		ec.marshalNAsset2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset,
@@ -13109,7 +13779,7 @@ func (ec *executionContext) _Item_referencedItems(ctx context.Context, field gra
 		field,
 		ec.fieldContext_Item_referencedItems,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().ReferencedItems(ctx, obj)
+			return ec.Resolvers.Item().ReferencedItems(ctx, obj)
 		},
 		nil,
 		ec.marshalOItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemᚄ,
@@ -13198,7 +13868,7 @@ func (ec *executionContext) _Item_requests(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Item_requests,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Requests(ctx, obj)
+			return ec.Resolvers.Item().Requests(ctx, obj)
 		},
 		nil,
 		ec.marshalORequest2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestᚄ,
@@ -13325,7 +13995,7 @@ func (ec *executionContext) _Item_updatedBy(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Item_updatedBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().UpdatedBy(ctx, obj)
+			return ec.Resolvers.Item().UpdatedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalOOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator,
@@ -13383,7 +14053,7 @@ func (ec *executionContext) _Item_metadata(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Item_metadata,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Metadata(ctx, obj)
+			return ec.Resolvers.Item().Metadata(ctx, obj)
 		},
 		nil,
 		ec.marshalOItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem,
@@ -13472,7 +14142,7 @@ func (ec *executionContext) _Item_original(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Item_original,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Item().Original(ctx, obj)
+			return ec.Resolvers.Item().Original(ctx, obj)
 		},
 		nil,
 		ec.marshalOItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem,
@@ -14162,6 +14832,486 @@ func (ec *executionContext) fieldContext_ItemSort_direction(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_type,
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		ec.marshalNJobType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_projectId,
+		func(ctx context.Context) (any, error) {
+			return obj.ProjectID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_projectId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_progress(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_progress,
+		func(ctx context.Context) (any, error) {
+			return obj.Progress, nil
+		},
+		nil,
+		ec.marshalNJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "processed":
+				return ec.fieldContext_JobProgress_processed(ctx, field)
+			case "total":
+				return ec.fieldContext_JobProgress_total(ctx, field)
+			case "percentage":
+				return ec.fieldContext_JobProgress_percentage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobProgress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_error(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_error,
+		func(ctx context.Context) (any, error) {
+			return obj.Error, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_startedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_startedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.StartedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_startedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_completedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_completedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CompletedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_completedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobProgress_processed(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobProgress_processed,
+		func(ctx context.Context) (any, error) {
+			return obj.Processed, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobProgress_processed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobProgress_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobProgress_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobProgress_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobProgress_percentage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobProgress_percentage,
+		func(ctx context.Context) (any, error) {
+			return obj.Percentage, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobProgress_percentage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobState_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobState) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobState_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobState_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobState",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobState_progress(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobState) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobState_progress,
+		func(ctx context.Context) (any, error) {
+			return obj.Progress, nil
+		},
+		nil,
+		ec.marshalOJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobState_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobState",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "processed":
+				return ec.fieldContext_JobProgress_processed(ctx, field)
+			case "total":
+				return ec.fieldContext_JobProgress_total(ctx, field)
+			case "percentage":
+				return ec.fieldContext_JobProgress_percentage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobProgress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobState_error(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobState) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobState_error,
+		func(ctx context.Context) (any, error) {
+			return obj.Error, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobState_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobState",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _KeyAvailability_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.KeyAvailability) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -14488,7 +15638,7 @@ func (ec *executionContext) _Me_workspaces(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Me_workspaces,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Me().Workspaces(ctx, obj)
+			return ec.Resolvers.Me().Workspaces(ctx, obj)
 		},
 		nil,
 		ec.marshalNWorkspace2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceᚄ,
@@ -14529,7 +15679,7 @@ func (ec *executionContext) _Me_myWorkspace(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Me_myWorkspace,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Me().MyWorkspace(ctx, obj)
+			return ec.Resolvers.Me().MyWorkspace(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace,
@@ -14570,7 +15720,7 @@ func (ec *executionContext) _Me_integrations(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_Me_integrations,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Me().Integrations(ctx, obj)
+			return ec.Resolvers.Me().Integrations(ctx, obj)
 		},
 		nil,
 		ec.marshalNIntegration2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationᚄ,
@@ -14824,7 +15974,7 @@ func (ec *executionContext) _Model_project(ctx context.Context, field graphql.Co
 		field,
 		ec.fieldContext_Model_project,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Model().Project(ctx, obj)
+			return ec.Resolvers.Model().Project(ctx, obj)
 		},
 		nil,
 		ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject,
@@ -14879,7 +16029,7 @@ func (ec *executionContext) _Model_schema(ctx context.Context, field graphql.Col
 		field,
 		ec.fieldContext_Model_schema,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Model().Schema(ctx, obj)
+			return ec.Resolvers.Model().Schema(ctx, obj)
 		},
 		nil,
 		ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema,
@@ -14922,7 +16072,7 @@ func (ec *executionContext) _Model_metadataSchema(ctx context.Context, field gra
 		field,
 		ec.fieldContext_Model_metadataSchema,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Model().MetadataSchema(ctx, obj)
+			return ec.Resolvers.Model().MetadataSchema(ctx, obj)
 		},
 		nil,
 		ec.marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema,
@@ -15506,7 +16656,7 @@ func (ec *executionContext) _Mutation_createAsset(ctx context.Context, field gra
 		ec.fieldContext_Mutation_createAsset,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateAsset(ctx, fc.Args["input"].(gqlmodel.CreateAssetInput))
+			return ec.Resolvers.Mutation().CreateAsset(ctx, fc.Args["input"].(gqlmodel.CreateAssetInput))
 		},
 		nil,
 		ec.marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetPayload,
@@ -15551,7 +16701,7 @@ func (ec *executionContext) _Mutation_updateAsset(ctx context.Context, field gra
 		ec.fieldContext_Mutation_updateAsset,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateAsset(ctx, fc.Args["input"].(gqlmodel.UpdateAssetInput))
+			return ec.Resolvers.Mutation().UpdateAsset(ctx, fc.Args["input"].(gqlmodel.UpdateAssetInput))
 		},
 		nil,
 		ec.marshalOUpdateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAssetPayload,
@@ -15596,7 +16746,7 @@ func (ec *executionContext) _Mutation_deleteAsset(ctx context.Context, field gra
 		ec.fieldContext_Mutation_deleteAsset,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteAsset(ctx, fc.Args["input"].(gqlmodel.DeleteAssetInput))
+			return ec.Resolvers.Mutation().DeleteAsset(ctx, fc.Args["input"].(gqlmodel.DeleteAssetInput))
 		},
 		nil,
 		ec.marshalODeleteAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetPayload,
@@ -15641,7 +16791,7 @@ func (ec *executionContext) _Mutation_deleteAssets(ctx context.Context, field gr
 		ec.fieldContext_Mutation_deleteAssets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteAssets(ctx, fc.Args["input"].(gqlmodel.DeleteAssetsInput))
+			return ec.Resolvers.Mutation().DeleteAssets(ctx, fc.Args["input"].(gqlmodel.DeleteAssetsInput))
 		},
 		nil,
 		ec.marshalODeleteAssetsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetsPayload,
@@ -15686,7 +16836,7 @@ func (ec *executionContext) _Mutation_decompressAsset(ctx context.Context, field
 		ec.fieldContext_Mutation_decompressAsset,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DecompressAsset(ctx, fc.Args["input"].(gqlmodel.DecompressAssetInput))
+			return ec.Resolvers.Mutation().DecompressAsset(ctx, fc.Args["input"].(gqlmodel.DecompressAssetInput))
 		},
 		nil,
 		ec.marshalODecompressAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetPayload,
@@ -15731,7 +16881,7 @@ func (ec *executionContext) _Mutation_createAssetUpload(ctx context.Context, fie
 		ec.fieldContext_Mutation_createAssetUpload,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateAssetUpload(ctx, fc.Args["input"].(gqlmodel.CreateAssetUploadInput))
+			return ec.Resolvers.Mutation().CreateAssetUpload(ctx, fc.Args["input"].(gqlmodel.CreateAssetUploadInput))
 		},
 		nil,
 		ec.marshalOCreateAssetUploadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetUploadPayload,
@@ -15786,7 +16936,7 @@ func (ec *executionContext) _Mutation_createField(ctx context.Context, field gra
 		ec.fieldContext_Mutation_createField,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateField(ctx, fc.Args["input"].(gqlmodel.CreateFieldInput))
+			return ec.Resolvers.Mutation().CreateField(ctx, fc.Args["input"].(gqlmodel.CreateFieldInput))
 		},
 		nil,
 		ec.marshalOFieldPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldPayload,
@@ -15831,7 +16981,7 @@ func (ec *executionContext) _Mutation_createFields(ctx context.Context, field gr
 		ec.fieldContext_Mutation_createFields,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateFields(ctx, fc.Args["input"].([]*gqlmodel.CreateFieldInput))
+			return ec.Resolvers.Mutation().CreateFields(ctx, fc.Args["input"].([]*gqlmodel.CreateFieldInput))
 		},
 		nil,
 		ec.marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldsPayload,
@@ -15876,7 +17026,7 @@ func (ec *executionContext) _Mutation_updateField(ctx context.Context, field gra
 		ec.fieldContext_Mutation_updateField,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateField(ctx, fc.Args["input"].(gqlmodel.UpdateFieldInput))
+			return ec.Resolvers.Mutation().UpdateField(ctx, fc.Args["input"].(gqlmodel.UpdateFieldInput))
 		},
 		nil,
 		ec.marshalOFieldPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldPayload,
@@ -15921,7 +17071,7 @@ func (ec *executionContext) _Mutation_updateFields(ctx context.Context, field gr
 		ec.fieldContext_Mutation_updateFields,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateFields(ctx, fc.Args["input"].([]*gqlmodel.UpdateFieldInput))
+			return ec.Resolvers.Mutation().UpdateFields(ctx, fc.Args["input"].([]*gqlmodel.UpdateFieldInput))
 		},
 		nil,
 		ec.marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldsPayload,
@@ -15966,7 +17116,7 @@ func (ec *executionContext) _Mutation_deleteField(ctx context.Context, field gra
 		ec.fieldContext_Mutation_deleteField,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteField(ctx, fc.Args["input"].(gqlmodel.DeleteFieldInput))
+			return ec.Resolvers.Mutation().DeleteField(ctx, fc.Args["input"].(gqlmodel.DeleteFieldInput))
 		},
 		nil,
 		ec.marshalODeleteFieldPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteFieldPayload,
@@ -16011,7 +17161,7 @@ func (ec *executionContext) _Mutation_createGroup(ctx context.Context, field gra
 		ec.fieldContext_Mutation_createGroup,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateGroup(ctx, fc.Args["input"].(gqlmodel.CreateGroupInput))
+			return ec.Resolvers.Mutation().CreateGroup(ctx, fc.Args["input"].(gqlmodel.CreateGroupInput))
 		},
 		nil,
 		ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload,
@@ -16056,7 +17206,7 @@ func (ec *executionContext) _Mutation_updateGroup(ctx context.Context, field gra
 		ec.fieldContext_Mutation_updateGroup,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateGroup(ctx, fc.Args["input"].(gqlmodel.UpdateGroupInput))
+			return ec.Resolvers.Mutation().UpdateGroup(ctx, fc.Args["input"].(gqlmodel.UpdateGroupInput))
 		},
 		nil,
 		ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload,
@@ -16101,7 +17251,7 @@ func (ec *executionContext) _Mutation_updateGroupsOrder(ctx context.Context, fie
 		ec.fieldContext_Mutation_updateGroupsOrder,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateGroupsOrder(ctx, fc.Args["input"].(gqlmodel.UpdateGroupsOrderInput))
+			return ec.Resolvers.Mutation().UpdateGroupsOrder(ctx, fc.Args["input"].(gqlmodel.UpdateGroupsOrderInput))
 		},
 		nil,
 		ec.marshalOGroupsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupsPayload,
@@ -16146,7 +17296,7 @@ func (ec *executionContext) _Mutation_deleteGroup(ctx context.Context, field gra
 		ec.fieldContext_Mutation_deleteGroup,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteGroup(ctx, fc.Args["input"].(gqlmodel.DeleteGroupInput))
+			return ec.Resolvers.Mutation().DeleteGroup(ctx, fc.Args["input"].(gqlmodel.DeleteGroupInput))
 		},
 		nil,
 		ec.marshalODeleteGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupPayload,
@@ -16191,7 +17341,7 @@ func (ec *executionContext) _Mutation_createIntegration(ctx context.Context, fie
 		ec.fieldContext_Mutation_createIntegration,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateIntegration(ctx, fc.Args["input"].(gqlmodel.CreateIntegrationInput))
+			return ec.Resolvers.Mutation().CreateIntegration(ctx, fc.Args["input"].(gqlmodel.CreateIntegrationInput))
 		},
 		nil,
 		ec.marshalOIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationPayload,
@@ -16236,7 +17386,7 @@ func (ec *executionContext) _Mutation_updateIntegration(ctx context.Context, fie
 		ec.fieldContext_Mutation_updateIntegration,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateIntegration(ctx, fc.Args["input"].(gqlmodel.UpdateIntegrationInput))
+			return ec.Resolvers.Mutation().UpdateIntegration(ctx, fc.Args["input"].(gqlmodel.UpdateIntegrationInput))
 		},
 		nil,
 		ec.marshalOIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationPayload,
@@ -16281,7 +17431,7 @@ func (ec *executionContext) _Mutation_deleteIntegration(ctx context.Context, fie
 		ec.fieldContext_Mutation_deleteIntegration,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteIntegration(ctx, fc.Args["input"].(gqlmodel.DeleteIntegrationInput))
+			return ec.Resolvers.Mutation().DeleteIntegration(ctx, fc.Args["input"].(gqlmodel.DeleteIntegrationInput))
 		},
 		nil,
 		ec.marshalODeleteIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationPayload,
@@ -16326,7 +17476,7 @@ func (ec *executionContext) _Mutation_deleteIntegrations(ctx context.Context, fi
 		ec.fieldContext_Mutation_deleteIntegrations,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteIntegrations(ctx, fc.Args["input"].(gqlmodel.DeleteIntegrationsInput))
+			return ec.Resolvers.Mutation().DeleteIntegrations(ctx, fc.Args["input"].(gqlmodel.DeleteIntegrationsInput))
 		},
 		nil,
 		ec.marshalODeleteIntegrationsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsPayload,
@@ -16371,7 +17521,7 @@ func (ec *executionContext) _Mutation_regenerateIntegrationToken(ctx context.Con
 		ec.fieldContext_Mutation_regenerateIntegrationToken,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RegenerateIntegrationToken(ctx, fc.Args["input"].(gqlmodel.RegenerateIntegrationTokenInput))
+			return ec.Resolvers.Mutation().RegenerateIntegrationToken(ctx, fc.Args["input"].(gqlmodel.RegenerateIntegrationTokenInput))
 		},
 		nil,
 		ec.marshalOIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationPayload,
@@ -16416,7 +17566,7 @@ func (ec *executionContext) _Mutation_createWebhook(ctx context.Context, field g
 		ec.fieldContext_Mutation_createWebhook,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateWebhook(ctx, fc.Args["input"].(gqlmodel.CreateWebhookInput))
+			return ec.Resolvers.Mutation().CreateWebhook(ctx, fc.Args["input"].(gqlmodel.CreateWebhookInput))
 		},
 		nil,
 		ec.marshalOWebhookPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookPayload,
@@ -16461,7 +17611,7 @@ func (ec *executionContext) _Mutation_updateWebhook(ctx context.Context, field g
 		ec.fieldContext_Mutation_updateWebhook,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateWebhook(ctx, fc.Args["input"].(gqlmodel.UpdateWebhookInput))
+			return ec.Resolvers.Mutation().UpdateWebhook(ctx, fc.Args["input"].(gqlmodel.UpdateWebhookInput))
 		},
 		nil,
 		ec.marshalOWebhookPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookPayload,
@@ -16506,7 +17656,7 @@ func (ec *executionContext) _Mutation_deleteWebhook(ctx context.Context, field g
 		ec.fieldContext_Mutation_deleteWebhook,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteWebhook(ctx, fc.Args["input"].(gqlmodel.DeleteWebhookInput))
+			return ec.Resolvers.Mutation().DeleteWebhook(ctx, fc.Args["input"].(gqlmodel.DeleteWebhookInput))
 		},
 		nil,
 		ec.marshalODeleteWebhookPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWebhookPayload,
@@ -16551,7 +17701,7 @@ func (ec *executionContext) _Mutation_createItem(ctx context.Context, field grap
 		ec.fieldContext_Mutation_createItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateItem(ctx, fc.Args["input"].(gqlmodel.CreateItemInput))
+			return ec.Resolvers.Mutation().CreateItem(ctx, fc.Args["input"].(gqlmodel.CreateItemInput))
 		},
 		nil,
 		ec.marshalOItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemPayload,
@@ -16596,7 +17746,7 @@ func (ec *executionContext) _Mutation_updateItem(ctx context.Context, field grap
 		ec.fieldContext_Mutation_updateItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateItem(ctx, fc.Args["input"].(gqlmodel.UpdateItemInput))
+			return ec.Resolvers.Mutation().UpdateItem(ctx, fc.Args["input"].(gqlmodel.UpdateItemInput))
 		},
 		nil,
 		ec.marshalOItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemPayload,
@@ -16641,7 +17791,7 @@ func (ec *executionContext) _Mutation_deleteItem(ctx context.Context, field grap
 		ec.fieldContext_Mutation_deleteItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteItem(ctx, fc.Args["input"].(gqlmodel.DeleteItemInput))
+			return ec.Resolvers.Mutation().DeleteItem(ctx, fc.Args["input"].(gqlmodel.DeleteItemInput))
 		},
 		nil,
 		ec.marshalODeleteItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemPayload,
@@ -16678,6 +17828,51 @@ func (ec *executionContext) fieldContext_Mutation_deleteItem(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_deleteItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_deleteItems,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().DeleteItems(ctx, fc.Args["input"].(gqlmodel.DeleteItemsInput))
+		},
+		nil,
+		ec.marshalODeleteItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "itemIds":
+				return ec.fieldContext_DeleteItemsPayload_itemIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteItemsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_publishItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -16686,7 +17881,7 @@ func (ec *executionContext) _Mutation_publishItem(ctx context.Context, field gra
 		ec.fieldContext_Mutation_publishItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().PublishItem(ctx, fc.Args["input"].(gqlmodel.PublishItemInput))
+			return ec.Resolvers.Mutation().PublishItem(ctx, fc.Args["input"].(gqlmodel.PublishItemInput))
 		},
 		nil,
 		ec.marshalOPublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishItemPayload,
@@ -16731,7 +17926,7 @@ func (ec *executionContext) _Mutation_unpublishItem(ctx context.Context, field g
 		ec.fieldContext_Mutation_unpublishItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UnpublishItem(ctx, fc.Args["input"].(gqlmodel.UnpublishItemInput))
+			return ec.Resolvers.Mutation().UnpublishItem(ctx, fc.Args["input"].(gqlmodel.UnpublishItemInput))
 		},
 		nil,
 		ec.marshalOUnpublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemPayload,
@@ -16768,6 +17963,104 @@ func (ec *executionContext) fieldContext_Mutation_unpublishItem(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_importItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_importItems,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().ImportItems(ctx, fc.Args["input"].(gqlmodel.ImportItemsInput))
+		},
+		nil,
+		ec.marshalOImportItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_importItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "modelId":
+				return ec.fieldContext_ImportItemsPayload_modelId(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_ImportItemsPayload_totalCount(ctx, field)
+			case "insertedCount":
+				return ec.fieldContext_ImportItemsPayload_insertedCount(ctx, field)
+			case "updatedCount":
+				return ec.fieldContext_ImportItemsPayload_updatedCount(ctx, field)
+			case "ignoredCount":
+				return ec.fieldContext_ImportItemsPayload_ignoredCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImportItemsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_importItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_importItemsAsync(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_importItemsAsync,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().ImportItemsAsync(ctx, fc.Args["input"].(gqlmodel.ImportItemsInput))
+		},
+		nil,
+		ec.marshalOImportItemsAsyncPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsAsyncPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_importItemsAsync(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "job":
+				return ec.fieldContext_ImportItemsAsyncPayload_job(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImportItemsAsyncPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_importItemsAsync_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createView(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -16776,7 +18069,7 @@ func (ec *executionContext) _Mutation_createView(ctx context.Context, field grap
 		ec.fieldContext_Mutation_createView,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateView(ctx, fc.Args["input"].(gqlmodel.CreateViewInput))
+			return ec.Resolvers.Mutation().CreateView(ctx, fc.Args["input"].(gqlmodel.CreateViewInput))
 		},
 		nil,
 		ec.marshalOViewPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐViewPayload,
@@ -16821,7 +18114,7 @@ func (ec *executionContext) _Mutation_updateView(ctx context.Context, field grap
 		ec.fieldContext_Mutation_updateView,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateView(ctx, fc.Args["input"].(gqlmodel.UpdateViewInput))
+			return ec.Resolvers.Mutation().UpdateView(ctx, fc.Args["input"].(gqlmodel.UpdateViewInput))
 		},
 		nil,
 		ec.marshalOViewPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐViewPayload,
@@ -16866,7 +18159,7 @@ func (ec *executionContext) _Mutation_updateViewsOrder(ctx context.Context, fiel
 		ec.fieldContext_Mutation_updateViewsOrder,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateViewsOrder(ctx, fc.Args["input"].(gqlmodel.UpdateViewsOrderInput))
+			return ec.Resolvers.Mutation().UpdateViewsOrder(ctx, fc.Args["input"].(gqlmodel.UpdateViewsOrderInput))
 		},
 		nil,
 		ec.marshalOViewsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐViewsPayload,
@@ -16911,7 +18204,7 @@ func (ec *executionContext) _Mutation_deleteView(ctx context.Context, field grap
 		ec.fieldContext_Mutation_deleteView,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteView(ctx, fc.Args["input"].(gqlmodel.DeleteViewInput))
+			return ec.Resolvers.Mutation().DeleteView(ctx, fc.Args["input"].(gqlmodel.DeleteViewInput))
 		},
 		nil,
 		ec.marshalODeleteViewPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteViewPayload,
@@ -16948,6 +18241,69 @@ func (ec *executionContext) fieldContext_Mutation_deleteView(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_cancelJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_cancelJob,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().CancelJob(ctx, fc.Args["jobId"].(gqlmodel.ID))
+		},
+		nil,
+		ec.marshalOJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_cancelJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_cancelJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createModel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -16956,7 +18312,7 @@ func (ec *executionContext) _Mutation_createModel(ctx context.Context, field gra
 		ec.fieldContext_Mutation_createModel,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateModel(ctx, fc.Args["input"].(gqlmodel.CreateModelInput))
+			return ec.Resolvers.Mutation().CreateModel(ctx, fc.Args["input"].(gqlmodel.CreateModelInput))
 		},
 		nil,
 		ec.marshalOModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPayload,
@@ -17001,7 +18357,7 @@ func (ec *executionContext) _Mutation_updateModel(ctx context.Context, field gra
 		ec.fieldContext_Mutation_updateModel,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateModel(ctx, fc.Args["input"].(gqlmodel.UpdateModelInput))
+			return ec.Resolvers.Mutation().UpdateModel(ctx, fc.Args["input"].(gqlmodel.UpdateModelInput))
 		},
 		nil,
 		ec.marshalOModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPayload,
@@ -17046,7 +18402,7 @@ func (ec *executionContext) _Mutation_updateModelsOrder(ctx context.Context, fie
 		ec.fieldContext_Mutation_updateModelsOrder,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateModelsOrder(ctx, fc.Args["input"].(gqlmodel.UpdateModelsOrderInput))
+			return ec.Resolvers.Mutation().UpdateModelsOrder(ctx, fc.Args["input"].(gqlmodel.UpdateModelsOrderInput))
 		},
 		nil,
 		ec.marshalOModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelsPayload,
@@ -17091,7 +18447,7 @@ func (ec *executionContext) _Mutation_deleteModel(ctx context.Context, field gra
 		ec.fieldContext_Mutation_deleteModel,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteModel(ctx, fc.Args["input"].(gqlmodel.DeleteModelInput))
+			return ec.Resolvers.Mutation().DeleteModel(ctx, fc.Args["input"].(gqlmodel.DeleteModelInput))
 		},
 		nil,
 		ec.marshalODeleteModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteModelPayload,
@@ -17136,7 +18492,7 @@ func (ec *executionContext) _Mutation_exportModel(ctx context.Context, field gra
 		ec.fieldContext_Mutation_exportModel,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ExportModel(ctx, fc.Args["input"].(gqlmodel.ExportModelInput))
+			return ec.Resolvers.Mutation().ExportModel(ctx, fc.Args["input"].(gqlmodel.ExportModelInput))
 		},
 		nil,
 		ec.marshalOExportModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelPayload,
@@ -17183,7 +18539,7 @@ func (ec *executionContext) _Mutation_exportModelSchema(ctx context.Context, fie
 		ec.fieldContext_Mutation_exportModelSchema,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ExportModelSchema(ctx, fc.Args["input"].(gqlmodel.ExportModelSchemaInput))
+			return ec.Resolvers.Mutation().ExportModelSchema(ctx, fc.Args["input"].(gqlmodel.ExportModelSchemaInput))
 		},
 		nil,
 		ec.marshalOExportModelSchemaPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelSchemaPayload,
@@ -17230,7 +18586,7 @@ func (ec *executionContext) _Mutation_createProject(ctx context.Context, field g
 		ec.fieldContext_Mutation_createProject,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateProject(ctx, fc.Args["input"].(gqlmodel.CreateProjectInput))
+			return ec.Resolvers.Mutation().CreateProject(ctx, fc.Args["input"].(gqlmodel.CreateProjectInput))
 		},
 		nil,
 		ec.marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPayload,
@@ -17275,7 +18631,7 @@ func (ec *executionContext) _Mutation_updateProject(ctx context.Context, field g
 		ec.fieldContext_Mutation_updateProject,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateProject(ctx, fc.Args["input"].(gqlmodel.UpdateProjectInput))
+			return ec.Resolvers.Mutation().UpdateProject(ctx, fc.Args["input"].(gqlmodel.UpdateProjectInput))
 		},
 		nil,
 		ec.marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPayload,
@@ -17320,7 +18676,7 @@ func (ec *executionContext) _Mutation_deleteProject(ctx context.Context, field g
 		ec.fieldContext_Mutation_deleteProject,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteProject(ctx, fc.Args["input"].(gqlmodel.DeleteProjectInput))
+			return ec.Resolvers.Mutation().DeleteProject(ctx, fc.Args["input"].(gqlmodel.DeleteProjectInput))
 		},
 		nil,
 		ec.marshalODeleteProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteProjectPayload,
@@ -17365,7 +18721,7 @@ func (ec *executionContext) _Mutation_createAPIKey(ctx context.Context, field gr
 		ec.fieldContext_Mutation_createAPIKey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateAPIKey(ctx, fc.Args["input"].(gqlmodel.CreateAPIKeyInput))
+			return ec.Resolvers.Mutation().CreateAPIKey(ctx, fc.Args["input"].(gqlmodel.CreateAPIKeyInput))
 		},
 		nil,
 		ec.marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload,
@@ -17412,7 +18768,7 @@ func (ec *executionContext) _Mutation_updateAPIKey(ctx context.Context, field gr
 		ec.fieldContext_Mutation_updateAPIKey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateAPIKey(ctx, fc.Args["input"].(gqlmodel.UpdateAPIKeyInput))
+			return ec.Resolvers.Mutation().UpdateAPIKey(ctx, fc.Args["input"].(gqlmodel.UpdateAPIKeyInput))
 		},
 		nil,
 		ec.marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload,
@@ -17459,7 +18815,7 @@ func (ec *executionContext) _Mutation_deleteAPIKey(ctx context.Context, field gr
 		ec.fieldContext_Mutation_deleteAPIKey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteAPIKey(ctx, fc.Args["input"].(gqlmodel.DeleteAPIKeyInput))
+			return ec.Resolvers.Mutation().DeleteAPIKey(ctx, fc.Args["input"].(gqlmodel.DeleteAPIKeyInput))
 		},
 		nil,
 		ec.marshalODeleteAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAPIKeyPayload,
@@ -17504,7 +18860,7 @@ func (ec *executionContext) _Mutation_regenerateAPIKey(ctx context.Context, fiel
 		ec.fieldContext_Mutation_regenerateAPIKey,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RegenerateAPIKey(ctx, fc.Args["input"].(gqlmodel.RegenerateAPIKeyInput))
+			return ec.Resolvers.Mutation().RegenerateAPIKey(ctx, fc.Args["input"].(gqlmodel.RegenerateAPIKeyInput))
 		},
 		nil,
 		ec.marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload,
@@ -17551,7 +18907,7 @@ func (ec *executionContext) _Mutation_createRequest(ctx context.Context, field g
 		ec.fieldContext_Mutation_createRequest,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateRequest(ctx, fc.Args["input"].(gqlmodel.CreateRequestInput))
+			return ec.Resolvers.Mutation().CreateRequest(ctx, fc.Args["input"].(gqlmodel.CreateRequestInput))
 		},
 		nil,
 		ec.marshalORequestPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestPayload,
@@ -17596,7 +18952,7 @@ func (ec *executionContext) _Mutation_updateRequest(ctx context.Context, field g
 		ec.fieldContext_Mutation_updateRequest,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateRequest(ctx, fc.Args["input"].(gqlmodel.UpdateRequestInput))
+			return ec.Resolvers.Mutation().UpdateRequest(ctx, fc.Args["input"].(gqlmodel.UpdateRequestInput))
 		},
 		nil,
 		ec.marshalORequestPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestPayload,
@@ -17641,7 +18997,7 @@ func (ec *executionContext) _Mutation_approveRequest(ctx context.Context, field 
 		ec.fieldContext_Mutation_approveRequest,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ApproveRequest(ctx, fc.Args["input"].(gqlmodel.ApproveRequestInput))
+			return ec.Resolvers.Mutation().ApproveRequest(ctx, fc.Args["input"].(gqlmodel.ApproveRequestInput))
 		},
 		nil,
 		ec.marshalORequestPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestPayload,
@@ -17686,7 +19042,7 @@ func (ec *executionContext) _Mutation_deleteRequest(ctx context.Context, field g
 		ec.fieldContext_Mutation_deleteRequest,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteRequest(ctx, fc.Args["input"].(gqlmodel.DeleteRequestInput))
+			return ec.Resolvers.Mutation().DeleteRequest(ctx, fc.Args["input"].(gqlmodel.DeleteRequestInput))
 		},
 		nil,
 		ec.marshalODeleteRequestPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteRequestPayload,
@@ -17731,7 +19087,7 @@ func (ec *executionContext) _Mutation_createThreadWithComment(ctx context.Contex
 		ec.fieldContext_Mutation_createThreadWithComment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateThreadWithComment(ctx, fc.Args["input"].(gqlmodel.CreateThreadWithCommentInput))
+			return ec.Resolvers.Mutation().CreateThreadWithComment(ctx, fc.Args["input"].(gqlmodel.CreateThreadWithCommentInput))
 		},
 		nil,
 		ec.marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentPayload,
@@ -17778,7 +19134,7 @@ func (ec *executionContext) _Mutation_addComment(ctx context.Context, field grap
 		ec.fieldContext_Mutation_addComment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AddComment(ctx, fc.Args["input"].(gqlmodel.AddCommentInput))
+			return ec.Resolvers.Mutation().AddComment(ctx, fc.Args["input"].(gqlmodel.AddCommentInput))
 		},
 		nil,
 		ec.marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentPayload,
@@ -17825,7 +19181,7 @@ func (ec *executionContext) _Mutation_updateComment(ctx context.Context, field g
 		ec.fieldContext_Mutation_updateComment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateComment(ctx, fc.Args["input"].(gqlmodel.UpdateCommentInput))
+			return ec.Resolvers.Mutation().UpdateComment(ctx, fc.Args["input"].(gqlmodel.UpdateCommentInput))
 		},
 		nil,
 		ec.marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentPayload,
@@ -17872,7 +19228,7 @@ func (ec *executionContext) _Mutation_deleteComment(ctx context.Context, field g
 		ec.fieldContext_Mutation_deleteComment,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteComment(ctx, fc.Args["input"].(gqlmodel.DeleteCommentInput))
+			return ec.Resolvers.Mutation().DeleteComment(ctx, fc.Args["input"].(gqlmodel.DeleteCommentInput))
 		},
 		nil,
 		ec.marshalODeleteCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteCommentPayload,
@@ -17919,7 +19275,7 @@ func (ec *executionContext) _Mutation_updateMe(ctx context.Context, field graphq
 		ec.fieldContext_Mutation_updateMe,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateMe(ctx, fc.Args["input"].(gqlmodel.UpdateMeInput))
+			return ec.Resolvers.Mutation().UpdateMe(ctx, fc.Args["input"].(gqlmodel.UpdateMeInput))
 		},
 		nil,
 		ec.marshalOUpdateMePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateMePayload,
@@ -17964,7 +19320,7 @@ func (ec *executionContext) _Mutation_removeMyAuth(ctx context.Context, field gr
 		ec.fieldContext_Mutation_removeMyAuth,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveMyAuth(ctx, fc.Args["input"].(gqlmodel.RemoveMyAuthInput))
+			return ec.Resolvers.Mutation().RemoveMyAuth(ctx, fc.Args["input"].(gqlmodel.RemoveMyAuthInput))
 		},
 		nil,
 		ec.marshalOUpdateMePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateMePayload,
@@ -18009,7 +19365,7 @@ func (ec *executionContext) _Mutation_deleteMe(ctx context.Context, field graphq
 		ec.fieldContext_Mutation_deleteMe,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteMe(ctx, fc.Args["input"].(gqlmodel.DeleteMeInput))
+			return ec.Resolvers.Mutation().DeleteMe(ctx, fc.Args["input"].(gqlmodel.DeleteMeInput))
 		},
 		nil,
 		ec.marshalODeleteMePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteMePayload,
@@ -18054,7 +19410,7 @@ func (ec *executionContext) _Mutation_createWorkspace(ctx context.Context, field
 		ec.fieldContext_Mutation_createWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateWorkspace(ctx, fc.Args["input"].(gqlmodel.CreateWorkspaceInput))
+			return ec.Resolvers.Mutation().CreateWorkspace(ctx, fc.Args["input"].(gqlmodel.CreateWorkspaceInput))
 		},
 		nil,
 		ec.marshalOCreateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspacePayload,
@@ -18099,7 +19455,7 @@ func (ec *executionContext) _Mutation_deleteWorkspace(ctx context.Context, field
 		ec.fieldContext_Mutation_deleteWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().DeleteWorkspace(ctx, fc.Args["input"].(gqlmodel.DeleteWorkspaceInput))
+			return ec.Resolvers.Mutation().DeleteWorkspace(ctx, fc.Args["input"].(gqlmodel.DeleteWorkspaceInput))
 		},
 		nil,
 		ec.marshalODeleteWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWorkspacePayload,
@@ -18144,7 +19500,7 @@ func (ec *executionContext) _Mutation_updateWorkspace(ctx context.Context, field
 		ec.fieldContext_Mutation_updateWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateWorkspace(ctx, fc.Args["input"].(gqlmodel.UpdateWorkspaceInput))
+			return ec.Resolvers.Mutation().UpdateWorkspace(ctx, fc.Args["input"].(gqlmodel.UpdateWorkspaceInput))
 		},
 		nil,
 		ec.marshalOUpdateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspacePayload,
@@ -18189,7 +19545,7 @@ func (ec *executionContext) _Mutation_addUsersToWorkspace(ctx context.Context, f
 		ec.fieldContext_Mutation_addUsersToWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AddUsersToWorkspace(ctx, fc.Args["input"].(gqlmodel.AddUsersToWorkspaceInput))
+			return ec.Resolvers.Mutation().AddUsersToWorkspace(ctx, fc.Args["input"].(gqlmodel.AddUsersToWorkspaceInput))
 		},
 		nil,
 		ec.marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload,
@@ -18234,7 +19590,7 @@ func (ec *executionContext) _Mutation_addIntegrationToWorkspace(ctx context.Cont
 		ec.fieldContext_Mutation_addIntegrationToWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().AddIntegrationToWorkspace(ctx, fc.Args["input"].(gqlmodel.AddIntegrationToWorkspaceInput))
+			return ec.Resolvers.Mutation().AddIntegrationToWorkspace(ctx, fc.Args["input"].(gqlmodel.AddIntegrationToWorkspaceInput))
 		},
 		nil,
 		ec.marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload,
@@ -18279,7 +19635,7 @@ func (ec *executionContext) _Mutation_removeMultipleMembersFromWorkspace(ctx con
 		ec.fieldContext_Mutation_removeMultipleMembersFromWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveMultipleMembersFromWorkspace(ctx, fc.Args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput))
+			return ec.Resolvers.Mutation().RemoveMultipleMembersFromWorkspace(ctx, fc.Args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput))
 		},
 		nil,
 		ec.marshalORemoveMultipleMembersFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspacePayload,
@@ -18324,7 +19680,7 @@ func (ec *executionContext) _Mutation_removeIntegrationFromWorkspace(ctx context
 		ec.fieldContext_Mutation_removeIntegrationFromWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveIntegrationFromWorkspace(ctx, fc.Args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput))
+			return ec.Resolvers.Mutation().RemoveIntegrationFromWorkspace(ctx, fc.Args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput))
 		},
 		nil,
 		ec.marshalORemoveIntegrationFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspacePayload,
@@ -18369,7 +19725,7 @@ func (ec *executionContext) _Mutation_removeIntegrationsFromWorkspace(ctx contex
 		ec.fieldContext_Mutation_removeIntegrationsFromWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RemoveIntegrationsFromWorkspace(ctx, fc.Args["input"].(gqlmodel.RemoveIntegrationsFromWorkspaceInput))
+			return ec.Resolvers.Mutation().RemoveIntegrationsFromWorkspace(ctx, fc.Args["input"].(gqlmodel.RemoveIntegrationsFromWorkspaceInput))
 		},
 		nil,
 		ec.marshalORemoveIntegrationsFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationsFromWorkspacePayload,
@@ -18414,7 +19770,7 @@ func (ec *executionContext) _Mutation_updateUserOfWorkspace(ctx context.Context,
 		ec.fieldContext_Mutation_updateUserOfWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateUserOfWorkspace(ctx, fc.Args["input"].(gqlmodel.UpdateUserOfWorkspaceInput))
+			return ec.Resolvers.Mutation().UpdateUserOfWorkspace(ctx, fc.Args["input"].(gqlmodel.UpdateUserOfWorkspaceInput))
 		},
 		nil,
 		ec.marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateMemberOfWorkspacePayload,
@@ -18459,7 +19815,7 @@ func (ec *executionContext) _Mutation_updateIntegrationOfWorkspace(ctx context.C
 		ec.fieldContext_Mutation_updateIntegrationOfWorkspace,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateIntegrationOfWorkspace(ctx, fc.Args["input"].(gqlmodel.UpdateIntegrationOfWorkspaceInput))
+			return ec.Resolvers.Mutation().UpdateIntegrationOfWorkspace(ctx, fc.Args["input"].(gqlmodel.UpdateIntegrationOfWorkspaceInput))
 		},
 		nil,
 		ec.marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateMemberOfWorkspacePayload,
@@ -18504,7 +19860,7 @@ func (ec *executionContext) _Mutation_updateWorkspaceSettings(ctx context.Contex
 		ec.fieldContext_Mutation_updateWorkspaceSettings,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().UpdateWorkspaceSettings(ctx, fc.Args["input"].(gqlmodel.UpdateWorkspaceSettingsInput))
+			return ec.Resolvers.Mutation().UpdateWorkspaceSettings(ctx, fc.Args["input"].(gqlmodel.UpdateWorkspaceSettingsInput))
 		},
 		nil,
 		ec.marshalOUpdateWorkspaceSettingsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspaceSettingsPayload,
@@ -19053,7 +20409,7 @@ func (ec *executionContext) _Project_workspace(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Project_workspace,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Project().Workspace(ctx, obj)
+			return ec.Resolvers.Project().Workspace(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace,
@@ -19977,7 +21333,7 @@ func (ec *executionContext) _Query_node(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_node,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Node(ctx, fc.Args["id"].(gqlmodel.ID), fc.Args["type"].(gqlmodel.NodeType))
+			return ec.Resolvers.Query().Node(ctx, fc.Args["id"].(gqlmodel.ID), fc.Args["type"].(gqlmodel.NodeType))
 		},
 		nil,
 		ec.marshalONode2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode,
@@ -20018,7 +21374,7 @@ func (ec *executionContext) _Query_nodes(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_nodes,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Nodes(ctx, fc.Args["id"].([]gqlmodel.ID), fc.Args["type"].(gqlmodel.NodeType))
+			return ec.Resolvers.Query().Nodes(ctx, fc.Args["id"].([]gqlmodel.ID), fc.Args["type"].(gqlmodel.NodeType))
 		},
 		nil,
 		ec.marshalNNode2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode,
@@ -20059,7 +21415,7 @@ func (ec *executionContext) _Query_assetFile(ctx context.Context, field graphql.
 		ec.fieldContext_Query_assetFile,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().AssetFile(ctx, fc.Args["assetId"].(gqlmodel.ID))
+			return ec.Resolvers.Query().AssetFile(ctx, fc.Args["assetId"].(gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile,
@@ -20114,7 +21470,7 @@ func (ec *executionContext) _Query_assets(ctx context.Context, field graphql.Col
 		ec.fieldContext_Query_assets,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Assets(ctx, fc.Args["input"].(gqlmodel.SearchAssetsInput))
+			return ec.Resolvers.Query().Assets(ctx, fc.Args["input"].(gqlmodel.SearchAssetsInput))
 		},
 		nil,
 		ec.marshalNAssetConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetConnection,
@@ -20165,7 +21521,7 @@ func (ec *executionContext) _Query_guessSchemaFields(ctx context.Context, field 
 		ec.fieldContext_Query_guessSchemaFields,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().GuessSchemaFields(ctx, fc.Args["input"].(gqlmodel.GuessSchemaFieldsInput))
+			return ec.Resolvers.Query().GuessSchemaFields(ctx, fc.Args["input"].(gqlmodel.GuessSchemaFieldsInput))
 		},
 		nil,
 		ec.marshalNGuessSchemaFieldResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldResult,
@@ -20212,7 +21568,7 @@ func (ec *executionContext) _Query_groups(ctx context.Context, field graphql.Col
 		ec.fieldContext_Query_groups,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Groups(ctx, fc.Args["projectId"].(*gqlmodel.ID), fc.Args["modelID"].(*gqlmodel.ID))
+			return ec.Resolvers.Query().Groups(ctx, fc.Args["projectId"].(*gqlmodel.ID), fc.Args["modelID"].(*gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNGroup2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup,
@@ -20275,7 +21631,7 @@ func (ec *executionContext) _Query_modelsByGroup(ctx context.Context, field grap
 		ec.fieldContext_Query_modelsByGroup,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ModelsByGroup(ctx, fc.Args["groupId"].(gqlmodel.ID))
+			return ec.Resolvers.Query().ModelsByGroup(ctx, fc.Args["groupId"].(gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel,
@@ -20344,7 +21700,7 @@ func (ec *executionContext) _Query_checkGroupKeyAvailability(ctx context.Context
 		ec.fieldContext_Query_checkGroupKeyAvailability,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CheckGroupKeyAvailability(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(string))
+			return ec.Resolvers.Query().CheckGroupKeyAvailability(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(string))
 		},
 		nil,
 		ec.marshalNKeyAvailability2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability,
@@ -20391,7 +21747,7 @@ func (ec *executionContext) _Query_versionsByItem(ctx context.Context, field gra
 		ec.fieldContext_Query_versionsByItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().VersionsByItem(ctx, fc.Args["itemId"].(gqlmodel.ID))
+			return ec.Resolvers.Query().VersionsByItem(ctx, fc.Args["itemId"].(gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNVersionedItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItemᚄ,
@@ -20442,7 +21798,7 @@ func (ec *executionContext) _Query_searchItem(ctx context.Context, field graphql
 		ec.fieldContext_Query_searchItem,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().SearchItem(ctx, fc.Args["input"].(gqlmodel.SearchItemInput))
+			return ec.Resolvers.Query().SearchItem(ctx, fc.Args["input"].(gqlmodel.SearchItemInput))
 		},
 		nil,
 		ec.marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection,
@@ -20493,7 +21849,7 @@ func (ec *executionContext) _Query_isItemReferenced(ctx context.Context, field g
 		ec.fieldContext_Query_isItemReferenced,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().IsItemReferenced(ctx, fc.Args["itemId"].(gqlmodel.ID), fc.Args["correspondingFieldId"].(gqlmodel.ID))
+			return ec.Resolvers.Query().IsItemReferenced(ctx, fc.Args["itemId"].(gqlmodel.ID), fc.Args["correspondingFieldId"].(gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNBoolean2bool,
@@ -20534,7 +21890,7 @@ func (ec *executionContext) _Query_view(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_view,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().View(ctx, fc.Args["modelId"].(gqlmodel.ID))
+			return ec.Resolvers.Query().View(ctx, fc.Args["modelId"].(gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNView2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐViewᚄ,
@@ -20585,6 +21941,132 @@ func (ec *executionContext) fieldContext_Query_view(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_job(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_job,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().Job(ctx, fc.Args["jobId"].(gqlmodel.ID))
+		},
+		nil,
+		ec.marshalOJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_job(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_job_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_jobs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_jobs,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().Jobs(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["type"].(*gqlmodel.JobType), fc.Args["status"].(*gqlmodel.JobStatus))
+		},
+		nil,
+		ec.marshalNJob2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_jobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_jobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_models(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -20593,7 +22075,7 @@ func (ec *executionContext) _Query_models(ctx context.Context, field graphql.Col
 		ec.fieldContext_Query_models,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Models(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
+			return ec.Resolvers.Query().Models(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
 		},
 		nil,
 		ec.marshalNModelConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelConnection,
@@ -20644,7 +22126,7 @@ func (ec *executionContext) _Query_checkModelKeyAvailability(ctx context.Context
 		ec.fieldContext_Query_checkModelKeyAvailability,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CheckModelKeyAvailability(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(string))
+			return ec.Resolvers.Query().CheckModelKeyAvailability(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(string))
 		},
 		nil,
 		ec.marshalNKeyAvailability2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability,
@@ -20691,7 +22173,7 @@ func (ec *executionContext) _Query_projects(ctx context.Context, field graphql.C
 		ec.fieldContext_Query_projects,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Projects(ctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
+			return ec.Resolvers.Query().Projects(ctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
 		},
 		nil,
 		ec.marshalNProjectConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectConnection,
@@ -20742,7 +22224,7 @@ func (ec *executionContext) _Query_checkProjectAlias(ctx context.Context, field 
 		ec.fieldContext_Query_checkProjectAlias,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CheckProjectAlias(ctx, fc.Args["alias"].(string))
+			return ec.Resolvers.Query().CheckProjectAlias(ctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["alias"].(string))
 		},
 		nil,
 		ec.marshalNProjectAliasAvailability2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAliasAvailability,
@@ -20789,7 +22271,7 @@ func (ec *executionContext) _Query_checkWorkspaceProjectLimits(ctx context.Conte
 		ec.fieldContext_Query_checkWorkspaceProjectLimits,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CheckWorkspaceProjectLimits(ctx, fc.Args["workspaceId"].(gqlmodel.ID))
+			return ec.Resolvers.Query().CheckWorkspaceProjectLimits(ctx, fc.Args["workspaceId"].(gqlmodel.ID))
 		},
 		nil,
 		ec.marshalNWorkspaceProjectLimits2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceProjectLimits,
@@ -20836,7 +22318,7 @@ func (ec *executionContext) _Query_requests(ctx context.Context, field graphql.C
 		ec.fieldContext_Query_requests,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Requests(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].([]gqlmodel.RequestState), fc.Args["createdBy"].(*gqlmodel.ID), fc.Args["reviewer"].(*gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination), fc.Args["sort"].(*gqlmodel.Sort))
+			return ec.Resolvers.Query().Requests(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].([]gqlmodel.RequestState), fc.Args["createdBy"].(*gqlmodel.ID), fc.Args["reviewer"].(*gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination), fc.Args["sort"].(*gqlmodel.Sort))
 		},
 		nil,
 		ec.marshalNRequestConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestConnection,
@@ -20886,7 +22368,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 		field,
 		ec.fieldContext_Query_me,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().Me(ctx)
+			return ec.Resolvers.Query().Me(ctx)
 		},
 		nil,
 		ec.marshalOMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMe,
@@ -20942,7 +22424,7 @@ func (ec *executionContext) _Query_userSearch(ctx context.Context, field graphql
 		ec.fieldContext_Query_userSearch,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().UserSearch(ctx, fc.Args["keyword"].(string))
+			return ec.Resolvers.Query().UserSearch(ctx, fc.Args["keyword"].(string))
 		},
 		nil,
 		ec.marshalNUser2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUserᚄ,
@@ -20993,7 +22475,7 @@ func (ec *executionContext) _Query_userByNameOrEmail(ctx context.Context, field 
 		ec.fieldContext_Query_userByNameOrEmail,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().UserByNameOrEmail(ctx, fc.Args["nameOrEmail"].(string))
+			return ec.Resolvers.Query().UserByNameOrEmail(ctx, fc.Args["nameOrEmail"].(string))
 		},
 		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser,
@@ -21044,7 +22526,7 @@ func (ec *executionContext) _Query___type(ctx context.Context, field graphql.Col
 		ec.fieldContext_Query___type,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.introspectType(fc.Args["name"].(string))
+			return ec.IntrospectType(fc.Args["name"].(string))
 		},
 		nil,
 		ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType,
@@ -21108,7 +22590,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Query___schema,
 		func(ctx context.Context) (any, error) {
-			return ec.introspectSchema()
+			return ec.IntrospectSchema()
 		},
 		nil,
 		ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema,
@@ -21690,7 +23172,7 @@ func (ec *executionContext) _Request_thread(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Request_thread,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Request().Thread(ctx, obj)
+			return ec.Resolvers.Request().Thread(ctx, obj)
 		},
 		nil,
 		ec.marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread,
@@ -21729,7 +23211,7 @@ func (ec *executionContext) _Request_createdBy(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Request_createdBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Request().CreatedBy(ctx, obj)
+			return ec.Resolvers.Request().CreatedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser,
@@ -21768,7 +23250,7 @@ func (ec *executionContext) _Request_workspace(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Request_workspace,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Request().Workspace(ctx, obj)
+			return ec.Resolvers.Request().Workspace(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace,
@@ -21809,7 +23291,7 @@ func (ec *executionContext) _Request_project(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_Request_project,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Request().Project(ctx, obj)
+			return ec.Resolvers.Request().Project(ctx, obj)
 		},
 		nil,
 		ec.marshalOProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject,
@@ -21864,7 +23346,7 @@ func (ec *executionContext) _Request_reviewers(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Request_reviewers,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Request().Reviewers(ctx, obj)
+			return ec.Resolvers.Request().Reviewers(ctx, obj)
 		},
 		nil,
 		ec.marshalNUser2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUserᚄ,
@@ -22260,7 +23742,7 @@ func (ec *executionContext) _RequestItem_item(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_RequestItem_item,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.RequestItem().Item(ctx, obj)
+			return ec.Resolvers.RequestItem().Item(ctx, obj)
 		},
 		nil,
 		ec.marshalOVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem,
@@ -22607,7 +24089,7 @@ func (ec *executionContext) _Schema_titleField(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Schema_titleField,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Schema().TitleField(ctx, obj)
+			return ec.Resolvers.Schema().TitleField(ctx, obj)
 		},
 		nil,
 		ec.marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField,
@@ -22672,7 +24154,7 @@ func (ec *executionContext) _Schema_project(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Schema_project,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Schema().Project(ctx, obj)
+			return ec.Resolvers.Schema().Project(ctx, obj)
 		},
 		nil,
 		ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject,
@@ -22814,7 +24296,7 @@ func (ec *executionContext) _SchemaField_model(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_SchemaField_model,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SchemaField().Model(ctx, obj)
+			return ec.Resolvers.SchemaField().Model(ctx, obj)
 		},
 		nil,
 		ec.marshalOModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel,
@@ -23821,7 +25303,7 @@ func (ec *executionContext) _SchemaFieldReference_schema(ctx context.Context, fi
 		field,
 		ec.fieldContext_SchemaFieldReference_schema,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SchemaFieldReference().Schema(ctx, obj)
+			return ec.Resolvers.SchemaFieldReference().Schema(ctx, obj)
 		},
 		nil,
 		ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema,
@@ -23893,7 +25375,7 @@ func (ec *executionContext) _SchemaFieldReference_correspondingField(ctx context
 		field,
 		ec.fieldContext_SchemaFieldReference_correspondingField,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SchemaFieldReference().CorrespondingField(ctx, obj)
+			return ec.Resolvers.SchemaFieldReference().CorrespondingField(ctx, obj)
 		},
 		nil,
 		ec.marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField,
@@ -24458,6 +25940,55 @@ func (ec *executionContext) fieldContext_StringFieldCondition_value(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Subscription_jobState(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	return graphql.ResolveFieldStream(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Subscription_jobState,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Subscription().JobState(ctx, fc.Args["jobId"].(gqlmodel.ID))
+		},
+		nil,
+		ec.marshalNJobState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobState,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Subscription_jobState(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_JobState_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_JobState_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_JobState_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobState", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_jobState_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TerrainResource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TerrainResource) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -24593,7 +26124,7 @@ func (ec *executionContext) _Thread_workspace(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_Thread_workspace,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Thread().Workspace(ctx, obj)
+			return ec.Resolvers.Thread().Workspace(ctx, obj)
 		},
 		nil,
 		ec.marshalOWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace,
@@ -26737,7 +28268,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_invitedBy(ctx context.Co
 		field,
 		ec.fieldContext_WorkspaceIntegrationMember_invitedBy,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkspaceIntegrationMember().InvitedBy(ctx, obj)
+			return ec.Resolvers.WorkspaceIntegrationMember().InvitedBy(ctx, obj)
 		},
 		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser,
@@ -26776,7 +28307,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_integration(ctx context.
 		field,
 		ec.fieldContext_WorkspaceIntegrationMember_integration,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkspaceIntegrationMember().Integration(ctx, obj)
+			return ec.Resolvers.WorkspaceIntegrationMember().Integration(ctx, obj)
 		},
 		nil,
 		ec.marshalOIntegration2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegration,
@@ -27075,7 +28606,7 @@ func (ec *executionContext) _WorkspaceUserMember_user(ctx context.Context, field
 		field,
 		ec.fieldContext_WorkspaceUserMember_user,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.WorkspaceUserMember().User(ctx, obj)
+			return ec.Resolvers.WorkspaceUserMember().User(ctx, obj)
 		},
 		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser,
@@ -28555,6 +30086,10 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, obj any) (gqlmodel.AddCommentInput, error) {
 	var it gqlmodel.AddCommentInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28583,12 +30118,15 @@ func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, o
 			it.Content = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx context.Context, obj any) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
 	var it gqlmodel.AddIntegrationToWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28624,12 +30162,15 @@ func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx con
 			it.Role = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.Context, obj any) (gqlmodel.AddUsersToWorkspaceInput, error) {
 	var it gqlmodel.AddUsersToWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28658,12 +30199,15 @@ func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.C
 			it.Users = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputAndConditionInput(ctx context.Context, obj any) (gqlmodel.AndConditionInput, error) {
 	var it gqlmodel.AndConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28678,38 +30222,22 @@ func (ec *executionContext) unmarshalInputAndConditionInput(ctx context.Context,
 		switch k {
 		case "conditions":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("conditions"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal []*gqlmodel.ConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.([]*gqlmodel.ConditionInput); ok {
-				it.Conditions = data
-			} else if tmp == nil {
-				it.Conditions = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Conditions = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Context, obj any) (gqlmodel.ApproveRequestInput, error) {
 	var it gqlmodel.ApproveRequestInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28731,12 +30259,15 @@ func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Contex
 			it.RequestID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputAssetQueryInput(ctx context.Context, obj any) (gqlmodel.AssetQueryInput, error) {
 	var it gqlmodel.AssetQueryInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28772,12 +30303,15 @@ func (ec *executionContext) unmarshalInputAssetQueryInput(ctx context.Context, o
 			it.ContentTypes = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj any) (gqlmodel.AssetSort, error) {
 	var it gqlmodel.AssetSort
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28806,12 +30340,15 @@ func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj any
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputBasicFieldConditionInput(ctx context.Context, obj any) (gqlmodel.BasicFieldConditionInput, error) {
 	var it gqlmodel.BasicFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28847,12 +30384,15 @@ func (ec *executionContext) unmarshalInputBasicFieldConditionInput(ctx context.C
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Context, obj any) (gqlmodel.BoolFieldConditionInput, error) {
 	var it gqlmodel.BoolFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28888,12 +30428,15 @@ func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Co
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCesiumResourcePropsInput(ctx context.Context, obj any) (gqlmodel.CesiumResourcePropsInput, error) {
 	var it gqlmodel.CesiumResourcePropsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28943,12 +30486,15 @@ func (ec *executionContext) unmarshalInputCesiumResourcePropsInput(ctx context.C
 			it.CesiumIonAccessToken = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Context, obj any) (gqlmodel.ColumnSelectionInput, error) {
 	var it gqlmodel.ColumnSelectionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28977,12 +30523,15 @@ func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Conte
 			it.Visible = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, obj any) (gqlmodel.ConditionInput, error) {
 	var it gqlmodel.ConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -28997,246 +30546,94 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 		switch k {
 		case "and":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOAndConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAndConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.AndConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOAndConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAndConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.AndConditionInput); ok {
-				it.And = data
-			} else if tmp == nil {
-				it.And = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.AndConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.And = data
 		case "or":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOOrConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOrConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.OrConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOOrConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOrConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.OrConditionInput); ok {
-				it.Or = data
-			} else if tmp == nil {
-				it.Or = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.OrConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Or = data
 		case "basic":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("basic"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOBasicFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.BasicFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOBasicFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.BasicFieldConditionInput); ok {
-				it.Basic = data
-			} else if tmp == nil {
-				it.Basic = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.BasicFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Basic = data
 		case "nullable":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nullable"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalONullableFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.NullableFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalONullableFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.NullableFieldConditionInput); ok {
-				it.Nullable = data
-			} else if tmp == nil {
-				it.Nullable = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.NullableFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Nullable = data
 		case "multiple":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOMultipleFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.MultipleFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOMultipleFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.MultipleFieldConditionInput); ok {
-				it.Multiple = data
-			} else if tmp == nil {
-				it.Multiple = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.MultipleFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Multiple = data
 		case "bool":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bool"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOBoolFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.BoolFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOBoolFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.BoolFieldConditionInput); ok {
-				it.Bool = data
-			} else if tmp == nil {
-				it.Bool = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.BoolFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Bool = data
 		case "string":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("string"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOStringFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.StringFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOStringFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.StringFieldConditionInput); ok {
-				it.String = data
-			} else if tmp == nil {
-				it.String = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.StringFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.String = data
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalONumberFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.NumberFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalONumberFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.NumberFieldConditionInput); ok {
-				it.Number = data
-			} else if tmp == nil {
-				it.Number = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.NumberFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Number = data
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeFieldConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.TimeFieldConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeFieldConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.TimeFieldConditionInput); ok {
-				it.Time = data
-			} else if tmp == nil {
-				it.Time = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.TimeFieldConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Time = data
 		}
 	}
-
-	return it, nil
+	// Execute INPUT_OBJECT level directives (e.g., @oneOf, @directive3)
+	// These run after all fields have been unmarshaled
+	directive0 := func(ctx context.Context) (any, error) { return it, nil }
+	directive1 := func(ctx context.Context) (any, error) {
+		if ec.Directives.OnlyOne == nil {
+			return it, errors.New("directive onlyOne is not implemented")
+		}
+		return ec.Directives.OnlyOne(ctx, asMap, directive0)
+	}
+	tmp, err := directive1(ctx)
+	if err != nil {
+		return it, graphql.ErrorOnPath(ctx, err)
+	}
+	if data, ok := tmp.(gqlmodel.ConditionInput); ok {
+		return data, nil
+	}
+	return it, graphql.ErrorOnPath(ctx, fmt.Errorf(`unexpected type %T from INPUT_OBJECT directive, should be gqlmodel.ConditionInput`, tmp))
 }
 
 func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Context, obj any) (gqlmodel.CorrespondingFieldInput, error) {
 	var it gqlmodel.CorrespondingFieldInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29286,12 +30683,15 @@ func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Co
 			it.Required = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.CreateAPIKeyInput, error) {
 	var it gqlmodel.CreateAPIKeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29334,12 +30734,15 @@ func (ec *executionContext) unmarshalInputCreateAPIKeyInput(ctx context.Context,
 			it.Publication = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj any) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29396,12 +30799,15 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 			it.ContentEncoding = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Context, obj any) (gqlmodel.CreateAssetUploadInput, error) {
 	var it gqlmodel.CreateAssetUploadInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29451,12 +30857,15 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 			it.Cursor = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, obj any) (gqlmodel.CreateFieldInput, error) {
 	var it gqlmodel.CreateFieldInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29548,38 +30957,22 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			it.IsTitle = data
 		case "typeProperty":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("typeProperty"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldTypePropertyInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldTypePropertyInput); ok {
-				it.TypeProperty = data
-			} else if tmp == nil {
-				it.TypeProperty = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTypePropertyInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.TypeProperty = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateGroupInput(ctx context.Context, obj any) (gqlmodel.CreateGroupInput, error) {
 	var it gqlmodel.CreateGroupInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29622,12 +31015,15 @@ func (ec *executionContext) unmarshalInputCreateGroupInput(ctx context.Context, 
 			it.Description = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Context, obj any) (gqlmodel.CreateIntegrationInput, error) {
 	var it gqlmodel.CreateIntegrationInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29670,12 +31066,15 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 			it.Type = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, obj any) (gqlmodel.CreateItemInput, error) {
 	var it gqlmodel.CreateItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29725,12 +31124,15 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 			it.Fields = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, obj any) (gqlmodel.CreateModelInput, error) {
 	var it gqlmodel.CreateModelInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29773,12 +31175,15 @@ func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, 
 			it.Key = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context, obj any) (gqlmodel.CreateProjectInput, error) {
 	var it gqlmodel.CreateProjectInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29849,12 +31254,15 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 			it.RequestRoles = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context, obj any) (gqlmodel.CreateRequestInput, error) {
 	var it gqlmodel.CreateRequestInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29911,12 +31319,15 @@ func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context
 			it.Items = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateThreadWithCommentInput(ctx context.Context, obj any) (gqlmodel.CreateThreadWithCommentInput, error) {
 	var it gqlmodel.CreateThreadWithCommentInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -29959,12 +31370,15 @@ func (ec *executionContext) unmarshalInputCreateThreadWithCommentInput(ctx conte
 			it.Content = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, obj any) (gqlmodel.CreateViewInput, error) {
 	var it gqlmodel.CreateViewInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30007,30 +31421,11 @@ func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, o
 			it.Sort = data
 		case "filter":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.ConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.ConditionInput); ok {
-				it.Filter = data
-			} else if tmp == nil {
-				it.Filter = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Filter = data
 		case "columns":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("columns"))
 			data, err := ec.unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx, v)
@@ -30040,12 +31435,15 @@ func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, o
 			it.Columns = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context, obj any) (gqlmodel.CreateWebhookInput, error) {
 	var it gqlmodel.CreateWebhookInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30102,12 +31500,15 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 			it.Secret = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Context, obj any) (gqlmodel.CreateWorkspaceInput, error) {
 	var it gqlmodel.CreateWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30129,12 +31530,15 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 			it.Name = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Context, obj any) (gqlmodel.DecompressAssetInput, error) {
 	var it gqlmodel.DecompressAssetInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30156,12 +31560,15 @@ func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Conte
 			it.AssetID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteAPIKeyInput(ctx context.Context, obj any) (gqlmodel.DeleteAPIKeyInput, error) {
 	var it gqlmodel.DeleteAPIKeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30190,12 +31597,15 @@ func (ec *executionContext) unmarshalInputDeleteAPIKeyInput(ctx context.Context,
 			it.ID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, obj any) (gqlmodel.DeleteAssetInput, error) {
 	var it gqlmodel.DeleteAssetInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30217,12 +31627,15 @@ func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, 
 			it.AssetID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteAssetsInput(ctx context.Context, obj any) (gqlmodel.DeleteAssetsInput, error) {
 	var it gqlmodel.DeleteAssetsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30244,12 +31657,15 @@ func (ec *executionContext) unmarshalInputDeleteAssetsInput(ctx context.Context,
 			it.AssetIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteCommentInput(ctx context.Context, obj any) (gqlmodel.DeleteCommentInput, error) {
 	var it gqlmodel.DeleteCommentInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30278,12 +31694,15 @@ func (ec *executionContext) unmarshalInputDeleteCommentInput(ctx context.Context
 			it.CommentID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, obj any) (gqlmodel.DeleteFieldInput, error) {
 	var it gqlmodel.DeleteFieldInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30326,12 +31745,15 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 			it.Metadata = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, obj any) (gqlmodel.DeleteGroupInput, error) {
 	var it gqlmodel.DeleteGroupInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30353,12 +31775,15 @@ func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, 
 			it.GroupID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Context, obj any) (gqlmodel.DeleteIntegrationInput, error) {
 	var it gqlmodel.DeleteIntegrationInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30380,12 +31805,15 @@ func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Con
 			it.IntegrationID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteIntegrationsInput(ctx context.Context, obj any) (gqlmodel.DeleteIntegrationsInput, error) {
 	var it gqlmodel.DeleteIntegrationsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30407,12 +31835,15 @@ func (ec *executionContext) unmarshalInputDeleteIntegrationsInput(ctx context.Co
 			it.IntegrationIDs = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, obj any) (gqlmodel.DeleteItemInput, error) {
 	var it gqlmodel.DeleteItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30434,12 +31865,45 @@ func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, o
 			it.ItemID = data
 		}
 	}
+	return it, nil
+}
 
+func (ec *executionContext) unmarshalInputDeleteItemsInput(ctx context.Context, obj any) (gqlmodel.DeleteItemsInput, error) {
+	var it gqlmodel.DeleteItemsInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"itemIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "itemIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ItemIds = data
+		}
+	}
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj any) (gqlmodel.DeleteMeInput, error) {
 	var it gqlmodel.DeleteMeInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30461,12 +31925,15 @@ func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj
 			it.UserID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteModelInput(ctx context.Context, obj any) (gqlmodel.DeleteModelInput, error) {
 	var it gqlmodel.DeleteModelInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30488,12 +31955,15 @@ func (ec *executionContext) unmarshalInputDeleteModelInput(ctx context.Context, 
 			it.ModelID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context, obj any) (gqlmodel.DeleteProjectInput, error) {
 	var it gqlmodel.DeleteProjectInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30515,12 +31985,15 @@ func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context
 			it.ProjectID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context, obj any) (gqlmodel.DeleteRequestInput, error) {
 	var it gqlmodel.DeleteRequestInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30549,12 +32022,15 @@ func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context
 			it.RequestsID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteViewInput(ctx context.Context, obj any) (gqlmodel.DeleteViewInput, error) {
 	var it gqlmodel.DeleteViewInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30576,12 +32052,15 @@ func (ec *executionContext) unmarshalInputDeleteViewInput(ctx context.Context, o
 			it.ViewID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context, obj any) (gqlmodel.DeleteWebhookInput, error) {
 	var it gqlmodel.DeleteWebhookInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30610,12 +32089,15 @@ func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context
 			it.WebhookID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Context, obj any) (gqlmodel.DeleteWorkspaceInput, error) {
 	var it gqlmodel.DeleteWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30637,12 +32119,15 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 			it.WorkspaceID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputExportModelInput(ctx context.Context, obj any) (gqlmodel.ExportModelInput, error) {
 	var it gqlmodel.ExportModelInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30671,12 +32156,15 @@ func (ec *executionContext) unmarshalInputExportModelInput(ctx context.Context, 
 			it.Format = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputExportModelSchemaInput(ctx context.Context, obj any) (gqlmodel.ExportModelSchemaInput, error) {
 	var it gqlmodel.ExportModelSchemaInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30698,12 +32186,15 @@ func (ec *executionContext) unmarshalInputExportModelSchemaInput(ctx context.Con
 			it.ModelID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context, obj any) (gqlmodel.FieldSelectorInput, error) {
 	var it gqlmodel.FieldSelectorInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30732,12 +32223,15 @@ func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context
 			it.Type = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputGuessSchemaFieldsInput(ctx context.Context, obj any) (gqlmodel.GuessSchemaFieldsInput, error) {
 	var it gqlmodel.GuessSchemaFieldsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30766,12 +32260,59 @@ func (ec *executionContext) unmarshalInputGuessSchemaFieldsInput(ctx context.Con
 			it.ModelID = data
 		}
 	}
+	return it, nil
+}
 
+func (ec *executionContext) unmarshalInputImportItemsInput(ctx context.Context, obj any) (gqlmodel.ImportItemsInput, error) {
+	var it gqlmodel.ImportItemsInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"modelId", "file", "geoField"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "modelId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelID = data
+		case "file":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+			data, err := ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.File = data
+		case "geoField":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geoField"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GeoField = data
+		}
+	}
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, obj any) (gqlmodel.ItemFieldInput, error) {
 	var it gqlmodel.ItemFieldInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30814,12 +32355,15 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, obj any) (gqlmodel.ItemQueryInput, error) {
 	var it gqlmodel.ItemQueryInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30862,12 +32406,15 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 			it.Q = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputItemSortInput(ctx context.Context, obj any) (gqlmodel.ItemSortInput, error) {
 	var it gqlmodel.ItemSortInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30896,12 +32443,15 @@ func (ec *executionContext) unmarshalInputItemSortInput(ctx context.Context, obj
 			it.Direction = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj any) (gqlmodel.MemberInput, error) {
 	var it gqlmodel.MemberInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30930,12 +32480,15 @@ func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj a
 			it.Role = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputMultipleFieldConditionInput(ctx context.Context, obj any) (gqlmodel.MultipleFieldConditionInput, error) {
 	var it gqlmodel.MultipleFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -30971,12 +32524,15 @@ func (ec *executionContext) unmarshalInputMultipleFieldConditionInput(ctx contex
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputNullableFieldConditionInput(ctx context.Context, obj any) (gqlmodel.NullableFieldConditionInput, error) {
 	var it gqlmodel.NullableFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31005,12 +32561,15 @@ func (ec *executionContext) unmarshalInputNullableFieldConditionInput(ctx contex
 			it.Operator = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputNumberFieldConditionInput(ctx context.Context, obj any) (gqlmodel.NumberFieldConditionInput, error) {
 	var it gqlmodel.NumberFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31046,12 +32605,15 @@ func (ec *executionContext) unmarshalInputNumberFieldConditionInput(ctx context.
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj any) (gqlmodel.OperatorInput, error) {
 	var it gqlmodel.OperatorInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31066,168 +32628,73 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 		switch k {
 		case "basic":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("basic"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOBasicOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.BasicOperator
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOBasicOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.BasicOperator); ok {
-				it.Basic = data
-			} else if tmp == nil {
-				it.Basic = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.BasicOperator`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Basic = data
 		case "nullable":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nullable"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalONullableOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.NullableOperator
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalONullableOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.NullableOperator); ok {
-				it.Nullable = data
-			} else if tmp == nil {
-				it.Nullable = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.NullableOperator`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Nullable = data
 		case "bool":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bool"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOBoolOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.BoolOperator
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOBoolOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.BoolOperator); ok {
-				it.Bool = data
-			} else if tmp == nil {
-				it.Bool = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.BoolOperator`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Bool = data
 		case "string":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("string"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.StringOperator
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.StringOperator); ok {
-				it.String = data
-			} else if tmp == nil {
-				it.String = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.StringOperator`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.String = data
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalONumberOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.NumberOperator
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalONumberOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.NumberOperator); ok {
-				it.Number = data
-			} else if tmp == nil {
-				it.Number = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.NumberOperator`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Number = data
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOTimeOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.TimeOperator
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOTimeOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.TimeOperator); ok {
-				it.Time = data
-			} else if tmp == nil {
-				it.Time = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.TimeOperator`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Time = data
 		}
 	}
-
-	return it, nil
+	// Execute INPUT_OBJECT level directives (e.g., @oneOf, @directive3)
+	// These run after all fields have been unmarshaled
+	directive0 := func(ctx context.Context) (any, error) { return it, nil }
+	directive1 := func(ctx context.Context) (any, error) {
+		if ec.Directives.OnlyOne == nil {
+			return it, errors.New("directive onlyOne is not implemented")
+		}
+		return ec.Directives.OnlyOne(ctx, asMap, directive0)
+	}
+	tmp, err := directive1(ctx)
+	if err != nil {
+		return it, graphql.ErrorOnPath(ctx, err)
+	}
+	if data, ok := tmp.(gqlmodel.OperatorInput); ok {
+		return data, nil
+	}
+	return it, graphql.ErrorOnPath(ctx, fmt.Errorf(`unexpected type %T from INPUT_OBJECT directive, should be gqlmodel.OperatorInput`, tmp))
 }
 
 func (ec *executionContext) unmarshalInputOrConditionInput(ctx context.Context, obj any) (gqlmodel.OrConditionInput, error) {
 	var it gqlmodel.OrConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31242,38 +32709,22 @@ func (ec *executionContext) unmarshalInputOrConditionInput(ctx context.Context, 
 		switch k {
 		case "conditions":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("conditions"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal []*gqlmodel.ConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.([]*gqlmodel.ConditionInput); ok {
-				it.Conditions = data
-			} else if tmp == nil {
-				it.Conditions = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Conditions = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj any) (gqlmodel.Pagination, error) {
 	var it gqlmodel.Pagination
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31323,12 +32774,15 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj an
 			it.Before = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, obj any) (gqlmodel.PublishItemInput, error) {
 	var it gqlmodel.PublishItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31350,12 +32804,15 @@ func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, 
 			it.ItemIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRegenerateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.RegenerateAPIKeyInput, error) {
 	var it gqlmodel.RegenerateAPIKeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31384,12 +32841,15 @@ func (ec *executionContext) unmarshalInputRegenerateAPIKeyInput(ctx context.Cont
 			it.ID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx context.Context, obj any) (gqlmodel.RegenerateIntegrationTokenInput, error) {
 	var it gqlmodel.RegenerateIntegrationTokenInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31411,12 +32871,15 @@ func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx co
 			it.IntegrationID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveIntegrationFromWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31445,12 +32908,15 @@ func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ct
 			it.IntegrationID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRemoveIntegrationsFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveIntegrationsFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveIntegrationsFromWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31479,12 +32945,15 @@ func (ec *executionContext) unmarshalInputRemoveIntegrationsFromWorkspaceInput(c
 			it.IntegrationIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveMultipleMembersFromWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31513,12 +32982,15 @@ func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInpu
 			it.UserIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context, obj any) (gqlmodel.RemoveMyAuthInput, error) {
 	var it gqlmodel.RemoveMyAuthInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31540,12 +33012,15 @@ func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context,
 			it.Auth = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, obj any) (gqlmodel.RequestItemInput, error) {
 	var it gqlmodel.RequestItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31574,12 +33049,15 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 			it.Version = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj any) (gqlmodel.ResourceInput, error) {
 	var it gqlmodel.ResourceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31594,64 +33072,45 @@ func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj
 		switch k {
 		case "tile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tile"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.TileResourceInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.TileResourceInput); ok {
-				it.Tile = data
-			} else if tmp == nil {
-				it.Tile = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.TileResourceInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Tile = data
 		case "terrain":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrain"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.TerrainResourceInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.TerrainResourceInput); ok {
-				it.Terrain = data
-			} else if tmp == nil {
-				it.Terrain = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.TerrainResourceInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Terrain = data
 		}
 	}
-
-	return it, nil
+	// Execute INPUT_OBJECT level directives (e.g., @oneOf, @directive3)
+	// These run after all fields have been unmarshaled
+	directive0 := func(ctx context.Context) (any, error) { return it, nil }
+	directive1 := func(ctx context.Context) (any, error) {
+		if ec.Directives.OnlyOne == nil {
+			return it, errors.New("directive onlyOne is not implemented")
+		}
+		return ec.Directives.OnlyOne(ctx, asMap, directive0)
+	}
+	tmp, err := directive1(ctx)
+	if err != nil {
+		return it, graphql.ErrorOnPath(ctx, err)
+	}
+	if data, ok := tmp.(gqlmodel.ResourceInput); ok {
+		return data, nil
+	}
+	return it, graphql.ErrorOnPath(ctx, fmt.Errorf(`unexpected type %T from INPUT_OBJECT directive, should be gqlmodel.ResourceInput`, tmp))
 }
 
 func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context, obj any) (gqlmodel.ResourcesListInput, error) {
 	var it gqlmodel.ResourcesListInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31666,30 +33125,11 @@ func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context
 		switch k {
 		case "resources":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resources"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal []*gqlmodel.ResourceInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.([]*gqlmodel.ResourceInput); ok {
-				it.Resources = data
-			} else if tmp == nil {
-				it.Resources = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ResourceInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Resources = data
 		case "selectedResource":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("selectedResource"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
@@ -31706,12 +33146,15 @@ func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context
 			it.Enabled = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldAssetInput, error) {
 	var it gqlmodel.SchemaFieldAssetInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31733,12 +33176,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Cont
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldBoolInput, error) {
 	var it gqlmodel.SchemaFieldBoolInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31760,12 +33206,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Conte
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldCheckboxInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldCheckboxInput, error) {
 	var it gqlmodel.SchemaFieldCheckboxInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31787,12 +33236,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldCheckboxInput(ctx context.C
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldDateInput, error) {
 	var it gqlmodel.SchemaFieldDateInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31814,12 +33266,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldGeometryEditorInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGeometryEditorInput, error) {
 	var it gqlmodel.SchemaFieldGeometryEditorInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31848,12 +33303,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldGeometryEditorInput(ctx con
 			it.SupportedTypes = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldGeometryObjectInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGeometryObjectInput, error) {
 	var it gqlmodel.SchemaFieldGeometryObjectInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31882,12 +33340,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldGeometryObjectInput(ctx con
 			it.SupportedTypes = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGroupInput, error) {
 	var it gqlmodel.SchemaFieldGroupInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31909,12 +33370,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Cont
 			it.GroupID = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldIntegerInput, error) {
 	var it gqlmodel.SchemaFieldIntegerInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31950,12 +33414,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 			it.Max = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldLineStringInput, error) {
 	var it gqlmodel.SchemaFieldLineStringInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -31977,12 +33444,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldNumberInput, error) {
 	var it gqlmodel.SchemaFieldNumberInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32018,12 +33488,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Con
 			it.Max = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldReferenceInput, error) {
 	var it gqlmodel.SchemaFieldReferenceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32059,12 +33532,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 			it.CorrespondingField = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldRichTextInput, error) {
 	var it gqlmodel.SchemaFieldRichTextInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32093,12 +33569,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.C
 			it.MaxLength = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldSelectInput, error) {
 	var it gqlmodel.SchemaFieldSelectInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32127,12 +33606,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Con
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTagInput, error) {
 	var it gqlmodel.SchemaFieldTagInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32161,12 +33643,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTagValueInput, error) {
 	var it gqlmodel.SchemaFieldTagValueInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32202,12 +33687,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.C
 			it.Color = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTextAreaInput, error) {
 	var it gqlmodel.SchemaFieldTextAreaInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32236,12 +33724,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.C
 			it.MaxLength = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTextInput, error) {
 	var it gqlmodel.SchemaFieldTextInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32270,12 +33761,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Conte
 			it.MaxLength = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTypePropertyInput, error) {
 	var it gqlmodel.SchemaFieldTypePropertyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32290,454 +33784,150 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		switch k {
 		case "text":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldTextInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldTextInput); ok {
-				it.Text = data
-			} else if tmp == nil {
-				it.Text = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTextInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Text = data
 		case "textArea":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("textArea"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldTextAreaInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextAreaInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldTextAreaInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldTextAreaInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextAreaInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldTextAreaInput); ok {
-				it.TextArea = data
-			} else if tmp == nil {
-				it.TextArea = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTextAreaInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.TextArea = data
 		case "richText":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("richText"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldRichTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldRichTextInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldRichTextInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldRichTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldRichTextInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldRichTextInput); ok {
-				it.RichText = data
-			} else if tmp == nil {
-				it.RichText = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldRichTextInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.RichText = data
 		case "markdownText":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("markdownText"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaMarkdownTextInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaMarkdownTextInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaMarkdownTextInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaMarkdownTextInput); ok {
-				it.MarkdownText = data
-			} else if tmp == nil {
-				it.MarkdownText = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaMarkdownTextInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.MarkdownText = data
 		case "asset":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("asset"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldAssetInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldAssetInput); ok {
-				it.Asset = data
-			} else if tmp == nil {
-				it.Asset = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldAssetInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Asset = data
 		case "date":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldDateInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldDateInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldDateInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldDateInput); ok {
-				it.Date = data
-			} else if tmp == nil {
-				it.Date = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldDateInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Date = data
 		case "bool":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bool"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldBoolInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldBoolInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldBoolInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldBoolInput); ok {
-				it.Bool = data
-			} else if tmp == nil {
-				it.Bool = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldBoolInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Bool = data
 		case "select":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("select"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldSelectInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldSelectInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldSelectInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldSelectInput); ok {
-				it.Select = data
-			} else if tmp == nil {
-				it.Select = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldSelectInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Select = data
 		case "tag":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tag"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldTagInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldTagInput); ok {
-				it.Tag = data
-			} else if tmp == nil {
-				it.Tag = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTagInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Tag = data
 		case "checkbox":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("checkbox"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldCheckboxInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldCheckboxInput); ok {
-				it.Checkbox = data
-			} else if tmp == nil {
-				it.Checkbox = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldCheckboxInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Checkbox = data
 		case "integer":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integer"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldIntegerInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldIntegerInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldIntegerInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldIntegerInput); ok {
-				it.Integer = data
-			} else if tmp == nil {
-				it.Integer = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldIntegerInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Integer = data
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldNumberInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldNumberInput); ok {
-				it.Number = data
-			} else if tmp == nil {
-				it.Number = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldNumberInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Number = data
 		case "reference":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reference"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldReferenceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldReferenceInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldReferenceInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldReferenceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldReferenceInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldReferenceInput); ok {
-				it.Reference = data
-			} else if tmp == nil {
-				it.Reference = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldReferenceInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Reference = data
 		case "url":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldURLInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldURLInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldURLInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldURLInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldURLInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldURLInput); ok {
-				it.URL = data
-			} else if tmp == nil {
-				it.URL = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldURLInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.URL = data
 		case "group":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldGroupInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldGroupInput); ok {
-				it.Group = data
-			} else if tmp == nil {
-				it.Group = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldGroupInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Group = data
 		case "geometryObject":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geometryObject"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldGeometryObjectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryObjectInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldGeometryObjectInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldGeometryObjectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryObjectInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldGeometryObjectInput); ok {
-				it.GeometryObject = data
-			} else if tmp == nil {
-				it.GeometryObject = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldGeometryObjectInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.GeometryObject = data
 		case "geometryEditor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geometryEditor"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldGeometryEditorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryEditorInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldGeometryEditorInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldGeometryEditorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryEditorInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldGeometryEditorInput); ok {
-				it.GeometryEditor = data
-			} else if tmp == nil {
-				it.GeometryEditor = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldGeometryEditorInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.GeometryEditor = data
 		}
 	}
-
-	return it, nil
+	// Execute INPUT_OBJECT level directives (e.g., @oneOf, @directive3)
+	// These run after all fields have been unmarshaled
+	directive0 := func(ctx context.Context) (any, error) { return it, nil }
+	directive1 := func(ctx context.Context) (any, error) {
+		if ec.Directives.OnlyOne == nil {
+			return it, errors.New("directive onlyOne is not implemented")
+		}
+		return ec.Directives.OnlyOne(ctx, asMap, directive0)
+	}
+	tmp, err := directive1(ctx)
+	if err != nil {
+		return it, graphql.ErrorOnPath(ctx, err)
+	}
+	if data, ok := tmp.(gqlmodel.SchemaFieldTypePropertyInput); ok {
+		return data, nil
+	}
+	return it, graphql.ErrorOnPath(ctx, fmt.Errorf(`unexpected type %T from INPUT_OBJECT directive, should be gqlmodel.SchemaFieldTypePropertyInput`, tmp))
 }
 
 func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldURLInput, error) {
 	var it gqlmodel.SchemaFieldURLInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32759,12 +33949,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Contex
 			it.DefaultValue = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Context, obj any) (gqlmodel.SchemaMarkdownTextInput, error) {
 	var it gqlmodel.SchemaMarkdownTextInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32793,12 +33986,15 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 			it.MaxLength = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSearchAssetsInput(ctx context.Context, obj any) (gqlmodel.SearchAssetsInput, error) {
 	var it gqlmodel.SearchAssetsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32834,12 +34030,15 @@ func (ec *executionContext) unmarshalInputSearchAssetsInput(ctx context.Context,
 			it.Pagination = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, obj any) (gqlmodel.SearchItemInput, error) {
 	var it gqlmodel.SearchItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32868,30 +34067,11 @@ func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, o
 			it.Sort = data
 		case "filter":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.ConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.ConditionInput); ok {
-				it.Filter = data
-			} else if tmp == nil {
-				it.Filter = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Filter = data
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
 			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, v)
@@ -32901,12 +34081,15 @@ func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, o
 			it.Pagination = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj any) (gqlmodel.Sort, error) {
 	var it gqlmodel.Sort
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32935,12 +34118,15 @@ func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj any) (gq
 			it.Reverted = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputStringFieldConditionInput(ctx context.Context, obj any) (gqlmodel.StringFieldConditionInput, error) {
 	var it gqlmodel.StringFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -32976,12 +34162,15 @@ func (ec *executionContext) unmarshalInputStringFieldConditionInput(ctx context.
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputTerrainResourceInput(ctx context.Context, obj any) (gqlmodel.TerrainResourceInput, error) {
 	var it gqlmodel.TerrainResourceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33017,12 +34206,15 @@ func (ec *executionContext) unmarshalInputTerrainResourceInput(ctx context.Conte
 			it.Props = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputTileResourceInput(ctx context.Context, obj any) (gqlmodel.TileResourceInput, error) {
 	var it gqlmodel.TileResourceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33058,12 +34250,15 @@ func (ec *executionContext) unmarshalInputTileResourceInput(ctx context.Context,
 			it.Props = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputTimeFieldConditionInput(ctx context.Context, obj any) (gqlmodel.TimeFieldConditionInput, error) {
 	var it gqlmodel.TimeFieldConditionInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33099,12 +34294,15 @@ func (ec *executionContext) unmarshalInputTimeFieldConditionInput(ctx context.Co
 			it.Value = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context, obj any) (gqlmodel.UnpublishItemInput, error) {
 	var it gqlmodel.UnpublishItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33126,12 +34324,15 @@ func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context
 			it.ItemIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.UpdateAPIKeyInput, error) {
 	var it gqlmodel.UpdateAPIKeyInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33181,12 +34382,15 @@ func (ec *executionContext) unmarshalInputUpdateAPIKeyInput(ctx context.Context,
 			it.Publication = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, obj any) (gqlmodel.UpdateAssetInput, error) {
 	var it gqlmodel.UpdateAssetInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33215,12 +34419,15 @@ func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, 
 			it.PreviewType = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context, obj any) (gqlmodel.UpdateCommentInput, error) {
 	var it gqlmodel.UpdateCommentInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33256,12 +34463,15 @@ func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context
 			it.Content = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, obj any) (gqlmodel.UpdateFieldInput, error) {
 	var it gqlmodel.UpdateFieldInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33360,38 +34570,22 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 			it.IsTitle = data
 		case "typeProperty":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("typeProperty"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.SchemaFieldTypePropertyInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldTypePropertyInput); ok {
-				it.TypeProperty = data
-			} else if tmp == nil {
-				it.TypeProperty = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTypePropertyInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.TypeProperty = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateGroupInput(ctx context.Context, obj any) (gqlmodel.UpdateGroupInput, error) {
 	var it gqlmodel.UpdateGroupInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33434,12 +34628,15 @@ func (ec *executionContext) unmarshalInputUpdateGroupInput(ctx context.Context, 
 			it.Key = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateGroupsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateGroupsOrderInput, error) {
 	var it gqlmodel.UpdateGroupsOrderInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33461,12 +34658,15 @@ func (ec *executionContext) unmarshalInputUpdateGroupsOrderInput(ctx context.Con
 			it.GroupIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Context, obj any) (gqlmodel.UpdateIntegrationInput, error) {
 	var it gqlmodel.UpdateIntegrationInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33509,12 +34709,15 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Con
 			it.LogoURL = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx context.Context, obj any) (gqlmodel.UpdateIntegrationOfWorkspaceInput, error) {
 	var it gqlmodel.UpdateIntegrationOfWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33550,12 +34753,15 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx 
 			it.Role = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, obj any) (gqlmodel.UpdateItemInput, error) {
 	var it gqlmodel.UpdateItemInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33605,12 +34811,15 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 			it.Version = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj any) (gqlmodel.UpdateMeInput, error) {
 	var it gqlmodel.UpdateMeInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33667,12 +34876,15 @@ func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj
 			it.PasswordConfirmation = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, obj any) (gqlmodel.UpdateModelInput, error) {
 	var it gqlmodel.UpdateModelInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33715,12 +34927,15 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 			it.Key = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateModelsOrderInput, error) {
 	var it gqlmodel.UpdateModelsOrderInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33742,12 +34957,15 @@ func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Con
 			it.ModelIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateProjectAccessibilityInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectAccessibilityInput, error) {
 	var it gqlmodel.UpdateProjectAccessibilityInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33776,12 +34994,15 @@ func (ec *executionContext) unmarshalInputUpdateProjectAccessibilityInput(ctx co
 			it.Publication = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectInput, error) {
 	var it gqlmodel.UpdateProjectInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33852,12 +35073,15 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 			it.RequestRoles = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdatePublicationSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdatePublicationSettingsInput, error) {
 	var it gqlmodel.UpdatePublicationSettingsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33886,12 +35110,15 @@ func (ec *executionContext) unmarshalInputUpdatePublicationSettingsInput(ctx con
 			it.PublicAssets = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateRequestInput(ctx context.Context, obj any) (gqlmodel.UpdateRequestInput, error) {
 	var it gqlmodel.UpdateRequestInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33948,12 +35175,15 @@ func (ec *executionContext) unmarshalInputUpdateRequestInput(ctx context.Context
 			it.Items = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateUserOfWorkspaceInput(ctx context.Context, obj any) (gqlmodel.UpdateUserOfWorkspaceInput, error) {
 	var it gqlmodel.UpdateUserOfWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -33989,12 +35219,15 @@ func (ec *executionContext) unmarshalInputUpdateUserOfWorkspaceInput(ctx context
 			it.Role = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, obj any) (gqlmodel.UpdateViewInput, error) {
 	var it gqlmodel.UpdateViewInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34030,30 +35263,11 @@ func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, o
 			it.Sort = data
 		case "filter":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (any, error) {
-				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
-			}
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.OnlyOne == nil {
-					var zeroVal *gqlmodel.ConditionInput
-					return zeroVal, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*gqlmodel.ConditionInput); ok {
-				it.Filter = data
-			} else if tmp == nil {
-				it.Filter = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it.Filter = data
 		case "columns":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("columns"))
 			data, err := ec.unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx, v)
@@ -34063,12 +35277,15 @@ func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, o
 			it.Columns = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateViewsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateViewsOrderInput, error) {
 	var it gqlmodel.UpdateViewsOrderInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34090,12 +35307,15 @@ func (ec *executionContext) unmarshalInputUpdateViewsOrderInput(ctx context.Cont
 			it.ViewIds = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context, obj any) (gqlmodel.UpdateWebhookInput, error) {
 	var it gqlmodel.UpdateWebhookInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34159,12 +35379,15 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 			it.Secret = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Context, obj any) (gqlmodel.UpdateWorkspaceInput, error) {
 	var it gqlmodel.UpdateWorkspaceInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34193,12 +35416,15 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 			it.Name = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdateWorkspaceSettingsInput, error) {
 	var it gqlmodel.UpdateWorkspaceSettingsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34234,12 +35460,15 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx conte
 			it.Terrains = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputUrlResourcePropsInput(ctx context.Context, obj any) (gqlmodel.URLResourcePropsInput, error) {
 	var it gqlmodel.URLResourcePropsInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34275,12 +35504,15 @@ func (ec *executionContext) unmarshalInputUrlResourcePropsInput(ctx context.Cont
 			it.Image = data
 		}
 	}
-
 	return it, nil
 }
 
 func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Context, obj any) (gqlmodel.WebhookTriggerInput, error) {
 	var it gqlmodel.WebhookTriggerInput
+	if obj == nil {
+		return it, nil
+	}
+
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -34351,7 +35583,6 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 			it.OnAssetDelete = data
 		}
 	}
-
 	return it, nil
 }
 
@@ -34427,7 +35658,11 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 		}
 		return ec._AndCondition(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Condition must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -34491,6 +35726,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Model(ctx, sel, obj)
+	case gqlmodel.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *gqlmodel.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
 	case gqlmodel.Item:
 		return ec._Item(ctx, sel, &obj)
 	case *gqlmodel.Item:
@@ -34520,7 +35762,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 		}
 		return ec._Asset(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Node must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -34543,7 +35789,11 @@ func (ec *executionContext) _Operator(ctx context.Context, sel ast.SelectionSet,
 		}
 		return ec._Integration(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Operator must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -34566,7 +35816,11 @@ func (ec *executionContext) _Resource(ctx context.Context, sel ast.SelectionSet,
 		}
 		return ec._TerrainResource(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Resource must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -34694,7 +35948,11 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 		}
 		return ec._SchemaFieldAsset(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of SchemaFieldTypeProperty must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -34717,7 +35975,11 @@ func (ec *executionContext) _WorkspaceMember(ctx context.Context, sel ast.Select
 		}
 		return ec._WorkspaceIntegrationMember(ctx, sel, obj)
 	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of WorkspaceMember must implement graphql.Marshaler", obj))
+		}
 	}
 }
 
@@ -34755,10 +36017,10 @@ func (ec *executionContext) _APIKeyPayload(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -34794,10 +36056,10 @@ func (ec *executionContext) _AddUsersToWorkspacePayload(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -34833,10 +36095,10 @@ func (ec *executionContext) _AndCondition(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35065,10 +36327,10 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35119,10 +36381,10 @@ func (ec *executionContext) _AssetConnection(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35160,10 +36422,10 @@ func (ec *executionContext) _AssetEdge(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35215,10 +36477,10 @@ func (ec *executionContext) _AssetFile(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35259,10 +36521,10 @@ func (ec *executionContext) _AssetItem(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35308,10 +36570,10 @@ func (ec *executionContext) _BasicFieldCondition(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35357,10 +36619,10 @@ func (ec *executionContext) _BoolFieldCondition(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35416,10 +36678,10 @@ func (ec *executionContext) _CesiumResourceProps(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35460,10 +36722,10 @@ func (ec *executionContext) _Column(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35562,10 +36824,10 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35606,10 +36868,10 @@ func (ec *executionContext) _CommentPayload(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35645,10 +36907,10 @@ func (ec *executionContext) _CreateAssetPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35700,10 +36962,10 @@ func (ec *executionContext) _CreateAssetUploadPayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35739,10 +37001,10 @@ func (ec *executionContext) _CreateWorkspacePayload(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35778,10 +37040,10 @@ func (ec *executionContext) _DecompressAssetPayload(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35817,10 +37079,10 @@ func (ec *executionContext) _DeleteAPIKeyPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35856,10 +37118,10 @@ func (ec *executionContext) _DeleteAssetPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35892,10 +37154,10 @@ func (ec *executionContext) _DeleteAssetsPayload(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35936,10 +37198,10 @@ func (ec *executionContext) _DeleteCommentPayload(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -35975,10 +37237,10 @@ func (ec *executionContext) _DeleteFieldPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36014,10 +37276,10 @@ func (ec *executionContext) _DeleteGroupPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36053,10 +37315,10 @@ func (ec *executionContext) _DeleteIntegrationPayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36089,10 +37351,10 @@ func (ec *executionContext) _DeleteIntegrationsPayload(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36128,10 +37390,49 @@ func (ec *executionContext) _DeleteItemPayload(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteItemsPayloadImplementors = []string{"DeleteItemsPayload"}
+
+func (ec *executionContext) _DeleteItemsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteItemsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteItemsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteItemsPayload")
+		case "itemIds":
+			out.Values[i] = ec._DeleteItemsPayload_itemIds(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36167,10 +37468,10 @@ func (ec *executionContext) _DeleteMePayload(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36206,10 +37507,10 @@ func (ec *executionContext) _DeleteModelPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36245,10 +37546,10 @@ func (ec *executionContext) _DeleteProjectPayload(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36284,10 +37585,10 @@ func (ec *executionContext) _DeleteRequestPayload(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36323,10 +37624,10 @@ func (ec *executionContext) _DeleteViewPayload(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36362,10 +37663,10 @@ func (ec *executionContext) _DeleteWebhookPayload(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36401,10 +37702,10 @@ func (ec *executionContext) _DeleteWorkspacePayload(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36445,10 +37746,10 @@ func (ec *executionContext) _ExportModelPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36489,10 +37790,10 @@ func (ec *executionContext) _ExportModelSchemaPayload(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36528,10 +37829,10 @@ func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36569,10 +37870,10 @@ func (ec *executionContext) _FieldSelector(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36608,10 +37909,10 @@ func (ec *executionContext) _FieldsPayload(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36754,10 +38055,10 @@ func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, ob
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36793,10 +38094,10 @@ func (ec *executionContext) _GroupPayload(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36832,10 +38133,10 @@ func (ec *executionContext) _GroupsPayload(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36881,10 +38182,10 @@ func (ec *executionContext) _GuessSchemaField(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -36925,10 +38226,108 @@ func (ec *executionContext) _GuessSchemaFieldResult(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var importItemsAsyncPayloadImplementors = []string{"ImportItemsAsyncPayload"}
+
+func (ec *executionContext) _ImportItemsAsyncPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportItemsAsyncPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, importItemsAsyncPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImportItemsAsyncPayload")
+		case "job":
+			out.Values[i] = ec._ImportItemsAsyncPayload_job(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var importItemsPayloadImplementors = []string{"ImportItemsPayload"}
+
+func (ec *executionContext) _ImportItemsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportItemsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, importItemsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImportItemsPayload")
+		case "modelId":
+			out.Values[i] = ec._ImportItemsPayload_modelId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalCount":
+			out.Values[i] = ec._ImportItemsPayload_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "insertedCount":
+			out.Values[i] = ec._ImportItemsPayload_insertedCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedCount":
+			out.Values[i] = ec._ImportItemsPayload_updatedCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ignoredCount":
+			out.Values[i] = ec._ImportItemsPayload_ignoredCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37034,10 +38433,10 @@ func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37078,10 +38477,10 @@ func (ec *executionContext) _IntegrationConfig(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37117,10 +38516,10 @@ func (ec *executionContext) _IntegrationPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37623,10 +39022,10 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37677,10 +39076,10 @@ func (ec *executionContext) _ItemConnection(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37718,10 +39117,10 @@ func (ec *executionContext) _ItemEdge(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37766,10 +39165,10 @@ func (ec *executionContext) _ItemField(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37805,10 +39204,10 @@ func (ec *executionContext) _ItemPayload(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37846,10 +39245,177 @@ func (ec *executionContext) _ItemSort(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobImplementors = []string{"Job", "Node"}
+
+func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Job) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Job")
+		case "id":
+			out.Values[i] = ec._Job_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Job_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "projectId":
+			out.Values[i] = ec._Job_projectId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._Job_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "progress":
+			out.Values[i] = ec._Job_progress(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._Job_error(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Job_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Job_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "startedAt":
+			out.Values[i] = ec._Job_startedAt(ctx, field, obj)
+		case "completedAt":
+			out.Values[i] = ec._Job_completedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobProgressImplementors = []string{"JobProgress"}
+
+func (ec *executionContext) _JobProgress(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.JobProgress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobProgressImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobProgress")
+		case "processed":
+			out.Values[i] = ec._JobProgress_processed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._JobProgress_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "percentage":
+			out.Values[i] = ec._JobProgress_percentage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobStateImplementors = []string{"JobState"}
+
+func (ec *executionContext) _JobState(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.JobState) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobStateImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobState")
+		case "status":
+			out.Values[i] = ec._JobState_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "progress":
+			out.Values[i] = ec._JobState_progress(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._JobState_error(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -37890,10 +39456,10 @@ func (ec *executionContext) _KeyAvailability(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38068,10 +39634,10 @@ func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38251,10 +39817,10 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38305,10 +39871,10 @@ func (ec *executionContext) _ModelConnection(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38346,10 +39912,10 @@ func (ec *executionContext) _ModelEdge(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38385,10 +39951,10 @@ func (ec *executionContext) _ModelPayload(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38424,10 +39990,10 @@ func (ec *executionContext) _ModelsPayload(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38473,10 +40039,10 @@ func (ec *executionContext) _MultipleFieldCondition(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38610,6 +40176,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteItem(ctx, field)
 			})
+		case "deleteItems":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteItems(ctx, field)
+			})
 		case "publishItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_publishItem(ctx, field)
@@ -38617,6 +40187,14 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "unpublishItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_unpublishItem(ctx, field)
+			})
+		case "importItems":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_importItems(ctx, field)
+			})
+		case "importItemsAsync":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_importItemsAsync(ctx, field)
 			})
 		case "createView":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -38633,6 +40211,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteView":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteView(ctx, field)
+			})
+		case "cancelJob":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_cancelJob(ctx, field)
 			})
 		case "createModel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -38783,10 +40365,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38827,10 +40409,10 @@ func (ec *executionContext) _NullableFieldCondition(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38876,10 +40458,10 @@ func (ec *executionContext) _NumberFieldCondition(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38915,10 +40497,10 @@ func (ec *executionContext) _OrCondition(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -38963,10 +40545,10 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39082,10 +40664,10 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39141,10 +40723,10 @@ func (ec *executionContext) _ProjectAPIKey(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39184,10 +40766,10 @@ func (ec *executionContext) _ProjectAccessibility(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39228,10 +40810,10 @@ func (ec *executionContext) _ProjectAliasAvailability(ctx context.Context, sel a
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39282,10 +40864,10 @@ func (ec *executionContext) _ProjectConnection(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39323,10 +40905,10 @@ func (ec *executionContext) _ProjectEdge(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39362,10 +40944,10 @@ func (ec *executionContext) _ProjectPayload(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39406,10 +40988,10 @@ func (ec *executionContext) _PublicationSettings(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39445,10 +41027,10 @@ func (ec *executionContext) _PublishItemPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39739,6 +41321,47 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "job":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_job(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "jobs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_jobs(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "models":
 			field := field
 
@@ -39948,10 +41571,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -39987,10 +41610,10 @@ func (ec *executionContext) _RemoveIntegrationFromWorkspacePayload(ctx context.C
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40026,10 +41649,10 @@ func (ec *executionContext) _RemoveIntegrationsFromWorkspacePayload(ctx context.
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40065,10 +41688,10 @@ func (ec *executionContext) _RemoveMultipleMembersFromWorkspacePayload(ctx conte
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40325,10 +41948,10 @@ func (ec *executionContext) _Request(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40379,10 +42002,10 @@ func (ec *executionContext) _RequestConnection(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40420,10 +42043,10 @@ func (ec *executionContext) _RequestEdge(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40496,10 +42119,10 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40535,10 +42158,10 @@ func (ec *executionContext) _RequestPayload(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40578,10 +42201,10 @@ func (ec *executionContext) _ResourceList(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40698,10 +42321,10 @@ func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40827,10 +42450,10 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40863,10 +42486,10 @@ func (ec *executionContext) _SchemaFieldAsset(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40899,10 +42522,10 @@ func (ec *executionContext) _SchemaFieldBool(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40935,10 +42558,10 @@ func (ec *executionContext) _SchemaFieldCheckbox(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -40971,10 +42594,10 @@ func (ec *executionContext) _SchemaFieldDate(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41012,10 +42635,10 @@ func (ec *executionContext) _SchemaFieldGeometryEditor(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41053,10 +42676,10 @@ func (ec *executionContext) _SchemaFieldGeometryObject(ctx context.Context, sel 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41092,10 +42715,10 @@ func (ec *executionContext) _SchemaFieldGroup(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41132,10 +42755,10 @@ func (ec *executionContext) _SchemaFieldInteger(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41170,10 +42793,10 @@ func (ec *executionContext) _SchemaFieldMarkdown(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41210,10 +42833,10 @@ func (ec *executionContext) _SchemaFieldNumber(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41325,10 +42948,10 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41363,10 +42986,10 @@ func (ec *executionContext) _SchemaFieldRichText(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41404,10 +43027,10 @@ func (ec *executionContext) _SchemaFieldSelect(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41445,10 +43068,10 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41494,10 +43117,10 @@ func (ec *executionContext) _SchemaFieldTagValue(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41532,10 +43155,10 @@ func (ec *executionContext) _SchemaFieldText(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41570,10 +43193,10 @@ func (ec *executionContext) _SchemaFieldTextArea(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41606,10 +43229,10 @@ func (ec *executionContext) _SchemaFieldURL(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41655,10 +43278,10 @@ func (ec *executionContext) _StringFieldCondition(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41667,6 +43290,26 @@ func (ec *executionContext) _StringFieldCondition(ctx context.Context, sel ast.S
 	}
 
 	return out
+}
+
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		graphql.AddErrorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "jobState":
+		return ec._Subscription_jobState(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
 }
 
 var terrainResourceImplementors = []string{"TerrainResource", "Resource"}
@@ -41701,10 +43344,10 @@ func (ec *executionContext) _TerrainResource(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41783,10 +43426,10 @@ func (ec *executionContext) _Thread(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41829,10 +43472,10 @@ func (ec *executionContext) _TileResource(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41878,10 +43521,10 @@ func (ec *executionContext) _TimeFieldCondition(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41917,10 +43560,10 @@ func (ec *executionContext) _UnpublishItemPayload(ctx context.Context, sel ast.S
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41956,10 +43599,10 @@ func (ec *executionContext) _UpdateAssetPayload(ctx context.Context, sel ast.Sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -41995,10 +43638,10 @@ func (ec *executionContext) _UpdateMePayload(ctx context.Context, sel ast.Select
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42034,10 +43677,10 @@ func (ec *executionContext) _UpdateMemberOfWorkspacePayload(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42073,10 +43716,10 @@ func (ec *executionContext) _UpdateWorkspacePayload(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42112,10 +43755,10 @@ func (ec *executionContext) _UpdateWorkspaceSettingsPayload(ctx context.Context,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42161,10 +43804,10 @@ func (ec *executionContext) _UrlResourceProps(ctx context.Context, sel ast.Selec
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42212,10 +43855,10 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42263,10 +43906,10 @@ func (ec *executionContext) _VersionedItem(ctx context.Context, sel ast.Selectio
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42328,10 +43971,10 @@ func (ec *executionContext) _View(ctx context.Context, sel ast.SelectionSet, obj
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42367,10 +44010,10 @@ func (ec *executionContext) _ViewPayload(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42406,10 +44049,10 @@ func (ec *executionContext) _ViewsPayload(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42480,10 +44123,10 @@ func (ec *executionContext) _Webhook(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42519,10 +44162,10 @@ func (ec *executionContext) _WebhookPayload(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42569,10 +44212,10 @@ func (ec *executionContext) _WebhookTrigger(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42625,10 +44268,10 @@ func (ec *executionContext) _Workspace(ctx context.Context, sel ast.SelectionSet
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42745,10 +44388,10 @@ func (ec *executionContext) _WorkspaceIntegrationMember(ctx context.Context, sel
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42789,10 +44432,10 @@ func (ec *executionContext) _WorkspaceProjectLimits(ctx context.Context, sel ast
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42832,10 +44475,10 @@ func (ec *executionContext) _WorkspaceSettings(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42911,10 +44554,10 @@ func (ec *executionContext) _WorkspaceUserMember(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -42967,10 +44610,10 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -43015,10 +44658,10 @@ func (ec *executionContext) ___EnumValue(ctx context.Context, sel ast.SelectionS
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -43073,10 +44716,10 @@ func (ec *executionContext) ___Field(ctx context.Context, sel ast.SelectionSet, 
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -43128,10 +44771,10 @@ func (ec *executionContext) ___InputValue(ctx context.Context, sel ast.Selection
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -43183,10 +44826,10 @@ func (ec *executionContext) ___Schema(ctx context.Context, sel ast.SelectionSet,
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -43242,10 +44885,10 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 		return graphql.Null
 	}
 
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
 
 	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
 			Label:    label,
 			Path:     graphql.GetPath(ctx),
 			FieldSet: dfs,
@@ -43283,7 +44926,7 @@ func (ec *executionContext) unmarshalNAny2interface(ctx context.Context, v any) 
 func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.SelectionSet, v any) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43291,7 +44934,7 @@ func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.S
 	res := graphql.MarshalAny(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -43333,39 +44976,11 @@ func (ec *executionContext) unmarshalNApproveRequestInput2githubᚗcomᚋreearth
 }
 
 func (ec *executionContext) marshalNAsset2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Asset) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, sel, v[i])
+	})
 
 	return ret
 }
@@ -43373,7 +44988,7 @@ func (ec *executionContext) marshalNAsset2ᚕᚖgithubᚗcomᚋreearthᚋreearth
 func (ec *executionContext) marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43387,7 +45002,7 @@ func (ec *executionContext) marshalNAssetConnection2githubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNAssetConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetConnection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43395,39 +45010,11 @@ func (ec *executionContext) marshalNAssetConnection2ᚖgithubᚗcomᚋreearthᚋ
 }
 
 func (ec *executionContext) marshalNAssetEdge2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.AssetEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAssetEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNAssetEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -43441,7 +45028,7 @@ func (ec *executionContext) marshalNAssetEdge2ᚕᚖgithubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNAssetEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetEdge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetEdge) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43455,7 +45042,7 @@ func (ec *executionContext) marshalNAssetFile2githubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetFile) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43465,7 +45052,7 @@ func (ec *executionContext) marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreeart
 func (ec *executionContext) marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43517,7 +45104,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	res := graphql.MarshalBoolean(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -43526,7 +45113,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 func (ec *executionContext) marshalNColumn2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumn(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Column) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43539,39 +45126,11 @@ func (ec *executionContext) unmarshalNColumnSelectionInput2ᚖgithubᚗcomᚋree
 }
 
 func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Comment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐComment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNComment2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐComment(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -43585,7 +45144,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋreearthᚋreear
 func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Comment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43595,7 +45154,7 @@ func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNCondition2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCondition(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Condition) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43603,39 +45162,11 @@ func (ec *executionContext) marshalNCondition2githubᚗcomᚋreearthᚋreearth�
 }
 
 func (ec *executionContext) marshalNCondition2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Condition) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCondition2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCondition(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNCondition2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCondition(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -43777,7 +45308,7 @@ func (ec *executionContext) marshalNCursor2githubᚗcomᚋreearthᚋreearthxᚋu
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -43793,7 +45324,7 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -43846,6 +45377,11 @@ func (ec *executionContext) unmarshalNDeleteIntegrationsInput2githubᚗcomᚋree
 
 func (ec *executionContext) unmarshalNDeleteItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemInput(ctx context.Context, v any) (gqlmodel.DeleteItemInput, error) {
 	res, err := ec.unmarshalInputDeleteItemInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsInput(ctx context.Context, v any) (gqlmodel.DeleteItemsInput, error) {
+	res, err := ec.unmarshalInputDeleteItemsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -43907,7 +45443,7 @@ func (ec *executionContext) unmarshalNExportModelSchemaInput2githubᚗcomᚋreea
 func (ec *executionContext) marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldSelector) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -43939,7 +45475,7 @@ func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.
 	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -43955,7 +45491,7 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	res := graphql.MarshalFloatContext(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
@@ -43987,39 +45523,11 @@ func (ec *executionContext) unmarshalNGeometryEditorSupportedType2ᚕgithubᚗco
 }
 
 func (ec *executionContext) marshalNGeometryEditorSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.GeometryEditorSupportedType) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNGeometryEditorSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNGeometryEditorSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedType(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44056,39 +45564,11 @@ func (ec *executionContext) unmarshalNGeometryObjectSupportedType2ᚕgithubᚗco
 }
 
 func (ec *executionContext) marshalNGeometryObjectSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.GeometryObjectSupportedType) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNGeometryObjectSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNGeometryObjectSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedType(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44100,77 +45580,21 @@ func (ec *executionContext) marshalNGeometryObjectSupportedType2ᚕgithubᚗcom�
 }
 
 func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Group) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalOGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, sel, v[i])
+	})
 
 	return ret
 }
 
 func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Group) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44184,7 +45608,7 @@ func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋreearthᚋreearth
 func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44192,39 +45616,11 @@ func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑ
 }
 
 func (ec *executionContext) marshalNGuessSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.GuessSchemaField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNGuessSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNGuessSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44238,7 +45634,7 @@ func (ec *executionContext) marshalNGuessSchemaField2ᚕᚖgithubᚗcomᚋreeart
 func (ec *executionContext) marshalNGuessSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GuessSchemaField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44252,7 +45648,7 @@ func (ec *executionContext) marshalNGuessSchemaFieldResult2githubᚗcomᚋreeart
 func (ec *executionContext) marshalNGuessSchemaFieldResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldResult(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GuessSchemaFieldResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44275,7 +45671,7 @@ func (ec *executionContext) marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋ
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -44311,6 +45707,11 @@ func (ec *executionContext) marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ret
 }
 
+func (ec *executionContext) unmarshalNImportItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsInput(ctx context.Context, v any) (gqlmodel.ImportItemsInput, error) {
+	res, err := ec.unmarshalInputImportItemsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -44321,46 +45722,18 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
 }
 
 func (ec *executionContext) marshalNIntegration2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Integration) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNIntegration2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegration(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIntegration2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegration(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44374,7 +45747,7 @@ func (ec *executionContext) marshalNIntegration2ᚕᚖgithubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNIntegration2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegration(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Integration) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44392,77 +45765,21 @@ func (ec *executionContext) marshalNIntegrationType2githubᚗcomᚋreearthᚋree
 }
 
 func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Item) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalOItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, sel, v[i])
+	})
 
 	return ret
 }
 
 func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Item) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44476,7 +45793,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Item) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44490,7 +45807,7 @@ func (ec *executionContext) marshalNItemConnection2githubᚗcomᚋreearthᚋreea
 func (ec *executionContext) marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44498,39 +45815,11 @@ func (ec *executionContext) marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋr
 }
 
 func (ec *executionContext) marshalNItemEdge2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ItemEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNItemEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNItemEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44544,7 +45833,7 @@ func (ec *executionContext) marshalNItemEdge2ᚕᚖgithubᚗcomᚋreearthᚋreea
 func (ec *executionContext) marshalNItemEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEdge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemEdge) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44552,39 +45841,11 @@ func (ec *executionContext) marshalNItemEdge2ᚖgithubᚗcomᚋreearthᚋreearth
 }
 
 func (ec *executionContext) marshalNItemField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ItemField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44598,7 +45859,7 @@ func (ec *executionContext) marshalNItemField2ᚕᚖgithubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44640,6 +45901,76 @@ func (ec *executionContext) marshalNItemStatus2githubᚗcomᚋreearthᚋreearth�
 	return v
 }
 
+func (ec *executionContext) marshalNJob2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Job) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Job) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Job(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobProgress) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobProgress(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobState(ctx context.Context, sel ast.SelectionSet, v gqlmodel.JobState) graphql.Marshaler {
+	return ec._JobState(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobState(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobState) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobState(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, v any) (gqlmodel.JobStatus, error) {
+	var res gqlmodel.JobStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, sel ast.SelectionSet, v gqlmodel.JobStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNJobType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, v any) (gqlmodel.JobType, error) {
+	var res gqlmodel.JobType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJobType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.JobType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNKeyAvailability2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability(ctx context.Context, sel ast.SelectionSet, v gqlmodel.KeyAvailability) graphql.Marshaler {
 	return ec._KeyAvailability(ctx, sel, &v)
 }
@@ -44647,7 +45978,7 @@ func (ec *executionContext) marshalNKeyAvailability2githubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNKeyAvailability2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.KeyAvailability) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44664,7 +45995,7 @@ func (ec *executionContext) marshalNLang2golangᚗorgᚋxᚋtextᚋlanguageᚐTa
 	res := gqlmodel.MarshalLang(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -44673,7 +46004,7 @@ func (ec *executionContext) marshalNLang2golangᚗorgᚋxᚋtextᚋlanguageᚐTa
 func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMe(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Me) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44705,77 +46036,21 @@ func (ec *executionContext) marshalNModel2githubᚗcomᚋreearthᚋreearthᚑcms
 }
 
 func (ec *executionContext) marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Model) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalOModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, sel, v[i])
+	})
 
 	return ret
 }
 
 func (ec *executionContext) marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Model) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44789,7 +46064,7 @@ func (ec *executionContext) marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearth
 func (ec *executionContext) marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Model) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44803,7 +46078,7 @@ func (ec *executionContext) marshalNModelConnection2githubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNModelConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelConnection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ModelConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44811,39 +46086,11 @@ func (ec *executionContext) marshalNModelConnection2ᚖgithubᚗcomᚋreearthᚋ
 }
 
 func (ec *executionContext) marshalNModelEdge2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ModelEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -44857,7 +46104,7 @@ func (ec *executionContext) marshalNModelEdge2ᚕᚖgithubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelEdge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ModelEdge) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44875,39 +46122,11 @@ func (ec *executionContext) marshalNMultipleOperator2githubᚗcomᚋreearthᚋre
 }
 
 func (ec *executionContext) marshalNNode2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Node) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalONode2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalONode2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode(ctx, sel, v[i])
+	})
 
 	return ret
 }
@@ -44945,7 +46164,7 @@ func (ec *executionContext) marshalNNumberOperator2githubᚗcomᚋreearthᚋreea
 func (ec *executionContext) marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Operator) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44965,7 +46184,7 @@ func (ec *executionContext) marshalNOperatorType2githubᚗcomᚋreearthᚋreeart
 func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PageInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -44977,39 +46196,11 @@ func (ec *executionContext) marshalNProject2githubᚗcomᚋreearthᚋreearthᚑc
 }
 
 func (ec *executionContext) marshalNProject2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Project) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalOProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, sel, v[i])
+	})
 
 	return ret
 }
@@ -45017,7 +46208,7 @@ func (ec *executionContext) marshalNProject2ᚕᚖgithubᚗcomᚋreearthᚋreear
 func (ec *executionContext) marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Project) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45027,7 +46218,7 @@ func (ec *executionContext) marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectAPIKey) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45037,7 +46228,7 @@ func (ec *executionContext) marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋre
 func (ec *executionContext) marshalNProjectAccessibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAccessibility(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectAccessibility) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45051,7 +46242,7 @@ func (ec *executionContext) marshalNProjectAliasAvailability2githubᚗcomᚋreea
 func (ec *executionContext) marshalNProjectAliasAvailability2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAliasAvailability(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectAliasAvailability) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45065,7 +46256,7 @@ func (ec *executionContext) marshalNProjectConnection2githubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNProjectConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectConnection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45073,39 +46264,11 @@ func (ec *executionContext) marshalNProjectConnection2ᚖgithubᚗcomᚋreearth�
 }
 
 func (ec *executionContext) marshalNProjectEdge2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ProjectEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45119,7 +46282,7 @@ func (ec *executionContext) marshalNProjectEdge2ᚕᚖgithubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectEdge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectEdge) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45139,7 +46302,7 @@ func (ec *executionContext) marshalNProjectVisibility2githubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNPublicationSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicationSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublicationSettings) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45182,39 +46345,11 @@ func (ec *executionContext) unmarshalNRemoveMyAuthInput2githubᚗcomᚋreearth�
 }
 
 func (ec *executionContext) marshalNRequest2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Request) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalORequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalORequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx, sel, v[i])
+	})
 
 	return ret
 }
@@ -45222,7 +46357,7 @@ func (ec *executionContext) marshalNRequest2ᚕᚖgithubᚗcomᚋreearthᚋreear
 func (ec *executionContext) marshalNRequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Request) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45236,7 +46371,7 @@ func (ec *executionContext) marshalNRequestConnection2githubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNRequestConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestConnection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RequestConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45244,39 +46379,11 @@ func (ec *executionContext) marshalNRequestConnection2ᚖgithubᚗcomᚋreearth�
 }
 
 func (ec *executionContext) marshalNRequestEdge2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.RequestEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRequestEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNRequestEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestEdge(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45290,7 +46397,7 @@ func (ec *executionContext) marshalNRequestEdge2ᚕᚖgithubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNRequestEdge2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestEdge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RequestEdge) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45298,39 +46405,11 @@ func (ec *executionContext) marshalNRequestEdge2ᚖgithubᚗcomᚋreearthᚋreea
 }
 
 func (ec *executionContext) marshalNRequestItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.RequestItem) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRequestItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNRequestItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItem(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45344,7 +46423,7 @@ func (ec *executionContext) marshalNRequestItem2ᚕᚖgithubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNRequestItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RequestItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45384,7 +46463,7 @@ func (ec *executionContext) marshalNRequestState2githubᚗcomᚋreearthᚋreeart
 func (ec *executionContext) marshalNResource2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Resource) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45392,39 +46471,11 @@ func (ec *executionContext) marshalNResource2githubᚗcomᚋreearthᚋreearthᚑ
 }
 
 func (ec *executionContext) marshalNResource2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Resource) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNResource2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNResource2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45482,7 +46533,7 @@ func (ec *executionContext) marshalNSchema2githubᚗcomᚋreearthᚋreearthᚑcm
 func (ec *executionContext) marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Schema) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45490,39 +46541,11 @@ func (ec *executionContext) marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearth�
 }
 
 func (ec *executionContext) marshalNSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.SchemaField) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45536,7 +46559,7 @@ func (ec *executionContext) marshalNSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋr
 func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45554,39 +46577,11 @@ func (ec *executionContext) marshalNSchemaFieldTagColor2githubᚗcomᚋreearth�
 }
 
 func (ec *executionContext) marshalNSchemaFieldTagValue2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.SchemaFieldTagValue) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValue(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45600,7 +46595,7 @@ func (ec *executionContext) marshalNSchemaFieldTagValue2ᚕᚖgithubᚗcomᚋree
 func (ec *executionContext) marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValue(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaFieldTagValue) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45662,7 +46657,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -45731,7 +46726,7 @@ func (ec *executionContext) marshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcms
 func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Thread) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45768,7 +46763,7 @@ func (ec *executionContext) marshalNURL2netᚋurlᚐURL(ctx context.Context, sel
 	res := gqlmodel.MarshalURL(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -45904,44 +46899,32 @@ func (ec *executionContext) unmarshalNUpdateWorkspaceSettingsInput2githubᚗcom�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v any) (graphql.Upload, error) {
+	res, err := graphql.UnmarshalUpload(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v graphql.Upload) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalUpload(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNUser2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.User) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -45955,7 +46938,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -45963,39 +46946,11 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 }
 
 func (ec *executionContext) marshalNVersionedItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.VersionedItem) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46009,7 +46964,7 @@ func (ec *executionContext) marshalNVersionedItem2ᚕᚖgithubᚗcomᚋreearth�
 func (ec *executionContext) marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.VersionedItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46017,39 +46972,11 @@ func (ec *executionContext) marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋre
 }
 
 func (ec *executionContext) marshalNView2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐViewᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.View) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNView2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐView(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNView2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐView(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46063,7 +46990,7 @@ func (ec *executionContext) marshalNView2ᚕᚖgithubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNView2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐView(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.View) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46071,39 +46998,11 @@ func (ec *executionContext) marshalNView2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 }
 
 func (ec *executionContext) marshalNWebhook2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Webhook) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWebhook2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhook(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWebhook2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhook(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46117,7 +47016,7 @@ func (ec *executionContext) marshalNWebhook2ᚕᚖgithubᚗcomᚋreearthᚋreear
 func (ec *executionContext) marshalNWebhook2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhook(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Webhook) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46127,7 +47026,7 @@ func (ec *executionContext) marshalNWebhook2ᚖgithubᚗcomᚋreearthᚋreearth�
 func (ec *executionContext) marshalNWebhookTrigger2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTrigger(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WebhookTrigger) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46140,39 +47039,11 @@ func (ec *executionContext) unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreea
 }
 
 func (ec *executionContext) marshalNWorkspace2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Workspace) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46186,7 +47057,7 @@ func (ec *executionContext) marshalNWorkspace2ᚕᚖgithubᚗcomᚋreearthᚋree
 func (ec *executionContext) marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Workspace) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46196,7 +47067,7 @@ func (ec *executionContext) marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreeart
 func (ec *executionContext) marshalNWorkspaceMember2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceMember(ctx context.Context, sel ast.SelectionSet, v gqlmodel.WorkspaceMember) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46204,39 +47075,11 @@ func (ec *executionContext) marshalNWorkspaceMember2githubᚗcomᚋreearthᚋree
 }
 
 func (ec *executionContext) marshalNWorkspaceMember2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.WorkspaceMember) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWorkspaceMember2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceMember(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkspaceMember2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceMember(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46254,7 +47097,7 @@ func (ec *executionContext) marshalNWorkspaceProjectLimits2githubᚗcomᚋreeart
 func (ec *executionContext) marshalNWorkspaceProjectLimits2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceProjectLimits(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WorkspaceProjectLimits) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46264,7 +47107,7 @@ func (ec *executionContext) marshalNWorkspaceProjectLimits2ᚖgithubᚗcomᚋree
 func (ec *executionContext) marshalNWorkspaceSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WorkspaceSettings) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46276,39 +47119,11 @@ func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlge
 }
 
 func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirectiveᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.Directive) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46329,7 +47144,7 @@ func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Conte
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -46351,39 +47166,11 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx conte
 }
 
 func (ec *executionContext) marshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__DirectiveLocation2string(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__DirectiveLocation2string(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46407,39 +47194,11 @@ func (ec *executionContext) marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlg
 }
 
 func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.InputValue) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46455,39 +47214,11 @@ func (ec *executionContext) marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋg
 }
 
 func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46501,7 +47232,7 @@ func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 func (ec *executionContext) marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v *introspection.Type) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
@@ -46518,7 +47249,7 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
 	return res
@@ -46591,39 +47322,11 @@ func (ec *executionContext) marshalOAssetItem2ᚕᚖgithubᚗcomᚋreearthᚋree
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItem(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46739,39 +47442,11 @@ func (ec *executionContext) marshalOColumn2ᚕᚖgithubᚗcomᚋreearthᚋreeart
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNColumn2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumn(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNColumn2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumn(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -46844,39 +47519,11 @@ func (ec *executionContext) marshalOContentTypesEnum2ᚕgithubᚗcomᚋreearth�
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNContentTypesEnum2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNContentTypesEnum2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -47021,6 +47668,13 @@ func (ec *executionContext) marshalODeleteItemPayload2ᚖgithubᚗcomᚋreearth�
 		return graphql.Null
 	}
 	return ec._DeleteItemPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeleteItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteItemsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteItemsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeleteMePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteMePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteMePayload) graphql.Marshaler {
@@ -47193,6 +47847,20 @@ func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	return res
 }
 
+func (ec *executionContext) marshalOImportItemsAsyncPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsAsyncPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportItemsAsyncPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ImportItemsAsyncPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOImportItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportItemsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ImportItemsPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
 	if v == nil {
 		return nil, nil
@@ -47236,39 +47904,11 @@ func (ec *executionContext) marshalOItem2ᚕᚖgithubᚗcomᚋreearthᚋreearth�
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -47306,6 +47946,52 @@ func (ec *executionContext) unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋ
 	}
 	res, err := ec.unmarshalInputItemSortInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Job) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Job(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobProgress) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._JobProgress(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOJobStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, v any) (*gqlmodel.JobStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.JobStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJobStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOJobType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, v any) (*gqlmodel.JobType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.JobType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJobType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, v any) (*language.Tag, error) {
@@ -47467,39 +48153,11 @@ func (ec *executionContext) marshalOProjectAPIKey2ᚕᚖgithubᚗcomᚋreearth�
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -47572,39 +48230,11 @@ func (ec *executionContext) marshalORequest2ᚕᚖgithubᚗcomᚋreearthᚋreear
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNRequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -47669,39 +48299,11 @@ func (ec *executionContext) marshalORequestState2ᚕgithubᚗcomᚋreearthᚋree
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRequestState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNRequestState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -47765,39 +48367,11 @@ func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -48317,39 +48891,11 @@ func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgq
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__EnumValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__EnumValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -48364,39 +48910,11 @@ func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋ99designsᚋgqlgen
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__Field2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__Field2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -48411,39 +48929,11 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -48465,39 +48955,11 @@ func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
+	})
 
 	for _, e := range ret {
 		if e == graphql.Null {

@@ -54,7 +54,7 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 		return nil, ErrInvalidProject
 	}
 
-	p, err := c.project.FindByIDOrAlias(ctx, project.IDOrAlias(pAlias))
+	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, rerror.ErrNotFound

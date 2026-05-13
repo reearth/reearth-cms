@@ -2,9 +2,10 @@ import styled from "@emotion/styled";
 
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   view: View;
@@ -24,6 +25,7 @@ const ViewsMenuItem: React.FC<Props> = ({
   onDelete,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const children = [
     {
@@ -46,7 +48,7 @@ const ViewsMenuItem: React.FC<Props> = ({
       icon: <Icon icon="delete" />,
       danger: true,
       onClick: () => {
-        Modal.confirm({
+        confirm({
           title: t("Are you sure you want to delete this view?"),
           content: (
             <div>
@@ -60,7 +62,6 @@ const ViewsMenuItem: React.FC<Props> = ({
               </StyledCautionText>
             </div>
           ),
-          icon: <Icon icon="exclamationCircle" />,
           okText: t("Remove"),
           okButtonProps: { danger: true },
           maskClosable: true,
@@ -77,7 +78,7 @@ const ViewsMenuItem: React.FC<Props> = ({
     <Wrapper>
       {view.name}
       <StyledDropdown trigger={["click"]} menu={{ items: children }}>
-        <Icon icon="more" size={16} />
+        <Icon icon="more" size={AntdToken.FONT.SIZE_LG} />
       </StyledDropdown>
     </Wrapper>
   );
@@ -88,7 +89,7 @@ export default ViewsMenuItem;
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   justify-content: space-between;
 `;
 

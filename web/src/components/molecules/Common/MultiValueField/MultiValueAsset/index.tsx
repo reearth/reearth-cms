@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
@@ -53,7 +54,9 @@ const MultiValueAsset: React.FC<Props> = ({
 
   useEffect(() => {
     if (typeof value === "string") onChange?.([value]);
-    else if (!value) onChange?.([]);
+    // NOTE: use === null instead of !value to avoid clearing form values
+    // when value is transiently undefined (e.g. group fields mounted after async schema fetch)
+    else if (value === null) onChange?.([]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
@@ -77,14 +80,14 @@ const MultiValueAsset: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowUp" size={16} />}
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowDown" size={16} />}
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -122,7 +125,7 @@ const MultiValueAsset: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
-                icon={<Icon icon="delete" size={16} />}
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}
@@ -148,10 +151,10 @@ export default MultiValueAsset;
 const FieldWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;

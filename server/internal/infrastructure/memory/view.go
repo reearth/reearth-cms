@@ -119,6 +119,20 @@ func (r *View) Remove(_ context.Context, iId id.ViewID) error {
 	return rerror.ErrNotFound
 }
 
+func (r *View) RemoveByModel(_ context.Context, mID id.ModelID) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Range(func(k id.ViewID, v *view.View) bool {
+		if v.Model() == mID {
+			r.data.Delete(k)
+		}
+		return true
+	})
+	return nil
+}
+
 func MockViewNow(r repo.View, t time.Time) func() {
 	return r.(*View).now.Mock(t)
 }

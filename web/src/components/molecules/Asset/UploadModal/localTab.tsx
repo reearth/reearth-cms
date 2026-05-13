@@ -1,5 +1,6 @@
 import { ReactElement } from "react";
 
+import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Upload, { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import FileItem from "@reearth-cms/components/molecules/Asset/UploadModal/FileItem";
@@ -9,9 +10,10 @@ const { Dragger } = Upload;
 
 type Props = {
   uploadProps: UploadProps;
+  alertList?: AlertProps[];
 };
 
-const LocalTab: React.FC<Props> = ({ uploadProps }) => {
+const LocalTab: React.FC<Props> = ({ uploadProps, alertList = [] }) => {
   const t = useT();
   return (
     <div>
@@ -28,7 +30,18 @@ const LocalTab: React.FC<Props> = ({ uploadProps }) => {
           <Icon icon="inbox" />
         </p>
         <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
-        <p className="ant-upload-hint">{t("Single or multiple file upload is supported")}</p>
+        <p className="ant-upload-hint">
+          {uploadProps.multiple
+            ? t("Single or multiple file upload is supported")
+            : t("Only single file upload is supported")}
+        </p>
+        {alertList.map((alert, index) => (
+          <Alert
+            {...alert}
+            key={alert?.message?.toString() || index}
+            onClick={e => e.stopPropagation()}
+          />
+        ))}
       </Dragger>
     </div>
   );

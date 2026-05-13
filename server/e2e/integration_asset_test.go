@@ -5,29 +5,50 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
+
+func iAPIAssetGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
+}
+
+func iAPIAssetDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
+}
+
+func iAPIAssetPublish(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
+}
+
+func iAPIAssetUnpublish(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
+}
 
 // GET /assets/{assetId}
 func TestIntegrationGetAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/assets/{assetId}", id.NewAssetID()).
+	iAPIAssetGet(e, wId0, pid, id.NewAssetID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}", id.NewAssetID()).
+	iAPIAssetGet(e, wId0, pid, id.NewAssetID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}", id.NewAssetID()).
+	iAPIAssetGet(e, wId0, pid, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/assets/{assetId}", aid1).
+	iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -44,16 +65,16 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 func TestIntegrationDeleteAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.DELETE("/api/assets/{assetId}", aid1).
+	iAPIAssetDelete(e, wId0, pid, aid1).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE("/api/assets/{assetId}", aid1).
+	iAPIAssetDelete(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}", aid1).
+	iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -65,7 +86,7 @@ func TestIntegrationDeleteAssetAPI(t *testing.T) {
 		HasValue("contentType", "image/jpg").
 		HasValue("totalSize", 1000)
 
-	e.DELETE("/api/assets/{assetId}", aid1).
+	iAPIAssetDelete(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -73,7 +94,7 @@ func TestIntegrationDeleteAssetAPI(t *testing.T) {
 		Object().
 		HasValue("id", aid1.String())
 
-	e.GET("/api/assets/{assetId}", aid1).
+	iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -87,35 +108,35 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		Asset_Public: false,
 	}, true, baseSeeder)
 
-	e.POST("/api/assets/{assetId}/publish", aid1).
+	iAPIAssetPublish(e, wId0, pid, aid1).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/publish", aid1).
+	iAPIAssetPublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/publish", id.NewAssetID()).
+	iAPIAssetPublish(e, wId0, pid, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.POST("/api/assets/{assetId}/unpublish", aid1).
+	iAPIAssetUnpublish(e, wId0, pid, aid1).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/unpublish", aid1).
+	iAPIAssetUnpublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/unpublish", id.NewAssetID()).
+	iAPIAssetUnpublish(e, wId0, pid, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	res := e.GET("/api/assets/{assetId}", aid1).
+	res := iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -133,7 +154,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		Expect().
 		Status(http.StatusOK)
 
-	e.POST("/api/assets/{assetId}/publish", aid1).
+	iAPIAssetPublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -142,7 +163,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		HasValue("id", aid1.String()).
 		HasValue("public", true)
 
-	res = e.GET("/api/assets/{assetId}", aid1).
+	res = iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -157,7 +178,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		Expect().
 		Status(http.StatusOK)
 
-	e.POST("/api/assets/{assetId}/unpublish", aid1).
+	iAPIAssetUnpublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -166,7 +187,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		HasValue("id", aid1.String()).
 		HasValue("public", false)
 
-	res = e.GET("/api/assets/{assetId}", aid1).
+	res = iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -195,35 +216,35 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		Asset_Public: true,
 	}, true, baseSeeder)
 
-	e.POST("/api/assets/{assetId}/publish", aid1).
+	iAPIAssetPublish(e, wId0, pid, aid1).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/publish", aid1).
+	iAPIAssetPublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/publish", id.NewAssetID()).
+	iAPIAssetPublish(e, wId0, pid, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.POST("/api/assets/{assetId}/unpublish", aid1).
+	iAPIAssetUnpublish(e, wId0, pid, aid1).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/unpublish", aid1).
+	iAPIAssetUnpublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/unpublish", id.NewAssetID()).
+	iAPIAssetUnpublish(e, wId0, pid, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	res := e.GET("/api/assets/{assetId}", aid1).
+	res := iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -237,7 +258,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		Expect().
 		Status(http.StatusOK)
 
-	e.POST("/api/assets/{assetId}/publish", aid1).
+	iAPIAssetPublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -246,7 +267,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		HasValue("id", aid1.String()).
 		HasValue("public", true)
 
-	res = e.GET("/api/assets/{assetId}", aid1).
+	res = iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -261,7 +282,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		Expect().
 		Status(http.StatusOK)
 
-	e.POST("/api/assets/{assetId}/unpublish", aid1).
+	iAPIAssetUnpublish(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -270,7 +291,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		HasValue("id", aid1.String()).
 		HasValue("public", true)
 
-	res = e.GET("/api/assets/{assetId}", aid1).
+	res = iAPIAssetGet(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

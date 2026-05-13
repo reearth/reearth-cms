@@ -77,7 +77,7 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByPlaceholderText("input search text")).toBeVisible();
   });
 
   test("Connecting buttons works successfully", async () => {
@@ -101,11 +101,9 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButtons = screen.getAllByRole("button", { name: "api Connect Integration" });
-    for (const button of connectButtons) {
-      await user.click(button);
-    }
-    expect(connectModalOpenMock).toBeCalledTimes(2);
+    const connectButton = screen.getByRole("button", { name: "apiConnect Integration" });
+    await user.click(connectButton);
+    expect(connectModalOpenMock).toBeCalledTimes(1);
   });
 
   test("Searching works successfully", async () => {
@@ -186,7 +184,7 @@ describe("Integration table", () => {
     );
 
     await user.click(screen.getByLabelText("Select all"));
-    await user.click(screen.getByRole("button", { name: "delete Remove" }));
+    await user.click(screen.getByRole("button", { name: "deleteRemove" }));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
 
@@ -232,7 +230,7 @@ describe("Integration table", () => {
       />,
     );
 
-    for (const button of screen.getAllByRole("button", { name: "api Connect Integration" })) {
+    for (const button of screen.getAllByRole("button", { name: "apiConnect Integration" })) {
       expect(button).toBeDisabled();
     }
   });
@@ -259,6 +257,6 @@ describe("Integration table", () => {
     expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
 
     await user.click(screen.getByLabelText("Select all"));
-    expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "deleteRemove" })).toBeDisabled();
   });
 });

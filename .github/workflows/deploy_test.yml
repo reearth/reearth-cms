@@ -23,7 +23,11 @@ jobs:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v5
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
       - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
@@ -59,7 +63,11 @@ jobs:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v5
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
       - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
@@ -89,7 +97,11 @@ jobs:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v5
+      - name: Harden Runner
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v6
       - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
@@ -110,3 +122,16 @@ jobs:
             --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
+
+  e2e_web:
+    needs: [deploy_server, deploy_web]
+    if: needs.deploy_server.result == 'success' && needs.deploy_web.result == 'success'
+    uses: ./.github/workflows/e2e_web.yml
+    with:
+      api_url: ${{ vars.REEARTH_CMS_API }}
+      base_url: ${{ vars.REEARTH_CMS_E2E_BASEURL }}
+      branch: main
+      smoke_only: true
+    secrets:
+      REEARTH_WEB_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
+      REEARTH_WEB_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}

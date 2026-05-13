@@ -1,5 +1,6 @@
 // e2e/pages/schema.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
 
@@ -27,6 +28,15 @@ export class SchemaPage extends BasePage {
   }
   get modelKeyLabel(): Locator {
     return this.getByLabel("Model key");
+  }
+  get importSchemaDialog(): Locator {
+    return this.getByRole("dialog", { name: "Import Schema" });
+  }
+  get importSchemaOuterButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelFieldList__ImportSchemaButton);
+  }
+  get importSchemaModalImportButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportSchemaModal__ImportButton);
   }
   modelMenuItem(name: string): Locator {
     return this.getByRole("menuitem", { name });
@@ -180,12 +190,22 @@ export class SchemaPage extends BasePage {
 
   // Model CRUD operations
   async createModel(name: string, key?: string): Promise<void> {
+    await expect(this.getByLabel("Model name")).toBeVisible();
     await this.getByLabel("Model name").fill(name);
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    const okButton = this.getByRole("button", { name: "OK" });
+    try {
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    } catch {
+      const keyField = this.getByLabel("Model key");
+      const currentKey = key ?? (await keyField.inputValue());
+      await keyField.clear();
+      await keyField.fill(currentKey);
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    }
+    await this.clickAndExpectSuccess(okButton);
   }
 
   async createModelFromSidebar(name = "e2e model name", key?: string): Promise<void> {
@@ -198,26 +218,43 @@ export class SchemaPage extends BasePage {
     await this.getByText("Edit", { exact: true }).click();
     await this.getByLabel("Update Model").locator("#name").fill(name);
     await this.getByLabel("Update Model").locator("#key").fill(key);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    const okButton = this.getByRole("button", { name: "OK" });
+    try {
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    } catch {
+      const keyField = this.getByLabel("Update Model").locator("#key");
+      await keyField.clear();
+      await keyField.fill(key);
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    }
+    await this.clickAndExpectSuccess(okButton);
   }
 
   async deleteModel(): Promise<void> {
     await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete").click();
-    await this.getByRole("button", { name: "Delete Model" }).click();
-    await this.closeNotification();
+    await this.getByText("Delete", { exact: true }).click();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Delete Model" }));
   }
 
   // Group CRUD operations
   async createGroup(name: string, key?: string): Promise<void> {
     await this.getByRole("button", { name: "plus Add" }).last().click();
+    await expect(this.getByLabel("Group name")).toBeVisible();
     await this.getByLabel("Group name").fill(name);
     if (key) {
       await this.getByLabel("Group key").fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    const okButton = this.getByRole("button", { name: "OK" });
+    try {
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    } catch {
+      const keyField = this.getByLabel("Group key");
+      const currentKey = key ?? (await keyField.inputValue());
+      await keyField.clear();
+      await keyField.fill(currentKey);
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    }
+    await this.clickAndExpectSuccess(okButton);
   }
 
   async updateGroup(name: string, key?: string): Promise<void> {
@@ -227,15 +264,23 @@ export class SchemaPage extends BasePage {
     if (key) {
       await this.getByLabel("Update Group").locator("#key").fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    const okButton = this.getByRole("button", { name: "OK" });
+    try {
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    } catch {
+      const keyField = this.getByLabel("Update Group").locator("#key");
+      const currentKey = key ?? (await keyField.inputValue());
+      await keyField.clear();
+      await keyField.fill(currentKey);
+      await expect(okButton).toBeEnabled({ timeout: 15_000 });
+    }
+    await this.clickAndExpectSuccess(okButton);
   }
 
   async deleteGroup(): Promise<void> {
     await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete").click();
-    await this.getByRole("button", { name: "Delete Group" }).click();
-    await this.closeNotification();
+    await this.getByText("Delete", { exact: true }).click();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Delete Group" }));
   }
 
   // Field operations
@@ -244,8 +289,7 @@ export class SchemaPage extends BasePage {
     await this.getByLabel("Display name").fill(name);
     await this.getByLabel("Settings").locator("#key").click();
     await this.getByLabel("Settings").locator("#key").fill(key);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async createTitleField(displayName: string, defaultValue: string): Promise<void> {
@@ -256,8 +300,7 @@ export class SchemaPage extends BasePage {
     await this.getByRole("tab", { name: "Default value" }).click();
     await this.getByLabel("Set default value").click();
     await this.getByLabel("Set default value").fill(defaultValue);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   modelMenuItemSpan(name: string): Locator {

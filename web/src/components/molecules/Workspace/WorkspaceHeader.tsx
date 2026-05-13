@@ -4,21 +4,24 @@ import { useMemo } from "react";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { SortBy, SortOption } from "./types";
 
 type Props = {
+  projectSort: SortBy;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) => {
+const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, projectSort }) => {
   const t = useT();
 
   const projectSortOptions: SortOption[] = useMemo(
     () => [
-      { key: "updatedAt", label: t("Last Modified") },
-      { key: "createdAt", label: t("Created At") },
+      { key: "updatedat", label: t("Last Modified") },
+      { key: "id", label: t("Created At") },
       { key: "name", label: t("Name") },
     ],
     [t],
@@ -35,12 +38,16 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) =>
       <Wrapper>
         <Label>{t("Sort by")}</Label>
         <StyledSelect
-          defaultValue="updatedAt"
+          data-testid={DATA_TEST_ID.WorkspaceHeader__ProjectSortSelect}
+          value={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);
           }}>
           {projectSortOptions.map(option => (
-            <Select.Option key={option.key} value={option.key}>
+            <Select.Option
+              key={option.key}
+              value={option.key}
+              data-testid={`workspace-header-project-sort-option-${option.key}`}>
               {option.label}
             </Select.Option>
           ))}
@@ -54,16 +61,17 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: ${AntdToken.SPACING.LG}px ${AntdToken.SPACING.LG}px 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const Label = styled.span`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const StyledSelect = styled(Select)`

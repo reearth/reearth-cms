@@ -6,4 +6,6 @@ type Container struct {
 	Mailer        Mailer
 	PolicyChecker PolicyChecker
 	TaskRunner    TaskRunner
+	Accounts      Account
+	JobPubSub     JobPubSub
 }

@@ -10,6 +10,7 @@ import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/C
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import WorkspaceHeader from "./WorkspaceHeader";
 
@@ -20,12 +21,17 @@ type Props = {
   projects: Project[];
   loading: boolean;
   hasCreateRight: boolean;
+  page: number;
+  pageSize: number;
+  projectSort: SortBy;
+  totalCount: number;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
   onProjectNavigation: (projectId: string) => void;
   onProjectCreate: (values: ProjectFormValues) => Promise<void>;
   onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onPageChange: (page: number, pageSize: number) => void;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
@@ -35,17 +41,22 @@ const WorkspaceWrapper: React.FC<Props> = ({
   projects,
   loading,
   hasCreateRight,
+  page,
+  pageSize,
+  projectSort,
+  totalCount,
   onProjectSearch,
   onProjectSort,
   onProjectNavigation,
   onWorkspaceCreate,
   onProjectCreate,
   onProjectAliasCheck,
+  onPageChange,
 }) => {
   const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
 
   return (
-    <InnerContent>
+    <InnerContent isFullHeight>
       <Greeting username={username} coverImageUrl={coverImageUrl} />
       <ContentSection
         title="Projects"
@@ -59,15 +70,24 @@ const WorkspaceWrapper: React.FC<Props> = ({
               onProjectAliasCheck={onProjectAliasCheck}
             />
           </ButtonWrapper>
-        }>
-        <WorkspaceHeader onProjectSearch={onProjectSearch} onProjectSort={onProjectSort} />
+        }
+        hasPadding={false}>
+        <WorkspaceHeader
+          onProjectSearch={onProjectSearch}
+          onProjectSort={onProjectSort}
+          projectSort={projectSort}
+        />
         <ProjectList
           hasCreateRight={hasCreateRight}
           projects={projects}
           loading={loading}
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
           onProjectNavigation={onProjectNavigation}
           onProjectCreate={onProjectCreate}
           onProjectAliasCheck={onProjectAliasCheck}
+          onPageChange={onPageChange}
         />
       </ContentSection>
     </InnerContent>
@@ -76,7 +96,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
 
 const ButtonWrapper = styled.div`
   Button + Button {
-    margin-left: 8px;
+    margin-left: ${AntdToken.SPACING.XS}px;
   }
 `;
 

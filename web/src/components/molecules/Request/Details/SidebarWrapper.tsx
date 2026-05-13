@@ -11,6 +11,7 @@ import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { Option } = Select;
 
@@ -135,8 +136,8 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 };
 
 const SideBarWrapper = styled.div`
-  background-color: #fafafa;
-  padding: 8px;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
+  padding: ${AntdToken.SPACING.XS}px;
   width: 272px;
 `;
 
@@ -153,8 +154,8 @@ const StyledSpace = styled(Space)`
 const ReviewerContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px 8px;
-  margin: 4px 0;
+  gap: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px;
+  margin: ${AntdToken.SPACING.XXS}px 0;
 `;
 
 const StyledSelect = styled(Select)`

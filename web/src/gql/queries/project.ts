@@ -64,13 +64,14 @@ export const GET_PROJECTS = gql`
         }
         requestRoles
       }
+      totalCount
     }
   }
 `;
 
 export const CHECK_PROJECT_ALIAS = gql`
-  query CheckProjectAlias($alias: String!) {
-    checkProjectAlias(alias: $alias) {
+  query CheckProjectAlias($workspaceId: ID!, $alias: String!) {
+    checkProjectAlias(workspaceId: $workspaceId, alias: $alias) {
       alias
       available
     }

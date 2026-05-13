@@ -332,6 +332,14 @@ export const DELETE_ITEM = gql`
   }
 `;
 
+export const DELETE_ITEMS = gql`
+  mutation DeleteItems($itemIds: [ID!]!) {
+    deleteItems(input: { itemIds: $itemIds }) {
+      itemIds
+    }
+  }
+`;
+
 export const UPDATE_ITEM = gql`
   mutation UpdateItem(
     $itemId: ID!
@@ -424,6 +432,36 @@ export const PUBLISH_ITEM = gql`
           version
           createdAt
           updatedAt
+        }
+      }
+    }
+  }
+`;
+
+export const IMPORT_ITEMS = gql`
+  mutation ImportItems($input: ImportItemsInput!) {
+    importItems(input: $input) {
+      modelId
+      totalCount
+      insertedCount
+      updatedCount
+      ignoredCount
+    }
+  }
+`;
+
+export const IMPORT_ITEMS_ASYNC = gql`
+  mutation ImportItemsAsync($input: ImportItemsInput!) {
+    importItemsAsync(input: $input) {
+      job {
+        id
+        type
+        status
+        projectId
+        progress {
+          processed
+          total
+          percentage
         }
       }
     }

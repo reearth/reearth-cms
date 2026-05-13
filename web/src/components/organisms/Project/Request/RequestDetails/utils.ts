@@ -1,5 +1,5 @@
 import { dateConvert } from "@reearth-cms/components/organisms/Project/Content/ContentDetails/utils";
-import { ItemField } from "@reearth-cms/gql/graphql-client-api";
+import { ItemField } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const initialValuesGet = (fields?: ItemField[]): Record<string, unknown> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

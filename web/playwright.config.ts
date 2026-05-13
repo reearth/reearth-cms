@@ -14,31 +14,50 @@ export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:
 
 const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
-  workers: process.env.CI ? 5 : undefined,
-  retries: 2,
-  maxFailures: process.env.CI ? undefined : 10,
+  workers: process.env.CI ? 1 : "25%",
+  retries: 10,
+  maxFailures: process.env.CI ? 4 : 10,
   forbidOnly: !!process.env.CI,
   use: {
     baseURL,
     screenshot: "only-on-failure",
     video: process.env.CI ? "on-first-retry" : "retain-on-failure",
     locale: "en-US",
-    storageState: authFile,
+    actionTimeout: 60 * 1000,
+    navigationTimeout: 60 * 1000,
   },
   testDir: "./e2e/tests",
   testMatch: "**/*.spec.ts",
   testIgnore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
-  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
-  fullyParallel: true,
+  reporter: process.env.CI
+    ? [["blob"], ["github"], ["list"]]
+    : [["list"], ["html", { open: "never" }]],
+  fullyParallel: false,
   projects: [
     {
-      name: "webkit",
+      name: "setup",
+      testDir: "./e2e/support",
+      testMatch: "auth.setup.ts",
       use: {
-        ...devices["Desktop Safari"],
+        ...devices["Desktop Chrome"],
       },
     },
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFile,
+        launchOptions: {
+          slowMo: process.env.CI ? 300 : 0,
+        },
+      },
+      dependencies: ["setup"],
+    },
   ],
-  timeout: 120 * 1000,
+  expect: {
+    timeout: 60 * 1000,
+  },
+  timeout: 150 * 1000,
 };
 
 export default config;

@@ -17,6 +17,7 @@ import (
 type Project struct {
 	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
+	pf   repo.ProjectFilter
 	err  error
 }
 
@@ -26,10 +27,12 @@ func NewProject() repo.Project {
 	}
 }
 
-func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
+func (r *Project) Filtered(wf repo.WorkspaceFilter, pf repo.ProjectFilter) repo.Project {
 	return &Project{
 		data: r.data,
-		f:    r.f.Merge(f),
+		f:    r.f.Merge(wf),
+		pf:   r.pf.Merge(pf),
+		err:  r.err,
 	}
 }
 
@@ -40,13 +43,16 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 
 	// TODO: implement sort & pagination
 
-	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+	result := project.List(r.data.FindAll(func(pid id.ProjectID, v *project.Project) bool {
+		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+			return false
+		}
 		if f.Visibility != nil {
 			if v.Accessibility().Visibility() != *f.Visibility {
 				return false
 			}
 		}
-		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		return r.canReadProject(pid, v)
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -64,13 +70,24 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 	), nil
 }
 
+func (r *Project) canReadProject(k id.ProjectID, v *project.Project) bool {
+	isPublic := v.Accessibility() == nil || v.Accessibility().Visibility() == project.VisibilityPublic
+	if r.pf.PublicOnly {
+		return isPublic
+	}
+	if r.pf.Readable == nil {
+		return true
+	}
+	return isPublic || r.pf.Readable.Has(k)
+}
+
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	result := r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
-		return ids.Has(k) && r.f.CanRead(v.Workspace())
+		return ids.Has(k) && r.f.CanRead(v.Workspace()) && r.canReadProject(k, v)
 	})
 
 	return project.List(result).SortByID(), nil
@@ -82,7 +99,7 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return k == pid && r.f.CanRead(v.Workspace())
+		return k == pid && r.f.CanRead(v.Workspace()) && r.canReadProject(k, v)
 	})
 
 	if p != nil {
@@ -91,7 +108,7 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*project.Project, error) {
+func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.WorkspaceID, q project.IDOrAlias) (*project.Project, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -103,7 +120,13 @@ func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*proj
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return (pid != nil && k == *pid || alias != nil && v.Alias() == *alias) && r.f.CanRead(v.Workspace())
+		if !r.f.CanRead(v.Workspace()) || v.Workspace() != wId {
+			return false
+		}
+		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
+			return false
+		}
+		return r.canReadProject(k, v)
 	})
 
 	if p != nil {
@@ -112,7 +135,7 @@ func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*proj
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error) {
+func (r *Project) IsAliasAvailable(_ context.Context, wId accountdomain.WorkspaceID, name string) (bool, error) {
 	if r.err != nil {
 		return false, r.err
 	}
@@ -123,7 +146,7 @@ func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error)
 
 	// no need to filter by workspace, because alias is unique across all workspaces
 	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
-		return v.Alias() == name
+		return v.Workspace() == wId && v.Alias() == name
 	})
 
 	if p != nil {

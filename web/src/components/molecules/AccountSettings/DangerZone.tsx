@@ -2,10 +2,10 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   onUserDelete: () => Promise<void>;
@@ -13,17 +13,16 @@ type Props = {
 
 const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const handleAccountDeleteConfirmation = useCallback(() => {
-    Modal.confirm({
+    confirm({
       title: t("Are you sure you want to delete your account?"),
-      icon: <Icon icon="exclamationCircle" />,
-      cancelText: t("Cancel"),
       async onOk() {
         await onUserDelete();
       },
     });
-  }, [onUserDelete, t]);
+  }, [confirm, onUserDelete, t]);
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
@@ -33,9 +32,9 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
           "Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-      <Button onClick={handleAccountDeleteConfirmation} type="primary" danger>
+      <StyledButton onClick={handleAccountDeleteConfirmation} type="primary" danger>
         {t("Delete Personal Account")}
-      </Button>
+      </StyledButton>
     </ContentSection>
   );
 };
@@ -43,15 +42,19 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
 export default DangerZone;
 
 const Title = styled.p`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Text = styled.p`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  margin: 24px 0;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  margin: ${AntdToken.SPACING.LG}px 0;
+`;
+
+const StyledButton = styled(Button)`
+  width: fit-content;
 `;

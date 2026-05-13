@@ -1,14 +1,15 @@
+import { useQuery } from "@apollo/client/react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import Loading from "@reearth-cms/components/atoms/Loading";
-import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useUserId, useWorkspaceId } from "@reearth-cms/state";
 
 const RootPage: React.FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();
-  const { data } = useGetMeQuery();
+  const { data } = useQuery(GetMeDocument);
 
   const [currentUserId] = useUserId();
   const [currentWorkspaceId, setCurrentWorkspaceId] = useWorkspaceId();

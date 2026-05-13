@@ -7,6 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import MarkdownComponent from "../Common/MarkdownComponent";
 import { UpdateProjectInput } from "../Workspace/types";
@@ -81,8 +82,8 @@ export default License;
 
 const StyledContainer = styled.div`
   padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid ${CustomColor.BORDER_LIGHT};
+  border-radius: ${AntdToken.RADIUS.SM}px;
   height: 700px;
   overflow-y: auto;
   font-family: inherit !important;

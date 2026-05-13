@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp/v3"
@@ -75,13 +76,34 @@ type Config struct {
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
 
+	Otel OtelConfig `pp:",omitempty"`
+
+	// Account API Configuration
+	Account_Api AccountAPIConfig `pp:",omitempty"`
+
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
 }
 
+type OtelConfig struct {
+	Enabled            bool          `default:"true" pp:",omitempty"`
+	Endpoint           string        `pp:",omitempty"`
+	MaxExportBatchSize int           `pp:",omitempty"`
+	BatchTimeout       time.Duration `pp:",omitempty"`
+	MaxQueueSize       int           `pp:",omitempty"`
+	SamplingRatio      float64       `default:"1" pp:",omitempty"`
+}
+
 type HealthCheckConfig struct {
-	Username string `pp:",omitempty"`
-	Password string `pp:",omitempty"`
+	Username  string `pp:",omitempty"`
+	Password  string `pp:",omitempty"`
+	RunOnInit bool   `default:"true" pp:",omitempty"`
+}
+
+type AccountAPIConfig struct {
+	Enabled bool   `pp:",omitempty"`
+	Host    string `pp:",omitempty"`
+	Timeout int    `pp:",omitempty"`
 }
 
 type PolicyCheckerConfig struct {
@@ -168,6 +190,14 @@ type AuthM2MConfig struct {
 	Email   string   `pp:",omitempty"`
 	JWKSURI *string  `pp:",omitempty"`
 	Token   string   `pp:",omitempty"`
+}
+
+func (c *Config) Otel1() OtelConfig {
+	oc := c.Otel
+	if oc.Enabled && oc.Endpoint == "" && c.Dev {
+		oc.Endpoint = "http://localhost:4318"
+	}
+	return oc
 }
 
 func (c *Config) Auths() (res AuthConfigs) {

@@ -1,3 +1,4 @@
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
@@ -10,6 +11,7 @@ type Props = {
   alsoLink?: boolean;
   uploadProps: UploadProps;
   fileList?: UploadFile<File>[];
+  alertList?: AlertProps[];
   uploading?: boolean;
   uploadModalVisibility?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
@@ -27,6 +29,7 @@ const UploadAsset: React.FC<Props> = ({
   alsoLink,
   uploadProps,
   fileList,
+  alertList,
   uploading,
   uploadModalVisibility,
   uploadUrl,
@@ -53,6 +56,7 @@ const UploadAsset: React.FC<Props> = ({
         alsoLink={alsoLink}
         uploadProps={uploadProps}
         fileList={fileList}
+        alertList={alertList}
         uploading={uploading}
         uploadUrl={uploadUrl}
         uploadType={uploadType}

@@ -24,6 +24,7 @@ const (
 	contextUsecases ContextKey = "usecases"
 	contextGateways ContextKey = "gateways"
 	contextAcRepos  ContextKey = "ac-repos"
+	contextJWTToken ContextKey = "jwtToken"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
@@ -114,12 +115,13 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 		return "en" // default language
 	}
 
-	l := u.Metadata().Lang()
-	if l.IsRoot() {
-		return "en" // default language
+	if metadata := u.Metadata(); metadata != nil {
+		if l := metadata.Lang(); !l.IsRoot() {
+			return l.String()
+		}
 	}
 
-	return l.String()
+	return "en" // default language
 }
 
 func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
@@ -129,4 +131,11 @@ func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
 		}
 	}
 	return nil
+}
+
+func GetJWTToken(ctx context.Context) string {
+	if token, ok := ctx.Value(contextJWTToken).(string); ok {
+		return token
+	}
+	return ""
 }

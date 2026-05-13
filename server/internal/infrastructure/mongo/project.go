@@ -24,11 +24,16 @@ var (
 	// TODO: the `publication.token` should be unique, this should be fixed in the future
 	projectIndexes       = []string{"workspace"}
 	projectUniqueIndexes = []string{"id"}
+	aliasCollation       = &options.Collation{
+		Locale:   "en",
+		Strength: 2,
+	}
 )
 
 type ProjectRepo struct {
 	client *mongox.Collection
 	f      repo.WorkspaceFilter
+	pf     repo.ProjectFilter
 }
 
 func NewProject(client *mongox.Client) repo.Project {
@@ -46,7 +51,7 @@ func (r *ProjectRepo) Init() error {
 	})
 	idx = append(idx, mongox.Index{
 		Name:            "re_alias",
-		Key:             bson.D{{Key: "alias", Value: 1}},
+		Key:             bson.D{{Key: "alias", Value: 1}, {Key: "workspace", Value: 1}},
 		Unique:          true,
 		CaseInsensitive: true,
 		Filter:          bson.M{"alias": bson.M{"$type": "string"}},
@@ -54,10 +59,11 @@ func (r *ProjectRepo) Init() error {
 	return createIndexes2(context.Background(), r.client, idx...)
 }
 
-func (r *ProjectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
+func (r *ProjectRepo) Filtered(wf repo.WorkspaceFilter, pf repo.ProjectFilter) repo.Project {
 	return &ProjectRepo{
 		client: r.client,
-		f:      r.f.Merge(f),
+		f:      r.f.Merge(wf),
+		pf:     r.pf.Merge(pf),
 	}
 }
 
@@ -109,42 +115,53 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 		}
 	}
 
+	if len(f.Topics) > 0 {
+		regexPatterns := make([]primitive.Regex, len(f.Topics))
+		for i, topic := range f.Topics {
+			regexPatterns[i] = primitive.Regex{Pattern: fmt.Sprintf("^%s$", regexp.QuoteMeta(topic)), Options: "i"}
+		}
+		filter["topics"] = bson.M{"$all": regexPatterns}
+	}
+
 	return r.paginate(ctx, filter, f.Sort, f.Pagination)
 }
 
-func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {
-	pid := id.ID()
-	alias := id.Alias()
-	if pid.IsNil() && (alias == nil || *alias == "") {
+func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, wId accountdomain.WorkspaceID, idOrAlias project.IDOrAlias) (*project.Project, error) {
+	pId := idOrAlias.ID()
+	alias := idOrAlias.Alias()
+	if pId.IsNil() && (alias == nil || *alias == "") {
 		return nil, rerror.ErrNotFound
 	}
 
-	f := bson.M{}
-	o := options.FindOne()
-	if pid != nil {
-		f["id"] = pid.String()
+	filter := bson.M{}
+	if pId != nil {
+		filter["id"] = pId.String()
 	}
 	if alias != nil {
-		f["alias"] = *alias
-		o.SetCollation(&options.Collation{
-			Locale:   "en",
-			Strength: 2,
-		})
+		filter["alias"] = *alias
 	}
 
-	return r.findOne(ctx, f, o)
+	o := options.FindOne()
+	if alias != nil {
+		o.SetCollation(aliasCollation)
+	}
+
+	// Apply workspace filter using $and to avoid issues with ProjectRepo.readFilter
+	combinedFilter := bson.M{"$and": bson.A{bson.M{"workspace": wId.String()}, filter}}
+
+	return r.findOne(ctx, combinedFilter, o)
 }
 
-func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, alias string) (bool, error) {
+func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, wId accountdomain.WorkspaceID, alias string) (bool, error) {
 	if alias == "" {
 		return false, nil
 	}
 
-	// no need to filter by workspace, because alias is unique across all workspaces
-	c, err := r.client.Count(ctx, bson.M{"alias": alias}, options.Count().SetCollation(&options.Collation{
-		Locale:   "en",
-		Strength: 2,
-	}))
+	f := bson.M{
+		"workspace": wId.String(),
+		"alias":     alias,
+	}
+	c, err := r.client.Count(ctx, f, options.Count().SetCollation(aliasCollation))
 
 	return c == 0 && err == nil, err
 }
@@ -158,9 +175,9 @@ func (r *ProjectRepo) FindByPublicAPIKey(ctx context.Context, key string) (*proj
 	})
 }
 
-func (r *ProjectRepo) CountByWorkspace(ctx context.Context, workspace accountdomain.WorkspaceID) (int, error) {
+func (r *ProjectRepo) CountByWorkspace(ctx context.Context, wId accountdomain.WorkspaceID) (int, error) {
 	count, err := r.client.Count(ctx, bson.M{
-		"workspace": workspace.String(),
+		"workspace": wId.String(),
 	})
 	return int(count), err
 }
@@ -216,7 +233,22 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 }
 
 func (r *ProjectRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
+	filter = applyWorkspaceFilter(filter, r.f.Readable)
+	if vf := r.visibilityFilter(); vf != nil {
+		filter = bson.M{"$and": bson.A{filter, vf}}
+	}
+	return filter
+}
+
+func (r *ProjectRepo) visibilityFilter() bson.M {
+	if r.pf.Readable == nil && !r.pf.PublicOnly {
+		return nil
+	}
+	filter := bson.M{"accessibility.visibility": project.VisibilityPublic.String()}
+	if len(r.pf.Readable) > 0 {
+		filter = bson.M{"$or": bson.A{filter, bson.M{"id": bson.M{"$in": r.pf.Readable.Strings()}}}}
+	}
+	return filter
 }
 
 func (r *ProjectRepo) writeFilter(filter any) any {

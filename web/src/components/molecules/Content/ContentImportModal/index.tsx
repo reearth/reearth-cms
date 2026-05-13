@@ -1,0 +1,501 @@
+import styled from "@emotion/styled";
+import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+
+import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
+import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import Flex from "@reearth-cms/components/atoms/Flex";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Loading from "@reearth-cms/components/atoms/Loading";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import ImportErrorLogView from "@reearth-cms/components/molecules/Common/ImportErrorLogView";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/provider";
+import { ImportValidationResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { Trans, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { Constant } from "@reearth-cms/utils/constant";
+import { FileUtils } from "@reearth-cms/utils/file";
+import {
+  ImportContentItem,
+  ImportContentUtils,
+  ValidationErrorMeta,
+} from "@reearth-cms/utils/importContent";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
+import { ObjectUtils } from "@reearth-cms/utils/object";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
+
+const { Dragger } = Upload;
+
+enum ImportContentError {
+  InvalidFormat = "invalid_format",
+  SingleFile = "single_file",
+  EmptyFile = "empty_file",
+  TooLargeFile = "too_large_file",
+  InvalidJson = "invalid_json",
+  WrongFileType = "wrong_file_type",
+  ExceedRecordLimit = "exceed_record_limit",
+  ValidationError = "validation_error",
+}
+
+type Props = {
+  isOpen: boolean;
+  dataChecking: boolean;
+  modelFields: Model["schema"]["fields"];
+  workspaceId: string | undefined;
+  projectId: string | undefined;
+  modelId: string | undefined;
+  onSetDataChecking: (isChecking: boolean) => void;
+  onClose: () => void;
+  onEnqueueJob: UploaderHookState["handleEnqueueJob"];
+  alertList: AlertProps[];
+  setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
+  importValidationResult: ImportValidationResult | null;
+  setImportValidationResult: Dispatch<SetStateAction<ImportValidationResult | null>>;
+};
+
+const TemplateLink = ({ href, children }: ButtonProps) => (
+  <StyledLink onClick={event => event.stopPropagation()} type="link" href={href} download>
+    {children}
+  </StyledLink>
+);
+
+const ContentImportModal: React.FC<Props> = ({
+  isOpen,
+  dataChecking,
+  modelFields,
+  workspaceId,
+  projectId,
+  modelId,
+  onSetDataChecking,
+  onClose,
+  onEnqueueJob,
+  alertList,
+  setAlertList,
+  importValidationResult,
+  setImportValidationResult,
+}) => {
+  const t = useT();
+  const location = useLocation();
+  const raiseIllegalFileAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("The uploaded file is empty or invalid"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseSingleFileAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("Only one file can be uploaded at a time"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseIllegalFileFormatAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("File format is not supported"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseWrongFileTypeAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("This file appears to be a schema file, not a content file"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseTooLargeFileSizeAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("File size exceeds the {{maxSizeInMB}} MB limit.", {
+          maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+        }),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseExceedRecordLimitAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("File content contains over {{maxRecord}} records.", {
+          maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
+        }),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const schemaValidationAlert = useCallback(
+    (errorMeta: ValidationErrorMeta, fileName: string) => {
+      setAlertList([]);
+
+      const errorLogMeta = ImportErrorLogUtils.buildErrorLogMeta(errorMeta, fileName);
+
+      setImportValidationResult({ errorLogMeta });
+    },
+    [setAlertList, setImportValidationResult],
+  );
+
+  const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
+  const handleEndLoading = useCallback(() => onSetDataChecking(false), [onSetDataChecking]);
+
+  const handleEnqueueJob = useCallback(
+    (extension: "json" | "csv" | "geojson", file: RcFile, fileName: string) => {
+      if (!workspaceId) throw Error("No workspace id");
+      if (!projectId) throw Error("No project id");
+      if (!modelId) throw Error("No model id!");
+
+      onEnqueueJob({
+        workspaceId,
+        projectId,
+        modelId,
+        extension,
+        fileName,
+        url: location.pathname,
+        file,
+      });
+      onClose();
+    },
+    [workspaceId, projectId, modelId, onEnqueueJob, location.pathname, onClose],
+  );
+
+  const handleBeforeUpload = useCallback<Required<UploadProps>["beforeUpload"]>(
+    async (file, fileList) => {
+      setImportValidationResult(null);
+      setAlertList([]);
+
+      try {
+        handleStartLoading();
+
+        const fileName = file.name;
+        const extension = FileUtils.getExtension(fileName);
+
+        if (!["geojson", "json", "csv"].includes(extension)) {
+          raiseIllegalFileFormatAlert();
+          throw new Error(ImportContentError.InvalidFormat);
+        }
+
+        if (fileList.length > 1) {
+          raiseSingleFileAlert();
+          throw new Error(ImportContentError.SingleFile);
+        }
+
+        if (file.size === 0) {
+          raiseIllegalFileAlert();
+          throw new Error(ImportContentError.EmptyFile);
+        }
+
+        if (file.size > FileUtils.MBtoBytes(Constant.IMPORT.MAX_FILE_SIZE_IN_MB)) {
+          raiseTooLargeFileSizeAlert();
+          throw new Error(ImportContentError.TooLargeFile);
+        }
+
+        const content = await FileUtils.parseTextFile(file);
+
+        switch (extension) {
+          case "json": {
+            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentItem[]>(content);
+
+            if (!jsonValidation.isValid) {
+              raiseIllegalFileAlert();
+              throw new Error(ImportContentError.InvalidJson);
+            }
+
+            if (
+              !Array.isArray(jsonValidation.data) &&
+              jsonValidation.data !== null &&
+              typeof jsonValidation.data === "object" &&
+              "properties" in jsonValidation.data
+            ) {
+              raiseWrongFileTypeAlert();
+              throw new Error(ImportContentError.WrongFileType);
+            }
+
+            if (jsonValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
+              raiseExceedRecordLimitAlert();
+              throw new Error(ImportContentError.ExceedRecordLimit);
+            }
+
+            const jsonContentValidation = await ImportContentUtils.validateContent(
+              jsonValidation.data,
+              modelFields,
+              "JSON",
+            );
+
+            if (!jsonContentValidation.isValid) {
+              schemaValidationAlert(jsonContentValidation.error, fileName);
+              throw new Error(ImportContentError.ValidationError);
+            }
+
+            handleEnqueueJob(extension, file, fileName);
+            break;
+          }
+
+          case "geojson": {
+            const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
+
+            if (!geoJSONValidation.isValid) {
+              raiseIllegalFileAlert();
+              throw new Error(ImportContentError.InvalidJson);
+            }
+
+            const jsonValidation = await ImportContentUtils.convertGeoJSONToJSON(
+              geoJSONValidation.data,
+            );
+
+            if (!jsonValidation.isValid) {
+              raiseIllegalFileAlert();
+              throw new Error(ImportContentError.InvalidJson);
+            }
+
+            if (jsonValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
+              raiseExceedRecordLimitAlert();
+              throw new Error(ImportContentError.ExceedRecordLimit);
+            }
+
+            const geoJSONContentValidation = await ImportContentUtils.validateContent(
+              jsonValidation.data,
+              modelFields,
+              "GEOJSON",
+            );
+
+            if (!geoJSONContentValidation.isValid) {
+              schemaValidationAlert(geoJSONContentValidation.error, fileName);
+              throw new Error(ImportContentError.ValidationError);
+            }
+
+            handleEnqueueJob(extension, file, fileName);
+            break;
+          }
+
+          case "csv": {
+            const csvValidation =
+              await ImportContentUtils.convertCSVToJSON<ImportContentItem>(content);
+            if (!csvValidation.isValid) {
+              raiseIllegalFileAlert();
+              throw new Error(ImportContentError.InvalidJson);
+            }
+
+            if (csvValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
+              raiseExceedRecordLimitAlert();
+              throw new Error(ImportContentError.ExceedRecordLimit);
+            }
+
+            const csvContentValidation = await ImportContentUtils.validateContent(
+              csvValidation.data,
+              modelFields,
+              "CSV",
+            );
+
+            if (!csvContentValidation.isValid) {
+              schemaValidationAlert(csvContentValidation.error, fileName);
+              throw new Error(ImportContentError.ValidationError);
+            }
+
+            handleEnqueueJob(extension, file, fileName);
+            break;
+          }
+
+          default:
+        }
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          !Object.values(ImportContentError).includes(error.message as ImportContentError)
+        ) {
+          setAlertList([
+            {
+              message: t(
+                "An unexpected error occurred while processing the file. Please try again.",
+              ),
+              type: "error",
+              closable: true,
+              showIcon: true,
+            },
+          ]);
+        }
+      } finally {
+        handleEndLoading();
+      }
+
+      return false;
+    },
+    [
+      setImportValidationResult,
+      setAlertList,
+      handleStartLoading,
+      raiseIllegalFileFormatAlert,
+      raiseSingleFileAlert,
+      raiseIllegalFileAlert,
+      raiseTooLargeFileSizeAlert,
+      modelFields,
+      handleEnqueueJob,
+      raiseWrongFileTypeAlert,
+      raiseExceedRecordLimitAlert,
+      schemaValidationAlert,
+      t,
+      handleEndLoading,
+    ],
+  );
+
+  const uploadProps = useMemo<UploadProps>(
+    () => ({
+      name: "importContentFile",
+      multiple: true,
+      directory: false,
+      showUploadList: false,
+      listType: "picture",
+      beforeUpload: handleBeforeUpload,
+      "data-testid": DATA_TEST_ID.ContentImportModal__FileSelect,
+    }),
+    [handleBeforeUpload],
+  );
+
+  const handleGoBack = useCallback(() => {
+    setAlertList([]);
+    setImportValidationResult(null);
+  }, [setAlertList, setImportValidationResult]);
+
+  const errorLogMeta = useMemo<ErrorLogMeta | null>(
+    () => importValidationResult?.errorLogMeta || null,
+    [importValidationResult?.errorLogMeta],
+  );
+
+  const modalFooter = useMemo<JSX.Element | null>(() => {
+    if (!importValidationResult) return null;
+    return (
+      <Flex justify="space-between">
+        {errorLogMeta && (
+          <FooterActionButton
+            icon={<Icon icon="download" />}
+            type="text"
+            onClick={() => ImportErrorLogUtils.downloadErrorLog(errorLogMeta)}>
+            {t("Download error log")}
+          </FooterActionButton>
+        )}
+        <FooterActionButton type="default" onClick={handleGoBack}>
+          {t("Go back")}
+        </FooterActionButton>
+      </Flex>
+    );
+  }, [importValidationResult, errorLogMeta, t, handleGoBack]);
+
+  return (
+    <Modal
+      title={t("Import content")}
+      open={isOpen}
+      onCancel={onClose}
+      maskClosable={false}
+      footer={modalFooter}
+      centered
+      width={CustomToken.MODAL.WIDTH_MD}
+      styles={{
+        body: { height: CustomToken.MODAL.HEIGHT_LG },
+      }}>
+      {!importValidationResult ? (
+        <>
+          {dataChecking ? (
+            <LoadingWrapper data-testid={DATA_TEST_ID.ContentImportModal__LoadingWrapper}>
+              <Loading spinnerSize="large" />
+              <p>{t("Checking the data file...")}</p>
+            </LoadingWrapper>
+          ) : (
+            <Dragger {...uploadProps}>
+              <p className="ant-upload-drag-icon">
+                <Icon icon="inbox" />
+              </p>
+              <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
+              <p className="ant-upload-hint">
+                {t(
+                  "Upload a data file in CSV, JSON, or GeoJSON format. The file must match the required schema, including correct field names and data types. It may contain up to {{maxRecord}} records and must not exceed {{maxSizeInMB}} MB in size.",
+                  {
+                    maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                    maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+                  },
+                )}
+              </p>
+              <p className="ant-upload-hint">
+                <Trans
+                  i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
+                  components={{
+                    l1: (
+                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>
+                        CSV
+                      </TemplateLink>
+                    ),
+                    l2: (
+                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}>
+                        JSON
+                      </TemplateLink>
+                    ),
+                    l3: (
+                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}>
+                        GeoJSON
+                      </TemplateLink>
+                    ),
+                  }}
+                />
+              </p>
+              {alertList.map((alert, index) => (
+                <Alert
+                  {...alert}
+                  key={alert?.message?.toString() || index}
+                  onClick={e => e.stopPropagation()}
+                />
+              ))}
+            </Dragger>
+          )}
+        </>
+      ) : (
+        <ImportErrorLogView
+          errorLogMeta={errorLogMeta}
+          source="content"
+          data-testid={DATA_TEST_ID.ContentImportModal__ErrorWrapper}
+        />
+      )}
+    </Modal>
+  );
+};
+
+export default ContentImportModal;
+
+const LoadingWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${AntdToken.SPACING.LG}px;
+`;
+
+const StyledLink = styled(Button)`
+  padding: 0;
+  text-decoration: underline;
+`;
+
+const FooterActionButton = styled(Button)`
+  text-transform: capitalize;
+`;

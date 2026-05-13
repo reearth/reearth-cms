@@ -16,17 +16,22 @@ import (
 func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
+	ar := adapter.AcRepos(ctx)
 
-	if request.WorkspaceId.IsEmpty() {
-		return ProjectFilter400Response{}, rerror.ErrInvalidParams
+	w, err := ar.Workspace.FindByIDOrAlias(ctx, request.WorkspaceIdOrAlias)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectFilter404Response{}, err
+		}
+		return ProjectFilter400Response{}, err
 	}
 
-	if !op.IsReadableWorkspace(request.WorkspaceId) {
+	if !op.IsReadableWorkspace(w.ID()) {
 		return ProjectFilter404Response{}, rerror.ErrNotFound
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, &interfaces.ProjectFilter{
+	res, pi, err := uc.Project.FindByWorkspace(ctx, w.ID(), &interfaces.ProjectFilter{
 		Pagination: p,
 		Sort:       toProjectSort(request.Params.Sort, request.Params.Dir),
 		Keyword:    request.Params.Keyword,
@@ -60,39 +65,34 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 }
 
 func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error) {
-	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	if request.WorkspaceId.IsEmpty() {
-		return ProjectGet400Response{}, rerror.ErrInvalidParams
-	}
-
-	if !op.IsReadableWorkspace(request.WorkspaceId) {
-		return ProjectGet404Response{}, rerror.ErrNotFound
-	}
-
-	idOrAlias := project.IDOrAlias(request.ProjectId.String())
-	p, err := uc.Project.FindByIDOrAlias(ctx, idOrAlias, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectGet404Response{}, err
 		}
-		return ProjectGet500Response{}, rerror.ErrInternalBy(err)
+		return ProjectGet400Response{}, err
 	}
 
-	return ProjectGet200JSONResponse(integrationapi.NewProject(p)), nil
+	if !op.IsReadableWorkspace(wp.Workspace.ID()) {
+		return ProjectGet404Response{}, rerror.ErrNotFound
+	}
+
+	return ProjectGet200JSONResponse(integrationapi.NewProject(&wp.Project)), nil
 }
 
 func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
+	ar := adapter.AcRepos(ctx)
 
-	if request.WorkspaceId.IsEmpty() {
-		return ProjectCreate400Response{}, rerror.ErrInvalidParams
-	}
-
-	if !op.IsWritableWorkspace(request.WorkspaceId) {
-		return ProjectCreate404Response{}, rerror.ErrNotFound
+	w, err := ar.Workspace.FindByIDOrAlias(ctx, request.WorkspaceIdOrAlias)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectCreate404Response{}, err
+		}
+		return ProjectCreate400Response{}, err
 	}
 
 	var roles []workspace.Role
@@ -104,7 +104,7 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 	}
 
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
-		WorkspaceID:  request.WorkspaceId,
+		WorkspaceID:  w.ID(),
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
 		License:      request.Body.License,
@@ -123,11 +123,15 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	if request.WorkspaceId.IsEmpty() {
-		return ProjectUpdate400Response{}, rerror.ErrInvalidParams
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectUpdate404Response{}, err
+		}
+		return ProjectUpdate400Response{}, err
 	}
 
-	if !op.IsWritableWorkspace(request.WorkspaceId) {
+	if !op.IsWritableWorkspace(wp.Workspace.ID()) {
 		return ProjectUpdate404Response{}, rerror.ErrNotFound
 	}
 
@@ -155,7 +159,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	}
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:            request.ProjectId,
+		ID:            wp.Project.ID(),
 		Name:          request.Body.Name,
 		Description:   request.Body.Description,
 		License:       request.Body.License,
@@ -178,16 +182,19 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	if request.WorkspaceId.IsEmpty() {
-		return ProjectDelete400Response{}, rerror.ErrInvalidParams
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectDelete404Response{}, err
+		}
+		return ProjectDelete400Response{}, err
 	}
 
-	if !op.IsWritableWorkspace(request.WorkspaceId) {
+	if !op.IsWritableWorkspace(wp.Workspace.ID()) {
 		return ProjectDelete404Response{}, rerror.ErrNotFound
 	}
 
-	id := request.ProjectId
-	err := uc.Project.Delete(ctx, id, op)
+	err = uc.Project.Delete(ctx, wp.Project.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectDelete404Response{}, err
@@ -196,6 +203,6 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 	}
 
 	return ProjectDelete200JSONResponse{
-		Id: &id,
+		Id: wp.Project.ID(),
 	}, nil
 }

@@ -55,8 +55,14 @@ func targetId(sp *schema.Package, t JSONSchemaExportTarget) *string {
 func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]types.JSONSchema {
 	properties := make(map[string]types.JSONSchema)
 	for _, field := range f {
-		fieldType, format := determineTypeAndFormat(field.Type())
-		fieldSchema := types.JSONSchema{Type: fieldType}
+		fieldType, jsonSchemaType, format := determineFTypeAndTypeAndFormat(field.Type())
+		fieldSchema := types.JSONSchema{
+			Type:      jsonSchemaType,
+			FieldType: fieldType,
+			Unique:    field.Unique(),
+			Required:  field.Required(),
+			Multiple:  field.Multiple(),
+		}
 		if field.Name() != "" {
 			fieldSchema.Title = lo.ToPtr(field.Name())
 		}
@@ -66,12 +72,20 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 		if format != "" {
 			fieldSchema.Format = lo.ToPtr(format)
 		}
+		if field.Multiple() {
+			if dv := field.DefaultValue(); dv != nil && !dv.IsEmpty() {
+				fieldSchema.DefaultValue = dv.Interface()
+			}
+		} else {
+			if dv := field.DefaultValue().First(); dv != nil && !dv.IsEmpty() {
+				fieldSchema.DefaultValue = dv.Interface()
+			}
+		}
 
 		field.TypeProperty().Match(schema.TypePropertyMatch{
 			Text: func(f *schema.FieldText) {
 				if maxLength := f.MaxLength(); maxLength != nil {
 					fieldSchema.MaxLength = maxLength
-					properties[field.Key().String()] = fieldSchema
 				}
 			},
 			TextArea: func(f *schema.FieldTextArea) {
@@ -88,6 +102,9 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 				if maxLength := f.MaxLength(); maxLength != nil {
 					fieldSchema.MaxLength = maxLength
 				}
+			},
+			Select: func(f *schema.FieldSelect) {
+				fieldSchema.Options = lo.ToPtr(f.Values())
 			},
 			Integer: func(f *schema.FieldInteger) {
 				if min := f.Min(); min != nil {
@@ -113,6 +130,16 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 					}
 				}
 			},
+			GeometryEditor: func(f *schema.FieldGeometryEditor) {
+				if st := f.SupportedTypes(); len(st) > 0 {
+					fieldSchema.GeoSupportedType = lo.ToPtr(st.First().String())
+				}
+			},
+			GeometryObject: func(f *schema.FieldGeometryObject) {
+				if st := f.SupportedTypes(); len(st) > 0 {
+					fieldSchema.GeoSupportedTypes = lo.ToPtr(st.Strings())
+				}
+			},
 		})
 
 		properties[field.Key().String()] = fieldSchema
@@ -134,28 +161,28 @@ func int64ToFloat64(input *int64) *float64 {
 	return lo.ToPtr(float64(*input))
 }
 
-func determineTypeAndFormat(t value.Type) (string, string) {
+func determineFTypeAndTypeAndFormat(t value.Type) (string, string, string) {
 	switch t {
 	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag, value.TypeReference:
-		return "string", ""
+		return string(t), "string", ""
 	case value.TypeInteger:
-		return "integer", ""
+		return string(t), "integer", ""
 	case value.TypeNumber:
-		return "number", ""
+		return string(t), "number", ""
 	case value.TypeBool, value.TypeCheckbox:
-		return "boolean", ""
+		return string(t), "boolean", ""
 	case value.TypeDateTime:
-		return "string", "date-time"
+		return string(t), "string", "date-time"
 	case value.TypeURL:
-		return "string", "uri"
+		return string(t), "string", "uri"
 	case value.TypeAsset:
-		return "string", "binary"
+		return string(t), "string", "binary"
 	case value.TypeGroup:
-		return "array", ""
+		return string(t), "array", ""
 	case value.TypeGeometryObject, value.TypeGeometryEditor:
-		return "object", ""
+		return string(t), "object", ""
 	default:
-		return "string", ""
+		return "", "string", ""
 	}
 }
 

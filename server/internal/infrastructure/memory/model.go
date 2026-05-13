@@ -61,8 +61,8 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 		int64(len(result)),
 		startCursor,
 		endCursor,
-		true,
-		true,
+		false,
+		false,
 	), nil
 }
 

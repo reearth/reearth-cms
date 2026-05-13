@@ -163,7 +163,7 @@ func (o *Operator) CanUpdate(obj Ownable) bool {
 }
 
 func (o *Operator) Owns(obj Ownable) bool {
-	return (o.AcOperator.User != nil && obj.User() != nil && *o.AcOperator.User == *obj.User()) ||
+	return (o.AcOperator != nil && o.AcOperator.User != nil && obj.User() != nil && *o.AcOperator.User == *obj.User()) ||
 		(o.Integration != nil && obj.Integration() != nil && *o.Integration == *obj.Integration())
 }
 

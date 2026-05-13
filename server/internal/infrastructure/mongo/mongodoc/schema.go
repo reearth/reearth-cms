@@ -210,6 +210,20 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	}, sId
 }
 
+func NewSchemas(list schema.List) ([]*SchemaDocument, []string) {
+	docs := make([]*SchemaDocument, 0, len(list))
+	ids := make([]string, 0, len(list))
+	for _, s := range list {
+		if s == nil {
+			continue
+		}
+		doc, sid := NewSchema(s)
+		docs = append(docs, doc)
+		ids = append(ids, sid)
+	}
+	return docs, ids
+}
+
 func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	sId, err := id.SchemaIDFrom(d.ID)
 	if err != nil {

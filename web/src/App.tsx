@@ -2,16 +2,18 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import {
-  Route,
-  RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
+  Route,
+  RouterProvider,
 } from "react-router-dom";
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import { UploaderProvider } from "@reearth-cms/components/molecules/Uploader/provider";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
+import AccessibilityDocs from "@reearth-cms/components/organisms/Project/Accessibility/AccessibilityDocs";
 import APIKeyDetails from "@reearth-cms/components/organisms/Project/Accessibility/APIKeyDetails";
 import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
@@ -26,6 +28,7 @@ import Schema from "@reearth-cms/components/organisms/Project/Schema";
 import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
 import Settings from "@reearth-cms/components/organisms/Settings/General";
 import Integration from "@reearth-cms/components/organisms/Settings/Integration";
+import IntegrationsDocs from "@reearth-cms/components/organisms/Settings/Integration/IntegrationsDocs";
 import Members from "@reearth-cms/components/organisms/Settings/Members";
 import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
 import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
@@ -55,6 +58,7 @@ const router = createBrowserRouter(
           element={<MyIntegrationDetails />}
         />
         <Route path=":workspaceId/integrations" element={<Integration />} />
+        <Route path=":workspaceId/integrations/docs" element={<IntegrationsDocs />} />
         <Route path=":workspaceId/settings" element={<Settings />} />
         <Route path=":workspaceId/workspaceSettings" element={<WorkspaceSettings />} />
         <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
@@ -64,6 +68,10 @@ const router = createBrowserRouter(
         <Route
           path=":workspaceId/project/:projectId/accessibility/:keyId"
           element={<APIKeyDetails />}
+        />
+        <Route
+          path=":workspaceId/project/:projectId/accessibility/docs"
+          element={<AccessibilityDocs />}
         />
         <Route path=":workspaceId/project/:projectId/readme" element={<Readme />} />
         <Route path=":workspaceId/project/:projectId/license" element={<License />} />
@@ -96,7 +104,9 @@ function App() {
     <AuthProvider>
       <GqlProvider>
         <I18nProvider>
-          <RouterProvider router={router} />
+          <UploaderProvider>
+            <RouterProvider router={router} />
+          </UploaderProvider>
         </I18nProvider>
       </GqlProvider>
     </AuthProvider>

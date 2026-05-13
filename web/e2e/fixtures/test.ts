@@ -39,7 +39,7 @@ export type Reearth = {
   ) => Promise<T>;
 } & Config;
 
-type Fixtures = { reearth: Reearth } & PageObjects;
+type Fixtures = { reearth: Reearth; slowMarker: undefined } & PageObjects;
 
 export const test = base.extend<Fixtures>({
   reearth: async ({ page, request }, use) => {
@@ -75,6 +75,15 @@ export const test = base.extend<Fixtures>({
       },
     });
   },
+
+  slowMarker: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use, testInfo) => {
+      if (process.env.CI) testInfo.slow();
+      await use(undefined);
+    },
+    { auto: true },
+  ],
 
   assetsPage: async ({ page }, use) => {
     await use(new AssetsPage(page));
@@ -125,4 +134,4 @@ export const test = base.extend<Fixtures>({
   },
 });
 
-export { expect, type Page, type Locator } from "@playwright/test";
+export { chromium, expect, type Page, type Locator, type Response } from "@playwright/test";

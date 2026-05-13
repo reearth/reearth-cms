@@ -1,5 +1,6 @@
 // e2e/pages/content.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
 
@@ -44,7 +45,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Publish" });
   }
   get unpublishButton(): Locator {
-    return this.getByText("Unpublish");
+    return this.getByText("Unpublish", { exact: true });
   }
   get publishFromTableButton(): Locator {
     return this.getByText("Publish", { exact: true });
@@ -58,10 +59,10 @@ export class ContentPage extends BasePage {
 
   // Status indicators
   get draftStatus(): Locator {
-    return this.getByText("Draft");
+    return this.locator(".ant-badge-status-text").filter({ hasText: "Draft" });
   }
   get publishedStatus(): Locator {
-    return this.getByText("Published");
+    return this.locator(".ant-badge-status-text").filter({ hasText: "Published" });
   }
 
   // Comments
@@ -122,7 +123,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
-    return this.getByLabel("more").locator("svg");
+    return this.page.locator("role=tab[selected]").getByLabel("more");
   }
   get renameViewButton(): Locator {
     return this.getByText("Rename");
@@ -138,17 +139,14 @@ export class ContentPage extends BasePage {
   }
 
   // Table sorting and filtering
-  textColumnHeader(): Locator {
-    return this.getByText("text", { exact: true });
-  }
-  get columnHeaderText(): Locator {
+  get textColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "text" });
   }
   get sortUpIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
+    return this.textColumnHeader.locator("div").locator(".anticon-caret-up");
   }
   get sortDownIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
+    return this.textColumnHeader.locator("div").locator(".anticon-caret-down");
   }
   tableRow(index: number): Locator {
     return this.locator(".ant-table-row").nth(index);
@@ -263,7 +261,7 @@ export class ContentPage extends BasePage {
 
   // Character count indicators
   get characterCountText(): Locator {
-    return this.getByText("/ 5");
+    return this.getByText("/ 5").first();
   }
 
   // Option field specific
@@ -488,7 +486,7 @@ export class ContentPage extends BasePage {
   }
 
   get requestStatusElement(): Locator {
-    return this.getByTestId("requestStatus").locator("span");
+    return this.getByTestId(DATA_TEST_ID.Versions__RequestStatus).locator("span");
   }
 
   get currentVersionText(): Locator {
@@ -550,8 +548,7 @@ export class ContentPage extends BasePage {
   async createItem(): Promise<void> {
     await this.getByText("Content").click();
     await this.getByRole("button", { name: "plus New Item" }).click();
-    await this.getByRole("button", { name: "Save" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Save" }));
   }
 
   async createRequest(title: string): Promise<void> {
@@ -563,15 +560,14 @@ export class ContentPage extends BasePage {
     const firstItem = this.page.locator(".ant-select-item").first();
     await firstItem.click();
     await this.getByLabel("Description").click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async createComment(content: string): Promise<void> {
-    await this.page.locator("#content").click();
-    await this.page.locator("#content").fill(content);
-    await this.getByRole("button", { name: "Comment" }).click();
-    await this.closeNotification();
+    const commentInput = this.getByRole("main").getByRole("complementary").getByRole("textbox");
+    await commentInput.click();
+    await commentInput.fill(content);
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Comment" }));
   }
 
   async updateComment(oldText: string, newText: string): Promise<void> {
@@ -582,13 +578,11 @@ export class ContentPage extends BasePage {
       .click();
     await this.page.locator("textarea").filter({ hasText: oldText }).click();
     await this.page.locator("textarea").filter({ hasText: oldText }).fill(newText);
-    await this.getByLabel("check").locator("svg").first().click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByLabel("check").locator("svg").first());
   }
 
   async deleteComment(): Promise<void> {
-    await this.getByLabel("delete").locator("svg").click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.getByLabel("delete").locator("svg"));
   }
 
   viewTabMoreIcon(viewName: string): Locator {
@@ -617,24 +611,29 @@ export class ContentPage extends BasePage {
 
   async createView(viewName: string): Promise<void> {
     await this.saveAsNewViewButton.click();
-    await this.viewNameInput.fill(viewName);
-    await this.okButton.click();
-    await this.closeNotification();
+    await expect(this.viewNameInput).toBeVisible();
+    await expect(async () => {
+      await this.viewNameInput.fill(viewName);
+      await expect(this.viewNameInput).toHaveValue(viewName);
+    }).toPass({ timeout: 5_000 });
+    await this.clickAndExpectSuccess(this.okButton);
   }
 
   async renameView(newName: string): Promise<void> {
     await this.moreButton.click();
     await this.renameViewButton.click();
-    await this.viewNameInput.fill(newName);
-    await this.okButton.click();
-    await this.closeNotification();
+    await expect(this.viewNameInput).toBeVisible();
+    await expect(async () => {
+      await this.viewNameInput.fill(newName);
+      await expect(this.viewNameInput).toHaveValue(newName);
+    }).toPass({ timeout: 5_000 });
+    await this.clickAndExpectSuccess(this.okButton);
   }
 
   async deleteView(): Promise<void> {
     await this.moreButton.click();
     await this.removeViewButton.click();
-    await this.removeButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.removeButton);
   }
 
   async searchFor(searchTerm: string): Promise<void> {
@@ -648,14 +647,12 @@ export class ContentPage extends BasePage {
   }
 
   async publishItem(): Promise<void> {
-    await this.publishButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.publishButton);
   }
 
   async unpublishItem(): Promise<void> {
     await this.ellipsisMenuButton.click();
-    await this.unpublishButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.unpublishButton);
   }
 
   async addFilter(
@@ -690,8 +687,7 @@ export class ContentPage extends BasePage {
   ): Promise<void> {
     await this.newItemButton.click();
     await this.fieldInput(fieldName).fill(fieldValue);
-    await this.saveButton.click();
-    await this.closeNotification();
+    await this.clickAndExpectSuccess(this.saveButton);
     if (navigateBack) {
       await this.backButton.click();
     }
@@ -700,5 +696,70 @@ export class ContentPage extends BasePage {
   getCurrentItemId(): string {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
+  }
+
+  // ========== Import Content Locators ==========
+
+  get contentMoreButton(): Locator {
+    return this.getByRole("button", { name: "more" });
+  }
+  get importMenuItem(): Locator {
+    return this.getByText("Import", { exact: true });
+  }
+
+  get importContentModal(): Locator {
+    return this.getByRole("dialog").filter({ hasText: "Import content" });
+  }
+
+  get importContentFileInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__FileSelect);
+  }
+
+  get importContentDragger(): Locator {
+    return this.locator(".ant-upload-drag");
+  }
+
+  get importContentLoadingWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__LoadingWrapper);
+  }
+
+  get importContentErrorWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
+  }
+
+  get importContentGoBackButton(): Locator {
+    return this.getByRole("button", { name: /go back/i });
+  }
+
+  get uploadSuccessNotification(): Locator {
+    return this.getByText("Successfully created upload job!");
+  }
+
+  get tableReloadIcon(): Locator {
+    return this.getByLabel("reload");
+  }
+
+  get tableContentFieldPopoverIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverIcon);
+  }
+
+  get tableContentFieldPopoverContent(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverContent);
+  }
+
+  // ========== Import Content Actions ==========
+
+  async openImportContentModal(): Promise<void> {
+    await this.contentMoreButton.click();
+    await this.importMenuItem.click();
+    await this.importContentModal.waitFor({ state: "visible" });
+  }
+
+  async uploadImportFile(filePath: string): Promise<void> {
+    await this.importContentFileInput.setInputFiles(filePath);
+  }
+
+  async closeImportContentModal(): Promise<void> {
+    await this.importContentModal.getByLabel("Close").click();
   }
 }

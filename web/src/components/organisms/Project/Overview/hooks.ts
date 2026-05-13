@@ -1,4 +1,4 @@
-import fileDownload from "js-file-download";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,19 +9,21 @@ import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Wo
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
-  useDeleteModelMutation,
-  useGetModelsQuery,
-  useUpdateModelMutation,
-  useExportModelMutation,
-  useExportModelSchemaMutation,
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
-  useUpdateProjectMutation,
-  ExportFormat as GQLExportFormat,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  DeleteModelDocument,
+  GetModelsDocument,
+  UpdateModelDocument,
+} from "@reearth-cms/gql/__generated__/model.generated";
+import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
+
+import { useExportContent } from "../hooks/useExportContent";
+import { useExportSchema } from "../hooks/useExportSchema";
 
 export default () => {
   const [currentProject] = useProject();
@@ -30,11 +32,19 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
   const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.model.delete, [userRights?.model.delete]);
+  const hasSchemaCreateRight = useMemo(
+    () => !!userRights?.schema.create,
+    [userRights?.schema.create],
+  );
+  const hasContentCreateRight = useMemo(
+    () => !!userRights?.content.create,
+    [userRights?.content.create],
+  );
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
   const [searchedModelName, setSearchedModelName] = useState<string>("");
-  const [modelSort, setModelSort] = useState<SortBy>("updatedAt");
+  const [modelSort, setModelSort] = useState<SortBy>("updatedat");
   const t = useT();
   const navigate = useNavigate();
 
@@ -46,7 +56,7 @@ export default () => {
     handleModelKeyCheck,
   } = useModelHooks({});
 
-  const [updateProjectMutation] = useUpdateProjectMutation({
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument, {
     refetchQueries: ["GetProject"],
   });
 
@@ -65,7 +75,7 @@ export default () => {
           accessibility: data.accessibility as GQLProjectAccessibility,
         },
       });
-      if (Project.errors || !Project.data?.updateProject) {
+      if (Project.error || !Project.data?.updateProject) {
         Notification.error({ message: t("Failed to update Project.") });
         return;
       }
@@ -74,7 +84,7 @@ export default () => {
     [updateProjectMutation, t],
   );
 
-  const { data } = useGetModelsQuery({
+  const { data } = useQuery(GetModelsDocument, {
     variables: {
       projectId: currentProject?.id ?? "",
       keyword: searchedModelName,
@@ -82,6 +92,7 @@ export default () => {
       pagination: { first: 100 },
     },
     skip: !currentProject?.id,
+    fetchPolicy: "cache-and-network",
   });
 
   const models = useMemo(
@@ -113,7 +124,7 @@ export default () => {
     setModelDeletionModalShown(false);
   }, [setSelectedModel, setModelDeletionModalShown]);
 
-  const [deleteModel, { loading: deleteLoading }] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteLoading }] = useMutation(DeleteModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -121,7 +132,7 @@ export default () => {
     async (modelId?: string) => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
-      if (res.errors || !res.data?.deleteModel) {
+      if (res.error || !res.data?.deleteModel) {
         Notification.error({ message: t("Failed to delete model.") });
       } else {
         Notification.success({ message: t("Successfully deleted model!") });
@@ -131,7 +142,7 @@ export default () => {
     [deleteModel, handleModelDeletionModalClose, t],
   );
 
-  const [updateNewModel] = useUpdateModelMutation({
+  const [updateNewModel] = useMutation(UpdateModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -146,7 +157,7 @@ export default () => {
           key: data.key,
         },
       });
-      if (model.errors || !model.data?.updateModel) {
+      if (model.error || !model.data?.updateModel) {
         Notification.error({ message: t("Failed to update model.") });
         return;
       }
@@ -156,88 +167,29 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
-  const [exportModel, { loading: exportModelLoading }] = useExportModelMutation();
-  const [exportModelSchema, { loading: exportSchemaLoading }] = useExportModelSchemaMutation();
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
+  const { handleExportSchema, exportSchemaLoading } = useExportSchema();
 
-  const exportLoading = exportModelLoading || exportSchemaLoading;
-
-  const getFilenameFromFormat = useCallback((modelId: string, format: ExportFormat): string => {
-    switch (format) {
-      case ExportFormat.Schema:
-        return `${modelId}-schema.json`;
-      case ExportFormat.Json:
-        return `${modelId}-data.json`;
-      case ExportFormat.Csv:
-        return `${modelId}-data.csv`;
-      case ExportFormat.Geojson:
-        return `${modelId}-data.geojson`;
-      default:
-        return `${modelId}-data.json`;
-    }
-  }, []);
-
-  const downloadFile = useCallback(
-    async (url: string, filename: string) => {
-      try {
-        const response = await fetch(url, { method: "GET" });
-        if (!response.ok) {
-          throw new Error(`Failed to download ${filename}`);
-        }
-        const blob = await response.blob();
-        fileDownload(blob, filename);
-        Notification.success({
-          message: t("Download successful"),
-          description: filename,
-        });
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("Download error:", errorMessage);
-        Notification.error({
-          message: t("Download failed"),
-          description: errorMessage,
-        });
-      }
-    },
-    [t],
+  const exportLoading = useMemo<boolean>(
+    () => exportContentLoading || exportSchemaLoading,
+    [exportContentLoading, exportSchemaLoading],
   );
 
   const handleModelExport = useCallback(
-    async (modelId?: string, format?: ExportFormat): Promise<void> => {
+    async (
+      modelId?: string,
+      format?: ExportFormat,
+      geometryFieldsCount?: number,
+    ): Promise<void> => {
       if (!modelId || !format) return;
 
-      try {
-        if (format === ExportFormat.Schema) {
-          // Export schema
-          const res = await exportModelSchema({ variables: { modelId } });
-          if (res.errors || !res.data?.exportModelSchema) {
-            throw new Error(t("Failed to export schema."));
-          }
-          const url = res.data.exportModelSchema.url;
-          const filename = getFilenameFromFormat(modelId, format);
-          await downloadFile(url, filename);
-        } else {
-          // Export model data (JSON, CSV, or GeoJSON)
-          const exportFormat = format as GQLExportFormat;
-          const res = await exportModel({
-            variables: { modelId, format: exportFormat },
-          });
-          if (res.errors || !res.data?.exportModel) {
-            throw new Error(t("Failed to export model data."));
-          }
-          const url = res.data.exportModel.url;
-          const filename = getFilenameFromFormat(modelId, format);
-          await downloadFile(url, filename);
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("Export error:", errorMessage);
-        Notification.error({
-          message: t("Export failed"),
-          description: errorMessage,
-        });
+      if (format === ExportFormat.Schema) {
+        await handleExportSchema(modelId);
+      } else {
+        await handleContentExportClick(modelId, format, geometryFieldsCount);
       }
     },
-    [exportModel, exportModelSchema, t, downloadFile, getFilenameFromFormat],
+    [handleContentExportClick, handleExportSchema],
   );
 
   const handleHomeNavigation = useCallback(() => {
@@ -253,10 +205,30 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleImportSchemaNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/schema/${modelId}`,
+        { state: { isImportModalOpen: true } },
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
   const handleContentNavigation = useCallback(
     (modelId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
+  const handleImportContentNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+        { state: { isImportModalOpen: true } },
       );
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
@@ -286,12 +258,16 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasSchemaCreateRight,
+    hasContentCreateRight,
     handleProjectUpdate,
     handleModelSearch,
     handleModelSort,
     handleHomeNavigation,
     handleSchemaNavigation,
+    handleImportSchemaNavigation,
     handleContentNavigation,
+    handleImportContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,

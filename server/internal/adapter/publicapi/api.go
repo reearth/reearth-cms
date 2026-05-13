@@ -5,10 +5,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -52,47 +53,55 @@ func Echo(e *echo.Group) {
 
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
+	e.GET("/:workspace/:project", OpenAPISchema())
+}
+
+// parseSubRoute splits a sub-route segment into a model key and extension.
+// Compound extensions (.schema.json, .metadata_schema.json, .geojson) are
+// checked first since path.Ext would only return the last component (.json).
+func parseSubRoute(subRoute string) (name, ext string) {
+	lower := strings.ToLower(subRoute)
+	for _, compound := range []string{".metadata_schema.json", ".schema.json", ".geojson"} {
+		if strings.HasSuffix(lower, compound) {
+			return subRoute[:len(subRoute)-len(compound)], compound
+		}
+	}
+	ext = path.Ext(lower)
+	return subRoute[:len(subRoute)-len(ext)], ext
 }
 
 // SubRoute since echo supports only / separated params, we need to route inside the handler
 func SubRoute() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		wsAlias, pAlias := c.Param("workspace"), c.Param("project")
-		subRoute := strings.ToLower(c.Param("sub-route"))
+		mKey, ext := parseSubRoute(c.Param("sub-route"))
 
-		switch {
-		case strings.HasSuffix(subRoute, ".metadata_schema.json"):
-			mKey := strings.TrimSuffix(subRoute, ".metadata_schema.json")
+		switch ext {
+		case ".metadata_schema.json":
 			return SchemaOrMetadataSchema(c, wsAlias, pAlias, mKey, "metadata_schema")
-		case strings.HasSuffix(subRoute, ".schema.json"):
-			mKey := strings.TrimSuffix(subRoute, ".schema.json")
+		case ".schema.json":
 			return SchemaOrMetadataSchema(c, wsAlias, pAlias, mKey, "schema")
-
-		case subRoute == "assets":
-			return Assets(c, wsAlias, pAlias, "assets", "")
-		case strings.HasSuffix(subRoute, "assets.json"):
-			return Assets(c, wsAlias, pAlias, "assets", "json")
-
-		case strings.HasSuffix(subRoute, ".json"):
-			mKey := strings.TrimSuffix(subRoute, ".json")
+		case ".json":
+			if mKey == "assets" {
+				return Assets(c, wsAlias, pAlias, "assets", "json")
+			}
 			return Items(c, wsAlias, pAlias, mKey, "json")
-		case strings.HasSuffix(subRoute, ".csv"):
-			mKey := strings.TrimSuffix(subRoute, ".csv")
+		case ".csv":
 			return Items(c, wsAlias, pAlias, mKey, "csv")
-		case strings.HasSuffix(subRoute, ".geojson"):
-			mKey := strings.TrimSuffix(subRoute, ".geojson")
+		case ".geojson":
 			return Items(c, wsAlias, pAlias, mKey, "geojson")
-		case !strings.Contains(subRoute, "."):
-			mKey := subRoute
+		case "":
+			if mKey == "assets" {
+				return Assets(c, wsAlias, pAlias, "assets", "")
+			}
 			return Items(c, wsAlias, pAlias, mKey, "json")
-
 		default:
 			return c.JSON(http.StatusNotFound, nil)
 		}
 	}
 }
 
-func SchemaOrMetadataSchema(c echo.Context, wsAlias, pAlias string, mKey string, schemaType string) error {
+func SchemaOrMetadataSchema(c *echo.Context, wsAlias, pAlias string, mKey string, schemaType string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
@@ -111,7 +120,7 @@ func SchemaOrMetadataSchema(c echo.Context, wsAlias, pAlias string, mKey string,
 	return c.JSON(http.StatusOK, res)
 }
 
-func Assets(c echo.Context, wsAlias, pAlias, model, ext string) error {
+func Assets(c *echo.Context, wsAlias, pAlias, model, ext string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
@@ -134,7 +143,7 @@ func Assets(c echo.Context, wsAlias, pAlias, model, ext string) error {
 	return c.JSONBlob(http.StatusOK, w.Bytes())
 }
 
-func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
+func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
@@ -164,7 +173,7 @@ func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
 }
 
 func ItemOrAsset() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
 
@@ -188,7 +197,7 @@ func ItemOrAsset() echo.HandlerFunc {
 	}
 }
 
-func paginationFrom(c echo.Context) *usecasex.Pagination {
+func paginationFrom(c *echo.Context) *usecasex.Pagination {
 	limit, _ := intParams(c, "limit", "perPage", "per_page", "page_size", "pageSize")
 	if limit <= 0 {
 		limit = defaultLimit
@@ -220,20 +229,10 @@ func paginationFrom(c echo.Context) *usecasex.Pagination {
 		}.Wrap()
 	}
 
-	if page, ok := intParams(c, "page"); ok {
-		if page <= 0 {
-			page = 1
-		}
-		return usecasex.OffsetPagination{
-			Offset: (page - 1) * limit,
-			Limit:  limit,
-		}.Wrap()
-	}
-
 	return nil
 }
 
-func intParams(c echo.Context, params ...string) (int64, bool) {
+func intParams(c *echo.Context, params ...string) (int64, bool) {
 	for _, p := range params {
 		if q := c.QueryParam(p); q != "" {
 			if p, err := strconv.ParseInt(q, 10, 64); err == nil {
@@ -242,4 +241,23 @@ func intParams(c echo.Context, params ...string) (int64, bool) {
 		}
 	}
 	return 0, false
+}
+
+func OpenAPISchema() echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p := c.Param("workspace"), c.Param("project")
+
+		res, err := ctrl.GetOpenAPISchema(ctx, ws, p)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
+			return err
+		}
+
+		return c.JSON(http.StatusOK, res)
+	}
 }

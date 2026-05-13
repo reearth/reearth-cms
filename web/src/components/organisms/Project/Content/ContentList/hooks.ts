@@ -1,6 +1,8 @@
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -14,7 +16,10 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
+import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -31,22 +36,27 @@ import {
   toGraphConditionInput,
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+import { useExportContent } from "@reearth-cms/components/organisms/Project/hooks/useExportContent";
 import {
   Item as GQLItem,
-  useDeleteItemMutation,
   Comment as GQLComment,
-  useSearchItemQuery,
   Asset as GQLAsset,
-  useGetItemLazyQuery,
-  useUpdateItemMutation,
-  useCreateItemMutation,
   SchemaFieldType,
   View as GQLView,
-  useGetViewsQuery,
   ItemFieldInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  JobStatus,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  CreateItemDocument,
+  DeleteItemsDocument,
+  GetItemDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
 import { fileName } from "./utils";
 
@@ -57,6 +67,10 @@ const defaultViewSort: ItemSort = {
   },
 };
 
+export type ImportValidationResult = {
+  errorLogMeta?: ErrorLogMeta;
+};
+
 export default () => {
   const {
     currentModel,
@@ -64,8 +78,8 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
-    handlePublish,
-    handleUnpublish,
+    handlePublish: _handlePublish,
+    handleUnpublish: _handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
@@ -81,6 +95,16 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
+  const { handleEnqueueJob, uploaderState } = useUploaderHook();
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
+
+  const handleContentExport = useCallback(
+    async (format: ExportFormat, geometryFieldsCount?: number) => {
+      if (!currentModel?.id) return;
+      await handleContentExportClick(currentModel.id, format, geometryFieldsCount);
+    },
+    [currentModel?.id, handleContentExportClick],
+  );
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -90,8 +114,20 @@ export default () => {
       currentView: CurrentView;
       page: number;
       pageSize: number;
+      isImportModalOpen: boolean;
     } | null;
   } = useLocation();
+
+  const currentWorkspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const currentProjectId = useMemo(() => currentProject?.id, [currentProject?.id]);
+
+  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(
+    location.state?.isImportModalOpen || false,
+  );
+  const [dataChecking, setDataChecking] = useState(false);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
+  const [importValidationResult, setImportValidationResult] =
+    useState<ImportValidationResult | null>(null);
 
   const [userId] = useUserId();
   const [userRights] = useUserRights();
@@ -112,7 +148,7 @@ export default () => {
   const viewsRef = useRef<View[]>([]);
   const prevModelIdRef = useRef<string>();
 
-  const { data: viewData, loading: viewLoading } = useGetViewsQuery({
+  const { data: viewData, loading: viewLoading } = useQuery(GetViewsDocument, {
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
@@ -137,24 +173,28 @@ export default () => {
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
-  const { data, refetch, loading } = useSearchItemQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      searchItemInput: {
-        query: {
-          project: currentProject?.id ?? "",
-          model: currentModel?.id ?? "",
-          schema: currentModel?.schema.id,
-          q: searchTerm,
-        },
-        pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
-        filter: toGraphConditionInput(currentView.filter),
-      },
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !currentProject?.id || !currentModel?.id || viewLoading,
-  });
+  const { data, refetch, loading } = useQuery(
+    SearchItemDocument,
+    currentProject?.id && currentModel?.id && !viewLoading
+      ? {
+          fetchPolicy: "no-cache",
+          variables: {
+            searchItemInput: {
+              query: {
+                project: currentProject.id,
+                model: currentModel.id,
+                schema: currentModel.schema.id,
+                q: searchTerm,
+              },
+              pagination: { first: pageSize, offset: (page - 1) * pageSize },
+              sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
+              filter: toGraphConditionInput(currentView.filter),
+            },
+          },
+          notifyOnNetworkStatusChange: true,
+        }
+      : skipToken,
+  );
 
   const handleItemsReload = useCallback(() => {
     refetch();
@@ -187,9 +227,9 @@ export default () => {
     [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
   );
 
-  const [updateItemMutation] = useUpdateItemMutation();
-  const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
-  const [createNewItem] = useCreateItemMutation();
+  const [updateItemMutation] = useMutation(UpdateItemDocument);
+  const [getItem] = useLazyQuery(GetItemDocument, { fetchPolicy: "no-cache" });
+  const [createNewItem] = useMutation(CreateItemDocument);
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -279,7 +319,7 @@ export default () => {
               version: metadata.version,
             },
           });
-          if (item.errors || !item.data?.updateItem) {
+          if (item.error || !item.data?.updateItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -296,7 +336,7 @@ export default () => {
               fields,
             },
           });
-          if (metaItem.errors || !metaItem.data?.createItem) {
+          if (metaItem.error || !metaItem.data?.createItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -311,13 +351,13 @@ export default () => {
               version: target?.version ?? "",
             },
           });
-          if (item.errors || !item.data?.updateItem) {
+          if (item.error || !item.data?.updateItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
         }
       }
-      metadataVersionSet(updateItemId);
+      await metadataVersionSet(updateItemId);
       Notification.success({ message: t("Successfully updated Item!") });
     },
     [
@@ -469,8 +509,8 @@ export default () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
-            ? (value?: string | string[] | boolean, index?: number) => {
-                handleMetaItemUpdate(record.id, field.id, value, index);
+            ? async (value?: string | string[] | boolean, index?: number) => {
+                await handleMetaItemUpdate(record.id, field.id, value, index);
               }
             : undefined;
           return renderField(el, field, update);
@@ -542,27 +582,22 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
+  const [deleteItemsMutation, { loading: deleteLoading }] = useMutation(DeleteItemsDocument);
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
-        const results = await Promise.all(
-          itemIds.map(async itemId => {
-            const result = await deleteItemMutation({
-              variables: { itemId },
-              refetchQueries: ["SearchItem"],
-            });
-            if (result.errors) {
-              Notification.error({ message: t("Failed to delete one or more items.") });
-            }
-          }),
-        );
-        if (results) {
-          Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelectedItems({ selectedRows: [] });
+        const result = await deleteItemsMutation({
+          variables: { itemIds },
+          refetchQueries: ["SearchItem"],
+        });
+        if (result.error || !result.data?.deleteItems) {
+          Notification.error({ message: t("Failed to delete one or more items.") });
+          return;
         }
+        Notification.success({ message: t("One or more items were successfully deleted!") });
+        setSelectedItems({ selectedRows: [] });
       })(),
-    [t, deleteItemMutation],
+    [t, deleteItemsMutation],
   );
 
   const handleItemSelect = useCallback(
@@ -610,6 +645,73 @@ export default () => {
       setSelectedItems({ selectedRows: [] });
     },
     [handleAddItemToRequest],
+  );
+
+  const modelFields = useMemo<Model["schema"]["fields"]>(
+    () => (currentModel ? currentModel.schema.fields : []),
+    [currentModel],
+  );
+
+  const hasModelFields = useMemo<boolean>(() => modelFields.length > 0, [modelFields.length]);
+
+  const handleImportContentModalOpen = useCallback(() => {
+    setIsImportContentModalOpen(true);
+  }, []);
+
+  const handleImportContentModalClose = useCallback(() => {
+    setIsImportContentModalOpen(false);
+    setAlertList([]);
+    setImportValidationResult(null);
+  }, []);
+
+  const handlePublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handlePublish(itemIds);
+      await refetch();
+    },
+    [_handlePublish, refetch],
+  );
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handleUnpublish(itemIds);
+      await refetch();
+    },
+    [_handleUnpublish, refetch],
+  );
+
+  useEffect(() => {
+    const currentModelJobs = uploaderState.queue.reduce<UploaderQueueItem[]>(
+      (acc, curr) =>
+        curr.workspaceId === currentWorkspaceId &&
+        curr.projectId === currentProjectId &&
+        curr.modelId === modelId
+          ? [...acc, curr]
+          : acc,
+      [],
+    );
+    const hasJobs = currentModelJobs.length > 0;
+    const isAllCompleted = currentModelJobs.every(
+      item => item.jobState.status === JobStatus.Completed,
+    );
+
+    const shouldRefetch = !viewLoading && hasJobs && isAllCompleted;
+
+    if (shouldRefetch) refetch();
+  }, [
+    currentModel?.id,
+    currentProject?.id,
+    currentProjectId,
+    currentWorkspaceId,
+    modelId,
+    refetch,
+    uploaderState.queue,
+    viewLoading,
+  ]);
+
+  const isExportContentLoading = useMemo<boolean>(
+    () => !currentModel?.id || exportContentLoading,
+    [currentModel?.id, exportContentLoading],
   );
 
   return {
@@ -664,5 +766,22 @@ export default () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    isImportContentModalOpen,
+    handleImportContentModalOpen,
+    handleImportContentModalClose,
+    dataChecking,
+    setDataChecking,
+    handleEnqueueJob,
+    modelFields,
+    modelId,
+    currentWorkspaceId,
+    currentProjectId,
+    hasModelFields,
+    handleContentExport,
+    exportContentLoading: isExportContentLoading,
+    alertList,
+    setAlertList,
+    importValidationResult,
+    setImportValidationResult,
   };
 };

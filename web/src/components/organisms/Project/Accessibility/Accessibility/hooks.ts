@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -5,15 +6,15 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import {
-  Model as GQLModel,
-  useDeleteApiKeyMutation,
-  useGetModelsQuery,
-  useUpdateProjectMutation,
-} from "@reearth-cms/gql/graphql-client-api";
-import { useT } from "@reearth-cms/i18n";
+  DeleteApiKeyDocument,
+  UpdateProjectDocument,
+} from "@reearth-cms/gql/__generated__/project.generated";
+import { useLang, useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
-import { shallowEqual } from "@reearth-cms/utils/object";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 export default () => {
   const t = useT();
@@ -41,7 +42,7 @@ export default () => {
     [currentProject?.accessibility?.apiKeys],
   );
 
-  const { data: modelsData } = useGetModelsQuery({
+  const { data: modelsData } = useQuery(GetModelsDocument, {
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: 100 },
@@ -57,6 +58,8 @@ export default () => {
     [modelsData?.models.nodes],
   );
 
+  const currentLang = useLang();
+
   const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
 
   const initialValues = useMemo(() => {
@@ -71,9 +74,11 @@ export default () => {
     };
   }, [currentProject?.accessibility?.publication, models]);
 
-  const [updateProjectMutation] = useUpdateProjectMutation();
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument);
 
-  const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
+  const [deleteAPIKeyMutation] = useMutation(DeleteApiKeyDocument, {
+    refetchQueries: ["GetProject"],
+  });
 
   const handlePublicUpdate = useCallback(
     async ({ assetPublic, models }: FormType) => {
@@ -83,7 +88,8 @@ export default () => {
 
       try {
         const accessibilityChanged =
-          initialValues.assetPublic !== assetPublic || !shallowEqual(initialValues.models, models);
+          initialValues.assetPublic !== assetPublic ||
+          !ObjectUtils.shallowEqual(initialValues.models, models);
 
         if (accessibilityChanged) {
           const publicModels = Object.entries(models)
@@ -102,7 +108,7 @@ export default () => {
             },
           });
 
-          if (projRes.errors) throw new Error();
+          if (projRes.error) throw new Error();
         }
         Notification.success({ message: t("Successfully updated publication settings!") });
       } catch (e) {
@@ -168,5 +174,6 @@ export default () => {
     handleAPIKeyDelete,
     handleAPIKeyEdit,
     handleSettingsPageOpen,
+    currentLang,
   };
 };

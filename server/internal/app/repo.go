@@ -4,10 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -62,13 +64,14 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	acGateways := &accountgateway.Container{}
 
 	// Mongo
+	monitor := otelmongo.NewMonitor()
+	if conf.Dev {
+		monitor = combineMonitors(monitor, NewLogMonitor())
+	}
 	co := options.Client().
 		ApplyURI(conf.DB).
 		SetConnectTimeout(time.Second * 10).
-		SetMonitor(otelmongo.NewMonitor())
-	if conf.Dev {
-		co.SetMonitor(NewLogMonitor())
-	}
+		SetMonitor(monitor)
 	client, err := mongo.Connect(ctx, co)
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
@@ -164,6 +167,23 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	}
 	gateways.PolicyChecker = policyChecker
 
+	// Accounts API - External GraphQL client for accounts operations
+	if conf.Account_Api.Enabled && conf.Account_Api.Host != "" {
+		timeout := conf.Account_Api.Timeout
+		if timeout == 0 {
+			timeout = 30 // Default 30 seconds
+		}
+		transport := NewDynamicAuthTransport()
+		gateways.Accounts = account.New(conf.Account_Api.Host, timeout, transport)
+		log.Infof("accounts api: external GraphQL API configured: %s (timeout: %ds)", conf.Account_Api.Host, timeout)
+	} else {
+		log.Infof("accounts api: not configured or disabled")
+	}
+
+	// Job PubSub - In-memory pub/sub for job progress notifications
+	gateways.JobPubSub = memory.NewJobPubSub()
+	log.Infof("job pubsub: in-memory pub/sub initialized")
+
 	return cmsRepos, gateways, acRepos, acGateways
 }
 
@@ -174,5 +194,34 @@ func NewLogMonitor() *event.CommandMonitor {
 		},
 		Succeeded: nil,
 		Failed:    nil,
+	}
+}
+
+func combineMonitors(a, b *event.CommandMonitor) *event.CommandMonitor {
+	return &event.CommandMonitor{
+		Started: func(ctx context.Context, evt *event.CommandStartedEvent) {
+			if a.Started != nil {
+				a.Started(ctx, evt)
+			}
+			if b.Started != nil {
+				b.Started(ctx, evt)
+			}
+		},
+		Succeeded: func(ctx context.Context, evt *event.CommandSucceededEvent) {
+			if a.Succeeded != nil {
+				a.Succeeded(ctx, evt)
+			}
+			if b.Succeeded != nil {
+				b.Succeeded(ctx, evt)
+			}
+		},
+		Failed: func(ctx context.Context, evt *event.CommandFailedEvent) {
+			if a.Failed != nil {
+				a.Failed(ctx, evt)
+			}
+			if b.Failed != nil {
+				b.Failed(ctx, evt)
+			}
+		},
 	}
 }

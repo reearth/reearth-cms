@@ -1,10 +1,11 @@
 package item
 
 import (
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Fields []*Field
@@ -45,5 +46,11 @@ func (f Fields) FieldsByGroup(iid id.ItemGroupID) []*Field {
 func (f Fields) Filter(fIds FieldIDList) Fields {
 	return lo.Filter(f, func(f *Field, _ int) bool {
 		return fIds.Has(f.FieldID())
+	})
+}
+
+func (f Fields) Clone() Fields {
+	return lo.Map(f, func(f *Field, _ int) *Field {
+		return f.Clone()
 	})
 }

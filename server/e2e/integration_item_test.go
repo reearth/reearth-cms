@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -34,7 +35,6 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 var (
@@ -49,6 +49,7 @@ var (
 	mId3    = id.NewModelID()
 	mId4    = id.NewModelID()
 	mId5    = id.NewModelID()
+	mId6    = id.NewModelID()
 	gId1    = id.NewGroupID()
 	gId2    = id.NewGroupID()
 	dvmId   = id.NewModelID()
@@ -89,6 +90,7 @@ var (
 	ikey3   = id.RandomKey()
 	ikey4   = id.RandomKey()
 	ikey5   = id.RandomKey()
+	ikey6   = id.RandomKey()
 	pid     = id.NewProjectID()
 	pid2    = id.NewProjectID()
 	sid0    = id.NewSchemaID()
@@ -182,6 +184,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
 		Workspace(w.ID()).
 		Alias(palias).
+		Topics([]string{"topic1", "topic3"}).
 		MustBuild()
 	if err := r.Project.Save(ctx, p); err != nil {
 		return err
@@ -194,6 +197,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
 		Workspace(w.ID()).
 		Alias(palias2).
+		Topics([]string{"topic2"}).
 		Accessibility(project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil)).
 		MustBuild()
 	if err := r.Project.Save(ctx, p2); err != nil {
@@ -346,6 +350,22 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Order(5).
 		MustBuild()
 	if err := r.Model.Save(ctx, m5); err != nil {
+		return err
+	}
+
+	s9 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p2.ID()).Fields([]*schema.Field{}).MustBuild()
+	if err := r.Schema.Save(ctx, s9); err != nil {
+		return err
+	}
+	m6 := model.New().
+		ID(mId6).
+		Name("m6").
+		Description("m6 desc").
+		Key(ikey6).
+		Project(p2.ID()).
+		Schema(s9.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m6); err != nil {
 		return err
 	}
 
@@ -579,10 +599,10 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	return nil
 }
 
-func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
-	res := e.GET("/api/models/{modelId}/items", mId).
+func IntegrationSearchItem(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+	res := iAPIItemFilterPost(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "application/json").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -599,10 +619,10 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, page, perPage int) *httpexpect.Value {
-	res := e.GET("/api/models/{modelId}/items.geojson", mId).
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.Value {
+	res := iAPIItemsAsGeoJSON(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "application/octet-stream").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -618,24 +638,29 @@ func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, p
 	return httpexpect.NewValue(t, v)
 }
 
-func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
-	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson", pId, mId).
+func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, t *testing.T, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.Value {
+	res := iAPIItemsAsGeoJSON(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", userId).
+		WithHeader("Content-Type", "application/octet-stream").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
+	raw := res.Status(http.StatusOK).
+		Body().Raw()
 
-	return res
+	var v any
+	if err := json.Unmarshal([]byte(raw), &v); err != nil {
+		t.Fatalf("bad JSON: %v; body=%q", err, raw)
+	}
+
+	return httpexpect.NewValue(t, v)
 }
 
-func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.String {
-	res := e.GET("/api/models/{modelId}/items.csv", mId).
+func IntegrationItemsAsCSV(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.String {
+	res := iAPIItemsAsCSV(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "text/csv").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -646,10 +671,10 @@ func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) 
 	return res
 }
 
-func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.String {
-	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv", pId, mId).
+func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.String {
+	res := iAPIItemsAsCSV(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "text/csv").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -658,170 +683,49 @@ func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId stri
 		Body()
 
 	return res
+}
+
+func iAPIItemFilter(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIItemCreate(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIItemGet(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+}
+
+func iAPIItemUpdate(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
+	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+}
+
+func iAPIItemDelete(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+}
+
+func iAPIItemPublish(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+}
+
+func iAPIItemsAsGeoJSON(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIItemsAsCSV(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
 // GET /models/{modelId}/items
-func TestIntegrationItemListAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	e.GET("/api/models/{modelId}/items", id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/models/{modelId}/items", id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/models/{modelId}/items", id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/models/{modelId}/items", id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusNotFound)
-
-	obj := e.GET("/api/models/{modelId}/items", mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
-
-	a := obj.Value("items").Array()
-	a.Length().IsEqual(1)
-	assertItem(a.Value(0), false)
-
-	// asset embeded
-	obj = e.GET("/api/models/{modelId}/items", mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		WithQuery("asset", "true").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
-
-	a = obj.Value("items").Array()
-	a.Length().IsEqual(1)
-	assertItem(a.Value(0), true)
-
-	// key cannot be used
-	e.GET("/api/models/{modelId}/items", ikey1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusBadRequest)
-
-	r2 := e.POST("/api/models/{modelId}/items", mId2).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
-				map[string]string{
-					"key":   sfKey3.String(),
-					"type":  "reference",
-					"value": itmId1.String(),
-				},
-			},
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-
-	r2.
-		Value("fields").
-		IsEqual([]any{
-			map[string]string{
-				"id":    fId3.String(),
-				"type":  "reference",
-				"value": itmId1.String(),
-				"key":   sfKey3.String(),
-			},
-		})
-	r2.Value("referencedItems").Array().Value(0).Object().Keys().
-		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
-	raw["id"] = itmId1.String()
-	raw["modelId"] = mId1.String()
-
-	e.GET("/api/models/{modelId}/items", mId4).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		WithQuery("asset", "true").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
-
-	r3 := e.POST("/api/models/{modelId}/items", mId5).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
-				map[string]any{
-					"key":   sfkey9.String(),
-					"type":  "number",
-					"value": float64(21.2),
-				},
-			},
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-
-	r3.
-		Value("fields").
-		IsEqual([]any{
-			map[string]any{
-				"id":    fId9.String(),
-				"type":  "number",
-				"value": float64(21.2),
-				"key":   sfkey9.String(),
-			},
-		})
-
-	e.GET("/api/models/{modelId}/items", mId5).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		WithQuery("asset", "true").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 2)
-	r3.
-		Value("fields").
-		IsEqual([]any{
-			map[string]any{
-				"id":    fId9.String(),
-				"type":  "number",
-				"value": float64(21.2),
-				"key":   sfkey9.String(),
-			},
-		})
-}
 
 // GET /models/{modelId}/items
 func TestIntegrationSearchItem(t *testing.T) {
@@ -888,12 +792,12 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region search by id
-	res = IntegrationSearchItem(e, mId, 1, 10, i1Id, "", "", nil)
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 10, i1Id, "", "", nil)
 
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 10, i2Id, "", "", nil)
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 10, i2Id, "", "", nil)
 
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
@@ -949,14 +853,14 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, mi1Id, i2Id})
 
 	// fetch by model with search
-	res = IntegrationSearchItem(e, mId, 1, 2, "updated", "", "", nil)
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "updated", "", "", nil)
 
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 	// endregion
 
 	// region filter basic
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -971,7 +875,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -987,7 +891,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
 	// user
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1002,7 +906,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1018,7 +922,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.items").IsNull()
 
 	// date
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1033,7 +937,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1055,7 +959,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
 	})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"nullable": map[string]any{
 				"fieldId": map[string]any{
@@ -1069,7 +973,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"nullable": map[string]any{
 				"fieldId": map[string]any{
@@ -1090,7 +994,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters number
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1105,7 +1009,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1120,7 +1024,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1135,7 +1039,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1152,7 +1056,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters text
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1167,7 +1071,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1182,7 +1086,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1197,7 +1101,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1212,7 +1116,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(0)
 	res.Path("$.items").IsNull()
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1227,7 +1131,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1244,7 +1148,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters boolean
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"bool": map[string]any{
 				"fieldId": map[string]any{
@@ -1259,7 +1163,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"bool": map[string]any{
 				"fieldId": map[string]any{
@@ -1276,7 +1180,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters select
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"multiple": map[string]any{
 				"fieldId": map[string]any{
@@ -1291,7 +1195,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"multiple": map[string]any{
 				"fieldId": map[string]any{
@@ -1306,7 +1210,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"multiple": map[string]any{
 				"fieldId": map[string]any{
@@ -1323,7 +1227,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters and
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"and": []map[string]any{
 				{
@@ -1354,7 +1258,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters or
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"or": []map[string]any{
 				{
@@ -1385,7 +1289,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters date
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"time": map[string]any{
 				"fieldId": map[string]any{
@@ -1400,7 +1304,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1415,7 +1319,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"time": map[string]any{
 				"fieldId": map[string]any{
@@ -1430,7 +1334,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(0)
 	res.Path("$.items").IsNull()
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"time": map[string]any{
 				"fieldId": map[string]any{
@@ -1447,7 +1351,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters Metadata tags
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1478,7 +1382,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsGeoJSON(e, t, mId, 1, 10)
+	res := IntegrationItemsAsGeoJSON(e, t, wId.String(), pId, uId1.String(), mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1509,7 +1413,7 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10)
+	res := IntegrationItemsWithProjectAsGeoJSON(e, t, wId.String(), pId, uId1.String(), mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1536,7 +1440,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsCSV(e, mId, 1, 10)
+	res := IntegrationItemsAsCSV(e, wId.String(), pId, uId1.String(), mId, 1, 10)
 	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
@@ -1556,7 +1460,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
+	res := IntegrationItemsWithProjectAsCSV(e, wId.String(), pId, uId1.String(), mId, 1, 10)
 	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
@@ -1565,31 +1469,31 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 func TestIntegrationCreateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/models/%s/items", id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusNotFound)
 
-	e.POST("/api/models/{modelId}/items", ikey1).
+	iAPIItemCreate(e, wId0, pid, id.RandomKey()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusNotFound)
 
-	r := e.POST("/api/models/{modelId}/items", mId1).
+	r := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1617,7 +1521,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	r.Value("refs").IsEqual([]string{"latest"})
 	r.Value("isMetadata").IsEqual(false)
 
-	obj := e.POST("/api/models/{modelId}/items", mId1).
+	obj := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1657,7 +1561,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 				"key":   sfKey4.String(),
 			},
 		})
-	r2 := e.POST("/api/models/{modelId}/items", mId2).
+	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1689,7 +1593,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
 
-	obj2 := e.POST("/api/models/{modelId}/items", mId4).
+	obj2 := iAPIItemCreate(e, wId0, pid, mId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1729,7 +1633,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	r := e.POST("/api/models/{modelId}/items", dvmId).
+	r := iAPIItemCreate(e, wId0, pid, dvmId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1747,9 +1651,9 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 		ContainsAll("id", "modelId", "fields", "createdAt", "metadataFields", "isMetadata", "updatedAt", "version", "parents", "refs")
 	r.Path("$.fields[:]").Array().Length().IsEqual(4)
 	raw := r.Path("$.fields[:].value").Array().Raw()
-	assert.True(t, slices.Contains(raw, "default"))
-	assert.True(t, slices.Contains(raw, "default group"))
-	assert.True(t, slices.Contains(raw, "test value"))
+	assert.True(t, slices.Contains(raw, any("default")))
+	assert.True(t, slices.Contains(raw, any("default group")))
+	assert.True(t, slices.Contains(raw, any("test value")))
 	r.Path("$.metadataFields[:]").Array().Length().IsEqual(1)
 	raw2 := r.Path("$.metadataFields[:].value").Array().Raw()
 	assert.True(t, slices.Contains(raw2, true))
@@ -1759,21 +1663,21 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 func TestIntegrationUpdateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.PATCH("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemUpdate(e, wId0, pid, mId1, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemUpdate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemUpdate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	r := e.PATCH("/api/items/{itemId}", itmId1).
+	r := iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1806,7 +1710,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	r.Value("modelId").IsEqual(mId1.String())
 	r.Value("refs").IsEqual([]string{"latest"})
 
-	e.PATCH("/api/items/{itemId}", itmId1).
+	iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1842,7 +1746,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r2 := e.PATCH("/api/items/{itemId}", itmId2).
+	r2 := iAPIItemUpdate(e, wId0, pid, mId2, itmId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1873,7 +1777,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
 
-	r = e.PATCH("/api/items/{itemId}", itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1922,7 +1826,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r = e.PATCH("/api/items/{itemId}", itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1978,7 +1882,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r = e.PATCH("/api/items/{itemId}", itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2005,7 +1909,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	e.PATCH("/api/items/{itemId}", itmId5).
+	iAPIItemUpdate(e, wId0, pid, mId4, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2048,26 +1952,26 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 func TestIntegrationGetItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/items/{itemId}", id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/items/{itemId}", itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2075,7 +1979,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
-	r2 := e.POST("/api/models/{modelId}/items", mId2).
+	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2103,12 +2007,24 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		})
 	r2.Value("referencedItems").Array().Value(0).Object().Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
-	raw["id"] = itmId1.String()
-	raw["modelId"] = mId1.String()
+	refItem1 := r2.Value("referencedItems").Array().Value(0).Object()
+	refItem1.Value("id").String().IsEqual(itmId1.String())
+	refItem1.Value("modelId").String().IsEqual(mId1.String())
+	refItem1Field1 := refItem1.Value("fields").Array().Value(0).Object()
+	refItem1Field1.Value("id").String().IsEqual(fId2.String())
+	refItem1Field1.Value("type").IsEqual("asset")
+	refItem1Field1.Value("key").String().IsEqual("asset")
+
+	refItem1Field1Value := refItem1Field1.Value("value").Object()
+	refItem1Field1Value.Value("id").IsEqual(aid1)
+	refItem1Field1Value.Value("projectId").IsEqual(pid)
+	refItem1Field1Value.Value("previewType").IsEqual("unknown")
+	refItem1Field1Value.Value("public").IsEqual(false)
+	refItem1Field1Value.Value("totalSize").IsEqual(1000)
+	refItem1Field1Value.Value("url").String().IsEqual(fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid1[0:2], auuid1[2:]))
 
 	//	get Metadata Item
-	rm := e.GET("/api/items/{itemId}", itmId3).
+	rm := iAPIItemGet(e, wId0, pid, mId1, itmId3).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2128,7 +2044,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-	r := e.GET("/api/items/{itemId}", itmId4).
+	r := iAPIItemGet(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2160,7 +2076,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-	r3 := e.GET("/api/items/{itemId}", itmId5).
+	r3 := iAPIItemGet(e, wId0, pid, mId4, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2188,12 +2104,12 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 func TestIntegrationDeleteItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.DELETE("/api/items/{itemId}", itmId1).
+	iAPIItemDelete(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/items/{itemId}", itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2201,7 +2117,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
-	e.DELETE("/api/items/{itemId}", itmId1).
+	iAPIItemDelete(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2209,7 +2125,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id")
 
-	e.GET("/api/items/{itemId}", itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -2218,28 +2134,27 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 // POST /items/{itemId}/publish
 func TestIntegrationPublishItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	ep := "/api/items/{itemId}/publish"
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.POST(ep, itmId1).
+	iAPIItemPublish(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2249,7 +2164,7 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 		Array().
 		ContainsAny("public")
 
-	e.GET("/api/items/{itemId}", itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2287,4 +2202,141 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	}
 	o.Value("parents").IsEqual([]any{})
 	o.Value("refs").IsEqual([]string{"latest"})
+}
+
+func baseSeederWithTextItem(ctx context.Context, r *repo.Container, gr *gateway.Container) error {
+	// First run the base seeder
+	if err := baseSeeder(ctx, r, gr); err != nil {
+		return err
+	}
+
+	// Add an item with text field for filtering
+	itmWithText := item.New().NewID().
+		Schema(id.SchemaID(sid1)).
+		Model(id.ModelID(mId1)).
+		Project(id.ProjectID(pid)).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*item.Field{
+			item.NewField(fId1, value.TypeText.Value("this is a test value").AsMultiple(), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itmWithText); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// POST /items/filter - Complex filtering with request body
+func TestIntegrationItemFilterPostAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederWithTextItem)
+
+	// Unauthorized tests
+	iAPIItemFilterPost(e, wId0, pid, mId1).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	// Not found test
+	iAPIItemFilterPost(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"filter": map[string]interface{}{
+				"string": map[string]interface{}{
+					"fieldId": map[string]interface{}{
+						"type":    "field",
+						"fieldId": fId1.String(),
+					},
+					"operator": "contains",
+					"value":    "test",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// Basic functionality test with complex filter
+	r := iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "desc").
+		WithQuery("ref", "latest").
+		WithQuery("asset", "all").
+		WithJSON(map[string]interface{}{
+			"filter": map[string]interface{}{
+				"string": map[string]interface{}{
+					"fieldId": map[string]interface{}{
+						"type":    "field",
+						"fieldId": fId1.String(),
+					},
+					"operator": "contains",
+					"value":    "test",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r.HasValue("page", 1)
+	r.HasValue("perPage", 5)
+	r.Value("items").Array().Length().IsEqual(1)
+	r.Value("items").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+
+	// Test with AND condition
+	r2 := iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		WithJSON(map[string]interface{}{
+			"filter": map[string]interface{}{
+				"and": []interface{}{
+					map[string]interface{}{
+						"string": map[string]interface{}{
+							"fieldId": map[string]interface{}{
+								"type":    "field",
+								"fieldId": fId1.String(),
+							},
+							"operator": "contains",
+							"value":    "test",
+						},
+					},
+					map[string]interface{}{
+						"nullable": map[string]interface{}{
+							"fieldId": map[string]interface{}{
+								"type":    "field",
+								"fieldId": fId1.String(),
+							},
+							"operator": "notEmpty",
+						},
+					},
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r2.Value("items").Array().Length().IsEqual(1)
+	r2.HasValue("totalCount", 1)
+}
+
+// Helper functions for new API endpoints
+func iAPIItemFilterPost(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/filter"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }

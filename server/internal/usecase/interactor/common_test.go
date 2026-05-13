@@ -141,5 +141,6 @@ func TestNew(t *testing.T) {
 		Thread:            NewThread(nil, nil),
 		Group:             NewGroup(nil, nil),
 		WorkspaceSettings: NewWorkspaceSettings(nil, nil),
+		Job:               NewJob(nil, nil),
 	}, uc)
 }

@@ -6,6 +6,7 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ItemStatus } from "../types";
 
@@ -60,28 +61,29 @@ const ReferenceItem: React.FC<Props> = ({
 };
 
 const StlyedReferenceTitle = styled.div`
-  margin-bottom: 4px;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  background-color: ${({ disabled }) => (disabled ? "rgba(0, 0, 0, 0.04)" : "#fafafa")};
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.BASE}px;
+  background-color: ${({ disabled }) =>
+    disabled ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_ELEVATED};
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  border-radius: ${AntdToken.RADIUS.SM}px;
   justify-content: space-between;
   flex: 1;
 `;
 
 const ReferenceItemName = styled.p`
   margin: 0;
-  color: #1890ff;
+  color: ${AntdColor.BLUE.BLUE_5};
 `;
 
 const StyledBadge = styled(Badge)`
   + * {
-    margin-left: 4px;
+    margin-left: ${AntdToken.SPACING.XXS}px;
   }
 `;
 

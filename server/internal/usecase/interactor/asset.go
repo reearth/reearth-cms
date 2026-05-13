@@ -155,12 +155,35 @@ func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams
 				}
 			}
 
+			createdAt := a.CreatedAt()
+			updatedAt := a.UpdatedAt()
+
+			createdBy := ""
+			if a.User() != nil {
+				createdBy = a.User().String()
+			} else if a.Integration() != nil {
+				createdBy = a.Integration().String()
+			}
+
+			updatedBy := ""
+			if a.UpdatedByUser() != nil {
+				updatedBy = a.UpdatedByUser().String()
+			} else if a.UpdatedByIntegration() != nil {
+				updatedBy = a.UpdatedByIntegration().String()
+			} else {
+				updatedBy = createdBy
+			}
+
 			return types.Asset{
 				Type:        "asset",
 				ID:          a.ID().String(),
 				URL:         a.AccessInfo().Url,
 				ContentType: f.ContentType(),
 				Files:       files,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				CreatedBy:   createdBy,
+				UpdatedBy:   updatedBy,
 			}
 		})
 
@@ -486,6 +509,12 @@ func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecas
 
 			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusPending))
 
+			if operator.AcOperator.User != nil {
+				a.SetUpdatedByUser(*operator.AcOperator.User)
+			} else if operator.Integration != nil {
+				a.SetUpdatedByIntegration(*operator.Integration)
+			}
+
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -521,6 +550,12 @@ func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.O
 
 		a.UpdatePublic(true)
 
+		if operator.AcOperator.User != nil {
+			a.SetUpdatedByUser(*operator.AcOperator.User)
+		} else if operator.Integration != nil {
+			a.SetUpdatedByIntegration(*operator.Integration)
+		}
+
 		if err := i.repos.Asset.Save(ctx, a); err != nil {
 			return nil, err
 		}
@@ -554,6 +589,12 @@ func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase
 		}
 
 		a.UpdatePublic(false)
+
+		if operator.AcOperator.User != nil {
+			a.SetUpdatedByUser(*operator.AcOperator.User)
+		} else if operator.Integration != nil {
+			a.SetUpdatedByIntegration(*operator.Integration)
+		}
 
 		if err := i.repos.Asset.Save(ctx, a); err != nil {
 			return nil, err
@@ -770,6 +811,12 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 				a.UpdatePreviewType(inp.PreviewType)
 			}
 
+			if operator.AcOperator.User != nil {
+				a.SetUpdatedByUser(*operator.AcOperator.User)
+			} else if operator.Integration != nil {
+				a.SetUpdatedByIntegration(*operator.Integration)
+			}
+
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -893,56 +940,51 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		return aId, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(
-		ctx, operator, i.repos,
-		Usecase().Transaction(),
-		func(ctx context.Context) (id.AssetID, error) {
-			a, err := i.repos.Asset.FindByID(ctx, aId)
-			if err != nil {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetID, error) {
+		a, err := i.repos.Asset.FindByID(ctx, aId)
+		if err != nil {
+			return aId, err
+		}
+
+		if !operator.CanUpdate(a) {
+			return aId, interfaces.ErrOperationDenied
+		}
+
+		uuid := a.UUID()
+		filename := a.FileName()
+		if uuid != "" && filename != "" {
+			if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
 				return aId, err
 			}
+		}
 
-			if !operator.CanUpdate(a) {
-				return aId, interfaces.ErrOperationDenied
-			}
+		err = i.repos.Asset.Delete(ctx, aId)
+		if err != nil {
+			return aId, err
+		}
 
-			uuid := a.UUID()
-			filename := a.FileName()
-			if uuid != "" && filename != "" {
-				if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
-					return aId, err
-				}
-			}
+		p, err := i.repos.Project.FindByID(ctx, a.Project())
+		if err != nil {
+			return aId, err
+		}
 
-			err = i.repos.Asset.Delete(ctx, aId)
-			if err != nil {
-				return aId, err
-			}
+		if err := i.event(ctx, Event{
+			Project:   p,
+			Workspace: p.Workspace(),
+			Type:      event.AssetDelete,
+			Object:    a,
+			Operator:  operator.Operator(),
+		}); err != nil {
+			return aId, err
+		}
 
-			p, err := i.repos.Project.FindByID(ctx, a.Project())
-			if err != nil {
-				return aId, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   p,
-				Workspace: p.Workspace(),
-				Type:      event.AssetDelete,
-				Object:    a,
-				Operator:  operator.Operator(),
-			}); err != nil {
-				return aId, err
-			}
-
-			return aId, nil
-		},
-	)
+		return aId, nil
+	})
 }
 
 // BatchDelete deletes assets in batch based on multiple asset IDs
 func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operator *usecase.Operator) (result []id.AssetID, err error) {
-
-	if operator.AcOperator.User == nil && operator.Integration == nil {
+	if !operator.IsUserOrIntegration() {
 		return assetIDs, interfaces.ErrInvalidOperator
 	}
 
@@ -950,44 +992,37 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		return nil, interfaces.ErrEmptyIDsList
 	}
 
-	return Run1(
-		ctx, operator, i.repos,
-		Usecase().Transaction(),
-		func(ctx context.Context) (id.AssetIDList, error) {
-			assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
-			if err != nil {
-				return assetIDs, err
-			}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetIDList, error) {
+		assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
+		if err != nil {
+			return assetIDs, err
+		}
 
-			if len(assetIDs) != len(assets) {
-				return assetIDs, interfaces.ErrPartialNotFound
-			}
+		if len(assetIDs) != len(assets) {
+			return assetIDs, interfaces.ErrPartialNotFound
+		}
 
-			if assets == nil {
-				return assetIDs, nil
-			}
-
-			UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
-				if a == nil || a.UUID() == "" || a.FileName() == "" {
-					return "", false
-				}
-				return a.UUID(), true
-			})
-
-			// deletes assets' files in
-			err = i.gateways.File.DeleteAssets(ctx, UUIDList)
-			if err != nil {
-				return assetIDs, err
-			}
-
-			err = i.repos.Asset.BatchDelete(ctx, assetIDs)
-			if err != nil {
-				return assetIDs, err
-			}
-
+		if assets == nil {
 			return assetIDs, nil
-		},
-	)
+		}
+
+		UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
+			if a == nil || a.UUID() == "" || a.FileName() == "" {
+				return "", false
+			}
+			return a.UUID(), true
+		})
+
+		if err := i.gateways.File.DeleteAssets(ctx, UUIDList); err != nil {
+			return assetIDs, err
+		}
+
+		if err := i.repos.Asset.BatchDelete(ctx, assetIDs); err != nil {
+			return assetIDs, err
+		}
+
+		return assetIDs, nil
+	})
 }
 
 func (i *Asset) event(ctx context.Context, e Event) error {

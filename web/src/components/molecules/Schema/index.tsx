@@ -1,17 +1,19 @@
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
-import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
-import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
@@ -22,23 +24,27 @@ import {
   Tab,
   SelectedSchemaType,
   CreateFieldInput,
+  ImportFieldInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { Constant } from "@reearth-cms/utils/constant";
+import { ExportSchemaUtils } from "@reearth-cms/utils/exportSchema";
+import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
-  workspaceId?: string;
-  projectId?: string;
   data?: Model | Group;
   collapsed: boolean;
   page: number;
   pageSize: number;
   assetList: Asset[];
   loading: boolean;
-  guessSchemaFieldsLoading: boolean;
   fieldsCreationLoading: boolean;
   selectedAsset?: ItemAsset;
   selectedSchemaType: SelectedSchemaType;
@@ -46,16 +52,15 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   fileList: UploadFile[];
+  alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
-  importFields: CreateFieldInput[];
-  guessSchemaFieldsError?: boolean;
+  importFields: ImportFieldInput[];
   fieldsCreationError?: boolean;
-  setImportFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
+  setImportFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
   totalCount: number;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
@@ -72,6 +77,7 @@ type Props = {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: SchemaFieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
+  onAllFieldsDelete: (fieldIds: string[]) => Promise<void>;
   importSchemaModalVisibility: boolean;
   selectFileModalVisibility: boolean;
   uploadModalVisibility: boolean;
@@ -84,18 +90,22 @@ type Props = {
   currentImportSchemaModalPage: number;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
+  toFileSelectionStep: () => void;
+  onSchemaExport: () => void;
+  exportSchemaLoading: boolean;
+  schemaErrorLogMeta: ErrorLogMeta | null;
+  dataChecking: boolean;
+  onFileContentChange: UploadProps["beforeUpload"];
+  onFileRemove: UploadProps["onRemove"];
 };
 
 const Schema: React.FC<Props> = ({
-  workspaceId,
-  projectId,
   data,
   collapsed,
   page,
   pageSize,
   assetList,
   loading,
-  guessSchemaFieldsLoading,
   fieldsCreationLoading,
   selectedAsset,
   selectedSchemaType,
@@ -103,16 +113,15 @@ const Schema: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   fileList,
+  alertList,
   uploadType,
   uploadUrl,
   uploading,
   importFields,
-  guessSchemaFieldsError,
   fieldsCreationError,
   setImportFields,
   setUploadUrl,
   setUploadType,
-  setFileList,
   totalCount,
   onSearchTerm,
   onAssetsReload,
@@ -129,6 +138,7 @@ const Schema: React.FC<Props> = ({
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
+  onAllFieldsDelete,
   uploadModalVisibility,
   importSchemaModalVisibility,
   selectFileModalVisibility,
@@ -141,43 +151,45 @@ const Schema: React.FC<Props> = ({
   currentImportSchemaModalPage,
   toSchemaPreviewStep,
   toImportingStep,
+  toFileSelectionStep,
+  onSchemaExport,
+  exportSchemaLoading,
+  schemaErrorLogMeta,
+  dataChecking,
+  onFileContentChange,
+  onFileRemove,
 }) => {
   const t = useT();
+
   const [tab, setTab] = useState<Tab>("fields");
 
-  const handleSchemaImport = useCallback(() => {
-    if (data?.schema.fields && data.schema.fields.length > 0) {
-      Modal.confirm({
-        title: t("Are you sure you want to overwrite current schema?"),
-        content: (
-          <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
-        ),
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
-        okText: t("Continue"),
-        onOk() {
-          onSchemaImportModalOpen();
-        },
-      });
-    } else {
-      onSchemaImportModalOpen();
-    }
-  }, [data?.schema.fields, onSchemaImportModalOpen, t]);
+  const hasModelFields = useMemo<boolean>(
+    () => (data ? data.schema.fields.length > 0 : false),
+    [data],
+  );
+  const getImportSchemaUIMetadata = useMemo(
+    () =>
+      ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: hasCreateRight,
+        hasModelFields,
+        isFieldTab: tab === "fields",
+        isModel: selectedSchemaType === "model",
+      }),
+    [hasCreateRight, hasModelFields, tab, selectedSchemaType],
+  );
 
-  const dropdownItems = useMemo(
+  const getExportSchemaUIMetadata = useMemo(
+    () => ExportSchemaUtils.getUIMetadata({ hasModelFields, isExportLoading: exportSchemaLoading }),
+    [exportSchemaLoading, hasModelFields],
+  );
+
+  const dropdownItems = useMemo<MenuProps["items"]>(
     () => [
       {
         key: "edit",
         label: t("Edit"),
         icon: <StyledIcon icon="edit" />,
         onClick: onModalOpen,
-        disabled: !hasUpdateRight,
-      },
-      {
-        key: "import",
-        label: t("Import"),
-        icon: <StyledIcon icon="import" />,
-        onClick: handleSchemaImport,
         disabled: !hasUpdateRight,
       },
       {
@@ -188,14 +200,58 @@ const Schema: React.FC<Props> = ({
         danger: true,
         disabled: !hasDeleteRight,
       },
+      {
+        type: "divider",
+      },
+      {
+        key: "import",
+        label: (
+          <Tooltip
+            title={getImportSchemaUIMetadata.tooltipMessage}
+            data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
+            <StyledImportMenuItem>
+              <div>{t("Import")}</div>
+              <ExperimentIcon disabled={getImportSchemaUIMetadata.shouldDisable} />
+            </StyledImportMenuItem>
+          </Tooltip>
+        ),
+        icon: <StyledIcon icon="import" />,
+        onClick: onSchemaImportModalOpen,
+        disabled: getImportSchemaUIMetadata.shouldDisable,
+      },
+      {
+        key: "export",
+        icon: <StyledIcon icon="export" />,
+        label: (
+          <Tooltip title={getExportSchemaUIMetadata.tooltipMessage}>
+            {exportSchemaLoading && <StyledIcon icon="loading" />}
+            <span>{t("Export")}</span>
+          </Tooltip>
+        ),
+        onClick: onSchemaExport,
+        disabled: getExportSchemaUIMetadata.shouldDisable,
+      },
     ],
-    [handleSchemaImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
+    [
+      t,
+      onModalOpen,
+      hasUpdateRight,
+      onDeletionModalOpen,
+      hasDeleteRight,
+      getImportSchemaUIMetadata.tooltipMessage,
+      getImportSchemaUIMetadata.shouldDisable,
+      onSchemaImportModalOpen,
+      exportSchemaLoading,
+      getExportSchemaUIMetadata.tooltipMessage,
+      getExportSchemaUIMetadata.shouldDisable,
+      onSchemaExport,
+    ],
   );
 
   const DropdownMenu = useCallback(
     () => (
       <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-        <Button type="text" icon={<Icon icon="more" size={20} />} />
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_XL} />} />
       </Dropdown>
     ),
     [dropdownItems],
@@ -211,10 +267,11 @@ const Schema: React.FC<Props> = ({
             fields={data?.schema.fields}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
-            onSchemaImport={handleSchemaImport}
+            onSchemaImport={onSchemaImportModalOpen}
           />
         </div>
       ),
@@ -229,6 +286,7 @@ const Schema: React.FC<Props> = ({
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -265,8 +323,26 @@ const Schema: React.FC<Props> = ({
               <PageHeader
                 title={data.name}
                 subTitle={`#${data.key}`}
-                style={{ backgroundColor: "#fff" }}
-                extra={[<DropdownMenu key="more" />]}
+                style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
+                extra={[
+                  Constant.IS_DEV && (
+                    <Button
+                      type="default"
+                      shape="default"
+                      size="small"
+                      color="red"
+                      variant="outlined"
+                      onClick={() =>
+                        data?.schema?.fields &&
+                        onAllFieldsDelete(data.schema.fields.map(field => field.id))
+                      }
+                      disabled={!hasDeleteRight}>
+                      Delete All Fields (Dev Only)
+                    </Button>
+                  ),
+
+                  <DropdownMenu key="more" />,
+                ]}
               />
               {selectedSchemaType === "model" && (
                 <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
@@ -274,9 +350,11 @@ const Schema: React.FC<Props> = ({
               {selectedSchemaType === "group" && (
                 <GroupFieldsWrapper>
                   <ModelFieldList
+                    isGroup={true}
                     fields={data?.schema?.fields}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
+                    hasCreateRight={hasCreateRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                     onFieldReorder={onFieldReorder}
                     onFieldDelete={onFieldDelete}
@@ -286,36 +364,33 @@ const Schema: React.FC<Props> = ({
             </>
           )}
           <ImportSchemaModal
-            workspaceId={workspaceId}
-            projectId={projectId}
             page={page}
             pageSize={pageSize}
             assetList={assetList}
             loading={loading}
-            guessSchemaFieldsLoading={guessSchemaFieldsLoading}
             fieldsCreationLoading={fieldsCreationLoading}
             visible={importSchemaModalVisibility}
             selectFileModalVisibility={selectFileModalVisibility}
             currentPage={currentImportSchemaModalPage}
             toSchemaPreviewStep={toSchemaPreviewStep}
             toImportingStep={toImportingStep}
+            toFileSelectionStep={toFileSelectionStep}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
             onUploadModalOpen={onUploadModalOpen}
             onUploadModalCancel={onUploadModalCancel}
             fileList={fileList}
+            alertList={alertList}
             totalCount={totalCount}
             selectedAsset={selectedAsset}
             uploadType={uploadType}
             uploadUrl={uploadUrl}
             uploading={uploading}
             fields={importFields}
-            guessSchemaFieldsError={guessSchemaFieldsError}
             fieldsCreationError={fieldsCreationError}
             setFields={setImportFields}
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
-            setFileList={setFileList}
             hasCreateRight={hasCreateRight}
             uploadModalVisibility={uploadModalVisibility}
             onSearchTerm={onSearchTerm}
@@ -327,6 +402,10 @@ const Schema: React.FC<Props> = ({
             onSelectFile={onSelectFileModalOpen}
             onSelectFileModalCancel={onSelectFileModalCancel}
             onModalClose={onSchemaImportModalCancel}
+            schemaErrorLogMeta={schemaErrorLogMeta}
+            dataChecking={dataChecking}
+            onFileContentChange={onFileContentChange}
+            onFileRemove={onFileRemove}
           />
         </Content>
       }
@@ -349,34 +428,39 @@ export default Schema;
 const Content = styled.div`
   width: 100%;
   height: 100%;
-  background: #fafafa;
+  background: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const FieldListWrapper = styled.div`
   height: 100%;
   width: 272px;
-  padding: 12px 12px 0;
+  padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.SM}px 0;
 `;
 
 const StyledTabs = styled(Tabs)`
   max-height: calc(100% - 72px);
   .ant-tabs-nav {
-    padding: 0 24px;
-    margin-bottom: 12px;
-    background: #fff;
+    padding: 0 ${AntdToken.SPACING.LG}px;
+    margin-bottom: ${AntdToken.SPACING.SM}px;
+    background: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
     overflow-y: auto;
-    padding: 0 24px 24px;
+    padding: 0 ${AntdToken.SPACING.LG}px ${AntdToken.SPACING.LG}px;
   }
 `;
 
 const GroupFieldsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-right: 12px;
+  margin-right: ${AntdToken.SPACING.SM}px;
+`;
+
+const StyledImportMenuItem = styled.div`
+  display: flex;
+  gap: ${AntdToken.SPACING.XS}px;
 `;

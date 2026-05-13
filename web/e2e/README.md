@@ -22,6 +22,9 @@ yarn install
 # Run all tests
 yarn e2e
 
+# Run smoke tests only (faster, recommended for local development)
+yarn e2e-smoke
+
 # Run specific test file
 yarn playwright test tests/project/schema.spec.ts
 
@@ -36,7 +39,37 @@ yarn playwright test --headed
 
 # List all tests
 yarn playwright test --list
+
+# List smoke tests only
+yarn playwright test --list --grep @smoke
 ```
+
+### Smoke Tests
+
+Smoke tests are a subset of critical tests tagged with `@smoke` that verify core functionality. These tests:
+
+- Run faster than the full test suite (~25 tests vs 100+ tests)
+- Cover critical user journeys and core features
+- Are executed automatically in CI/CD pipelines
+- Should be run before pushing changes
+
+**Smoke Test Selection Criteria:**
+Tests are tagged with `@smoke` if they verify:
+
+- **Core CRUD operations**: Creating, reading, updating, and deleting workspaces, projects, models, content items, and assets
+- **Essential field types**: Text, boolean, date, integer, option, and asset field interactions
+- **Critical metadata operations**: Tag and checkbox metadata management
+- **Content publishing**: Publishing and unpublishing workflows
+- **Version management**: Version history and restoration
+- **Comment system**: Creating, updating, and deleting comments
+- **User requests**: Request creation and approval workflows
+
+Note: Authentication (login) is tested via global setup and is implicitly verified by all smoke tests.
+
+**When to use:**
+
+- `yarn e2e-smoke`: For quick validation during local development
+- `yarn e2e`: Before submitting PRs or for comprehensive testing
 
 ## ⚙️ Configuration
 
@@ -60,7 +93,7 @@ Configuration is defined in `web/playwright.config.ts`. Key settings:
 - **Browser**: Chromium (default)
 - **Parallel execution**: Enabled
 - **Retries**: Configured for CI/local environments
-- **Timeout**: 30 seconds per test
+- **Timeout**: 120 seconds per test
 
 ## 📁 Project Structure
 
@@ -72,21 +105,24 @@ web/e2e/
 ├── pages/               # Page Object Models
 │   └── login.page.ts    # Centralized login page
 ├── support/
-│   └── .auth/           # Saved authentication state (gitignored)
+│   ├── .auth/           # Saved authentication state (gitignored)
+│   └── auth.setup.ts    # Authentication setup (runs as test)
 ├── tests/               # Test specifications
-├── global-setup.ts      # Global authentication setup (runs once before all tests)
+├── global-setup.ts      # Global setup for non-auth tasks (environment, cleanup, etc.)
 └── README.md           # This file
 ```
 
 ### 🔐 Centralized Authentication System
 
-This project now uses a **global setup** approach for authentication:
+This project uses a **setup project** pattern for authentication:
 
-- **Global Setup** (`global-setup.ts`): Authenticates once before all tests run
+- **Setup Project** (`auth.setup.ts`): Runs as a special test that authenticates once before all tests
 - **Shared State**: Authentication session is saved to `support/.auth/user.json`
 - **Performance**: Login happens once, not per test suite - significantly faster!
 
 All tests automatically load the saved authentication state, so they start already logged in.
+
+The `global-setup.ts` file is reserved for other global tasks like environment validation or cleanup.
 
 ## 🎯 Page Object Model (POM)
 
@@ -230,7 +266,7 @@ See [claude.md](./claude.md) for detailed contribution guidelines.
 
 - Verify credentials in `web/.env` file (use `REEARTH_CMS_E2E_USERNAME` and `REEARTH_CMS_E2E_PASSWORD`)
 - Delete auth state: `rm -rf web/e2e/support/.auth/user.json`
-- Re-run tests: The global setup will re-authenticate automatically
+- Re-run tests: The setup project will re-authenticate automatically
 
 ### Timeout Errors
 

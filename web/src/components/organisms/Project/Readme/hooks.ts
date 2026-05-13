@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client/react";
 import { useCallback, useState, useMemo, useEffect, ChangeEvent } from "react";
 import { useParams } from "react-router-dom";
 
@@ -6,8 +7,8 @@ import { UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/
 import {
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
-  useUpdateProjectMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
 
@@ -20,7 +21,7 @@ export default () => {
   const [readmeEditMode, setReadmeEditMode] = useState(false);
   const [readmeValue, setReadmeValue] = useState("");
 
-  const [updateProjectMutation] = useUpdateProjectMutation();
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument);
 
   const handleProjectUpdate = useCallback(
     async (data: UpdateProjectInput) => {
@@ -37,7 +38,7 @@ export default () => {
           accessibility: data.accessibility as GQLProjectAccessibility,
         },
       });
-      if (Project.errors || !Project.data?.updateProject) {
+      if (Project.error || !Project.data?.updateProject) {
         Notification.error({ message: t("Failed to update Project.") });
         return;
       }

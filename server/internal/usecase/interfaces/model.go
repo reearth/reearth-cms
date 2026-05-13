@@ -71,6 +71,6 @@ type Model interface {
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	UpdateOrder(context.Context, id.ModelIDList, *usecase.Operator) (model.List, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
-	Delete(context.Context, id.ModelID, *usecase.Operator) error
+	Delete(context.Context, id.ModelID, schema.Package, *usecase.Operator) error
 	Copy(context.Context, CopyModelParam, *usecase.Operator) (*model.Model, error)
 }

@@ -2,13 +2,13 @@ package model
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"golang.org/x/exp/slices"
 )
 
 var (

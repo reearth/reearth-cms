@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"path"
 	"reflect"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -14,13 +15,25 @@ import (
 )
 
 type Item struct {
-	ID     string
-	Fields ItemFields
+	ID        string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	CreatedBy string
+	UpdatedBy string
+	Fields    ItemFields
 }
 
 func (i Item) MarshalJSON() ([]byte, error) {
 	m := i.Fields
 	m["id"] = i.ID
+	m["$createdAt"] = i.CreatedAt
+	m["$updatedAt"] = i.UpdatedAt
+	if i.CreatedBy != "" {
+		m["$createdBy"] = i.CreatedBy
+	}
+	if i.UpdatedBy != "" {
+		m["$updatedBy"] = i.UpdatedBy
+	}
 
 	return json.Marshal(m)
 }
@@ -30,12 +43,31 @@ func NewItem(i *item.Item, sp *schema.Package, assets asset.List, refItems []Ite
 	for _, groupSchema := range sp.GroupSchemas() {
 		gsf = append(gsf, groupSchema.Fields().Clone()...)
 	}
-	itm := Item{
-		ID:     i.ID().String(),
-		Fields: NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets),
+
+	createdBy := ""
+	if i.User() != nil {
+		createdBy = i.User().String()
+	} else if i.Integration() != nil {
+		createdBy = i.Integration().String()
 	}
 
-	return itm
+	updatedBy := ""
+	if i.UpdatedByUser() != nil {
+		updatedBy = i.UpdatedByUser().String()
+	} else if i.UpdatedByIntegration() != nil {
+		updatedBy = i.UpdatedByIntegration().String()
+	} else {
+		updatedBy = createdBy
+	}
+
+	return Item{
+		ID:        i.ID().String(),
+		CreatedAt: i.ID().Timestamp(),
+		UpdatedAt: i.Timestamp(),
+		CreatedBy: createdBy,
+		UpdatedBy: updatedBy,
+		Fields:    NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets),
+	}
 }
 
 type ItemFields map[string]any
@@ -44,9 +76,13 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	for k, v := range i {
 		if v == nil {
 			delete(i, k)
+			continue
 		}
 		rv := reflect.ValueOf(v)
-		if (rv.Kind() == reflect.Interface || rv.Kind() == reflect.Slice || rv.Kind() == reflect.Map) && rv.IsNil() {
+		// Check for nil pointers, interfaces, slices, maps, and empty arrays
+		if (rv.Kind() == reflect.Pointer && rv.IsNil()) ||
+			(rv.Kind() == reflect.Interface && rv.IsNil()) ||
+			((rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array || rv.Kind() == reflect.Map) && (rv.IsNil() || rv.Len() == 0)) {
 			delete(i, k)
 		}
 	}
@@ -152,11 +188,15 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 }
 
 type Asset struct {
-	Type        string   `json:"type"`
-	ID          string   `json:"id,omitempty"`
-	URL         string   `json:"url,omitempty"`
-	ContentType string   `json:"contentType,omitempty"`
-	Files       []string `json:"files,omitempty"`
+	Type        string    `json:"type"`
+	ID          string    `json:"id,omitempty"`
+	URL         string    `json:"url,omitempty"`
+	ContentType string    `json:"contentType,omitempty"`
+	Files       []string  `json:"files,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	CreatedBy   string    `json:"createdBy,omitempty"`
+	UpdatedBy   string    `json:"updatedBy,omitempty"`
 }
 
 func NewAsset(a *asset.Asset, f *asset.File) Asset {
@@ -175,12 +215,32 @@ func NewAsset(a *asset.Asset, f *asset.File) Asset {
 		})
 	}
 
+	createdBy := ""
+	if a.User() != nil {
+		createdBy = a.User().String()
+	} else if a.Integration() != nil {
+		createdBy = a.Integration().String()
+	}
+
+	updatedBy := ""
+	if a.UpdatedByUser() != nil {
+		updatedBy = a.UpdatedByUser().String()
+	} else if a.UpdatedByIntegration() != nil {
+		updatedBy = a.UpdatedByIntegration().String()
+	} else {
+		updatedBy = createdBy
+	}
+
 	return Asset{
 		Type:        "asset",
 		ID:          a.ID().String(),
 		URL:         ai.Url,
 		ContentType: f.ContentType(),
 		Files:       files,
+		CreatedAt:   a.CreatedAt(),
+		UpdatedAt:   a.UpdatedAt(),
+		CreatedBy:   createdBy,
+		UpdatedBy:   updatedBy,
 	}
 }
 

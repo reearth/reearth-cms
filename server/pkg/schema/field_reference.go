@@ -54,7 +54,7 @@ func (f *FieldReference) CorrespondingFieldID() *id.FieldID {
 	return f.correspondingFieldID
 }
 
-func (f *FieldReference) IsTowWay() bool {
+func (f *FieldReference) IsTwoWay() bool {
 	return f.correspondingFieldID != nil
 }
 

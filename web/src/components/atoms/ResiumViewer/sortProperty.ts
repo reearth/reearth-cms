@@ -5,6 +5,9 @@ export const sortProperties = <T extends Record<string, any>>(properties: T) => 
   const sortedProperties = sortedKeys.reduce(
     (obj, k) => {
       let val = properties[k];
+      if (typeof val === "string") {
+        val = tryParseJson(val) ?? val;
+      }
       if (val !== null && typeof val === "object" && !Array.isArray(val)) {
         val = sortProperties(val);
       }
@@ -16,3 +19,19 @@ export const sortProperties = <T extends Record<string, any>>(properties: T) => 
   );
   return sortedProperties;
 };
+
+export function tryParseJson(value: string): object | null {
+  const trimmed = value.trim();
+  if (
+    !(trimmed.startsWith("{") && trimmed.endsWith("}")) &&
+    !(trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(trimmed);
+    return typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}

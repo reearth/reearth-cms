@@ -5,6 +5,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import FieldTitle from "../../FieldTitle";
 
@@ -57,7 +58,7 @@ const StyledMultipleSelect = styled(Select)`
     overflow-y: hidden;
   }
   .ant-select-selection-overflow-item {
-    margin-right: 4px;
+    margin-right: ${AntdToken.SPACING.XXS}px;
   }
   .ant-select-selection-item {
     padding: 0;

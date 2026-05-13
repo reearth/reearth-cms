@@ -665,7 +665,7 @@ func TestGuessSchemaFields(t *testing.T) {
 
 	// region Json input
 	jsonContent := `[{"name": "Item 1", "count": 42, "active": true, "tags": ["tag1", "tag2"]}]`
-	assetId := uploadAsset(e, pId, "./sample.json", jsonContent).Object().Value("id").String().Raw()
+	assetId := uploadAsset(e, wId.String(), pId, "./sample.json", jsonContent).Object().Value("id").String().Raw()
 
 	res := guessSchemaFields(e, assetId, mId)
 
@@ -733,7 +733,7 @@ func TestGuessSchemaFields(t *testing.T) {
 		]
 	}`
 
-	geoJsonAssetId := uploadAsset(e, pId, "./sample.geojson", geojsonContent).Object().Value("id").String().Raw()
+	geoJsonAssetId := uploadAsset(e, wId.String(), pId, "./sample.geojson", geojsonContent).Object().Value("id").String().Raw()
 
 	res = guessSchemaFields(e, geoJsonAssetId, mId)
 
@@ -801,7 +801,7 @@ func TestGuessSchemaFields(t *testing.T) {
 		}
 	]`
 
-	mixedAssetId := uploadAsset(e, pId, "./mixed.json", mixedContent).Object().Value("id").String().Raw()
+	mixedAssetId := uploadAsset(e, wId.String(), pId, "./mixed.json", mixedContent).Object().Value("id").String().Raw()
 
 	// Call GuessSchemaFields query for the mixed content
 	res = guessSchemaFields(e, mixedAssetId, existingModelId)
