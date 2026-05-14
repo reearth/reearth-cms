@@ -43,6 +43,8 @@ type fileRepo struct {
 	replaceUploadURL bool
 	client           *storage.Client
 	clientMu         sync.Mutex
+	proxiedClient    *storage.Client
+	proxiedClientMu  sync.Mutex
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -380,20 +382,10 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		file.ContentEncoding = ""
 	}
 
-	// Use gcsproxy endpoint for upload to enable tracking
-	bucketForUpload, clientForUpload, err := f.bucketWithEndpoint(ctx)
+	bucketForUpload, err := f.bucketWithEndpoint(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return 0, rerror.ErrInternalBy(err)
-	}
-
-	// Close the upload client when done
-	if clientForUpload != nil {
-		defer func() {
-			if closeErr := clientForUpload.Close(); closeErr != nil {
-				log.Errorf("gcs: failed to close upload client: %v", closeErr)
-			}
-		}()
 	}
 
 	object := bucketForUpload.Object(objectName)
@@ -569,6 +561,24 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return f.client.Bucket(f.bucketName), nil
 }
 
+func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
+	f.proxiedClientMu.Lock()
+	defer f.proxiedClientMu.Unlock()
+	if f.proxiedClient == nil {
+		var opts []option.ClientOption
+		if f.publicBase != nil && f.publicBase.Host != "storage.googleapis.com" {
+			opts = append(opts, option.WithEndpoint(f.publicBase.String()))
+		}
+		client, err := storage.NewClient(ctx, opts...)
+		if err != nil {
+			log.Errorf("gcs: failed to initialize proxied client: %v", err)
+			return nil, err
+		}
+		f.proxiedClient = client
+	}
+	return f.proxiedClient.Bucket(f.bucketName), nil
+}
+
 func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
 	if filename == "" {
 		return gateway.ErrInvalidFile
@@ -737,32 +747,6 @@ func getGCSObjectPathFolder(uuid string) string {
 func getContentType(filename string) string {
 	ext := filepath.Ext(filename)
 	return mime.TypeByExtension(ext)
-}
-
-// bucketWithEndpoint creates a bucket handle using gcsproxy endpoint for upload tracking
-// Returns both bucket and client so caller can close the client after use
-func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, *storage.Client, error) {
-	var opts []option.ClientOption
-
-	// Configure custom endpoint if publicBase is set and not standard GCS
-	if f.publicBase != nil && f.publicBase.Host != "storage.googleapis.com" {
-		endpoint := f.publicBase.String()
-		opts = append(opts, option.WithEndpoint(endpoint))
-	}
-
-	// Create client with or without custom endpoint
-	client, err := storage.NewClient(ctx, opts...)
-	if err != nil {
-		if len(opts) > 0 {
-			log.Errorf("gcs: failed to initialize client with custom endpoint: %v", err)
-		} else {
-			log.Errorf("gcs: failed to initialize client: %v", err)
-		}
-		return nil, nil, err
-	}
-
-	bucket := client.Bucket(f.bucketName)
-	return bucket, client, nil
 }
 
 func newUUID() string {
