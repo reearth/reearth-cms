@@ -377,7 +377,7 @@ func TestFileRepo_BucketWithEndpoint_CachesProxiedClient(t *testing.T) {
 	// Create a real client with no-auth + fake endpoint so storage.NewClient succeeds without credentials.
 	preCreated, err := storage.NewClient(ctx, option.WithoutAuthentication(), option.WithEndpoint("http://localhost"))
 	require.NoError(t, err)
-	defer preCreated.Close()
+	defer func() { _ = preCreated.Close() }()
 
 	publicBase, _ := url.Parse("https://custom.proxy.example.com")
 	f := &fileRepo{
