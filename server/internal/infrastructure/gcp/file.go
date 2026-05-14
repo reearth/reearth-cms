@@ -564,12 +564,13 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
 	f.proxiedClientMu.Lock()
 	defer f.proxiedClientMu.Unlock()
+
+	if f.publicBase == nil || f.publicBase.Host == "storage.googleapis.com" {
+		return f.client.Bucket(f.bucketName), nil
+	}
+
 	if f.proxiedClient == nil {
-		var opts []option.ClientOption
-		if f.publicBase != nil && f.publicBase.Host != "storage.googleapis.com" {
-			opts = append(opts, option.WithEndpoint(f.publicBase.String()))
-		}
-		client, err := storage.NewClient(ctx, opts...)
+		client, err := storage.NewClient(ctx, option.WithEndpoint(f.publicBase.String()))
 		if err != nil {
 			log.Errorf("gcs: failed to initialize proxied client: %v", err)
 			return nil, err

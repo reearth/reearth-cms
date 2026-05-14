@@ -7,8 +7,11 @@ import (
 	"strings"
 	"testing"
 
+	"cloud.google.com/go/storage"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/api/option"
 )
 
 func TestFile_GetFSObjectPath(t *testing.T) {
@@ -364,6 +367,36 @@ func TestFileRepo_IssueUploadAssetLink_Headers(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFileRepo_BucketWithEndpoint_CachesProxiedClient(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a real client with no-auth + fake endpoint so storage.NewClient succeeds without credentials.
+	preCreated, err := storage.NewClient(ctx, option.WithoutAuthentication(), option.WithEndpoint("http://localhost"))
+	require.NoError(t, err)
+	defer preCreated.Close()
+
+	publicBase, _ := url.Parse("https://custom.proxy.example.com")
+	f := &fileRepo{
+		bucketName: "test-bucket",
+		publicBase: publicBase,
+		// Inject pre-created client to simulate already-initialized state.
+		proxiedClient: preCreated,
+	}
+
+	b1, err := f.bucketWithEndpoint(ctx)
+	assert.NoError(t, err)
+	assert.NotNil(t, b1)
+	assert.Same(t, preCreated, f.proxiedClient)
+
+	b2, err := f.bucketWithEndpoint(ctx)
+	assert.NoError(t, err)
+	assert.NotNil(t, b2)
+	// Client must not be replaced on a second call.
+	assert.Same(t, preCreated, f.proxiedClient)
 }
 
 func TestFileRepo_ValidateContentEncoding(t *testing.T) {
