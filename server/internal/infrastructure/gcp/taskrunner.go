@@ -180,7 +180,7 @@ func (t *TaskRunner) decompressAsset(ctx context.Context, p task.Payload) error 
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: conf.DecompressorImage,
-				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + conf.DecompressorGzipExt, "-skip-top", "-old-windows", src, dest},
+				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-skip-top", "-old-windows", src, dest},
 				Env: []string{
 					"GOOGLE_CLOUD_PROJECT=" + project,
 					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + conf.DecompressorTopic,

@@ -9,7 +9,6 @@ type TaskConfig struct {
 	GCSPublic               bool   `pp:",omitempty"`
 	DecompressorImage       string `default:"reearth/reearth-cms-decompressor"`
 	DecompressorTopic       string `default:"decompress"`
-	DecompressorGzipExt     string `default:"gml"`
 	DecompressorMachineType string `default:"E2_HIGHCPU_8"`
 	DecompressorDiskSideGb  int64  `default:"2000"`
 	CopierImage             string `default:"reearth/reearth-cms-copier"`
