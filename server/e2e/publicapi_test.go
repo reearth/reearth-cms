@@ -399,7 +399,7 @@ func TestPublicAPI_Assets(t *testing.T) {
 	})
 
 	t.Run("export assets should fail for private project (publication nil)", func(t *testing.T) {
-		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil))
 		lo.Must0(r.Project.Save(ctx, prj))
 
 		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
@@ -865,7 +865,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	})
 
 	t.Run("export as json should fail for private project (publication nil)", func(t *testing.T) {
-		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil))
 		lo.Must0(r.Project.Save(ctx, prj))
 
 		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).

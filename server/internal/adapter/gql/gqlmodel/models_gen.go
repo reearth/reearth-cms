@@ -890,6 +890,10 @@ type Pagination struct {
 	Before *usecasex.Cursor `json:"before,omitempty"`
 }
 
+type PostingSettings struct {
+	Enabled bool `json:"enabled"`
+}
+
 type Project struct {
 	ID            ID                    `json:"id"`
 	Name          string                `json:"name"`
@@ -920,6 +924,7 @@ type ProjectAccessibility struct {
 	Visibility  ProjectVisibility    `json:"visibility"`
 	Publication *PublicationSettings `json:"publication,omitempty"`
 	APIKeys     []*ProjectAPIKey     `json:"apiKeys,omitempty"`
+	Posting     *PostingSettings     `json:"posting,omitempty"`
 }
 
 type ProjectAliasAvailability struct {
@@ -1528,9 +1533,14 @@ type UpdateModelsOrderInput struct {
 	ModelIds []ID `json:"modelIds"`
 }
 
+type UpdatePostingSettingsInput struct {
+	Enabled bool `json:"enabled"`
+}
+
 type UpdateProjectAccessibilityInput struct {
 	Visibility  *ProjectVisibility              `json:"visibility,omitempty"`
 	Publication *UpdatePublicationSettingsInput `json:"publication,omitempty"`
+	Posting     *UpdatePostingSettingsInput     `json:"posting,omitempty"`
 }
 
 type UpdateProjectInput struct {

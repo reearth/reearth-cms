@@ -18,6 +18,10 @@ type PublicationSettings {
   publicAssets: Boolean!
 }
 
+type PostingSettings {
+  enabled: Boolean!
+}
+
 type ProjectAPIKey {
   id: ID!
   name: String!
@@ -30,6 +34,7 @@ type ProjectAccessibility {
   visibility: ProjectVisibility!
   publication: PublicationSettings
   apiKeys: [ProjectAPIKey!]
+  posting: PostingSettings
 }
 
 type Project implements Node {
@@ -64,9 +69,14 @@ input UpdatePublicationSettingsInput{
   publicAssets: Boolean!
 }
 
+input UpdatePostingSettingsInput {
+  enabled: Boolean!
+}
+
 input UpdateProjectAccessibilityInput {
   visibility: ProjectVisibility
   publication: UpdatePublicationSettingsInput
+  posting: UpdatePostingSettingsInput
 }
 
 input UpdateProjectInput {

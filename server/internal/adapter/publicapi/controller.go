@@ -21,6 +21,7 @@ import (
 )
 
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
+var ErrPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
 
 type Controller struct {
 	project   repo.Project
@@ -101,6 +102,56 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	}
 
 	return wpm, nil
+}
+
+func (c *Controller) loadWPMContextForPosting(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, rerror.ErrNotFound
+		}
+		return nil, ErrInvalidProject
+	}
+
+	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, rerror.ErrNotFound
+		}
+		return nil, ErrInvalidProject
+	}
+
+	if p.Workspace() != w.ID() {
+		return nil, rerror.ErrNotFound
+	}
+
+	if !p.Accessibility().PostingEnabled() {
+		return nil, ErrPostingDisabled
+	}
+
+	m, err := c.usecases.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(mKey), nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, rerror.ErrNotFound
+		}
+		return nil, ErrInvalidProject
+	}
+
+	if m.Project() != p.ID() {
+		return nil, rerror.ErrNotFound
+	}
+
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
+	if err != nil {
+		return nil, ErrInvalidProject
+	}
+
+	return &WPMContext{
+		Workspace:     *w,
+		Project:       *p,
+		Model:         m,
+		SchemaPackage: sp,
+	}, nil
 }
 
 func (c *Controller) accessibilityCheck(ctx context.Context, wpm *WPMContext) error {

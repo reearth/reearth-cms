@@ -109,6 +109,36 @@ func updateProject(e *httpexpect.Expect, pID, name, desc, alias, visibility stri
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
 
+func updateProjectPosting(e *httpexpect.Expect, pID string, enabled bool) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateProjectPosting($projectId: ID!, $enabled: Boolean!) {
+    updateProject(input: {projectId: $projectId, accessibility: {posting: {enabled: $enabled}}}) {
+        project {
+            id
+            accessibility {
+                posting {
+                    enabled
+                }
+            }
+        }
+    }
+}`,
+		Variables: map[string]any{
+			"projectId": pID,
+			"enabled":   enabled,
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
 func RegeneratePublicApiToken(e *httpexpect.Expect, pId, tId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `mutation RegeneratePublicApiToken($projectId: ID!, $id: ID!) {
@@ -180,3 +210,45 @@ func TestProject(t *testing.T) {
 }
 
 // TODO: teest for api keys CRUD
+
+func TestProjectPostingSettings(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "posting-test", "posting-test", "posting-test")
+
+	// new project: posting should be absent (nil) — disabled by default
+	requestBody := GraphQLRequest{
+		Query: `query GetProject($projectId: ID!) {
+    node(id: $projectId, type: PROJECT) {
+        ... on Project {
+            id
+            accessibility {
+                posting {
+                    enabled
+                }
+            }
+        }
+    }
+}`,
+		Variables: map[string]any{"projectId": pId},
+	}
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+	res.Path("$.data.node.accessibility.posting").IsNull()
+
+	// enable posting
+	res = updateProjectPosting(e, pId, true)
+	posting := res.Path("$.data.updateProject.project.accessibility.posting").Object()
+	posting.HasValue("enabled", true)
+
+	// disable posting
+	res = updateProjectPosting(e, pId, false)
+	posting = res.Path("$.data.updateProject.project.accessibility.posting").Object()
+	posting.HasValue("enabled", false)
+}
