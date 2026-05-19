@@ -104,7 +104,9 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	return wpm, nil
 }
 
-func (c *Controller) loadWPMContextForPosting(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+// loadWPMContextForWrite loads workspace/project/model without requiring the
+// model to be in the public-read list. Used for Access API write endpoints.
+func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
 	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -123,10 +125,6 @@ func (c *Controller) loadWPMContextForPosting(ctx context.Context, wAlias, pAlia
 
 	if p.Workspace() != w.ID() {
 		return nil, rerror.ErrNotFound
-	}
-
-	if !p.Accessibility().PostingEnabled() {
-		return nil, ErrPostingDisabled
 	}
 
 	m, err := c.usecases.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(mKey), nil)

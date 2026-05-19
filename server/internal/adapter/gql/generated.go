@@ -6866,7 +6866,7 @@ type ProjectAccessibility {
   visibility: ProjectVisibility!
   publication: PublicationSettings
   apiKeys: [ProjectAPIKey!]
-  posting: PostingSettings
+  posting: PostingSettings!
 }
 
 type Project implements Node {
@@ -20893,9 +20893,9 @@ func (ec *executionContext) _ProjectAccessibility_posting(ctx context.Context, f
 			return obj.Posting, nil
 		},
 		nil,
-		ec.marshalOPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPostingSettings,
+		ec.marshalNPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPostingSettings,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -40928,6 +40928,9 @@ func (ec *executionContext) _ProjectAccessibility(ctx context.Context, sel ast.S
 			out.Values[i] = ec._ProjectAccessibility_apiKeys(ctx, field, obj)
 		case "posting":
 			out.Values[i] = ec._ProjectAccessibility_posting(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -46362,6 +46365,16 @@ func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋreearthᚋreearth
 	return ec._PageInfo(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPostingSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PostingSettings) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostingSettings(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNProject2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Project) graphql.Marshaler {
 	return ec._Project(ctx, sel, &v)
 }
@@ -48295,13 +48308,6 @@ func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋree
 	}
 	res, err := ec.unmarshalInputPagination(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPostingSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PostingSettings) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._PostingSettings(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOPreviewType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPreviewType(ctx context.Context, v any) (*gqlmodel.PreviewType, error) {

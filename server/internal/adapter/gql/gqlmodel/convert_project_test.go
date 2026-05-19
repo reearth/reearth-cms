@@ -28,6 +28,7 @@ func TestConvertProject_ToProject(t *testing.T) {
 		UpdatedAt:   p.UpdatedAt(),
 		Accessibility: &ProjectAccessibility{
 			Visibility: ProjectVisibilityPublic,
+			Posting:    &PostingSettings{Enabled: false},
 		},
 		RequestRoles: []Role{RoleOwner},
 	}

@@ -118,7 +118,7 @@ func TestHandler_PostItem_Returns403WhenDisabled(t *testing.T) {
 	e := echo.New()
 	bodyBytes, _ := json.Marshal(map[string]any{})
 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(bodyBytes))
-	req.Header.Set(echo.MIMEApplicationJSON, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
 	// Attach controller to the request context so GetController works.

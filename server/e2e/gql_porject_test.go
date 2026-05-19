@@ -240,7 +240,7 @@ func TestProjectPostingSettings(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON()
-	res.Path("$.data.node.accessibility.posting").IsNull()
+	res.Path("$.data.node.accessibility.posting").Object().HasValue("enabled", false)
 
 	// enable posting
 	res = updateProjectPosting(e, pId, true)

@@ -34,7 +34,7 @@ type ProjectAccessibility {
   visibility: ProjectVisibility!
   publication: PublicationSettings
   apiKeys: [ProjectAPIKey!]
-  posting: PostingSettings
+  posting: PostingSettings!
 }
 
 type Project implements Node {

@@ -924,7 +924,7 @@ type ProjectAccessibility struct {
 	Visibility  ProjectVisibility    `json:"visibility"`
 	Publication *PublicationSettings `json:"publication,omitempty"`
 	APIKeys     []*ProjectAPIKey     `json:"apiKeys,omitempty"`
-	Posting     *PostingSettings     `json:"posting,omitempty"`
+	Posting     *PostingSettings     `json:"posting"`
 }
 
 type ProjectAliasAvailability struct {

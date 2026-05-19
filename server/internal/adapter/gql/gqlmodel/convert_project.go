@@ -84,9 +84,6 @@ func ToAPIKeys(ps project.APIKeys) []*ProjectAPIKey {
 }
 
 func ToPostingSettings(p *project.PostingSettings) *PostingSettings {
-	if p == nil {
-		return nil
-	}
 	return &PostingSettings{Enabled: p.Enabled()}
 }
 
