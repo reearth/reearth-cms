@@ -173,15 +173,6 @@ func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	return c.Blob(http.StatusOK, contentType, w.Bytes())
 }
 
-type postItemRequest struct {
-	Fields map[string]any `json:"fields"`
-}
-
-type postItemError struct {
-	Error string `json:"error"`
-	Code  string `json:"code,omitempty"`
-}
-
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
@@ -189,34 +180,21 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
-		var req postItemRequest
-		if err := c.Bind(&req); err != nil {
-			return c.JSON(http.StatusBadRequest, postItemError{
-				Error: "Request body is not valid JSON",
-				Code:  "INVALID_JSON",
-			})
+		var body map[string]any
+		if err := c.Bind(&body); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request body"})
 		}
 
-		if req.Fields == nil {
-			req.Fields = map[string]any{}
-		}
-
-		err := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		err := ctrl.PostItem(ctx, ws, p, m, body)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
 			}
 			if errors.Is(err, ErrProjectPostDisabled) {
-				return c.JSON(http.StatusForbidden, postItemError{
-					Error: "Public posting is disabled for this project",
-					Code:  "POSTING_DISABLED_PROJECT",
-				})
+				return c.JSON(http.StatusForbidden, map[string]string{"error": "posting is disabled for this project"})
 			}
 			if errors.Is(err, ErrModelPostDisabled) {
-				return c.JSON(http.StatusForbidden, postItemError{
-					Error: "Public posting is disabled for this model",
-					Code:  "POSTING_DISABLED_MODEL",
-				})
+				return c.JSON(http.StatusForbidden, map[string]string{"error": "posting is disabled for this model"})
 			}
 			return err
 		}
