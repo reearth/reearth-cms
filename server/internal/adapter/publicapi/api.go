@@ -249,6 +249,8 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 	return 0, false
 }
 
+// PostItem handles POST /:workspace/:project/:model to create a new item.
+// TODO: accept item data in the request body and pass it to the controller in future task.
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
