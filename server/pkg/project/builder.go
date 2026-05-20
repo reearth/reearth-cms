@@ -126,3 +126,8 @@ func (b *Builder) Topics(topics []string) *Builder {
 	b.p.SetTopics(topics)
 	return b
 }
+
+func (b *Builder) PostingEnabled(enabled bool) *Builder {
+	b.p.postingEnabled = enabled
+	return b
+}

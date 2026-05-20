@@ -20,7 +20,11 @@ import (
 	"github.com/samber/lo"
 )
 
-var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
+var (
+	ErrInvalidProject      = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectPostDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
+	ErrModelPostDisabled   = rerror.NewE(i18n.T("posting is disabled for this model"))
+)
 
 type Controller struct {
 	project   repo.Project
@@ -101,6 +105,24 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	}
 
 	return wpm, nil
+}
+
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) error {
+	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
+	if err != nil {
+		return err
+	}
+
+	if !wpm.Project.PostingEnabled() {
+		return ErrProjectPostDisabled
+	}
+
+	if wpm.Model == nil || !wpm.Model.PostingEnabled() {
+		return ErrModelPostDisabled
+	}
+
+	_ = body
+	return nil
 }
 
 func (c *Controller) accessibilityCheck(ctx context.Context, wpm *WPMContext) error {

@@ -54,6 +54,7 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
+	e.POST("/:workspace/:project/:model/items", PostItem())
 }
 
 // parseSubRoute splits a sub-route segment into a model key and extension.
@@ -170,6 +171,63 @@ func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	}
 
 	return c.Blob(http.StatusOK, contentType, w.Bytes())
+}
+
+type postItemRequest struct {
+	Fields map[string]any `json:"fields"`
+}
+
+type postItemError struct {
+	Error string `json:"error"`
+	Code  string `json:"code,omitempty"`
+}
+
+func PostItem() echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
+
+		var req postItemRequest
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(http.StatusBadRequest, postItemError{
+				Error: "Request body is not valid JSON",
+				Code:  "INVALID_JSON",
+			})
+		}
+
+		if req.Fields == nil {
+			req.Fields = map[string]any{}
+		}
+
+		err := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
+			if errors.Is(err, ErrProjectPostDisabled) {
+				return c.JSON(http.StatusForbidden, postItemError{
+					Error: "Public posting is disabled for this project",
+					Code:  "POSTING_DISABLED_PROJECT",
+				})
+			}
+			if errors.Is(err, ErrModelPostDisabled) {
+				return c.JSON(http.StatusForbidden, postItemError{
+					Error: "Public posting is disabled for this model",
+					Code:  "POSTING_DISABLED_MODEL",
+				})
+			}
+			return err
+		}
+
+		return c.JSON(http.StatusCreated, map[string]any{
+			"id":         "",
+			"$createdAt": "",
+			"status":     "draft",
+			"fields":     map[string]any{},
+		})
+	}
 }
 
 func ItemOrAsset() echo.HandlerFunc {

@@ -21,20 +21,21 @@ var (
 )
 
 type Project struct {
-	id            ID
-	workspaceID   accountdomain.WorkspaceID
-	alias         string
-	name          string
-	description   string
-	readme        string
-	license       string
-	imageURL      *url.URL
-	starCount     int64
-	starredBy     []string
-	topics        []string
-	updatedAt     time.Time
-	accessibility *Accessibility
-	requestRoles  []workspace.Role
+	id              ID
+	workspaceID     accountdomain.WorkspaceID
+	alias           string
+	name            string
+	description     string
+	readme          string
+	license         string
+	imageURL        *url.URL
+	starCount       int64
+	starredBy       []string
+	topics          []string
+	updatedAt       time.Time
+	accessibility   *Accessibility
+	requestRoles    []workspace.Role
+	postingEnabled  bool
 }
 
 func (p *Project) ID() ID {
@@ -100,6 +101,14 @@ func (p *Project) Accessibility() *Accessibility {
 
 func (p *Project) RequestRoles() []workspace.Role {
 	return p.requestRoles
+}
+
+func (p *Project) PostingEnabled() bool {
+	return p.postingEnabled
+}
+
+func (p *Project) SetPostingEnabled(enabled bool) {
+	p.postingEnabled = enabled
 }
 
 func (p *Project) SetUpdatedAt(updatedAt time.Time) {
@@ -199,15 +208,16 @@ func (p *Project) Clone() *Project {
 	}
 
 	return &Project{
-		id:            p.id.Clone(),
-		workspaceID:   p.workspaceID.Clone(),
-		name:          p.name,
-		description:   p.description,
-		alias:         p.alias,
-		imageURL:      util.CopyURL(p.imageURL),
-		updatedAt:     p.updatedAt,
-		accessibility: p.accessibility.Clone(),
-		requestRoles:  p.requestRoles,
+		id:             p.id.Clone(),
+		workspaceID:    p.workspaceID.Clone(),
+		name:           p.name,
+		description:    p.description,
+		alias:          p.alias,
+		imageURL:       util.CopyURL(p.imageURL),
+		updatedAt:      p.updatedAt,
+		accessibility:  p.accessibility.Clone(),
+		requestRoles:   p.requestRoles,
+		postingEnabled: p.postingEnabled,
 	}
 }
 
