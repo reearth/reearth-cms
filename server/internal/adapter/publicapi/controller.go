@@ -85,13 +85,14 @@ func (c *Controller) loadWPMContextBase(ctx context.Context, wAlias, pAlias, mKe
 			return nil, ErrInvalidProject
 		}
 
-		if m.Project() != p.ID() {
-			return nil, rerror.ErrNotFound
-		}
-
 		sp, err = c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 		if err != nil {
 			return nil, ErrInvalidProject
+		}
+
+		// Check if the model belongs to the project
+		if m.Project() != p.ID() {
+			return nil, rerror.ErrNotFound
 		}
 	}
 
