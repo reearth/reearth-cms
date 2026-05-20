@@ -138,7 +138,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 		return Item{}, ErrModelPostDisabled
 	}
 
-	fields := fieldsFromBody(body, wpm.SchemaPackage)
+	fields := fieldsFromBody(body)
 
 	machineOp := &usecase.Operator{
 		Machine:    true,
@@ -159,7 +159,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 
 // fieldsFromBody converts the {"fields": {"key": value}} request body into
 // ItemFieldParam entries keyed by schema field key.
-func fieldsFromBody(body map[string]any, sp *schema.Package) []interfaces.ItemFieldParam {
+func fieldsFromBody(body map[string]any) []interfaces.ItemFieldParam {
 	raw, _ := body["fields"].(map[string]any)
 	params := make([]interfaces.ItemFieldParam, 0, len(raw))
 	for k, v := range raw {
