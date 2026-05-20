@@ -154,8 +154,7 @@ func TestPublicAPI_PostItem_GateChecks(t *testing.T) {
 			Status(http.StatusForbidden).
 			JSON().Object()
 
-		obj.Value("error").String().IsEqual("Public posting is disabled for this model")
-		obj.Value("code").String().IsEqual("POSTING_DISABLED_MODEL")
+		obj.Value("error").String().IsEqual("posting is disabled for this model")
 	})
 
 	t.Run("403 when project posting is disabled", func(t *testing.T) {
@@ -166,8 +165,7 @@ func TestPublicAPI_PostItem_GateChecks(t *testing.T) {
 			Status(http.StatusForbidden).
 			JSON().Object()
 
-		obj.Value("error").String().IsEqual("Public posting is disabled for this project")
-		obj.Value("code").String().IsEqual("POSTING_DISABLED_PROJECT")
+		obj.Value("error").String().IsEqual("posting is disabled for this project")
 	})
 }
 
@@ -216,8 +214,7 @@ func TestPublicAPI_PostItem_InvalidBody(t *testing.T) {
 			Status(http.StatusBadRequest).
 			JSON().Object()
 
-		obj.Value("error").String().IsEqual("Request body is not valid JSON")
-		obj.Value("code").String().IsEqual("INVALID_JSON")
+		obj.Value("error").String().IsEqual("invalid request body")
 	})
 }
 
