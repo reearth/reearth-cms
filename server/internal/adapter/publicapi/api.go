@@ -182,29 +182,33 @@ func PostItem() echo.HandlerFunc {
 
 		var body map[string]any
 		if err := c.Bind(&body); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"error": "Request body is not valid JSON",
+				"code":  "INVALID_JSON",
+			})
 		}
 
-		err := ctrl.PostItem(ctx, ws, p, m, body)
+		item, err := ctrl.PostItem(ctx, ws, p, m, body)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
 			}
 			if errors.Is(err, ErrProjectPostDisabled) {
-				return c.JSON(http.StatusForbidden, map[string]string{"error": "posting is disabled for this project"})
+				return c.JSON(http.StatusForbidden, map[string]any{
+					"error": "Public posting is disabled for this project",
+					"code":  "POSTING_DISABLED_PROJECT",
+				})
 			}
 			if errors.Is(err, ErrModelPostDisabled) {
-				return c.JSON(http.StatusForbidden, map[string]string{"error": "posting is disabled for this model"})
+				return c.JSON(http.StatusForbidden, map[string]any{
+					"error": "Public posting is disabled for this model",
+					"code":  "POSTING_DISABLED_MODEL",
+				})
 			}
 			return err
 		}
 
-		return c.JSON(http.StatusCreated, map[string]any{
-			"id":         "",
-			"$createdAt": "",
-			"status":     "draft",
-			"fields":     map[string]any{},
-		})
+		return c.JSON(http.StatusCreated, item)
 	}
 }
 

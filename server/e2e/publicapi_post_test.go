@@ -104,7 +104,7 @@ func TestPublicAPI_PostItem_Success(t *testing.T) {
 	t.Parallel()
 	e := StartServer(t, &app.Config{}, false, postItemSeeder)
 
-	t.Run("stub 201 with correct shape", func(t *testing.T) {
+	t.Run("201 with real id, createdAt, and echoed fields", func(t *testing.T) {
 		t.Parallel()
 		obj := e.POST(postItemURL(postW1Alias, postP1Alias, postP1M1Key)).
 			WithJSON(map[string]any{
@@ -117,28 +117,35 @@ func TestPublicAPI_PostItem_Success(t *testing.T) {
 			Status(http.StatusCreated).
 			JSON().Object()
 
-		obj.ContainsKey("id")
-		obj.ContainsKey("$createdAt")
-		obj.Value("status").String().IsEqual("draft")
-		obj.ContainsKey("fields")
+		obj.Value("id").String().NotEmpty()
+		obj.Value("$createdAt").String().NotEmpty()
+		obj.Value("$updatedAt").String().NotEmpty()
+		obj.Value("name").String().IsEqual("Jane Smith")
+		obj.Value("subscribed").Boolean().IsTrue()
 	})
 
 	t.Run("empty fields object is accepted", func(t *testing.T) {
 		t.Parallel()
-		e.POST(postItemURL(postW1Alias, postP1Alias, postP1M1Key)).
+		obj := e.POST(postItemURL(postW1Alias, postP1Alias, postP1M1Key)).
 			WithJSON(map[string]any{"fields": map[string]any{}}).
 			Expect().
 			Status(http.StatusCreated).
-			JSON().Object().Value("status").String().IsEqual("draft")
+			JSON().Object()
+
+		obj.Value("id").String().NotEmpty()
+		obj.Value("$createdAt").String().NotEmpty()
 	})
 
 	t.Run("missing fields key defaults to empty", func(t *testing.T) {
 		t.Parallel()
-		e.POST(postItemURL(postW1Alias, postP1Alias, postP1M1Key)).
+		obj := e.POST(postItemURL(postW1Alias, postP1Alias, postP1M1Key)).
 			WithJSON(map[string]any{}).
 			Expect().
 			Status(http.StatusCreated).
-			JSON().Object().Value("status").String().IsEqual("draft")
+			JSON().Object()
+
+		obj.Value("id").String().NotEmpty()
+		obj.Value("$createdAt").String().NotEmpty()
 	})
 }
 
@@ -154,7 +161,8 @@ func TestPublicAPI_PostItem_GateChecks(t *testing.T) {
 			Status(http.StatusForbidden).
 			JSON().Object()
 
-		obj.Value("error").String().IsEqual("posting is disabled for this model")
+		obj.Value("error").String().IsEqual("Public posting is disabled for this model")
+		obj.Value("code").String().IsEqual("POSTING_DISABLED_MODEL")
 	})
 
 	t.Run("403 when project posting is disabled", func(t *testing.T) {
@@ -165,7 +173,8 @@ func TestPublicAPI_PostItem_GateChecks(t *testing.T) {
 			Status(http.StatusForbidden).
 			JSON().Object()
 
-		obj.Value("error").String().IsEqual("posting is disabled for this project")
+		obj.Value("error").String().IsEqual("Public posting is disabled for this project")
+		obj.Value("code").String().IsEqual("POSTING_DISABLED_PROJECT")
 	})
 }
 
@@ -214,7 +223,8 @@ func TestPublicAPI_PostItem_InvalidBody(t *testing.T) {
 			Status(http.StatusBadRequest).
 			JSON().Object()
 
-		obj.Value("error").String().IsEqual("invalid request body")
+		obj.Value("error").String().IsEqual("Request body is not valid JSON")
+		obj.Value("code").String().IsEqual("INVALID_JSON")
 	})
 }
 

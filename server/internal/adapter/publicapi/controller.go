@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -14,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -49,7 +51,9 @@ func NewController(workspace accountrepo.Workspace, project repo.Project, usecas
 	}
 }
 
-func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+// loadWPMContextBase resolves workspace, project, and model without any
+// accessibility gate. Both read and write paths build on top of this.
+func (c *Controller) loadWPMContextBase(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
 	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -66,7 +70,6 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 		return nil, ErrInvalidProject
 	}
 
-	// Check if the project belongs to the workspace
 	if p.Workspace() != w.ID() {
 		return nil, rerror.ErrNotFound
 	}
@@ -82,22 +85,30 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 			return nil, ErrInvalidProject
 		}
 
+		if m.Project() != p.ID() {
+			return nil, rerror.ErrNotFound
+		}
+
 		sp, err = c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 		if err != nil {
 			return nil, ErrInvalidProject
 		}
-
-		// Check if the model belongs to the project
-		if m.Project() != p.ID() {
-			return nil, rerror.ErrNotFound
-		}
 	}
 
-	wpm := &WPMContext{
+	return &WPMContext{
 		Workspace:     *w,
 		Project:       *p,
 		Model:         m,
 		SchemaPackage: sp,
+	}, nil
+}
+
+// loadWPMContext resolves workspace/project/model and enforces the public-read
+// accessibility gate. Used by GET (read) endpoints.
+func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+	wpm, err := c.loadWPMContextBase(ctx, wAlias, pAlias, mKey)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := c.accessibilityCheck(ctx, wpm); err != nil {
@@ -107,22 +118,59 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	return wpm, nil
 }
 
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) error {
-	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
+// loadWPMContextForWrite resolves workspace/project/model without enforcing the
+// public-read accessibility gate. Used by POST (write) endpoints.
+func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+	return c.loadWPMContextBase(ctx, wAlias, pAlias, mKey)
+}
+
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (Item, error) {
+	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
-		return err
+		return Item{}, err
 	}
 
 	if !wpm.Project.PostingEnabled() {
-		return ErrProjectPostDisabled
+		return Item{}, ErrProjectPostDisabled
 	}
 
 	if wpm.Model == nil || !wpm.Model.PostingEnabled() {
-		return ErrModelPostDisabled
+		return Item{}, ErrModelPostDisabled
 	}
 
-	_ = body
-	return nil
+	fields := fieldsFromBody(body, wpm.SchemaPackage)
+
+	machineOp := &usecase.Operator{
+		Machine:    true,
+		AcOperator: &accountusecase.Operator{},
+	}
+
+	vi, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: wpm.SchemaPackage.Schema().ID(),
+		ModelID:  wpm.Model.ID(),
+		Fields:   fields,
+	}, machineOp)
+	if err != nil {
+		return Item{}, err
+	}
+
+	return NewItem(vi.Value(), wpm.SchemaPackage, nil, nil), nil
+}
+
+// fieldsFromBody converts the {"fields": {"key": value}} request body into
+// ItemFieldParam entries keyed by schema field key.
+func fieldsFromBody(body map[string]any, sp *schema.Package) []interfaces.ItemFieldParam {
+	raw, _ := body["fields"].(map[string]any)
+	params := make([]interfaces.ItemFieldParam, 0, len(raw))
+	for k, v := range raw {
+		k := k
+		key := id.NewKey(k)
+		params = append(params, interfaces.ItemFieldParam{
+			Key:   &key,
+			Value: v,
+		})
+	}
+	return params
 }
 
 func (c *Controller) accessibilityCheck(ctx context.Context, wpm *WPMContext) error {
