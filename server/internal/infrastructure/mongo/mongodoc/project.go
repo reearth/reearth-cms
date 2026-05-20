@@ -13,20 +13,21 @@ import (
 )
 
 type ProjectDocument struct {
-	ID            string
-	UpdatedAt     time.Time
-	Name          string
-	Description   string
-	License       string
-	Readme        string
-	Alias         string
-	ImageURL      string
-	StarCount     int64
-	StarredBy     []string
-	Topics        []string
-	Workspace     string
-	Accessibility *ProjectAccessibilityDocument
-	RequestRoles  []string
+	ID             string
+	UpdatedAt      time.Time
+	Name           string
+	Description    string
+	License        string
+	Readme         string
+	Alias          string
+	ImageURL       string
+	StarCount      int64
+	StarredBy      []string
+	Topics         []string
+	Workspace      string
+	Accessibility  *ProjectAccessibilityDocument
+	RequestRoles   []string
+	PostingEnabled bool
 }
 
 type PublicationSettingsDocument struct {
@@ -57,20 +58,21 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	}
 
 	return &ProjectDocument{
-		ID:            pid,
-		UpdatedAt:     project.UpdatedAt(),
-		Name:          project.Name(),
-		Description:   project.Description(),
-		License:       project.License(),
-		Readme:        project.Readme(),
-		Alias:         project.Alias(),
-		ImageURL:      imageURL,
-		StarCount:     project.StarCount(),
-		StarredBy:     project.StarredBy(),
-		Topics:        project.Topics(),
-		Workspace:     project.Workspace().String(),
-		Accessibility: NewProjectAccessibility(project.Accessibility()),
-		RequestRoles:  fromRequestRoles(project.RequestRoles()),
+		ID:             pid,
+		UpdatedAt:      project.UpdatedAt(),
+		Name:           project.Name(),
+		Description:    project.Description(),
+		License:        project.License(),
+		Readme:         project.Readme(),
+		Alias:          project.Alias(),
+		ImageURL:       imageURL,
+		StarCount:      project.StarCount(),
+		StarredBy:      project.StarredBy(),
+		Topics:         project.Topics(),
+		Workspace:      project.Workspace().String(),
+		Accessibility:  NewProjectAccessibility(project.Accessibility()),
+		RequestRoles:   fromRequestRoles(project.RequestRoles()),
+		PostingEnabled: project.PostingEnabled(),
 	}, pid
 }
 
@@ -147,6 +149,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Topics(d.Topics).
 		Accessibility(d.Accessibility.Model()).
 		RequestRoles(toRequestRoles(d.RequestRoles)).
+		PostingEnabled(d.PostingEnabled).
 		Build()
 }
 
