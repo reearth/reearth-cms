@@ -9,6 +9,8 @@ export type Config = {
   logoUrl?: string;
   coverImageUrl?: string;
   cesiumIonAccessToken?: string;
+  tilesUrl?: string;
+  tilesToken?: string;
   editorUrl: string;
   multiTenant?: Record<string, AuthInfo>;
   disableWorkspaceUi?: string | boolean;
@@ -26,6 +28,8 @@ export const defaultConfig: Config = {
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
   cesiumIonAccessToken: env.REEARTH_CESIUM_ION_ACCESS_TOKEN || "",
+  tilesUrl: env.REEARTH_CMS_TILES_URL || "https://tiles.eukarya.io",
+  tilesToken: env.REEARTH_CMS_TILES_TOKEN || "",
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
   firebase: {
     firebaseApiKey: env.REEARTH_CMS_FIREBASE_API_KEY,
