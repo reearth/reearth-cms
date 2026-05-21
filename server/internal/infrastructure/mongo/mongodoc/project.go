@@ -34,9 +34,14 @@ type PublicationSettingsDocument struct {
 	PublicAssets bool
 }
 
+type PostingSettingsDocument struct {
+	Enabled bool
+}
+
 type ProjectAccessibilityDocument struct {
 	Visibility  string
 	Publication *PublicationSettingsDocument
+	Posting     *PostingSettingsDocument
 	Keys        []APIKeyDocument
 }
 
@@ -84,6 +89,15 @@ func NewProjectPublicationSettings(p *project.PublicationSettings) *PublicationS
 	}
 }
 
+func NewProjectPostingSettings(p *project.PostingSettings) *PostingSettingsDocument {
+	if p == nil {
+		return nil
+	}
+	return &PostingSettingsDocument{
+		Enabled: p.Enabled(),
+	}
+}
+
 func NewProjectAccessibility(p *project.Accessibility) *ProjectAccessibilityDocument {
 	if p == nil {
 		return nil
@@ -97,6 +111,7 @@ func NewProjectAccessibility(p *project.Accessibility) *ProjectAccessibilityDocu
 	return &ProjectAccessibilityDocument{
 		Visibility:  p.Visibility().String(),
 		Publication: NewProjectPublicationSettings(p.Publication()),
+		Posting:     NewProjectPostingSettings(p.Posting()),
 		Keys:        keys,
 	}
 }
@@ -167,6 +182,13 @@ func (d *PublicationSettingsDocument) Model() *project.PublicationSettings {
 	return project.NewPublicationSettings(mIds, d.PublicAssets)
 }
 
+func (d *PostingSettingsDocument) Model() *project.PostingSettings {
+	if d == nil {
+		return nil
+	}
+	return project.NewPostingSettings(d.Enabled)
+}
+
 func (d *ProjectAccessibilityDocument) Model() *project.Accessibility {
 	if d == nil {
 		return project.NewPublicAccessibility()
@@ -178,7 +200,7 @@ func (d *ProjectAccessibilityDocument) Model() *project.Accessibility {
 		})
 	}
 
-	return project.NewAccessibility(project.Visibility(d.Visibility), d.Publication.Model(), keys)
+	return project.NewAccessibility(project.Visibility(d.Visibility), d.Publication.Model(), d.Posting.Model(), keys)
 }
 
 func (d *APIKeyDocument) Model() *project.APIKey {
