@@ -47,46 +47,17 @@ func NewController(workspace accountrepo.Workspace, project repo.Project, usecas
 }
 
 func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
-	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
+	w, p, err := c.loadWP(ctx, wAlias, pAlias)
 	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
-	}
-
-	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
-	}
-
-	// Check if the project belongs to the workspace
-	if p.Workspace() != w.ID() {
-		return nil, rerror.ErrNotFound
+		return nil, err
 	}
 
 	var m *model.Model
 	var sp *schema.Package
 	if mKey != "" {
-		m, err = c.usecases.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(mKey), nil)
+		m, sp, err = c.loadModel(ctx, p.ID(), mKey)
 		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
-				return nil, rerror.ErrNotFound
-			}
-			return nil, ErrInvalidProject
-		}
-
-		sp, err = c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
-		if err != nil {
-			return nil, ErrInvalidProject
-		}
-
-		// Check if the model belongs to the project
-		if m.Project() != p.ID() {
-			return nil, rerror.ErrNotFound
+			return nil, err
 		}
 	}
 
@@ -104,44 +75,16 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	return wpm, nil
 }
 
-// loadWPMContextForWrite loads workspace/project/model without requiring the
-// model to be in the public-read list. Used for Access API write endpoints.
+// loadWPMContextForWrite loads workspace/project/model for Access API write endpoints.
 func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
-	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
+	w, p, err := c.loadWP(ctx, wAlias, pAlias)
 	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
+		return nil, err
 	}
 
-	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
+	m, sp, err := c.loadModel(ctx, p.ID(), mKey)
 	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
-	}
-
-	if p.Workspace() != w.ID() {
-		return nil, rerror.ErrNotFound
-	}
-
-	m, err := c.usecases.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(mKey), nil)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
-	}
-
-	if m.Project() != p.ID() {
-		return nil, rerror.ErrNotFound
-	}
-
-	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
-	if err != nil {
-		return nil, ErrInvalidProject
+		return nil, err
 	}
 
 	return &WPMContext{
@@ -150,6 +93,51 @@ func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias,
 		Model:         m,
 		SchemaPackage: sp,
 	}, nil
+}
+
+func (c *Controller) loadWP(ctx context.Context, wAlias, pAlias string) (*workspace.Workspace, *project.Project, error) {
+	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, ErrInvalidProject
+	}
+
+	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, ErrInvalidProject
+	}
+
+	if p.Workspace() != w.ID() {
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	return w, p, nil
+}
+
+func (c *Controller) loadModel(ctx context.Context, pID id.ProjectID, mKey string) (*model.Model, *schema.Package, error) {
+	m, err := c.usecases.Model.FindByIDOrKey(ctx, pID, model.IDOrKey(mKey), nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, ErrInvalidProject
+	}
+
+	if m.Project() != pID {
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
+	if err != nil {
+		return nil, nil, ErrInvalidProject
+	}
+
+	return m, sp, nil
 }
 
 func (c *Controller) accessibilityCheck(ctx context.Context, wpm *WPMContext) error {

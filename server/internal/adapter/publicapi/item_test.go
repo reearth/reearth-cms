@@ -1,15 +1,9 @@
 package publicapi
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -23,6 +17,7 @@ import (
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmemory"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -90,54 +85,69 @@ func setupPostingTest(t *testing.T, postingEnabled bool) (ctrl *Controller, wAli
 	return ctrl, wAlias, pAlias, mKey, ctx
 }
 
-func TestController_PostItem_PostingDisabled(t *testing.T) {
+func TestController_PostItem(t *testing.T) {
 	t.Parallel()
 
-	ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, false)
+	tests := []struct {
+		name           string
+		postingEnabled bool
+		mutateAliases  func(wAlias, pAlias, mKey string) (string, string, string)
+		wantErr        error
+	}{
+		{
+			name:           "posting disabled returns ErrPostingDisabled",
+			postingEnabled: false,
+			wantErr:        ErrPostingDisabled,
+		},
+		{
+			name:           "posting enabled returns no error",
+			postingEnabled: true,
+			wantErr:        nil,
+		},
+		{
+			name:           "unknown workspace returns ErrNotFound",
+			postingEnabled: true,
+			mutateAliases: func(_, pAlias, mKey string) (string, string, string) {
+				return "nonexistent-workspace", pAlias, mKey
+			},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:           "unknown project returns ErrNotFound",
+			postingEnabled: true,
+			mutateAliases: func(wAlias, _, mKey string) (string, string, string) {
+				return wAlias, "nonexistent-project", mKey
+			},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:           "unknown model returns ErrNotFound",
+			postingEnabled: true,
+			mutateAliases: func(wAlias, pAlias, _ string) (string, string, string) {
+				return wAlias, pAlias, "nonexistent-model"
+			},
+			wantErr: rerror.ErrNotFound,
+		},
+	}
 
-	err := ctrl.PostItem(ctx, wAlias, pAlias, mKey)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	assert.ErrorIs(t, err, ErrPostingDisabled)
-}
+			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled)
 
-func TestController_PostItem_PostingEnabled(t *testing.T) {
-	t.Parallel()
+			if tt.mutateAliases != nil {
+				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
+			}
 
-	ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, true)
+			err := ctrl.PostItem(ctx, wAlias, pAlias, mKey)
 
-	err := ctrl.PostItem(ctx, wAlias, pAlias, mKey)
-
-	assert.False(t, errors.Is(err, ErrPostingDisabled), "posting gate should not fire when enabled")
-}
-
-func TestHandler_PostItem_Returns403WhenDisabled(t *testing.T) {
-	t.Parallel()
-
-	ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, false)
-
-	e := echo.New()
-	bodyBytes, _ := json.Marshal(map[string]any{})
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(bodyBytes))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-
-	// Attach controller to the request context so GetController works.
-	reqCtx := AttachController(baseCtx, ctrl)
-	req = req.WithContext(reqCtx)
-
-	c := e.NewContext(req, rec)
-	c.SetPathValues(echo.PathValues{
-		{Name: "workspace", Value: wAlias},
-		{Name: "project", Value: pAlias},
-		{Name: "model", Value: mKey},
-	})
-
-	err := PostItem()(c)
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusForbidden, rec.Code)
-
-	var resp postingDisabledResponse
-	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
-	assert.Equal(t, "posting_disabled", resp.Error)
-	assert.Equal(t, "Posting is disabled for this project.", resp.Message)
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }

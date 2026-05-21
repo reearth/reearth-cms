@@ -211,12 +211,7 @@ func TestProject(t *testing.T) {
 
 // TODO: teest for api keys CRUD
 
-func TestProjectPostingSettings(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	pId, _ := createProject(e, wId.String(), "posting-test", "posting-test", "posting-test")
-
-	// new project: posting should be absent (nil) — disabled by default
+func getProject(e *httpexpect.Expect, pId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `query GetProject($projectId: ID!) {
     node(id: $projectId, type: PROJECT) {
@@ -232,7 +227,7 @@ func TestProjectPostingSettings(t *testing.T) {
 }`,
 		Variables: map[string]any{"projectId": pId},
 	}
-	res := e.POST("/api/graphql").
+	return e.POST("/api/graphql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -240,10 +235,18 @@ func TestProjectPostingSettings(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON()
-	res.Path("$.data.node.accessibility.posting").Object().HasValue("enabled", false)
+}
+
+func TestProjectPostingSettings(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "posting-test", "posting-test", "posting-test")
+
+	// new project: posting disabled by default
+	getProject(e, pId).Path("$.data.node.accessibility.posting").Object().HasValue("enabled", false)
 
 	// enable posting
-	res = updateProjectPosting(e, pId, true)
+	res := updateProjectPosting(e, pId, true)
 	posting := res.Path("$.data.updateProject.project.accessibility.posting").Object()
 	posting.HasValue("enabled", true)
 
