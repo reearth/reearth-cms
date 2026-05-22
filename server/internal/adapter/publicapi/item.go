@@ -6,14 +6,12 @@ import (
 	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -171,6 +169,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 // Returns ErrPostingDisabled if posting.enabled is false.
 // TODO: Full posting logic will be implemented in WP3.
 func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (Item, error) {
+	op := adapter.Operator(ctx)
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return Item{}, err
@@ -180,17 +179,11 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}
 
 	fields := fieldsFromBody(body)
-
-	machineOp := &usecase.Operator{
-		Machine:    true,
-		AcOperator: &accountusecase.Operator{},
-	}
-
 	vi, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: wpm.SchemaPackage.Schema().ID(),
 		ModelID:  wpm.Model.ID(),
 		Fields:   fields,
-	}, machineOp)
+	}, op)
 	if err != nil {
 		return Item{}, err
 	}
