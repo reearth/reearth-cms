@@ -21,7 +21,6 @@ import {
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
 const CREDIT = "Terravista";
 
 const getTilesConfig = () => {
@@ -240,7 +239,7 @@ const cesiumIonGet = ({
       return CesiumTerrainProvider.fromUrl(
         url ||
           IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
-            accessToken: cesiumIonAccessToken || accessToken,
+            accessToken: cesiumIonAccessToken,
           }),
       );
     },

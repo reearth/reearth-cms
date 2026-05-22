@@ -8,7 +8,6 @@ export type Config = {
   api: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  cesiumIonAccessToken?: string;
   tilesUrl?: string;
   tilesToken?: string;
   editorUrl: string;
@@ -27,7 +26,6 @@ export const defaultConfig: Config = {
   authProvider: env.REEARTH_CMS_AUTH_PROVIDER || "auth0",
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
-  cesiumIonAccessToken: env.REEARTH_CESIUM_ION_ACCESS_TOKEN || "",
   tilesUrl: env.REEARTH_CMS_TILES_URL || "https://tiles.eukarya.io",
   tilesToken: env.REEARTH_CMS_TILES_TOKEN || "",
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
