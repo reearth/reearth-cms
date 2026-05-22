@@ -15,6 +15,11 @@ import (
 	"github.com/samber/lo"
 )
 
+type postingDisabledResponse struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
 type contextKey string
 
 func (c contextKey) String() string {
@@ -54,7 +59,6 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
-	e.POST("/:workspace/:project/:model", PostItem())
 	e.POST("/:workspace/:project/:model/items", PostItem())
 }
 
@@ -174,45 +178,6 @@ func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	return c.Blob(http.StatusOK, contentType, w.Bytes())
 }
 
-func PostItem() echo.HandlerFunc {
-	return func(c *echo.Context) error {
-		ctx := c.Request().Context()
-		ctrl := GetController(ctx)
-
-		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
-
-		var body map[string]any
-		if err := c.Bind(&body); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]any{
-				"error": "Request body is not valid JSON",
-				"code":  "INVALID_JSON",
-			})
-		}
-
-		item, err := ctrl.PostItem(ctx, ws, p, m, body)
-		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-			}
-			if errors.Is(err, ErrProjectPostDisabled) {
-				return c.JSON(http.StatusForbidden, map[string]any{
-					"error": "Public posting is disabled for this project",
-					"code":  "POSTING_DISABLED_PROJECT",
-				})
-			}
-			if errors.Is(err, ErrModelPostDisabled) {
-				return c.JSON(http.StatusForbidden, map[string]any{
-					"error": "Public posting is disabled for this model",
-					"code":  "POSTING_DISABLED_MODEL",
-				})
-			}
-			return err
-		}
-
-		return c.JSON(http.StatusCreated, item)
-	}
-}
-
 func ItemOrAsset() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
@@ -284,6 +249,46 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 	return 0, false
 }
 
+// PostItem handles POST /:workspace/:project/:model to create a new item.
+// TODO: accept item data in the request body and pass it to the controller in future task.
+func PostItem() echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
+
+		var body map[string]any
+		if err := c.Bind(&body); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{
+				"error": "Request body is not valid JSON",
+				"code":  "INVALID_JSON",
+			})
+		}
+
+		item, err := ctrl.PostItem(ctx, ws, p, m, body)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
+			if errors.Is(err, ErrProjectPostDisabled) {
+				return c.JSON(http.StatusForbidden, map[string]any{
+					"error": "Public posting is disabled for this project",
+					"code":  "POSTING_DISABLED_PROJECT",
+				})
+			}
+			if errors.Is(err, ErrModelPostDisabled) {
+				return c.JSON(http.StatusForbidden, map[string]any{
+					"error": "Public posting is disabled for this model",
+					"code":  "POSTING_DISABLED_MODEL",
+				})
+			}
+			return err
+		}
+
+		return c.JSON(http.StatusCreated, item)
+	}
+}
 
 func OpenAPISchema() echo.HandlerFunc {
 	return func(c *echo.Context) error {

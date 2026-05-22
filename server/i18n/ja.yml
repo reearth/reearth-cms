@@ -90,7 +90,6 @@ only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
 partial not found: 部分が見つかりませんでした。
 policy check failed: ポリシーチェックに失敗しました。
-posting is disabled for this model: このモデルへの投稿は無効です。
 posting is disabled for this project: このプロジェクトは投稿できません。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
 project creation limit exceeded: プロジェクト作成数の上限に達しました。

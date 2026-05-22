@@ -6,12 +6,14 @@ import (
 	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -165,3 +167,34 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
+// PostItem checks the posting gate for the project.
+// Returns ErrPostingDisabled if posting.enabled is false.
+// TODO: Full posting logic will be implemented in WP3.
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (Item, error) {
+	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
+	if err != nil {
+		return Item{}, err
+	}
+
+	if !wpm.Project.Accessibility().PostingEnabled() {
+		return Item{}, ErrPostingDisabled
+	}
+
+	fields := fieldsFromBody(body)
+
+	machineOp := &usecase.Operator{
+		Machine:    true,
+		AcOperator: &accountusecase.Operator{},
+	}
+
+	vi, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: wpm.SchemaPackage.Schema().ID(),
+		ModelID:  wpm.Model.ID(),
+		Fields:   fields,
+	}, machineOp)
+	if err != nil {
+		return Item{}, err
+	}
+
+	return NewItem(vi.Value(), wpm.SchemaPackage, nil, nil), nil
+}

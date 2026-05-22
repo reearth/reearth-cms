@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -15,18 +14,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
-var (
-	ErrInvalidProject      = rerror.NewE(i18n.T("invalid project"))
-	ErrProjectPostDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
-	ErrModelPostDisabled   = rerror.NewE(i18n.T("posting is disabled for this model"))
-)
+var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
+var ErrPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
 
 type Controller struct {
 	project   repo.Project
@@ -123,39 +118,6 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 // public-read accessibility gate. Used by POST (write) endpoints.
 func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
 	return c.loadWPMContextBase(ctx, wAlias, pAlias, mKey)
-}
-
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (Item, error) {
-	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
-	if err != nil {
-		return Item{}, err
-	}
-
-	if !wpm.Project.Accessibility().PostingEnabled() {
-		return Item{}, ErrProjectPostDisabled
-	}
-
-	if wpm.Model == nil || !wpm.Model.PostingEnabled() {
-		return Item{}, ErrModelPostDisabled
-	}
-
-	fields := fieldsFromBody(body)
-
-	machineOp := &usecase.Operator{
-		Machine:    true,
-		AcOperator: &accountusecase.Operator{},
-	}
-
-	vi, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: wpm.SchemaPackage.Schema().ID(),
-		ModelID:  wpm.Model.ID(),
-		Fields:   fields,
-	}, machineOp)
-	if err != nil {
-		return Item{}, err
-	}
-
-	return NewItem(vi.Value(), wpm.SchemaPackage, nil, nil), nil
 }
 
 // fieldsFromBody converts the {"fields": {"key": value}} request body into
