@@ -1162,42 +1162,42 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
 
 	t.Run("unknown workspace returns 404", func(t *testing.T) {
-		e.POST("/api/p/{workspace}/{project}/{model}", "nonexistent-workspace", pId, mKey).
+		e.POST("/api/p/{workspace}/{project}/{model}/items", "nonexistent-workspace", pId, mKey).
 			Expect().
 			Status(http.StatusNotFound).
 			JSON().IsEqual(map[string]any{"error": "not found"})
 	})
 
 	t.Run("unknown project returns 404", func(t *testing.T) {
-		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), "nonexistent-project", mKey).
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), "nonexistent-project", mKey).
 			Expect().
 			Status(http.StatusNotFound).
 			JSON().IsEqual(map[string]any{"error": "not found"})
 	})
 
 	t.Run("unknown model returns 404", func(t *testing.T) {
-		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), pId, "nonexistent-model").
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, "nonexistent-model").
 			Expect().
 			Status(http.StatusNotFound).
 			JSON().IsEqual(map[string]any{"error": "not found"})
 	})
 
 	t.Run("posting disabled returns 403", func(t *testing.T) {
-		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), pId, mKey).
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
 			Status(http.StatusForbidden).
 			JSON().IsEqual(map[string]any{
-			"error":   "posting_disabled",
-			"message": "Posting is disabled for this project.",
+			"error": "Public posting is disabled for this project",
+			"code":  "POSTING_DISABLED_PROJECT",
 		})
 	})
 
 	updateProjectPosting(e, pId, true)
 
-	t.Run("posting enabled returns 200", func(t *testing.T) {
-		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), pId, mKey).
+	t.Run("posting enabled returns 201", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
-			Status(http.StatusOK).
+			Status(http.StatusCreated).
 			JSON().IsEqual(map[string]any{
 			"status":  "accepted",
 			"message": "Posting is enabled.",
