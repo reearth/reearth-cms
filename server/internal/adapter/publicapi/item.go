@@ -168,40 +168,13 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 // PostItem checks the posting gate for the project.
 // Returns ErrPostingDisabled if posting.enabled is false.
 // TODO: Full posting logic will be implemented in WP3.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (Item, error) {
-	op := adapter.Operator(ctx)
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string) error {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
-		return Item{}, err
+		return err
 	}
 	if !wpm.Project.Accessibility().PostingEnabled() {
-		return Item{}, ErrPostingDisabled
+		return ErrPostingDisabled
 	}
-
-	fields := fieldsFromBody(body)
-	vi, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: wpm.SchemaPackage.Schema().ID(),
-		ModelID:  wpm.Model.ID(),
-		Fields:   fields,
-	}, op)
-	if err != nil {
-		return Item{}, err
-	}
-
-	return NewItem(vi.Value(), wpm.SchemaPackage, nil, nil), nil
-}
-
-// fieldsFromBody converts the {"fields": {"key": value}} request body into
-// ItemFieldParam entries keyed by schema field key.
-func fieldsFromBody(body map[string]any) []interfaces.ItemFieldParam {
-	raw, _ := body["fields"].(map[string]any)
-	params := make([]interfaces.ItemFieldParam, 0, len(raw))
-	for k, v := range raw {
-		key := id.NewKey(k)
-		params = append(params, interfaces.ItemFieldParam{
-			Key:   &key,
-			Value: v,
-		})
-	}
-	return params
+	return nil
 }

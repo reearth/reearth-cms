@@ -15,9 +15,10 @@ import (
 	"github.com/samber/lo"
 )
 
-type postingDisabledResponse struct {
+type apiErrorResponse struct {
 	Error   string `json:"error"`
-	Message string `json:"message"`
+	Code    string `json:"code"`
+	Details any    `json:"details,omitempty"`
 }
 
 type contextKey string
@@ -258,20 +259,11 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
-		body := map[string]any{}
-		if err := c.Bind(&body); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]any{
-				"error": "Request body is not valid JSON",
-				"code":  "INVALID_JSON",
-			})
-		}
-
-		item, err := ctrl.PostItem(ctx, ws, p, m, body)
-		if err != nil {
+		if err := ctrl.PostItem(ctx, ws, p, m); err != nil {
 			if errors.Is(err, ErrPostingDisabled) {
-				return c.JSON(http.StatusForbidden, postingDisabledResponse{
-					Error:   "posting_disabled",
-					Message: "Posting is disabled for this project.",
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "Public posting is disabled for this project",
+					Code:  "POSTING_DISABLED_PROJECT",
 				})
 			}
 			if errors.Is(err, rerror.ErrNotFound) {
@@ -280,7 +272,10 @@ func PostItem() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusCreated, map[string]string{"id": item.ID})
+		return c.JSON(http.StatusOK, map[string]string{
+			"status":  "accepted",
+			"message": "Posting is enabled.",
+		})
 	}
 }
 
