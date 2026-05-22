@@ -39,7 +39,7 @@ describe("isLabelsOverlayProvider", () => {
 });
 
 describe("LABELS_OVERLAY_ALPHA", () => {
-  test("is 0.5", () => {
-    expect(LABELS_OVERLAY_ALPHA).toBe(0.5);
+  test("is 0.7", () => {
+    expect(LABELS_OVERLAY_ALPHA).toBe(0.7);
   });
 });

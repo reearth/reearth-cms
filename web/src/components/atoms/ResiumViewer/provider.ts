@@ -33,7 +33,7 @@ const getTilesConfig = () => {
 };
 
 export const LABELS_OVERLAY_FLAG = "__terravistaLabelsOverlay" as const;
-export const LABELS_OVERLAY_ALPHA = 0.5;
+export const LABELS_OVERLAY_ALPHA = 0.7;
 export const isLabelsOverlayProvider = (provider: unknown): boolean => {
   return !!(provider as Record<string, unknown> | null | undefined)?.[LABELS_OVERLAY_FLAG];
 };
