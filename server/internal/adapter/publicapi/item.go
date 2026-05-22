@@ -197,7 +197,6 @@ func fieldsFromBody(body map[string]any) []interfaces.ItemFieldParam {
 	raw, _ := body["fields"].(map[string]any)
 	params := make([]interfaces.ItemFieldParam, 0, len(raw))
 	for k, v := range raw {
-		k := k
 		key := id.NewKey(k)
 		params = append(params, interfaces.ItemFieldParam{
 			Key:   &key,

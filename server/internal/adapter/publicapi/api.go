@@ -258,7 +258,7 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
-		var body map[string]any
+		body := map[string]any{}
 		if err := c.Bind(&body); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]any{
 				"error": "Request body is not valid JSON",
