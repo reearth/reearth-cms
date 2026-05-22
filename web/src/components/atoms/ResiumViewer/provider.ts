@@ -8,7 +8,6 @@ import {
   Credit,
   IonResource,
   EllipsoidTerrainProvider,
-  createWorldTerrainAsync,
   buildModuleUrl,
 } from "cesium";
 
@@ -206,9 +205,11 @@ const cesiumWorld = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldTerrainAsync({
-      requestWaterMask: true,
+    const { tilesUrl, tokenQuery } = getTilesConfig();
+    return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
+      requestWaterMask: true,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
