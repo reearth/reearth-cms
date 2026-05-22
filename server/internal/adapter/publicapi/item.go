@@ -198,3 +198,19 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 
 	return NewItem(vi.Value(), wpm.SchemaPackage, nil, nil), nil
 }
+
+// fieldsFromBody converts the {"fields": {"key": value}} request body into
+// ItemFieldParam entries keyed by schema field key.
+func fieldsFromBody(body map[string]any) []interfaces.ItemFieldParam {
+	raw, _ := body["fields"].(map[string]any)
+	params := make([]interfaces.ItemFieldParam, 0, len(raw))
+	for k, v := range raw {
+		k := k
+		key := id.NewKey(k)
+		params = append(params, interfaces.ItemFieldParam{
+			Key:   &key,
+			Value: v,
+		})
+	}
+	return params
+}

@@ -46,49 +46,45 @@ func NewController(workspace accountrepo.Workspace, project repo.Project, usecas
 	}
 }
 
-// loadWPMContextBase resolves workspace, project, and model without any
-// accessibility gate. Both read and write paths build on top of this.
-func (c *Controller) loadWPMContextBase(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
-	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
+func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+	w, p, err := c.loadWP(ctx, wAlias, pAlias)
 	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
-	}
-
-	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
-		}
-		return nil, ErrInvalidProject
-	}
-
-	if p.Workspace() != w.ID() {
-		return nil, rerror.ErrNotFound
+		return nil, err
 	}
 
 	var m *model.Model
 	var sp *schema.Package
 	if mKey != "" {
-		m, err = c.usecases.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(mKey), nil)
+		m, sp, err = c.loadModel(ctx, p.ID(), mKey)
 		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
-				return nil, rerror.ErrNotFound
-			}
-			return nil, ErrInvalidProject
+			return nil, err
 		}
+	}
 
-		sp, err = c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
-		if err != nil {
-			return nil, ErrInvalidProject
-		}
+	wpm := &WPMContext{
+		Workspace:     *w,
+		Project:       *p,
+		Model:         m,
+		SchemaPackage: sp,
+	}
 
-		// Check if the model belongs to the project
-		if m.Project() != p.ID() {
-			return nil, rerror.ErrNotFound
-		}
+	if err := c.accessibilityCheck(ctx, wpm); err != nil {
+		return nil, err
+	}
+
+	return wpm, nil
+}
+
+// loadWPMContextForWrite loads workspace/project/model for Access API write endpoints.
+func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
+	w, p, err := c.loadWP(ctx, wAlias, pAlias)
+	if err != nil {
+		return nil, err
+	}
+
+	m, sp, err := c.loadModel(ctx, p.ID(), mKey)
+	if err != nil {
+		return nil, err
 	}
 
 	return &WPMContext{
@@ -99,41 +95,49 @@ func (c *Controller) loadWPMContextBase(ctx context.Context, wAlias, pAlias, mKe
 	}, nil
 }
 
-// loadWPMContext resolves workspace/project/model and enforces the public-read
-// accessibility gate. Used by GET (read) endpoints.
-func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
-	wpm, err := c.loadWPMContextBase(ctx, wAlias, pAlias, mKey)
+func (c *Controller) loadWP(ctx context.Context, wAlias, pAlias string) (*workspace.Workspace, *project.Project, error) {
+	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
 	if err != nil {
-		return nil, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, ErrInvalidProject
 	}
 
-	if err := c.accessibilityCheck(ctx, wpm); err != nil {
-		return nil, err
+	p, err := c.project.FindByIDOrAlias(ctx, w.ID(), project.IDOrAlias(pAlias))
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, ErrInvalidProject
 	}
 
-	return wpm, nil
+	if p.Workspace() != w.ID() {
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	return w, p, nil
 }
 
-// loadWPMContextForWrite resolves workspace/project/model without enforcing the
-// public-read accessibility gate. Used by POST (write) endpoints.
-func (c *Controller) loadWPMContextForWrite(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
-	return c.loadWPMContextBase(ctx, wAlias, pAlias, mKey)
-}
-
-// fieldsFromBody converts the {"fields": {"key": value}} request body into
-// ItemFieldParam entries keyed by schema field key.
-func fieldsFromBody(body map[string]any) []interfaces.ItemFieldParam {
-	raw, _ := body["fields"].(map[string]any)
-	params := make([]interfaces.ItemFieldParam, 0, len(raw))
-	for k, v := range raw {
-		k := k
-		key := id.NewKey(k)
-		params = append(params, interfaces.ItemFieldParam{
-			Key:   &key,
-			Value: v,
-		})
+func (c *Controller) loadModel(ctx context.Context, pID id.ProjectID, mKey string) (*model.Model, *schema.Package, error) {
+	m, err := c.usecases.Model.FindByIDOrKey(ctx, pID, model.IDOrKey(mKey), nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, ErrInvalidProject
 	}
-	return params
+
+	if m.Project() != pID {
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
+	if err != nil {
+		return nil, nil, ErrInvalidProject
+	}
+
+	return m, sp, nil
 }
 
 func (c *Controller) accessibilityCheck(ctx context.Context, wpm *WPMContext) error {

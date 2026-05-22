@@ -268,20 +268,14 @@ func PostItem() echo.HandlerFunc {
 
 		item, err := ctrl.PostItem(ctx, ws, p, m, body)
 		if err != nil {
+			if errors.Is(err, ErrPostingDisabled) {
+				return c.JSON(http.StatusForbidden, postingDisabledResponse{
+					Error:   "posting_disabled",
+					Message: "Posting is disabled for this project.",
+				})
+			}
 			if errors.Is(err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-			}
-			if errors.Is(err, ErrProjectPostDisabled) {
-				return c.JSON(http.StatusForbidden, map[string]any{
-					"error": "Public posting is disabled for this project",
-					"code":  "POSTING_DISABLED_PROJECT",
-				})
-			}
-			if errors.Is(err, ErrModelPostDisabled) {
-				return c.JSON(http.StatusForbidden, map[string]any{
-					"error": "Public posting is disabled for this model",
-					"code":  "POSTING_DISABLED_MODEL",
-				})
 			}
 			return err
 		}
