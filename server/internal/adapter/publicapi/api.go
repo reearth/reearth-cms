@@ -283,6 +283,13 @@ func PostItem() echo.HandlerFunc {
 			return err
 		}
 
+		/* TODO: success response should be in this format in future draft item creation task
+		{
+			"id": "",
+			"$createdAt": "",
+			"fields": {}
+		}
+		*/
 		return c.JSON(http.StatusOK, map[string]string{
 			"status":  "accepted",
 			"message": "Posting is enabled.",
