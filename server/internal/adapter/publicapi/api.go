@@ -290,7 +290,7 @@ func PostItem() echo.HandlerFunc {
 			"fields": {}
 		}
 		*/
-		return c.JSON(http.StatusOK, map[string]string{
+		return c.JSON(http.StatusCreated, map[string]string{
 			"status":  "accepted",
 			"message": "Posting is enabled.",
 		})
