@@ -399,7 +399,7 @@ func TestPublicAPI_Assets(t *testing.T) {
 	})
 
 	t.Run("export assets should fail for private project (publication nil)", func(t *testing.T) {
-		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil))
 		lo.Must0(r.Project.Save(ctx, prj))
 
 		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
@@ -865,7 +865,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	})
 
 	t.Run("export as json should fail for private project (publication nil)", func(t *testing.T) {
-		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil))
 		lo.Must0(r.Project.Save(ctx, prj))
 
 		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
@@ -1151,6 +1151,57 @@ func TestPublicAPI_Model_Schema(t *testing.T) {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type":    "object",
 			})
+	})
+}
+
+func TestPublicAPI_PostItem(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "posting-api-test", "posting-api-test", "posting-api-test")
+	_, mRes := createModel(e, pId, "post-model", "post-model", "post-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+
+	t.Run("unknown workspace returns 404", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}", "nonexistent-workspace", pId, mKey).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().IsEqual(map[string]any{"error": "not found"})
+	})
+
+	t.Run("unknown project returns 404", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), "nonexistent-project", mKey).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().IsEqual(map[string]any{"error": "not found"})
+	})
+
+	t.Run("unknown model returns 404", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), pId, "nonexistent-model").
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().IsEqual(map[string]any{"error": "not found"})
+	})
+
+	t.Run("posting disabled returns 403", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), pId, mKey).
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().IsEqual(map[string]any{
+			"error":   "posting_disabled",
+			"message": "Posting is disabled for this project.",
+		})
+	})
+
+	updateProjectPosting(e, pId, true)
+
+	t.Run("posting enabled returns 200", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}", wId.String(), pId, mKey).
+			Expect().
+			Status(http.StatusOK).
+			JSON().IsEqual(map[string]any{
+			"status":  "accepted",
+			"message": "Posting is enabled.",
+		})
 	})
 }
 

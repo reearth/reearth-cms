@@ -7,6 +7,122 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewAccessibility_WithPosting(t *testing.T) {
+	t.Parallel()
+
+	t.Run("posting nil — PostingEnabled returns false", func(t *testing.T) {
+		t.Parallel()
+		a := NewAccessibility(VisibilityPublic, nil, nil, nil)
+		assert.False(t, a.PostingEnabled())
+		assert.Nil(t, a.Posting())
+	})
+
+	t.Run("posting enabled — PostingEnabled returns true", func(t *testing.T) {
+		t.Parallel()
+		a := NewAccessibility(VisibilityPublic, nil, NewPostingSettings(true), nil)
+		assert.True(t, a.PostingEnabled())
+		assert.NotNil(t, a.Posting())
+	})
+}
+
+func TestAccessibility_Posting(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		a       *Accessibility
+		wantNil bool
+		want    bool
+	}{
+		{name: "nil receiver", a: nil, wantNil: true},
+		{name: "nil posting", a: &Accessibility{}, wantNil: true},
+		{name: "posting disabled", a: &Accessibility{posting: &PostingSettings{enabled: false}}, wantNil: false, want: false},
+		{name: "posting enabled", a: &Accessibility{posting: &PostingSettings{enabled: true}}, wantNil: false, want: true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := tt.a.Posting()
+			if tt.wantNil {
+				assert.Nil(t, got)
+			} else {
+				assert.NotNil(t, got)
+				assert.Equal(t, tt.want, got.Enabled())
+			}
+		})
+	}
+}
+
+func TestAccessibility_PostingEnabled(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		a    *Accessibility
+		want bool
+	}{
+		{name: "nil receiver", a: nil, want: false},
+		{name: "nil posting", a: &Accessibility{}, want: false},
+		{name: "posting disabled", a: &Accessibility{posting: &PostingSettings{enabled: false}}, want: false},
+		{name: "posting enabled", a: &Accessibility{posting: &PostingSettings{enabled: true}}, want: true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.a.PostingEnabled())
+		})
+	}
+}
+
+func TestAccessibility_SetPosting(t *testing.T) {
+	t.Parallel()
+
+	t.Run("nil receiver is a no-op", func(t *testing.T) {
+		t.Parallel()
+		var a *Accessibility
+		assert.NotPanics(t, func() { a.SetPosting(NewPostingSettings(true)) })
+	})
+
+	t.Run("set nil clears posting", func(t *testing.T) {
+		t.Parallel()
+		a := &Accessibility{posting: NewPostingSettings(true)}
+		a.SetPosting(nil)
+		assert.Nil(t, a.posting)
+	})
+
+	t.Run("set non-nil stores clone", func(t *testing.T) {
+		t.Parallel()
+		a := &Accessibility{}
+		ps := NewPostingSettings(true)
+		a.SetPosting(ps)
+		assert.True(t, a.PostingEnabled())
+		assert.NotSame(t, ps, a.posting)
+	})
+}
+
+func TestAccessibility_Clone_IncludesPosting(t *testing.T) {
+	t.Parallel()
+
+	t.Run("clone preserves posting", func(t *testing.T) {
+		t.Parallel()
+		a := &Accessibility{posting: NewPostingSettings(true)}
+		c := a.Clone()
+		assert.True(t, c.PostingEnabled())
+		assert.NotSame(t, a.posting, c.posting)
+	})
+
+	t.Run("clone with nil posting", func(t *testing.T) {
+		t.Parallel()
+		a := &Accessibility{}
+		c := a.Clone()
+		assert.Nil(t, c.Posting())
+	})
+}
+
 func TestAccessibility_IsAssetsPublic(t *testing.T) {
 	apiKey1 := NewAPIKeyBuilder().
 		NewID().

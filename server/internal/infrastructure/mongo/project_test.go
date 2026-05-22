@@ -1149,7 +1149,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Topics([]string{"topic1", "abc"}).
 		Workspace(tid1).
 		UpdatedAt(now).
-		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil, nil)).
 		MustBuild()
 
 	p2 := project.New().
@@ -1160,7 +1160,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Topics([]string{"topic2", "xyz"}).
 		Workspace(tid1).
 		UpdatedAt(now.Add(time.Hour)).
-		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil)).
 		MustBuild()
 
 	p3 := project.New().
@@ -1171,7 +1171,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Topics([]string{"abc"}).
 		Workspace(tid2).
 		UpdatedAt(now.Add(2 * time.Hour)).
-		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil, nil)).
 		MustBuild()
 
 	p4 := project.New().
@@ -1182,7 +1182,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Topics([]string{"topic1", "topic2", "xyz"}).
 		Workspace(tid1).
 		UpdatedAt(now.Add(3 * time.Hour)).
-		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil, nil)).
 		MustBuild()
 
 	type args struct {
@@ -1585,28 +1585,28 @@ func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
 
 	pidPub := id.NewProjectID()
 	pPub := project.New().ID(pidPub).Workspace(wid).
-		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil, nil)).
 		UpdatedAt(now).Topics([]string{}).MustBuild()
 
 	pidPriv := id.NewProjectID()
 	pPriv := project.New().ID(pidPriv).Workspace(wid).
-		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil)).
 		UpdatedAt(now.Add(time.Second)).Topics([]string{}).MustBuild()
 
 	pidPriv2 := id.NewProjectID()
 	pPriv2 := project.New().ID(pidPriv2).Workspace(wid).
-		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil)).
 		UpdatedAt(now.Add(2 * time.Second)).Topics([]string{}).MustBuild()
 
 	// projects in a second workspace
 	pidOtherPub := id.NewProjectID()
 	pOtherPub := project.New().ID(pidOtherPub).Workspace(wid2).
-		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil, nil)).
 		UpdatedAt(now.Add(3 * time.Second)).Topics([]string{}).MustBuild()
 
 	pidOtherPriv := id.NewProjectID()
 	pOtherPriv := project.New().ID(pidOtherPriv).Workspace(wid2).
-		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil)).
 		UpdatedAt(now.Add(4 * time.Second)).Topics([]string{}).MustBuild()
 
 	wsFilter := repo.WorkspaceFilter{

@@ -48,6 +48,11 @@ type UpdateProjectParam struct {
 type AccessibilityParam struct {
 	Visibility  *project.Visibility
 	Publication *PublicationSettingsParam
+	Posting     *PostingSettingsParam
+}
+
+type PostingSettingsParam struct {
+	Enabled bool
 }
 
 type PublicationSettingsParam struct {

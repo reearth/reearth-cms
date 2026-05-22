@@ -1038,17 +1038,17 @@ func TestProjectRepo_ProjectFilter_Visibility(t *testing.T) {
 
 	pidPub := id.NewProjectID()
 	pPub := project.New().ID(pidPub).Workspace(wid).
-		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil, nil)).
 		MustBuild()
 
 	pidPriv := id.NewProjectID()
 	pPriv := project.New().ID(pidPriv).Workspace(wid).
-		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil)).
 		MustBuild()
 
 	pidPriv2 := id.NewProjectID()
 	pPriv2 := project.New().ID(pidPriv2).Workspace(wid).
-		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil)).
 		MustBuild()
 
 	seeds := project.List{pPub, pPriv, pPriv2}

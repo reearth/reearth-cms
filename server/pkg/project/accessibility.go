@@ -5,12 +5,14 @@ import "github.com/reearth/reearth-cms/server/pkg/id"
 type Accessibility struct {
 	visibility  Visibility
 	publication *PublicationSettings
+	posting     *PostingSettings
 	apiKeys     APIKeys
 }
 
-func NewAccessibility(visibility Visibility, publication *PublicationSettings, keys APIKeys) *Accessibility {
+func NewAccessibility(visibility Visibility, publication *PublicationSettings, posting *PostingSettings, keys APIKeys) *Accessibility {
 	p := &Accessibility{
 		publication: publication.Clone(),
+		posting:     posting.Clone(),
 		apiKeys:     keys.Clone(),
 	}
 	p.SetVisibility(visibility)
@@ -54,6 +56,20 @@ func (p *Accessibility) Publication() *PublicationSettings {
 	return p.publication.Clone()
 }
 
+func (p *Accessibility) Posting() *PostingSettings {
+	if p == nil || p.posting == nil {
+		return nil
+	}
+	return p.posting.Clone()
+}
+
+func (p *Accessibility) PostingEnabled() bool {
+	if p == nil || p.posting == nil {
+		return false
+	}
+	return p.posting.Enabled()
+}
+
 func (p *Accessibility) SetVisibility(visibility Visibility) {
 	if visibility != VisibilityPrivate && visibility != VisibilityPublic {
 		visibility = VisibilityPublic
@@ -70,6 +86,17 @@ func (p *Accessibility) SetPublication(publication *PublicationSettings) {
 		return
 	}
 	p.publication = publication.Clone()
+}
+
+func (p *Accessibility) SetPosting(posting *PostingSettings) {
+	if p == nil {
+		return
+	}
+	if posting == nil {
+		p.posting = nil
+		return
+	}
+	p.posting = posting.Clone()
 }
 
 func (p *Accessibility) SetAPIKeys(keys APIKeys) {
@@ -151,6 +178,7 @@ func (p *Accessibility) Clone() *Accessibility {
 	return &Accessibility{
 		visibility:  p.visibility,
 		publication: p.publication.Clone(),
+		posting:     p.posting.Clone(),
 		apiKeys:     p.apiKeys.Clone(),
 	}
 }

@@ -149,7 +149,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 			}
 
 			if param.Accessibility != nil && param.Accessibility.Visibility != nil {
-				accessibility := project.NewAccessibility(*param.Accessibility.Visibility, nil, nil)
+				accessibility := project.NewAccessibility(*param.Accessibility.Visibility, nil, nil, nil)
 				pb = pb.Accessibility(accessibility)
 			}
 
@@ -259,6 +259,9 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 				}
 				if param.Accessibility.Publication != nil && accessibility.Visibility() == project.VisibilityPrivate {
 					accessibility.SetPublication(project.NewPublicationSettings(param.Accessibility.Publication.PublicModels, param.Accessibility.Publication.PublicAssets))
+				}
+				if param.Accessibility.Posting != nil {
+					accessibility.SetPosting(project.NewPostingSettings(param.Accessibility.Posting.Enabled))
 				}
 				p.SetAccessibility(*accessibility)
 			}
