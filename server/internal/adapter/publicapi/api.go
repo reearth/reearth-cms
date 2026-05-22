@@ -17,7 +17,7 @@ import (
 
 type apiErrorResponse struct {
 	Error   string `json:"error"`
-	Code    string `json:"code"`
+	Code    string `json:"code,omitempty"`
 	Details any    `json:"details,omitempty"`
 }
 
@@ -259,15 +259,26 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
+		// TODO: use the body in future schema validation and draft item creation tasks
+		body := map[string]any{}
+		if err := c.Bind(&body); err != nil {
+			return c.JSON(http.StatusBadRequest, apiErrorResponse{
+				Error: "Request body is not valid JSON",
+				Code:  "INVALID_JSON",
+			})
+		}
+
 		if err := ctrl.PostItem(ctx, ws, p, m); err != nil {
-			if errors.Is(err, ErrPostingDisabled) {
+			if errors.Is(err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "Public posting is disabled for this project",
 					Code:  "POSTING_DISABLED_PROJECT",
 				})
 			}
 			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+				return c.JSON(http.StatusNotFound, apiErrorResponse{
+					Error: "not found",
+				})
 			}
 			return err
 		}
