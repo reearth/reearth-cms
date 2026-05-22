@@ -49,8 +49,7 @@ func postItemSeeder(ctx context.Context, r *repo.Container, _ *gateway.Container
 
 	// Project 1 — posting enabled
 	p1 := project.New().ID(postP1Id).Workspace(wid).Alias(postP1Alias).
-		Accessibility(project.NewPublicAccessibility()).
-		PostingEnabled(true).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, project.NewPostingSettings(true), nil)).
 		MustBuild()
 	lo.Must0(r.Project.Save(ctx, p1))
 
@@ -76,8 +75,7 @@ func postItemSeeder(ctx context.Context, r *repo.Container, _ *gateway.Container
 
 	// Project 2 — posting disabled at project level
 	p2 := project.New().ID(postP2Id).Workspace(wid).Alias(postP2Alias).
-		Accessibility(project.NewPublicAccessibility()).
-		PostingEnabled(false).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, project.NewPostingSettings(false), nil)).
 		MustBuild()
 	lo.Must0(r.Project.Save(ctx, p2))
 

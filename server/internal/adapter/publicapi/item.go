@@ -165,16 +165,3 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
-// PostItem checks the posting gate for the project.
-// Returns ErrPostingDisabled if posting.enabled is false.
-// TODO: Full posting logic will be implemented in WP3.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string) error {
-	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
-	if err != nil {
-		return err
-	}
-	if !wpm.Project.Accessibility().PostingEnabled() {
-		return ErrPostingDisabled
-	}
-	return nil
-}

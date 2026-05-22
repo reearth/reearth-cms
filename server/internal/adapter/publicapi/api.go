@@ -15,11 +15,6 @@ import (
 	"github.com/samber/lo"
 )
 
-type postingDisabledResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message"`
-}
-
 type contextKey string
 
 func (c contextKey) String() string {
@@ -289,34 +284,6 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 	return 0, false
 }
 
-// PostItem handles POST /:workspace/:project/:model to create a new item.
-// TODO: accept item data in the request body and pass it to the controller in future task.
-func PostItem() echo.HandlerFunc {
-	return func(c *echo.Context) error {
-		ctx := c.Request().Context()
-		ctrl := GetController(ctx)
-
-		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
-
-		if err := ctrl.PostItem(ctx, ws, p, m); err != nil {
-			if errors.Is(err, ErrPostingDisabled) {
-				return c.JSON(http.StatusForbidden, postingDisabledResponse{
-					Error:   "posting_disabled",
-					Message: "Posting is disabled for this project.",
-				})
-			}
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-			}
-			return err
-		}
-
-		return c.JSON(http.StatusOK, map[string]string{
-			"status":  "accepted",
-			"message": "Posting is enabled.",
-		})
-	}
-}
 
 func OpenAPISchema() echo.HandlerFunc {
 	return func(c *echo.Context) error {

@@ -175,7 +175,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -193,7 +193,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if !operator.IsWritableWorkspace(s.Workspace()) {
+		if !operator.Machine && !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 

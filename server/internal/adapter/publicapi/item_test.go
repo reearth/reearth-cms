@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupPostingTest(t *testing.T, postingEnabled bool) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
+func setupPostingTest(t *testing.T, projectPostingEnabled, modelPostingEnabled bool) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
 	t.Helper()
 	ctx = context.Background()
 
@@ -40,7 +40,7 @@ func setupPostingTest(t *testing.T, postingEnabled bool) (ctrl *Controller, wAli
 	a11y := project.NewAccessibility(
 		project.VisibilityPublic,
 		nil,
-		project.NewPostingSettings(postingEnabled),
+		project.NewPostingSettings(projectPostingEnabled),
 		nil,
 	)
 	p := project.New().
@@ -65,6 +65,7 @@ func setupPostingTest(t *testing.T, postingEnabled bool) (ctrl *Controller, wAli
 		Schema(sid).
 		Key(mk).
 		Project(pid).
+		PostingEnabled(modelPostingEnabled).
 		MustBuild()
 
 	db := memory.New()
@@ -89,40 +90,52 @@ func TestController_PostItem(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		postingEnabled bool
-		mutateAliases  func(wAlias, pAlias, mKey string) (string, string, string)
-		wantErr        error
+		name                 string
+		projectPostingEnabled bool
+		modelPostingEnabled   bool
+		mutateAliases        func(wAlias, pAlias, mKey string) (string, string, string)
+		wantErr              error
 	}{
 		{
-			name:           "posting disabled returns ErrPostingDisabled",
-			postingEnabled: false,
-			wantErr:        ErrPostingDisabled,
+			name:                 "project posting disabled returns ErrProjectPostDisabled",
+			projectPostingEnabled: false,
+			modelPostingEnabled:   true,
+			wantErr:              ErrProjectPostDisabled,
 		},
 		{
-			name:           "posting enabled returns no error",
-			postingEnabled: true,
-			wantErr:        nil,
+			name:                 "model posting disabled returns ErrModelPostDisabled",
+			projectPostingEnabled: true,
+			modelPostingEnabled:   false,
+			wantErr:              ErrModelPostDisabled,
 		},
 		{
-			name:           "unknown workspace returns ErrNotFound",
-			postingEnabled: true,
+			name:                 "both enabled returns no error",
+			projectPostingEnabled: true,
+			modelPostingEnabled:   true,
+			wantErr:              nil,
+		},
+		{
+			name:                 "unknown workspace returns ErrNotFound",
+			projectPostingEnabled: true,
+			modelPostingEnabled:   true,
 			mutateAliases: func(_, pAlias, mKey string) (string, string, string) {
 				return "nonexistent-workspace", pAlias, mKey
 			},
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:           "unknown project returns ErrNotFound",
-			postingEnabled: true,
+			name:                 "unknown project returns ErrNotFound",
+			projectPostingEnabled: true,
+			modelPostingEnabled:   true,
 			mutateAliases: func(wAlias, _, mKey string) (string, string, string) {
 				return wAlias, "nonexistent-project", mKey
 			},
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:           "unknown model returns ErrNotFound",
-			postingEnabled: true,
+			name:                 "unknown model returns ErrNotFound",
+			projectPostingEnabled: true,
+			modelPostingEnabled:   true,
 			mutateAliases: func(wAlias, pAlias, _ string) (string, string, string) {
 				return wAlias, pAlias, "nonexistent-model"
 			},
@@ -135,13 +148,13 @@ func TestController_PostItem(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled)
+			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.projectPostingEnabled, tt.modelPostingEnabled)
 
 			if tt.mutateAliases != nil {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}
 
-			err := ctrl.PostItem(ctx, wAlias, pAlias, mKey)
+			_, err := ctrl.PostItem(ctx, wAlias, pAlias, mKey, map[string]any{})
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
