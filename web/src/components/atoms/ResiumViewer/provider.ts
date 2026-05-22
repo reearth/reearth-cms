@@ -5,6 +5,7 @@ import {
   ArcGISTiledElevationTerrainProvider,
   UrlTemplateImageryProvider,
   CesiumTerrainProvider,
+  Credit,
   IonResource,
   EllipsoidTerrainProvider,
   createWorldTerrainAsync,
@@ -22,6 +23,7 @@ import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
 const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
+const CREDIT = "Terravista";
 
 const getTilesConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.eukarya.io";
@@ -45,6 +47,7 @@ const defaultTile = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
@@ -58,10 +61,12 @@ const labelled = new ProviderViewModel({
     const satellite = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
     const labels = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
     (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
     return [satellite, labels];
@@ -77,6 +82,7 @@ const roadMap = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
@@ -118,6 +124,7 @@ const earthAtNight = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 8,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
