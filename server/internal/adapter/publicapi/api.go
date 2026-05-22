@@ -280,7 +280,7 @@ func PostItem() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusCreated, item)
+		return c.JSON(http.StatusCreated, map[string]string{"id": item.ID})
 	}
 }
 
