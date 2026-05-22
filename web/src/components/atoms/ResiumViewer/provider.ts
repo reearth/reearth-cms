@@ -58,16 +58,19 @@ const labelled = new ProviderViewModel({
   tooltip: "",
   creationFunction: () => {
     const { tilesUrl, tokenQuery } = getTilesConfig();
+
     const satellite = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
       credit: new Credit(CREDIT, true),
     });
+
     const labels = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
       credit: new Credit(CREDIT, true),
     });
+
     (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
     return [satellite, labels];
   },

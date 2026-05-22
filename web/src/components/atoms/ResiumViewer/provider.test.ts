@@ -1,10 +1,6 @@
 import { test, expect, describe } from "vitest";
 
-import {
-  isLabelsOverlayProvider,
-  LABELS_OVERLAY_ALPHA,
-  LABELS_OVERLAY_FLAG,
-} from "./provider";
+import { isLabelsOverlayProvider, LABELS_OVERLAY_ALPHA, LABELS_OVERLAY_FLAG } from "./provider";
 
 describe("isLabelsOverlayProvider", () => {
   test("returns true when the flag is set to true", () => {
