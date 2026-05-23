@@ -45,56 +45,59 @@ describe("Style", () => {
     describe("NEUTRAL", () => {
       const neutral = AntdColor.NEUTRAL;
 
-      test("has all expected background tokens", () => {
-        expect(neutral.BG_WHITE).toBe("#ffffff");
-        expect(neutral.BG_ELEVATED).toBe("#fafafa");
-        expect(neutral.BG_LAYOUT).toBe("#f5f5f5");
-        expect(neutral.BG_LAYOUT_V4).toBe("#f0f2f5");
+      test("has all expected background tokens as CSS variables", () => {
+        expect(neutral.BG_WHITE).toBe("var(--color-bg-white)");
+        expect(neutral.BG_ELEVATED).toBe("var(--color-bg-elevated)");
+        expect(neutral.BG_LAYOUT).toBe("var(--color-bg-layout)");
+        expect(neutral.BG_LAYOUT_V4).toBe("var(--color-bg-layout-v4)");
       });
 
-      test("has all expected border tokens", () => {
-        expect(neutral.BORDER).toBe("#d9d9d9");
-        expect(neutral.BORDER_SECONDARY).toBe("#f0f0f0");
-        expect(neutral.BORDER_SPLIT).toBe("rgba(5, 5, 5, 0.06)");
+      test("has all expected border tokens as CSS variables", () => {
+        expect(neutral.BORDER).toBe("var(--color-border)");
+        expect(neutral.BORDER_SECONDARY).toBe("var(--color-border-secondary)");
+        expect(neutral.BORDER_SPLIT).toBe("var(--color-border-split)");
       });
 
-      test("has all expected text tokens", () => {
-        expect(neutral.TEXT).toBe("#000000d9");
-        expect(neutral.TEXT_TERTIARY).toBe("#00000073");
-        expect(neutral.TEXT_QUATERNARY).toBe("#00000040");
-        expect(neutral.TEXT_V5).toBe("#000000e0");
+      test("has all expected text tokens as CSS variables", () => {
+        expect(neutral.TEXT).toBe("var(--color-text)");
+        expect(neutral.TEXT_TERTIARY).toBe("var(--color-text-tertiary)");
+        expect(neutral.TEXT_QUATERNARY).toBe("var(--color-text-quaternary)");
+        expect(neutral.TEXT_V5).toBe("var(--color-text-v5)");
       });
 
-      test("has all expected fill tokens", () => {
-        expect(neutral.FILL).toBe("#00000026");
-        expect(neutral.FILL_TERTIARY).toBe("rgba(0, 0, 0, 0.04)");
-        expect(neutral.FILL_QUATERNARY).toBe("#00000008");
+      test("has all expected fill tokens as CSS variables", () => {
+        expect(neutral.FILL).toBe("var(--color-fill)");
+        expect(neutral.FILL_TERTIARY).toBe("var(--color-fill-tertiary)");
+        expect(neutral.FILL_QUATERNARY).toBe("var(--color-fill-quaternary)");
       });
     });
   });
 
   describe("CustomColor", () => {
-    test("has all expected custom colors", () => {
-      expect(CustomColor.AVATAR_BG).toBe("#ececec");
-      expect(CustomColor.EDITOR_ERROR_GLYPH).toBe("#ecabbb");
-      expect(CustomColor.FOCUS_RING_BLUE).toBe("rgba(5, 145, 255, 0.1)");
-      expect(CustomColor.BORDER_SUBTLE).toBe("rgba(0, 0, 0, 0.03)");
+    test("has theme-sensitive custom colors as CSS variables", () => {
+      expect(CustomColor.AVATAR_BG).toBe("var(--custom-avatar-bg)");
+      expect(CustomColor.FOCUS_RING_BLUE).toBe("var(--custom-focus-ring-blue)");
+      expect(CustomColor.BORDER_SUBTLE).toBe("var(--custom-border-subtle)");
     });
 
-    test("has dark header theme colors", () => {
+    test("has theme-invariant accent colors as hardcoded values", () => {
+      expect(CustomColor.EDITOR_ERROR_GLYPH).toBe("#ecabbb");
+    });
+
+    test("has dark header theme colors (theme-invariant)", () => {
       expect(CustomColor.HEADER_BG).toBe("#1d1d1d");
       expect(CustomColor.HEADER_TEXT).toBe("#dbdbdb");
       expect(CustomColor.LOGO_COLOR).toBe("#df3013");
       expect(CustomColor.HEADER_DIVIDER).toBe("#303030");
-      expect(CustomColor.SIDEBAR_TEXT).toBe("#002140");
     });
 
-    test("has misc UI colors", () => {
-      expect(CustomColor.BORDER_LIGHT).toBe("#ddd");
-      expect(CustomColor.BG_SUBTLE).toBe("#f8f8f8");
-      expect(CustomColor.TEXT_MUTED).toBe("#9a9a9a");
-      expect(CustomColor.TEXT_DISABLED).toBe("#c4c4c4");
-      expect(CustomColor.ICON_MUTED).toBe("#b8b8b8");
+    test("has theme-sensitive sidebar and misc UI colors as CSS variables", () => {
+      expect(CustomColor.SIDEBAR_TEXT).toBe("var(--custom-sidebar-text)");
+      expect(CustomColor.BORDER_LIGHT).toBe("var(--custom-border-light)");
+      expect(CustomColor.BG_SUBTLE).toBe("var(--custom-bg-subtle)");
+      expect(CustomColor.TEXT_MUTED).toBe("var(--custom-text-muted)");
+      expect(CustomColor.TEXT_DISABLED).toBe("var(--custom-text-disabled)");
+      expect(CustomColor.ICON_MUTED).toBe("var(--custom-icon-muted)");
     });
   });
 

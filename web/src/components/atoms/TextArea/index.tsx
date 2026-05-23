@@ -1,6 +1,9 @@
-import AntTextArea, { TextAreaProps } from "antd/lib/input/TextArea";
+import { Input } from "antd";
+import type { TextAreaProps } from "antd/lib/input/TextArea";
 import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
+
+const AntTextArea = Input.TextArea;
 
 type Props = {
   isError?: boolean;

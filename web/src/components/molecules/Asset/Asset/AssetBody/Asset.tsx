@@ -245,6 +245,7 @@ const AssetMolecule: React.FC<Props> = ({
 const AssetName = styled.span`
   min-width: 0;
   word-wrap: break-word;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Buttons = styled.div`
@@ -303,6 +304,7 @@ const InfoKey = styled.p`
   font-size: ${AntdToken.FONT.SIZE}px;
   margin: 0;
   flex-shrink: 0;
+  color: ${AntdColor.GREY.GREY_0};
 `;
 
 const InfoValue = styled.p`

@@ -10,6 +10,7 @@ import {
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import ThemeProvider from "@reearth-cms/components/atoms/ThemeProvider";
 import { UploaderProvider } from "@reearth-cms/components/molecules/Uploader/provider";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
@@ -104,9 +105,11 @@ function App() {
     <AuthProvider>
       <GqlProvider>
         <I18nProvider>
-          <UploaderProvider>
-            <RouterProvider router={router} />
-          </UploaderProvider>
+          <ThemeProvider>
+            <UploaderProvider>
+              <RouterProvider router={router} />
+            </UploaderProvider>
+          </ThemeProvider>
         </I18nProvider>
       </GqlProvider>
     </AuthProvider>

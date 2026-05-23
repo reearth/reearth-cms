@@ -5,6 +5,7 @@ import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderState } from "@reearth-cms/components/molecules/Uploader/types";
 import { Workspace, Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { Theme } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);
@@ -42,3 +43,6 @@ export const useExportSchemaLoading = () => useAtom(exportSchemaLoading);
 
 const exportContentLoading = atom<boolean>(false);
 export const useExportContentLoading = () => useAtom(exportContentLoading);
+
+const currentTheme = atom<Theme>(Theme.Default);
+export const useCurrentTheme = () => useAtom(currentTheme);

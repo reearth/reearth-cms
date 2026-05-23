@@ -63,6 +63,9 @@ import {
   PaperClipOutlined,
   ExclamationCircleFilled,
   ExperimentOutlined,
+  SunOutlined,
+  MoonFilled,
+  LaptopOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -215,6 +218,9 @@ const icons = {
   importOutlined: ImportOutlined2,
   experimentOutlined: ExperimentOutlined,
   export: Export,
+  sun: SunOutlined,
+  moon: MoonFilled,
+  laptop: LaptopOutlined,
 };
 
 export type IconName = keyof typeof icons;

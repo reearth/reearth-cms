@@ -1,6 +1,8 @@
 package gqlmodel
 
 import (
+	"strings"
+
 	apiuser "github.com/reearth/reearth-accounts/server/pkg/user"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -58,7 +60,7 @@ func ToMe(u *user.User) *Me {
 		Email:             u.Email(),
 		Lang:              lang,
 		Host:              lo.EmptyableToPtr(u.Host()),
-		Theme:             Theme(theme),
+		Theme:             Theme(strings.ToUpper(string(theme))),
 		MyWorkspaceID:     IDFrom(u.Workspace()),
 		Auths:             util.Map(u.Auths(), func(a user.Auth) string { return a.Provider }),
 		ProfilePictureURL: lo.ToPtr(photoURL),
@@ -87,7 +89,7 @@ func ToMeFromAPI(u *apiuser.User) *Me {
 		Email:             u.Email(),
 		Lang:              lang,
 		Host:              lo.EmptyableToPtr(u.Host()),
-		Theme:             Theme(theme),
+		Theme:             Theme(strings.ToUpper(string(theme))),
 		MyWorkspaceID:     IDFrom(u.Workspace()),
 		Auths:             util.Map((u.Auths()), func(a apiuser.Auth) string { return a.Provider }),
 		ProfilePictureURL: lo.ToPtr(photoURL),

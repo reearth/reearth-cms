@@ -25,7 +25,7 @@ const CardWrapper = styled.div<{ isSelected: boolean }>`
   display: flex;
   align-items: center;
   background-color: ${({ isSelected }) =>
-    isSelected ? AntdColor.BLUE.BLUE_0 /* originally #E6F7FF */ : AntdColor.NEUTRAL.BG_WHITE};
+    isSelected ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_WHITE};
   margin-bottom: 10px;
 `;
 
