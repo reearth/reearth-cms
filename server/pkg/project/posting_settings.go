@@ -16,9 +16,12 @@ type PostingSettings struct {
 }
 
 func NewPostingSettings(enabled bool, allowedOrigins []string) *PostingSettings {
-	origins := allowedOrigins
-	if origins == nil {
+	var origins []string
+	if allowedOrigins == nil {
 		origins = []string{}
+	} else {
+		origins = make([]string, len(allowedOrigins))
+		copy(origins, allowedOrigins)
 	}
 	return &PostingSettings{enabled: enabled, allowedOrigins: origins}
 }
