@@ -8,7 +8,4 @@
     "logoUrl": $REEARTH_CMS_LOGO_URL,
     "multiTenant": $REEARTH_CMS_MULTI_TENANT,
     "disableWorkspaceUi": $REEARTH_CMS_DISABLE_WORKSPACE_UI,
-    "dashboardBaseUrl": $REEARTH_CMS_DASHBOARD_BASE_URL,
-    "tilesUrl": $REEARTH_CMS_TILES_URL,
-    "tilesToken": $REEARTH_CMS_TILES_TOKEN
 }

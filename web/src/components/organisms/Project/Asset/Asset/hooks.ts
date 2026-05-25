@@ -1,6 +1,6 @@
 import { NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { Viewer as CesiumViewer } from "cesium";
+import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -25,6 +25,7 @@ import {
   compressedFileFormats,
 } from "@reearth-cms/components/molecules/Common/Asset";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
+import { config } from "@reearth-cms/config";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
   DecompressAssetDocument,
@@ -52,6 +53,10 @@ export default (assetId?: string) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
 
   const { data: rawAsset, networkStatus } = useQuery(GetAssetItemDocument, {
     variables: {

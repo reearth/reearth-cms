@@ -1,11 +1,5 @@
 import styled from "@emotion/styled";
-import {
-  Cesium3DTileFeature,
-  Viewer as CesiumViewer,
-  ImageryLayer,
-  JulianDate,
-  Entity,
-} from "cesium";
+import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
@@ -14,7 +8,7 @@ import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtVie
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-import { imageryGet, terrainGet, isLabelsOverlayProvider, LABELS_OVERLAY_ALPHA } from "./provider";
+import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
@@ -123,38 +117,6 @@ const ResiumViewer: React.FC<Props> = ({
 
     return () => clearTimeout(timeout);
   }, [viewerRef]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    const viewer = viewerRef.current?.cesiumElement;
-    if (!viewer) return;
-
-    const apply = (layer: ImageryLayer) => {
-      const setAlphaIfMatch = (provider: unknown) => {
-        if (isLabelsOverlayProvider(provider)) {
-          layer.alpha = LABELS_OVERLAY_ALPHA;
-        }
-      };
-      if (layer.imageryProvider) {
-        setAlphaIfMatch(layer.imageryProvider);
-      } else {
-        const remove = layer.readyEvent.addEventListener(provider => {
-          setAlphaIfMatch(provider);
-          remove();
-        });
-      }
-    };
-
-    for (let i = 0; i < viewer.imageryLayers.length; i++) {
-      apply(viewer.imageryLayers.get(i));
-    }
-    viewer.imageryLayers.layerAdded.addEventListener(apply);
-
-    return () => {
-      if (viewer.isDestroyed?.()) return;
-      viewer.imageryLayers.layerAdded.removeEventListener(apply);
-    };
-  }, [viewerRef, isLoading]);
 
   const imagery = useMemo(() => {
     return workspaceSettings.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
