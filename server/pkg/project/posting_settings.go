@@ -37,7 +37,9 @@ func (p *PostingSettings) AllowedOrigins() []string {
 	if p == nil {
 		return []string{}
 	}
-	return p.allowedOrigins
+	origins := make([]string, len(p.allowedOrigins))
+	copy(origins, p.allowedOrigins)
+	return origins
 }
 
 func (p *PostingSettings) Clone() *PostingSettings {
