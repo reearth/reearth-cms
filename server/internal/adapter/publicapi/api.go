@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -62,6 +63,7 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
 	e.POST("/:workspace/:project/:model/items", PostItem())
+	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
 
 // parseSubRoute splits a sub-route segment into a model key and extension.
@@ -262,6 +264,7 @@ func PostItem() echo.HandlerFunc {
 		ctrl := GetController(ctx)
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
+		origin := c.Request().Header.Get("Origin")
 
 		var req postItemRequest
 		if c.Request().ContentLength != 0 {
@@ -276,14 +279,35 @@ func PostItem() echo.HandlerFunc {
 			req.Fields = map[string]any{}
 		}
 
-		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
-		if result.Err != nil {
-			if errors.Is(result.Err, ErrProjectPostingDisabled) {
+		if err := ctrl.CheckPostingOrigin(ctx, ws, p, m, origin); err != nil {
+			if errors.Is(err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "Public posting is disabled for this project",
-					Code:  "POSTING_DISABLED_PROJECT",
+					Error: "posting_disabled",
+					Code:  "posting_disabled",
 				})
 			}
+			if errors.Is(err, project.ErrNoOriginsConfigured) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "origin_not_allowed",
+					Code:  "origin_not_allowed",
+				})
+			}
+			if errors.Is(err, project.ErrOriginNotAllowed) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "origin_not_allowed",
+					Code:  "origin_not_allowed",
+				})
+			}
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, apiErrorResponse{
+					Error: "not found",
+				})
+			}
+			return err
+		}
+
+		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, apiErrorResponse{
 					Error: "not found",
@@ -300,6 +324,8 @@ func PostItem() echo.HandlerFunc {
 			})
 		}
 
+		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+
 		/* TODO: success response will be updated in the draft item creation task
 		{
 			"id": "<item-id>",
@@ -307,10 +333,45 @@ func PostItem() echo.HandlerFunc {
 			"fields": {}
 		}
 		*/
-		return c.JSON(http.StatusCreated, map[string]string{
+		return c.JSON(http.StatusAccepted, map[string]string{
 			"status":  "accepted",
 			"message": "Posting is enabled.",
 		})
+	}
+}
+
+// PreflightItem handles OPTIONS /:workspace/:project/:model for CORS preflight.
+func PreflightItem() echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
+		origin := c.Request().Header.Get("Origin")
+
+		if err := ctrl.CheckPostingOrigin(ctx, ws, p, m, origin); err != nil {
+			if errors.Is(err, ErrProjectPostingDisabled) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "posting_disabled",
+					Code:  "posting_disabled",
+				})
+			}
+			if errors.Is(err, project.ErrNoOriginsConfigured) || errors.Is(err, project.ErrOriginNotAllowed) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "origin_not_allowed",
+					Code:  "origin_not_allowed",
+				})
+			}
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
+			return err
+		}
+
+		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+		c.Response().Header().Set("Access-Control-Allow-Methods", "POST")
+		c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		return c.NoContent(http.StatusNoContent)
 	}
 }
 

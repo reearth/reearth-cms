@@ -261,7 +261,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 					accessibility.SetPublication(project.NewPublicationSettings(param.Accessibility.Publication.PublicModels, param.Accessibility.Publication.PublicAssets))
 				}
 				if param.Accessibility.Posting != nil {
-					accessibility.SetPosting(project.NewPostingSettings(param.Accessibility.Posting.Enabled))
+					accessibility.SetPosting(project.NewPostingSettings(param.Accessibility.Posting.Enabled, param.Accessibility.Posting.AllowedOrigins))
 				}
 				p.SetAccessibility(*accessibility)
 			}

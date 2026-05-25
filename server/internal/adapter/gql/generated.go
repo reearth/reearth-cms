@@ -582,7 +582,8 @@ type ComplexityRoot struct {
 	}
 
 	PostingSettings struct {
-		Enabled func(childComplexity int) int
+		AllowedOrigins func(childComplexity int) int
+		Enabled        func(childComplexity int) int
 	}
 
 	Project struct {
@@ -3485,6 +3486,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PageInfo.StartCursor(childComplexity), true
 
+	case "PostingSettings.allowedOrigins":
+		if e.ComplexityRoot.PostingSettings.AllowedOrigins == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostingSettings.AllowedOrigins(childComplexity), true
 	case "PostingSettings.enabled":
 		if e.ComplexityRoot.PostingSettings.Enabled == nil {
 			break
@@ -6852,6 +6859,7 @@ type PublicationSettings {
 
 type PostingSettings {
   enabled: Boolean!
+  allowedOrigins: [String!]!
 }
 
 type ProjectAPIKey {
@@ -6903,6 +6911,7 @@ input UpdatePublicationSettingsInput{
 
 input UpdatePostingSettingsInput {
   enabled: Boolean!
+  allowedOrigins: [String!]!
 }
 
 input UpdateProjectAccessibilityInput {
@@ -20257,6 +20266,35 @@ func (ec *executionContext) fieldContext_PostingSettings_enabled(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _PostingSettings_allowedOrigins(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PostingSettings) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostingSettings_allowedOrigins,
+		func(ctx context.Context) (any, error) {
+			return obj.AllowedOrigins, nil
+		},
+		nil,
+		ec.marshalNString2ᚕstringᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostingSettings_allowedOrigins(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostingSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Project_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -20909,6 +20947,8 @@ func (ec *executionContext) fieldContext_ProjectAccessibility_posting(_ context.
 			switch field.Name {
 			case "enabled":
 				return ec.fieldContext_PostingSettings_enabled(ctx, field)
+			case "allowedOrigins":
+				return ec.fieldContext_PostingSettings_allowedOrigins(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostingSettings", field.Name)
 		},
@@ -35064,7 +35104,7 @@ func (ec *executionContext) unmarshalInputUpdatePostingSettingsInput(ctx context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"enabled"}
+	fieldsInOrder := [...]string{"enabled", "allowedOrigins"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -35078,6 +35118,13 @@ func (ec *executionContext) unmarshalInputUpdatePostingSettingsInput(ctx context
 				return it, err
 			}
 			it.Enabled = data
+		case "allowedOrigins":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowedOrigins"))
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AllowedOrigins = data
 		}
 	}
 	return it, nil
@@ -40702,6 +40749,11 @@ func (ec *executionContext) _PostingSettings(ctx context.Context, sel ast.Select
 			out.Values[i] = graphql.MarshalString("PostingSettings")
 		case "enabled":
 			out.Values[i] = ec._PostingSettings_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "allowedOrigins":
+			out.Values[i] = ec._PostingSettings_allowedOrigins(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

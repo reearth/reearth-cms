@@ -35,7 +35,8 @@ type PublicationSettingsDocument struct {
 }
 
 type PostingSettingsDocument struct {
-	Enabled bool
+	Enabled        bool
+	AllowedOrigins []string
 }
 
 type ProjectAccessibilityDocument struct {
@@ -94,7 +95,8 @@ func NewProjectPostingSettings(p *project.PostingSettings) *PostingSettingsDocum
 		return nil
 	}
 	return &PostingSettingsDocument{
-		Enabled: p.Enabled(),
+		Enabled:        p.Enabled(),
+		AllowedOrigins: p.AllowedOrigins(),
 	}
 }
 
@@ -186,7 +188,11 @@ func (d *PostingSettingsDocument) Model() *project.PostingSettings {
 	if d == nil {
 		return nil
 	}
-	return project.NewPostingSettings(d.Enabled)
+	origins := d.AllowedOrigins
+	if origins == nil {
+		origins = []string{}
+	}
+	return project.NewPostingSettings(d.Enabled, origins)
 }
 
 func (d *ProjectAccessibilityDocument) Model() *project.Accessibility {

@@ -792,6 +792,92 @@ func TestProject_Update(t *testing.T) {
 	}
 }
 
+func TestProject_UpdatePostingSettings_RoleEnforcement(t *testing.T) {
+	t.Parallel()
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	p := project.New().ID(pid).Workspace(wid).MustBuild()
+	uid := accountdomain.NewUserID()
+
+	postingParam := &interfaces.AccessibilityParam{
+		Posting: &interfaces.PostingSettingsParam{
+			Enabled:        true,
+			AllowedOrigins: []string{"https://example.com"},
+		},
+	}
+
+	makeOp := func(readable, writable, maintainable, owning []accountdomain.WorkspaceID) *usecase.Operator {
+		return &usecase.Operator{
+			AcOperator: &accountusecase.Operator{
+				User:                  lo.ToPtr(uid),
+				ReadableWorkspaces:    readable,
+				WritableWorkspaces:    writable,
+				MaintainableWorkspaces: maintainable,
+				OwningWorkspaces:      owning,
+			},
+		}
+	}
+
+	tests := []struct {
+		name    string
+		op      *usecase.Operator
+		wantErr error
+	}{
+		{
+			name:    "Owner can update posting settings",
+			op:      makeOp(nil, nil, nil, []accountdomain.WorkspaceID{wid}),
+			wantErr: nil,
+		},
+		{
+			name:    "Maintainer can update posting settings",
+			op:      makeOp(nil, nil, []accountdomain.WorkspaceID{wid}, nil),
+			wantErr: nil,
+		},
+		{
+			// Writer corresponds to the Editor role in the UI — can write items but cannot change accessibility
+			name:    "Editor (Writer) is rejected",
+			op:      makeOp([]accountdomain.WorkspaceID{wid}, []accountdomain.WorkspaceID{wid}, nil, nil),
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			// Reader has no write access at all; rejected by the outer WithWritableWorkspaces guard
+			name:    "Reader is rejected",
+			op:      makeOp([]accountdomain.WorkspaceID{wid}, nil, nil, nil),
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			// No workspace membership at all — rejected by the outer WithWritableWorkspaces guard
+			name:    "Unauthenticated caller is rejected",
+			op:      makeOp(nil, nil, nil, nil),
+			wantErr: interfaces.ErrOperationDenied,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+
+			projectUC := NewProject(db, nil)
+			_, err := projectUC.Update(ctx, interfaces.UpdateProjectParam{
+				ID:            pid,
+				Accessibility: postingParam,
+			}, tc.op)
+
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestProject_CheckAlias(t *testing.T) {
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()

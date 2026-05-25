@@ -19,7 +19,7 @@ func TestNewAccessibility_WithPosting(t *testing.T) {
 
 	t.Run("posting enabled — PostingEnabled returns true", func(t *testing.T) {
 		t.Parallel()
-		a := NewAccessibility(VisibilityPublic, nil, NewPostingSettings(true), nil)
+		a := NewAccessibility(VisibilityPublic, nil, NewPostingSettings(true, nil), nil)
 		assert.True(t, a.PostingEnabled())
 		assert.NotNil(t, a.Posting())
 	})
@@ -84,12 +84,12 @@ func TestAccessibility_SetPosting(t *testing.T) {
 	t.Run("nil receiver is a no-op", func(t *testing.T) {
 		t.Parallel()
 		var a *Accessibility
-		assert.NotPanics(t, func() { a.SetPosting(NewPostingSettings(true)) })
+		assert.NotPanics(t, func() { a.SetPosting(NewPostingSettings(true, nil)) })
 	})
 
 	t.Run("set nil clears posting", func(t *testing.T) {
 		t.Parallel()
-		a := &Accessibility{posting: NewPostingSettings(true)}
+		a := &Accessibility{posting: NewPostingSettings(true, nil)}
 		a.SetPosting(nil)
 		assert.Nil(t, a.posting)
 	})
@@ -97,7 +97,7 @@ func TestAccessibility_SetPosting(t *testing.T) {
 	t.Run("set non-nil stores clone", func(t *testing.T) {
 		t.Parallel()
 		a := &Accessibility{}
-		ps := NewPostingSettings(true)
+		ps := NewPostingSettings(true, nil)
 		a.SetPosting(ps)
 		assert.True(t, a.PostingEnabled())
 		assert.NotSame(t, ps, a.posting)
@@ -109,7 +109,7 @@ func TestAccessibility_Clone_IncludesPosting(t *testing.T) {
 
 	t.Run("clone preserves posting", func(t *testing.T) {
 		t.Parallel()
-		a := &Accessibility{posting: NewPostingSettings(true)}
+		a := &Accessibility{posting: NewPostingSettings(true, nil)}
 		c := a.Clone()
 		assert.True(t, c.PostingEnabled())
 		assert.NotSame(t, a.posting, c.posting)
