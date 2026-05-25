@@ -21,7 +21,7 @@ import (
 )
 
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
-var ErrPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
+var ErrProjectPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
 
 type Controller struct {
 	project   repo.Project

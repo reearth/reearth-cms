@@ -15,9 +15,10 @@ import (
 	"github.com/samber/lo"
 )
 
-type postingDisabledResponse struct {
+type apiErrorResponse struct {
 	Error   string `json:"error"`
-	Message string `json:"message"`
+	Code    string `json:"code,omitempty"`
+	Details any    `json:"details,omitempty"`
 }
 
 type contextKey string
@@ -59,7 +60,7 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
-	e.POST("/:workspace/:project/:model", PostItem())
+	e.POST("/:workspace/:project/:model/items", PostItem())
 }
 
 // parseSubRoute splits a sub-route segment into a model key and extension.
@@ -258,20 +259,38 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
+		// TODO: use the body in future schema validation and draft item creation tasks
+		body := map[string]any{}
+		if err := c.Bind(&body); err != nil {
+			return c.JSON(http.StatusBadRequest, apiErrorResponse{
+				Error: "Request body is not valid JSON",
+				Code:  "INVALID_JSON",
+			})
+		}
+
 		if err := ctrl.PostItem(ctx, ws, p, m); err != nil {
-			if errors.Is(err, ErrPostingDisabled) {
-				return c.JSON(http.StatusForbidden, postingDisabledResponse{
-					Error:   "posting_disabled",
-					Message: "Posting is disabled for this project.",
+			if errors.Is(err, ErrProjectPostingDisabled) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "Public posting is disabled for this project",
+					Code:  "POSTING_DISABLED_PROJECT",
 				})
 			}
 			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+				return c.JSON(http.StatusNotFound, apiErrorResponse{
+					Error: "not found",
+				})
 			}
 			return err
 		}
 
-		return c.JSON(http.StatusOK, map[string]string{
+		/* TODO: success response should be in this format in future draft item creation task
+		{
+			"id": "",
+			"$createdAt": "",
+			"fields": {}
+		}
+		*/
+		return c.JSON(http.StatusCreated, map[string]string{
 			"status":  "accepted",
 			"message": "Posting is enabled.",
 		})

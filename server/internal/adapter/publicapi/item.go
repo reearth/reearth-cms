@@ -174,7 +174,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string)
 		return err
 	}
 	if !wpm.Project.Accessibility().PostingEnabled() {
-		return ErrPostingDisabled
+		return ErrProjectPostingDisabled
 	}
 	return nil
 }

@@ -97,7 +97,7 @@ func TestController_PostItem(t *testing.T) {
 		{
 			name:           "posting disabled returns ErrPostingDisabled",
 			postingEnabled: false,
-			wantErr:        ErrPostingDisabled,
+			wantErr:        ErrProjectPostingDisabled,
 		},
 		{
 			name:           "posting enabled returns no error",
