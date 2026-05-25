@@ -5,13 +5,10 @@ import {
   ArcGISTiledElevationTerrainProvider,
   UrlTemplateImageryProvider,
   CesiumTerrainProvider,
+  Credit,
   IonResource,
   EllipsoidTerrainProvider,
-  createWorldTerrainAsync,
   buildModuleUrl,
-  createWorldImageryAsync,
-  IonWorldImageryStyle,
-  IonImageryProvider,
 } from "cesium";
 
 import {
@@ -24,15 +21,33 @@ import {
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
+const CREDIT = "Terravista";
+
+const getTilesConfig = () => {
+  const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.eukarya.io";
+  const tilesToken = window.REEARTH_CONFIG?.tilesToken ?? "";
+  const tokenQuery = tilesToken
+    ? `?${new URLSearchParams({ token: tilesToken }).toString()}`
+    : "";
+  return { tilesUrl, tokenQuery };
+};
+
+export const LABELS_OVERLAY_FLAG = "__terravistaLabelsOverlay" as const;
+export const LABELS_OVERLAY_ALPHA = 0.7;
+export const isLabelsOverlayProvider = (provider: unknown): boolean => {
+  return !!(provider as Record<string, unknown> | null | undefined)?.[LABELS_OVERLAY_FLAG];
+};
 
 const defaultTile = new ProviderViewModel({
   name: "Default",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.AERIAL,
+    const { tilesUrl, tokenQuery } = getTilesConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
@@ -42,9 +57,22 @@ const labelled = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
+    const { tilesUrl, tokenQuery } = getTilesConfig();
+
+    const satellite = new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
+
+    const labels = new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
+    });
+
+    (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
+    return [satellite, labels];
   },
 });
 
@@ -53,8 +81,11 @@ const roadMap = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.ROAD,
+    const { tilesUrl, tokenQuery } = getTilesConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
@@ -92,7 +123,12 @@ const earthAtNight = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
-    return IonImageryProvider.fromAssetId(3812, { accessToken });
+    const { tilesUrl, tokenQuery } = getTilesConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 8,
+      credit: new Credit(CREDIT, true),
+    });
   },
 });
 
@@ -170,9 +206,11 @@ const cesiumWorld = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldTerrainAsync({
-      requestWaterMask: true,
+    const { tilesUrl, tokenQuery } = getTilesConfig();
+    return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
+      requestWaterMask: true,
+      credit: new Credit(CREDIT, true),
     });
   },
 });
@@ -203,7 +241,7 @@ const cesiumIonGet = ({
       return CesiumTerrainProvider.fromUrl(
         url ||
           IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
-            accessToken: cesiumIonAccessToken || accessToken,
+            accessToken: cesiumIonAccessToken,
           }),
       );
     },
