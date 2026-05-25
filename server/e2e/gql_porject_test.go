@@ -404,7 +404,7 @@ func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
 		resp := e.POST("/api/p/{workspace}/{project}/{model}/items", "test-workspace", pAlias, mKey).
 			WithHeader("Origin", "https://allowed.com").
 			Expect().
-			Status(http.StatusOK)
+			Status(http.StatusAccepted)
 		assert.Equal(t, "https://allowed.com", resp.Header("Access-Control-Allow-Origin").Raw())
 		resp.JSON().Object().HasValue("status", "accepted")
 	})

@@ -1194,11 +1194,11 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	updateProjectPostingWithOrigins(e, pId, true, []string{"https://allowed.com"})
 
-	t.Run("posting enabled returns 200", func(t *testing.T) {
+	t.Run("posting enabled returns 202", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://allowed.com").
 			Expect().
-			Status(http.StatusOK).
+			Status(http.StatusAccepted).
 			JSON().IsEqual(map[string]any{
 			"status":  "accepted",
 			"message": "Posting is enabled.",
@@ -1465,11 +1465,11 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 			JSON().Object().Value("error").IsEqual("origin_not_allowed")
 	})
 
-	t.Run("matching origin returns 200 with ACAO header", func(t *testing.T) {
+	t.Run("matching origin returns 202 with ACAO header", func(t *testing.T) {
 		res := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://example.com").
 			Expect().
-			Status(http.StatusOK)
+			Status(http.StatusAccepted)
 		res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
 	})
 
