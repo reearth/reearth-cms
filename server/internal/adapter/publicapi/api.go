@@ -340,7 +340,7 @@ func PostItem() echo.HandlerFunc {
 	}
 }
 
-// PreflightItem handles OPTIONS /:workspace/:project/:model for CORS preflight.
+// PreflightItem handles OPTIONS /:workspace/:project/:model/items for CORS preflight.
 func PreflightItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
