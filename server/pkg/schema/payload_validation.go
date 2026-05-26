@@ -1,0 +1,114 @@
+package schema
+
+import (
+	"github.com/reearth/reearth-cms/server/pkg/value"
+)
+
+// FieldValidationCode is a machine-readable code identifying the kind of validation failure.
+type FieldValidationCode string
+
+const (
+	FieldValidationCodeRequired     FieldValidationCode = "FIELD_REQUIRED"
+	FieldValidationCodeTypeMismatch FieldValidationCode = "TYPE_MISMATCH"
+	FieldValidationCodeConstraint   FieldValidationCode = "CONSTRAINT_VIOLATION"
+)
+
+// FieldValidationError describes a single field-level validation failure.
+type FieldValidationError struct {
+	Field  string              `json:"field"`
+	Code   FieldValidationCode `json:"code"`
+	Detail string              `json:"detail,omitempty"`
+}
+
+// payloadOutOfScope reports whether a field type is excluded from phase-1 payload validation.
+func payloadOutOfScope(t value.Type) bool {
+	switch t {
+	case value.TypeAsset, value.TypeReference, value.TypeTag, value.TypeGroup:
+		return true
+	}
+	return false
+}
+
+// ValidatePayload validates a raw key→value map against the schema.
+// Unknown keys are silently ignored. Missing or empty required fields are reported.
+// Returns a non-nil slice only when there are errors; nil means the payload is valid.
+func (s *Schema) ValidatePayload(body map[string]any) []FieldValidationError {
+	if s == nil {
+		return nil
+	}
+
+	var errs []FieldValidationError
+
+	for _, f := range s.Fields() {
+		if payloadOutOfScope(f.Type()) {
+			continue
+		}
+
+		key := f.Key().String()
+		raw, present := body[key]
+
+		// --- Required check ---
+		if f.Required() && (!present || isEmptyPayloadValue(raw)) {
+			errs = append(errs, FieldValidationError{
+				Field: key,
+				Code:  FieldValidationCodeRequired,
+			})
+			continue
+		}
+
+		if !present || isEmptyPayloadValue(raw) {
+			continue
+		}
+
+		// --- Type coercion + constraint validation ---
+		if err := validatePayloadFieldValue(f, raw); err != nil {
+			errs = append(errs, *err)
+		}
+	}
+
+	return errs
+}
+
+// isEmptyPayloadValue returns true for nil and the empty string.
+func isEmptyPayloadValue(v any) bool {
+	if v == nil {
+		return true
+	}
+	if s, ok := v.(string); ok {
+		return s == ""
+	}
+	return false
+}
+
+// validatePayloadFieldValue coerces raw into a typed value.Multiple and validates it
+// against the field's constraints. Returns a FieldValidationError on failure.
+func validatePayloadFieldValue(f *Field, raw any) *FieldValidationError {
+	key := f.Key().String()
+	ft := f.Type()
+
+	// Normalise: wrap scalars into a slice so NewMultiple works uniformly.
+	var raws []any
+	if arr, ok := raw.([]any); ok {
+		raws = arr
+	} else {
+		raws = []any{raw}
+	}
+
+	m := value.NewMultiple(ft, raws)
+	if m == nil || m.Len() != len(raws) {
+		return &FieldValidationError{
+			Field: key,
+			Code:  FieldValidationCodeTypeMismatch,
+		}
+	}
+
+	if err := f.ValidateValue(m); err != nil {
+		return &FieldValidationError{
+			Field:  key,
+			Code:   FieldValidationCodeConstraint,
+			Detail: err.Error(),
+		}
+	}
+
+	return nil
+}

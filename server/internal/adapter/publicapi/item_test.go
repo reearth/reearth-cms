@@ -141,7 +141,7 @@ func TestController_PostItem(t *testing.T) {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}
 
-			err := ctrl.PostItem(ctx, wAlias, pAlias, mKey)
+			_, _, err := ctrl.PostItem(ctx, wAlias, pAlias, mKey, map[string]any{})
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)

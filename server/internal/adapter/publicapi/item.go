@@ -165,16 +165,22 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
-// PostItem checks the posting gate for the project.
-// Returns ErrPostingDisabled if posting.enabled is false.
-// TODO: Full posting logic will be implemented in WP3.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string) error {
+// PostItemResult is returned by PostItem on success.
+type PostItemResult struct{}
+
+// PostItem checks the posting gate then validates the payload against the model schema.
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (PostItemResult, []FieldError, error) {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
-		return err
+		return PostItemResult{}, nil, err
 	}
 	if !wpm.Project.Accessibility().PostingEnabled() {
-		return ErrProjectPostingDisabled
+		return PostItemResult{}, nil, ErrProjectPostingDisabled
 	}
-	return nil
+
+	if fieldErrs := ValidatePayload(wpm.SchemaPackage.Schema(), body); len(fieldErrs) > 0 {
+		return PostItemResult{}, fieldErrs, nil
+	}
+
+	return PostItemResult{}, nil, nil
 }
