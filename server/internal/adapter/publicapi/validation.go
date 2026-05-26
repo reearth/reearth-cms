@@ -6,12 +6,6 @@ import "github.com/reearth/reearth-cms/server/pkg/schema"
 // and HTTP response types don't need to import pkg/schema directly.
 type FieldError = schema.FieldValidationError
 
-const (
-	errCodeRequired     = schema.FieldValidationCodeRequired
-	errCodeTypeMismatch = schema.FieldValidationCodeTypeMismatch
-	errCodeConstraint   = schema.FieldValidationCodeConstraint
-)
-
 // ValidatePayload is a convenience wrapper so existing call sites in this
 // package don't need to change.
 func ValidatePayload(s *schema.Schema, body map[string]any) []FieldError {
