@@ -211,12 +211,12 @@ func TestController_PostItem(t *testing.T) {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}
 
-			_, err := ctrl.PostItem(ctx, wAlias, pAlias, mKey, map[string]any{})
+			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, map[string]any{})
 
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				assert.ErrorIs(t, result.Err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				assert.NoError(t, result.Err)
 			}
 		})
 	}
@@ -300,15 +300,15 @@ func TestController_PostItem_Validation(t *testing.T) {
 
 			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTestWithFields(t, tt.fields)
 
-			fieldErrs, err := ctrl.PostItem(ctx, wAlias, pAlias, mKey, tt.body)
+			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, tt.body)
 
-			require.NoError(t, err)
+			require.NoError(t, result.Err)
 
 			if tt.wantFieldCodes == nil {
-				assert.Empty(t, fieldErrs)
+				assert.Empty(t, result.FieldErrors)
 			} else {
-				assert.Len(t, fieldErrs, len(tt.wantFieldCodes))
-				for _, fe := range fieldErrs {
+				assert.Len(t, result.FieldErrors, len(tt.wantFieldCodes))
+				for _, fe := range result.FieldErrors {
 					wantCode, exists := tt.wantFieldCodes[fe.Field]
 					assert.True(t, exists, "unexpected field error for %q", fe.Field)
 					assert.Equal(t, wantCode, fe.Code)

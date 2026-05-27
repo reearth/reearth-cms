@@ -266,27 +266,27 @@ func PostItem() echo.HandlerFunc {
 			})
 		}
 
-		fieldErrs, err := ctrl.PostItem(ctx, ws, p, m, body)
-		if err != nil {
-			if errors.Is(err, ErrProjectPostingDisabled) {
+		result := ctrl.PostItem(ctx, ws, p, m, body)
+		if result.Err != nil {
+			if errors.Is(result.Err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "Public posting is disabled for this project",
 					Code:  "POSTING_DISABLED_PROJECT",
 				})
 			}
-			if errors.Is(err, rerror.ErrNotFound) {
+			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, apiErrorResponse{
 					Error: "not found",
 				})
 			}
-			return err
+			return result.Err
 		}
 
-		if len(fieldErrs) > 0 {
+		if len(result.FieldErrors) > 0 {
 			return c.JSON(http.StatusBadRequest, apiErrorResponse{
 				Error:   "Payload validation failed",
 				Code:    "VALIDATION_ERROR",
-				Details: fieldErrs,
+				Details: result.FieldErrors,
 			})
 		}
 

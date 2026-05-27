@@ -165,21 +165,31 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
+// PostItemResult holds the outcome of a PostItem call.
+// Item will hold the created item once draft creation is implemented.
+// FieldErrors is non-empty when validation fails; it is nil on success.
+type PostItemResult struct {
+	Item        any
+	FieldErrors []schema.FieldValidationError
+	Err         error
+}
+
 // PostItem checks the posting gate then validates the payload against the model schema.
-// Returns ErrProjectPostingDisabled if posting.enabled is false.
-// TODO: Full posting logic will be implemented in WP3.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) ([]schema.FieldValidationError, error) {
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
-		return nil, err
+		return PostItemResult{Err: err}
 	}
 	if !wpm.Project.Accessibility().PostingEnabled() {
-		return nil, ErrProjectPostingDisabled
+		return PostItemResult{Err: ErrProjectPostingDisabled}
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
-		return fieldErrs, nil
+		return PostItemResult{
+			FieldErrors: fieldErrs,
+		}
 	}
-
-	return nil, nil
+	return PostItemResult{
+		Item: nil, // TODO: will be set to created item after draft item creation is implemented
+	}
 }
