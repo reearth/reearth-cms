@@ -1,20 +1,20 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.26.2
+go 1.26.3
 
 require (
-	cloud.google.com/go/pubsub/v2 v2.5.0
-	cloud.google.com/go/storage v1.61.3
-	github.com/99designs/gqlgen v0.17.89
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.31.0
-	github.com/avast/retry-go/v4 v4.7.0
-	github.com/aws/aws-sdk-go-v2 v1.41.5
-	github.com/aws/aws-sdk-go-v2/config v1.32.13
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3
-	github.com/aws/aws-sdk-go-v2/service/sns v1.39.15
+	cloud.google.com/go/pubsub/v2 v2.6.0
+	cloud.google.com/go/storage v1.62.2
+	github.com/99designs/gqlgen v0.17.90
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.32.0
+	github.com/avast/retry-go/v5 v5.0.0
+	github.com/aws/aws-sdk-go-v2 v1.41.7
+	github.com/aws/aws-sdk-go-v2/config v1.32.17
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.101.0
+	github.com/aws/aws-sdk-go-v2/service/sns v1.39.17
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/gavv/httpexpect/v2 v2.17.0
-	github.com/getkin/kin-openapi v0.134.0
+	github.com/getkin/kin-openapi v0.138.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
@@ -26,9 +26,9 @@ require (
 	github.com/k0kubun/pp/v3 v3.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo-opentelemetry v0.0.2
-	github.com/labstack/echo/v5 v5.1.0
+	github.com/labstack/echo/v5 v5.1.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.6.1-0.20260327050144-a3a04d4d994d
-	github.com/oapi-codegen/runtime v1.3.1
+	github.com/oapi-codegen/runtime v1.4.1
 	github.com/oapi-codegen/runtime/strictmiddleware/echo-v5 v0.0.0-20260325171122-00e51fede565
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
@@ -40,20 +40,20 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0
 	github.com/stretchr/testify v1.11.1
-	github.com/vektah/gqlparser/v2 v2.5.32
+	github.com/vektah/gqlparser/v2 v2.5.33
 	github.com/vikstrous/dataloadgen v0.0.10
-	go.mongodb.org/mongo-driver v1.17.9
+	go.mongodb.org/mongo-driver/v2 v2.6.0
 	go.opencensus.io v0.24.0
-	go.opentelemetry.io/contrib/detectors/gcp v1.42.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.67.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.67.0
-	go.opentelemetry.io/otel v1.42.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.42.0
-	go.opentelemetry.io/otel/sdk v1.42.0
-	golang.org/x/net v0.52.0
-	golang.org/x/text v0.35.0
-	google.golang.org/api v0.273.0
-	google.golang.org/grpc v1.79.3
+	go.opentelemetry.io/contrib/detectors/gcp v1.43.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.68.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.68.0
+	go.opentelemetry.io/otel v1.43.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.43.0
+	go.opentelemetry.io/otel/sdk v1.43.0
+	golang.org/x/net v0.54.0
+	golang.org/x/text v0.37.0
+	google.golang.org/api v0.280.0
+	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
 )
 
