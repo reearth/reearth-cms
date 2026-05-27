@@ -266,7 +266,7 @@ func PostItem() echo.HandlerFunc {
 			})
 		}
 
-		_, fieldErrs, err := ctrl.PostItem(ctx, ws, p, m, body)
+		fieldErrs, err := ctrl.PostItem(ctx, ws, p, m, body)
 		if err != nil {
 			if errors.Is(err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
