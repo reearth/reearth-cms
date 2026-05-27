@@ -24,11 +24,9 @@ import NoImage from "./noImage.jpg";
 const CREDIT = "Terravista";
 
 const getTilesConfig = () => {
-  const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.eukarya.io";
+  const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
   const tilesToken = window.REEARTH_CONFIG?.tilesToken ?? "";
-  const tokenQuery = tilesToken
-    ? `?${new URLSearchParams({ token: tilesToken }).toString()}`
-    : "";
+  const tokenQuery = tilesToken ? `?${new URLSearchParams({ token: tilesToken }).toString()}` : "";
   return { tilesUrl, tokenQuery };
 };
 
