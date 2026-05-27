@@ -4,7 +4,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-// FieldValidationCode is a machine-readable code identifying the kind of validation failure.
 type FieldValidationCode string
 
 const (
@@ -13,20 +12,10 @@ const (
 	FieldValidationCodeConstraint   FieldValidationCode = "CONSTRAINT_VIOLATION"
 )
 
-// FieldValidationError describes a single field-level validation failure.
 type FieldValidationError struct {
 	Field  string              `json:"field"`
 	Code   FieldValidationCode `json:"code"`
 	Detail string              `json:"detail,omitempty"`
-}
-
-// fieldsOutOfScope reports whether a field type is excluded from phase-1 validation.
-func fieldsOutOfScope(t value.Type) bool {
-	switch t {
-	case value.TypeAsset, value.TypeReference, value.TypeTag, value.TypeGroup:
-		return true
-	}
-	return false
 }
 
 // ValidateFields validates a raw key→value map against the schema.
@@ -40,14 +29,14 @@ func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
 	var errs []FieldValidationError
 
 	for _, f := range s.Fields() {
-		if fieldsOutOfScope(f.Type()) {
+		if f.Type() == value.TypeAsset || f.Type() == value.TypeReference || f.Type() == value.TypeTag || f.Type() == value.TypeGroup {
 			continue
 		}
 
 		key := f.Key().String()
 		raw, present := fields[key]
 
-		// --- Required check ---
+		// required check
 		if f.Required() && (!present || isEmptyFieldValue(raw)) {
 			errs = append(errs, FieldValidationError{
 				Field: key,
@@ -60,7 +49,7 @@ func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
 			continue
 		}
 
-		// --- Type coercion + constraint validation ---
+		// type coercion + constraint validation
 		if err := validateFieldEntry(f, raw); err != nil {
 			errs = append(errs, *err)
 		}
@@ -69,7 +58,6 @@ func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
 	return errs
 }
 
-// isEmptyFieldValue returns true for nil and the empty string.
 func isEmptyFieldValue(v any) bool {
 	if v == nil {
 		return true
@@ -86,7 +74,7 @@ func validateFieldEntry(f *Field, raw any) *FieldValidationError {
 	key := f.Key().String()
 	ft := f.Type()
 
-	// Normalise: wrap scalars into a slice so NewMultiple works uniformly.
+	// normalize: wrap scalars into a slice so NewMultiple works uniformly.
 	var raws []any
 	if arr, ok := raw.([]any); ok {
 		raws = arr
