@@ -165,9 +165,6 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
-// PostItemResult holds the outcome of a PostItem call.
-// Item will hold the created item once draft creation is implemented.
-// FieldErrors is non-empty when validation fails; it is nil on success.
 type PostItemResult struct {
 	Item        any
 	FieldErrors []schema.FieldValidationError

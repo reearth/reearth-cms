@@ -19,8 +19,6 @@ type FieldValidationError struct {
 }
 
 // ValidateFields validates a raw key→value map against the schema.
-// Unknown keys are silently ignored. Missing or empty required fields are reported.
-// Returns a non-nil slice only when there are errors; nil means the payload is valid.
 func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
 	if s == nil {
 		return nil
