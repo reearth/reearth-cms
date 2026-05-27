@@ -20,8 +20,8 @@ type FieldValidationError struct {
 	Detail string              `json:"detail,omitempty"`
 }
 
-// payloadOutOfScope reports whether a field type is excluded from phase-1 payload validation.
-func payloadOutOfScope(t value.Type) bool {
+// fieldsOutOfScope reports whether a field type is excluded from phase-1 validation.
+func fieldsOutOfScope(t value.Type) bool {
 	switch t {
 	case value.TypeAsset, value.TypeReference, value.TypeTag, value.TypeGroup:
 		return true
@@ -29,10 +29,10 @@ func payloadOutOfScope(t value.Type) bool {
 	return false
 }
 
-// ValidatePayload validates a raw key→value map against the schema.
+// ValidateFields validates a raw key→value map against the schema.
 // Unknown keys are silently ignored. Missing or empty required fields are reported.
 // Returns a non-nil slice only when there are errors; nil means the payload is valid.
-func (s *Schema) ValidatePayload(body map[string]any) []FieldValidationError {
+func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
 	if s == nil {
 		return nil
 	}
@@ -40,15 +40,15 @@ func (s *Schema) ValidatePayload(body map[string]any) []FieldValidationError {
 	var errs []FieldValidationError
 
 	for _, f := range s.Fields() {
-		if payloadOutOfScope(f.Type()) {
+		if fieldsOutOfScope(f.Type()) {
 			continue
 		}
 
 		key := f.Key().String()
-		raw, present := body[key]
+		raw, present := fields[key]
 
 		// --- Required check ---
-		if f.Required() && (!present || isEmptyPayloadValue(raw)) {
+		if f.Required() && (!present || isEmptyFieldValue(raw)) {
 			errs = append(errs, FieldValidationError{
 				Field: key,
 				Code:  FieldValidationCodeRequired,
@@ -56,12 +56,12 @@ func (s *Schema) ValidatePayload(body map[string]any) []FieldValidationError {
 			continue
 		}
 
-		if !present || isEmptyPayloadValue(raw) {
+		if !present || isEmptyFieldValue(raw) {
 			continue
 		}
 
 		// --- Type coercion + constraint validation ---
-		if err := validatePayloadFieldValue(f, raw); err != nil {
+		if err := validateFieldEntry(f, raw); err != nil {
 			errs = append(errs, *err)
 		}
 	}
@@ -69,8 +69,8 @@ func (s *Schema) ValidatePayload(body map[string]any) []FieldValidationError {
 	return errs
 }
 
-// isEmptyPayloadValue returns true for nil and the empty string.
-func isEmptyPayloadValue(v any) bool {
+// isEmptyFieldValue returns true for nil and the empty string.
+func isEmptyFieldValue(v any) bool {
 	if v == nil {
 		return true
 	}
@@ -80,9 +80,9 @@ func isEmptyPayloadValue(v any) bool {
 	return false
 }
 
-// validatePayloadFieldValue coerces raw into a typed value.Multiple and validates it
+// validateFieldEntry coerces raw into a typed value.Multiple and validates it
 // against the field's constraints. Returns a FieldValidationError on failure.
-func validatePayloadFieldValue(f *Field, raw any) *FieldValidationError {
+func validateFieldEntry(f *Field, raw any) *FieldValidationError {
 	key := f.Key().String()
 	ft := f.Type()
 

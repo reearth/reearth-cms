@@ -169,7 +169,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 type PostItemResult struct{}
 
 // PostItem checks the posting gate then validates the payload against the model schema.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (PostItemResult, []FieldError, error) {
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) (PostItemResult, []schema.FieldValidationError, error) {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return PostItemResult{}, nil, err
@@ -178,7 +178,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 		return PostItemResult{}, nil, ErrProjectPostingDisabled
 	}
 
-	if fieldErrs := ValidatePayload(wpm.SchemaPackage.Schema(), body); len(fieldErrs) > 0 {
+	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
 		return PostItemResult{}, fieldErrs, nil
 	}
 

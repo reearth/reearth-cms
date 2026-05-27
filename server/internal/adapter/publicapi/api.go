@@ -250,12 +250,6 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 	return 0, false
 }
 
-type postItemValidationErrorResponse struct {
-	Error  string       `json:"error"`
-	Code   string       `json:"code"`
-	Fields []FieldError `json:"fields"`
-}
-
 // PostItem handles POST /:workspace/:project/:model/items to create a new item.
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
@@ -289,10 +283,10 @@ func PostItem() echo.HandlerFunc {
 		}
 
 		if len(fieldErrs) > 0 {
-			return c.JSON(http.StatusBadRequest, postItemValidationErrorResponse{
-				Error:  "Payload validation failed",
-				Code:   "VALIDATION_ERROR",
-				Fields: fieldErrs,
+			return c.JSON(http.StatusBadRequest, apiErrorResponse{
+				Error:   "Payload validation failed",
+				Code:    "VALIDATION_ERROR",
+				Details: fieldErrs,
 			})
 		}
 
