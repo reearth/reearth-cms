@@ -26,7 +26,7 @@ export const defaultConfig: Config = {
   authProvider: env.REEARTH_CMS_AUTH_PROVIDER || "auth0",
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
-  tilesUrl: env.REEARTH_CMS_TILES_URL || "https://tiles.eukarya.io",
+  tilesUrl: env.REEARTH_CMS_TILES_URL || "https://tiles.reearth.land",
   tilesToken: env.REEARTH_CMS_TILES_TOKEN || "",
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
   firebase: {
