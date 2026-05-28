@@ -21,7 +21,7 @@ import {
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const CREDIT = "Terravista";
+const GOOGLE_MAP_CREDIT = new Credit("© Google", false);
 
 const getTilesConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
@@ -45,7 +45,7 @@ const defaultTile = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -60,13 +60,13 @@ const labelled = new ProviderViewModel({
     const satellite = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
 
     const labels = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
 
     (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
@@ -83,7 +83,7 @@ const roadMap = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -125,7 +125,7 @@ const earthAtNight = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 8,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -208,7 +208,7 @@ const cesiumWorld = new ProviderViewModel({
     return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
       requestWaterMask: true,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
