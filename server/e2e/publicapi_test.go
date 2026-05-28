@@ -1196,7 +1196,6 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	t.Run("posting enabled returns 201", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
-			WithJSON(map[string]any{"fields": map[string]any{}}).
 			Expect().
 			Status(http.StatusCreated).
 			JSON().IsEqual(map[string]any{
