@@ -1196,6 +1196,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	t.Run("posting enabled returns 201", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithJSON(map[string]any{"fields": map[string]any{}}).
 			Expect().
 			Status(http.StatusCreated).
 			JSON().IsEqual(map[string]any{
@@ -1227,16 +1228,16 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	createField(e, mIdV, "publishedAt", "", "publishedAt", false, false, false, false, "Date", map[string]any{"date": map[string]any{}})
 	createField(e, mIdV, "website", "", "website", false, false, false, false, "URL", map[string]any{"url": map[string]any{}})
 
-	postV := func(body map[string]any) *httpexpect.Object {
+	postV := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
-			WithJSON(body).
+			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object()
 	}
-	postVOK := func(body map[string]any) {
+	postVOK := func(fields map[string]any) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
-			WithJSON(body).
+			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusCreated)
 	}
@@ -1267,7 +1268,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	t.Run("multiple field errors returned together", func(t *testing.T) {
 		obj := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
-			WithJSON(map[string]any{"count": 999}).
+			WithJSON(map[string]any{"fields": map[string]any{"count": 999}}).
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object()
@@ -1391,16 +1392,16 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	// multiple integer with constraints
 	createField(e, mIdM, "counts", "", "counts", true, false, false, false, "Integer", map[string]any{"integer": map[string]any{"min": 1, "max": 10}})
 
-	postM := func(body map[string]any) *httpexpect.Object {
+	postM := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
-			WithJSON(body).
+			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object()
 	}
-	postMOK := func(body map[string]any) {
+	postMOK := func(fields map[string]any) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
-			WithJSON(body).
+			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusCreated)
 	}

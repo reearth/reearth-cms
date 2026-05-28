@@ -3,6 +3,7 @@ package publicapi
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"path"
@@ -250,6 +251,10 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 	return 0, false
 }
 
+type postItemRequest struct {
+	Fields map[string]any `json:"fields"`
+}
+
 // PostItem handles POST /:workspace/:project/:model/items to create a new item.
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
@@ -258,15 +263,18 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
-		body := map[string]any{}
-		if err := c.Bind(&body); err != nil {
+		var req postItemRequest
+		if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
 			return c.JSON(http.StatusBadRequest, apiErrorResponse{
 				Error: "Request body is not valid JSON",
 				Code:  "INVALID_JSON",
 			})
 		}
+		if req.Fields == nil {
+			req.Fields = map[string]any{}
+		}
 
-		result := ctrl.PostItem(ctx, ws, p, m, body)
+		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
@@ -284,7 +292,7 @@ func PostItem() echo.HandlerFunc {
 
 		if len(result.FieldErrors) > 0 {
 			return c.JSON(http.StatusBadRequest, apiErrorResponse{
-				Error:   "Payload validation failed",
+				Error:   "Validation failed",
 				Code:    "VALIDATION_ERROR",
 				Details: result.FieldErrors,
 			})
