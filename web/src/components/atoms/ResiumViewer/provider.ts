@@ -22,6 +22,7 @@ import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
 const GOOGLE_MAP_CREDIT = new Credit("© Google", true);
+const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", true);
 
 const getTilesConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
@@ -125,7 +126,7 @@ const earthAtNight = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 8,
-      credit: GOOGLE_MAP_CREDIT,
+      credit: BLACK_MARBLE_CREDIT,
     });
   },
 });

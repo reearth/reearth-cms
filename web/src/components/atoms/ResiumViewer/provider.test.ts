@@ -1,6 +1,11 @@
 import { test, expect, describe } from "vitest";
 
-import { isLabelsOverlayProvider, LABELS_OVERLAY_ALPHA, LABELS_OVERLAY_FLAG } from "./provider";
+import {
+  imageryGet,
+  isLabelsOverlayProvider,
+  LABELS_OVERLAY_ALPHA,
+  LABELS_OVERLAY_FLAG,
+} from "./provider";
 
 describe("isLabelsOverlayProvider", () => {
   test("returns true when the flag is set to true", () => {
@@ -41,5 +46,22 @@ describe("isLabelsOverlayProvider", () => {
 describe("LABELS_OVERLAY_ALPHA", () => {
   test("is 0.7", () => {
     expect(LABELS_OVERLAY_ALPHA).toBe(0.7);
+  });
+});
+
+describe("imageryGet", () => {
+  test("uses Black Marble credit for Earth at night", () => {
+    const [provider] = imageryGet([
+      {
+        id: "earth-at-night",
+        type: "EARTH_AT_NIGHT",
+        props: { name: "", url: "", image: "" },
+      },
+    ]);
+
+    const imageryProvider = provider.creationCommand() as { credit?: { html?: string } };
+
+    expect(imageryProvider.credit?.html).toContain("Black Marble");
+    expect(imageryProvider.credit?.html).not.toContain("Google");
   });
 });
