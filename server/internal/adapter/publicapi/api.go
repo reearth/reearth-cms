@@ -264,11 +264,13 @@ func PostItem() echo.HandlerFunc {
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
 		var req postItemRequest
-		if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
-			return c.JSON(http.StatusBadRequest, apiErrorResponse{
-				Error: "Request body is not valid JSON",
-				Code:  "INVALID_JSON",
-			})
+		if c.Request().ContentLength != 0 {
+			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
+				return c.JSON(http.StatusBadRequest, apiErrorResponse{
+					Error: "Request body is not valid JSON",
+					Code:  "INVALID_JSON",
+				})
+			}
 		}
 		if req.Fields == nil {
 			req.Fields = map[string]any{}
