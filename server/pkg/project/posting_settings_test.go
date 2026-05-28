@@ -1,10 +1,55 @@
 package project
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestValidateOrigins(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		origins []string
+		wantErr bool
+	}{
+		// valid
+		{name: "empty list is valid", origins: []string{}, wantErr: false},
+		{name: "https scheme accepted", origins: []string{"https://example.com"}, wantErr: false},
+		{name: "http scheme accepted", origins: []string{"http://example.com"}, wantErr: false},
+		{name: "port is allowed", origins: []string{"https://example.com:3000"}, wantErr: false},
+		{name: "subdomain is allowed", origins: []string{"https://app.example.com"}, wantErr: false},
+		{name: "multiple valid origins", origins: []string{"https://a.com", "http://b.com:8080"}, wantErr: false},
+		// wildcards
+		{name: "bare wildcard rejected", origins: []string{"*"}, wantErr: true},
+		{name: "subdomain wildcard rejected", origins: []string{"https://*.example.com"}, wantErr: true},
+		// wrong scheme
+		{name: "no scheme rejected", origins: []string{"example.com"}, wantErr: true},
+		{name: "ftp scheme rejected", origins: []string{"ftp://example.com"}, wantErr: true},
+		// path / query / fragment
+		{name: "path rejected", origins: []string{"https://example.com/path"}, wantErr: true},
+		{name: "query string rejected", origins: []string{"https://example.com?foo=bar"}, wantErr: true},
+		{name: "fragment rejected", origins: []string{"https://example.com#section"}, wantErr: true},
+		// mixed: first valid, second invalid
+		{name: "invalid entry after valid one is caught", origins: []string{"https://good.com", "https://bad.com/path"}, wantErr: true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := ValidateOrigins(tt.origins)
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.True(t, errors.Is(err, ErrInvalidOrigin), "expected ErrInvalidOrigin, got: %v", err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
 
 func TestNewPostingSettings(t *testing.T) {
 	t.Parallel()

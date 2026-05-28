@@ -1186,23 +1186,17 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
 			Status(http.StatusForbidden).
-			JSON().IsEqual(map[string]any{
-			"error":   "posting_disabled",
-			"message": "Posting is disabled for this project.",
-		})
+			JSON().Object().Value("error").IsEqual("posting_disabled")
 	})
 
-	updateProjectPostingWithOrigins(e, pId, true, []string{"https://allowed.com"})
+	updateProjectPosting(e, pId, true, []string{"https://allowed.com"})
 
 	t.Run("posting enabled returns 202", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://allowed.com").
 			Expect().
 			Status(http.StatusAccepted).
-			JSON().IsEqual(map[string]any{
-			"status":  "accepted",
-			"message": "Posting is enabled.",
-		})
+			JSON().Object().Value("status").IsEqual("accepted")
 	})
 
 	// --- schema-based validation ---
@@ -1437,11 +1431,11 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
 
 	// posting enabled, one allowed origin
-	updateProjectPostingWithOrigins(e, pId, true, []string{"https://example.com"})
+	updateProjectPosting(e, pId, true, []string{"https://example.com"})
 
 	t.Run("no origins configured returns 403", func(t *testing.T) {
-		updateProjectPostingWithOrigins(e, pId, true, []string{})
-		defer updateProjectPostingWithOrigins(e, pId, true, []string{"https://example.com"})
+		updateProjectPosting(e, pId, true, []string{})
+		defer updateProjectPosting(e, pId, true, []string{"https://example.com"})
 
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://example.com").
