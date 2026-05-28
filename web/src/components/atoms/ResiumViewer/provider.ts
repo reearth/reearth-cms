@@ -21,7 +21,7 @@ import {
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const GOOGLE_MAP_CREDIT = new Credit("© Google", false);
+const GOOGLE_MAP_CREDIT = new Credit("© Google", true);
 
 const getTilesConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
