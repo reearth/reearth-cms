@@ -22,6 +22,7 @@ import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
 const GOOGLE_MAP_CREDIT = new Credit("© Google", true);
+const TERRAIN_CREDIT = new Credit("Terravista", true);
 
 const getTilesConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
@@ -208,7 +209,7 @@ const cesiumWorld = new ProviderViewModel({
     return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
       requestWaterMask: true,
-      credit: GOOGLE_MAP_CREDIT,
+      credit: TERRAIN_CREDIT,
     });
   },
 });
