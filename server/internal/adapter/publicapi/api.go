@@ -3,6 +3,7 @@ package publicapi
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"path"
@@ -250,8 +251,11 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 	return 0, false
 }
 
-// PostItem handles POST /:workspace/:project/:model to create a new item.
-// TODO: accept item data in the request body and pass it to the controller in future task.
+type postItemRequest struct {
+	Fields map[string]any `json:"fields"`
+}
+
+// PostItem handles POST /:workspace/:project/:model/items to create a new item.
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
@@ -259,34 +263,47 @@ func PostItem() echo.HandlerFunc {
 
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 
-		// TODO: use the body in future schema validation and draft item creation tasks
-		body := map[string]any{}
-		if err := c.Bind(&body); err != nil {
-			return c.JSON(http.StatusBadRequest, apiErrorResponse{
-				Error: "Request body is not valid JSON",
-				Code:  "INVALID_JSON",
-			})
+		var req postItemRequest
+		if c.Request().ContentLength != 0 {
+			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
+				return c.JSON(http.StatusBadRequest, apiErrorResponse{
+					Error: "Request body is not valid JSON",
+					Code:  "INVALID_JSON",
+				})
+			}
+		}
+		if req.Fields == nil {
+			req.Fields = map[string]any{}
 		}
 
-		if err := ctrl.PostItem(ctx, ws, p, m); err != nil {
-			if errors.Is(err, ErrProjectPostingDisabled) {
+		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		if result.Err != nil {
+			if errors.Is(result.Err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "Public posting is disabled for this project",
 					Code:  "POSTING_DISABLED_PROJECT",
 				})
 			}
-			if errors.Is(err, rerror.ErrNotFound) {
+			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, apiErrorResponse{
 					Error: "not found",
 				})
 			}
-			return err
+			return result.Err
 		}
 
-		/* TODO: success response should be in this format in future draft item creation task
+		if len(result.FieldErrors) > 0 {
+			return c.JSON(http.StatusBadRequest, apiErrorResponse{
+				Error:   "Validation failed",
+				Code:    "VALIDATION_ERROR",
+				Details: result.FieldErrors,
+			})
+		}
+
+		/* TODO: success response will be updated in the draft item creation task
 		{
-			"id": "",
-			"$createdAt": "",
+			"id": "<item-id>",
+			"$createdAt": "<timestamp>",
 			"fields": {}
 		}
 		*/

@@ -1203,6 +1203,229 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			"message": "Posting is enabled.",
 		})
 	})
+
+	// --- schema-based validation ---
+
+	// Add a required text field and an integer field with constraints to the model.
+	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
+	updateProjectPosting(e, pIdV, true)
+	_, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
+	mIdV := mResV.Path("$.data.createModel.model.id").Raw().(string)
+	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
+
+	// All in-scope field types with their constraints.
+	createField(e, mIdV, "title", "", "title", false, false, false, true, "Text", map[string]any{"text": map[string]any{}})
+	createField(e, mIdV, "bio", "", "bio", false, false, false, false, "Text", map[string]any{"text": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "summary", "", "summary", false, false, false, false, "TextArea", map[string]any{"textArea": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "content", "", "content", false, false, false, false, "RichText", map[string]any{"richText": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "notes", "", "notes", false, false, false, false, "MarkdownText", map[string]any{"markdownText": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "count", "", "count", false, false, false, false, "Integer", map[string]any{"integer": map[string]any{"min": 1, "max": 100}})
+	createField(e, mIdV, "score", "", "score", false, false, false, false, "Number", map[string]any{"number": map[string]any{"min": 0.0, "max": 1.0}})
+	createField(e, mIdV, "status", "", "status", false, false, false, false, "Select", map[string]any{"select": map[string]any{"values": []string{"open", "closed"}}})
+	createField(e, mIdV, "active", "", "active", false, false, false, false, "Bool", map[string]any{"bool": map[string]any{}})
+	createField(e, mIdV, "agreed", "", "agreed", false, false, false, false, "Checkbox", map[string]any{"checkbox": map[string]any{}})
+	createField(e, mIdV, "publishedAt", "", "publishedAt", false, false, false, false, "Date", map[string]any{"date": map[string]any{}})
+	createField(e, mIdV, "website", "", "website", false, false, false, false, "URL", map[string]any{"url": map[string]any{}})
+
+	postV := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusBadRequest).
+			JSON().Object()
+	}
+	postVOK := func(fields map[string]any) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusCreated)
+	}
+	assertFieldError := func(obj *httpexpect.Object, field, code string) {
+		obj.Value("code").IsEqual("VALIDATION_ERROR")
+		details := obj.Value("details").Array()
+		details.Length().IsEqual(1)
+		details.Value(0).Object().Value("field").IsEqual(field)
+		details.Value(0).Object().Value("code").IsEqual(code)
+	}
+
+	// --- gate / edge cases ---
+	t.Run("valid payload returns 201", func(t *testing.T) {
+		postVOK(map[string]any{
+			"title": "hello", "count": 50, "score": 0.5, "status": "open",
+			"active": true, "agreed": false, "publishedAt": "2024-01-15T10:00:00Z",
+			"website": "https://example.com",
+		})
+	})
+
+	t.Run("unknown keys are silently ignored", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "unknown_field": "ignored"})
+	})
+
+	t.Run("missing required field returns FIELD_REQUIRED", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"count": 5}), "title", "FIELD_REQUIRED")
+	})
+
+	t.Run("multiple field errors returned together", func(t *testing.T) {
+		obj := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithJSON(map[string]any{"fields": map[string]any{"count": 999}}).
+			Expect().
+			Status(http.StatusBadRequest).
+			JSON().Object()
+		obj.Value("code").IsEqual("VALIDATION_ERROR")
+		obj.Value("details").Array().Length().IsEqual(2)
+	})
+
+	// --- Text (maxLength) ---
+	t.Run("text exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "bio": "this is way too long"}), "bio", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("text within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "bio": "short"})
+	})
+
+	// --- TextArea (maxLength) ---
+	t.Run("textarea exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "summary": "this is way too long"}), "summary", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("textarea within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "summary": "short"})
+	})
+
+	// --- RichText (maxLength) ---
+	t.Run("richtext exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "content": "this is way too long"}), "content", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("richtext within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "content": "short"})
+	})
+
+	// --- MarkdownText (maxLength) ---
+	t.Run("markdown exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "notes": "this is way too long"}), "notes", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("markdown within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "notes": "short"})
+	})
+
+	// --- Integer (min/max) ---
+	t.Run("integer above max returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "count": 999}), "count", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("integer below min returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "count": 0}), "count", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("integer within range returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "count": 50})
+	})
+	t.Run("integer type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "count": map[string]any{"bad": "value"}}), "count", "TYPE_MISMATCH")
+	})
+
+	// --- Number (min/max) ---
+	t.Run("number above max returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "score": 1.5}), "score", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("number below min returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "score": -0.1}), "score", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("number within range returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "score": 0.5})
+	})
+	t.Run("number type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "score": map[string]any{"bad": "value"}}), "score", "TYPE_MISMATCH")
+	})
+
+	// --- Select (allowed values) ---
+	t.Run("select invalid value returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "status": "pending"}), "status", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("select valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "status": "open"})
+	})
+
+	// --- Bool ---
+	t.Run("bool type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "active": map[string]any{"bad": "value"}}), "active", "TYPE_MISMATCH")
+	})
+	t.Run("bool valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "active": true})
+	})
+
+	// --- Checkbox ---
+	t.Run("checkbox type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "agreed": map[string]any{"bad": "value"}}), "agreed", "TYPE_MISMATCH")
+	})
+	t.Run("checkbox valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "agreed": true})
+	})
+
+	// --- Date ---
+	t.Run("date type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "publishedAt": map[string]any{"bad": "value"}}), "publishedAt", "TYPE_MISMATCH")
+	})
+	t.Run("date valid RFC3339 returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "publishedAt": "2024-01-15T10:00:00Z"})
+	})
+
+	// --- URL ---
+	t.Run("url type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "website": map[string]any{"bad": "value"}}), "website", "TYPE_MISMATCH")
+	})
+	t.Run("url valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "website": "https://example.com"})
+	})
+
+	// --- single vs multiple ---
+
+	// Create a separate model with single and multiple text fields.
+	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
+	updateProjectPosting(e, pIdM, true)
+	_, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
+	mIdM := mResM.Path("$.data.createModel.model.id").Raw().(string)
+	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
+
+	// single=false (default), multiple=false
+	createField(e, mIdM, "tag", "", "tag", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	// multiple=true
+	createField(e, mIdM, "tags", "", "tags", true, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	// multiple integer with constraints
+	createField(e, mIdM, "counts", "", "counts", true, false, false, false, "Integer", map[string]any{"integer": map[string]any{"min": 1, "max": 10}})
+
+	postM := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusBadRequest).
+			JSON().Object()
+	}
+	postMOK := func(fields map[string]any) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusCreated)
+	}
+
+	t.Run("single field accepts scalar", func(t *testing.T) {
+		postMOK(map[string]any{"tag": "one"})
+	})
+	t.Run("single field rejects array with multiple values", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"tag": []any{"one", "two"}}), "tag", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("multiple field accepts array of values", func(t *testing.T) {
+		postMOK(map[string]any{"tags": []any{"one", "two", "three"}})
+	})
+	t.Run("multiple field accepts scalar as single-item", func(t *testing.T) {
+		postMOK(map[string]any{"tags": "one"})
+	})
+	t.Run("multiple field reports type mismatch on invalid item in array", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"counts": []any{float64(1), map[string]any{"bad": "value"}}}), "counts", "TYPE_MISMATCH")
+	})
+	t.Run("multiple field reports constraint violation on item out of range", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"counts": []any{float64(5), float64(999)}}), "counts", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("multiple field accepts all valid items", func(t *testing.T) {
+		postMOK(map[string]any{"counts": []any{float64(1), float64(5), float64(10)}})
+	})
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
