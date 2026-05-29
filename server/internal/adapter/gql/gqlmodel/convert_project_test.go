@@ -11,7 +11,15 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func mustPS(t *testing.T, enabled bool, allowedOrigins []string) *project.PostingSettings {
+	t.Helper()
+	ps, err := project.NewPostingSettings(enabled, allowedOrigins)
+	require.NoError(t, err)
+	return ps
+}
 
 func TestConvertProject_ToProject(t *testing.T) {
 	mocktime := time.Now()
@@ -157,17 +165,17 @@ func TestToPostingSettings(t *testing.T) {
 		},
 		{
 			name: "enabled=true, no origins",
-			p:    project.NewPostingSettings(true, []string{}),
+			p:    mustPS(t, true, []string{}),
 			want: PostingSettings{Enabled: true, AllowedOrigins: []string{}},
 		},
 		{
 			name: "enabled=false, no origins",
-			p:    project.NewPostingSettings(false, []string{}),
+			p:    mustPS(t, false, []string{}),
 			want: PostingSettings{Enabled: false, AllowedOrigins: []string{}},
 		},
 		{
 			name: "enabled=true, with origins",
-			p:    project.NewPostingSettings(true, []string{"https://a.com", "https://b.com"}),
+			p:    mustPS(t, true, []string{"https://a.com", "https://b.com"}),
 			want: PostingSettings{Enabled: true, AllowedOrigins: []string{"https://a.com", "https://b.com"}},
 		},
 	}
@@ -193,7 +201,7 @@ func TestToProjectAccessibility(t *testing.T) {
 
 	t.Run("non-nil maps all fields", func(t *testing.T) {
 		t.Parallel()
-		ps := project.NewPostingSettings(true, []string{"https://x.com"})
+		ps := mustPS(t, true, []string{"https://x.com"})
 		a11y := project.NewAccessibility(project.VisibilityPrivate, nil, ps, nil)
 		got := ToProjectAccessibility(a11y)
 		assert.NotNil(t, got)

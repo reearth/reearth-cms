@@ -42,10 +42,12 @@ func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string
 		Members(map[accountdomain.UserID]workspace.Member{}).
 		MustBuild()
 
+	ps, psErr := project.NewPostingSettings(postingEnabled, allowedOrigins)
+	require.NoError(t, psErr)
 	a11y := project.NewAccessibility(
 		project.VisibilityPublic,
 		nil,
-		project.NewPostingSettings(postingEnabled, allowedOrigins),
+		ps,
 		nil,
 	)
 	p := project.New().

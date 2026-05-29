@@ -149,6 +149,11 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		}
 	}
 
+	accessibility, err := d.Accessibility.Model()
+	if err != nil {
+		return nil, err
+	}
+
 	return project.New().
 		ID(pid).
 		UpdatedAt(d.UpdatedAt).
@@ -162,7 +167,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		StarCount(d.StarCount).
 		StarredBy(d.StarredBy).
 		Topics(d.Topics).
-		Accessibility(d.Accessibility.Model()).
+		Accessibility(accessibility).
 		RequestRoles(toRequestRoles(d.RequestRoles)).
 		Build()
 }
@@ -184,9 +189,9 @@ func (d *PublicationSettingsDocument) Model() *project.PublicationSettings {
 	return project.NewPublicationSettings(mIds, d.PublicAssets)
 }
 
-func (d *PostingSettingsDocument) Model() *project.PostingSettings {
+func (d *PostingSettingsDocument) Model() (*project.PostingSettings, error) {
 	if d == nil {
-		return nil
+		return nil, nil
 	}
 	origins := d.AllowedOrigins
 	if origins == nil {
@@ -195,9 +200,9 @@ func (d *PostingSettingsDocument) Model() *project.PostingSettings {
 	return project.NewPostingSettings(d.Enabled, origins)
 }
 
-func (d *ProjectAccessibilityDocument) Model() *project.Accessibility {
+func (d *ProjectAccessibilityDocument) Model() (*project.Accessibility, error) {
 	if d == nil {
-		return project.NewPublicAccessibility()
+		return project.NewPublicAccessibility(), nil
 	}
 	var keys project.APIKeys
 	if len(d.Keys) > 0 {
@@ -206,7 +211,11 @@ func (d *ProjectAccessibilityDocument) Model() *project.Accessibility {
 		})
 	}
 
-	return project.NewAccessibility(project.Visibility(d.Visibility), d.Publication.Model(), d.Posting.Model(), keys)
+	posting, err := d.Posting.Model()
+	if err != nil {
+		return nil, err
+	}
+	return project.NewAccessibility(project.Visibility(d.Visibility), d.Publication.Model(), posting, keys), nil
 }
 
 func (d *APIKeyDocument) Model() *project.APIKey {

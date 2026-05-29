@@ -15,7 +15,7 @@ type PostingSettings struct {
 	allowedOrigins []string
 }
 
-func NewPostingSettings(enabled bool, allowedOrigins []string) *PostingSettings {
+func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings, error) {
 	var origins []string
 	if allowedOrigins == nil {
 		origins = []string{}
@@ -23,7 +23,10 @@ func NewPostingSettings(enabled bool, allowedOrigins []string) *PostingSettings 
 		origins = make([]string, len(allowedOrigins))
 		copy(origins, allowedOrigins)
 	}
-	return &PostingSettings{enabled: enabled, allowedOrigins: origins}
+	if err := ValidateOrigins(origins); err != nil {
+		return nil, err
+	}
+	return &PostingSettings{enabled: enabled, allowedOrigins: origins}, nil
 }
 
 func (p *PostingSettings) Enabled() bool {
@@ -52,9 +55,6 @@ func (p *PostingSettings) Clone() *PostingSettings {
 }
 
 // CheckOrigin validates the request origin against the allowedOrigins list.
-// Returns nil on success, or an error:
-//   - ErrNoOriginsConfigured when allowedOrigins is empty
-//   - ErrOriginNotAllowed when origin is absent or not in the list
 func (p *PostingSettings) CheckOrigin(origin string) error {
 	if len(p.allowedOrigins) == 0 {
 		return ErrNoOriginsConfigured
@@ -82,22 +82,15 @@ func ValidateOrigins(origins []string) error {
 }
 
 func validateOrigin(origin string) error {
-	invalid := func() error { return fmt.Errorf("%w: %q", ErrInvalidOrigin, origin) }
-	if strings.Contains(origin, "*") {
-		return invalid()
-	}
 	u, err := url.Parse(origin)
-	if err != nil {
-		return invalid()
-	}
-	if u.Scheme != "http" && u.Scheme != "https" {
-		return invalid()
-	}
-	if u.Host == "" {
-		return invalid()
-	}
-	if (u.Path != "" && u.Path != "/") || u.RawQuery != "" || u.Fragment != "" {
-		return invalid()
+	if err != nil ||
+		strings.Contains(origin, "*") ||
+		(u.Scheme != "http" && u.Scheme != "https") ||
+		u.Host == "" ||
+		(u.Path != "" && u.Path != "/") ||
+		u.RawQuery != "" ||
+		u.Fragment != "" {
+		return fmt.Errorf("%w: %q", ErrInvalidOrigin, origin)
 	}
 	return nil
 }
