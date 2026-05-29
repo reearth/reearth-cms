@@ -9,6 +9,7 @@ export type Config = {
   logoUrl?: string;
   coverImageUrl?: string;
   tilesUrl?: string;
+  terrainUrl?: string;
   tilesToken?: string;
   editorUrl: string;
   multiTenant?: Record<string, AuthInfo>;
@@ -27,6 +28,7 @@ export const defaultConfig: Config = {
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
   tilesUrl: env.REEARTH_CMS_TILES_URL || "https://tiles.reearth.land",
+  terrainUrl: env.REEARTH_CMS_TERRAIN_URL || "https://terrain.reearth.land/",
   tilesToken: env.REEARTH_CMS_TILES_TOKEN || "",
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
   firebase: {
