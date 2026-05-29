@@ -10,5 +10,6 @@
     "disableWorkspaceUi": $REEARTH_CMS_DISABLE_WORKSPACE_UI,
     "dashboardBaseUrl": $REEARTH_CMS_DASHBOARD_BASE_URL,
     "tilesUrl": $REEARTH_CMS_TILES_URL,
+    "terrainUrl": REEARTH_CMS_TERRAIN_URL,
     "tilesToken": $REEARTH_CMS_TILES_TOKEN
 }
