@@ -11,10 +11,16 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+	"time"
 
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
+
+// urlFetchClient enforces a hard timeout on user-supplied URL fetches
+var urlFetchClient = &http.Client{
+	Timeout: 5 * time.Minute,
+}
 
 type File struct {
 	Content         io.ReadCloser
@@ -70,7 +76,7 @@ func FromURL(ctx context.Context, rawURL string) (*File, error) {
 	// TODO: support gzip
 	// req.Header.Set("Accept-Encoding", "gzip")
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := urlFetchClient.Do(req)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}

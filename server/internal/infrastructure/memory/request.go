@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -11,7 +12,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Request struct {

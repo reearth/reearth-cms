@@ -12,7 +12,7 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
           egress-policy: audit
       - name: checkout
@@ -71,7 +71,7 @@ jobs:
     if: '!failure()'
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
           egress-policy: audit
       - run: echo OK
@@ -87,10 +87,10 @@ jobs:
       name: ${{ steps.prepare.outputs.name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
           egress-policy: audit
-      - uses: reearth/actions/prepare-build@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
+      - uses: reearth/actions/prepare-build@ff086d73d8dfc552101f9a84c9601c5b2b4a6299 # main
         id: prepare
         with:
           repo: ${{ github.repository }}
@@ -150,6 +150,9 @@ jobs:
   deploy-web:
     needs: [build-web, ci-web]
     if: needs.ci-web.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
@@ -167,10 +170,10 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
           egress-policy: audit
-      - uses: reearth/actions/deploy-cloud-run-with-tag@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
+      - uses: reearth/actions/deploy-cloud-run-with-tag@ff086d73d8dfc552101f9a84c9601c5b2b4a6299 # main
         id: deploy
         with:
           image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
@@ -184,6 +187,9 @@ jobs:
   deploy-server:
     needs: [build-server, ci-server]
     if: needs.ci-server.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
@@ -192,6 +198,9 @@ jobs:
   deploy-worker:
     needs: [build-worker, ci-worker]
     if: needs.ci-worker.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker

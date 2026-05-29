@@ -33,10 +33,9 @@ func TestTaskRunner(t *testing.T) {
 		GCPProject:          gcpProject,
 		GCPRegion:           gcpRegion,
 		GCSBucket:           gcsBucket,
-		DecompressorImage:   decompressorImage,
-		DecompressorTopic:   "decompress",
-		DecompressorGzipExt: "gml",
-		CopierImage:         copierImage,
+		DecompressorImage: decompressorImage,
+		DecompressorTopic: "decompress",
+		CopierImage:       copierImage,
 	})
 	require.NoError(t, err)
 

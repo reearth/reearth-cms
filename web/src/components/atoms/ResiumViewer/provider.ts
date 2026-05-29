@@ -5,13 +5,10 @@ import {
   ArcGISTiledElevationTerrainProvider,
   UrlTemplateImageryProvider,
   CesiumTerrainProvider,
+  Credit,
   IonResource,
   EllipsoidTerrainProvider,
-  createWorldTerrainAsync,
   buildModuleUrl,
-  createWorldImageryAsync,
-  IonWorldImageryStyle,
-  IonImageryProvider,
 } from "cesium";
 
 import {
@@ -24,15 +21,37 @@ import {
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
+const GOOGLE_MAP_CREDIT = new Credit("© Google", false);
+const REEARTH_TERRAIN_CREDIT = new Credit(
+  "Re:Earth Terrain, Mapterhorn, EGM2008 (NGA), Protomaps, OpenStreetMap",
+  false,
+);
+const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", false);
+
+const getReearthLandConfig = () => {
+  const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
+  const terrainUrl = window.REEARTH_CONFIG?.terrainUrl ?? "https://terrain.reearth.land";
+  const tilesToken = window.REEARTH_CONFIG?.tilesToken ?? "";
+  const tokenQuery = tilesToken ? `?${new URLSearchParams({ token: tilesToken }).toString()}` : "";
+  return { tilesUrl, terrainUrl, tokenQuery };
+};
+
+export const LABELS_OVERLAY_FLAG = "__terravistaLabelsOverlay" as const;
+export const LABELS_OVERLAY_ALPHA = 0.7;
+export const isLabelsOverlayProvider = (provider: unknown): boolean => {
+  return !!(provider as Record<string, unknown> | null | undefined)?.[LABELS_OVERLAY_FLAG];
+};
 
 const defaultTile = new ProviderViewModel({
   name: "Default",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.AERIAL,
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -42,9 +61,22 @@ const labelled = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+
+    const satellite = new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: GOOGLE_MAP_CREDIT,
     });
+
+    const labels = new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: GOOGLE_MAP_CREDIT,
+    });
+
+    (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
+    return [satellite, labels];
   },
 });
 
@@ -53,8 +85,11 @@ const roadMap = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.ROAD,
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -92,7 +127,12 @@ const earthAtNight = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
-    return IonImageryProvider.fromAssetId(3812, { accessToken });
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 8,
+      credit: BLACK_MARBLE_CREDIT,
+    });
   },
 });
 
@@ -170,9 +210,11 @@ const cesiumWorld = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldTerrainAsync({
-      requestWaterMask: true,
+    const { terrainUrl, tokenQuery } = getReearthLandConfig();
+    return CesiumTerrainProvider.fromUrl(`${terrainUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
+      requestWaterMask: true,
+      credit: REEARTH_TERRAIN_CREDIT,
     });
   },
 });
@@ -203,7 +245,7 @@ const cesiumIonGet = ({
       return CesiumTerrainProvider.fromUrl(
         url ||
           IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
-            accessToken: cesiumIonAccessToken || accessToken,
+            accessToken: cesiumIonAccessToken,
           }),
       );
     },

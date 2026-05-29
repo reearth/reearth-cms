@@ -1,13 +1,13 @@
 package memorygit
 
 import (
+	"slices"
 	"testing"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 func TestVersionedSyncMap_Load(t *testing.T) {

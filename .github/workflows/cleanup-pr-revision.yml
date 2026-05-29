@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
           egress-policy: audit
       - name: Print event information
@@ -40,11 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
           egress-policy: audit
       - name: Remove Cloud Run Tag
-        uses: reearth/actions/remove-cloud-run-tag@5dc7c15db9e464033ecd2fbbca18a0ab10ed5718 # main
+        uses: reearth/actions/remove-cloud-run-tag@ff086d73d8dfc552101f9a84c9601c5b2b4a6299 # main
         with:
           region: ${{ secrets.GC_REGION }}
           service: reearth-scaffold-web

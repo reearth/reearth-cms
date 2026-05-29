@@ -24,7 +24,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/app/node_modules/.cache,sharing=locked \
     yarn build
 
-FROM nginx:1.29-alpine
+FROM nginx:1.30-alpine
 WORKDIR /usr/share/nginx/html
 
 # Quiet the Nginx startup logs.
@@ -45,13 +45,15 @@ ENV REEARTH_CMS_API=null
 ENV REEARTH_CMS_AUTH0_AUDIENCE=
 ENV REEARTH_CMS_AUTH0_CLIENT_ID=
 ENV REEARTH_CMS_AUTH0_DOMAIN=
-ENV REEARTH_CESIUM_ION_ACCESS_TOKEN=null
 ENV REEARTH_CMS_COVER_IMAGE_URL=null
 ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
 ENV REEARTH_CMS_DISABLE_WORKSPACE_UI=null
 ENV REEARTH_CMS_DASHBOARD_BASE_URL=null
+ENV REEARTH_CMS_TILES_URL=null
+ENV REEARTH_CMS_TERRAIN_URL=null
+ENV REEARTH_CMS_TILES_TOKEN=null
 
 RUN --mount=type=cache,target=/var/cache/apk \
     apk add jq
