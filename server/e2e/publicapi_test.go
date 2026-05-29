@@ -1203,7 +1203,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Add a required text field and an integer field with constraints to the model.
 	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
-	updateProjectPosting(e, pIdV, true)
+	updateProjectPosting(e, pIdV, true, nil)
 	_, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
 	mIdV := mResV.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
@@ -1374,7 +1374,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Create a separate model with single and multiple text fields.
 	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
-	updateProjectPosting(e, pIdM, true)
+	updateProjectPosting(e, pIdM, true, nil)
 	_, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
 	mIdM := mResM.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
