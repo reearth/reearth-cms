@@ -1203,7 +1203,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Add a required text field and an integer field with constraints to the model.
 	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
-	updateProjectPosting(e, pIdV, true, nil)
+	updateProjectPosting(e, pIdV, true, []string{"https://example.com"})
 	_, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
 	mIdV := mResV.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
@@ -1224,6 +1224,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	postV := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusBadRequest).
@@ -1231,9 +1232,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	}
 	postVOK := func(fields map[string]any) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
-			Status(http.StatusCreated)
+			Status(http.StatusAccepted)
 	}
 	assertFieldError := func(obj *httpexpect.Object, field, code string) {
 		obj.Value("code").IsEqual("VALIDATION_ERROR")
@@ -1262,6 +1264,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	t.Run("multiple field errors returned together", func(t *testing.T) {
 		obj := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": map[string]any{"count": 999}}).
 			Expect().
 			Status(http.StatusBadRequest).
@@ -1374,7 +1377,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Create a separate model with single and multiple text fields.
 	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
-	updateProjectPosting(e, pIdM, true, nil)
+	updateProjectPosting(e, pIdM, true, []string{"https://example.com"})
 	_, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
 	mIdM := mResM.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
@@ -1388,6 +1391,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	postM := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusBadRequest).
@@ -1395,9 +1399,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	}
 	postMOK := func(fields map[string]any) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
-			Status(http.StatusCreated)
+			Status(http.StatusAccepted)
 	}
 
 	t.Run("single field accepts scalar", func(t *testing.T) {
