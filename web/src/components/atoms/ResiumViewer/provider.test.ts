@@ -1,7 +1,13 @@
 import { Credit, CesiumTerrainProvider } from "cesium";
 import { test, expect, describe, vi, afterEach } from "vitest";
 
-import { isLabelsOverlayProvider, LABELS_OVERLAY_ALPHA, LABELS_OVERLAY_FLAG, terrainGet } from "./provider";
+import {
+  imageryGet,
+  isLabelsOverlayProvider,
+  LABELS_OVERLAY_ALPHA,
+  LABELS_OVERLAY_FLAG,
+  terrainGet,
+} from "./provider";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -51,7 +57,9 @@ describe("LABELS_OVERLAY_ALPHA", () => {
 
 describe("terrainGet", () => {
   test("uses Terravista credit for Cesium World Terrain", async () => {
-    const fromUrl = vi.spyOn(CesiumTerrainProvider, "fromUrl").mockResolvedValue({} as CesiumTerrainProvider);
+    const fromUrl = vi
+      .spyOn(CesiumTerrainProvider, "fromUrl")
+      .mockResolvedValue({} as CesiumTerrainProvider);
     const terrainProvider = terrainGet([
       {
         id: "terrain-1",
@@ -72,5 +80,22 @@ describe("terrainGet", () => {
 
     expect(options?.credit).toBeInstanceOf(Credit);
     expect((options?.credit as Credit).html).toBe("Terravista");
+  });
+});
+
+describe("imageryGet", () => {
+  test("uses Black Marble credit for Earth at night", () => {
+    const [provider] = imageryGet([
+      {
+        id: "earth-at-night",
+        type: "EARTH_AT_NIGHT",
+        props: { name: "", url: "", image: "" },
+      },
+    ]);
+
+    const imageryProvider = provider.creationCommand as { credit?: { html?: string } };
+
+    expect(imageryProvider.credit?.html).toContain("Black Marble");
+    expect(imageryProvider.credit?.html).not.toContain("Google");
   });
 });

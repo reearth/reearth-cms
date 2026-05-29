@@ -22,7 +22,11 @@ import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
 const GOOGLE_MAP_CREDIT = new Credit("© Google", true);
-const TERRAIN_CREDIT = new Credit("Terravista", true);
+const REEARTH_TERRAIN_CREDIT = new Credit(
+  "Re:Earth Terrain, Mapterhorn, EGM2008 (NGA), Protomaps, OpenStreetMap",
+  true,
+);
+const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", true);
 
 const getTilesConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
@@ -126,7 +130,7 @@ const earthAtNight = new ProviderViewModel({
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 8,
-      credit: GOOGLE_MAP_CREDIT,
+      credit: BLACK_MARBLE_CREDIT,
     });
   },
 });
@@ -209,7 +213,7 @@ const cesiumWorld = new ProviderViewModel({
     return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
       requestWaterMask: true,
-      credit: TERRAIN_CREDIT,
+      credit: REEARTH_TERRAIN_CREDIT,
     });
   },
 });
