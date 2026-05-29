@@ -30,7 +30,7 @@ const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", 
 
 const getReearthLandConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
-  const terrainUrl = window.REEARTH_CONFIG?.terrainUrl ?? "https://terrain.reearth.land/";
+  const terrainUrl = window.REEARTH_CONFIG?.terrainUrl ?? "https://terrain.reearth.land";
   const tilesToken = window.REEARTH_CONFIG?.tilesToken ?? "";
   const tokenQuery = tilesToken ? `?${new URLSearchParams({ token: tilesToken }).toString()}` : "";
   return { tilesUrl, terrainUrl, tokenQuery };
