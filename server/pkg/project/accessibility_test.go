@@ -10,19 +10,42 @@ import (
 func TestNewAccessibility_WithPosting(t *testing.T) {
 	t.Parallel()
 
-	t.Run("posting nil — PostingEnabled returns false", func(t *testing.T) {
-		t.Parallel()
-		a := NewAccessibility(VisibilityPublic, nil, nil, nil)
-		assert.False(t, a.PostingEnabled())
-		assert.Nil(t, a.Posting())
-	})
+	tests := []struct {
+		name        string
+		posting     *PostingSettings
+		wantEnabled bool
+		wantNil     bool
+	}{
+		{
+			name:    "nil posting — PostingEnabled returns false",
+			posting: nil,
+			wantNil: true,
+		},
+		{
+			name:        "posting enabled — PostingEnabled returns true",
+			posting:     mustNewPS(t, true, nil),
+			wantEnabled: true,
+		},
+		{
+			name:        "posting disabled — PostingEnabled returns false",
+			posting:     mustNewPS(t, false, nil),
+			wantEnabled: false,
+		},
+	}
 
-	t.Run("posting enabled — PostingEnabled returns true", func(t *testing.T) {
-		t.Parallel()
-		a := NewAccessibility(VisibilityPublic, nil, NewPostingSettings(true), nil)
-		assert.True(t, a.PostingEnabled())
-		assert.NotNil(t, a.Posting())
-	})
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			a := NewAccessibility(VisibilityPublic, nil, tt.posting, nil)
+			assert.Equal(t, tt.wantEnabled, a.PostingEnabled())
+			if tt.wantNil {
+				assert.Nil(t, a.Posting())
+			} else {
+				assert.NotNil(t, a.Posting())
+			}
+		})
+	}
 }
 
 func TestAccessibility_Posting(t *testing.T) {
@@ -81,49 +104,94 @@ func TestAccessibility_PostingEnabled(t *testing.T) {
 func TestAccessibility_SetPosting(t *testing.T) {
 	t.Parallel()
 
-	t.Run("nil receiver is a no-op", func(t *testing.T) {
-		t.Parallel()
-		var a *Accessibility
-		assert.NotPanics(t, func() { a.SetPosting(NewPostingSettings(true)) })
-	})
+	tests := []struct {
+		name        string
+		initial     *Accessibility
+		input       *PostingSettings
+		wantNil     bool
+		wantEnabled bool
+		wantCloned  bool
+	}{
+		{
+			name:    "nil receiver is a no-op",
+			initial: nil,
+			input:   mustNewPS(t, true, nil),
+		},
+		{
+			name:    "set nil clears posting",
+			initial: &Accessibility{posting: mustNewPS(t, true, nil)},
+			input:   nil,
+			wantNil: true,
+		},
+		{
+			name:        "set non-nil stores a clone",
+			initial:     &Accessibility{},
+			input:       mustNewPS(t, true, nil),
+			wantEnabled: true,
+			wantCloned:  true,
+		},
+	}
 
-	t.Run("set nil clears posting", func(t *testing.T) {
-		t.Parallel()
-		a := &Accessibility{posting: NewPostingSettings(true)}
-		a.SetPosting(nil)
-		assert.Nil(t, a.posting)
-	})
-
-	t.Run("set non-nil stores clone", func(t *testing.T) {
-		t.Parallel()
-		a := &Accessibility{}
-		ps := NewPostingSettings(true)
-		a.SetPosting(ps)
-		assert.True(t, a.PostingEnabled())
-		assert.NotSame(t, ps, a.posting)
-	})
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.NotPanics(t, func() { tt.initial.SetPosting(tt.input) })
+			if tt.initial == nil {
+				return
+			}
+			if tt.wantNil {
+				assert.Nil(t, tt.initial.posting)
+				return
+			}
+			assert.NotNil(t, tt.initial.posting)
+			assert.Equal(t, tt.wantEnabled, tt.initial.PostingEnabled())
+			if tt.wantCloned {
+				assert.NotSame(t, tt.input, tt.initial.posting)
+			}
+		})
+	}
 }
 
 func TestAccessibility_Clone_IncludesPosting(t *testing.T) {
 	t.Parallel()
 
-	t.Run("clone preserves posting", func(t *testing.T) {
-		t.Parallel()
-		a := &Accessibility{posting: NewPostingSettings(true)}
-		c := a.Clone()
-		assert.True(t, c.PostingEnabled())
-		assert.NotSame(t, a.posting, c.posting)
-	})
+	tests := []struct {
+		name        string
+		a           *Accessibility
+		wantNil     bool
+		wantEnabled bool
+	}{
+		{
+			name:        "clone preserves posting and produces a distinct pointer",
+			a:           &Accessibility{posting: mustNewPS(t, true, nil)},
+			wantEnabled: true,
+		},
+		{
+			name:    "clone with nil posting produces nil posting",
+			a:       &Accessibility{},
+			wantNil: true,
+		},
+	}
 
-	t.Run("clone with nil posting", func(t *testing.T) {
-		t.Parallel()
-		a := &Accessibility{}
-		c := a.Clone()
-		assert.Nil(t, c.Posting())
-	})
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := tt.a.Clone()
+			if tt.wantNil {
+				assert.Nil(t, c.Posting())
+				return
+			}
+			assert.Equal(t, tt.wantEnabled, c.PostingEnabled())
+			assert.NotSame(t, tt.a.posting, c.posting)
+		})
+	}
 }
 
 func TestAccessibility_IsAssetsPublic(t *testing.T) {
+	t.Parallel()
+
 	apiKey1 := NewAPIKeyBuilder().
 		NewID().
 		GenerateKey().
@@ -199,6 +267,7 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -213,6 +282,8 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 }
 
 func TestAccessibility_IsModelPublic(t *testing.T) {
+	t.Parallel()
+
 	modelID := id.NewModelID()
 	pubWithModel := NewPublicationSettings(ModelIDList{modelID}, false)
 	pubWithoutModel := NewPublicationSettings(ModelIDList{}, false)
@@ -295,6 +366,7 @@ func TestAccessibility_IsModelPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -20,6 +20,7 @@ type PublicationSettings {
 
 type PostingSettings {
   enabled: Boolean!
+  allowedOrigins: [String!]!
 }
 
 type ProjectAPIKey {
@@ -71,6 +72,7 @@ input UpdatePublicationSettingsInput{
 
 input UpdatePostingSettingsInput {
   enabled: Boolean!
+  allowedOrigins: [String!]!
 }
 
 input UpdateProjectAccessibilityInput {

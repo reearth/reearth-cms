@@ -190,3 +190,15 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 		Item: nil, // TODO: will be set to created item after draft item creation is implemented
 	}
 }
+
+// CheckPostingOrigin validates that the project allows posting from the given origin.
+func (c *Controller) CheckPostingOrigin(ctx context.Context, wsAlias, pAlias, mKey, origin string) error {
+	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
+	if err != nil {
+		return err
+	}
+	if !wpm.Project.Accessibility().PostingEnabled() {
+		return ErrProjectPostingDisabled
+	}
+	return wpm.Project.Accessibility().Posting().CheckOrigin(origin)
+}

@@ -516,10 +516,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts,
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts,
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -640,10 +640,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -720,10 +720,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -746,10 +746,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -781,10 +781,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -920,10 +920,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -1186,29 +1186,24 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
 			Status(http.StatusForbidden).
-			JSON().IsEqual(map[string]any{
-			"error": "Public posting is disabled for this project",
-			"code":  "POSTING_DISABLED_PROJECT",
-		})
+			JSON().Object().Value("error").IsEqual("posting_disabled")
 	})
 
-	updateProjectPosting(e, pId, true)
+	updateProjectPosting(e, pId, true, []string{"https://allowed.com"})
 
-	t.Run("posting enabled returns 201", func(t *testing.T) {
+	t.Run("posting enabled returns 202", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
 			Expect().
-			Status(http.StatusCreated).
-			JSON().IsEqual(map[string]any{
-			"status":  "accepted",
-			"message": "Posting is enabled.",
-		})
+			Status(http.StatusAccepted).
+			JSON().Object().Value("status").IsEqual("accepted")
 	})
 
 	// --- schema-based validation ---
 
 	// Add a required text field and an integer field with constraints to the model.
 	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
-	updateProjectPosting(e, pIdV, true)
+	updateProjectPosting(e, pIdV, true, []string{"https://example.com"})
 	_, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
 	mIdV := mResV.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
@@ -1229,6 +1224,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	postV := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusBadRequest).
@@ -1236,9 +1232,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	}
 	postVOK := func(fields map[string]any) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
-			Status(http.StatusCreated)
+			Status(http.StatusAccepted)
 	}
 	assertFieldError := func(obj *httpexpect.Object, field, code string) {
 		obj.Value("code").IsEqual("VALIDATION_ERROR")
@@ -1267,6 +1264,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	t.Run("multiple field errors returned together", func(t *testing.T) {
 		obj := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": map[string]any{"count": 999}}).
 			Expect().
 			Status(http.StatusBadRequest).
@@ -1379,7 +1377,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Create a separate model with single and multiple text fields.
 	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
-	updateProjectPosting(e, pIdM, true)
+	updateProjectPosting(e, pIdM, true, []string{"https://example.com"})
 	_, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
 	mIdM := mResM.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
@@ -1393,6 +1391,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	postM := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
 			Status(http.StatusBadRequest).
@@ -1400,9 +1399,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	}
 	postMOK := func(fields map[string]any) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
-			Status(http.StatusCreated)
+			Status(http.StatusAccepted)
 	}
 
 	t.Run("single field accepts scalar", func(t *testing.T) {
@@ -1425,6 +1425,71 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	})
 	t.Run("multiple field accepts all valid items", func(t *testing.T) {
 		postMOK(map[string]any{"counts": []any{float64(1), float64(5), float64(10)}})
+	})
+}
+
+func TestPublicAPI_PostingCORS(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "cors-test", "cors-test", "cors-test")
+	_, mRes := createModel(e, pId, "cors-model", "cors-model", "cors-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+
+	// posting enabled, one allowed origin
+	updateProjectPosting(e, pId, true, []string{"https://example.com"})
+
+	t.Run("no origins configured returns 403", func(t *testing.T) {
+		updateProjectPosting(e, pId, true, []string{})
+		defer updateProjectPosting(e, pId, true, []string{"https://example.com"})
+
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://example.com").
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("absent origin returns 403", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("wrong origin returns 403", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://evil.com").
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("matching origin returns 202 with ACAO header", func(t *testing.T) {
+		res := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://example.com").
+			Expect().
+			Status(http.StatusAccepted)
+		res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+	})
+
+	t.Run("OPTIONS preflight approved returns 204 with CORS headers", func(t *testing.T) {
+		res := e.OPTIONS("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Access-Control-Request-Method", "POST").
+			Expect().
+			Status(http.StatusNoContent)
+		res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+		res.Header("Access-Control-Allow-Methods").IsEqual("POST")
+		res.Header("Access-Control-Allow-Headers").IsEqual("Content-Type")
+	})
+
+	t.Run("OPTIONS preflight rejected returns 403", func(t *testing.T) {
+		res := e.OPTIONS("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://evil.com").
+			WithHeader("Access-Control-Request-Method", "POST").
+			Expect().
+			Status(http.StatusForbidden)
+		res.Header("Access-Control-Allow-Origin").IsEmpty()
 	})
 }
 

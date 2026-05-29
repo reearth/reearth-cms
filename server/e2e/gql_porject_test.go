@@ -6,6 +6,7 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/stretchr/testify/assert"
 )
 
 func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string, *httpexpect.Value) {
@@ -109,35 +110,6 @@ func updateProject(e *httpexpect.Expect, pID, name, desc, alias, visibility stri
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
 
-func updateProjectPosting(e *httpexpect.Expect, pID string, enabled bool) *httpexpect.Value {
-	requestBody := GraphQLRequest{
-		Query: `mutation UpdateProjectPosting($projectId: ID!, $enabled: Boolean!) {
-    updateProject(input: {projectId: $projectId, accessibility: {posting: {enabled: $enabled}}}) {
-        project {
-            id
-            accessibility {
-                posting {
-                    enabled
-                }
-            }
-        }
-    }
-}`,
-		Variables: map[string]any{
-			"projectId": pID,
-			"enabled":   enabled,
-		},
-	}
-
-	return e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-}
 
 func RegeneratePublicApiToken(e *httpexpect.Expect, pId, tId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
@@ -246,12 +218,220 @@ func TestProjectPostingSettings(t *testing.T) {
 	getProject(e, pId).Path("$.data.node.accessibility.posting").Object().HasValue("enabled", false)
 
 	// enable posting
-	res := updateProjectPosting(e, pId, true)
+	res := updateProjectPosting(e, pId, true, []string{})
 	posting := res.Path("$.data.updateProject.project.accessibility.posting").Object()
 	posting.HasValue("enabled", true)
 
 	// disable posting
-	res = updateProjectPosting(e, pId, false)
+	res = updateProjectPosting(e, pId, false, []string{})
 	posting = res.Path("$.data.updateProject.project.accessibility.posting").Object()
 	posting.HasValue("enabled", false)
+}
+
+func updateProjectPosting(e *httpexpect.Expect, pID string, enabled bool, allowedOrigins []string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateProjectPosting($projectId: ID!, $enabled: Boolean!, $allowedOrigins: [String!]!) {
+    updateProject(input: {projectId: $projectId, accessibility: {posting: {enabled: $enabled, allowedOrigins: $allowedOrigins}}}) {
+        project {
+            id
+            accessibility {
+                posting {
+                    enabled
+                    allowedOrigins
+                }
+            }
+        }
+    }
+}`,
+		Variables: map[string]any{
+			"projectId":      pID,
+			"enabled":        enabled,
+			"allowedOrigins": allowedOrigins,
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
+func getProjectPosting(e *httpexpect.Expect, pID string) *httpexpect.Object {
+	requestBody := GraphQLRequest{
+		Query: `query GetProjectPosting($projectId: ID!) {
+    node(id: $projectId, type: PROJECT) {
+        ... on Project {
+            id
+            accessibility {
+                posting {
+                    enabled
+                    allowedOrigins
+                }
+            }
+        }
+    }
+}`,
+		Variables: map[string]any{"projectId": pID},
+	}
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Path("$.data.node.accessibility.posting").Object()
+}
+
+func TestProjectPostingAllowedOrigins_GQL(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "origins-gql-test", "origins-gql-test", "origins-gql-test")
+	_, _ = createModel(e, pId, "origins-model", "origins-model", "origins-model")
+
+	// new project: allowedOrigins should be an empty list
+	posting := getProjectPosting(e, pId)
+	posting.HasValue("enabled", false)
+	posting.Value("allowedOrigins").Array().IsEmpty()
+
+	// enable posting with two allowed origins
+	updateProjectPosting(e, pId, true, []string{"https://allowed1.com", "https://allowed2.com"})
+	posting = getProjectPosting(e, pId)
+	posting.HasValue("enabled", true)
+	posting.Value("allowedOrigins").Array().IsEqual([]any{"https://allowed1.com", "https://allowed2.com"})
+
+	// update origins list to a single origin
+	updateProjectPosting(e, pId, true, []string{"https://only.com"})
+	posting = getProjectPosting(e, pId)
+	posting.HasValue("enabled", true)
+	posting.Value("allowedOrigins").Array().IsEqual([]any{"https://only.com"})
+
+	// clear origins back to empty (deny-all)
+	updateProjectPosting(e, pId, true, []string{})
+	posting = getProjectPosting(e, pId)
+	posting.HasValue("enabled", true)
+	posting.Value("allowedOrigins").Array().IsEmpty()
+}
+
+func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pAlias := "origins-post-test"
+	mKey := "origins-model-post"
+	pId, _ := createProject(e, wId.String(), pAlias, pAlias, pAlias)
+	_, _ = createModel(e, pId, mKey, mKey, mKey)
+
+	const url = "/api/p/{workspace}/{project}/{model}/items"
+
+	tests := []struct {
+		name           string
+		postingEnabled bool
+		allowedOrigins []string
+		method         string
+		origin         string
+		wantStatus     int
+		wantErrorCode  string
+		checkResp      func(t *testing.T, resp *httpexpect.Response)
+	}{
+		{
+			name:           "rejected when allowedOrigins is empty",
+			postingEnabled: true,
+			allowedOrigins: []string{},
+			method:         http.MethodPost,
+			origin:         "https://example.com",
+			wantStatus:     http.StatusForbidden,
+			wantErrorCode:  "origin_not_allowed",
+		},
+		{
+			name:           "rejected when Origin header is absent",
+			postingEnabled: true,
+			allowedOrigins: []string{"https://allowed.com"},
+			method:         http.MethodPost,
+			origin:         "",
+			wantStatus:     http.StatusForbidden,
+			wantErrorCode:  "origin_not_allowed",
+		},
+		{
+			name:           "rejected when Origin not in list",
+			postingEnabled: true,
+			allowedOrigins: []string{"https://allowed.com"},
+			method:         http.MethodPost,
+			origin:         "https://evil.com",
+			wantStatus:     http.StatusForbidden,
+			wantErrorCode:  "origin_not_allowed",
+		},
+		{
+			name:           "rejected when posting disabled",
+			postingEnabled: false,
+			allowedOrigins: []string{"https://allowed.com"},
+			method:         http.MethodPost,
+			origin:         "https://allowed.com",
+			wantStatus:     http.StatusForbidden,
+			wantErrorCode:  "posting_disabled",
+		},
+		{
+			name:           "accepted and CORS header set when Origin is in list",
+			postingEnabled: true,
+			allowedOrigins: []string{"https://allowed.com"},
+			method:         http.MethodPost,
+			origin:         "https://allowed.com",
+			wantStatus:     http.StatusAccepted,
+			checkResp: func(t *testing.T, resp *httpexpect.Response) {
+				assert.Equal(t, "https://allowed.com", resp.Header("Access-Control-Allow-Origin").Raw())
+				resp.JSON().Object().HasValue("status", "accepted")
+			},
+		},
+		{
+			name:           "OPTIONS preflight approved for allowed origin",
+			postingEnabled: true,
+			allowedOrigins: []string{"https://allowed.com"},
+			method:         http.MethodOptions,
+			origin:         "https://allowed.com",
+			wantStatus:     http.StatusNoContent,
+			checkResp: func(t *testing.T, resp *httpexpect.Response) {
+				assert.Equal(t, "https://allowed.com", resp.Header("Access-Control-Allow-Origin").Raw())
+				assert.Equal(t, "POST", resp.Header("Access-Control-Allow-Methods").Raw())
+				assert.Equal(t, "Content-Type", resp.Header("Access-Control-Allow-Headers").Raw())
+				assert.Empty(t, resp.Header("Access-Control-Max-Age").Raw())
+			},
+		},
+		{
+			name:           "OPTIONS preflight rejected for disallowed origin",
+			postingEnabled: true,
+			allowedOrigins: []string{"https://allowed.com"},
+			method:         http.MethodOptions,
+			origin:         "https://evil.com",
+			wantStatus:     http.StatusForbidden,
+			checkResp: func(t *testing.T, resp *httpexpect.Response) {
+				assert.Empty(t, resp.Header("Access-Control-Allow-Origin").Raw())
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			updateProjectPosting(e, pId, tt.postingEnabled, tt.allowedOrigins)
+
+			req := e.Request(tt.method, url, "test-workspace", pAlias, mKey)
+			if tt.origin != "" {
+				req = req.WithHeader("Origin", tt.origin)
+			}
+			if tt.method == http.MethodOptions {
+				req = req.WithHeader("Access-Control-Request-Method", "POST")
+			}
+			resp := req.Expect().Status(tt.wantStatus)
+
+			if tt.wantErrorCode != "" {
+				resp.JSON().Object().HasValue("error", tt.wantErrorCode)
+			}
+			if tt.checkResp != nil {
+				tt.checkResp(t, resp)
+			}
+		})
+	}
 }
