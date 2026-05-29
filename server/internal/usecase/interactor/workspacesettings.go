@@ -8,8 +8,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -25,11 +27,26 @@ func NewWorkspaceSettings(r *repo.Container, g *gateway.Container) interfaces.Wo
 	}
 }
 
+func (ws *WorkspaceSettings) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
+	return doCheckPermission(ctx, ws.gateways, rbac.ResourceWorkspaceSettings, action, workspaceID, operator, caller)
+}
+
 func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.WorkspaceIDList, op *usecase.Operator) (result workspacesettings.List, err error) {
+	for _, w := range wid {
+
+		if err := ws.checkPermission(ctx, op, w.Ref(), "WorkspaceSettings.Fetch", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
 	return ws.repos.WorkspaceSettings.FindByIDs(ctx, wid)
 }
 
 func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.UpdateOrCreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
+
+	if err := ws.checkPermission(ctx, op, inp.ID.Ref(), "WorkspaceSettings.UpdateOrCreate", rbac.ActionUpdate); err != nil {
+		return nil, err
+	}
+
 	wss, err := ws.repos.WorkspaceSettings.FindByID(ctx, inp.ID)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
@@ -60,6 +77,10 @@ func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.
 }
 
 func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWorkspaceSettingsParam, op *usecase.Operator) error {
+
+	if err := ws.checkPermission(ctx, op, inp.ID.Ref(), "WorkspaceSettings.Delete", rbac.ActionDelete); err != nil {
+		return err
+	}
 	return Run0(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
 		func(ctx context.Context) error {
 			return ws.repos.WorkspaceSettings.Remove(ctx, inp.ID)
