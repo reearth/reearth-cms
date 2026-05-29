@@ -56,7 +56,7 @@ describe("LABELS_OVERLAY_ALPHA", () => {
 });
 
 describe("terrainGet", () => {
-  test("uses Terravista credit for Cesium World Terrain", async () => {
+  test("uses Re:Earth terrain credit for Cesium World Terrain", async () => {
     const fromUrl = vi
       .spyOn(CesiumTerrainProvider, "fromUrl")
       .mockResolvedValue({} as CesiumTerrainProvider);
@@ -79,7 +79,9 @@ describe("terrainGet", () => {
     const [, options] = fromUrl.mock.calls[0];
 
     expect(options?.credit).toBeInstanceOf(Credit);
-    expect((options?.credit as Credit).html).toBe("Terravista");
+    expect((options?.credit as Credit).html).toBe(
+      "Re:Earth Terrain, Mapterhorn, EGM2008 (NGA), Protomaps, OpenStreetMap",
+    );
   });
 });
 
@@ -93,7 +95,9 @@ describe("imageryGet", () => {
       },
     ]);
 
-    const imageryProvider = provider.creationCommand as { credit?: { html?: string } };
+    const imageryProvider = (
+      provider.creationCommand as unknown as () => { credit?: { html?: string } }
+    )();
 
     expect(imageryProvider.credit?.html).toContain("Black Marble");
     expect(imageryProvider.credit?.html).not.toContain("Google");
