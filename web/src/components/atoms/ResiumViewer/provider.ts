@@ -21,13 +21,19 @@ import {
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const CREDIT = "Terravista";
+const GOOGLE_MAP_CREDIT = new Credit("© Google", false);
+const REEARTH_TERRAIN_CREDIT = new Credit(
+  "Re:Earth Terrain, Mapterhorn, EGM2008 (NGA), Protomaps, OpenStreetMap",
+  false,
+);
+const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", false);
 
-const getTilesConfig = () => {
+const getReearthLandConfig = () => {
   const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
+  const terrainUrl = window.REEARTH_CONFIG?.terrainUrl ?? "https://terrain.reearth.land";
   const tilesToken = window.REEARTH_CONFIG?.tilesToken ?? "";
   const tokenQuery = tilesToken ? `?${new URLSearchParams({ token: tilesToken }).toString()}` : "";
-  return { tilesUrl, tokenQuery };
+  return { tilesUrl, terrainUrl, tokenQuery };
 };
 
 export const LABELS_OVERLAY_FLAG = "__terravistaLabelsOverlay" as const;
@@ -41,11 +47,11 @@ const defaultTile = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
   creationFunction: () => {
-    const { tilesUrl, tokenQuery } = getTilesConfig();
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -55,18 +61,18 @@ const labelled = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
   tooltip: "",
   creationFunction: () => {
-    const { tilesUrl, tokenQuery } = getTilesConfig();
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
 
     const satellite = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
 
     const labels = new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
 
     (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
@@ -79,11 +85,11 @@ const roadMap = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
   creationFunction: () => {
-    const { tilesUrl, tokenQuery } = getTilesConfig();
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 22,
-      credit: new Credit(CREDIT, true),
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -121,11 +127,11 @@ const earthAtNight = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
-    const { tilesUrl, tokenQuery } = getTilesConfig();
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
     return new UrlTemplateImageryProvider({
       url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
       maximumLevel: 8,
-      credit: new Credit(CREDIT, true),
+      credit: BLACK_MARBLE_CREDIT,
     });
   },
 });
@@ -204,11 +210,11 @@ const cesiumWorld = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
-    const { tilesUrl, tokenQuery } = getTilesConfig();
-    return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
+    const { terrainUrl, tokenQuery } = getReearthLandConfig();
+    return CesiumTerrainProvider.fromUrl(`${terrainUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
       requestWaterMask: true,
-      credit: new Credit(CREDIT, true),
+      credit: REEARTH_TERRAIN_CREDIT,
     });
   },
 });
