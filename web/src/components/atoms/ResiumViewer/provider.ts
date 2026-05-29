@@ -22,6 +22,10 @@ import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
 const GOOGLE_MAP_CREDIT = new Credit("© Google", true);
+const REEARTH_TERRAIN_CREDIT = new Credit(
+  "Re:Earth Terrain, Mapterhorn, EGM2008 (NGA), Protomaps, OpenStreetMap",
+  true,
+);
 const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", true);
 
 const getTilesConfig = () => {
@@ -209,7 +213,7 @@ const cesiumWorld = new ProviderViewModel({
     return CesiumTerrainProvider.fromUrl(`${tilesUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
       requestWaterMask: true,
-      credit: GOOGLE_MAP_CREDIT,
+      credit: REEARTH_TERRAIN_CREDIT,
     });
   },
 });
