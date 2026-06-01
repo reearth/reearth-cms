@@ -25,15 +25,6 @@ type FormValues = {
   cesiumIonAccessToken?: string;
 };
 
-export const TileTypeFormat: Record<TileType, string> = {
-  DEFAULT: "Google Satellite",
-  ROAD_MAP: "Google Road Map",
-  OPEN_STREET_MAP: "OpenStreetMap",
-  EARTH_AT_NIGHT: "NASA Black Marble",
-  JAPAN_GSI_STANDARD_MAP: "Japan GSI Standard Map",
-  URL: "URL",
-};
-
 export const TerrainTypeFormat: Record<TerrainType, string> = {
   CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
   CESIUM_ION: "Cesium Ion",
@@ -62,13 +53,25 @@ const FormModal: React.FC<Props> = ({
   const [form] = Form.useForm<FormValues>();
   const [extraOpen, setExtraOpen] = useState(false);
 
+  const TileTypeFormat = useMemo<Record<TileType, string>>(
+    () => ({
+      DEFAULT: "Google Satellite",
+      ROAD_MAP: "Google Road Map",
+      OPEN_STREET_MAP: "OpenStreetMap",
+      EARTH_AT_NIGHT: "NASA Black Marble",
+      JAPAN_GSI_STANDARD_MAP: t("Japan GSI Standard Map"),
+      URL: "URL",
+    }),
+    [t],
+  );
+
   const options = useMemo(() => {
     const typeFormat = isTile ? TileTypeFormat : TerrainTypeFormat;
     return Object.keys(typeFormat).map(key => ({
       value: key,
       label: typeFormat[key as keyof typeof typeFormat],
     }));
-  }, [isTile]);
+  }, [TileTypeFormat, isTile]);
 
   useEffect(() => {
     if (open) {
