@@ -217,10 +217,10 @@ describe("Settings", () => {
     await expect.poll(() => screen.getByText("Update Tiles")).toBeVisible();
 
     await user.click(screen.getByLabelText("Tiles type"));
-    await user.click(screen.getByText("Labelled"));
+    await user.click(screen.getByText("OpenStreetMap"));
     await user.click(screen.getByRole("button", { name: "OK" }));
-    expect(screen.getByText("DEFAULT")).not.toBeVisible();
-    expect(getByText(container, "LABELLED")).toBeVisible();
+    expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
+    expect(getByText(container, "OPEN_STREET_MAP")).toBeVisible();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
@@ -269,10 +269,10 @@ describe("Settings", () => {
     await expect.poll(() => screen.getByText("Update Terrain")).toBeVisible();
 
     await user.click(screen.getByLabelText("Terrain type"));
-    await user.click(screen.getByText("ArcGIS Terrain"));
+    await user.click(screen.getByText("Cesium Ion"));
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("CESIUM_WORLD_TERRAIN")).not.toBeVisible();
-    expect(getByText(container, "ARC_GIS_TERRAIN")).toBeVisible();
+    expect(getByText(container, "CESIUM_ION")).toBeVisible();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
