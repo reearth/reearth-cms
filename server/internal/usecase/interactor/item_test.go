@@ -6,14 +6,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -36,13 +40,15 @@ func TestNewItem(t *testing.T) {
 }
 
 func TestItem_FindByID(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
 	sid := id.NewSchemaID()
+	s := schema.New().ID(sid).Workspace(wid).Project(id.NewProjectID()).MustBuild()
+
 	id1 := id.NewItemID()
 	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	id2 := id.NewItemID()
 	i2 := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
-	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -50,20 +56,29 @@ func TestItem_FindByID(t *testing.T) {
 		},
 	}
 
+	// auth test fixtures
+	authWid := accountdomain.NewWorkspaceID()
+	authSid := id.NewSchemaID()
+	authSchema := schema.New().ID(authSid).Workspace(authWid).Project(id.NewProjectID()).MustBuild()
+	iAuth := item.New().NewID().Schema(authSid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
+
 	tests := []struct {
-		name  string
-		seeds item.List
-		args  struct {
+		name        string
+		seeds       item.List
+		seedSchemas []*schema.Schema
+		args        struct {
 			id       id.ItemID
 			operator *usecase.Operator
 		}
 		want        *item.Item
 		mockItemErr bool
 		wantErr     error
+		setupAuth   func(*gatewaymock.MockAuthorization)
 	}{
 		{
-			name:  "find 1 of 2",
-			seeds: item.List{i1, i2},
+			name:        "find 1 of 2",
+			seeds:       item.List{i1, i2},
+			seedSchemas: []*schema.Schema{s},
 			args: struct {
 				id       id.ItemID
 				operator *usecase.Operator
@@ -87,6 +102,45 @@ func TestItem_FindByID(t *testing.T) {
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
+		{
+			name:        "permission allowed",
+			seeds:       item.List{iAuth},
+			seedSchemas: []*schema.Schema{authSchema},
+			args: struct {
+				id       id.ItemID
+				operator *usecase.Operator
+			}{id: iAuth.ID(), operator: op},
+			want: iAuth,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &authWid).Return(true, nil)
+			},
+		},
+		{
+			name:        "permission denied - returns error",
+			seeds:       item.List{iAuth},
+			seedSchemas: []*schema.Schema{authSchema},
+			args: struct {
+				id       id.ItemID
+				operator *usecase.Operator
+			}{id: iAuth.ID(), operator: op},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &authWid).Return(false, nil)
+			},
+		},
+		{
+			name:        "permission check error - returns error",
+			seeds:       item.List{iAuth},
+			seedSchemas: []*schema.Schema{authSchema},
+			args: struct {
+				id       id.ItemID
+				operator *usecase.Operator
+			}{id: iAuth.ID(), operator: op},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &authWid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -103,12 +157,24 @@ func TestItem_FindByID(t *testing.T) {
 				err := db.Item.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			itemUC := NewItem(db, nil)
+			for _, s := range tc.seedSchemas {
+				err := db.Schema.Save(ctx, s)
+				assert.NoError(t, err)
+			}
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			itemUC := NewItem(db, gw)
 			itemUC.ignoreEvent = true
 
 			got, err := itemUC.FindByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
@@ -120,28 +186,102 @@ func TestItem_FindByID(t *testing.T) {
 func TestItem_FindByIDs(t *testing.T) {
 	sid := id.NewSchemaID()
 
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	wid2 := accountdomain.NewWorkspaceID()
+	pid2 := id.NewProjectID()
+	s2 := schema.New().NewID().Workspace(wid2).Project(pid2).MustBuild()
+	i2 := item.New().NewID().Schema(s2.ID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	wid3 := accountdomain.NewWorkspaceID()
+	pid3 := id.NewProjectID()
+	s3 := schema.New().NewID().Workspace(wid3).Project(pid3).MustBuild()
+	i3 := item.New().NewID().Schema(s3.ID()).Model(id.NewModelID()).Project(pid3).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	wid4 := accountdomain.NewWorkspaceID()
+	pid4 := id.NewProjectID()
+	s4 := schema.New().NewID().Workspace(wid4).Project(pid4).MustBuild()
+	i4 := item.New().NewID().Schema(s4.ID()).Model(id.NewModelID()).Project(pid4).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	wid5 := accountdomain.NewWorkspaceID()
+	pid5 := id.NewProjectID()
+	s5 := schema.New().NewID().Workspace(wid5).Project(pid5).MustBuild()
+	i5 := item.New().NewID().Schema(s5.ID()).Model(id.NewModelID()).Project(pid5).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
 	tests := []struct {
-		name    string
-		seeds   item.List
-		arg     id.ItemIDList
-		want    item.VersionedList
-		wantErr error
+		name        string
+		seedSchemas schema.List
+		seedItems   item.List
+		arg         id.ItemIDList
+		want        item.VersionedList
+		wantErr     error
+		setupAuth   func(*gatewaymock.MockAuthorization)
 	}{
 		{
-			name:    "0 count in empty db",
-			seeds:   item.List{},
-			arg:     []id.ItemID{},
-			want:    nil,
-			wantErr: nil,
+			name:      "0 count in empty db",
+			seedItems: item.List{},
+			arg:       []id.ItemID{},
+			want:      nil,
 		},
 		{
 			name: "0 count with item for another workspaces",
-			seeds: item.List{
+			seedItems: item.List{
 				item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			arg:     []id.ItemID{},
-			want:    nil,
-			wantErr: nil,
+			arg:  []id.ItemID{},
+			want: nil,
+		},
+		{
+			name:        "permission allowed",
+			seedSchemas: schema.List{s1},
+			seedItems:   item.List{i1},
+			arg:         id.ItemIDList{i1.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:        "permission denied - returns error",
+			seedSchemas: schema.List{s1},
+			seedItems:   item.List{i1},
+			arg:         id.ItemIDList{i1.ID()},
+			wantErr:     interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:        "permission check error - returns error",
+			seedSchemas: schema.List{s1},
+			seedItems:   item.List{i1},
+			arg:         id.ItemIDList{i1.ID()},
+			wantErr:     errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+		{
+			name:        "multiple schemas - all workspaces checked",
+			seedSchemas: schema.List{s1, s2},
+			seedItems:   item.List{i1, i2},
+			arg:         id.ItemIDList{i1.ID(), i2.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, gomock.Any()).Return(true, nil).Times(2)
+			},
+		},
+		{
+			name:        "5 distinct workspaces - goroutine fan-out checked",
+			seedSchemas: schema.List{s1, s2, s3, s4, s5},
+			seedItems:   item.List{i1, i2, i3, i4, i5},
+			arg:         id.ItemIDList{i1.ID(), i2.ID(), i3.ID(), i4.ID(), i5.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, gomock.Any()).Return(true, nil).Times(5)
+			},
 		},
 	}
 
@@ -153,19 +293,31 @@ func TestItem_FindByIDs(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			for _, i := range tc.seeds {
-				err := db.Item.Save(ctx, i)
-				assert.NoError(t, err)
+			for _, s := range tc.seedSchemas {
+				assert.NoError(t, db.Schema.Save(ctx, s))
 			}
-			itemUC := NewItem(db, nil)
+			for _, i := range tc.seedItems {
+				assert.NoError(t, db.Item.Save(ctx, i))
+			}
 
-			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
+			var gateways *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways = &gateway.Container{Authorization: mockAuth}
+			}
+			itemUC := NewItem(db, gateways)
+
+			got, err := itemUC.FindByIDs(ctx, tc.arg, op)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			if tc.want != nil {
+				assert.Equal(t, tc.want, got)
+			}
 		})
 	}
 }
@@ -220,6 +372,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		want        int
 		wantErr     error
 		mockItemErr bool
+		setupAuth   func(*gatewaymock.MockAuthorization)
 	}{
 		{
 			name:       "find 2 of 3",
@@ -255,6 +408,63 @@ func TestItem_FindBySchema(t *testing.T) {
 			want:    0,
 			wantErr: nil,
 		},
+		{
+			name:       "permission allowed",
+			seedItems:  item.List{i1, i2, i3},
+			seedSchema: s1,
+			args: args{
+				schema: s1.ID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
+					ReadableProjects: []id.ProjectID{pid},
+					WritableProjects: []id.ProjectID{pid},
+				},
+			},
+			want: 2,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionList, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:       "permission denied - returns error",
+			seedItems:  item.List{i1, i2, i3},
+			seedSchema: s1,
+			args: args{
+				schema: s1.ID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
+					ReadableProjects: []id.ProjectID{pid},
+					WritableProjects: []id.ProjectID{pid},
+				},
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionList, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:       "permission check error - returns error",
+			seedItems:  item.List{i1, i2, i3},
+			seedSchema: s1,
+			args: args{
+				schema: s1.ID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
+					ReadableProjects: []id.ProjectID{pid},
+					WritableProjects: []id.ProjectID{pid},
+				},
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionList, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -277,16 +487,395 @@ func TestItem_FindBySchema(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			itemUC := NewItem(db, nil)
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			itemUC := NewItem(db, gw)
 			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, len(got))
+		})
+	}
+}
+
+func TestItem_FindVersionByID_CheckPermission(t *testing.T) {
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s.ID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied - returns error",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error - returns error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Item.Save(ctx, i1))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+
+			_, err := itemUC.FindVersionByID(ctx, i1.ID(), version.Latest.OrVersion(), op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestItem_FindPublicByID_CheckPermission(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s.ID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	setup := func(db *repo.Container) {
+		ctx := context.Background()
+		assert.NoError(t, db.Schema.Save(ctx, s))
+		assert.NoError(t, db.Item.Save(ctx, i1))
+		// publish the item so FindByID with version.Public.Ref() can find it
+		v := version.Latest.OrVersion()
+		assert.NoError(t, db.Item.UpdateRef(ctx, i1.ID(), version.Public, &v))
+	}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			setup(db)
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+			itemUC.ignoreEvent = true
+
+			_, err := itemUC.FindPublicByID(ctx, i1.ID(), op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestItem_FindPublicByModel_CheckPermission(t *testing.T) {
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization, accountdomain.WorkspaceID)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization, wid accountdomain.WorkspaceID) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization, wid accountdomain.WorkspaceID) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization, wid accountdomain.WorkspaceID) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			wid := accountdomain.NewWorkspaceID()
+			pid := id.NewProjectID()
+			s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+			mid := id.NewModelID()
+			m := model.New().ID(mid).Key(id.RandomKey()).Schema(s.ID()).Project(pid).MustBuild()
+			op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Model.Save(ctx, m))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth, wid)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+			itemUC.ignoreEvent = true
+
+			_, _, err := itemUC.FindPublicByModel(ctx, mid, nil, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestItem_FindAllVersionsByID_CheckPermission(t *testing.T) {
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s.ID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied - returns error",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error - returns error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Item.Save(ctx, i1))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+
+			_, err := itemUC.FindAllVersionsByID(ctx, i1.ID(), op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestItem_ItemStatus_CheckPermission(t *testing.T) {
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s.ID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied - returns error",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error - returns error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Item.Save(ctx, i1))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+
+			_, err := itemUC.ItemStatus(ctx, id.ItemIDList{i1.ID()}, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestItem_FindByAssets_CheckPermission(t *testing.T) {
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	s := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	aid := id.NewAssetID()
+	assetField := item.NewField(id.NewFieldID(), value.TypeAsset.Value(aid).AsMultiple(), nil)
+	i1 := item.New().NewID().Schema(s.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{assetField}).Thread(id.NewThreadID().Ref()).MustBuild()
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied - returns error",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error - returns error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionRead, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Item.Save(ctx, i1))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			itemUC := NewItem(db, &gateway.Container{Authorization: mockAuth})
+
+			_, err := itemUC.FindByAssets(ctx, id.AssetIDList{aid}, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
 		})
 	}
 }
@@ -716,6 +1305,85 @@ func TestItem_Create(t *testing.T) {
 	assert.Nil(t, item)
 }
 
+func TestItem_Create_CheckPermission(t *testing.T) {
+	t.Parallel()
+	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+		WritableProjects: []id.ProjectID{prj.ID()},
+	}
+
+	param := interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields:   nil,
+	}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionCreate, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied - returns error",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionCreate, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error - returns error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionCreate, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			lo.Must0(db.Project.Save(ctx, prj.Clone()))
+			lo.Must0(db.Schema.Save(ctx, s.Clone()))
+			lo.Must0(db.Model.Save(ctx, m.Clone()))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			gw := &gateway.Container{Authorization: mockAuth}
+
+			itemUC := NewItem(db, gw)
+			itemUC.ignoreEvent = true
+
+			got, err := itemUC.Create(ctx, param, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
 func TestItem_Update(t *testing.T) {
 	uId := accountdomain.NewUserID().Ref()
 	prj := project.New().NewID().MustBuild()
@@ -914,6 +1582,99 @@ func TestItem_Update(t *testing.T) {
 	assert.Nil(t, item)
 }
 
+func TestItem_Update_CheckPermission(t *testing.T) {
+	t.Parallel()
+	// Use fixed IDs so that all subtests reference the same logical entities
+	// but each subtest creates its own independent object instances.
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID().Ref()
+	prjID := id.NewProjectID()
+	schemaID := id.NewSchemaID()
+	modelID := id.NewModelID()
+	sfFieldID := id.NewFieldID()
+	sfKey := id.RandomKey()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(*gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionUpdate, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied - returns error",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionUpdate, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error - returns error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionUpdate, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Create fresh instances per subtest to avoid data race on SetUpdatedAt
+			sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(sfFieldID).Name("f").Key(sfKey).MustBuild()
+			s := schema.New().ID(schemaID).Workspace(wid).Project(prjID).Fields(schema.FieldList{sf}).MustBuild()
+			m := model.New().ID(modelID).Schema(schemaID).Key(id.RandomKey()).Project(prjID).MustBuild()
+			prj := project.New().ID(prjID).Workspace(wid).MustBuild()
+			i := item.New().NewID().User(*uId).Model(modelID).Project(prjID).Schema(schemaID).Thread(id.NewThreadID().Ref()).MustBuild()
+
+			op := &usecase.Operator{
+				AcOperator: &accountusecase.Operator{
+					User: uId,
+				},
+				WritableProjects: []id.ProjectID{prjID},
+			}
+
+			ctx := context.Background()
+			db := memory.New()
+			lo.Must0(db.Project.Save(ctx, prj))
+			lo.Must0(db.Schema.Save(ctx, s))
+			lo.Must0(db.Model.Save(ctx, m))
+			lo.Must0(db.Item.Save(ctx, i))
+
+			// Get version directly from repo to avoid calling interactor FindByID
+			itemVer, err := db.Item.FindByID(ctx, i.ID(), nil)
+			assert.NoError(t, err)
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			gw := &gateway.Container{Authorization: mockAuth}
+
+			itemUC := NewItem(db, gw)
+			itemUC.ignoreEvent = true
+
+			got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+				ItemID:  i.ID(),
+				Fields:  []interfaces.ItemFieldParam{{Field: sf.ID().Ref(), Value: "hello"}},
+				Version: lo.ToPtr(itemVer.Version()),
+			}, op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
 func TestItem_Delete(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
@@ -1017,6 +1778,7 @@ func TestItem_BatchDelete(t *testing.T) {
 		wantIDs    id.ItemIDList
 		wantSp     schema.Package
 		extraCheck func(context.Context, *testing.T, *repo.Container)
+		setupAuth  func(*gatewaymock.MockAuthorization)
 	}{
 		{
 			name:       "success - single item",
@@ -1290,6 +2052,45 @@ func TestItem_BatchDelete(t *testing.T) {
 			wantSp:  *schema.NewPackage(s1, nil, nil, nil),
 			wantIDs: id.ItemIDList{i1.ID()},
 		},
+		{
+			name:       "permission allowed",
+			schemaSeed: schema.List{s1, s2},
+			modelSeed:  model.List{m1, m2},
+			itemSeed:   item.List{i1, i2, i3, i4, i5, i1Integration},
+			op:         validOp,
+			wantErr:    nil,
+			wantSp:     *schema.NewPackage(s1, nil, nil, nil),
+			wantIDs:    id.ItemIDList{i1.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionDelete, &wid).Return(true, nil)
+			},
+		},
+		{
+			name:       "permission denied - returns error",
+			schemaSeed: schema.List{s1, s2},
+			modelSeed:  model.List{m1, m2},
+			itemSeed:   item.List{i1, i2, i3, i4, i5, i1Integration},
+			op:         validOp,
+			wantErr:    interfaces.ErrOperationDenied,
+			wantSp:     *schema.NewPackage(s1, nil, nil, nil),
+			wantIDs:    id.ItemIDList{i1.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionDelete, &wid).Return(false, nil)
+			},
+		},
+		{
+			name:       "permission check error - returns error",
+			schemaSeed: schema.List{s1, s2},
+			modelSeed:  model.List{m1, m2},
+			itemSeed:   item.List{i1, i2, i3, i4, i5, i1Integration},
+			op:         validOp,
+			wantErr:    errors.New("cerbos unavailable"),
+			wantSp:     *schema.NewPackage(s1, nil, nil, nil),
+			wantIDs:    id.ItemIDList{i1.ID()},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceItem, rbac.ActionDelete, &wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1318,7 +2119,14 @@ func TestItem_BatchDelete(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			itemUC := NewItem(db, nil)
+			var gw *gateway.Container
+			if tt.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tt.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			itemUC := NewItem(db, gw)
 			itemUC.ignoreEvent = true
 
 			result, err := itemUC.BatchDelete(ctx, tt.wantIDs, tt.wantSp, tt.op)

@@ -455,43 +455,43 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 		setupAuth func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
-			name:    "find projects across two workspaces without auth gateway",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{wid1, wid2},
+			name:     "find projects across two workspaces without auth gateway",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{wid1, wid2},
 			operator: op,
-			wantLen: 2,
+			wantLen:  2,
 		},
 		{
-			name:    "find projects in one workspace without auth gateway",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{wid1},
+			name:     "find projects in one workspace without auth gateway",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{wid1},
 			operator: op,
-			wantLen: 1,
+			wantLen:  1,
 		},
 		{
-			name:    "empty workspace list returns no projects",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{},
+			name:     "empty workspace list returns no projects",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{},
 			operator: op,
-			wantLen: 0,
+			wantLen:  0,
 		},
 		{
-			name:    "permission allowed for both workspaces",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{wid1, wid2},
+			name:     "permission allowed for both workspaces",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{wid1, wid2},
 			operator: op,
-			wantLen: 2,
+			wantLen:  2,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(true, nil)
 			},
 		},
 		{
-			name:    "permission denied for first workspace",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{wid1, wid2},
+			name:     "permission denied for first workspace",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{wid1, wid2},
 			operator: op,
-			wantErr: interfaces.ErrOperationDenied,
+			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				// both are checked in parallel (post-query)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(false, nil)
@@ -499,22 +499,22 @@ func TestProject_FindByWorkspaces(t *testing.T) {
 			},
 		},
 		{
-			name:    "permission denied for second workspace",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{wid1, wid2},
+			name:     "permission denied for second workspace",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{wid1, wid2},
 			operator: op,
-			wantErr: interfaces.ErrOperationDenied,
+			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(false, nil)
 			},
 		},
 		{
-			name:    "permission check error on second workspace",
-			seeds:   project.List{p1, p2},
-			wIds:    accountdomain.WorkspaceIDList{wid1, wid2},
+			name:     "permission check error on second workspace",
+			seeds:    project.List{p1, p2},
+			wIds:     accountdomain.WorkspaceIDList{wid1, wid2},
 			operator: op,
-			wantErr: errors.New("cerbos unavailable"),
+			wantErr:  errors.New("cerbos unavailable"),
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid1).Return(true, nil)
 				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, &wid2).Return(false, errors.New("cerbos unavailable"))

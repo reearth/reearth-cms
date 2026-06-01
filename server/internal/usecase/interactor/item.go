@@ -7,6 +7,8 @@ import (
 	"slices"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -15,10 +17,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -38,25 +42,101 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 	}
 }
 
-func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID, nil)
+func (i Item) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller, action rbac.Action) error {
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceItem, action, workspaceID, operator, caller)
 }
 
-func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
+// checkPermissionForAllItems checks the given action against every unique workspace
+// represented in items. Workspace lookups and permission checks run concurrently.
+// Returns the first error encountered.
+func (i Item) checkPermissionForAllItems(ctx context.Context, operator *usecase.Operator, caller, action rbac.Action, items item.VersionedList) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+
+	uniqueSchemaIDs := items.SchemaIDs()
+	if len(uniqueSchemaIDs) == 0 {
+		return nil
+	}
+
+	eg, egCtx := errgroup.WithContext(ctx)
+	for _, sid := range uniqueSchemaIDs {
+		eg.Go(func() error {
+			wid, err := i.workspaceIDForSchema(egCtx, sid)
+			if err != nil {
+				return err
+			}
+			return i.checkPermission(egCtx, operator, wid, caller, action)
+		})
+	}
+	return eg.Wait()
 }
 
-func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {
-	return i.repos.Item.FindByIDs(ctx, ids, nil)
+// workspaceIDForSchema returns the workspace ID for the given schema by fetching it from
+// the repository. This DB lookup exists because item.Item does not currently store workspace
+// directly.
+// TODO: add workspace field to item.Item (with a data migration) so this lookup
+// can be replaced by item.Workspace() or Cache it
+func (i Item) workspaceIDForSchema(ctx context.Context, schemaID id.SchemaID) (*workspace.ID, error) {
+	s, err := i.repos.Schema.FindByID(ctx, schemaID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Workspace().Ref(), nil
 }
 
-func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
+func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForSchema(ctx, itm.Value().Schema())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.FindByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return itm, nil
+}
+
+func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
+	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForSchema(ctx, itm.Value().Schema())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.FindPublicByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return itm, nil
+}
+
+func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+	items, err := i.repos.Item.FindByIDs(ctx, ids, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissionForAllItems(ctx, operator, "item.FindByIDs", rbac.ActionRead, items); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, operator *usecase.Operator) (map[id.ItemID]item.Status, error) {
 	requests, err := i.repos.Request.FindByItems(ctx, itemsIds, nil)
 	if err != nil {
 		return nil, err
 	}
 	items, err := i.repos.Item.FindAllVersionsByIDs(ctx, itemsIds)
 	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissionForAllItems(ctx, operator, "item.ItemStatus", rbac.ActionRead, items); err != nil {
 		return nil, err
 	}
 	res := map[id.ItemID]item.Status{}
@@ -98,22 +178,42 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 	return res, nil
 }
 
-func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return nil, nil, err
+	}
+	wid, err := i.workspaceIDForSchema(ctx, m.Schema())
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.FindPublicByModel", rbac.ActionRead); err != nil {
+		return nil, nil, err
+	}
 	items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, p)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	return items.Unwrap(), pi, nil
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	wid, err := i.workspaceIDForSchema(ctx, schemaID)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.FindBySchema", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	return i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
 }
 
-func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]item.VersionedList, error) {
+func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, operator *usecase.Operator) (map[id.AssetID]item.VersionedList, error) {
 	itms, err := i.repos.Item.FindByAssets(ctx, list, nil)
 	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissionForAllItems(ctx, operator, "item.FindByAssets", rbac.ActionRead, itms); err != nil {
 		return nil, err
 	}
 	res := map[id.AssetID]item.VersionedList{}
@@ -127,15 +227,42 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 	return res, nil
 }
 
-func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
+func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, operator *usecase.Operator) (item.Versioned, error) {
+	itm, err := i.repos.Item.FindVersionByID(ctx, itemID, ver)
+	if err != nil {
+		return nil, err
+	}
+	if itm != nil {
+		wid, err := i.workspaceIDForSchema(ctx, itm.Value().Schema())
+		if err != nil {
+			return nil, err
+		}
+		if err := i.checkPermission(ctx, operator, wid, "item.FindVersionByID", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
+	return itm, nil
 }
 
-func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
-	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.VersionedList, error) {
+	items, err := i.repos.Item.FindAllVersionsByID(ctx, itemID)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissionForAllItems(ctx, operator, "item.FindAllVersionsByID", rbac.ActionRead, items); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-func (i Item) Search(ctx context.Context, sp schema.Package, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) Search(ctx context.Context, sp schema.Package, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	var wid *workspace.ID
+	if sp.Schema() != nil {
+		wid = sp.Schema().Workspace().Ref()
+	}
+	if err := i.checkPermission(ctx, operator, wid, "item.Search", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	return i.repos.Item.Search(ctx, sp, q, p)
 }
 
@@ -195,6 +322,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
+		}
+
+		if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "item.Create", rbac.ActionCreate); err != nil {
+			return nil, err
 		}
 
 		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
@@ -339,6 +470,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		if err := i.checkPermission(ctx, operator, s.Workspace().Ref(), "item.Update", rbac.ActionUpdate); err != nil {
+			return nil, err
+		}
+
 		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
 
 		fields, err := itemFieldsFromParams(modelSchemaFields, s)
@@ -478,6 +613,10 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, interfaces.ErrInvalidOperator
 		}
 
+		if err := i.checkPermission(ctx, operator, prj.Workspace().Ref(), "item.Unpublish", rbac.ActionUnpublish); err != nil {
+			return nil, err
+		}
+
 		// remove public ref from the items
 		for _, itm := range items {
 			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, nil); err != nil {
@@ -543,6 +682,10 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 
 		if !operator.IsWritableWorkspace(prj.Workspace()) {
 			return nil, interfaces.ErrInvalidOperator
+		}
+
+		if err := i.checkPermission(ctx, operator, prj.Workspace().Ref(), "item.Publish", rbac.ActionPublish); err != nil {
+			return nil, err
 		}
 
 		// add public ref to the items
@@ -997,6 +1140,10 @@ func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Pac
 			if !operator.CanUpdate(itm) {
 				return nil, interfaces.ErrOperationDenied
 			}
+		}
+
+		if err := i.checkPermissionForAllItems(ctx, operator, "item.BatchDelete", rbac.ActionDelete, vList); err != nil {
+			return nil, err
 		}
 
 		if err := i.handleRelatedReferenceFields(ctx, iList.IDs(), sp); err != nil {

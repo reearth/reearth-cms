@@ -142,6 +142,13 @@ func (l VersionedList) AssetIDs(sp schema.Package) AssetIDList {
 	return ids
 }
 
+func (l VersionedList) SchemaIDs() id.SchemaIDList {
+	return lo.Uniq(lo.Map(
+		lo.Filter(l, func(itm Versioned, _ int) bool { return itm != nil }),
+		func(itm Versioned, _ int) id.SchemaID { return itm.Value().Schema() },
+	))
+}
+
 func (l VersionedList) ToMap() map[ID]*version.Value[*Item] {
 	m := make(map[ID]*version.Value[*Item], len(l))
 	for _, i := range l {

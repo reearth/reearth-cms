@@ -459,8 +459,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	}
 
 	itm7 := item.New().ID(itmId7).
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
+		Schema(s0.ID()).
+		Model(m0.ID()).
 		Project(p.ID()).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm7); err != nil {

@@ -56,7 +56,7 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 }
 
 func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	if err := i.checkPermission(ctx, operator, &wid, "project.FindByWorkspace", rbac.ActionList); err != nil {
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "project.FindByWorkspace", rbac.ActionList); err != nil {
 		return nil, nil, err
 	}
 	if f == nil {
