@@ -84,15 +84,13 @@ export type TerrainInput = {
 
 export type TileType =
   | "DEFAULT"
-  | "LABELLED"
   | "ROAD_MAP"
   | "OPEN_STREET_MAP"
-  | "ESRI_TOPOGRAPHY"
   | "EARTH_AT_NIGHT"
   | "JAPAN_GSI_STANDARD_MAP"
   | "URL";
 
-export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
+export type TerrainType = "CESIUM_WORLD_TERRAIN" | "CESIUM_ION";
 
 export type UrlResourceProps = {
   name: string;

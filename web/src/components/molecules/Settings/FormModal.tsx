@@ -26,19 +26,16 @@ type FormValues = {
 };
 
 export const TileTypeFormat: Record<TileType, string> = {
-  DEFAULT: "Default",
-  LABELLED: "Labelled",
-  ROAD_MAP: "Road Map",
+  DEFAULT: "Google Satellite",
+  ROAD_MAP: "Google Road Map",
   OPEN_STREET_MAP: "OpenStreetMap",
-  ESRI_TOPOGRAPHY: "ESRI Topography",
-  EARTH_AT_NIGHT: "Earth at night",
+  EARTH_AT_NIGHT: "NASA Black Marble",
   JAPAN_GSI_STANDARD_MAP: "Japan GSI Standard Map",
   URL: "URL",
 };
 
 export const TerrainTypeFormat: Record<TerrainType, string> = {
   CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
-  ARC_GIS_TERRAIN: "ArcGIS Terrain",
   CESIUM_ION: "Cesium Ion",
 };
 

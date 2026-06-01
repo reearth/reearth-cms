@@ -344,6 +344,7 @@ export default {
   "Item": "アイテム",
   "Item Information": "アイテムの情報",
   "ITEM NOT FOUND ON SERVER": "データが見つかりません。",
+  "Japan GSI Standard Map": "地理院地図 標準地図",
   "JSON": "JSON",
   "Keep uploading": "アップロード続行",
   "Key": "キー",
