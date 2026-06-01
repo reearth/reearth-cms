@@ -35,7 +35,8 @@ export const TileTypeFormat: Record<TileType, string> = {
 };
 
 export const TerrainTypeFormat: Record<TerrainType, string> = {
-  CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
+  // CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
+  REEARTH_TERRAIN: "Re:Earth Terrain",
   CESIUM_ION: "Cesium Ion",
 };
 

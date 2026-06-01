@@ -90,7 +90,7 @@ export type TileType =
   | "JAPAN_GSI_STANDARD_MAP"
   | "URL";
 
-export type TerrainType = "CESIUM_WORLD_TERRAIN" | "CESIUM_ION";
+export type TerrainType = "REEARTH_TERRAIN" | "CESIUM_ION";
 
 export type UrlResourceProps = {
   name: string;

@@ -15,6 +15,7 @@ import {
   UrlResourceProps,
   CesiumResourceProps,
 } from "@reearth-cms/components/molecules/Workspace/types";
+import { t } from "@reearth-cms/i18n";
 
 import NoImage from "./noImage.jpg";
 
@@ -33,8 +34,8 @@ const getReearthLandConfig = () => {
   return { tilesUrl, terrainUrl, tokenQuery };
 };
 
-const defaultTile = new ProviderViewModel({
-  name: "Default",
+const googleSatellite = new ProviderViewModel({
+  name: "Google Satellite",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
   creationFunction: () => {
@@ -47,8 +48,8 @@ const defaultTile = new ProviderViewModel({
   },
 });
 
-const roadMap = new ProviderViewModel({
-  name: "RoadMap",
+const googleRoadMap = new ProviderViewModel({
+  name: "Google Road Map",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
   creationFunction: () => {
@@ -72,8 +73,8 @@ const openStreetMap = new ProviderViewModel({
   },
 });
 
-const earthAtNight = new ProviderViewModel({
-  name: "Earth at night",
+const nasaBlackMarble = new ProviderViewModel({
+  name: "NASA Black Marble",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
@@ -87,7 +88,7 @@ const earthAtNight = new ProviderViewModel({
 });
 
 const japanGsi = new ProviderViewModel({
-  name: "Japan GSI Standard Map",
+  name: t("Japan GSI Standard Map"),
   iconUrl: "https://maps.gsi.go.jp/xyz/std/0/0/0.png",
   tooltip: "",
   creationFunction: () => {
@@ -115,13 +116,13 @@ export const imageryGet = (tiles: TileResource[]) => {
   tiles.forEach(tile => {
     switch (tile.type) {
       case "ROAD_MAP":
-        result.push(roadMap);
+        result.push(googleRoadMap);
         break;
       case "OPEN_STREET_MAP":
         result.push(openStreetMap);
         break;
       case "EARTH_AT_NIGHT":
-        result.push(earthAtNight);
+        result.push(nasaBlackMarble);
         break;
       case "JAPAN_GSI_STANDARD_MAP":
         result.push(japanGsi);
@@ -132,11 +133,11 @@ export const imageryGet = (tiles: TileResource[]) => {
         break;
       }
       case "DEFAULT":
-        result.push(defaultTile);
+        result.push(googleSatellite);
         break;
     }
   });
-  if (result.length === 0) result.push(defaultTile);
+  if (result.length === 0) result.push(googleSatellite);
   return result;
 };
 
@@ -149,8 +150,8 @@ const ellipsoid = new ProviderViewModel({
   },
 });
 
-const cesiumWorld = new ProviderViewModel({
-  name: "Cesium World Terrain",
+const reearthTerrain = new ProviderViewModel({
+  name: "Re:Earth Terrain",
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
@@ -190,16 +191,13 @@ export const terrainGet = (terrains: TerrainResource[]) => {
   result.push(ellipsoid);
   terrains.forEach(terrain => {
     switch (terrain.type) {
-      // case "ARC_GIS_TERRAIN":
-      //   result.push(arcGis);
-      //   break;
+      case "REEARTH_TERRAIN":
+        result.push(reearthTerrain);
+        break;
       case "CESIUM_ION": {
         result.push(cesiumIonGet(terrain.props));
         break;
       }
-      case "CESIUM_WORLD_TERRAIN":
-        result.push(cesiumWorld);
-        break;
     }
   });
   return result;
