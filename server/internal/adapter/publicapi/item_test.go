@@ -104,54 +104,30 @@ func TestController_PostItem(t *testing.T) {
 	const allowedOrigin = "https://example.com"
 
 	tests := []struct {
-		name                string
-		postingEnabled      bool
-		modelPostingEnabled *bool
-		allowedOrigins      []string
-		mutateAliases       func(wAlias, pAlias, mKey string) (string, string, string)
-		wantErr             error
+		name          string
+		mutateAliases func(wAlias, pAlias, mKey string) (string, string, string)
+		wantErr       error
 	}{
 		{
-			name:           "posting disabled returns ErrProjectPostingDisabled",
-			postingEnabled: false,
-			allowedOrigins: []string{allowedOrigin},
-			wantErr:        ErrProjectPostingDisabled,
+			name:    "valid context returns no error",
+			wantErr: nil,
 		},
 		{
-			name:           "posting enabled returns no error",
-			postingEnabled: true,
-			allowedOrigins: []string{allowedOrigin},
-			wantErr:        nil,
-		},
-		{
-			name:                "project enabled but model disabled returns ErrModelPostingDisabled",
-			postingEnabled:      true,
-			modelPostingEnabled: lo.ToPtr(false),
-			allowedOrigins:      []string{allowedOrigin},
-			wantErr:             ErrModelPostingDisabled,
-		},
-		{
-			name:           "unknown workspace returns ErrNotFound",
-			postingEnabled: true,
-			allowedOrigins: []string{allowedOrigin},
+			name: "unknown workspace returns ErrNotFound",
 			mutateAliases: func(_, pAlias, mKey string) (string, string, string) {
 				return "nonexistent-workspace", pAlias, mKey
 			},
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:           "unknown project returns ErrNotFound",
-			postingEnabled: true,
-			allowedOrigins: []string{allowedOrigin},
+			name: "unknown project returns ErrNotFound",
 			mutateAliases: func(wAlias, _, mKey string) (string, string, string) {
 				return wAlias, "nonexistent-project", mKey
 			},
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:           "unknown model returns ErrNotFound",
-			postingEnabled: true,
-			allowedOrigins: []string{allowedOrigin},
+			name: "unknown model returns ErrNotFound",
 			mutateAliases: func(wAlias, pAlias, _ string) (string, string, string) {
 				return wAlias, pAlias, "nonexistent-model"
 			},
@@ -163,7 +139,7 @@ func TestController_PostItem(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
+			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, true, []string{allowedOrigin}, nil)
 			if tt.mutateAliases != nil {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}

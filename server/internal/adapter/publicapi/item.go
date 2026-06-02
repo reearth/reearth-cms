@@ -171,17 +171,12 @@ type PostItemResult struct {
 	Err         error
 }
 
-// PostItem checks the posting gate then validates the payload against the model schema.
+// PostItem validates the payload against the model schema.
+// Posting access (project/model enabled, origin) is checked by the handler before this is called.
 func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return PostItemResult{Err: err}
-	}
-	if !wpm.Project.Accessibility().PostingEnabled() {
-		return PostItemResult{Err: ErrProjectPostingDisabled}
-	}
-	if !wpm.Model.PostingEnabled() {
-		return PostItemResult{Err: ErrModelPostingDisabled}
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
