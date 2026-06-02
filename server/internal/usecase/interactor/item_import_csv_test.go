@@ -1,6 +1,8 @@
 package interactor
 
 import (
+	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -8,6 +10,32 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestSkipBOM(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"no BOM passes through unchanged", "name,value\nfoo,bar", "name,value\nfoo,bar"},
+		{"UTF-8 BOM is stripped", "\xEF\xBB\xBFname,value\nfoo,bar", "name,value\nfoo,bar"},
+		{"empty reader", "", ""},
+		{"BOM only", "\xEF\xBB\xBF", ""},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			r := skipBOM(strings.NewReader(tt.input))
+			got, err := io.ReadAll(r)
+			assert.NoError(t, err)
+			assert.Equal(t, tt.expected, string(got))
+		})
+	}
+}
 
 func TestParseCSVValue(t *testing.T) {
 	t.Parallel()

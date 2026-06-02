@@ -1,6 +1,7 @@
 package interactor
 
 import (
+	"bufio"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -20,10 +21,24 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
+var utf8BOM = []byte{0xEF, 0xBB, 0xBF}
+
+// skipBOM returns a reader that skips a leading UTF-8 BOM if present.
+// Excel and some other tools emit a BOM when saving UTF-8 CSV files, which
+// would otherwise corrupt the first header name and cause its values to be dropped.
+func skipBOM(r io.Reader) io.Reader {
+	br := bufio.NewReader(r)
+	b, err := br.Peek(3)
+	if err == nil && len(b) == 3 && b[0] == utf8BOM[0] && b[1] == utf8BOM[1] && b[2] == utf8BOM[2] {
+		_, _ = br.Discard(3)
+	}
+	return br
+}
+
 // importCSV handles CSV format import (synchronous)
 func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
 	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
-	reader := csv.NewReader(lr)
+	reader := csv.NewReader(skipBOM(lr))
 
 	// Read header row
 	headers, err := reader.Read()
@@ -98,7 +113,7 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
 	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
-	reader := csv.NewReader(lr)
+	reader := csv.NewReader(skipBOM(lr))
 
 	// Read header row
 	headers, err := reader.Read()
