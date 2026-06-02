@@ -8,14 +8,14 @@ afterEach(() => {
 });
 
 describe("terrainGet", () => {
-  test("uses Re:Earth terrain credit for Cesium World Terrain", async () => {
+  test("uses Re:Earth terrain credit for Re:Earth Terrain", async () => {
     const fromUrl = vi
       .spyOn(CesiumTerrainProvider, "fromUrl")
       .mockResolvedValue({} as CesiumTerrainProvider);
     const terrainProvider = terrainGet([
       {
         id: "terrain-1",
-        type: "CESIUM_WORLD_TERRAIN",
+        type: "REEARTH_TERRAIN",
         props: {
           name: "",
           url: "",
@@ -24,7 +24,7 @@ describe("terrainGet", () => {
           cesiumIonAccessToken: "",
         },
       },
-    ]).find(provider => provider.name === "Cesium World Terrain");
+    ]).find(provider => provider.name === "Re:Earth Terrain");
 
     await (terrainProvider?.creationCommand as unknown as () => Promise<CesiumTerrainProvider>)();
 
