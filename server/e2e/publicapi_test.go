@@ -1206,7 +1206,6 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
 	updateProjectPosting(e, pIdV, true, []string{"https://example.com"})
 	mIdV, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
-	_ = mResV.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
 	updateModelPostingEnabled(e, mIdV, true)
 
@@ -1381,7 +1380,6 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
 	updateProjectPosting(e, pIdM, true, []string{"https://example.com"})
 	mIdM, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
-	_ = mResM.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
 	updateModelPostingEnabled(e, mIdM, true)
 

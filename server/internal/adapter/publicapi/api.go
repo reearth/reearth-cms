@@ -286,6 +286,12 @@ func PostItem() echo.HandlerFunc {
 					Code:  "posting_disabled",
 				})
 			}
+			if errors.Is(err, ErrModelPostingDisabled) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "model_posting_disabled",
+					Code:  "model_posting_disabled",
+				})
+			}
 			if errors.Is(err, project.ErrNoOriginsConfigured) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "origin_not_allowed",
@@ -354,6 +360,12 @@ func PreflightItem() echo.HandlerFunc {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "posting_disabled",
 					Code:  "posting_disabled",
+				})
+			}
+			if errors.Is(err, ErrModelPostingDisabled) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "model_posting_disabled",
+					Code:  "model_posting_disabled",
 				})
 			}
 			if errors.Is(err, project.ErrNoOriginsConfigured) || errors.Is(err, project.ErrOriginNotAllowed) {

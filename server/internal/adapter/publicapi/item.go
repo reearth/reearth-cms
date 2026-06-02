@@ -181,7 +181,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 		return PostItemResult{Err: ErrProjectPostingDisabled}
 	}
 	if !wpm.Model.PostingEnabled() {
-		return PostItemResult{Err: ErrProjectPostingDisabled}
+		return PostItemResult{Err: ErrModelPostingDisabled}
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
@@ -204,7 +204,7 @@ func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias,
 		return ErrProjectPostingDisabled
 	}
 	if !wpm.Model.PostingEnabled() {
-		return ErrProjectPostingDisabled
+		return ErrModelPostingDisabled
 	}
 	return wpm.Project.Accessibility().Posting().CheckOrigin(origin)
 }

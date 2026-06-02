@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string, modelPostingEnabled ...*bool) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
+func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string, modelPostingEnabled *bool) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
 	t.Helper()
 	ctx = context.Background()
 
@@ -67,8 +67,8 @@ func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string
 		MustBuild()
 
 	mEnabled := postingEnabled
-	if len(modelPostingEnabled) > 0 && modelPostingEnabled[0] != nil {
-		mEnabled = *modelPostingEnabled[0]
+	if modelPostingEnabled != nil {
+		mEnabled = *modelPostingEnabled
 	}
 	mk := id.RandomKey()
 	mKey = mk.String()
@@ -124,11 +124,11 @@ func TestController_PostItem(t *testing.T) {
 			wantErr:        nil,
 		},
 		{
-			name:                "project enabled but model disabled returns ErrProjectPostingDisabled",
+			name:                "project enabled but model disabled returns ErrModelPostingDisabled",
 			postingEnabled:      true,
 			modelPostingEnabled: lo.ToPtr(false),
 			allowedOrigins:      []string{allowedOrigin},
-			wantErr:             ErrProjectPostingDisabled,
+			wantErr:             ErrModelPostingDisabled,
 		},
 		{
 			name:           "unknown workspace returns ErrNotFound",
@@ -200,12 +200,12 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 			wantErr:        ErrProjectPostingDisabled,
 		},
 		{
-			name:                "project enabled but model disabled returns ErrProjectPostingDisabled",
+			name:                "project enabled but model disabled returns ErrModelPostingDisabled",
 			postingEnabled:      true,
 			modelPostingEnabled: lo.ToPtr(false),
 			allowedOrigins:      []string{allowedOrigin},
 			origin:              allowedOrigin,
-			wantErr:             ErrProjectPostingDisabled,
+			wantErr:             ErrModelPostingDisabled,
 		},
 		{
 			name:           "no origins configured returns ErrNoOriginsConfigured",
@@ -280,7 +280,7 @@ func TestHandler_PostItem(t *testing.T) {
 			allowedOrigins:      []string{allowedOrigin},
 			origin:              allowedOrigin,
 			wantStatus:          http.StatusForbidden,
-			wantErrorCode:       "posting_disabled",
+			wantErrorCode:       "model_posting_disabled",
 		},
 		{
 			name:           "no origins configured returns 403",
@@ -370,6 +370,7 @@ func TestHandler_PreflightItem(t *testing.T) {
 		origin              string
 		wantStatus          int
 		wantACOrigin        string
+		wantErrorCode       string
 	}{
 		{
 			name:           "approved preflight returns 204 and CORS headers",
@@ -387,6 +388,7 @@ func TestHandler_PreflightItem(t *testing.T) {
 			origin:              allowedOrigin,
 			wantStatus:          http.StatusForbidden,
 			wantACOrigin:        "",
+			wantErrorCode:       "model_posting_disabled",
 		},
 		{
 			name:           "rejected preflight returns 403 and no CORS headers",
@@ -424,6 +426,12 @@ func TestHandler_PreflightItem(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, tt.wantStatus, rec.Code)
 			assert.Equal(t, tt.wantACOrigin, rec.Header().Get("Access-Control-Allow-Origin"))
+
+			if tt.wantErrorCode != "" {
+				var resp apiErrorResponse
+				require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
+				assert.Equal(t, tt.wantErrorCode, resp.Error)
+			}
 
 			if tt.wantStatus == http.StatusNoContent {
 				assert.Equal(t, "POST", rec.Header().Get("Access-Control-Allow-Methods"))
