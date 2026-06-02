@@ -4,10 +4,8 @@ type TileType string
 
 const (
 	TileTypeDefault             TileType = "DEFAULT"
-	TileTypeLabelled            TileType = "LABELLED"
 	TileTypeRoadMap             TileType = "ROAD_MAP"
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
-	TileTypeESRITopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
 	TileTypeJapanGSIStandardMap TileType = "JAPAN_GSI_STANDARD_MAP"
 	TileTypeURL                 TileType = "URL"

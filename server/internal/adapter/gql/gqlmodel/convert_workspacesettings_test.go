@@ -41,10 +41,8 @@ func Test_ToResourceList(t *testing.T) {
 
 func Test_ToTileType(t *testing.T) {
 	assert.Equal(t, TileTypeDefault, ToTileType(workspacesettings.TileTypeDefault))
-	assert.Equal(t, TileTypeLabelled, ToTileType(workspacesettings.TileTypeLabelled))
 	assert.Equal(t, TileTypeRoadMap, ToTileType(workspacesettings.TileTypeRoadMap))
 	assert.Equal(t, TileTypeOpenStreetMap, ToTileType(workspacesettings.TileTypeOpenStreetMap))
-	assert.Equal(t, TileTypeEsriTopography, ToTileType(workspacesettings.TileTypeESRITopography))
 	assert.Equal(t, TileTypeEarthAtNight, ToTileType(workspacesettings.TileTypeEarthAtNight))
 	assert.Equal(t, TileTypeJapanGsiStandardMap, ToTileType(workspacesettings.TileTypeJapanGSIStandardMap))
 	assert.Equal(t, TileTypeURL, ToTileType(workspacesettings.TileTypeURL))
@@ -52,15 +50,14 @@ func Test_ToTileType(t *testing.T) {
 }
 
 func Test_ToTerrainType(t *testing.T) {
-	assert.Equal(t, TerrainTypeCesiumWorldTerrain, ToTerrainType(workspacesettings.TerrainTypeCesiumWorldTerrain))
-	assert.Equal(t, TerrainTypeArcGisTerrain, ToTerrainType(workspacesettings.TerrainTypeArcGISTerrain))
+	assert.Equal(t, TerrainTypeReearthTerrain, ToTerrainType(workspacesettings.TerrainTypeReearthTerrain))
 	assert.Equal(t, TerrainTypeCesiumIon, ToTerrainType(workspacesettings.TerrainTypeCesiumIon))
 }
 
 func Test_ToResource(t *testing.T) {
 	rid := workspacesettings.NewResourceID()
 	pp := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
-	tt := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeArcGISTerrain, pp)
+	tt := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeReearthTerrain, pp)
 	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, tt)
 
 	expected := TerrainResource{
@@ -154,17 +151,14 @@ func Test_FromResource(t *testing.T) {
 }
 
 func Test_FromTerrainType(t *testing.T) {
-	assert.Equal(t, workspacesettings.TerrainTypeCesiumWorldTerrain, FromTerrainType(TerrainTypeCesiumWorldTerrain))
-	assert.Equal(t, workspacesettings.TerrainTypeArcGISTerrain, FromTerrainType(TerrainTypeArcGisTerrain))
+	assert.Equal(t, workspacesettings.TerrainTypeReearthTerrain, FromTerrainType(TerrainTypeReearthTerrain))
 	assert.Equal(t, workspacesettings.TerrainTypeCesiumIon, FromTerrainType(TerrainTypeCesiumIon))
 }
 
 func Test_FromTileType(t *testing.T) {
 	assert.Equal(t, workspacesettings.TileTypeDefault, FromTileType(TileTypeDefault))
-	assert.Equal(t, workspacesettings.TileTypeLabelled, FromTileType(TileTypeLabelled))
 	assert.Equal(t, workspacesettings.TileTypeRoadMap, FromTileType(TileTypeRoadMap))
 	assert.Equal(t, workspacesettings.TileTypeOpenStreetMap, FromTileType(TileTypeOpenStreetMap))
-	assert.Equal(t, workspacesettings.TileTypeESRITopography, FromTileType(TileTypeEsriTopography))
 	assert.Equal(t, workspacesettings.TileTypeEarthAtNight, FromTileType(TileTypeEarthAtNight))
 	assert.Equal(t, workspacesettings.TileTypeJapanGSIStandardMap, FromTileType(TileTypeJapanGsiStandardMap))
 	assert.Equal(t, workspacesettings.TileTypeURL, FromTileType(TileTypeURL))
