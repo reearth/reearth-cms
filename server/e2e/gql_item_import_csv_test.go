@@ -218,6 +218,34 @@ func TestGQLImportItemsAsyncCSV(t *testing.T) {
 			expectedTotal:  1,
 			expectedInsert: 1,
 		},
+		{
+			name: "CSV without BOM imports first column correctly",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+				{title: "count", key: "count", fType: "Integer", typeProp: map[string]any{"integer": map[string]any{}}},
+			},
+			fileName: "no_bom.csv",
+			fileContent: func() string {
+				return "name,count\nItem 1,10\nItem 2,20"
+			},
+			expectError:    false,
+			expectedTotal:  2,
+			expectedInsert: 2,
+		},
+		{
+			name: "CSV with UTF-8 BOM imports first column correctly",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+				{title: "count", key: "count", fType: "Integer", typeProp: map[string]any{"integer": map[string]any{}}},
+			},
+			fileName: "bom.csv",
+			fileContent: func() string {
+				return "\xEF\xBB\xBFname,count\nItem 1,10\nItem 2,20"
+			},
+			expectError:    false,
+			expectedTotal:  2,
+			expectedInsert: 2,
+		},
 	}
 
 	for _, tt := range tests {
@@ -403,6 +431,38 @@ func TestGQLImportItemsSyncCSV(t *testing.T) {
 			expectError:    false,
 			expectedTotal:  0,
 			expectedInsert: 0,
+			expectedUpdate: 0,
+			expectedIgnore: 0,
+		},
+		{
+			name: "CSV without BOM imports first column correctly",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+				{title: "count", key: "count", fType: "Integer", typeProp: map[string]any{"integer": map[string]any{}}},
+			},
+			fileName: "no_bom.csv",
+			fileContent: func() string {
+				return "name,count\nItem 1,10\nItem 2,20"
+			},
+			expectError:    false,
+			expectedTotal:  2,
+			expectedInsert: 2,
+			expectedUpdate: 0,
+			expectedIgnore: 0,
+		},
+		{
+			name: "CSV with UTF-8 BOM imports first column correctly",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+				{title: "count", key: "count", fType: "Integer", typeProp: map[string]any{"integer": map[string]any{}}},
+			},
+			fileName: "bom.csv",
+			fileContent: func() string {
+				return "\xEF\xBB\xBFname,count\nItem 1,10\nItem 2,20"
+			},
+			expectError:    false,
+			expectedTotal:  2,
+			expectedInsert: 2,
 			expectedUpdate: 0,
 			expectedIgnore: 0,
 		},
