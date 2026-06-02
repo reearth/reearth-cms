@@ -180,6 +180,9 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	if !wpm.Project.Accessibility().PostingEnabled() {
 		return PostItemResult{Err: ErrProjectPostingDisabled}
 	}
+	if !wpm.Model.PostingEnabled() {
+		return PostItemResult{Err: ErrProjectPostingDisabled}
+	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
 		return PostItemResult{
@@ -191,13 +194,16 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}
 }
 
-// CheckPostingOrigin validates that the project allows posting from the given origin.
-func (c *Controller) CheckPostingOrigin(ctx context.Context, wsAlias, pAlias, mKey, origin string) error {
+// ValidatePostingAccess checks that posting is enabled for the project and model to post.
+func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) error {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return err
 	}
 	if !wpm.Project.Accessibility().PostingEnabled() {
+		return ErrProjectPostingDisabled
+	}
+	if !wpm.Model.PostingEnabled() {
 		return ErrProjectPostingDisabled
 	}
 	return wpm.Project.Accessibility().Posting().CheckOrigin(origin)

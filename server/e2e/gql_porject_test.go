@@ -324,7 +324,8 @@ func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
 	pAlias := "origins-post-test"
 	mKey := "origins-model-post"
 	pId, _ := createProject(e, wId.String(), pAlias, pAlias, pAlias)
-	_, _ = createModel(e, pId, mKey, mKey, mKey)
+	mPostId, _ := createModel(e, pId, mKey, mKey, mKey)
+	updateModelPostingEnabled(e, mPostId, true)
 
 	const url = "/api/p/{workspace}/{project}/{model}/items"
 

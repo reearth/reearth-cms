@@ -1158,7 +1158,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "posting-api-test", "posting-api-test", "posting-api-test")
-	_, mRes := createModel(e, pId, "post-model", "post-model", "post-model")
+	mId, mRes := createModel(e, pId, "post-model", "post-model", "post-model")
 	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
 
 	t.Run("unknown workspace returns 404", func(t *testing.T) {
@@ -1190,6 +1190,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	})
 
 	updateProjectPosting(e, pId, true, []string{"https://allowed.com"})
+	updateModelPostingEnabled(e, mId, true)
 
 	t.Run("posting enabled returns 202", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
@@ -1204,9 +1205,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	// Add a required text field and an integer field with constraints to the model.
 	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
 	updateProjectPosting(e, pIdV, true, []string{"https://example.com"})
-	_, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
-	mIdV := mResV.Path("$.data.createModel.model.id").Raw().(string)
+	mIdV, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
+	_ = mResV.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
+	updateModelPostingEnabled(e, mIdV, true)
 
 	// All in-scope field types with their constraints.
 	createField(e, mIdV, "title", "", "title", false, false, false, true, "Text", map[string]any{"text": map[string]any{}})
@@ -1378,9 +1380,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	// Create a separate model with single and multiple text fields.
 	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
 	updateProjectPosting(e, pIdM, true, []string{"https://example.com"})
-	_, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
-	mIdM := mResM.Path("$.data.createModel.model.id").Raw().(string)
+	mIdM, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
+	_ = mResM.Path("$.data.createModel.model.id").Raw().(string)
 	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
+	updateModelPostingEnabled(e, mIdM, true)
 
 	// single=false (default), multiple=false
 	createField(e, mIdM, "tag", "", "tag", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
@@ -1432,11 +1435,12 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "cors-test", "cors-test", "cors-test")
-	_, mRes := createModel(e, pId, "cors-model", "cors-model", "cors-model")
+	mCorId, mRes := createModel(e, pId, "cors-model", "cors-model", "cors-model")
 	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
 
 	// posting enabled, one allowed origin
 	updateProjectPosting(e, pId, true, []string{"https://example.com"})
+	updateModelPostingEnabled(e, mCorId, true)
 
 	t.Run("no origins configured returns 403", func(t *testing.T) {
 		updateProjectPosting(e, pId, true, []string{})

@@ -452,6 +452,7 @@ type ComplexityRoot struct {
 		MetadataSchemaID func(childComplexity int) int
 		Name             func(childComplexity int) int
 		Order            func(childComplexity int) int
+		PostingSettings  func(childComplexity int) int
 		Project          func(childComplexity int) int
 		ProjectID        func(childComplexity int) int
 		Schema           func(childComplexity int) int
@@ -473,6 +474,10 @@ type ComplexityRoot struct {
 
 	ModelPayload struct {
 		Model func(childComplexity int) int
+	}
+
+	ModelPostingSettings struct {
+		Enabled func(childComplexity int) int
 	}
 
 	ModelsPayload struct {
@@ -2538,6 +2543,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Model.Order(childComplexity), true
+	case "Model.postingSettings":
+		if e.ComplexityRoot.Model.PostingSettings == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Model.PostingSettings(childComplexity), true
 	case "Model.project":
 		if e.ComplexityRoot.Model.Project == nil {
 			break
@@ -2613,6 +2624,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ModelPayload.Model(childComplexity), true
+
+	case "ModelPostingSettings.enabled":
+		if e.ComplexityRoot.ModelPostingSettings.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ModelPostingSettings.Enabled(childComplexity), true
 
 	case "ModelsPayload.models":
 		if e.ComplexityRoot.ModelsPayload.Models == nil {
@@ -5189,6 +5207,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateItemInput,
 		ec.unmarshalInputUpdateMeInput,
 		ec.unmarshalInputUpdateModelInput,
+		ec.unmarshalInputUpdateModelPostingSettingsInput,
 		ec.unmarshalInputUpdateModelsOrderInput,
 		ec.unmarshalInputUpdatePostingSettingsInput,
 		ec.unmarshalInputUpdateProjectAccessibilityInput,
@@ -6748,6 +6767,7 @@ extend type Subscription {
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Int
+  postingSettings: ModelPostingSettings!
 }
 
 enum ExportFormat{
@@ -6764,11 +6784,20 @@ input CreateModelInput {
   key: String
 }
 
+type ModelPostingSettings {
+  enabled: Boolean!
+}
+
+input UpdateModelPostingSettingsInput {
+  enabled: Boolean!
+}
+
 input UpdateModelInput {
   modelId: ID!
   name: String
   description: String
   key: String
+  postingSettings: UpdateModelPostingSettingsInput
 }
 
 input UpdateModelsOrderInput {
@@ -13572,6 +13601,8 @@ func (ec *executionContext) fieldContext_Item_model(_ context.Context, field gra
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -16233,6 +16264,39 @@ func (ec *executionContext) fieldContext_Model_order(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Model_postingSettings(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Model_postingSettings,
+		func(ctx context.Context) (any, error) {
+			return obj.PostingSettings, nil
+		},
+		nil,
+		ec.marshalNModelPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPostingSettings,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Model_postingSettings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "enabled":
+				return ec.fieldContext_ModelPostingSettings_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ModelPostingSettings", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ModelConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -16318,6 +16382,8 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(_ context.Context
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -16472,6 +16538,8 @@ func (ec *executionContext) fieldContext_ModelEdge_node(_ context.Context, field
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -16529,8 +16597,39 @@ func (ec *executionContext) fieldContext_ModelPayload_model(_ context.Context, f
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ModelPostingSettings_enabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelPostingSettings) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ModelPostingSettings_enabled,
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ModelPostingSettings_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ModelPostingSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16586,6 +16685,8 @@ func (ec *executionContext) fieldContext_ModelsPayload_models(_ context.Context,
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -21807,6 +21908,8 @@ func (ec *executionContext) fieldContext_Query_modelsByGroup(ctx context.Context
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -24472,6 +24575,8 @@ func (ec *executionContext) fieldContext_SchemaField_model(_ context.Context, fi
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			case "order":
 				return ec.fieldContext_Model_order(ctx, field)
+			case "postingSettings":
+				return ec.fieldContext_Model_postingSettings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -35023,7 +35128,7 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "name", "description", "key"}
+	fieldsInOrder := [...]string{"modelId", "name", "description", "key", "postingSettings"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -35058,6 +35163,43 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 				return it, err
 			}
 			it.Key = data
+		case "postingSettings":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postingSettings"))
+			data, err := ec.unmarshalOUpdateModelPostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelPostingSettingsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PostingSettings = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateModelPostingSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdateModelPostingSettingsInput, error) {
+	var it gqlmodel.UpdateModelPostingSettingsInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"enabled"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = data
 		}
 	}
 	return it, nil
@@ -39985,6 +40127,11 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "order":
 			out.Values[i] = ec._Model_order(ctx, field, obj)
+		case "postingSettings":
+			out.Values[i] = ec._Model_postingSettings(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -40116,6 +40263,45 @@ func (ec *executionContext) _ModelPayload(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("ModelPayload")
 		case "model":
 			out.Values[i] = ec._ModelPayload_model(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var modelPostingSettingsImplementors = []string{"ModelPostingSettings"}
+
+func (ec *executionContext) _ModelPostingSettings(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ModelPostingSettings) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, modelPostingSettingsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ModelPostingSettings")
+		case "enabled":
+			out.Values[i] = ec._ModelPostingSettings_enabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -46337,6 +46523,16 @@ func (ec *executionContext) marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._ModelEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNModelPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPostingSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ModelPostingSettings) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ModelPostingSettings(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNMultipleOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleOperator(ctx context.Context, v any) (gqlmodel.MultipleOperator, error) {
 	var res gqlmodel.MultipleOperator
 	err := res.UnmarshalGQL(v)
@@ -49008,6 +49204,14 @@ func (ec *executionContext) marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗc
 		return graphql.Null
 	}
 	return ec._UpdateMemberOfWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateModelPostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelPostingSettingsInput(ctx context.Context, v any) (*gqlmodel.UpdateModelPostingSettingsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateModelPostingSettingsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdatePostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePostingSettingsInput(ctx context.Context, v any) (*gqlmodel.UpdatePostingSettingsInput, error) {

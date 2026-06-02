@@ -23,11 +23,12 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
+func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string, modelPostingEnabled ...*bool) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
 	t.Helper()
 	ctx = context.Background()
 
@@ -65,6 +66,10 @@ func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string
 		Project(pid).
 		MustBuild()
 
+	mEnabled := postingEnabled
+	if len(modelPostingEnabled) > 0 && modelPostingEnabled[0] != nil {
+		mEnabled = *modelPostingEnabled[0]
+	}
 	mk := id.RandomKey()
 	mKey = mk.String()
 	m := model.New().
@@ -72,6 +77,7 @@ func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string
 		Schema(sid).
 		Key(mk).
 		Project(pid).
+		PostingEnabled(mEnabled).
 		MustBuild()
 
 	db := memory.New()
@@ -98,11 +104,12 @@ func TestController_PostItem(t *testing.T) {
 	const allowedOrigin = "https://example.com"
 
 	tests := []struct {
-		name           string
-		postingEnabled bool
-		allowedOrigins []string
-		mutateAliases  func(wAlias, pAlias, mKey string) (string, string, string)
-		wantErr        error
+		name                string
+		postingEnabled      bool
+		modelPostingEnabled *bool
+		allowedOrigins      []string
+		mutateAliases       func(wAlias, pAlias, mKey string) (string, string, string)
+		wantErr             error
 	}{
 		{
 			name:           "posting disabled returns ErrProjectPostingDisabled",
@@ -115,6 +122,13 @@ func TestController_PostItem(t *testing.T) {
 			postingEnabled: true,
 			allowedOrigins: []string{allowedOrigin},
 			wantErr:        nil,
+		},
+		{
+			name:                "project enabled but model disabled returns ErrProjectPostingDisabled",
+			postingEnabled:      true,
+			modelPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:      []string{allowedOrigin},
+			wantErr:             ErrProjectPostingDisabled,
 		},
 		{
 			name:           "unknown workspace returns ErrNotFound",
@@ -149,7 +163,7 @@ func TestController_PostItem(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins)
+			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
 			if tt.mutateAliases != nil {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}
@@ -165,17 +179,18 @@ func TestController_PostItem(t *testing.T) {
 	}
 }
 
-func TestController_CheckPostingOrigin(t *testing.T) {
+func TestController_ValidatePostingAccess(t *testing.T) {
 	t.Parallel()
 
 	const allowedOrigin = "https://example.com"
 
 	tests := []struct {
-		name           string
-		postingEnabled bool
-		allowedOrigins []string
-		origin         string
-		wantErr        error
+		name                string
+		postingEnabled      bool
+		modelPostingEnabled *bool
+		allowedOrigins      []string
+		origin              string
+		wantErr             error
 	}{
 		{
 			name:           "posting disabled returns ErrProjectPostingDisabled",
@@ -183,6 +198,14 @@ func TestController_CheckPostingOrigin(t *testing.T) {
 			allowedOrigins: []string{allowedOrigin},
 			origin:         allowedOrigin,
 			wantErr:        ErrProjectPostingDisabled,
+		},
+		{
+			name:                "project enabled but model disabled returns ErrProjectPostingDisabled",
+			postingEnabled:      true,
+			modelPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:      []string{allowedOrigin},
+			origin:              allowedOrigin,
+			wantErr:             ErrProjectPostingDisabled,
 		},
 		{
 			name:           "no origins configured returns ErrNoOriginsConfigured",
@@ -218,9 +241,9 @@ func TestController_CheckPostingOrigin(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins)
+			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
 
-			err := ctrl.CheckPostingOrigin(ctx, wAlias, pAlias, mKey, tt.origin)
+			err := ctrl.ValidatePostingAccess(ctx, wAlias, pAlias, mKey, tt.origin)
 
 			assert.ErrorIs(t, err, tt.wantErr)
 		})
@@ -233,13 +256,14 @@ func TestHandler_PostItem(t *testing.T) {
 	const allowedOrigin = "https://example.com"
 
 	tests := []struct {
-		name           string
-		postingEnabled bool
-		allowedOrigins []string
-		origin         string
-		wantStatus     int
-		wantErrorCode  string
-		wantACOrigin   string
+		name                string
+		postingEnabled      bool
+		modelPostingEnabled *bool
+		allowedOrigins      []string
+		origin              string
+		wantStatus          int
+		wantErrorCode       string
+		wantACOrigin        string
 	}{
 		{
 			name:           "posting disabled returns 403",
@@ -248,6 +272,15 @@ func TestHandler_PostItem(t *testing.T) {
 			origin:         allowedOrigin,
 			wantStatus:     http.StatusForbidden,
 			wantErrorCode:  "posting_disabled",
+		},
+		{
+			name:                "model posting disabled returns 403",
+			postingEnabled:      true,
+			modelPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:      []string{allowedOrigin},
+			origin:              allowedOrigin,
+			wantStatus:          http.StatusForbidden,
+			wantErrorCode:       "posting_disabled",
 		},
 		{
 			name:           "no origins configured returns 403",
@@ -287,7 +320,7 @@ func TestHandler_PostItem(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins)
+			ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
 
 			e := echo.New()
 			bodyBytes, _ := json.Marshal(map[string]any{})
@@ -330,12 +363,13 @@ func TestHandler_PreflightItem(t *testing.T) {
 	const allowedOrigin = "https://example.com"
 
 	tests := []struct {
-		name           string
-		postingEnabled bool
-		allowedOrigins []string
-		origin         string
-		wantStatus     int
-		wantACOrigin   string
+		name                string
+		postingEnabled      bool
+		modelPostingEnabled *bool
+		allowedOrigins      []string
+		origin              string
+		wantStatus          int
+		wantACOrigin        string
 	}{
 		{
 			name:           "approved preflight returns 204 and CORS headers",
@@ -344,6 +378,15 @@ func TestHandler_PreflightItem(t *testing.T) {
 			origin:         allowedOrigin,
 			wantStatus:     http.StatusNoContent,
 			wantACOrigin:   allowedOrigin,
+		},
+		{
+			name:                "model posting disabled returns 403",
+			postingEnabled:      true,
+			modelPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:      []string{allowedOrigin},
+			origin:              allowedOrigin,
+			wantStatus:          http.StatusForbidden,
+			wantACOrigin:        "",
 		},
 		{
 			name:           "rejected preflight returns 403 and no CORS headers",
@@ -359,7 +402,7 @@ func TestHandler_PreflightItem(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins)
+			ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodOptions, "/", nil)

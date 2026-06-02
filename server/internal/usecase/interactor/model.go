@@ -188,6 +188,9 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 					return nil, err
 				}
 			}
+			if param.PostingEnabled != nil {
+				m.SetPostingEnabled(*param.PostingEnabled)
+			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {
 				return nil, err
