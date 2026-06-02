@@ -22,10 +22,14 @@ import (
 	"golang.org/x/text/transform"
 )
 
+func newCSVReader(r io.Reader) (*csv.Reader, *io.LimitedReader) {
+	lr := &io.LimitedReader{R: r, N: interfaces.MaxImportFileSize + 1}
+	return csv.NewReader(transform.NewReader(lr, unicode.BOMOverride(transform.Nop))), lr
+}
+
 // importCSV handles CSV format import (synchronous)
 func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
-	reader := csv.NewReader(transform.NewReader(lr, unicode.UTF8BOM.NewDecoder()))
+	reader, lr := newCSVReader(param.Reader)
 
 	// Read header row
 	headers, err := reader.Read()
@@ -99,8 +103,7 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
-	reader := csv.NewReader(transform.NewReader(lr, unicode.UTF8BOM.NewDecoder()))
+	reader, lr := newCSVReader(param.Reader)
 
 	// Read header row
 	headers, err := reader.Read()
