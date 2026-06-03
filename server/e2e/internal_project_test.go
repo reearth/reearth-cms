@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -9,8 +10,10 @@ import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -235,90 +238,91 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 
 	client := pb.NewReEarthCMSClient(clientConn)
 
-	// region Public Project
+	p1 := project.New().ID(pid).Workspace(wId0).Name("p1").Alias(palias).Description("p1 desc").MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wId0).Name("p2").Alias(palias2).Description("p2 desc").MustBuild()
 
-	// 1- Get project owned by the user = should return the project
-	md := metadata.New(map[string]string{
-		"Authorization": "Bearer TestToken",
-		"User-Id":       uId.String(),
-	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	tests := []struct {
+		name      string
+		user      string
+		workspace string
+		alias     string
+		project   *project.Project
+		err       error
+	}{
+		// public project
+		{
+			name:      "Get project owned by the user should return the project",
+			workspace: wId0.String(),
+			alias:     palias,
+			user:      uId.String(),
+			project:   p1,
+		},
+		{
+			name:      "Get project with non-existing user = should return the project",
+			workspace: wId0.String(),
+			alias:     palias,
+			user:      id.NewUserID().String(),
+			project:   p1,
+		},
+		{
+			name:      "Get project not owned by the user = should return the project",
+			workspace: wId0.String(),
+			alias:     palias,
+			user:      uId_2.String(),
+			project:   p1,
+		},
 
-	p, err := client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias})
-	assert.NoError(t, err)
+		// private project
+		{
+			name:      "Get project owned by the user = should return the project",
+			workspace: wId0.String(),
+			alias:     palias2,
+			user:      uId.String(),
+			project:   p2,
+		},
+		{
+			name:      "Get project not owned by the user = should not return the project",
+			workspace: wId0.String(),
+			alias:     palias2,
+			user:      uId_2.String(),
+			err:       errors.New("not found"),
+		},
+		{
+			name:      "Get project not owned by the user = should return the project",
+			workspace: wId0.String(),
+			alias:     palias2,
+			user:      id.NewUserID().String(),
+			err:       errors.New("not found"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	p1 := p.Project
-	assert.Equal(t, pid.String(), p1.Id)
-	assert.Equal(t, "p1", p1.Name)
-	assert.Equal(t, palias, p1.Alias)
-	assert.Equal(t, wId0.String(), p1.WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+			md := metadata.New(map[string]string{
+				"Authorization": "Bearer TestToken",
+				"User-Id":       tt.user,
+			})
+			mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
-	// 2- Get project with non-existing user = should return the project
-	md = metadata.New(map[string]string{
-		"Authorization": "Bearer TestToken",
-		"User-Id":       id.NewUserID().String(),
-	})
-	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
+			p, err := client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: tt.workspace, ProjectIdOrAlias: tt.alias})
+			if tt.err != nil {
+				assert.ErrorContains(t, err, tt.err.Error())
+				assert.Nil(t, p)
+				return
+			}
 
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias})
-	assert.NoError(t, err)
-
-	p1 = p.Project
-	assert.Equal(t, pid.String(), p1.Id)
-	assert.Equal(t, "p1", p1.Name)
-	assert.Equal(t, palias, p1.Alias)
-	assert.Equal(t, wId0.String(), p1.WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
-
-	// 3- Get project not owned by the user = should return the project
-	md = metadata.New(map[string]string{
-		"Authorization": "Bearer TestToken",
-		"User-Id":       uId_2.String(),
-	})
-	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
-
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias})
-	assert.NoError(t, err)
-
-	p1 = p.Project
-	assert.Equal(t, pid.String(), p1.Id)
-	assert.Equal(t, "p1", p1.Name)
-	assert.Equal(t, palias, p1.Alias)
-	assert.Equal(t, wId0.String(), p1.WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
-	// endregion
-
-	// region Private Project
-	// 1- Get project owned by the user = should return the project
-	md = metadata.New(map[string]string{
-		"Authorization": "Bearer TestToken",
-		"User-Id":       uId.String(),
-	})
-	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
-
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias2})
-	assert.NoError(t, err)
-
-	p1 = p.Project
-	assert.Equal(t, pid2.String(), p1.Id)
-	assert.Equal(t, "p2", p1.Name)
-	assert.Equal(t, palias2, p1.Alias)
-	assert.Equal(t, wId0.String(), p1.WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p2 desc"), p1.Description)
-
-	// 2- Get project not owned by the user = should return a not found error
-	md = metadata.New(map[string]string{
-		"Authorization": "Bearer TestToken",
-		"User-Id":       id.NewUserID().String(),
-	})
-	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
-
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias2})
-	assert.Error(t, err)
-	assert.Equal(t, "rpc error: code = Unknown desc = not found", err.Error())
-	assert.Nil(t, p)
-	// endregion
+			require.NoError(t, err)
+			require.NotNil(t, p)
+			require.NotNil(t, p.Project)
+			p1 := p.Project
+			assert.Equal(t, tt.project.ID().String(), p1.Id)
+			assert.Equal(t, tt.project.Name(), p1.Name)
+			assert.Equal(t, tt.project.Alias(), p1.Alias)
+			assert.Equal(t, tt.project.Workspace().String(), p1.WorkspaceId)
+			assert.Equal(t, new(tt.project.Description()), p1.Description)
+		})
+	}
 }
 
 // GRPC Check Alias
@@ -970,6 +974,48 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			ProjectAlias:   pid.String(),
 		})
 		assert.NoError(t, err)
+	})
+
+	t.Run("Star project by user does not belong to the workspace", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId_2.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Use project ID instead of alias
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   pid.String(),
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, resp.Project)
+
+		// Verify star count is 1 and user is in starredBy
+		assert.Equal(t, int64(1), resp.Project.StarCount)
+		assert.Contains(t, resp.Project.StarredBy, uId_2.String())
+		assert.Equal(t, pid.String(), resp.Project.Id)
+	})
+
+	t.Run("Unstar project by user does not belong to the workspace", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId_2.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Use project ID instead of alias
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   pid.String(),
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, resp.Project)
+
+		// Verify star count is 1 and user is in starredBy
+		assert.Equal(t, int64(0), resp.Project.StarCount)
+		assert.NotContains(t, resp.Project.StarredBy, uId_2.String())
+		assert.Equal(t, pid.String(), resp.Project.Id)
 	})
 
 	t.Run("Error cases", func(t *testing.T) {

@@ -132,7 +132,7 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		var r2 *repo.Container
 		var ar2 *accountrepo.Container
 		op := adapter.Operator(ctx)
-		r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
+		r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op, true))
 		if op != nil {
 			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
 		} else {

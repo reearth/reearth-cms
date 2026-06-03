@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -44,7 +45,7 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 	// TODO: implement sort & pagination
 
 	result := project.List(r.data.FindAll(func(pid id.ProjectID, v *project.Project) bool {
-		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+		if !f.WorkspaceIds.Has(v.Workspace()) {
 			return false
 		}
 		if f.Visibility != nil {
@@ -52,7 +53,7 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 				return false
 			}
 		}
-		return r.canReadProject(pid, v)
+		return r.canReadProject(pid, v) || r.f.CanRead(v.Workspace())
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -72,13 +73,13 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 
 func (r *Project) canReadProject(k id.ProjectID, v *project.Project) bool {
 	isPublic := v.Accessibility() == nil || v.Accessibility().Visibility() == project.VisibilityPublic
-	if r.pf.PublicOnly {
-		return isPublic
-	}
-	if r.pf.Readable == nil {
+	if r.pf.AttachPublic && isPublic {
 		return true
 	}
-	return isPublic || r.pf.Readable.Has(k)
+	if r.pf.Readable == nil || r.pf.Readable.Has(k) {
+		return true
+	}
+	return false
 }
 
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
@@ -99,7 +100,10 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return k == pid && r.f.CanRead(v.Workspace()) && r.canReadProject(k, v)
+		if k != pid {
+			return false
+		}
+		return r.f.CanRead(v.Workspace()) || r.canReadProject(k, v)
 	})
 
 	if p != nil {
@@ -120,13 +124,13 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		if !r.f.CanRead(v.Workspace()) || v.Workspace() != wId {
+		if v.Workspace() != wId {
 			return false
 		}
 		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
 			return false
 		}
-		return r.canReadProject(k, v)
+		return r.canReadProject(k, v) || r.f.CanRead(v.Workspace())
 	})
 
 	if p != nil {
@@ -201,6 +205,32 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 
 	r.data.Store(p.ID(), p)
 	return nil
+}
+
+func (r *Project) Star(_ context.Context, projectID id.ProjectID, userID accountdomain.UserID) (*project.Project, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	p, ok := r.data.Load(projectID)
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+
+	isPublic := p.Accessibility().Visibility() == project.VisibilityPublic
+	canRead := r.f.CanRead(p.Workspace()) || r.pf.CanRead(p.ID())
+	if !canRead && !isPublic {
+		return nil, repo.ErrOperationDenied
+	}
+
+	if slices.Contains(p.StarredBy(), userID.String()) {
+		p.Unstar(userID)
+	} else {
+		p.Star(userID)
+	}
+
+	r.data.Store(projectID, p)
+	return p, nil
 }
 
 func (r *Project) Remove(_ context.Context, id id.ProjectID) error {

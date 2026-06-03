@@ -79,6 +79,10 @@ func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
 	}
 }
 
+func (f WorkspaceFilter) IsAccessScopeDefined() bool {
+	return f.Readable != nil && f.Writable != nil
+}
+
 func (f WorkspaceFilter) Clone() WorkspaceFilter {
 	return WorkspaceFilter{
 		Readable: f.Readable.Clone(),
@@ -108,6 +112,10 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 	}
 }
 
+func (f WorkspaceFilter) ReadableIDs() user.WorkspaceIDList {
+	return append(f.Readable, f.Writable...)
+}
+
 func (f WorkspaceFilter) CanRead(id accountdomain.WorkspaceID) bool {
 	return f.Readable == nil || f.Readable.Has(id) || f.CanWrite(id)
 }
@@ -117,14 +125,14 @@ func (f WorkspaceFilter) CanWrite(id accountdomain.WorkspaceID) bool {
 }
 
 type ProjectFilter struct {
-	Readable   project.IDList
-	Writable   project.IDList
-	PublicOnly bool
+	Readable     project.IDList
+	Writable     project.IDList
+	AttachPublic bool
 }
 
-func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
+func ProjectFilterFromOperator(o *usecase.Operator, attachPublic bool) ProjectFilter {
 	if o == nil {
-		return ProjectFilter{PublicOnly: true}
+		return ProjectFilter{AttachPublic: attachPublic}
 	}
 	if o.Machine {
 		return ProjectFilter{
@@ -132,16 +140,21 @@ func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
 		}
 	}
 	return ProjectFilter{
-		Readable: o.AllReadableProjects(),
-		Writable: o.AllWritableProjects(),
+		Readable:     o.AllReadableProjects(),
+		Writable:     o.AllWritableProjects(),
+		AttachPublic: attachPublic,
 	}
+}
+
+func (f ProjectFilter) IsAccessScopeDefined() bool {
+	return f.Readable != nil && f.Writable != nil
 }
 
 func (f ProjectFilter) Clone() ProjectFilter {
 	return ProjectFilter{
-		Readable:   f.Readable.Clone(),
-		Writable:   f.Writable.Clone(),
-		PublicOnly: f.PublicOnly,
+		Readable:     f.Readable.Clone(),
+		Writable:     f.Writable.Clone(),
+		AttachPublic: f.AttachPublic,
 	}
 }
 
@@ -162,10 +175,14 @@ func (f ProjectFilter) Merge(g ProjectFilter) ProjectFilter {
 		}
 	}
 	return ProjectFilter{
-		Readable:   r,
-		Writable:   w,
-		PublicOnly: f.PublicOnly || g.PublicOnly,
+		Readable:     r,
+		Writable:     w,
+		AttachPublic: f.AttachPublic || g.AttachPublic,
 	}
+}
+
+func (f ProjectFilter) ReadableIDs() project.IDList {
+	return append(f.Readable, f.Writable...)
 }
 
 func (f ProjectFilter) CanRead(ids ...project.ID) bool {
