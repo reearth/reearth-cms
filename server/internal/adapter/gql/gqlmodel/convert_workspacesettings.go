@@ -36,8 +36,6 @@ func ToResourceList(resource *workspacesettings.ResourceList) *ResourceList {
 
 func ToTileType(tt workspacesettings.TileType) TileType {
 	switch tt {
-	case workspacesettings.TileTypeDefault:
-		return TileTypeDefault
 	case workspacesettings.TileTypeRoadMap:
 		return TileTypeRoadMap
 	case workspacesettings.TileTypeOpenStreetMap:
@@ -145,8 +143,6 @@ func FromResource(r *ResourceInput) *workspacesettings.Resource {
 
 func FromTerrainType(tt TerrainType) workspacesettings.TerrainType {
 	switch tt {
-	case TerrainTypeReearthTerrain:
-		return workspacesettings.TerrainTypeReearthTerrain
 	case TerrainTypeCesiumIon:
 		return workspacesettings.TerrainTypeCesiumIon
 	default:

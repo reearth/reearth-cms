@@ -40,18 +40,18 @@ func Test_ToResourceList(t *testing.T) {
 }
 
 func Test_ToTileType(t *testing.T) {
-	assert.Equal(t, TileTypeDefault, ToTileType(workspacesettings.TileTypeDefault))
 	assert.Equal(t, TileTypeRoadMap, ToTileType(workspacesettings.TileTypeRoadMap))
 	assert.Equal(t, TileTypeOpenStreetMap, ToTileType(workspacesettings.TileTypeOpenStreetMap))
 	assert.Equal(t, TileTypeEarthAtNight, ToTileType(workspacesettings.TileTypeEarthAtNight))
 	assert.Equal(t, TileTypeJapanGsiStandardMap, ToTileType(workspacesettings.TileTypeJapanGSIStandardMap))
 	assert.Equal(t, TileTypeURL, ToTileType(workspacesettings.TileTypeURL))
+	assert.Equal(t, TileTypeDefault, ToTileType(workspacesettings.TileTypeDefault))
 	assert.Equal(t, TileTypeDefault, ToTileType(workspacesettings.TileType("")))
 }
 
 func Test_ToTerrainType(t *testing.T) {
-	assert.Equal(t, TerrainTypeReearthTerrain, ToTerrainType(workspacesettings.TerrainTypeReearthTerrain))
 	assert.Equal(t, TerrainTypeCesiumIon, ToTerrainType(workspacesettings.TerrainTypeCesiumIon))
+	assert.Equal(t, TerrainTypeReearthTerrain, ToTerrainType(workspacesettings.TerrainTypeReearthTerrain))
 }
 
 func Test_ToResource(t *testing.T) {
@@ -151,8 +151,8 @@ func Test_FromResource(t *testing.T) {
 }
 
 func Test_FromTerrainType(t *testing.T) {
-	assert.Equal(t, workspacesettings.TerrainTypeReearthTerrain, FromTerrainType(TerrainTypeReearthTerrain))
 	assert.Equal(t, workspacesettings.TerrainTypeCesiumIon, FromTerrainType(TerrainTypeCesiumIon))
+	assert.Equal(t, workspacesettings.TerrainTypeReearthTerrain, FromTerrainType(TerrainTypeReearthTerrain))
 }
 
 func Test_FromTileType(t *testing.T) {

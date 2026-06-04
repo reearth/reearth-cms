@@ -49,11 +49,15 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 	ws := workspacesettings.New().NewID().Tiles(tiles).Terrains(terrains).MustBuild()
 
 	tests := []struct {
-		name       string
-		doc        func() *WorkspaceSettingsDocument
-		wantErr    error
-		wantModel  func() *workspacesettings.WorkspaceSettings
-		wantNilDoc bool
+		name              string
+		doc               func() *WorkspaceSettingsDocument
+		wantErr           error
+		wantModel         *workspacesettings.WorkspaceSettings
+		wantTileCount     *int
+		wantTerrainCount  *int
+		wantTerrainType   *workspacesettings.TerrainType
+		wantNilTiles      bool
+		wantNilTerrains   bool
 	}{
 		{
 			name: "valid document with tiles and terrains",
@@ -64,15 +68,14 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					Terrains: ToResourceListDocument(ws.Terrains()),
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return ws },
+			wantModel: ws,
 		},
 		{
 			name: "empty ID returns error",
 			doc: func() *WorkspaceSettingsDocument {
 				return &WorkspaceSettingsDocument{ID: ""}
 			},
-			wantErr:    workspacesettings.ErrInvalidID,
-			wantNilDoc: true,
+			wantErr: workspacesettings.ErrInvalidID,
 		},
 		{
 			name: "valid ID with nil tiles and terrains",
@@ -83,9 +86,8 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					Terrains: ToResourceListDocument(nil),
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings {
-				return nil // checked separately via field assertions
-			},
+			wantNilTiles:    true,
+			wantNilTerrains: true,
 		},
 		{
 			name: "legacy tile type LABELLED is filtered out",
@@ -99,7 +101,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return nil },
+			wantTileCount: lo.ToPtr(0),
 		},
 		{
 			name: "legacy tile type ESRI_TOPOGRAPHY is filtered out",
@@ -113,7 +115,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return nil },
+			wantTileCount: lo.ToPtr(0),
 		},
 		{
 			name: "legacy terrain type CESIUM_WORLD_TERRAIN is filtered out",
@@ -127,7 +129,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return nil },
+			wantTerrainCount: lo.ToPtr(0),
 		},
 		{
 			name: "legacy terrain type ARC_GIS_TERRAIN is filtered out",
@@ -141,7 +143,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return nil },
+			wantTerrainCount: lo.ToPtr(0),
 		},
 		{
 			name: "REEARTH_TERRAIN is accepted",
@@ -155,7 +157,8 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return nil },
+			wantTerrainCount: lo.ToPtr(1),
+			wantTerrainType:  lo.ToPtr(workspacesettings.TerrainTypeReearthTerrain),
 		},
 		{
 			name: "CESIUM_ION is accepted",
@@ -169,7 +172,8 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantModel: func() *workspacesettings.WorkspaceSettings { return nil },
+			wantTerrainCount: lo.ToPtr(1),
+			wantTerrainType:  lo.ToPtr(workspacesettings.TerrainTypeCesiumIon),
 		},
 	}
 
@@ -187,29 +191,27 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 			}
 
 			assert.NoError(t, err)
+			assert.NotNil(t, res)
 
-			if tt.wantModel != nil && tt.wantModel() != nil {
-				assert.Equal(t, tt.wantModel(), res)
+			if tt.wantModel != nil {
+				assert.Equal(t, tt.wantModel, res)
 				return
 			}
 
-			// cases that only need field-level assertions on the returned model
-			assert.NotNil(t, res)
-
-			switch tt.name {
-			case "valid ID with nil tiles and terrains":
+			if tt.wantNilTiles {
 				assert.Nil(t, res.Tiles())
+			}
+			if tt.wantNilTerrains {
 				assert.Nil(t, res.Terrains())
-			case "legacy tile type LABELLED is filtered out",
-				"legacy tile type ESRI_TOPOGRAPHY is filtered out":
-				assert.Empty(t, res.Tiles().Resources())
-			case "legacy terrain type CESIUM_WORLD_TERRAIN is filtered out",
-				"legacy terrain type ARC_GIS_TERRAIN is filtered out":
-				assert.Empty(t, res.Terrains().Resources())
-			case "REEARTH_TERRAIN is accepted":
-				assert.Equal(t, workspacesettings.TerrainTypeReearthTerrain, res.Terrains().Resources()[0].Terrain().Type())
-			case "CESIUM_ION is accepted":
-				assert.Equal(t, workspacesettings.TerrainTypeCesiumIon, res.Terrains().Resources()[0].Terrain().Type())
+			}
+			if tt.wantTileCount != nil {
+				assert.Len(t, res.Tiles().Resources(), *tt.wantTileCount)
+			}
+			if tt.wantTerrainCount != nil {
+				assert.Len(t, res.Terrains().Resources(), *tt.wantTerrainCount)
+			}
+			if tt.wantTerrainType != nil {
+				assert.Equal(t, *tt.wantTerrainType, res.Terrains().Resources()[0].Terrain().Type())
 			}
 		})
 	}
