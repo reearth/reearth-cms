@@ -1,8 +1,6 @@
 import {
   ProviderViewModel,
-  ArcGisMapServerImageryProvider,
   OpenStreetMapImageryProvider,
-  ArcGISTiledElevationTerrainProvider,
   UrlTemplateImageryProvider,
   CesiumTerrainProvider,
   Credit,
@@ -17,8 +15,8 @@ import {
   UrlResourceProps,
   CesiumResourceProps,
 } from "@reearth-cms/components/molecules/Workspace/types";
+import { t } from "@reearth-cms/i18n";
 
-import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
 const GOOGLE_MAP_CREDIT = new Credit("© Google", false);
@@ -36,14 +34,8 @@ const getReearthLandConfig = () => {
   return { tilesUrl, terrainUrl, tokenQuery };
 };
 
-export const LABELS_OVERLAY_FLAG = "__terravistaLabelsOverlay" as const;
-export const LABELS_OVERLAY_ALPHA = 0.7;
-export const isLabelsOverlayProvider = (provider: unknown): boolean => {
-  return !!(provider as Record<string, unknown> | null | undefined)?.[LABELS_OVERLAY_FLAG];
-};
-
-const defaultTile = new ProviderViewModel({
-  name: "Default",
+const googleSatellite = new ProviderViewModel({
+  name: "Google Satellite",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
   creationFunction: () => {
@@ -56,32 +48,8 @@ const defaultTile = new ProviderViewModel({
   },
 });
 
-const labelled = new ProviderViewModel({
-  name: "Labelled",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
-  tooltip: "",
-  creationFunction: () => {
-    const { tilesUrl, tokenQuery } = getReearthLandConfig();
-
-    const satellite = new UrlTemplateImageryProvider({
-      url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
-      maximumLevel: 22,
-      credit: GOOGLE_MAP_CREDIT,
-    });
-
-    const labels = new UrlTemplateImageryProvider({
-      url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
-      maximumLevel: 22,
-      credit: GOOGLE_MAP_CREDIT,
-    });
-
-    (labels as unknown as Record<string, boolean>)[LABELS_OVERLAY_FLAG] = true;
-    return [satellite, labels];
-  },
-});
-
-const roadMap = new ProviderViewModel({
-  name: "RoadMap",
+const googleRoadMap = new ProviderViewModel({
+  name: "Google Road Map",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
   creationFunction: () => {
@@ -105,25 +73,8 @@ const openStreetMap = new ProviderViewModel({
   },
 });
 
-const esriTopography = new ProviderViewModel({
-  name: "ESRI Topography",
-  iconUrl:
-    "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/0/0/0",
-  tooltip: "",
-  creationFunction: () => {
-    return ArcGisMapServerImageryProvider.fromUrl(
-      "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",
-      {
-        credit:
-          "Copyright: Tiles © Esri — Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Communit",
-        enablePickFeatures: false,
-      },
-    );
-  },
-});
-
-const earthAtNight = new ProviderViewModel({
-  name: "Earth at night",
+const nasaBlackMarble = new ProviderViewModel({
+  name: "NASA Black Marble",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
@@ -137,7 +88,7 @@ const earthAtNight = new ProviderViewModel({
 });
 
 const japanGsi = new ProviderViewModel({
-  name: "Japan GSI Standard Map",
+  name: t("Japan GSI Standard Map"),
   iconUrl: "https://maps.gsi.go.jp/xyz/std/0/0/0.png",
   tooltip: "",
   creationFunction: () => {
@@ -164,20 +115,14 @@ export const imageryGet = (tiles: TileResource[]) => {
   const result: ProviderViewModel[] = [];
   tiles.forEach(tile => {
     switch (tile.type) {
-      case "LABELLED":
-        result.push(labelled);
-        break;
       case "ROAD_MAP":
-        result.push(roadMap);
+        result.push(googleRoadMap);
         break;
       case "OPEN_STREET_MAP":
         result.push(openStreetMap);
         break;
-      case "ESRI_TOPOGRAPHY":
-        result.push(esriTopography);
-        break;
       case "EARTH_AT_NIGHT":
-        result.push(earthAtNight);
+        result.push(nasaBlackMarble);
         break;
       case "JAPAN_GSI_STANDARD_MAP":
         result.push(japanGsi);
@@ -187,12 +132,12 @@ export const imageryGet = (tiles: TileResource[]) => {
         if (url) result.push(urlGet(tile.props));
         break;
       }
-      default:
-        result.push(defaultTile);
+      case "DEFAULT":
+        result.push(googleSatellite);
         break;
     }
   });
-  if (result.length === 0) result.push(defaultTile);
+  if (result.length === 0) result.push(googleSatellite);
   return result;
 };
 
@@ -205,8 +150,8 @@ const ellipsoid = new ProviderViewModel({
   },
 });
 
-const cesiumWorld = new ProviderViewModel({
-  name: "Cesium World Terrain",
+const reearthTerrain = new ProviderViewModel({
+  name: "Re:Earth Terrain",
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
@@ -216,17 +161,6 @@ const cesiumWorld = new ProviderViewModel({
       requestWaterMask: true,
       credit: REEARTH_TERRAIN_CREDIT,
     });
-  },
-});
-
-const arcGis = new ProviderViewModel({
-  name: "ArcGIS Terrain",
-  iconUrl: ArcgisThumbnail,
-  tooltip: "",
-  creationFunction: () => {
-    return ArcGISTiledElevationTerrainProvider.fromUrl(
-      "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
-    );
   },
 });
 
@@ -257,16 +191,13 @@ export const terrainGet = (terrains: TerrainResource[]) => {
   result.push(ellipsoid);
   terrains.forEach(terrain => {
     switch (terrain.type) {
-      case "ARC_GIS_TERRAIN":
-        result.push(arcGis);
+      case "REEARTH_TERRAIN":
+        result.push(reearthTerrain);
         break;
       case "CESIUM_ION": {
         result.push(cesiumIonGet(terrain.props));
         break;
       }
-      default:
-        result.push(cesiumWorld);
-        break;
     }
   });
   return result;
