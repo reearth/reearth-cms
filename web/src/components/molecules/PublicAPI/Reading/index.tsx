@@ -80,7 +80,7 @@ const ReadingComponent: React.FC<Props> = ({
     <ContentSection title={t("Reading")}>
       <Paragraph>
         {t(
-          "Once Reading is enabled, anyone with the endpoint can access it. If a model is exposed via Reading, it cannot be restricted through API Key settings.",
+          "Once Public API is enabled, anyone with the endpoint can read data from the model. If a model is exposed via Public API, it cannot be restricted through API Key settings.",
         )}
       </Paragraph>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
