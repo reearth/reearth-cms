@@ -254,6 +254,9 @@ func (r *ProjectRepo) readFilter(filter any) any {
 	if !r.f.IsAccessScopeDefined() && !r.pf.IsAccessScopeDefined() && !r.pf.AttachPublic {
 		return filter
 	}
+	if len(r.f.ReadableIDs()) == 0 && len(r.pf.ReadableIDs()) == 0 && !r.pf.AttachPublic {
+		return bson.M{"_id": bson.M{"$exists": false}}
+	}
 
 	readFilter := bson.A{}
 	if len(r.f.ReadableIDs()) > 0 {

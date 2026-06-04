@@ -1012,7 +1012,7 @@ func TestInternalStarProjectAPI(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, resp.Project)
 
-		// Verify star count is 1 and user is in starredBy
+		// Verify star count is 0 and user is not in starredBy
 		assert.Equal(t, int64(0), resp.Project.StarCount)
 		assert.NotContains(t, resp.Project.StarredBy, uId_2.String())
 		assert.Equal(t, pid.String(), resp.Project.Id)
