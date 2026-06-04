@@ -4,10 +4,9 @@ import ReactDragListView from "react-drag-listview";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import useSettings from "@reearth-cms/components/molecules/Settings/useSettings.ts";
 import { Resource, TerrainType, TileType } from "@reearth-cms/components/molecules/Workspace/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
-
-import { TerrainTypeFormat, TileTypeFormat } from "./FormModal";
 
 export type Props = {
   resources: Resource[];
@@ -29,6 +28,8 @@ const Cards: React.FC<Props> = ({
   onDragEnd,
   hasUpdateRight,
 }) => {
+  const { TileTypeFormat, TerrainTypeFormat } = useSettings();
+
   const cardTitle = useCallback<(resource: Resource) => string>(
     resource => {
       if (resource.props?.name) {
@@ -41,7 +42,7 @@ const Cards: React.FC<Props> = ({
         return TerrainTypeFormat[resource.type as TerrainType] || resource.type;
       }
     },
-    [isTile],
+    [TerrainTypeFormat, TileTypeFormat, isTile],
   );
 
   return (
