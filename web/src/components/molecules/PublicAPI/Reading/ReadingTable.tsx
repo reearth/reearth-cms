@@ -18,7 +18,7 @@ type Props = {
   publicModels?: string[];
 };
 
-const AccessAPITable: React.FC<Props> = ({
+const ReadingTable: React.FC<Props> = ({
   apiUrl,
   models,
   isPublic,
@@ -90,7 +90,7 @@ const AccessAPITable: React.FC<Props> = ({
   );
 };
 
-export default AccessAPITable;
+export default ReadingTable;
 
 const TableWrapper = styled.div`
   margin: ${AntdToken.SPACING.LG}px 0;

@@ -2,9 +2,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe } from "vitest";
 
-import Accessibility from ".";
+import PublicAPI from ".";
 
-describe("Accessibility", () => {
+describe("PublicAPI", () => {
   const user = userEvent.setup();
 
   const hasCreateRight = true;
@@ -43,7 +43,7 @@ describe("Accessibility", () => {
 
   test("Scope, alias, and public status and API end point of models and assets are displayed successfully", async () => {
     render(
-      <Accessibility
+      <PublicAPI
         initialValues={initialValues}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
@@ -80,7 +80,7 @@ describe("Accessibility", () => {
 
   test("Toggle save button successfully", async () => {
     render(
-      <Accessibility
+      <PublicAPI
         initialValues={initialValues}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
@@ -123,7 +123,7 @@ describe("Accessibility", () => {
 
   test("Disable switch and button according to user right successfully", async () => {
     render(
-      <Accessibility
+      <PublicAPI
         initialValues={initialValues}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}

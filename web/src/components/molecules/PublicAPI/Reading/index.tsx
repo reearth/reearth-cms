@@ -4,12 +4,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import AccessAPITable from "./AccessAPITable";
+import ReadingTable from "./ReadingTable";
 
 type Props = {
   apiUrl: string;
@@ -25,7 +25,7 @@ type Props = {
   ) => Promise<void>;
 };
 
-const AccessAPIComponent: React.FC<Props> = ({
+const ReadingComponent: React.FC<Props> = ({
   apiUrl,
   isPublic,
   initialValues,
@@ -77,14 +77,14 @@ const AccessAPIComponent: React.FC<Props> = ({
   }, [form, onPublicUpdate]);
 
   return (
-    <ContentSection title={t("Access API")}>
+    <ContentSection title={t("Reading")}>
       <Paragraph>
         {t(
-          "Once Access API is enabled, anyone with the endpoint can access it. If a model is exposed via Access API, it cannot be restricted through API Key settings.",
+          "Once Reading is enabled, anyone with the endpoint can access it. If a model is exposed via Reading, it cannot be restricted through API Key settings.",
         )}
       </Paragraph>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-        <AccessAPITable
+        <ReadingTable
           apiUrl={apiUrl}
           hasPublishRight={hasPublishRight}
           models={models}
@@ -104,7 +104,7 @@ const AccessAPIComponent: React.FC<Props> = ({
   );
 };
 
-export default AccessAPIComponent;
+export default ReadingComponent;
 
 const Paragraph = styled.p`
   color: ${AntdColor.GREY.GREY_2};
