@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -55,6 +56,39 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 
 func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 	return errors.New("not implemented")
+}
+
+// HealthCheck implements gateway.TaskRunner
+func (t *TaskRunner) HealthCheck(ctx context.Context) error {
+	if t == nil {
+		return errors.New("task runner is nil")
+	}
+	if t.snsClient == nil {
+		return errors.New("sns client is not initialized")
+	}
+	if t.topicARN == "" {
+		return errors.New("topic ARN is not configured")
+	}
+	if t.webhookARN == "" {
+		return errors.New("webhook ARN is not configured")
+	}
+	if err := t.checkTopic(ctx, t.topicARN); err != nil {
+		return err
+	}
+	if err := t.checkTopic(ctx, t.webhookARN); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *TaskRunner) checkTopic(ctx context.Context, topicARN string) error {
+	_, err := t.snsClient.GetTopicAttributes(ctx, &sns.GetTopicAttributesInput{
+		TopicArn: aws.String(topicARN),
+	})
+	if err != nil {
+		return rerror.ErrInternalBy(fmt.Errorf("SNS topic %s is inaccessible: %w", topicARN, err))
+	}
+	return nil
 }
 
 func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {

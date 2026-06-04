@@ -424,6 +424,8 @@ github.com/vektah/gqlparser/v2 v2.5.32 h1:k9QPJd4sEDTL+qB4ncPLflqTJ3MmjB9SrVzJra
 github.com/vektah/gqlparser/v2 v2.5.32/go.mod h1:c1I28gSOVNzlfc4WuDlqU7voQnsqI6OG2amkBAFmgts=
 github.com/vikstrous/dataloadgen v0.0.10 h1:x07XAeEjIWXohvcjRvE72KY8pV5A3sTbKEFmxcj9RNM=
 github.com/vikstrous/dataloadgen v0.0.10/go.mod h1:8vuQVpBH0ODbMKAPUdCAPcOGezoTIhgAjgex51t4vbg=
+github.com/vitorsalgado/mocha/v2 v2.0.2 h1:wb1QCRzVkp8uhRcUYmb9jJfbMj/qbiqcDyD8rD+Ldfw=
+github.com/vitorsalgado/mocha/v2 v2.0.2/go.mod h1:l7jRVm7KTL4VAxxazH99UVo+KzwztjrYpFTksTmL1DE=
 github.com/vmware-labs/yaml-jsonpath v0.3.2 h1:/5QKeCBGdsInyDCyVNLbXyilb61MXGi9NP674f9Hobk=
 github.com/vmware-labs/yaml-jsonpath v0.3.2/go.mod h1:U6whw1z03QyqgWdgXxvVnQ90zN1BWz5V+51Ewf8k+rQ=
 github.com/woodsbury/decimal128 v1.4.0 h1:xJATj7lLu4f2oObouMt2tgGiElE5gO6mSWUjQsBgUlc=
