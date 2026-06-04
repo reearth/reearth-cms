@@ -16,16 +16,16 @@ export class SettingsPage extends BasePage {
   get addNewTilesButton(): Locator {
     return this.getByRole("button", { name: "plus Add new Tiles option" });
   }
-  get defaultTileOption(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Default$/ })
-      .nth(4);
+  // Opens the antd Select dropdown in the tile/terrain modal (single select per modal)
+  get typeSelect(): Locator {
+    return this.formElement.locator(".ant-select-selector").first();
   }
-  get labelledTileOption(): Locator {
-    return this.getByTitle("Labelled");
+  // Dropdown options are matched by their title attribute
+  get openStreetMapTileOption(): Locator {
+    return this.getByTitle("OpenStreetMap");
   }
   get urlTileOption(): Locator {
-    return this.getByTitle("URL").locator("div");
+    return this.getByTitle("URL", { exact: true });
   }
 
   // Terrain management
@@ -35,18 +35,8 @@ export class SettingsPage extends BasePage {
   get addTerrainButton(): Locator {
     return this.getByRole("button", { name: "plus Add new Terrain option" });
   }
-  get cesiumWorldTerrainDiv(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Cesium World Terrain$/ })
-      .nth(4);
-  }
-  get cesiumWorldTerrainOption(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Cesium World Terrain$/ })
-      .nth(4);
-  }
-  get arcGisTerrainOption(): Locator {
-    return this.getByTitle("ArcGIS Terrain");
+  get reearthTerrainOption(): Locator {
+    return this.getByTitle("Re:Earth Terrain");
   }
   get cesiumIonOption(): Locator {
     return this.getByTitle("Cesium Ion");
@@ -168,17 +158,5 @@ export class SettingsPage extends BasePage {
   }
   get headerElement(): Locator {
     return this.locator("header");
-  }
-
-  get labelledTileDiv(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Labelled$/ })
-      .nth(4);
-  }
-
-  get arcGisTerrainDiv(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^ArcGIS Terrain$/ })
-      .nth(4);
   }
 }
