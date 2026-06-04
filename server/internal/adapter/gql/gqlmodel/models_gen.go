@@ -3390,20 +3390,18 @@ func (e StringOperator) MarshalJSON() ([]byte, error) {
 type TerrainType string
 
 const (
-	TerrainTypeCesiumWorldTerrain TerrainType = "CESIUM_WORLD_TERRAIN"
-	TerrainTypeArcGisTerrain      TerrainType = "ARC_GIS_TERRAIN"
-	TerrainTypeCesiumIon          TerrainType = "CESIUM_ION"
+	TerrainTypeReearthTerrain TerrainType = "REEARTH_TERRAIN"
+	TerrainTypeCesiumIon      TerrainType = "CESIUM_ION"
 )
 
 var AllTerrainType = []TerrainType{
-	TerrainTypeCesiumWorldTerrain,
-	TerrainTypeArcGisTerrain,
+	TerrainTypeReearthTerrain,
 	TerrainTypeCesiumIon,
 }
 
 func (e TerrainType) IsValid() bool {
 	switch e {
-	case TerrainTypeCesiumWorldTerrain, TerrainTypeArcGisTerrain, TerrainTypeCesiumIon:
+	case TerrainTypeReearthTerrain, TerrainTypeCesiumIon:
 		return true
 	}
 	return false
@@ -3505,10 +3503,8 @@ type TileType string
 
 const (
 	TileTypeDefault             TileType = "DEFAULT"
-	TileTypeLabelled            TileType = "LABELLED"
 	TileTypeRoadMap             TileType = "ROAD_MAP"
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
-	TileTypeEsriTopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
 	TileTypeJapanGsiStandardMap TileType = "JAPAN_GSI_STANDARD_MAP"
 	TileTypeURL                 TileType = "URL"
@@ -3516,10 +3512,8 @@ const (
 
 var AllTileType = []TileType{
 	TileTypeDefault,
-	TileTypeLabelled,
 	TileTypeRoadMap,
 	TileTypeOpenStreetMap,
-	TileTypeEsriTopography,
 	TileTypeEarthAtNight,
 	TileTypeJapanGsiStandardMap,
 	TileTypeURL,
@@ -3527,7 +3521,7 @@ var AllTileType = []TileType{
 
 func (e TileType) IsValid() bool {
 	switch e {
-	case TileTypeDefault, TileTypeLabelled, TileTypeRoadMap, TileTypeOpenStreetMap, TileTypeEsriTopography, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
+	case TileTypeDefault, TileTypeRoadMap, TileTypeOpenStreetMap, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
 		return true
 	}
 	return false

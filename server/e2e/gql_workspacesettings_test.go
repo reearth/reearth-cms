@@ -71,6 +71,199 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles map[string]
 	return res
 }
 
+func TestUpdateWorkspaceSettings_AllTileTypes(t *testing.T) {
+	validTileTypes := []string{
+		"DEFAULT",
+		"ROAD_MAP",
+		"OPEN_STREET_MAP",
+		"EARTH_AT_NIGHT",
+		"JAPAN_GSI_STANDARD_MAP",
+		"URL",
+	}
+
+	for _, tileType := range validTileTypes {
+		tileType := tileType
+		t.Run(tileType, func(t *testing.T) {
+			e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
+
+			tiles := map[string]any{
+				"resources": []map[string]any{
+					{
+						"tile": map[string]any{
+							"id":   rid.String(),
+							"type": tileType,
+							"props": map[string]any{
+								"name":  "name1",
+								"url":   "url1",
+								"image": "image1",
+							},
+						},
+					},
+				},
+				"selectedResource": rid.String(),
+				"enabled":          false,
+			}
+			terrains := map[string]any{
+				"resources":        []map[string]any{},
+				"selectedResource": nil,
+				"enabled":          false,
+			}
+
+			res := updateWorkspaceSettings(e, wId.String(), tiles, terrains)
+			r1 := res.Object().
+				Value("data").Object().
+				Value("updateWorkspaceSettings").Object().
+				Value("workspaceSettings").Object().
+				Value("tiles").Object().
+				Value("resources").Array().Value(0).Object()
+			r1.Value("type").String().IsEqual(tileType)
+		})
+	}
+}
+
+func TestUpdateWorkspaceSettings_ReearthTerrain(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
+
+	tiles := map[string]any{
+		"resources":        []map[string]any{},
+		"selectedResource": nil,
+		"enabled":          false,
+	}
+	terrains := map[string]any{
+		"resources": []map[string]any{
+			{
+				"terrain": map[string]any{
+					"id":   rid2.String(),
+					"type": "REEARTH_TERRAIN",
+					"props": map[string]any{
+						"name":                 "name1",
+						"url":                  "url1",
+						"image":                "image1",
+						"cesiumIonAssetId":     "",
+						"cesiumIonAccessToken": "",
+					},
+				},
+			},
+		},
+		"selectedResource": rid2.String(),
+		"enabled":          true,
+	}
+
+	res := updateWorkspaceSettings(e, wId.String(), tiles, terrains)
+	o := res.Object().
+		Value("data").Object().
+		Value("updateWorkspaceSettings").Object().
+		Value("workspaceSettings").Object()
+
+	t2 := o.Value("terrains").Object()
+	t2.Value("enabled").Boolean().IsTrue()
+	t2.Value("selectedResource").String().IsEqual(rid2.String())
+	r2 := t2.Value("resources").Array().Value(0).Object()
+	r2.Value("id").String().IsEqual(rid2.String())
+	r2.Value("type").String().IsEqual("REEARTH_TERRAIN")
+	r2.Value("props").Object().Value("name").String().IsEqual("name1")
+	r2.Value("props").Object().Value("url").String().IsEqual("url1")
+	r2.Value("props").Object().Value("image").String().IsEqual("image1")
+}
+
+func updateWorkspaceSettingsRaw(e *httpexpect.Expect, wID string, tiles map[string]any, terrains map[string]any) *httpexpect.Response {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateWorkspaceSettings($id: ID!, $tiles: ResourcesListInput!, $terrains: ResourcesListInput!) {
+			updateWorkspaceSettings(input: {id: $id,tiles: $tiles,terrains: $terrains}) {
+			  workspaceSettings{ id }
+			}
+		  }`,
+		Variables: map[string]any{
+			"id":       wID,
+			"tiles":    tiles,
+			"terrains": terrains,
+		},
+	}
+	jsonData, _ := json.Marshal(requestBody)
+	return e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).
+		Expect()
+}
+
+func TestUpdateWorkspaceSettings_InvalidTileTypeRejected(t *testing.T) {
+	invalidTileTypes := []string{"LABELLED", "ESRI_TOPOGRAPHY"}
+
+	for _, tileType := range invalidTileTypes {
+		tileType := tileType
+		t.Run(tileType, func(t *testing.T) {
+			e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
+
+			tiles := map[string]any{
+				"resources": []map[string]any{
+					{
+						"tile": map[string]any{
+							"id":   rid.String(),
+							"type": tileType,
+							"props": map[string]any{
+								"name":  "name1",
+								"url":   "url1",
+								"image": "image1",
+							},
+						},
+					},
+				},
+				"selectedResource": rid.String(),
+				"enabled":          false,
+			}
+			terrains := map[string]any{
+				"resources":        []map[string]any{},
+				"selectedResource": nil,
+				"enabled":          false,
+			}
+
+			updateWorkspaceSettingsRaw(e, wId.String(), tiles, terrains).
+				Status(http.StatusUnprocessableEntity)
+		})
+	}
+}
+
+func TestUpdateWorkspaceSettings_InvalidTerrainTypeRejected(t *testing.T) {
+	invalidTerrainTypes := []string{"CESIUM_WORLD_TERRAIN", "ARC_GIS_TERRAIN"}
+
+	for _, terrainType := range invalidTerrainTypes {
+		terrainType := terrainType
+		t.Run(terrainType, func(t *testing.T) {
+			e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
+
+			tiles := map[string]any{
+				"resources":        []map[string]any{},
+				"selectedResource": nil,
+				"enabled":          false,
+			}
+			terrains := map[string]any{
+				"resources": []map[string]any{
+					{
+						"terrain": map[string]any{
+							"id":   rid2.String(),
+							"type": terrainType,
+							"props": map[string]any{
+								"name":                 "name1",
+								"url":                  "url1",
+								"image":                "image1",
+								"cesiumIonAssetId":     "",
+								"cesiumIonAccessToken": "",
+							},
+						},
+					},
+				},
+				"selectedResource": rid2.String(),
+				"enabled":          false,
+			}
+
+			updateWorkspaceSettingsRaw(e, wId.String(), tiles, terrains).
+				Status(http.StatusUnprocessableEntity)
+		})
+	}
+}
+
 func TestUpdateWorkspaceSettings(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
 
