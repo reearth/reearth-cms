@@ -149,12 +149,12 @@ export default () => {
   };
 
   const handleAPIKeyNew = () => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/new`);
+    navigate(`/workspace/${workspaceId}/project/${projectId}/publicApi/new`);
   };
 
   const handleAPIKeyEdit = (keyId?: string) => {
     if (!keyId) return;
-    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId}`);
+    navigate(`/workspace/${workspaceId}/project/${projectId}/publicApi/${keyId}`);
   };
 
   return {

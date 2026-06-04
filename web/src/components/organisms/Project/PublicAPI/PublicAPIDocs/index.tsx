@@ -3,7 +3,7 @@ import ApiDocs from "@reearth-cms/components/molecules/ApiDocs";
 
 import useHooks from "./hooks";
 
-const AccessibilityDocs: React.FC = () => {
+const PublicAPIDocs: React.FC = () => {
   const { specUrl } = useHooks();
 
   return (
@@ -13,4 +13,4 @@ const AccessibilityDocs: React.FC = () => {
   );
 };
 
-export default AccessibilityDocs;
+export default PublicAPIDocs;
