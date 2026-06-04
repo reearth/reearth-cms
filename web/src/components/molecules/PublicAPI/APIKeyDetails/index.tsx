@@ -10,13 +10,13 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Input from "@reearth-cms/components/atoms/Input";
 import Password from "@reearth-cms/components/atoms/Password";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { APIKey, KeyFormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { APIKey, KeyFormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import AccessAPITable from "../AccessAPI/AccessAPITable";
+import ReadingTable from "../Reading/ReadingTable";
 
 type Props = {
   apiUrl: string;
@@ -136,9 +136,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
 
   return (
     <InnerContent
-      title={t(
-        `Accessibility / ${!isNewKey && currentKey?.name ? currentKey.name : "New API Key"}`,
-      )}
+      title={t(`Public API / ${!isNewKey && currentKey?.name ? currentKey.name : "New API Key"}`)}
       onBack={onBack}
       flexChildren>
       <ContentSection>
@@ -180,7 +178,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
             </TokenFormItem>
           )}
           <Form.Item name="permissions" label={t("Permissions")}>
-            <AccessAPITable
+            <ReadingTable
               apiUrl={apiUrl}
               hasPublishRight={hasPublishRight}
               models={keyModels}

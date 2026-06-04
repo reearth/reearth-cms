@@ -1,15 +1,15 @@
 import { useMemo } from "react";
 
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import { APIKey, FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { APIKey, FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import APIDocLinks from "../APIDocLinks";
 
-import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
+import ReadingComponent from "./Reading";
 
 type Props = {
   apiKeys?: APIKey[];
@@ -34,7 +34,7 @@ type Props = {
   currentLang: string;
 };
 
-const Accessibility: React.FC<Props> = ({
+const PublicAPI: React.FC<Props> = ({
   apiKeys,
   isProjectPublic,
   initialValues,
@@ -60,11 +60,11 @@ const Accessibility: React.FC<Props> = ({
 
   return (
     <InnerContent
-      title={t("Accessibility")}
+      title={t("Public API")}
       flexChildren
       subtitle={t("Control the visibility scope of the Content API")}
-      extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./accessibility/docs" />}>
-      <AccessAPIComponent
+      extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./publicApi/docs" />}>
+      <ReadingComponent
         apiUrl={apiUrl}
         initialValues={initialValues}
         isPublic={isProjectPublic}
@@ -89,4 +89,4 @@ const Accessibility: React.FC<Props> = ({
   );
 };
 
-export default Accessibility;
+export default PublicAPI;

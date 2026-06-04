@@ -1,4 +1,4 @@
-import AccessibilityMolecule from "@reearth-cms/components/molecules/Accessibility";
+import AccessibilityMolecule from "@reearth-cms/components/molecules/PublicAPI";
 
 import useHooks from "./hooks";
 
