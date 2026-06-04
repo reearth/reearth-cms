@@ -40,6 +40,7 @@ import (
 var (
 	secret  = "secret_1234567890"
 	wId0    = accountdomain.NewWorkspaceID()
+	wId1    = accountdomain.NewWorkspaceID()
 	uId     = accountdomain.NewUserID()
 	uId_2   = accountdomain.NewUserID()
 	iId     = id.NewIntegrationID()
@@ -140,8 +141,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	u2 := user.New().ID(uId_2).
 		Name("e2e2").
 		Email("e2e2@e2e.com").
-		Workspace(wId0).
-		Metadata(metadata).
+		Workspace(wId1).
+		Metadata(user.NewMetadata()).
 		MustBuild()
 	if err := r.User.Save(ctx, u2); err != nil {
 		return err
@@ -174,6 +175,17 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
+		return err
+	}
+
+	w2 := workspace.New().
+		ID(wId1).
+		Name("e2e").
+		Personal(false).
+		Members(map[accountdomain.UserID]workspace.Member{uId_2: {Role: workspace.RoleOwner, InvitedBy: u2.ID()}}).
+		Metadata(workspace.NewMetadata()).
+		MustBuild()
+	if err := r.Workspace.Save(ctx, w2); err != nil {
 		return err
 	}
 
