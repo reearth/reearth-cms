@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string, modelPostingEnabled *bool) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
+func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string, modelPostingEnabled *bool, schemaFields ...*schema.Field) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
 	t.Helper()
 	ctx = context.Background()
 
@@ -64,6 +64,7 @@ func setupPostingTest(t *testing.T, postingEnabled bool, allowedOrigins []string
 		ID(sid).
 		Workspace(accountdomain.WorkspaceID(wid)).
 		Project(pid).
+		Fields(schemaFields).
 		MustBuild()
 
 	mEnabled := postingEnabled
@@ -103,14 +104,26 @@ func TestController_PostItem(t *testing.T) {
 
 	const allowedOrigin = "https://example.com"
 
+	requiredTextField := schema.NewField(schema.NewText(nil).TypeProperty()).
+		NewID().Key(id.NewKey("title")).Required(true).MustBuild()
+
 	tests := []struct {
-		name          string
-		mutateAliases func(wAlias, pAlias, mKey string) (string, string, string)
-		wantErr       error
+		name            string
+		schemaFields    []*schema.Field
+		body            map[string]any
+		mutateAliases   func(wAlias, pAlias, mKey string) (string, string, string)
+		wantErr         error
+		wantFieldErrors bool
 	}{
 		{
-			name:    "valid context returns no error",
+			name:    "valid body returns no error",
 			wantErr: nil,
+		},
+		{
+			name:            "missing required field returns field errors",
+			schemaFields:    []*schema.Field{requiredTextField},
+			body:            map[string]any{},
+			wantFieldErrors: true,
 		},
 		{
 			name: "unknown workspace returns ErrNotFound",
@@ -139,17 +152,24 @@ func TestController_PostItem(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, true, []string{allowedOrigin}, nil)
+			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, true, []string{allowedOrigin}, nil, tt.schemaFields...)
 			if tt.mutateAliases != nil {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}
 
-			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, map[string]any{})
+			body := tt.body
+			if body == nil {
+				body = map[string]any{}
+			}
+			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, body)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, result.Err, tt.wantErr)
 			} else {
 				assert.NoError(t, result.Err)
+			}
+			if tt.wantFieldErrors {
+				assert.NotEmpty(t, result.FieldErrors)
 			}
 		})
 	}
@@ -166,8 +186,19 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 		modelPostingEnabled *bool
 		allowedOrigins      []string
 		origin              string
+		mutateAliases       func(wAlias, pAlias, mKey string) (string, string, string)
 		wantErr             error
 	}{
+		{
+			name:           "unknown workspace returns ErrNotFound",
+			postingEnabled: true,
+			allowedOrigins: []string{allowedOrigin},
+			origin:         allowedOrigin,
+			mutateAliases: func(_, pAlias, mKey string) (string, string, string) {
+				return "nonexistent-workspace", pAlias, mKey
+			},
+			wantErr: rerror.ErrNotFound,
+		},
 		{
 			name:           "posting disabled returns ErrProjectPostingDisabled",
 			postingEnabled: false,
@@ -218,6 +249,9 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.postingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
+			if tt.mutateAliases != nil {
+				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
+			}
 
 			err := ctrl.ValidatePostingAccess(ctx, wAlias, pAlias, mKey, tt.origin)
 
