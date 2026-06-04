@@ -1,8 +1,8 @@
-import AccessibilityMolecule from "@reearth-cms/components/molecules/PublicAPI";
+import PublicAPIMolecule from "@reearth-cms/components/molecules/PublicAPI";
 
 import useHooks from "./hooks";
 
-const Accessibility: React.FC = () => {
+const PublicAPI: React.FC = () => {
   const {
     apiKeys,
     isProjectPublic,
@@ -24,7 +24,7 @@ const Accessibility: React.FC = () => {
   } = useHooks();
 
   return (
-    <AccessibilityMolecule
+    <PublicAPIMolecule
       apiKeys={apiKeys}
       isProjectPublic={isProjectPublic}
       initialValues={initialValues}
@@ -46,4 +46,4 @@ const Accessibility: React.FC = () => {
   );
 };
 
-export default Accessibility;
+export default PublicAPI;

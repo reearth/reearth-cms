@@ -112,7 +112,7 @@ export default () => {
       }
       Notification.success({ message: t("API Key created successfully.") });
       navigate(
-        `/workspace/${workspaceId}/project/${projectId}/accessibility/${result.data?.createAPIKey?.apiKey.id}`,
+        `/workspace/${workspaceId}/project/${projectId}/publicApi/${result.data?.createAPIKey?.apiKey.id}`,
       );
     },
     [createAPIKeyMutation, currentProject?.id, navigate, projectId, t, workspaceId],
@@ -168,7 +168,7 @@ export default () => {
   );
 
   const handleBack = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`, {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/publicApi`, {
       state: location.state,
     });
   }, [location.state, navigate, projectId, workspaceId]);
