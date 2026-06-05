@@ -900,6 +900,8 @@ describe("Content import test", () => {
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
             expect(contentValidation.isValid).toBe(true);
+            if (!contentValidation.isValid) return;
+            expect(contentValidation.data[0]?.[setup.key]).toBe(String(setup.value));
           },
         );
       });
