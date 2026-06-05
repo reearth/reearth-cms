@@ -92,17 +92,7 @@ export abstract class ImportContentUtils {
           const maxLength = z.int().nonnegative().safeParse(field.typeProperty?.maxLength);
           if (maxLength.success) stringField = stringField.max(maxLength.data);
 
-          // Coerce numbers and booleans to strings to mirror server-side ToValue behaviour
-          // (e.g. JSON number 1 → "1", CSV dynamicTyping converts "true" → true → "true")
-          let stringFieldAny: z.ZodTypeAny = z.preprocess(
-            val =>
-              typeof val === "number"
-                ? String(val)
-                : typeof val === "boolean"
-                  ? String(val)
-                  : val,
-            stringField,
-          );
+          let stringFieldAny: z.ZodTypeAny = stringField;
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);

@@ -71,29 +71,28 @@ describe("ObjectUtils", () => {
 
     it("Pass case: string boolean (true)", async () => {
       const input = "true";
-      const expectedOutput = true;
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
       expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
+      // deepJsonParse no longer coerces primitive-looking strings to primitives;
+      // "true" as a top-level input stays as the string "true"
+      if (actualOutput.isValid) expect(actualOutput.data).toEqual("true");
     });
 
     it("Pass case: string boolean (false)", async () => {
       const input = "false";
-      const expectedOutput = false;
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
       expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
+      if (actualOutput.isValid) expect(actualOutput.data).toEqual("false");
     });
 
     it("Pass case: string number", async () => {
       const input = "123";
-      const expectedOutput = 123;
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
       expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
+      if (actualOutput.isValid) expect(actualOutput.data).toEqual("123");
     });
 
     it("Pass case: string array", async () => {
@@ -107,11 +106,10 @@ describe("ObjectUtils", () => {
 
     it("Pass case: string null", async () => {
       const input = "null";
-      const expectedOutput = null;
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
       expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
+      if (actualOutput.isValid) expect(actualOutput.data).toEqual("null");
     });
 
     it("Pass case: complex object", async () => {
@@ -161,7 +159,7 @@ describe("ObjectUtils", () => {
   });
 
   describe("deepJsonParse", () => {
-    it("test", () => {
+    it("expands double-encoded JSON strings into objects", () => {
       const raw =
         '{\n  "geo-object-key": {\n    "title": "geo-object-key",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
       const expectResult = {
@@ -181,6 +179,21 @@ describe("ObjectUtils", () => {
       };
 
       expect(expectResult).toEqual(ObjectUtils.deepJsonParse(raw));
+    });
+
+    it("preserves string field values that look like numbers", () => {
+      const input = { lod: "1", year: "2025", id: "0" };
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ lod: "1", year: "2025", id: "0" });
+    });
+
+    it("preserves string field values that look like booleans", () => {
+      const input = { texture: "true", visible: "false" };
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ texture: "true", visible: "false" });
+    });
+
+    it("preserves string field values that look like null", () => {
+      const input = { value: "null" };
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ value: "null" });
     });
   });
 });

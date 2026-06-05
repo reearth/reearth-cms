@@ -51,10 +51,16 @@ export abstract class ObjectUtils {
     if (typeof value === "string") {
       try {
         const parsed = JSON.parse(value);
-        return this.deepJsonParse<T>(parsed);
+        // Only recurse for objects/arrays — do not coerce numeric or boolean
+        // strings (e.g. "1" → 1, "true" → true) which would turn valid string
+        // field values into primitives and break schema type validation.
+        if (parsed !== null && typeof parsed === "object") {
+          return this.deepJsonParse<T>(parsed);
+        }
       } catch {
-        return value as T;
+        // not valid JSON, keep the raw string
       }
+      return value as T;
     }
 
     if (Array.isArray(value)) {
