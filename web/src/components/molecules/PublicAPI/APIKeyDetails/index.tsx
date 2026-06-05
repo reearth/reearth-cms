@@ -16,7 +16,7 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import ReadingTable from "../Reading/ReadingTable";
+import ReadingTable from "../Reading/ReadingSettings/ReadingTable";
 
 type Props = {
   apiUrl: string;
