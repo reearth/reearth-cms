@@ -8,7 +8,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { ModelDataType } from "../types";
+import { ModelDataType } from "../../types";
 
 type Props = {
   apiUrl: string;
@@ -16,14 +16,16 @@ type Props = {
   models: Pick<Model, "id" | "name" | "key">[];
   isPublic?: boolean;
   publicModels?: string[];
+  disabled?: boolean;
 };
 
-const ReadingTable: React.FC<Props> = ({
+const PostingTable: React.FC<Props> = ({
   apiUrl,
   models,
   isPublic,
   publicModels,
   hasPublishRight,
+  disabled,
 }) => {
   const t = useT();
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
@@ -33,14 +35,16 @@ const ReadingTable: React.FC<Props> = ({
     if (!isPublic) {
       cols.push({
         key: "enable",
-        title: t("Enable"),
+        title: t("POST API Enable"),
         dataIndex: "id",
-        align: "center",
-        width: 90,
+        align: "left",
+        width: 150,
         render: (id: [string, string] | string) => (
           <StyledFormItem name={id}>
             <Switch
-              disabled={!hasPublishRight || (Array.isArray(id) && publicModelsSet.has(id[1]))}
+              disabled={
+                disabled || !hasPublishRight || (Array.isArray(id) && publicModelsSet.has(id[1]))
+              }
             />
           </StyledFormItem>
         ),
@@ -65,7 +69,7 @@ const ReadingTable: React.FC<Props> = ({
       },
     );
     return cols;
-  }, [hasPublishRight, isPublic, publicModelsSet, t]);
+  }, [disabled, hasPublishRight, isPublic, publicModelsSet, t]);
 
   const dataSource = useMemo<ModelDataType[]>(() => {
     const modelRows = models.map(model => ({
@@ -84,16 +88,18 @@ const ReadingTable: React.FC<Props> = ({
   }, [models, apiUrl, t]);
 
   return (
-    <TableWrapper>
+    <TableWrapper isDisabled={disabled}>
       <Table dataSource={dataSource} columns={columns} pagination={false} />
     </TableWrapper>
   );
 };
 
-export default ReadingTable;
+export default PostingTable;
 
-const TableWrapper = styled.div`
+const TableWrapper = styled.div<{ isDisabled?: boolean }>`
   margin: ${AntdToken.SPACING.LG}px 0;
+  opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
+  pointer-events: ${({ isDisabled }) => (isDisabled ? "none" : "auto")};
 `;
 
 const StyledAnchor = styled.a`

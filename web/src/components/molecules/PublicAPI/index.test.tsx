@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { expect, test, describe } from "vitest";
 
 import PublicAPI from ".";
@@ -43,23 +44,25 @@ describe("PublicAPI", () => {
 
   test("Scope, alias, and public status and API end point of models and assets are displayed successfully", async () => {
     render(
-      <PublicAPI
-        initialValues={initialValues}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={hasPublishRight}
-        models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-        onSettingsPageOpen={onSettingsPageOpen}
-        currentLang={currentLang}
-      />,
+      <MemoryRouter>
+        <PublicAPI
+          initialValues={initialValues}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          hasPublishRight={hasPublishRight}
+          models={models}
+          updateLoading={updateLoading}
+          apiUrl={apiUrl}
+          alias={alias}
+          onAPIKeyNew={onAPIKeyNew}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+          onPublicUpdate={onPublicUpdate}
+          onSettingsPageOpen={onSettingsPageOpen}
+          currentLang={currentLang}
+        />
+      </MemoryRouter>,
     );
 
     let switches = screen.getAllByRole("switch");
@@ -80,23 +83,25 @@ describe("PublicAPI", () => {
 
   test("Toggle save button successfully", async () => {
     render(
-      <PublicAPI
-        initialValues={initialValues}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={hasPublishRight}
-        models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-        onSettingsPageOpen={onSettingsPageOpen}
-        currentLang={currentLang}
-      />,
+      <MemoryRouter>
+        <PublicAPI
+          initialValues={initialValues}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          hasPublishRight={hasPublishRight}
+          models={models}
+          updateLoading={updateLoading}
+          apiUrl={apiUrl}
+          alias={alias}
+          onAPIKeyNew={onAPIKeyNew}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+          onPublicUpdate={onPublicUpdate}
+          onSettingsPageOpen={onSettingsPageOpen}
+          currentLang={currentLang}
+        />
+      </MemoryRouter>,
     );
 
     let switches = screen.getAllByRole("switch");
@@ -123,23 +128,25 @@ describe("PublicAPI", () => {
 
   test("Disable switch and button according to user right successfully", async () => {
     render(
-      <PublicAPI
-        initialValues={initialValues}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={false}
-        models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-        onSettingsPageOpen={onSettingsPageOpen}
-        currentLang={currentLang}
-      />,
+      <MemoryRouter>
+        <PublicAPI
+          initialValues={initialValues}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          hasPublishRight={false}
+          models={models}
+          updateLoading={updateLoading}
+          apiUrl={apiUrl}
+          alias={alias}
+          onAPIKeyNew={onAPIKeyNew}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+          onPublicUpdate={onPublicUpdate}
+          onSettingsPageOpen={onSettingsPageOpen}
+          currentLang={currentLang}
+        />
+      </MemoryRouter>,
     );
 
     let switches = screen.getAllByRole("switch");

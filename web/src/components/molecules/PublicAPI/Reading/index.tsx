@@ -1,112 +1,81 @@
 import styled from "@emotion/styled";
-import { useState, useEffect, useRef, useCallback } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
-import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
-import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { APIKey, FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
+import { AntdToken } from "@reearth-cms/utils/style";
 
-import ReadingTable from "./ReadingTable";
+import APIKeyComponent from "./APIKey";
+import ReadingSettings from "./ReadingSettings";
 
 type Props = {
   apiUrl: string;
   isPublic?: boolean;
   initialValues: FormType;
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   models: Pick<Model, "id" | "name" | "key">[];
   updateLoading: boolean;
+  apiKeys?: APIKey[];
+  onAPIKeyNew: () => void;
   onAPIKeyEdit: (keyId?: string) => void;
+  onAPIKeyDelete: (id: string) => Promise<void>;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
+  onSettingsPageOpen: () => void;
 };
 
-const ReadingComponent: React.FC<Props> = ({
+const ReadingTab: React.FC<Props> = ({
   apiUrl,
   isPublic,
   initialValues,
   hasPublishRight,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   models,
   updateLoading,
+  apiKeys,
+  onAPIKeyNew,
+  onAPIKeyEdit,
+  onAPIKeyDelete,
   onPublicUpdate,
+  onSettingsPageOpen,
 }) => {
-  const t = useT();
-  const [form] = Form.useForm<FormType>();
-  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const changedModels = useRef(new Map<string, boolean>());
-
-  useEffect(() => {
-    form.setFieldsValue(initialValues);
-  }, [form, initialValues]);
-
-  const handleValuesChange = useCallback(
-    (changedValues: Partial<FormType>, values: FormType) => {
-      if (changedValues.models) {
-        const modelId = Object.keys(changedValues.models)[0];
-        if (changedModels.current.has(modelId)) {
-          changedModels.current.delete(modelId);
-        } else {
-          changedModels.current.set(modelId, changedValues.models[modelId]);
-        }
-      }
-      if (initialValues.assetPublic === values.assetPublic && changedModels.current.size === 0) {
-        setIsSaveDisabled(true);
-      } else {
-        setIsSaveDisabled(false);
-      }
-    },
-    [initialValues],
-  );
-
-  const handleSave = useCallback(async () => {
-    try {
-      const changedModelList = Array.from(changedModels.current, ([modelId, status]) => ({
-        modelId,
-        status,
-      }));
-      await onPublicUpdate(form.getFieldsValue(), changedModelList);
-      changedModels.current.clear();
-      setIsSaveDisabled(true);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [form, onPublicUpdate]);
-
   return (
-    <ContentSection title={t("Reading")}>
-      <Paragraph>
-        {t(
-          "Once Public API is enabled, anyone with the endpoint can read data from the model. If a model is exposed via Public API, it cannot be restricted through API Key settings.",
-        )}
-      </Paragraph>
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-        <ReadingTable
-          apiUrl={apiUrl}
-          hasPublishRight={hasPublishRight}
-          models={models}
-          isPublic={isPublic}
-        />
-        {!isPublic && (
-          <Button
-            type="primary"
-            disabled={isSaveDisabled}
-            onClick={handleSave}
-            loading={updateLoading}>
-            {t("Save changes")}
-          </Button>
-        )}
-      </Form>
-    </ContentSection>
+    <Sections>
+      <ReadingSettings
+        apiUrl={apiUrl}
+        initialValues={initialValues}
+        isPublic={isPublic}
+        hasPublishRight={hasPublishRight}
+        models={models}
+        updateLoading={updateLoading}
+        onAPIKeyEdit={onAPIKeyEdit}
+        onPublicUpdate={onPublicUpdate}
+      />
+      <APIKeyComponent
+        keys={apiKeys}
+        isPublic={isPublic}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
+        onAPIKeyNew={onAPIKeyNew}
+        onAPIKeyEdit={onAPIKeyEdit}
+        onAPIKeyDelete={onAPIKeyDelete}
+        onSettingsPageOpen={onSettingsPageOpen}
+      />
+    </Sections>
   );
 };
 
-export default ReadingComponent;
+export default ReadingTab;
 
-const Paragraph = styled.p`
-  color: ${AntdColor.GREY.GREY_2};
-  padding-bottom: ${AntdToken.SPACING.BASE}px;
+const Sections = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${AntdToken.SPACING.BASE}px;
 `;

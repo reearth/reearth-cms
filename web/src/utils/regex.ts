@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { Constant } from "./constant";
 
 export const aliasRegex = new RegExp("^[a-z0-9\\-_]+$");
@@ -13,3 +14,8 @@ const urlRegex =
 export const validateURL = (url: string): boolean => {
   return urlRegex.test(url);
 };
+
+export abstract class RegularExpression {
+  // Domain only: at least one dot + TLD, no wildcard "*", no scheme/path.
+  public static readonly DOMAIN_REGEX = /^(?!-)([A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}$/;
+}

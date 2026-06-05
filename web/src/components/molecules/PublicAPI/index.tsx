@@ -8,8 +8,8 @@ import { Constant } from "@reearth-cms/utils/constant";
 
 import APIDocLinks from "../APIDocLinks";
 
-import APIKeyComponent from "./APIKey";
-import ReadingComponent from "./Reading";
+import PostingTab from "./Posting";
+import ReadingTab from "./Reading";
 
 type Props = {
   apiKeys?: APIKey[];
@@ -63,29 +63,47 @@ const PublicAPI: React.FC<Props> = ({
       title={t("Public API")}
       flexChildren
       subtitle={t("Control the visibility scope of the Content API")}
-      extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./publicApi/docs" />}>
-      <ReadingComponent
-        apiUrl={apiUrl}
-        initialValues={initialValues}
-        isPublic={isProjectPublic}
-        hasPublishRight={hasPublishRight}
-        models={models}
-        updateLoading={updateLoading}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-      />
-      <APIKeyComponent
-        keys={apiKeys}
-        isPublic={isProjectPublic}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onSettingsPageOpen={onSettingsPageOpen}
-      />
-    </InnerContent>
+      extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./publicApi/docs" />}
+      tabs={[
+        {
+          key: "reading",
+          label: t("Reading"),
+          children: (
+            <ReadingTab
+              apiUrl={apiUrl}
+              initialValues={initialValues}
+              isPublic={isProjectPublic}
+              hasPublishRight={hasPublishRight}
+              hasCreateRight={hasCreateRight}
+              hasUpdateRight={hasUpdateRight}
+              hasDeleteRight={hasDeleteRight}
+              models={models}
+              updateLoading={updateLoading}
+              apiKeys={apiKeys}
+              onAPIKeyNew={onAPIKeyNew}
+              onAPIKeyEdit={onAPIKeyEdit}
+              onAPIKeyDelete={onAPIKeyDelete}
+              onPublicUpdate={onPublicUpdate}
+              onSettingsPageOpen={onSettingsPageOpen}
+            />
+          ),
+        },
+        {
+          key: "posting",
+          label: t("Posting"),
+          children: (
+            <PostingTab
+              apiUrl={apiUrl}
+              initialValues={initialValues}
+              isPublic={isProjectPublic}
+              hasPublishRight={hasPublishRight}
+              models={models}
+              updateLoading={updateLoading}
+            />
+          ),
+        },
+      ]}
+    />
   );
 };
 

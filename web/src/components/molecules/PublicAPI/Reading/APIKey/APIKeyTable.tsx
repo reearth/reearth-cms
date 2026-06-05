@@ -9,7 +9,7 @@ import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";
 
-import { APIKey, APIKeyModelType } from "../types";
+import { APIKey, APIKeyModelType } from "../../types";
 
 import KeyCell from "./KeyCell";
 
