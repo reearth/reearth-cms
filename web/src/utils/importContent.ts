@@ -102,6 +102,9 @@ export abstract class ImportContentUtils {
           const multiple = z.boolean().parse(field.multiple);
 
           // validate defaultValue into schema with single or multiple respectively
+          // Note: defaultValue is validated with a plain z.string() and does NOT go through the
+          // number/boolean preprocess above. A numeric/boolean defaultValue is silently ignored
+          // (validation fails, no default is registered); only field values are coerced.
           if (multiple) {
             const defaultValuesValidation = z
               .string()
@@ -117,9 +120,16 @@ export abstract class ImportContentUtils {
               .optional()
               .safeParse(field.typeProperty?.defaultValue);
 
+            // CSV cells are always scalars; wrap a non-array value into a single-element array
+            // so the per-item preprocess (number/boolean → string) can run.
+            const arrayField = (schema: z.ZodTypeAny) =>
+              sourceFormat === "CSV"
+                ? z.preprocess(val => (Array.isArray(val) ? val : [val]), schema.array())
+                : schema.array();
+
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              stringFieldAny = stringFieldAny.array().default(defaultValuesValidation.data);
-            else stringFieldAny = stringFieldAny.array();
+              stringFieldAny = arrayField(stringFieldAny).default(defaultValuesValidation.data);
+            else stringFieldAny = arrayField(stringFieldAny);
           } else {
             const defaultValueValidation = z
               .string()
