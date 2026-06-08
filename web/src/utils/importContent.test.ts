@@ -861,7 +861,54 @@ describe("Content import test", () => {
         });
       });
 
+      describe("[Pass case] Text field coerces numbers and booleans to string", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        test.each([
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: 1 } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: true } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: false } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: 42 } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: true } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: 0 } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: false } },
+        ])(
+          "$setup.type field accepts number/boolean value ($setup.value) by coercing to string",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(true);
+            if (!contentValidation.isValid) return;
+            expect(contentValidation.data[0]?.[setup.key]).toBe(String(setup.value));
+          },
+        );
+      });
+
       describe("[Pass case] multiple:true Text field coerces CSV scalar number/boolean to [string]", () => {
+        // CSV cells are always scalars (PapaParse dynamicTyping produces e.g. 42, not [42]).
+        // The array schema wraps the scalar in a single-element array before per-item coercion runs.
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
@@ -920,11 +967,11 @@ describe("Content import test", () => {
 
         test.each([
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, wrongValue: 1 },
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, wrongValue: [] },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, wrongValue: false },
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, wrongValue: {} },
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -1725,7 +1772,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Text,
-              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 },
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1733,7 +1780,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.TextArea,
-              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 },
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: {} as unknown as string },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1741,7 +1788,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.MarkdownText,
-              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 },
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [] },
             },
             expectedResult: EXPECTED_RESULT,
           },
