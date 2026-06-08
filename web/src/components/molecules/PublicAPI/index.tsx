@@ -20,6 +20,7 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasPostingRight: boolean;
   updateLoading: boolean;
   apiUrl: string;
   alias: string;
@@ -43,6 +44,7 @@ const PublicAPI: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  hasPostingRight,
   updateLoading,
   apiUrl,
   onAPIKeyNew,
@@ -97,6 +99,7 @@ const PublicAPI: React.FC<Props> = ({
               initialValues={initialValues}
               isPublic={isProjectPublic}
               hasPublishRight={hasPublishRight}
+              hasPostingRight={hasPostingRight}
               models={models}
               updateLoading={updateLoading}
             />

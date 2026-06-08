@@ -30,6 +30,10 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.apiKey.create, [userRights?.apiKey.create]);
   const hasUpdateRight = useMemo(() => !!userRights?.apiKey.update, [userRights?.apiKey.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.apiKey.delete, [userRights?.apiKey.delete]);
+  const hasPostingRight = useMemo(
+    () => userRights?.role === "OWNER" || userRights?.role === "MAINTAINER",
+    [userRights?.role],
+  );
   const [updateLoading, setUpdateLoading] = useState(false);
 
   const isProjectPublic = useMemo(
@@ -166,6 +170,7 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasPostingRight,
     updateLoading,
     apiUrl,
     alias,
