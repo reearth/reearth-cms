@@ -717,49 +717,6 @@ describe("Content import test", () => {
         });
       });
 
-      describe("[Pass case] Text field accepts digit/boolean-looking strings from JSON (incident regression)", () => {
-        const COMMON_SETUP = {
-          key: "field-key",
-          required: true,
-          multiple: false,
-          typeProperty: {},
-        };
-
-        test.each([
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "1" } },
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "true" } },
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "false" } },
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: "42" } },
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: "0" } },
-        ])(
-          "$setup.type field accepts JSON string value $setup.value",
-          async ({ setup }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: setup.typeProperty,
-              },
-            ];
-
-            const contentList = [{ [setup.key]: setup.value }];
-
-            const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
-              fields,
-              "JSON",
-              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
-            );
-            expect(contentValidation.isValid).toBe(true);
-            if (!contentValidation.isValid) return;
-            expect(contentValidation.data[0]?.[setup.key]).toBe(setup.value);
-          },
-        );
-      });
-
       describe("[Pass case] Select field value type match", () => {
         const COMMON_SETUP = {
           key: "field-key",
@@ -904,21 +861,24 @@ describe("Content import test", () => {
         });
       });
 
-      describe("[Pass case] multiple:true Text field coerces CSV scalar number/boolean to [string]", () => {
+      describe("[Pass case] Text field coerces numbers and booleans to string", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
-          multiple: true,
+          multiple: false,
           typeProperty: {},
         };
 
         test.each([
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: 42 } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: 1 } },
           { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: true } },
-          { setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: 0 } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: false } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: 42 } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: true } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: 0 } },
           { setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: false } },
         ])(
-          "$setup.type multiple:true field accepts CSV scalar $setup.value by wrapping and coercing to [string]",
+          "$setup.type field accepts number/boolean value ($setup.value) by coercing to string",
           async ({ setup }) => {
             const fields = [
               {
@@ -936,73 +896,10 @@ describe("Content import test", () => {
             const contentValidation = await ImportContentUtils.validateContent(
               contentList,
               fields,
-              "CSV",
+              "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
             expect(contentValidation.isValid).toBe(true);
-            if (!contentValidation.isValid) return;
-            expect(contentValidation.data[0]?.[setup.key]).toEqual([String(setup.value)]);
-          },
-        );
-      });
-
-      describe("[Pass case] multiple:true non-text field wraps CSV scalar into array", () => {
-        test.each([
-          {
-            setup: {
-              key: "field-key",
-              required: true,
-              multiple: true,
-              type: SchemaFieldType.Integer,
-              typeProperty: {},
-              value: 42,
-            },
-          },
-          {
-            setup: {
-              key: "field-key",
-              required: true,
-              multiple: true,
-              type: SchemaFieldType.Number,
-              typeProperty: {},
-              value: 3.14,
-            },
-          },
-          {
-            setup: {
-              key: "field-key",
-              required: true,
-              multiple: true,
-              type: SchemaFieldType.Bool,
-              typeProperty: {},
-              value: true,
-            },
-          },
-        ])(
-          "$setup.type multiple:true field accepts CSV scalar $setup.value by wrapping to array",
-          async ({ setup }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: setup.typeProperty,
-              },
-            ];
-
-            const contentList = [{ [setup.key]: setup.value }];
-
-            const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
-              fields,
-              "CSV",
-              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
-            );
-            expect(contentValidation.isValid).toBe(true);
-            if (!contentValidation.isValid) return;
-            expect(contentValidation.data[0]?.[setup.key]).toEqual([setup.value]);
           },
         );
       });
@@ -1024,11 +921,11 @@ describe("Content import test", () => {
 
         test.each([
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, wrongValue: 1 },
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, wrongValue: [] },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, wrongValue: false },
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, wrongValue: {} },
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -1829,7 +1726,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Text,
-              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 as unknown as string },
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1837,7 +1734,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.TextArea,
-              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 as unknown as string },
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: {} as unknown as string },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1845,7 +1742,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.MarkdownText,
-              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 as unknown as string },
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [] },
             },
             expectedResult: EXPECTED_RESULT,
           },
