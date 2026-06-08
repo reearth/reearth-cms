@@ -51,6 +51,7 @@ describe("PublicAPI", () => {
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
           hasPublishRight={hasPublishRight}
+          hasPostingRight
           models={models}
           updateLoading={updateLoading}
           apiUrl={apiUrl}
@@ -90,6 +91,7 @@ describe("PublicAPI", () => {
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
           hasPublishRight={hasPublishRight}
+          hasPostingRight
           models={models}
           updateLoading={updateLoading}
           apiUrl={apiUrl}
@@ -135,6 +137,7 @@ describe("PublicAPI", () => {
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
           hasPublishRight={false}
+          hasPostingRight
           models={models}
           updateLoading={updateLoading}
           apiUrl={apiUrl}

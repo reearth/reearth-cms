@@ -12,6 +12,7 @@ const PublicAPI: React.FC = () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasPostingRight,
     updateLoading,
     apiUrl,
     alias,
@@ -33,6 +34,7 @@ const PublicAPI: React.FC = () => {
       hasCreateRight={hasCreateRight}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
+      hasPostingRight={hasPostingRight}
       updateLoading={updateLoading}
       apiUrl={apiUrl}
       alias={alias}
