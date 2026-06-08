@@ -92,19 +92,19 @@ export abstract class ImportContentUtils {
           const maxLength = z.int().nonnegative().safeParse(field.typeProperty?.maxLength);
           if (maxLength.success) stringField = stringField.max(maxLength.data);
 
-          // Coerce numbers and booleans to strings
-          let stringFieldAny: z.ZodTypeAny = z.preprocess(
-            val => (typeof val === "number" || typeof val === "boolean" ? String(val) : val),
-            stringField,
-          );
+          // CSV only: coerce numbers and booleans to strings (PapaParse dynamicTyping side-effect)
+          let stringFieldAny: z.ZodTypeAny =
+            sourceFormat === "CSV"
+              ? z.preprocess(
+                  val => (typeof val === "number" || typeof val === "boolean" ? String(val) : val),
+                  stringField,
+                )
+              : stringField;
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
 
           // validate defaultValue into schema with single or multiple respectively
-          // Note: defaultValue is validated with a plain z.string() and does NOT go through the
-          // number/boolean preprocess above. A numeric/boolean defaultValue is silently ignored
-          // (validation fails, no default is registered); only field values are coerced.
           if (multiple) {
             const defaultValuesValidation = z
               .string()
