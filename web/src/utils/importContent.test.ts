@@ -907,8 +907,6 @@ describe("Content import test", () => {
       });
 
       describe("[Pass case] multiple:true Text field coerces CSV scalar number/boolean to [string]", () => {
-        // CSV cells are always scalars (PapaParse dynamicTyping produces e.g. 42, not [42]).
-        // The array schema wraps the scalar in a single-element array before per-item coercion runs.
         const COMMON_SETUP = {
           key: "field-key",
           required: true,

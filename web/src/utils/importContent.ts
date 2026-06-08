@@ -102,9 +102,6 @@ export abstract class ImportContentUtils {
           const multiple = z.boolean().parse(field.multiple);
 
           // validate defaultValue into schema with single or multiple respectively
-          // Note: defaultValue is validated with a plain z.string() and does NOT go through the
-          // number/boolean preprocess above. A numeric/boolean defaultValue is silently ignored
-          // (validation fails, no default is registered); only field values are coerced.
           if (multiple) {
             const defaultValuesValidation = z
               .string()
