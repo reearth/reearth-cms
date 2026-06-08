@@ -81,6 +81,12 @@ export abstract class ImportContentUtils {
     const validateObj: Record<string, z.ZodTypeAny> = {};
     const classifiers: Record<string, FieldClassifier> = {};
 
+    // CSV cells are always scalar; wrap a non-array value into a single-element array
+    const csvArrayField = (schema: z.ZodTypeAny) =>
+      sourceFormat === "CSV"
+        ? z.preprocess(val => (Array.isArray(val) ? val : [val]), schema.array())
+        : schema.array();
+
     fieldData.forEach(field => {
       switch (field.type) {
         case "Text":
@@ -92,11 +98,15 @@ export abstract class ImportContentUtils {
           const maxLength = z.int().nonnegative().safeParse(field.typeProperty?.maxLength);
           if (maxLength.success) stringField = stringField.max(maxLength.data);
 
-          // Coerce numbers and booleans to strings
-          let stringFieldAny: z.ZodTypeAny = z.preprocess(
-            val => (typeof val === "number" || typeof val === "boolean" ? String(val) : val),
-            stringField,
-          );
+          // CSV only: PapaParse dynamicTyping converts numeric/boolean-looking cells to their
+          // native JS types. Coerce them back to string so text fields accept values like 1, true.
+          let stringFieldAny: z.ZodTypeAny =
+            sourceFormat === "CSV"
+              ? z.preprocess(
+                  val => (typeof val === "number" || typeof val === "boolean" ? String(val) : val),
+                  stringField,
+                )
+              : stringField;
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -117,16 +127,9 @@ export abstract class ImportContentUtils {
               .optional()
               .safeParse(field.typeProperty?.defaultValue);
 
-            // CSV cells are always scalars; wrap a non-array value into a single-element array
-            // so the per-item preprocess (number/boolean → string) can run.
-            const arrayField = (schema: z.ZodTypeAny) =>
-              sourceFormat === "CSV"
-                ? z.preprocess(val => (Array.isArray(val) ? val : [val]), schema.array())
-                : schema.array();
-
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              stringFieldAny = arrayField(stringFieldAny).default(defaultValuesValidation.data);
-            else stringFieldAny = arrayField(stringFieldAny);
+              stringFieldAny = csvArrayField(stringFieldAny).default(defaultValuesValidation.data);
+            else stringFieldAny = csvArrayField(stringFieldAny);
           } else {
             const defaultValueValidation = z
               .string()
@@ -171,8 +174,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              dateField = dateField.array().default(defaultValuesValidation.data);
-            else dateField = dateField.array();
+              dateField = csvArrayField(dateField).default(defaultValuesValidation.data);
+            else dateField = csvArrayField(dateField);
           } else {
             const defaultValueValidation = z.coerce
               .date()
@@ -203,8 +206,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              booleanField = booleanField.array().default(defaultValuesValidation.data);
-            else booleanField = booleanField.array();
+              booleanField = csvArrayField(booleanField).default(defaultValuesValidation.data);
+            else booleanField = csvArrayField(booleanField);
           } else {
             const defaultValueValidation = z
               .boolean()
@@ -254,8 +257,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              intFieldAny = intFieldAny.array().default(defaultValuesValidation.data);
-            else intFieldAny = intFieldAny.array();
+              intFieldAny = csvArrayField(intFieldAny).default(defaultValuesValidation.data);
+            else intFieldAny = csvArrayField(intFieldAny);
           } else {
             const defaultValueValidation = z
               .int()
@@ -305,8 +308,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              floatFieldAny = floatFieldAny.array().default(defaultValuesValidation.data);
-            else floatFieldAny = floatFieldAny.array();
+              floatFieldAny = csvArrayField(floatFieldAny).default(defaultValuesValidation.data);
+            else floatFieldAny = csvArrayField(floatFieldAny);
           } else {
             const defaultValueValidation = z
               .number()
@@ -344,8 +347,8 @@ export abstract class ImportContentUtils {
                 .safeParse(field.typeProperty?.selectDefaultValue);
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
-                optionField = optionField.array().default(defaultValuesValidation.data);
-              else optionField = optionField.array();
+                optionField = csvArrayField(optionField).default(defaultValuesValidation.data);
+              else optionField = csvArrayField(optionField);
             } else {
               const defaultValueValidation = literalSchema
                 .optional()
@@ -378,8 +381,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.assetDefaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              assetField = assetField.array().default(defaultValuesValidation.data);
-            else assetField = assetField.array();
+              assetField = csvArrayField(assetField).default(defaultValuesValidation.data);
+            else assetField = csvArrayField(assetField);
           } else {
             const defaultValueValidation = z
               .string()
@@ -412,8 +415,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              urlField = urlField.array().default(defaultValuesValidation.data);
-            else urlField = urlField.array();
+              urlField = csvArrayField(urlField).default(defaultValuesValidation.data);
+            else urlField = csvArrayField(urlField);
           } else {
             const defaultValueValidation = z
               .url()
