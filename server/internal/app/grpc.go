@@ -131,13 +131,16 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
 		var r2 *repo.Container
 		var ar2 *accountrepo.Container
-		op := adapter.Operator(ctx)
-		r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op, true))
-		if op != nil {
-			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
-		} else {
-			ar2 = ar
-		}
+		// use not filtered repos until filtering supports internal api usecases
+		r2 = r
+		ar2 = ar
+		//op := adapter.Operator(ctx)
+		//r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op, true))
+		//if op != nil {
+		//	ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
+		//} else {
+		//	ar2 = ar
+		//}
 		uc := interactor.New(r2, g, ar2, ag, interactor.ContainerConfig{})
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		ctx = adapter.AttachGateways(ctx, g)
