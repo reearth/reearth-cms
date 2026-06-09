@@ -1,8 +1,6 @@
-import styled from "@emotion/styled";
-
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { APIKey, FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
-import { AntdToken } from "@reearth-cms/utils/style";
 
 import APIKeyComponent from "./APIKey";
 import ReadingSettings from "./ReadingSettings";
@@ -46,7 +44,7 @@ const ReadingTab: React.FC<Props> = ({
   onSettingsPageOpen,
 }) => {
   return (
-    <Sections>
+    <ContentSection hasPadding={false}>
       <ReadingSettings
         apiUrl={apiUrl}
         initialValues={initialValues}
@@ -54,7 +52,6 @@ const ReadingTab: React.FC<Props> = ({
         hasPublishRight={hasPublishRight}
         models={models}
         updateLoading={updateLoading}
-        onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
       />
       <APIKeyComponent
@@ -68,14 +65,8 @@ const ReadingTab: React.FC<Props> = ({
         onAPIKeyDelete={onAPIKeyDelete}
         onSettingsPageOpen={onSettingsPageOpen}
       />
-    </Sections>
+    </ContentSection>
   );
 };
 
 export default ReadingTab;
-
-const Sections = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${AntdToken.SPACING.BASE}px;
-`;

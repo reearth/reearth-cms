@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import Flex from "@reearth-cms/components/atoms/Flex";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -10,6 +11,8 @@ type Props = {
   children?: ReactNode;
   description?: string;
   hasPadding?: boolean;
+  hasHorizontalRule?: boolean;
+  hasGap?: boolean;
 };
 
 const ContentSection: React.FC<Props> = ({
@@ -19,19 +22,30 @@ const ContentSection: React.FC<Props> = ({
   danger,
   description,
   hasPadding = true,
+  hasHorizontalRule = true,
+  hasGap = false,
 }) => {
+  const hasHeader = !!(title || description || headerActions);
+
   return (
     <Wrapper danger={danger}>
-      {title && (
-        <Header>
-          <InnerHeader>
-            <Title>{title}</Title>
-            {headerActions}
-          </InnerHeader>
-          {description && <Description>{description}</Description>}
+      {hasHeader && (
+        <Header
+          flex="flex-wrap"
+          justify="space-between"
+          align="center"
+          hasHorizontalRule={hasHorizontalRule}
+          hasPadding={hasPadding}>
+          <div>
+            {title && <Title>{title}</Title>}
+            {description && <Description>{description}</Description>}
+          </div>
+          <div>{headerActions}</div>
         </Header>
       )}
-      <GridArea hasPadding={hasPadding}>{children}</GridArea>
+      <GridArea hasPadding={hasPadding} hasGap={hasGap}>
+        {children}
+      </GridArea>
     </Wrapper>
   );
 };
@@ -47,16 +61,11 @@ const Wrapper = styled.div<{ danger?: boolean }>`
   ${({ danger }) => danger && `border: 1px solid ${AntdColor.RED.RED_4};`}
 `;
 
-const Header = styled.div`
-  border-bottom: 1px solid ${CustomColor.BORDER_SUBTLE};
-  padding: 10px ${AntdToken.SPACING.LG}px;
-`;
-
-const InnerHeader = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
+const Header = styled(Flex)<{ hasHorizontalRule?: boolean; hasPadding?: boolean }>`
+  border-bottom: ${({ hasHorizontalRule }) =>
+    hasHorizontalRule ? `1px solid ${CustomColor.BORDER_SUBTLE}` : "none"};
+  padding: ${({ hasPadding }) => `10px ${hasPadding ? AntdToken.SPACING.LG : 0}px`};
+  gap: ${AntdToken.SPACING.BASE}px;
 `;
 
 const Title = styled.p`
@@ -71,9 +80,10 @@ const Description = styled.p`
   margin: ${AntdToken.SPACING.XXS}px 0 0;
 `;
 
-const GridArea = styled.div<{ hasPadding: boolean }>`
-  ${({ hasPadding }) => hasPadding && `padding: ${AntdToken.SPACING.LG}px;`}
+const GridArea = styled.div<{ hasPadding: boolean; hasGap?: boolean }>`
+  padding: ${({ hasPadding }) => (hasPadding ? AntdToken.SPACING.LG : 0)}px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: ${({ hasGap }) => (hasGap ? AntdToken.SPACING.BASE : 0)}px;
 `;
