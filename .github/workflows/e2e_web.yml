@@ -94,12 +94,11 @@ jobs:
           key: "${{ runner.os }}-${{ runner.arch }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-playwright-chromium-
-      - name: Install Playwright system dependencies and browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn playwright install --with-deps chromium
       - name: Install Playwright system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: yarn playwright install-deps chromium
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: yarn playwright install chromium
       - name: Authenticate to Google Cloud
         id: auth
         if: ${{ inputs.use_iap }}
