@@ -113,17 +113,21 @@ func TestController_PostItem(t *testing.T) {
 		body            map[string]any
 		mutateAliases   func(wAlias, pAlias, mKey string) (string, string, string)
 		wantErr         error
-		wantFieldErrors bool
+		wantFieldErrors []schema.FieldValidationError
 	}{
 		{
-			name:    "valid body returns no error",
-			wantErr: nil,
+			name:         "valid body returns no error",
+			schemaFields: []*schema.Field{requiredTextField},
+			body:         map[string]any{"title": "hello"},
+			wantErr:      nil,
 		},
 		{
-			name:            "missing required field returns field errors",
-			schemaFields:    []*schema.Field{requiredTextField},
-			body:            map[string]any{},
-			wantFieldErrors: true,
+			name:         "empty body missing required field returns field errors",
+			schemaFields: []*schema.Field{requiredTextField},
+			body:         map[string]any{},
+			wantFieldErrors: []schema.FieldValidationError{
+				{Field: "title", Code: schema.FieldValidationCodeRequired},
+			},
 		},
 		{
 			name: "unknown workspace returns ErrNotFound",
@@ -168,9 +172,7 @@ func TestController_PostItem(t *testing.T) {
 			} else {
 				assert.NoError(t, result.Err)
 			}
-			if tt.wantFieldErrors {
-				assert.NotEmpty(t, result.FieldErrors)
-			}
+			assert.Equal(t, tt.wantFieldErrors, result.FieldErrors)
 		})
 	}
 }
