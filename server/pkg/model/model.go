@@ -17,15 +17,16 @@ var (
 )
 
 type Model struct {
-	id          ID
-	project     ProjectID
-	schema      SchemaID
-	metadata    *SchemaID
-	name        string
-	description string
-	key         id.Key
-	updatedAt   time.Time
-	order       int
+	id             ID
+	project        ProjectID
+	schema         SchemaID
+	metadata       *SchemaID
+	name           string
+	description    string
+	key            id.Key
+	updatedAt      time.Time
+	order          int
+	postingEnabled bool
 }
 
 func (p *Model) ID() ID {
@@ -102,20 +103,29 @@ func (p *Model) SetOrder(order int) {
 	p.order = order
 }
 
+func (p *Model) PostingEnabled() bool {
+	return p.postingEnabled
+}
+
+func (p *Model) SetPostingEnabled(enabled bool) {
+	p.postingEnabled = enabled
+}
+
 func (p *Model) Clone() *Model {
 	if p == nil {
 		return nil
 	}
 
 	return &Model{
-		id:          p.id.Clone(),
-		project:     p.project.Clone(),
-		schema:      p.schema.Clone(),
-		name:        p.name,
-		description: p.description,
-		key:         p.Key(),
-		updatedAt:   p.updatedAt,
-		order:       p.order,
+		id:             p.id.Clone(),
+		project:        p.project.Clone(),
+		schema:         p.schema.Clone(),
+		name:           p.name,
+		description:    p.description,
+		key:            p.Key(),
+		updatedAt:      p.updatedAt,
+		order:          p.order,
+		postingEnabled: p.postingEnabled,
 	}
 }
 

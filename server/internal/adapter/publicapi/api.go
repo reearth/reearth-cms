@@ -279,11 +279,17 @@ func PostItem() echo.HandlerFunc {
 			req.Fields = map[string]any{}
 		}
 
-		if err := ctrl.CheckPostingOrigin(ctx, ws, p, m, origin); err != nil {
+		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
 			if errors.Is(err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "posting_disabled",
 					Code:  "posting_disabled",
+				})
+			}
+			if errors.Is(err, ErrModelPostingDisabled) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "model_posting_disabled",
+					Code:  "model_posting_disabled",
 				})
 			}
 			if errors.Is(err, project.ErrNoOriginsConfigured) {
@@ -349,11 +355,17 @@ func PreflightItem() echo.HandlerFunc {
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 		origin := c.Request().Header.Get("Origin")
 
-		if err := ctrl.CheckPostingOrigin(ctx, ws, p, m, origin); err != nil {
+		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
 			if errors.Is(err, ErrProjectPostingDisabled) {
 				return c.JSON(http.StatusForbidden, apiErrorResponse{
 					Error: "posting_disabled",
 					Code:  "posting_disabled",
+				})
+			}
+			if errors.Is(err, ErrModelPostingDisabled) {
+				return c.JSON(http.StatusForbidden, apiErrorResponse{
+					Error: "model_posting_disabled",
+					Code:  "model_posting_disabled",
 				})
 			}
 			if errors.Is(err, project.ErrNoOriginsConfigured) || errors.Is(err, project.ErrOriginNotAllowed) {

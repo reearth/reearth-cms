@@ -22,6 +22,7 @@ func ToModel(m *model.Model) *Model {
 		CreatedAt:        m.ID().Timestamp(),
 		UpdatedAt:        m.UpdatedAt(),
 		Order:            lo.ToPtr(m.Order()),
+		PostingSettings:  &ModelPostingSettings{Enabled: m.PostingEnabled()},
 	}
 }
 

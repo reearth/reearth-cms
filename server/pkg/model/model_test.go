@@ -455,3 +455,47 @@ func TestModel_Metadata(t *testing.T) {
 	m.SetMetadata(msId2)
 	assert.Equal(t, &msId2, m.Metadata())
 }
+
+func TestModel_PostingEnabled(t *testing.T) {
+	t.Parallel()
+
+	pId := id.NewProjectID()
+	sId := id.NewSchemaID()
+
+	tests := []struct {
+		name    string
+		model   func() *Model
+		set     *bool
+		want    bool
+	}{
+		{
+			name:  "defaults to false via builder",
+			model: func() *Model { return New().NewID().Project(pId).Schema(sId).Key(id.NewKey("mykey")).MustBuild() },
+			want:  false,
+		},
+		{
+			name:  "can be set to true",
+			model: func() *Model { return &Model{} },
+			set:   func() *bool { v := true; return &v }(),
+			want:  true,
+		},
+		{
+			name:  "can be set back to false",
+			model: func() *Model { return &Model{postingEnabled: true} },
+			set:   func() *bool { v := false; return &v }(),
+			want:  false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			m := tt.model()
+			if tt.set != nil {
+				m.SetPostingEnabled(*tt.set)
+			}
+			assert.Equal(t, tt.want, m.PostingEnabled())
+		})
+	}
+}

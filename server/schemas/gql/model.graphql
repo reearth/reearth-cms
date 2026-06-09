@@ -12,6 +12,7 @@ type Model implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Int
+  postingSettings: ModelPostingSettings!
 }
 
 enum ExportFormat{
@@ -28,11 +29,20 @@ input CreateModelInput {
   key: String
 }
 
+type ModelPostingSettings {
+  enabled: Boolean!
+}
+
+input UpdateModelPostingSettingsInput {
+  enabled: Boolean!
+}
+
 input UpdateModelInput {
   modelId: ID!
   name: String
   description: String
   key: String
+  postingSettings: UpdateModelPostingSettingsInput
 }
 
 input UpdateModelsOrderInput {
