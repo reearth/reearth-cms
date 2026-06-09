@@ -86,9 +86,9 @@ jobs:
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "version=$( node -e "console.log(require('@playwright/test/package.json').version)" )" >> $GITHUB_OUTPUT
-      - name: Restore Playwright browsers cache
+      - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: "${{ runner.os }}-${{ runner.arch }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
@@ -96,23 +96,10 @@ jobs:
             ${{ runner.os }}-${{ runner.arch }}-playwright-chromium-
       - name: Install Playwright system dependencies and browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: |
-          node -e "
-            const fs = require('fs');
-            const path = './node_modules/playwright-core/lib/zipBundle.js';
-            const patch = 'exports.extract = (zip, {dir}) => require(\"child_process\").execFileSync(\"unzip\", [\"-q\", zip, \"-d\", dir], {stdio:\"inherit\"});';
-            fs.writeFileSync(path, patch);
-          "
-          yarn playwright install --with-deps chromium
+        run: yarn playwright install --with-deps chromium
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: yarn playwright install-deps chromium
-      - name: Save Playwright browsers cache
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: "${{ runner.os }}-${{ runner.arch }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
       - name: Authenticate to Google Cloud
         id: auth
         if: ${{ inputs.use_iap }}
