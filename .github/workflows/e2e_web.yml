@@ -97,13 +97,13 @@ jobs:
       - name: Install Playwright system dependencies and browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: |
-          yarn playwright install --with-deps chromium &
-          PID=$!
-          while kill -0 $PID 2>/dev/null; do
-            echo "still installing..."
-            sleep 60
-          done
-          wait $PID
+          node -e "
+            const fs = require('fs');
+            const path = './node_modules/playwright-core/lib/zipBundle.js';
+            const patch = 'exports.extract = (zip, {dir}) => require(\"child_process\").execFileSync(\"unzip\", [\"-q\", zip, \"-d\", dir], {stdio:\"inherit\"});';
+            fs.writeFileSync(path, patch);
+          "
+          yarn playwright install --with-deps chromium
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: yarn playwright install-deps chromium
