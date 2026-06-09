@@ -11,6 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import AllowedOrigins from "./AllowedOrigins";
 import PostingSettings from "./PostingSettings";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 
 type Props = {
   apiUrl: string;
@@ -116,13 +117,18 @@ const PostingEditor: React.FC<EditorProps> = ({
       )}
       headerActions={
         !isPublic && (
-          <Button
-            type="primary"
-            disabled={isSaveDisabled}
-            onClick={handleSave}
-            loading={updateLoading}>
-            {t("Save changes")}
-          </Button>
+          <Tooltip
+            title={
+              isSaveDisabled ? t("Please add at least one origin to enable Post API") : undefined
+            }>
+            <Button
+              type="primary"
+              disabled={isSaveDisabled}
+              onClick={handleSave}
+              loading={updateLoading}>
+              {t("Save changes")}
+            </Button>
+          </Tooltip>
         )
       }>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
