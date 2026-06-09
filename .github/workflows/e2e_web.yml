@@ -96,7 +96,14 @@ jobs:
             ${{ runner.os }}-${{ runner.arch }}-playwright-chromium-
       - name: Install Playwright system dependencies and browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn playwright install --with-deps chromium
+        run: |
+          yarn playwright install --with-deps chromium &
+          PID=$!
+          while kill -0 $PID 2>/dev/null; do
+            echo "still installing..."
+            sleep 60
+          done
+          wait $PID
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: yarn playwright install-deps chromium
