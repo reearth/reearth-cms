@@ -124,7 +124,7 @@ jobs:
             --quiet
 
   e2e_web:
-    needs: [deploy_server, deploy_web]
+    needs: [deploy_web]
     if: needs.deploy_web.result == 'success'
     uses: ./.github/workflows/e2e_web.yml
     with:
