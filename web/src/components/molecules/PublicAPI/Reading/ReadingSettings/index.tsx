@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -7,7 +6,6 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import ReadingTable from "./ReadingTable";
 
@@ -18,7 +16,6 @@ type Props = {
   hasPublishRight: boolean;
   models: Pick<Model, "id" | "name" | "key">[];
   updateLoading: boolean;
-  onAPIKeyEdit: (keyId?: string) => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
@@ -77,20 +74,12 @@ const ReadingComponent: React.FC<Props> = ({
   }, [form, onPublicUpdate]);
 
   return (
-    <ContentSection>
-      <Paragraph>
-        {t(
-          "Once Public API is enabled, anyone with the endpoint can read data from the model. If a model is exposed via Public API, it cannot be restricted through API Key settings.",
-        )}
-      </Paragraph>
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-        <ReadingTable
-          apiUrl={apiUrl}
-          hasPublishRight={hasPublishRight}
-          models={models}
-          isPublic={isPublic}
-        />
-        {!isPublic && (
+    <ContentSection
+      description={t(
+        "Once Public API is enabled, anyone with the endpoint can read data from the model. If a model is exposed via Public API, it cannot be restricted through API Key settings.",
+      )}
+      headerActions={
+        !isPublic && (
           <Button
             type="primary"
             disabled={isSaveDisabled}
@@ -98,15 +87,18 @@ const ReadingComponent: React.FC<Props> = ({
             loading={updateLoading}>
             {t("Save changes")}
           </Button>
-        )}
+        )
+      }>
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
+        <ReadingTable
+          apiUrl={apiUrl}
+          hasPublishRight={hasPublishRight}
+          models={models}
+          isPublic={isPublic}
+        />
       </Form>
     </ContentSection>
   );
 };
 
 export default ReadingComponent;
-
-const Paragraph = styled.p`
-  color: ${AntdColor.GREY.GREY_2};
-  padding-bottom: ${AntdToken.SPACING.BASE}px;
-`;

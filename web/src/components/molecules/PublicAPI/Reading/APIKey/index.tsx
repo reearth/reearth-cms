@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
@@ -36,25 +37,26 @@ const APIKeyComponent: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <ContentSection title="API Key">
-      <StyledTokenInput>
+    <ContentSection
+      title={t("API Key")}
+      headerActions={
         <Button
           icon={<Icon icon="plus" />}
           disabled={isPublic || !hasCreateRight}
           onClick={onAPIKeyNew}>
           {t("New Key")}
         </Button>
-      </StyledTokenInput>
+      }>
       {isPublic ? (
-        <PublicContainer>
+        <Flex justify="center" align="center" vertical>
           <Header>{t("Please transfer your project to private to use the API key")}</Header>
-          <Paragraph>
+          <Description>
             {t("Customize your API key to control the visibility of your models")}
-          </Paragraph>
+          </Description>
           <Button type="primary" onClick={onSettingsPageOpen}>
             {t("Change project visibility")}
           </Button>
-        </PublicContainer>
+        </Flex>
       ) : (
         <APIKeyTable
           keys={keys}
@@ -70,25 +72,13 @@ const APIKeyComponent: React.FC<Props> = ({
 
 export default APIKeyComponent;
 
-const StyledTokenInput = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-`;
-
-const PublicContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
-
 const Header = styled.h3`
   color: ${AntdColor.GREY.GREY_7}; /* originally #262626 */
   padding-bottom: 16px;
 `;
 
-const Paragraph = styled.p`
+const Description = styled.p`
   color: ${AntdColor.GREY.GREY_2};
+  margin: 0;
   padding-bottom: 16px;
 `;

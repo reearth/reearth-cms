@@ -1,28 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { t } from "@reearth-cms/i18n";
-
-import { FormType } from "../../types";
+import Form from "@reearth-cms/components/atoms/Form";
 
 import PostingSettings from ".";
 
 describe("PostingSettings", () => {
   const apiUrl = "https://test.com/api/";
   const models = [{ id: "m1", name: "Model One", key: "model1" }];
-  const initialValues: FormType = { assetPublic: false, models: { m1: false } };
   const ORIGIN_WARNING = "Please add at least one origin to enable Post API";
 
+  // PostingTable's Form.Item switches need an ancestor Form (provided by PostingTab in the app).
   const renderSettings = (props?: Partial<React.ComponentProps<typeof PostingSettings>>) =>
     render(
-      <PostingSettings
-        apiUrl={apiUrl}
-        initialValues={initialValues}
-        hasPublishRight
-        models={models}
-        updateLoading={false}
-        {...props}
-      />,
+      <Form>
+        <PostingSettings apiUrl={apiUrl} hasPublishRight models={models} {...props} />
+      </Form>,
     );
 
   test("warns and disables the table when there are no origins", () => {
@@ -35,23 +28,5 @@ describe("PostingSettings", () => {
     renderSettings({ origins: ["a.com"] });
     expect(screen.queryByText(ORIGIN_WARNING)).not.toBeInTheDocument();
     screen.getAllByRole("switch").forEach(s => expect(s).toBeEnabled());
-  });
-
-  test("renders the save button only when not public", () => {
-    const { rerender } = renderSettings({ origins: ["a.com"], isPublic: false });
-    expect(screen.getByRole("button", { name: t("Save changes") })).toBeInTheDocument();
-
-    rerender(
-      <PostingSettings
-        apiUrl={apiUrl}
-        initialValues={initialValues}
-        hasPublishRight
-        models={models}
-        updateLoading={false}
-        origins={["a.com"]}
-        isPublic
-      />,
-    );
-    expect(screen.queryByRole("button", { name: t("Save changes") })).not.toBeInTheDocument();
   });
 });

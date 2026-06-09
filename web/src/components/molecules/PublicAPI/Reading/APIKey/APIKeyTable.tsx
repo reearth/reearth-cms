@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -7,7 +6,6 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
-import { AntdToken } from "@reearth-cms/utils/style";
 
 import { APIKey, APIKeyModelType } from "../../types";
 
@@ -109,15 +107,7 @@ const APIKeyTable: React.FC<Props> = ({
     [keys],
   );
 
-  return (
-    <TableWrapper>
-      <Table dataSource={dataSource} columns={columns} pagination={false} />
-    </TableWrapper>
-  );
+  return <Table dataSource={dataSource} columns={columns} pagination={false} />;
 };
 
 export default APIKeyTable;
-
-const TableWrapper = styled.div`
-  margin: ${AntdToken.SPACING.LG}px 0;
-`;

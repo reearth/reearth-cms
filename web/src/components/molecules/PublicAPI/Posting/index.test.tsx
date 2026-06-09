@@ -50,6 +50,18 @@ describe("PostingTab", () => {
     screen.getAllByRole("switch").forEach(s => expect(s).toBeDisabled());
   });
 
+  test("Save changes is disabled until origins or a model toggle change", async () => {
+    renderTab();
+    const saveButton = () => screen.getByRole("button", { name: t("Save changes") });
+
+    // nothing changed yet → disabled
+    expect(saveButton()).toBeDisabled();
+
+    // adding an origin is a change → enabled
+    await user.type(screen.getByRole("combobox"), "example.com,");
+    expect(saveButton()).toBeEnabled();
+  });
+
   test("without posting permission: shows warning and hides the editor", () => {
     renderTab({ hasPostingRight: false });
 
