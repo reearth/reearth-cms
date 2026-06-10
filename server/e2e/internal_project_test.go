@@ -23,6 +23,19 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// assertGrpcError asserts that got is a gRPC status error with the same code
+// and message as want. Comparing freshly-constructed status errors directly
+// (e.g. with assert.Equal) relies on instance equality and is not reliable.
+func assertGrpcError(t *testing.T, want, got error) {
+	t.Helper()
+	wantSt, ok := status.FromError(want)
+	require.True(t, ok, "want should be a gRPC status error")
+	gotSt, ok := status.FromError(got)
+	require.True(t, ok, "error should be a gRPC status error")
+	assert.Equal(t, wantSt.Code(), gotSt.Code())
+	assert.Equal(t, wantSt.Message(), gotSt.Message())
+}
+
 // GRPC List Projects
 func TestInternalListProjectsAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{
@@ -138,6 +151,13 @@ func TestInternalListProjectsAPI(t *testing.T) {
 			wantTotal:    1,
 			wantProjects: project.IDList{pid},
 		},
+		{
+			name:         "for workspace with no user should return only public projects",
+			userId:       "",
+			request:      &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}},
+			wantTotal:    1,
+			wantProjects: project.IDList{pid},
+		},
 	}
 
 	for _, tt := range tests {
@@ -151,7 +171,7 @@ func TestInternalListProjectsAPI(t *testing.T) {
 			l, err := client.ListProjects(mdCtx, tt.request)
 			if tt.wantErr != nil {
 				assert.Nil(t, l)
-				assert.ErrorIs(t, err, tt.wantErr)
+				assertGrpcError(t, tt.wantErr, err)
 				return
 			}
 			assert.NoError(t, err)
@@ -401,7 +421,7 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 
 			res, err := client.CreateProject(mdCtx, tt.request)
 			if tt.wantError != nil {
-				assert.ErrorIs(t, err, tt.wantError)
+				assertGrpcError(t, tt.wantError, err)
 				assert.Nil(t, res)
 				return
 			}
@@ -525,7 +545,7 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 
 			res, err := client.UpdateProject(mdCtx, tt.request)
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				assertGrpcError(t, tt.wantErr, err)
 				assert.Nil(t, res)
 				return
 			}
@@ -623,7 +643,7 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 			if tt.wantErr != nil {
 				assert.Nil(t, res)
 				if _, ok := status.FromError(tt.wantErr); ok {
-					assert.ErrorIs(t, err, tt.wantErr)
+					assertGrpcError(t, tt.wantErr, err)
 				} else {
 					assert.ErrorContains(t, err, tt.wantErr.Error())
 				}
