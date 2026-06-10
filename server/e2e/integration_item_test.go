@@ -57,9 +57,11 @@ var (
 	aid1    = id.NewAssetID()
 	aid2    = id.NewAssetID()
 	aid3    = id.NewAssetID() // no thread
+	aid4    = id.NewAssetID() // private project (pid2)
 	auuid1  = uuid.NewString()
 	auuid2  = uuid.NewString()
 	auuid3  = uuid.NewString()
+	auuid4  = uuid.NewString()
 	itmId1  = id.NewItemID()
 	itmId2  = id.NewItemID()
 	itmId3  = id.NewItemID()
@@ -515,6 +517,13 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Size(1000).
 		UUID(auuid3).
 		MustBuild()
+	a4 := asset.New().ID(aid4).
+		Project(p2.ID()).
+		CreatedByUser(u.ID()).
+		FileName("ddd.jpg").
+		Size(1000).
+		UUID(auuid4).
+		MustBuild()
 
 	if err := r.Asset.Save(ctx, a1); err != nil {
 		return err
@@ -523,6 +532,9 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 	if err := r.Asset.Save(ctx, a3); err != nil {
+		return err
+	}
+	if err := r.Asset.Save(ctx, a4); err != nil {
 		return err
 	}
 	if err := r.AssetFile.Save(ctx, a1.ID(), f1); err != nil {
