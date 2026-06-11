@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -168,8 +169,14 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
+type PostItemResponse struct {
+	ID        string         `json:"id"`
+	CreatedAt time.Time      `json:"$createdAt"`
+	Fields    map[string]any `json:"fields"`
+}
+
 type PostItemResult struct {
-	Item        any
+	Item        *PostItemResponse
 	FieldErrors []schema.FieldValidationError
 	Err         error
 }
@@ -224,7 +231,12 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 		return PostItemResult{Err: err}
 	}
 
-	return PostItemResult{Item: it.Value().ID()}
+	itv := it.Value()
+	return PostItemResult{Item: &PostItemResponse{
+		ID:        itv.ID().String(),
+		CreatedAt: itv.Timestamp(),
+		Fields:    map[string]any{},
+	}}
 }
 
 // ValidatePostingAccess checks that posting is enabled for the project and model to post.
