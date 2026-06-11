@@ -189,6 +189,12 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 		if !ok {
 			continue
 		}
+		// itemFieldsFromParams expects []any for multiple fields; normalize scalars here.
+		if f.Multiple() {
+			if _, isSlice := v.([]any); !isSlice {
+				v = []any{v}
+			}
+		}
 		params = append(params, interfaces.ItemFieldParam{
 			Field: f.ID().Ref(),
 			Key:   key.Ref(),
@@ -212,6 +218,10 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return PostItemResult{Err: err}
+	}
+
+	if wpm.SchemaPackage == nil {
+		return PostItemResult{Err: rerror.ErrNotFound}
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
