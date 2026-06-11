@@ -20,6 +20,7 @@ export type GetModelsQuery = {
       order: number | null;
       createdAt: Date;
       updatedAt: Date;
+      postingSettings: { __typename: "ModelPostingSettings"; enabled: boolean };
       schema: {
         __typename: "Schema";
         id: string;
@@ -388,6 +389,14 @@ export const GetModelsDocument = {
                       { kind: "Field", name: { kind: "Name", value: "order" } },
                       { kind: "Field", name: { kind: "Name", value: "createdAt" } },
                       { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "postingSettings" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [{ kind: "Field", name: { kind: "Name", value: "enabled" } }],
+                        },
+                      },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "schema" },

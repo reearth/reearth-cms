@@ -11,6 +11,9 @@ export const GET_MODELS = gql`
         order
         createdAt
         updatedAt
+        postingSettings {
+          enabled
+        }
         schema {
           id
           fields {

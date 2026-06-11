@@ -5,6 +5,11 @@ export type PublicationSettings = {
   publicAssets: boolean;
 };
 
+export type PostingSettings = {
+  enabled: boolean;
+  allowedOrigins: string[];
+};
+
 export type APIKey = {
   id: string;
   name: string;
@@ -17,6 +22,7 @@ export type ProjectAccessibility = {
   visibility: ProjectVisibility;
   publication: PublicationSettings;
   apiKeys: APIKey[];
+  posting: PostingSettings;
 };
 
 export type FormType = {
