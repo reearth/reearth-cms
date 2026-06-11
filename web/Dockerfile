@@ -1,4 +1,4 @@
-FROM node:24.14.1-slim AS builder
+FROM node:24.15.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -24,7 +24,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/app/node_modules/.cache,sharing=locked \
     yarn build
 
-FROM nginx:1.30-alpine
+FROM nginx:1.31-alpine
 WORKDIR /usr/share/nginx/html
 
 # Quiet the Nginx startup logs.
