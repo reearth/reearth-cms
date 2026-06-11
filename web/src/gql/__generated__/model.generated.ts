@@ -287,32 +287,6 @@ export type UpdateModelPostingEnabledMutation = {
   } | null;
 };
 
-export type GetModelPostingEnabledQueryVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
-}>;
-
-export type GetModelPostingEnabledQuery = {
-  node:
-    | { __typename: "Asset"; id: string }
-    | { __typename: "Group"; id: string }
-    | { __typename: "Integration"; id: string }
-    | { __typename: "Item"; id: string }
-    | { __typename: "Job"; id: string }
-    | {
-        __typename: "Model";
-        id: string;
-        postingSettings: { __typename: "ModelPostingSettings"; enabled: boolean };
-      }
-    | { __typename: "Project"; id: string }
-    | { __typename: "Request"; id: string }
-    | { __typename: "Schema"; id: string }
-    | { __typename: "User"; id: string }
-    | { __typename: "View"; id: string }
-    | { __typename: "Workspace"; id: string }
-    | { __typename: "WorkspaceSettings"; id: string }
-    | null;
-};
-
 export const GetModelsDocument = {
   kind: "Document",
   definitions: [
@@ -1622,72 +1596,3 @@ export const UpdateModelPostingEnabledDocument = {
   UpdateModelPostingEnabledMutation,
   UpdateModelPostingEnabledMutationVariables
 >;
-export const GetModelPostingEnabledDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "getModelPostingEnabled" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "node" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "type" },
-                value: { kind: "EnumValue", value: "Model" },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "InlineFragment",
-                  typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Model" } },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "postingSettings" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            { kind: "Field", name: { kind: "Name", value: "enabled" } },
-                            { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                          ],
-                        },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetModelPostingEnabledQuery, GetModelPostingEnabledQueryVariables>;

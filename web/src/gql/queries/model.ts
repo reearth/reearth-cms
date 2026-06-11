@@ -251,19 +251,3 @@ export const UPDATE_MODEL_POSTING_ENABLED = gql`
     }
   }
 `;
-
-export const GET_MODEL_POSTING_ENABLED = gql`
-  query getModelPostingEnabled($modelId: ID!) {
-    node(id: $modelId, type: Model) {
-      id
-      ... on Model {
-        postingSettings {
-          enabled
-          __typename
-        }
-        __typename
-      }
-      __typename
-    }
-  }
-`;
