@@ -30,6 +30,10 @@ export type FormType = {
   models: Record<string, boolean>;
 };
 
+export type PostingFormType = {
+  models: Record<string, boolean>;
+};
+
 export type KeyFormType = {
   name: string;
   description: string;

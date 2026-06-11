@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { APIKey, FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
+import { APIKey, FormType, PostingFormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
@@ -15,6 +15,8 @@ type Props = {
   apiKeys?: APIKey[];
   isProjectPublic?: boolean;
   initialValues: FormType;
+  postingInitialValues: PostingFormType;
+  savedOrigins: string[];
   models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
   hasCreateRight: boolean;
@@ -31,6 +33,10 @@ type Props = {
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
+  onPostingUpdate: (
+    origins: string[],
+    models: { modelId: string; status: boolean }[],
+  ) => Promise<void>;
   onSettingsPageOpen: () => void;
   currentLang: string;
 };
@@ -39,6 +45,8 @@ const PublicAPI: React.FC<Props> = ({
   apiKeys,
   isProjectPublic,
   initialValues,
+  postingInitialValues,
+  savedOrigins,
   models,
   hasPublishRight,
   hasCreateRight,
@@ -51,6 +59,7 @@ const PublicAPI: React.FC<Props> = ({
   onAPIKeyEdit,
   onAPIKeyDelete,
   onPublicUpdate,
+  onPostingUpdate,
   onSettingsPageOpen,
   currentLang,
 }) => {
@@ -96,12 +105,14 @@ const PublicAPI: React.FC<Props> = ({
           children: (
             <PostingTab
               apiUrl={apiUrl}
-              initialValues={initialValues}
+              initialValues={postingInitialValues}
+              savedOrigins={savedOrigins}
               isPublic={isProjectPublic}
               hasPublishRight={hasPublishRight}
               hasPostingRight={hasPostingRight}
               models={models}
               updateLoading={updateLoading}
+              onPostingUpdate={onPostingUpdate}
             />
           ),
         },

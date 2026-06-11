@@ -17,18 +17,19 @@ describe("PostingTable", () => {
       </Form>,
     );
 
-  test("renders model and asset rows with their endpoints", () => {
+  test("renders model rows with their endpoints (assets excluded)", () => {
     renderTable();
     expect(screen.getByText("Model One")).toBeVisible();
     expect(screen.getByText(`${apiUrl}model1`)).toBeVisible();
-    expect(screen.getByText(t("Assets"))).toBeVisible();
-    expect(screen.getByText(`${apiUrl}assets`)).toBeVisible();
+    // Assets are intentionally excluded from the Posting table (see PostingTable TODO).
+    expect(screen.queryByText(t("Assets"))).not.toBeInTheDocument();
+    expect(screen.queryByText(`${apiUrl}assets`)).not.toBeInTheDocument();
   });
 
   test("shows the enable column with switches when not public", () => {
     renderTable({ isPublic: false });
     expect(screen.getByText(t("POST API Enable"))).toBeVisible();
-    expect(screen.getAllByRole("switch")).toHaveLength(models.length + 1); // models + assets
+    expect(screen.getAllByRole("switch")).toHaveLength(models.length);
   });
 
   test("hides the enable column and switches when public", () => {

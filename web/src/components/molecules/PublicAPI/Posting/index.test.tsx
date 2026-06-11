@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { t } from "@reearth-cms/i18n";
 
-import { FormType } from "../types";
+import { PostingFormType } from "../types";
 
 import PostingTab from ".";
 
@@ -13,19 +13,32 @@ describe("PostingTab", () => {
 
   const apiUrl = "https://test.com/api/";
   const models = [{ id: "m1", name: "Model One", key: "model1" }];
-  const initialValues: FormType = { assetPublic: false, models: { m1: false } };
+  const initialValues: PostingFormType = { models: { m1: false } };
   const ORIGIN_WARNING = "Please add at least one origin to enable Post API";
 
-  const renderTab = ({ hasPostingRight = true }: { hasPostingRight?: boolean } = {}) =>
+  const renderTab = ({
+    hasPostingRight = true,
+    savedOrigins = [],
+    onPostingUpdate = vi.fn().mockResolvedValue(undefined),
+  }: {
+    hasPostingRight?: boolean;
+    savedOrigins?: string[];
+    onPostingUpdate?: (
+      origins: string[],
+      models: { modelId: string; status: boolean }[],
+    ) => Promise<void>;
+  } = {}) =>
     render(
       <PostingTab
         apiUrl={apiUrl}
         initialValues={initialValues}
+        savedOrigins={savedOrigins}
         isPublic={false}
         hasPublishRight
         hasPostingRight={hasPostingRight}
         models={models}
         updateLoading={false}
+        onPostingUpdate={onPostingUpdate}
       />,
     );
 
@@ -60,6 +73,27 @@ describe("PostingTab", () => {
     // adding an origin is a change → enabled
     await user.type(screen.getByRole("combobox"), "example.com,");
     expect(saveButton()).toBeEnabled();
+  });
+
+  test("pre-populates the editor from savedOrigins", () => {
+    renderTab({ savedOrigins: ["example.com"] });
+    expect(screen.getByText(/1 configured/)).toBeVisible();
+    expect(screen.queryByText(ORIGIN_WARNING)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t("Save changes") })).toBeDisabled();
+  });
+
+  test("Save submits the current origins and toggled models", async () => {
+    const onPostingUpdate = vi.fn().mockResolvedValue(undefined);
+    renderTab({ onPostingUpdate });
+
+    await user.type(screen.getByRole("combobox"), "example.com,");
+    await user.click(screen.getByRole("switch"));
+    await user.click(screen.getByRole("button", { name: t("Save changes") }));
+
+    expect(onPostingUpdate).toHaveBeenCalledWith(
+      ["example.com"],
+      [{ modelId: "m1", status: true }],
+    );
   });
 
   test("without posting permission: shows warning and hides the editor", () => {

@@ -26,6 +26,8 @@ describe("PublicAPI", () => {
     assetPublic: false,
     models: { [model1Id]: false },
   };
+  const postingInitialValues = { models: { [model1Id]: false } };
+  const savedOrigins: string[] = [];
   const onAPIKeyNew = () => {
     return Promise.resolve();
   };
@@ -38,6 +40,9 @@ describe("PublicAPI", () => {
   const onPublicUpdate = () => {
     return Promise.resolve();
   };
+  const onPostingUpdate = () => {
+    return Promise.resolve();
+  };
   const onSettingsPageOpen = () => {
     return Promise.resolve();
   };
@@ -47,6 +52,8 @@ describe("PublicAPI", () => {
       <MemoryRouter>
         <PublicAPI
           initialValues={initialValues}
+          postingInitialValues={postingInitialValues}
+          savedOrigins={savedOrigins}
           hasCreateRight={hasCreateRight}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
@@ -60,6 +67,7 @@ describe("PublicAPI", () => {
           onAPIKeyDelete={onAPIKeyDelete}
           onAPIKeyEdit={onAPIKeyEdit}
           onPublicUpdate={onPublicUpdate}
+          onPostingUpdate={onPostingUpdate}
           onSettingsPageOpen={onSettingsPageOpen}
           currentLang={currentLang}
         />
@@ -87,6 +95,8 @@ describe("PublicAPI", () => {
       <MemoryRouter>
         <PublicAPI
           initialValues={initialValues}
+          postingInitialValues={postingInitialValues}
+          savedOrigins={savedOrigins}
           hasCreateRight={hasCreateRight}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
@@ -100,6 +110,7 @@ describe("PublicAPI", () => {
           onAPIKeyDelete={onAPIKeyDelete}
           onAPIKeyEdit={onAPIKeyEdit}
           onPublicUpdate={onPublicUpdate}
+          onPostingUpdate={onPostingUpdate}
           onSettingsPageOpen={onSettingsPageOpen}
           currentLang={currentLang}
         />
@@ -133,6 +144,8 @@ describe("PublicAPI", () => {
       <MemoryRouter>
         <PublicAPI
           initialValues={initialValues}
+          postingInitialValues={postingInitialValues}
+          savedOrigins={savedOrigins}
           hasCreateRight={hasCreateRight}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
@@ -146,6 +159,7 @@ describe("PublicAPI", () => {
           onAPIKeyDelete={onAPIKeyDelete}
           onAPIKeyEdit={onAPIKeyEdit}
           onPublicUpdate={onPublicUpdate}
+          onPostingUpdate={onPostingUpdate}
           onSettingsPageOpen={onSettingsPageOpen}
           currentLang={currentLang}
         />

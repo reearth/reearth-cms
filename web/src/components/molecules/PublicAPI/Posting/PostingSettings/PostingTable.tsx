@@ -71,21 +71,18 @@ const PostingTable: React.FC<Props> = ({
     return cols;
   }, [disabled, hasPublishRight, isPublic, publicModelsSet, t]);
 
-  const dataSource = useMemo<ModelDataType[]>(() => {
-    const modelRows = models.map(model => ({
-      key: model.key,
-      name: model.name,
-      id: ["models", model.id],
-      endpoint: `${apiUrl}${model.key}`,
-    }));
-    const assetRow: ModelDataType = {
-      key: "assets",
-      name: t("Assets"),
-      id: "assetPublic",
-      endpoint: `${apiUrl}assets`,
-    };
-    return [...modelRows, assetRow];
-  }, [models, apiUrl, t]);
+  // TODO(public-api): asset posting UX pending team-lead confirmation; assets are
+  // intentionally excluded from the Posting table for now.
+  const dataSource = useMemo<ModelDataType[]>(
+    () =>
+      models.map(model => ({
+        key: model.key,
+        name: model.name,
+        id: ["models", model.id],
+        endpoint: `${apiUrl}${model.key}`,
+      })),
+    [models, apiUrl],
+  );
 
   return (
     <TableWrapper isDisabled={disabled}>

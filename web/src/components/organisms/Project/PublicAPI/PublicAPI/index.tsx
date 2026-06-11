@@ -7,6 +7,8 @@ const PublicAPI: React.FC = () => {
     apiKeys,
     isProjectPublic,
     initialValues,
+    postingInitialValues,
+    savedOrigins,
     models,
     hasPublishRight,
     hasCreateRight,
@@ -20,6 +22,7 @@ const PublicAPI: React.FC = () => {
     handleAPIKeyEdit,
     handleAPIKeyDelete,
     handlePublicUpdate,
+    handlePostingUpdate,
     handleSettingsPageOpen,
     currentLang,
   } = useHooks();
@@ -29,6 +32,8 @@ const PublicAPI: React.FC = () => {
       apiKeys={apiKeys}
       isProjectPublic={isProjectPublic}
       initialValues={initialValues}
+      postingInitialValues={postingInitialValues}
+      savedOrigins={savedOrigins}
       models={models}
       hasPublishRight={hasPublishRight}
       hasCreateRight={hasCreateRight}
@@ -42,6 +47,7 @@ const PublicAPI: React.FC = () => {
       onAPIKeyEdit={handleAPIKeyEdit}
       onAPIKeyDelete={handleAPIKeyDelete}
       onPublicUpdate={handlePublicUpdate}
+      onPostingUpdate={handlePostingUpdate}
       onSettingsPageOpen={handleSettingsPageOpen}
       currentLang={currentLang}
     />
