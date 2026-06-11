@@ -26,6 +26,9 @@ export const GET_PROJECT = gql`
               publicAssets
             }
           }
+          posting {
+            enabled
+          }
         }
         requestRoles
       }
@@ -277,6 +280,43 @@ export const REGENERATE_API_KEY = gql`
         publication {
           publicModels
           publicAssets
+        }
+      }
+    }
+  }
+`;
+
+export const GET_PROJECT_POSTING = gql`
+  query GetProjectPosting($projectId: ID!) {
+    node(id: $projectId, type: PROJECT) {
+      ... on Project {
+        id
+        accessibility {
+          posting {
+            enabled
+            allowedOrigins
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const UPDATE_PROJECT_POSTING = gql`
+  mutation UpdateProjectPosting($projectId: ID!, $enabled: Boolean!, $allowedOrigins: [String!]!) {
+    updateProject(
+      input: {
+        projectId: $projectId
+        accessibility: { posting: { enabled: $enabled, allowedOrigins: $allowedOrigins } }
+      }
+    ) {
+      project {
+        id
+        accessibility {
+          posting {
+            enabled
+            allowedOrigins
+          }
         }
       }
     }

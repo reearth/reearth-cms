@@ -232,3 +232,35 @@ export const EXPORT_MODEL_SCHEMA = gql`
     }
   }
 `;
+
+export const UPDATE_MODEL_POSTING_ENABLED = gql`
+  mutation UpdateModelPostingEnabled($modelId: ID!, $enabled: Boolean!) {
+    updateModel(input: { modelId: $modelId, postingSettings: { enabled: $enabled } }) {
+      model {
+        id
+        postingSettings {
+          enabled
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+
+export const GET_MODEL_POSTING_ENABLED = gql`
+  query getModelPostingEnabled($modelId: ID!) {
+    node(id: $modelId, type: Model) {
+      id
+      ... on Model {
+        postingSettings {
+          enabled
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+  }
+`;

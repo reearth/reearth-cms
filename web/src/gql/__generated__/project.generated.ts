@@ -42,6 +42,7 @@ export type GetProjectQuery = {
               publicAssets: boolean;
             };
           }> | null;
+          posting: { __typename: "PostingSettings"; enabled: boolean };
         };
       }
     | { __typename: "Request"; id: string }
@@ -306,6 +307,59 @@ export type RegenerateApiKeyMutation = {
   } | null;
 };
 
+export type GetProjectPostingQueryVariables = Types.Exact<{
+  projectId: Types.Scalars["ID"]["input"];
+}>;
+
+export type GetProjectPostingQuery = {
+  node:
+    | { __typename: "Asset" }
+    | { __typename: "Group" }
+    | { __typename: "Integration" }
+    | { __typename: "Item" }
+    | { __typename: "Job" }
+    | { __typename: "Model" }
+    | {
+        __typename: "Project";
+        id: string;
+        accessibility: {
+          __typename: "ProjectAccessibility";
+          posting: {
+            __typename: "PostingSettings";
+            enabled: boolean;
+            allowedOrigins: Array<string>;
+          };
+        };
+      }
+    | { __typename: "Request" }
+    | { __typename: "Schema" }
+    | { __typename: "User" }
+    | { __typename: "View" }
+    | { __typename: "Workspace" }
+    | { __typename: "WorkspaceSettings" }
+    | null;
+};
+
+export type UpdateProjectPostingMutationVariables = Types.Exact<{
+  projectId: Types.Scalars["ID"]["input"];
+  enabled: Types.Scalars["Boolean"]["input"];
+  allowedOrigins: Array<Types.Scalars["String"]["input"]> | Types.Scalars["String"]["input"];
+}>;
+
+export type UpdateProjectPostingMutation = {
+  updateProject: {
+    __typename: "ProjectPayload";
+    project: {
+      __typename: "Project";
+      id: string;
+      accessibility: {
+        __typename: "ProjectAccessibility";
+        posting: { __typename: "PostingSettings"; enabled: boolean; allowedOrigins: Array<string> };
+      };
+    };
+  } | null;
+};
+
 export const GetProjectDocument = {
   kind: "Document",
   definitions: [
@@ -401,6 +455,16 @@ export const GetProjectDocument = {
                                       ],
                                     },
                                   },
+                                ],
+                              },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "posting" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  { kind: "Field", name: { kind: "Name", value: "enabled" } },
                                 ],
                               },
                             },
@@ -1480,3 +1544,221 @@ export const RegenerateApiKeyDocument = {
     },
   ],
 } as unknown as DocumentNode<RegenerateApiKeyMutation, RegenerateApiKeyMutationVariables>;
+export const GetProjectPostingDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetProjectPosting" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "projectId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "node" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: { kind: "Variable", name: { kind: "Name", value: "projectId" } },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "type" },
+                value: { kind: "EnumValue", value: "PROJECT" },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "InlineFragment",
+                  typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Project" } },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "accessibility" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "posting" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  { kind: "Field", name: { kind: "Name", value: "enabled" } },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "allowedOrigins" },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetProjectPostingQuery, GetProjectPostingQueryVariables>;
+export const UpdateProjectPostingDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateProjectPosting" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "projectId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "enabled" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "allowedOrigins" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateProject" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "projectId" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "projectId" } },
+                    },
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "accessibility" },
+                      value: {
+                        kind: "ObjectValue",
+                        fields: [
+                          {
+                            kind: "ObjectField",
+                            name: { kind: "Name", value: "posting" },
+                            value: {
+                              kind: "ObjectValue",
+                              fields: [
+                                {
+                                  kind: "ObjectField",
+                                  name: { kind: "Name", value: "enabled" },
+                                  value: {
+                                    kind: "Variable",
+                                    name: { kind: "Name", value: "enabled" },
+                                  },
+                                },
+                                {
+                                  kind: "ObjectField",
+                                  name: { kind: "Name", value: "allowedOrigins" },
+                                  value: {
+                                    kind: "Variable",
+                                    name: { kind: "Name", value: "allowedOrigins" },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "project" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "accessibility" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "posting" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  { kind: "Field", name: { kind: "Name", value: "enabled" } },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "allowedOrigins" },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateProjectPostingMutation, UpdateProjectPostingMutationVariables>;

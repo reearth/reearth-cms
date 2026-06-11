@@ -270,6 +270,48 @@ export type ExportModelSchemaMutation = {
   } | null;
 };
 
+export type UpdateModelPostingEnabledMutationVariables = Types.Exact<{
+  modelId: Types.Scalars["ID"]["input"];
+  enabled: Types.Scalars["Boolean"]["input"];
+}>;
+
+export type UpdateModelPostingEnabledMutation = {
+  updateModel: {
+    __typename: "ModelPayload";
+    model: {
+      __typename: "Model";
+      id: string;
+      postingSettings: { __typename: "ModelPostingSettings"; enabled: boolean };
+    };
+  } | null;
+};
+
+export type GetModelPostingEnabledQueryVariables = Types.Exact<{
+  modelId: Types.Scalars["ID"]["input"];
+}>;
+
+export type GetModelPostingEnabledQuery = {
+  node:
+    | { __typename: "Asset"; id: string }
+    | { __typename: "Group"; id: string }
+    | { __typename: "Integration"; id: string }
+    | { __typename: "Item"; id: string }
+    | { __typename: "Job"; id: string }
+    | {
+        __typename: "Model";
+        id: string;
+        postingSettings: { __typename: "ModelPostingSettings"; enabled: boolean };
+      }
+    | { __typename: "Project"; id: string }
+    | { __typename: "Request"; id: string }
+    | { __typename: "Schema"; id: string }
+    | { __typename: "User"; id: string }
+    | { __typename: "View"; id: string }
+    | { __typename: "Workspace"; id: string }
+    | { __typename: "WorkspaceSettings"; id: string }
+    | null;
+};
+
 export const GetModelsDocument = {
   kind: "Document",
   definitions: [
@@ -1473,3 +1515,170 @@ export const ExportModelSchemaDocument = {
     },
   ],
 } as unknown as DocumentNode<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>;
+export const UpdateModelPostingEnabledDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateModelPostingEnabled" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "enabled" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateModel" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "modelId" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+                    },
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "postingSettings" },
+                      value: {
+                        kind: "ObjectValue",
+                        fields: [
+                          {
+                            kind: "ObjectField",
+                            name: { kind: "Name", value: "enabled" },
+                            value: { kind: "Variable", name: { kind: "Name", value: "enabled" } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "model" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "postingSettings" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "enabled" } },
+                            { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                          ],
+                        },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "__typename" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateModelPostingEnabledMutation,
+  UpdateModelPostingEnabledMutationVariables
+>;
+export const GetModelPostingEnabledDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "getModelPostingEnabled" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "node" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "type" },
+                value: { kind: "EnumValue", value: "Model" },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "InlineFragment",
+                  typeCondition: { kind: "NamedType", name: { kind: "Name", value: "Model" } },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "postingSettings" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "enabled" } },
+                            { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                          ],
+                        },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "__typename" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetModelPostingEnabledQuery, GetModelPostingEnabledQueryVariables>;
