@@ -6,6 +6,7 @@ type Operator struct {
 	user        *accountdomain.UserID
 	integration *IntegrationID
 	isMachine   bool
+	isPosting   bool
 }
 
 func OperatorFromUser(user accountdomain.UserID) Operator {
@@ -26,6 +27,12 @@ func OperatorFromMachine() Operator {
 	}
 }
 
+func OperatorFromPosting() Operator {
+	return Operator{
+		isPosting: true,
+	}
+}
+
 func (o Operator) User() *accountdomain.UserID {
 	return o.user.CloneRef()
 }
@@ -38,6 +45,10 @@ func (o Operator) Machine() bool {
 	return o.isMachine
 }
 
+func (o Operator) Posting() bool {
+	return o.isPosting
+}
+
 func (o Operator) Validate() bool {
-	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine()
+	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine() || o.Posting()
 }

@@ -175,7 +175,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Posting {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -193,7 +193,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if !operator.IsWritableWorkspace(s.Workspace()) {
+		if operator.Posting {
+			if !operator.IsWritableProject(s.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+		} else if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -230,6 +234,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if operator.Integration != nil {
 			ib = ib.Integration(*operator.Integration)
 		}
+		// TODO(WP3-T4): set origin marker for public API submissions (operator.Posting == true)
 
 		var mi item.Versioned
 		if param.MetadataID != nil {

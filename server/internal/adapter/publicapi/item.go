@@ -6,12 +6,15 @@ import (
 	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -171,7 +174,32 @@ type PostItemResult struct {
 	Err         error
 }
 
-// PostItem validates the payload against the model schema.
+func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
+	params := make([]interfaces.ItemFieldParam, 0, len(body))
+	for _, f := range s.Fields() {
+		key := f.Key()
+		v, ok := body[key.String()]
+		if !ok {
+			continue
+		}
+		params = append(params, interfaces.ItemFieldParam{
+			Field: f.ID().Ref(),
+			Key:   key.Ref(),
+			Value: v,
+		})
+	}
+	return params
+}
+
+func newPostingOperator(projectID id.ProjectID) *usecase.Operator {
+	return &usecase.Operator{
+		AcOperator:      &accountusecase.Operator{},
+		Posting:         true,
+		WritableProjects: project.IDList{projectID},
+	}
+}
+
+// PostItem validates the payload against the model schema and creates a Draft item.
 // Posting access (project/model enabled, origin) is checked by the handler before this is called.
 func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
@@ -184,9 +212,19 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 			FieldErrors: fieldErrs,
 		}
 	}
-	return PostItemResult{
-		Item: nil, // TODO: will be set to created item after draft item creation is implemented
+
+	op := newPostingOperator(wpm.Project.ID())
+
+	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: wpm.SchemaPackage.Schema().ID(),
+		ModelID:  wpm.Model.ID(),
+		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
+	}, op)
+	if err != nil {
+		return PostItemResult{Err: err}
 	}
+
+	return PostItemResult{Item: it.Value().ID()}
 }
 
 // ValidatePostingAccess checks that posting is enabled for the project and model to post.
