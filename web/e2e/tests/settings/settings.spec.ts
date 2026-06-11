@@ -20,13 +20,13 @@ test.afterEach(async ({ workspacePage }) => {
 });
 
 test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
-  await test.step("Create new tile with 'Labelled' type", async () => {
+  await test.step("Create new tile with 'OpenStreetMap' type", async () => {
     await expect(settingsPage.addNewTilesButton).toBeVisible();
     await settingsPage.addNewTilesButton.click();
-    await expect(settingsPage.defaultTileOption).toBeVisible();
-    await settingsPage.defaultTileOption.click();
-    await expect(settingsPage.labelledTileOption).toBeVisible();
-    await settingsPage.labelledTileOption.click();
+    await expect(settingsPage.typeSelect).toBeVisible();
+    await settingsPage.typeSelect.click();
+    await expect(settingsPage.openStreetMapTileOption).toBeVisible();
+    await settingsPage.openStreetMapTileOption.click();
     await expect(settingsPage.okButton).toBeVisible();
     await settingsPage.okButton.click();
     await expect(settingsPage.saveButton).toBeVisible();
@@ -37,9 +37,10 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
   await test.step("Update tile to 'URL' type with custom values", async () => {
     await expect(settingsPage.editCardButton).toBeVisible();
     await settingsPage.editCardButton.click();
-    await expect(settingsPage.formElement.getByText("Labelled", { exact: true })).toBeVisible();
-    await expect(settingsPage.labelledTileDiv).toBeVisible();
-    await settingsPage.labelledTileDiv.click();
+    await expect(
+      settingsPage.formElement.getByText("OpenStreetMap", { exact: true }),
+    ).toBeVisible();
+    await settingsPage.typeSelect.click();
     await expect(settingsPage.urlTileOption).toBeVisible();
     await settingsPage.urlTileOption.click();
     await settingsPage.nameInput.click();
@@ -83,24 +84,22 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
 });
 
 test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => {
-  await test.step("Enable terrain and add 'ArcGIS Terrain' type", async () => {
+  await test.step("Enable terrain and add 'Cesium Ion' type", async () => {
     await expect(settingsPage.terrainSwitch).toBeEnabled();
     await settingsPage.terrainSwitch.click();
     await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
     await expect(settingsPage.addTerrainButton).toBeVisible();
     await settingsPage.addTerrainButton.click();
-    await settingsPage.cesiumWorldTerrainOption.click();
-    await settingsPage.arcGisTerrainOption.click();
+    await settingsPage.typeSelect.click();
+    await settingsPage.cesiumIonOption.click();
     await settingsPage.okButton.click();
     await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await page.waitForLoadState("networkidle");
   });
 
-  await test.step("Update terrain to 'Cesium Ion' type with custom values", async () => {
+  await test.step("Update terrain with custom values", async () => {
     await settingsPage.editIconButton.click();
-    await expect(settingsPage.formElement).toContainText("ArcGIS Terrain");
-    await settingsPage.arcGisTerrainDiv.click();
-    await settingsPage.cesiumIonOption.click();
+    await expect(settingsPage.formElement).toContainText("Cesium Ion");
     await settingsPage.nameInput.click();
     await settingsPage.nameInput.fill("name");
     await settingsPage.terrainAssetIdInput.click();
@@ -150,19 +149,19 @@ test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
     await settingsPage.addNewTilesButton.click();
     await settingsPage.okButton.click();
     await settingsPage.addNewTilesButton.click();
-    await settingsPage.defaultTileOption.click();
-    await settingsPage.labelledTileOption.click();
+    await settingsPage.typeSelect.click();
+    await settingsPage.openStreetMapTileOption.click();
     await settingsPage.okButton.click();
-    await expect(settingsPage.cardByIndex(0)).toHaveText("DEFAULT");
-    await expect(settingsPage.cardByIndex(1)).toHaveText("LABELLED");
+    await expect(settingsPage.cardByIndex(0)).toHaveText("Google Satellite");
+    await expect(settingsPage.cardByIndex(1)).toHaveText("OpenStreetMap");
     await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await page.waitForLoadState("networkidle");
   });
 
   await test.step("Drag first tile below second tile and verify order", async () => {
     await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
-    await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
-    await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
+    await expect(settingsPage.cardByIndex(0)).toHaveText("OpenStreetMap");
+    await expect(settingsPage.cardByIndex(1)).toHaveText("Google Satellite");
     await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await page.waitForLoadState("networkidle");
   });
@@ -170,8 +169,8 @@ test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
   await test.step("Verify tile order persists after navigation", async () => {
     await settingsPage.homeMenuItem.click();
     await settingsPage.settingsMenuItem.click();
-    await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
-    await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
+    await expect(settingsPage.cardByIndex(0)).toHaveText("OpenStreetMap");
+    await expect(settingsPage.cardByIndex(1)).toHaveText("Google Satellite");
     await page.waitForLoadState("networkidle");
   });
 });
@@ -183,21 +182,27 @@ test("Terrain reordering has succeeded", async ({ settingsPage, page }) => {
     await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
     await expect(settingsPage.addTerrainButton).toBeVisible();
     await settingsPage.addTerrainButton.click();
+    await settingsPage.typeSelect.click();
+    await settingsPage.cesiumIonOption.click();
+    await settingsPage.nameInput.click();
+    await settingsPage.nameInput.fill("terrain1");
     await settingsPage.okButton.click();
     await settingsPage.addTerrainButton.click();
-    await settingsPage.cesiumWorldTerrainDiv.click();
-    await settingsPage.arcGisTerrainOption.click();
+    await settingsPage.typeSelect.click();
+    await settingsPage.cesiumIonOption.click();
+    await settingsPage.nameInput.click();
+    await settingsPage.nameInput.fill("terrain2");
     await settingsPage.okButton.click();
-    await expect(settingsPage.cardByIndex(0)).toHaveText("CESIUM_WORLD_TERRAIN");
-    await expect(settingsPage.cardByIndex(1)).toHaveText("ARC_GIS_TERRAIN");
+    await expect(settingsPage.cardByIndex(0)).toHaveText("terrain1");
+    await expect(settingsPage.cardByIndex(1)).toHaveText("terrain2");
     await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await page.waitForLoadState("networkidle");
   });
 
   await test.step("Drag first terrain below second terrain and verify order", async () => {
     await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
-    await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
-    await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
+    await expect(settingsPage.cardByIndex(0)).toHaveText("terrain2");
+    await expect(settingsPage.cardByIndex(1)).toHaveText("terrain1");
     await settingsPage.clickAndExpectSuccess(settingsPage.saveButton);
     await page.waitForLoadState("networkidle");
   });
@@ -205,8 +210,8 @@ test("Terrain reordering has succeeded", async ({ settingsPage, page }) => {
   await test.step("Verify terrain order persists after navigation", async () => {
     await settingsPage.homeMenuItem.click();
     await settingsPage.settingsMenuItem.click();
-    await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
-    await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
+    await expect(settingsPage.cardByIndex(0)).toHaveText("terrain2");
+    await expect(settingsPage.cardByIndex(1)).toHaveText("terrain1");
     await page.waitForLoadState("networkidle");
   });
 });

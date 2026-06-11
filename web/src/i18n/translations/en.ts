@@ -347,6 +347,7 @@ export default {
   "Item": "",
   "Item Information": "",
   "ITEM NOT FOUND ON SERVER": "",
+  "Japan GSI Standard Map": "Japan GSI Standard Map",
   "JSON": "JSON",
   "Keep uploading": "Keep uploading",
   "Key": "",

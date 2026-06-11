@@ -1,4 +1,4 @@
-import { render, screen, getByText } from "@testing-library/react";
+import { render, screen, getByText, queryByText } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
@@ -59,7 +59,7 @@ describe("Settings", () => {
             resources: [
               {
                 id: "",
-                type: "CESIUM_WORLD_TERRAIN",
+                type: "REEARTH_TERRAIN",
                 props: {
                   name: "",
                   url: "",
@@ -80,12 +80,12 @@ describe("Settings", () => {
 
     const saveButton = screen.getByRole("button", { name: "Save" });
 
-    expect(screen.getByText("DEFAULT")).toBeVisible();
-    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
+    expect(screen.getByText("Google Satellite")).toBeVisible();
+    expect(screen.getByText("Re:Earth Terrain")).toBeVisible();
     expect(saveButton).toBeDisabled();
 
     await user.click(screen.getByRole("switch"));
-    expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
+    expect(screen.queryByText("Re:Earth Terrain")).not.toBeInTheDocument();
     expect(saveButton).toBeEnabled();
   });
 
@@ -123,7 +123,7 @@ describe("Settings", () => {
   test("Adding a new tile successfully", async () => {
     const updateMock = vi.fn();
 
-    render(
+    const { container } = render(
       <Settings
         loading={loading}
         workspaceSettings={workspaceSettings}
@@ -136,13 +136,13 @@ describe("Settings", () => {
     const saveButton = screen.getByRole("button", { name: "Save" });
 
     expect(saveButton).toBeDisabled();
-    expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
+    expect(screen.queryByText("Google Satellite")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "plusAdd new Tiles option" }));
     await expect.poll(() => screen.getByText("New Tiles")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
-    expect(screen.getByText("DEFAULT")).toBeVisible();
+    expect(getByText(container, "Google Satellite")).toBeVisible();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
@@ -151,7 +151,7 @@ describe("Settings", () => {
   test("Adding a new terrain successfully", async () => {
     const updateMock = vi.fn();
 
-    render(
+    const { container } = render(
       <Settings
         loading={loading}
         workspaceSettings={workspaceSettings}
@@ -164,13 +164,13 @@ describe("Settings", () => {
     const saveButton = screen.getByRole("button", { name: "Save" });
 
     expect(saveButton).toBeDisabled();
-    expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
+    expect(screen.queryByText("Re:Earth Terrain")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "plusAdd new Terrain option" }));
     await expect.poll(() => screen.getByText("New Terrain")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
-    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
+    expect(getByText(container, "Re:Earth Terrain")).toBeVisible();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
@@ -210,17 +210,17 @@ describe("Settings", () => {
     const saveButton = screen.getByRole("button", { name: "Save" });
 
     expect(saveButton).toBeDisabled();
-    expect(screen.getByText("DEFAULT")).toBeVisible();
-    expect(screen.queryByText("LABELLED")).not.toBeInTheDocument();
+    expect(screen.getByText("Google Satellite")).toBeVisible();
+    expect(screen.queryByText("OpenStreetMap")).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText("edit"));
     await expect.poll(() => screen.getByText("Update Tiles")).toBeVisible();
 
     await user.click(screen.getByLabelText("Tiles type"));
-    await user.click(screen.getByText("Labelled"));
+    await user.click(screen.getByText("OpenStreetMap"));
     await user.click(screen.getByRole("button", { name: "OK" }));
-    expect(screen.getByText("DEFAULT")).not.toBeVisible();
-    expect(getByText(container, "LABELLED")).toBeVisible();
+    expect(queryByText(container, "Google Satellite")).not.toBeInTheDocument();
+    expect(getByText(container, "OpenStreetMap")).toBeVisible();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
@@ -240,7 +240,7 @@ describe("Settings", () => {
             resources: [
               {
                 id: "",
-                type: "CESIUM_WORLD_TERRAIN",
+                type: "REEARTH_TERRAIN",
                 props: {
                   name: "",
                   url: "",
@@ -262,17 +262,17 @@ describe("Settings", () => {
     const saveButton = screen.getByRole("button", { name: "Save" });
 
     expect(saveButton).toBeDisabled();
-    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
-    expect(screen.queryByText("ARC_GIS_TERRAIN")).not.toBeInTheDocument();
+    expect(screen.getByText("Re:Earth Terrain")).toBeVisible();
+    expect(screen.queryByText("Cesium Ion")).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText("edit"));
     await expect.poll(() => screen.getByText("Update Terrain")).toBeVisible();
 
     await user.click(screen.getByLabelText("Terrain type"));
-    await user.click(screen.getByText("ArcGIS Terrain"));
+    await user.click(screen.getByText("Cesium Ion"));
     await user.click(screen.getByRole("button", { name: "OK" }));
-    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).not.toBeVisible();
-    expect(getByText(container, "ARC_GIS_TERRAIN")).toBeVisible();
+    expect(queryByText(container, "Re:Earth Terrain")).not.toBeInTheDocument();
+    expect(getByText(container, "Cesium Ion")).toBeVisible();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
@@ -312,10 +312,10 @@ describe("Settings", () => {
     const saveButton = screen.getByRole("button", { name: "Save" });
 
     expect(saveButton).toBeDisabled();
-    expect(screen.getByText("DEFAULT")).toBeVisible();
+    expect(screen.getByText("Google Satellite")).toBeVisible();
 
     await user.click(screen.getByLabelText("delete"));
-    expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
+    expect(screen.queryByText("Google Satellite")).not.toBeInTheDocument();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
@@ -335,7 +335,7 @@ describe("Settings", () => {
             resources: [
               {
                 id: "",
-                type: "CESIUM_WORLD_TERRAIN",
+                type: "REEARTH_TERRAIN",
                 props: {
                   name: "",
                   url: "",
@@ -357,10 +357,10 @@ describe("Settings", () => {
     const saveButton = screen.getByRole("button", { name: "Save" });
 
     expect(saveButton).toBeDisabled();
-    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
+    expect(screen.getByText("Re:Earth Terrain")).toBeVisible();
 
     await user.click(screen.getByLabelText("delete"));
-    expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
+    expect(screen.queryByText("Re:Earth Terrain")).not.toBeInTheDocument();
 
     await user.click(saveButton);
     expect(updateMock).toHaveBeenCalled();
