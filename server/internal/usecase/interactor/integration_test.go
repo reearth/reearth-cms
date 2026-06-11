@@ -2,18 +2,25 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"regexp"
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -1013,4 +1020,587 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 func TestNewIntegration(t *testing.T) {
 	r := memory.New()
 	assert.Equal(t, &Integration{repos: r}, NewIntegration(r, nil))
+}
+
+func TestIntegration_Create_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		seeds     []*integration.Integration
+		args      interfaces.CreateIntegrationParam
+		operator  *usecase.Operator
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name:  "permission allowed",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "test-integration",
+				Type: integration.TypePrivate,
+				Logo: *ts.Uri,
+			},
+			operator: ts.Op,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionCreate, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:  "permission denied - returns error",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "test-integration",
+				Type: integration.TypePrivate,
+				Logo: *ts.Uri,
+			},
+			operator: ts.Op,
+			wantErr:  interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionCreate, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:  "permission check error - returns error",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "test-integration",
+				Type: integration.TypePrivate,
+				Logo: *ts.Uri,
+			},
+			operator: ts.Op,
+			wantErr:  errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionCreate, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, s := range tt.seeds {
+				err := db.Integration.Save(ctx, s.Clone())
+				assert.NoError(t, err)
+			}
+
+			var gateways *gateway.Container
+			if tt.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tt.setupAuth(mockAuth)
+				gateways = &gateway.Container{Authorization: mockAuth}
+			}
+
+			i := Integration{
+				repos:    db,
+				gateways: gateways,
+			}
+			got, err := i.Create(ctx, tt.args, tt.operator)
+			if tt.wantErr != nil {
+				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func newIntegrationUCWithAuth(t *testing.T, db *repo.Container, setupAuth func(*gatewaymock.MockAuthorization)) *Integration {
+	t.Helper()
+	ctrl := gomock.NewController(t)
+	mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+	setupAuth(mockAuth)
+	return &Integration{repos: db, gateways: &gateway.Container{Authorization: mockAuth}}
+}
+
+func TestIntegration_FindByMe_CheckPermission(t *testing.T) {
+	t.Parallel()
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionList, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionList, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionList, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			got, err := i.FindByMe(ctx, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func TestIntegration_FindByIDs_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionRead, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionRead, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionRead, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			got, err := i.FindByIDs(ctx, []id.IntegrationID{ts.IId1}, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func TestIntegration_Update_CheckPermission(t *testing.T) {
+	t.Parallel()
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			got, err := i.Update(ctx, ts.IId1, interfaces.UpdateIntegrationParam{Name: lo.ToPtr("new name"), Logo: ts.Uri}, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func TestIntegration_Delete_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			err := i.Delete(ctx, ts.IId1, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestIntegration_DeleteMany_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			err := i.DeleteMany(ctx, id.IntegrationIDList{ts.IId1}, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestIntegration_RegenerateToken_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			got, err := i.RegenerateToken(ctx, ts.IId1, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func TestIntegration_CreateWebhook_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	webhookParam := interfaces.CreateWebhookParam{
+		Name:    "wh1",
+		URL:     *ts.Uri,
+		Active:  true,
+		Trigger: &interfaces.WebhookTriggerParam{},
+	}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionCreate, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionCreate, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionCreate, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, ts.I1.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			got, err := i.CreateWebhook(ctx, ts.IId1, webhookParam, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func TestIntegration_UpdateWebhook_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	wId := id.NewWebhookID()
+	i2WithWebhook := ts.I2.Clone()
+	i2WithWebhook.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+
+	updateParam := interfaces.UpdateWebhookParam{
+		Name:    lo.ToPtr("updated"),
+		URL:     ts.Uri,
+		Active:  lo.ToPtr(true),
+		Trigger: &interfaces.WebhookTriggerParam{},
+	}
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionUpdate, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, i2WithWebhook.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			got, err := i.UpdateWebhook(ctx, ts.IId2, wId, updateParam, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func TestIntegration_DeleteWebhook_CheckPermission(t *testing.T) {
+
+	ts := testSuite()
+
+	wId := id.NewWebhookID()
+	i2WithWebhook := ts.I2.Clone()
+	i2WithWebhook.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+
+	tests := []struct {
+		name      string
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(true, nil)
+			},
+		},
+		{
+			name:    "permission denied",
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(false, nil)
+			},
+		},
+		{
+			name:    "permission check error",
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceIntegration, rbac.ActionDelete, (*workspace.ID)(nil)).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Integration.Save(ctx, i2WithWebhook.Clone()))
+
+			i := newIntegrationUCWithAuth(t, db, tc.setupAuth)
+			err := i.DeleteWebhook(ctx, ts.IId2, wId, ts.Op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
 }
