@@ -242,10 +242,11 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}
 
 	itv := it.Value()
+	fields := NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil)
 	return PostItemResult{Item: &PostItemResponse{
 		ID:        itv.ID().String(),
 		CreatedAt: itv.Timestamp(),
-		Fields:    map[string]any{},
+		Fields:    map[string]any(fields),
 	}}
 }
 
