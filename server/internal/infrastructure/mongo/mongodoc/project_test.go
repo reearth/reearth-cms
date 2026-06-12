@@ -247,3 +247,51 @@ func TestProjectPublicationDocument_Model(t *testing.T) {
 		})
 	}
 }
+
+func TestPostingSettingsDocument_Model(t *testing.T) {
+	tests := []struct {
+		name        string
+		doc         *PostingSettingsDocument
+		wantNil     bool
+		wantEnabled bool
+		wantOrigins []string
+	}{
+		{
+			name:    "nil document returns nil",
+			doc:     nil,
+			wantNil: true,
+		},
+		{
+			name:        "missing enabled field defaults to true",
+			doc:         &PostingSettingsDocument{AllowedOrigins: []string{"https://a.com"}},
+			wantEnabled: true,
+			wantOrigins: []string{"https://a.com"},
+		},
+		{
+			name:        "stored enabled=false is respected",
+			doc:         &PostingSettingsDocument{Enabled: lo.ToPtr(false)},
+			wantEnabled: false,
+			wantOrigins: []string{},
+		},
+		{
+			name:        "stored enabled=true is respected",
+			doc:         &PostingSettingsDocument{Enabled: lo.ToPtr(true)},
+			wantEnabled: true,
+			wantOrigins: []string{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.doc.Model()
+			require.NoError(t, err)
+			if tt.wantNil {
+				assert.Nil(t, got)
+				return
+			}
+			require.NotNil(t, got)
+			assert.Equal(t, tt.wantEnabled, got.Enabled())
+			assert.Equal(t, tt.wantOrigins, got.AllowedOrigins())
+		})
+	}
+}

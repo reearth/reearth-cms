@@ -802,7 +802,6 @@ func TestProject_UpdatePostingSettings_RoleEnforcement(t *testing.T) {
 
 	postingParam := &interfaces.AccessibilityParam{
 		Posting: &interfaces.PostingSettingsParam{
-			Enabled:        true,
 			AllowedOrigins: []string{"https://example.com"},
 		},
 	}
