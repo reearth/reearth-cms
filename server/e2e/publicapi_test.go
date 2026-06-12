@@ -1192,12 +1192,12 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	updateProjectPosting(e, pId, true, []string{"https://allowed.com"})
 	updateModelPostingEnabled(e, mId, true)
 
-	t.Run("posting enabled returns 202", func(t *testing.T) {
+	t.Run("posting enabled returns 202 with item id", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://allowed.com").
 			Expect().
 			Status(http.StatusAccepted).
-			JSON().Object().Value("status").IsEqual("accepted")
+			JSON().Object().ContainsKey("id").ContainsKey("$createdAt")
 	})
 
 	// --- schema-based validation ---

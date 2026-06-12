@@ -4,14 +4,17 @@ import (
 	"context"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -165,18 +168,58 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	return vi
 }
 
+type PostItemResponse struct {
+	ID        string         `json:"id"`
+	CreatedAt time.Time      `json:"$createdAt"`
+	Fields    map[string]any `json:"fields"`
+}
+
 type PostItemResult struct {
-	Item        any
+	Item        *PostItemResponse
 	FieldErrors []schema.FieldValidationError
 	Err         error
 }
 
-// PostItem validates the payload against the model schema.
+func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
+	params := make([]interfaces.ItemFieldParam, 0, len(body))
+	for _, f := range s.Fields() {
+		key := f.Key()
+		v, ok := body[key.String()]
+		if !ok {
+			continue
+		}
+		// itemFieldsFromParams expects []any for multiple fields; normalize scalars here.
+		if f.Multiple() {
+			if _, isSlice := v.([]any); !isSlice {
+				v = []any{v}
+			}
+		}
+		params = append(params, interfaces.ItemFieldParam{
+			Field: f.ID().Ref(),
+			Key:   key.Ref(),
+			Value: v,
+		})
+	}
+	return params
+}
+
+func newAnonymousOperator() *usecase.Operator {
+	return &usecase.Operator{
+		AcOperator: &accountusecase.Operator{},
+		Anonymous:  true,
+	}
+}
+
+// PostItem validates the payload against the model schema and creates a Draft item.
 // Posting access (project/model enabled, origin) is checked by the handler before this is called.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, op *usecase.Operator, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return PostItemResult{Err: err}
+	}
+
+	if wpm.SchemaPackage == nil {
+		return PostItemResult{Err: rerror.ErrNotFound}
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
@@ -184,9 +227,23 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 			FieldErrors: fieldErrs,
 		}
 	}
-	return PostItemResult{
-		Item: nil, // TODO: will be set to created item after draft item creation is implemented
+
+	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: wpm.SchemaPackage.Schema().ID(),
+		ModelID:  wpm.Model.ID(),
+		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
+	}, op)
+	if err != nil {
+		return PostItemResult{Err: err}
 	}
+
+	itv := it.Value()
+	fields := NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil)
+	return PostItemResult{Item: &PostItemResponse{
+		ID:        itv.ID().String(),
+		CreatedAt: itv.Timestamp(),
+		Fields:    map[string]any(fields),
+	}}
 }
 
 // ValidatePostingAccess checks that posting is enabled for the project and model to post.

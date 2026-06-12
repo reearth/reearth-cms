@@ -312,7 +312,7 @@ func PostItem() echo.HandlerFunc {
 			return err
 		}
 
-		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		result := ctrl.PostItem(ctx, ws, p, m, newAnonymousOperator(), req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, apiErrorResponse{
@@ -332,17 +332,7 @@ func PostItem() echo.HandlerFunc {
 
 		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
 
-		/* TODO: success response will be updated in the draft item creation task
-		{
-			"id": "<item-id>",
-			"$createdAt": "<timestamp>",
-			"fields": {}
-		}
-		*/
-		return c.JSON(http.StatusAccepted, map[string]string{
-			"status":  "accepted",
-			"message": "Posting is enabled.",
-		})
+		return c.JSON(http.StatusAccepted, result.Item)
 	}
 }
 
