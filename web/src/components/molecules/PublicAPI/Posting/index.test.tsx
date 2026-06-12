@@ -52,7 +52,7 @@ describe("PostingTab", () => {
   test("adding an origin hides the warning and enables the table, clearing restores it", async () => {
     renderTab();
 
-    await user.type(screen.getByRole("combobox"), "example.com,");
+    await user.type(screen.getByRole("combobox"), "https://example.com,");
     expect(screen.getByText(/1 configured/)).toBeVisible();
     expect(screen.queryByText(ORIGIN_WARNING)).not.toBeInTheDocument();
     screen.getAllByRole("switch").forEach(s => expect(s).toBeEnabled());
@@ -71,7 +71,7 @@ describe("PostingTab", () => {
     expect(saveButton()).toBeDisabled();
 
     // adding an origin is a change → enabled
-    await user.type(screen.getByRole("combobox"), "example.com,");
+    await user.type(screen.getByRole("combobox"), "https://example.com,");
     expect(saveButton()).toBeEnabled();
   });
 
@@ -86,12 +86,12 @@ describe("PostingTab", () => {
     const onPostingUpdate = vi.fn().mockResolvedValue(undefined);
     renderTab({ onPostingUpdate });
 
-    await user.type(screen.getByRole("combobox"), "example.com,");
+    await user.type(screen.getByRole("combobox"), "https://example.com,");
     await user.click(screen.getByRole("switch"));
     await user.click(screen.getByRole("button", { name: t("Save changes") }));
 
     expect(onPostingUpdate).toHaveBeenCalledWith(
-      ["example.com"],
+      ["https://example.com"],
       [{ modelId: "m1", status: true }],
     );
   });
