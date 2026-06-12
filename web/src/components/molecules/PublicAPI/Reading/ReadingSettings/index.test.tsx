@@ -68,10 +68,9 @@ describe("ReadingSettings", () => {
     await user.click(modelSwitch());
     await user.click(saveButton());
 
-    expect(onPublicUpdate).toHaveBeenCalledWith(
-      { assetPublic: false, models: { m1: true } },
-      [{ modelId: "m1", status: true }],
-    );
+    expect(onPublicUpdate).toHaveBeenCalledWith({ assetPublic: false, models: { m1: true } }, [
+      { modelId: "m1", status: true },
+    ]);
     expect(saveButton()).toBeDisabled();
   });
 
