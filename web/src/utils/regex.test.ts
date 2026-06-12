@@ -1,6 +1,6 @@
 import { test, expect, assert } from "vitest";
 
-import { aliasRegex, validateKey, validateURL } from "./regex";
+import { aliasRegex, RegexUtils, validateKey, validateURL } from "./regex";
 
 test("validateKey function returns true for valid keys", () => {
   expect(validateKey("valid_key")).toBe(true);
@@ -26,6 +26,29 @@ test("validateURL function returns false for invalid URLs", () => {
   expect(validateURL("htp://example.com")).toBe(false);
   expect(validateURL("http://example")).toBe(false);
   expect(validateURL("http://localhost:3000")).toBe(false);
+});
+
+test.each([
+  "https://example.com",
+  "http://example.com",
+  "https://example.com:3000",
+  "https://app.example.com",
+  "https://example.com/",
+])("validateOrigin returns true for valid origin %s", origin => {
+  expect(RegexUtils.validateOrigin(origin)).toBe(true);
+});
+
+test.each([
+  "yahoo.com",
+  "ftp://example.com",
+  "https://*.example.com",
+  "*",
+  "https://example.com/path",
+  "https://example.com?foo=bar",
+  "https://example.com#x",
+  "not-a-url",
+])("validateOrigin returns false for invalid origin %s", origin => {
+  expect(RegexUtils.validateOrigin(origin)).toBe(false);
 });
 
 test("validate aliasRegex", () => {

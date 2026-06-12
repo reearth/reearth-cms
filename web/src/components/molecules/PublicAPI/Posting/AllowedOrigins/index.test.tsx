@@ -25,16 +25,16 @@ describe("AllowedOrigins", () => {
     expect(screen.getByText(/2 configured/)).toBeVisible();
   });
 
-  test("appends a valid domain", async () => {
+  test("appends a valid origin", async () => {
     const { onChange } = renderComponent({ origins: [] });
-    await user.type(screen.getByRole("combobox"), "example.com,");
-    expect(onChange).toHaveBeenCalledWith(["example.com"]);
+    await user.type(screen.getByRole("combobox"), "https://example.com,");
+    expect(onChange).toHaveBeenCalledWith(["https://example.com"]);
   });
 
-  test("rejects an invalid domain with a warning and does not change origins", async () => {
+  test("rejects an invalid origin with a warning and does not change origins", async () => {
     const warning = vi.spyOn(Notification, "warning").mockImplementation(() => ({}) as never);
     const { onChange } = renderComponent({ origins: [] });
-    await user.type(screen.getByRole("combobox"), "invalid,");
+    await user.type(screen.getByRole("combobox"), "example.com,");
     expect(warning).toHaveBeenCalled();
     expect(onChange).not.toHaveBeenCalled();
   });

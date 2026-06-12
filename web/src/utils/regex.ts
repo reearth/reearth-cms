@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
+import { z } from "zod";
+
 import { Constant } from "./constant";
 
 export const aliasRegex = new RegExp("^[a-z0-9\\-_]+$");
@@ -15,7 +17,21 @@ export const validateURL = (url: string): boolean => {
   return urlRegex.test(url);
 };
 
-export abstract class RegularExpression {
-  // Domain only: at least one dot + TLD, no wildcard "*", no scheme/path.
-  public static readonly DOMAIN_REGEX = /^(?!-)([A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}$/;
+export abstract class RegexUtils {
+  // A web origin: http/https URL with a host and no path, query, fragment, or wildcard.
+  private static readonly ORIGIN_SCHEMA = z.url({ protocol: /^https?$/ }).refine(origin => {
+    // not allow wildcard for now
+    if (origin.includes("*")) return false;
+
+    try {
+      const u = new URL(origin);
+      return (u.pathname === "" || u.pathname === "/") && !u.search && !u.hash;
+    } catch {
+      return false;
+    }
+  });
+
+  public static validateOrigin(origin: string): boolean {
+    return this.ORIGIN_SCHEMA.safeParse(origin).success;
+  }
 }

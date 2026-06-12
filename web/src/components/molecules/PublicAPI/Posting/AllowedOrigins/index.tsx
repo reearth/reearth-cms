@@ -1,18 +1,15 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { z } from "zod";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
-import { RegularExpression } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdToken } from "@reearth-cms/utils/style";
 
 import CountTag from "./CountTag";
-
-const ORIGIN_SCHEMA = z.string().regex(RegularExpression.DOMAIN_REGEX);
 
 type Props = {
   origins: string[];
@@ -33,8 +30,10 @@ const AllowedOrigins: React.FC<Props> = ({ origins, onChange }) => {
       const added = next.find(origin => !origins.includes(origin));
       if (!added) return;
 
-      if (!ORIGIN_SCHEMA.safeParse(added).success) {
-        Notification.warning({ message: t("Please enter a valid domain (e.g. example.com).") });
+      if (!RegexUtils.validateOrigin(added)) {
+        Notification.warning({
+          message: t("Please enter a valid origin (e.g. https://example.com)."),
+        });
         return;
       }
 
@@ -62,7 +61,7 @@ const AllowedOrigins: React.FC<Props> = ({ origins, onChange }) => {
         value={origins}
         onChange={value => handleChange(value as string[])}
         tokenSeparators={[",", " "]}
-        placeholder="api.example.com"
+        placeholder="https://api.example.com"
       />
       <ButtonClearAll type="link" disabled={!origins.length} onClick={handleClearAll}>
         {t("Clear all")}

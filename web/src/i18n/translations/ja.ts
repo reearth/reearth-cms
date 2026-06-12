@@ -472,7 +472,7 @@ export default {
   "Please click the comment bubble in the table to check comments.": "コメントを確認するには、表のコメントアイコンををクリックしてください。",
   "Please create a Group first to use the field": "フィールドを使用するには、まずグループを作成してください。",
   "Please create a schema first": "最初にスキーマを作成してください",
-  "Please enter a valid domain (e.g. example.com).": "有効なドメインを入力してください（例: example.com）。",
+  "Please enter a valid origin (e.g. https://example.com).": "有効なオリジンを入力してください（例: https://example.com）。",
   "Please enter the email address you want to use to log in with Re:Earth CMS.": "ログインに利用するメールアドレスを入力してください。",
   "Please input a new workspace name!": "新しいワークスペース名を入力してください。",
   "Please input a valid URL": "有効なURLを入力してください",

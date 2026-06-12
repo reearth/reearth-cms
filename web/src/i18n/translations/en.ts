@@ -475,7 +475,7 @@ export default {
   "Please click the comment bubble in the table to check comments.": "",
   "Please create a Group first to use the field": "",
   "Please create a schema first": "Please create a schema first",
-  "Please enter a valid domain (e.g. example.com).": "",
+  "Please enter a valid origin (e.g. https://example.com).": "",
   "Please enter the email address you want to use to log in with Re:Earth CMS.": "",
   "Please input a new workspace name!": "",
   "Please input a valid URL": "",
