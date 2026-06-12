@@ -16,15 +16,16 @@ import {
   UpdateProjectDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
 import { useLang, useT } from "@reearth-cms/i18n";
-import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
+import { useProject, useUserRights } from "@reearth-cms/state";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+
+import usePublicApiUrl from "../usePublicApiUrl";
 
 export default () => {
   const t = useT();
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const [currentProject] = useProject();
-  const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
   const hasPublishRight = useMemo(
     () => !!userRights?.project.publish,
@@ -207,10 +208,7 @@ export default () => {
     [deleteAPIKeyMutation, currentProject?.id, t],
   );
 
-  const apiUrl = useMemo(
-    () => `${window.REEARTH_CONFIG?.api}/p/${currentWorkspace?.alias}/${currentProject?.alias}/`,
-    [currentProject?.alias, currentWorkspace?.alias],
-  );
+  const apiUrl = usePublicApiUrl({ trailingSlash: true });
 
   const handleSettingsPageOpen = () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
