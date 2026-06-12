@@ -11,6 +11,9 @@ export const GET_MODELS = gql`
         order
         createdAt
         updatedAt
+        postingSettings {
+          enabled
+        }
         schema {
           id
           fields {
@@ -229,6 +232,22 @@ export const EXPORT_MODEL_SCHEMA = gql`
     exportModelSchema(input: { modelId: $modelId }) {
       modelId
       url
+    }
+  }
+`;
+
+export const UPDATE_MODEL_POSTING_ENABLED = gql`
+  mutation UpdateModelPostingEnabled($modelId: ID!, $enabled: Boolean!) {
+    updateModel(input: { modelId: $modelId, postingSettings: { enabled: $enabled } }) {
+      model {
+        id
+        postingSettings {
+          enabled
+          __typename
+        }
+        __typename
+      }
+      __typename
     }
   }
 `;

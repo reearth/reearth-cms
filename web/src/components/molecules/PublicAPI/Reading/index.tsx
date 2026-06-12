@@ -1,28 +1,21 @@
-import { useMemo } from "react";
-
-import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import { APIKey, FormType } from "@reearth-cms/components/molecules/Accessibility/types";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { useT } from "@reearth-cms/i18n";
-import { Constant } from "@reearth-cms/utils/constant";
+import { APIKey, FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 
-import APIDocLinks from "../APIDocLinks";
-
-import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
+import ReadingSettings from "./ReadingSettings";
 
 type Props = {
-  apiKeys?: APIKey[];
-  isProjectPublic?: boolean;
+  apiUrl: string;
+  isPublic?: boolean;
   initialValues: FormType;
-  models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  models: Pick<Model, "id" | "name" | "key">[];
   updateLoading: boolean;
-  apiUrl: string;
-  alias: string;
+  apiKeys?: APIKey[];
   onAPIKeyNew: () => void;
   onAPIKeyEdit: (keyId?: string) => void;
   onAPIKeyDelete: (id: string) => Promise<void>;
@@ -31,52 +24,39 @@ type Props = {
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
   onSettingsPageOpen: () => void;
-  currentLang: string;
 };
 
-const Accessibility: React.FC<Props> = ({
-  apiKeys,
-  isProjectPublic,
+const ReadingTab: React.FC<Props> = ({
+  apiUrl,
+  isPublic,
   initialValues,
-  models,
   hasPublishRight,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  models,
   updateLoading,
-  apiUrl,
+  apiKeys,
   onAPIKeyNew,
   onAPIKeyEdit,
   onAPIKeyDelete,
   onPublicUpdate,
   onSettingsPageOpen,
-  currentLang,
 }) => {
-  const t = useT();
-  const documentUrl = useMemo<string>(
-    () => (currentLang === "ja" ? Constant.PUBLIC_API_DOCS.ja : Constant.PUBLIC_API_DOCS.en),
-    [currentLang],
-  );
-
   return (
-    <InnerContent
-      title={t("Accessibility")}
-      flexChildren
-      subtitle={t("Control the visibility scope of the Content API")}
-      extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./accessibility/docs" />}>
-      <AccessAPIComponent
+    <ContentSection hasPadding={false}>
+      <ReadingSettings
         apiUrl={apiUrl}
         initialValues={initialValues}
-        isPublic={isProjectPublic}
+        isPublic={isPublic}
         hasPublishRight={hasPublishRight}
         models={models}
         updateLoading={updateLoading}
-        onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
       />
       <APIKeyComponent
         keys={apiKeys}
-        isPublic={isProjectPublic}
+        isPublic={isPublic}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -85,8 +65,8 @@ const Accessibility: React.FC<Props> = ({
         onAPIKeyDelete={onAPIKeyDelete}
         onSettingsPageOpen={onSettingsPageOpen}
       />
-    </InnerContent>
+    </ContentSection>
   );
 };
 
-export default Accessibility;
+export default ReadingTab;

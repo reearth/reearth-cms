@@ -27,6 +27,10 @@ export const fromGraphQLProject = (project: GQLProject): Project => ({
               publicAssets: apiKey.publication?.publicAssets ?? false,
             },
           })) ?? [],
+        posting: {
+          enabled: project.accessibility.posting?.enabled ?? false,
+          allowedOrigins: project.accessibility.posting?.allowedOrigins ?? [],
+        },
       }
     : undefined,
 });

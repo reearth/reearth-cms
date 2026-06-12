@@ -42,6 +42,11 @@ export type GetProjectQuery = {
               publicAssets: boolean;
             };
           }> | null;
+          posting: {
+            __typename: "PostingSettings";
+            enabled: boolean;
+            allowedOrigins: Array<string>;
+          };
         };
       }
     | { __typename: "Request"; id: string }
@@ -400,6 +405,20 @@ export const GetProjectDocument = {
                                         },
                                       ],
                                     },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "posting" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  { kind: "Field", name: { kind: "Name", value: "enabled" } },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "allowedOrigins" },
                                   },
                                 ],
                               },

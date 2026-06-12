@@ -32,8 +32,8 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
-      key: "accessibility",
+      label: t("Public API"),
+      key: "publicApi",
       icon: <Icon icon="send" />,
     },
     {

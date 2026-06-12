@@ -14,7 +14,7 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { validateURL } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 
 type FormValues = {
   type: TileType | TerrainType;
@@ -173,7 +173,7 @@ const FormModal: React.FC<Props> = ({
       {
         message: t("URL is not valid"),
         validator: async (_: Rule, value: string) => {
-          return value && !validateURL(value) ? Promise.reject() : Promise.resolve();
+          return value && !RegexUtils.validateURL(value) ? Promise.reject() : Promise.resolve();
         },
       },
     ],
