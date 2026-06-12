@@ -1,64 +1,63 @@
-import { test, expect, assert } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import { aliasRegex, RegexUtils, validateKey, validateURL } from "./regex";
+import { RegexUtils } from "./regex";
 
-test("validateKey function returns true for valid keys", () => {
-  expect(validateKey("valid_key")).toBe(true);
-  expect(validateKey("anotherKey123")).toBe(true);
-  expect(validateKey("123_456")).toBe(true);
-});
+describe("RegexUtils", () => {
+  test.each([
+    ["valid_key", true],
+    ["anotherKey123", true],
+    ["123_456", true],
+    ["", false],
+    ["too_long_key_to_validate_whether_it_is_valid_or_not", false],
+    ["with spaces", false],
+    ["special!char", false],
+  ])("validateKey returns %s for %s", (key, expected) => {
+    expect(RegexUtils.validateKey(key)).toBe(expected);
+  });
 
-test("validateKey function returns false for invalid keys", () => {
-  expect(validateKey("")).toBe(false);
-  expect(validateKey("too_long_key_to_validate_whether_it_is_valid_or_not")).toBe(false);
-  expect(validateKey("with spaces")).toBe(false);
-  expect(validateKey("special!char")).toBe(false);
-});
+  test.each([
+    ["http://example.com", true],
+    ["https://www.example.com", true],
+    ["ftp://ftp.example.com", true],
+    ["example.com", false],
+    ["htp://example.com", false],
+    ["http://example", false],
+    ["http://localhost:3000", false],
+  ])("validateURL returns %s for %s", (url, expected) => {
+    expect(RegexUtils.validateURL(url)).toBe(expected);
+  });
 
-test("validateURL function returns true for valid URLs", () => {
-  expect(validateURL("http://example.com")).toBe(true);
-  expect(validateURL("https://www.example.com")).toBe(true);
-  expect(validateURL("ftp://ftp.example.com")).toBe(true);
-});
+  test.each([
+    "https://example.com",
+    "http://example.com",
+    "https://example.com:3000",
+    "https://app.example.com",
+    "https://example.com/",
+  ])("validateOrigin returns true for valid origin %s", origin => {
+    expect(RegexUtils.validateOrigin(origin)).toBe(true);
+  });
 
-test("validateURL function returns false for invalid URLs", () => {
-  expect(validateURL("example.com")).toBe(false);
-  expect(validateURL("htp://example.com")).toBe(false);
-  expect(validateURL("http://example")).toBe(false);
-  expect(validateURL("http://localhost:3000")).toBe(false);
-});
+  test.each([
+    "yahoo.com",
+    "ftp://example.com",
+    "https://*.example.com",
+    "*",
+    "https://example.com/path",
+    "https://example.com?foo=bar",
+    "https://example.com#x",
+    "not-a-url",
+  ])("validateOrigin returns false for invalid origin %s", origin => {
+    expect(RegexUtils.validateOrigin(origin)).toBe(false);
+  });
 
-test.each([
-  "https://example.com",
-  "http://example.com",
-  "https://example.com:3000",
-  "https://app.example.com",
-  "https://example.com/",
-])("validateOrigin returns true for valid origin %s", origin => {
-  expect(RegexUtils.validateOrigin(origin)).toBe(true);
-});
-
-test.each([
-  "yahoo.com",
-  "ftp://example.com",
-  "https://*.example.com",
-  "*",
-  "https://example.com/path",
-  "https://example.com?foo=bar",
-  "https://example.com#x",
-  "not-a-url",
-])("validateOrigin returns false for invalid origin %s", origin => {
-  expect(RegexUtils.validateOrigin(origin)).toBe(false);
-});
-
-test("validate aliasRegex", () => {
-  // legal cases
-  assert.match("test_project_123", aliasRegex);
-  assert.match("test-project-123", aliasRegex);
-
-  // illegal cases
-  assert.notMatch("test.project.123", aliasRegex);
-  assert.notMatch("test project 123", aliasRegex);
-  assert.notMatch("testProject123", aliasRegex);
-  assert.notMatch("testProject123@#$%^&*()+=", aliasRegex);
+  test.each([
+    ["test_project_123", true],
+    ["test-project-123", true],
+    ["test.project.123", false],
+    ["test project 123", false],
+    ["testProject123", false],
+    ["testProject123@#$%^&*()+=", false],
+  ])("ALIAS_REGEX matches %s -> %s", (value, expected) => {
+    expect(RegexUtils.ALIAS_REGEX.test(value)).toBe(expected);
+  });
 });

@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
-import { aliasRegex } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 
 export default (
   onProjectAliasCheck: (alias: string) => Promise<boolean>,
@@ -41,7 +41,7 @@ export default (
       }
 
       // check illegal characters
-      if (!aliasRegex.test(value)) {
+      if (!RegexUtils.ALIAS_REGEX.test(value)) {
         return Promise.reject(
           t(
             "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
