@@ -175,7 +175,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Posting {
+	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Anonymous {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -193,11 +193,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if operator.Posting {
-			if !operator.IsWritableProject(s.Project()) {
-				return nil, interfaces.ErrOperationDenied
-			}
-		} else if !operator.IsWritableWorkspace(s.Workspace()) {
+		if !operator.Anonymous && !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -234,7 +230,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if operator.Integration != nil {
 			ib = ib.Integration(*operator.Integration)
 		}
-		// TODO(WP3-T4): set origin marker for public API submissions (operator.Posting == true)
+		if operator.Anonymous {
+			ib = ib.Anonymous(true)
+		}
 
 		var mi item.Versioned
 		if param.MetadataID != nil {
@@ -257,7 +255,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.repos.Item.Save(ctx, it); err != nil {
+		if operator.Anonymous {
+			if err := i.repos.Item.SaveDraft(ctx, it); err != nil {
+				return nil, err
+			}
+		} else if err := i.repos.Item.Save(ctx, it); err != nil {
 			return nil, err
 		}
 

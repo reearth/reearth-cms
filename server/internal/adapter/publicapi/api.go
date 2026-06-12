@@ -312,7 +312,7 @@ func PostItem() echo.HandlerFunc {
 			return err
 		}
 
-		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		result := ctrl.PostItem(ctx, ws, p, m, newAnonymousOperator(), req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, apiErrorResponse{

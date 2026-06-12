@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
@@ -204,17 +203,16 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 	return params
 }
 
-func newPostingOperator(projectID id.ProjectID) *usecase.Operator {
+func newAnonymousOperator() *usecase.Operator {
 	return &usecase.Operator{
-		AcOperator:      &accountusecase.Operator{},
-		Posting:         true,
-		WritableProjects: project.IDList{projectID},
+		AcOperator: &accountusecase.Operator{},
+		Anonymous:  true,
 	}
 }
 
 // PostItem validates the payload against the model schema and creates a Draft item.
 // Posting access (project/model enabled, origin) is checked by the handler before this is called.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, op *usecase.Operator, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return PostItemResult{Err: err}
@@ -229,8 +227,6 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 			FieldErrors: fieldErrs,
 		}
 	}
-
-	op := newPostingOperator(wpm.Project.ID())
 
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: wpm.SchemaPackage.Schema().ID(),

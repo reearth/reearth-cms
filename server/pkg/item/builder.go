@@ -114,6 +114,11 @@ func (b *Builder) IsMetadata(im bool) *Builder {
 	return b
 }
 
+func (b *Builder) Anonymous(v bool) *Builder {
+	b.i.isAnonymous = v
+	return b
+}
+
 func (b *Builder) OriginalItem(id *ID) *Builder {
 	b.i.originalItem = id
 	return b

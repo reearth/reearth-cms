@@ -6,7 +6,7 @@ type Operator struct {
 	user        *accountdomain.UserID
 	integration *IntegrationID
 	isMachine   bool
-	isPosting   bool
+	isAnonymous bool
 }
 
 func OperatorFromUser(user accountdomain.UserID) Operator {
@@ -27,9 +27,9 @@ func OperatorFromMachine() Operator {
 	}
 }
 
-func OperatorFromPosting() Operator {
+func OperatorFromAnonymous() Operator {
 	return Operator{
-		isPosting: true,
+		isAnonymous: true,
 	}
 }
 
@@ -45,10 +45,10 @@ func (o Operator) Machine() bool {
 	return o.isMachine
 }
 
-func (o Operator) Posting() bool {
-	return o.isPosting
+func (o Operator) Anonymous() bool {
+	return o.isAnonymous
 }
 
 func (o Operator) Validate() bool {
-	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine() || o.Posting()
+	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine() || o.Anonymous()
 }

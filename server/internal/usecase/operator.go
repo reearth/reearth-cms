@@ -14,7 +14,7 @@ import (
 type Operator struct {
 	Integration          *integration.ID
 	Machine              bool
-	Posting              bool
+	Anonymous            bool
 	Lang                 string
 	ReadableProjects     project.IDList
 	WritableProjects     project.IDList
@@ -154,8 +154,8 @@ func (o *Operator) Operator() operator.Operator {
 	if o.Machine {
 		eOp = operator.OperatorFromMachine()
 	}
-	if o.Posting {
-		eOp = operator.OperatorFromPosting()
+	if o.Anonymous {
+		eOp = operator.OperatorFromAnonymous()
 	}
 	return eOp
 }
