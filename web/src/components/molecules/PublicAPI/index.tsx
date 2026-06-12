@@ -2,7 +2,11 @@ import { useMemo } from "react";
 
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { APIKey, FormType, PostingFormType } from "@reearth-cms/components/molecules/PublicAPI/types";
+import {
+  APIKey,
+  FormType,
+  PostingFormType,
+} from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
