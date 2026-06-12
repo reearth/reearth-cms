@@ -9,9 +9,9 @@ import (
 )
 
 // mustNewPS is a test helper that calls NewPostingSettings and fails the test on error.
-func mustNewPS(t *testing.T, enabled bool, allowedOrigins []string) *PostingSettings {
+func mustNewPS(t *testing.T, allowedOrigins []string) *PostingSettings {
 	t.Helper()
-	ps, err := NewPostingSettings(enabled, allowedOrigins)
+	ps, err := NewPostingSettings(true, allowedOrigins)
 	require.NoError(t, err)
 	return ps
 }
@@ -65,47 +65,31 @@ func TestNewPostingSettings(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		enabled        bool
 		allowedOrigins []string
 		wantErr        bool
-		wantEnabled    bool
 		wantOrigins    []string
 	}{
 		{
-			name:        "enabled=true with nil origins normalises to empty slice",
-			enabled:     true,
-			wantEnabled: true,
-			wantOrigins: []string{},
-		},
-		{
-			name:        "enabled=false with nil origins",
-			enabled:     false,
-			wantEnabled: false,
+			name:        "nil origins normalises to empty slice",
 			wantOrigins: []string{},
 		},
 		{
 			name:           "empty allowedOrigins stays empty",
-			enabled:        true,
 			allowedOrigins: []string{},
-			wantEnabled:    true,
 			wantOrigins:    []string{},
 		},
 		{
 			name:           "valid origins are preserved",
-			enabled:        true,
 			allowedOrigins: []string{"https://a.com", "https://b.com"},
-			wantEnabled:    true,
 			wantOrigins:    []string{"https://a.com", "https://b.com"},
 		},
 		{
 			name:           "invalid origin returns ErrInvalidOrigin",
-			enabled:        true,
 			allowedOrigins: []string{"not-a-url"},
 			wantErr:        true,
 		},
 		{
 			name:           "wildcard origin returns ErrInvalidOrigin",
-			enabled:        true,
 			allowedOrigins: []string{"*"},
 			wantErr:        true,
 		},
@@ -115,14 +99,14 @@ func TestNewPostingSettings(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ps, err := NewPostingSettings(tt.enabled, tt.allowedOrigins)
+			ps, err := NewPostingSettings(true, tt.allowedOrigins)
 			if tt.wantErr {
 				assert.ErrorIs(t, err, ErrInvalidOrigin)
 				assert.Nil(t, ps)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, ps)
-				assert.Equal(t, tt.wantEnabled, ps.Enabled())
+				assert.True(t, ps.Enabled())
 				assert.Equal(t, tt.wantOrigins, ps.AllowedOrigins())
 			}
 		})
@@ -137,9 +121,9 @@ func TestPostingSettings_Enabled(t *testing.T) {
 		p    *PostingSettings
 		want bool
 	}{
-		{name: "nil receiver returns false", p: nil, want: false},
-		{name: "enabled=true returns true", p: mustNewPS(t, true, nil), want: true},
-		{name: "enabled=false returns false", p: mustNewPS(t, false, nil), want: false},
+		{name: "nil receiver defaults to true", p: nil, want: true},
+		{name: "enabled=true returns true", p: &PostingSettings{enabled: true}, want: true},
+		{name: "enabled=false returns false", p: &PostingSettings{enabled: false}, want: false},
 	}
 
 	for _, tt := range tests {
@@ -160,8 +144,8 @@ func TestPostingSettings_AllowedOrigins(t *testing.T) {
 		want []string
 	}{
 		{name: "nil receiver returns empty slice", p: nil, want: []string{}},
-		{name: "empty list returns empty slice", p: mustNewPS(t, true, []string{}), want: []string{}},
-		{name: "populated list is returned", p: mustNewPS(t, true, []string{"https://x.com", "https://y.com"}), want: []string{"https://x.com", "https://y.com"}},
+		{name: "empty list returns empty slice", p: mustNewPS(t, []string{}), want: []string{}},
+		{name: "populated list is returned", p: mustNewPS(t, []string{"https://x.com", "https://y.com"}), want: []string{"https://x.com", "https://y.com"}},
 	}
 
 	for _, tt := range tests {
@@ -180,7 +164,6 @@ func TestPostingSettings_Clone(t *testing.T) {
 		name           string
 		p              *PostingSettings
 		wantNil        bool
-		wantEnabled    bool
 		wantOrigins    []string
 		mutateFn       func(c *PostingSettings)
 		checkOriginals func(t *testing.T, original *PostingSettings)
@@ -191,21 +174,23 @@ func TestPostingSettings_Clone(t *testing.T) {
 			wantNil: true,
 		},
 		{
-			name:        "clone copies enabled flag",
-			p:           mustNewPS(t, true, nil),
-			wantEnabled: true,
+			name:        "clone with nil origins produces empty slice",
+			p:           mustNewPS(t, nil),
 			wantOrigins: []string{},
 		},
 		{
 			name:        "clone with empty origins produces empty slice",
-			p:           mustNewPS(t, false, []string{}),
-			wantEnabled: false,
+			p:           mustNewPS(t, []string{}),
+			wantOrigins: []string{},
+		},
+		{
+			name:        "clone copies enabled flag",
+			p:           &PostingSettings{enabled: false, allowedOrigins: []string{}},
 			wantOrigins: []string{},
 		},
 		{
 			name:        "clone copies allowedOrigins as distinct slice",
-			p:           mustNewPS(t, true, []string{"https://a.com"}),
-			wantEnabled: true,
+			p:           mustNewPS(t, []string{"https://a.com"}),
 			wantOrigins: []string{"https://a.com"},
 			mutateFn:    func(c *PostingSettings) { c.allowedOrigins[0] = "https://mutated.com" },
 			checkOriginals: func(t *testing.T, original *PostingSettings) {
@@ -225,7 +210,7 @@ func TestPostingSettings_Clone(t *testing.T) {
 			}
 			require.NotNil(t, c)
 			assert.NotSame(t, tt.p, c)
-			assert.Equal(t, tt.wantEnabled, c.Enabled())
+			assert.Equal(t, tt.p.Enabled(), c.Enabled())
 			assert.Equal(t, tt.wantOrigins, c.AllowedOrigins())
 			if tt.mutateFn != nil {
 				tt.mutateFn(c)
@@ -242,10 +227,17 @@ func TestPostingSettings_CheckOrigin(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		nilSettings    bool
 		allowedOrigins []string
 		origin         string
 		wantErr        error
 	}{
+		{
+			name:        "nil settings returns ErrNoOriginsConfigured",
+			nilSettings: true,
+			origin:      "https://example.com",
+			wantErr:     ErrNoOriginsConfigured,
+		},
 		{
 			name:           "empty allowed list returns ErrNoOriginsConfigured",
 			allowedOrigins: []string{},
@@ -282,7 +274,10 @@ func TestPostingSettings_CheckOrigin(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ps := mustNewPS(t, true, tt.allowedOrigins)
+			var ps *PostingSettings
+			if !tt.nilSettings {
+				ps = mustNewPS(t, tt.allowedOrigins)
+			}
 			assert.ErrorIs(t, ps.CheckOrigin(tt.origin), tt.wantErr)
 		})
 	}

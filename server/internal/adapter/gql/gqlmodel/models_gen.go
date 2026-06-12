@@ -896,7 +896,6 @@ type Pagination struct {
 }
 
 type PostingSettings struct {
-	Enabled        bool     `json:"enabled"`
 	AllowedOrigins []string `json:"allowedOrigins"`
 }
 
@@ -1545,7 +1544,6 @@ type UpdateModelsOrderInput struct {
 }
 
 type UpdatePostingSettingsInput struct {
-	Enabled        bool     `json:"enabled"`
 	AllowedOrigins []string `json:"allowedOrigins"`
 }
 

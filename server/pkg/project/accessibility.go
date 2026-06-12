@@ -63,9 +63,10 @@ func (p *Accessibility) Posting() *PostingSettings {
 	return p.posting.Clone()
 }
 
+// PostingEnabled defaults to true when no posting settings exist
 func (p *Accessibility) PostingEnabled() bool {
 	if p == nil || p.posting == nil {
-		return false
+		return true
 	}
 	return p.posting.Enabled()
 }
