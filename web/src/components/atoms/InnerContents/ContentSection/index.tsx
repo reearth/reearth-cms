@@ -34,8 +34,7 @@ const ContentSection: React.FC<Props> = ({
           flex="flex-wrap"
           justify="space-between"
           align="center"
-          hasHorizontalRule={hasHorizontalRule}
-          hasPadding={hasPadding}>
+          hasHorizontalRule={hasHorizontalRule}>
           <div>
             {title && <Title>{title}</Title>}
             {description && <Description>{description}</Description>}
@@ -61,10 +60,10 @@ const Wrapper = styled.div<{ danger?: boolean }>`
   ${({ danger }) => danger && `border: 1px solid ${AntdColor.RED.RED_4};`}
 `;
 
-const Header = styled(Flex)<{ hasHorizontalRule?: boolean; hasPadding?: boolean }>`
+const Header = styled(Flex)<{ hasHorizontalRule?: boolean }>`
   border-bottom: ${({ hasHorizontalRule }) =>
     hasHorizontalRule ? `1px solid ${CustomColor.BORDER_SUBTLE}` : "none"};
-  padding: ${({ hasPadding }) => `10px ${hasPadding ? AntdToken.SPACING.LG : 0}px`};
+  padding: ${({ hasHorizontalRule }) => `10px ${hasHorizontalRule ? AntdToken.SPACING.LG : 0}px`};
   gap: ${AntdToken.SPACING.BASE}px;
 `;
 

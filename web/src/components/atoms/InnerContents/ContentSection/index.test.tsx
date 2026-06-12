@@ -72,6 +72,27 @@ describe("ContentSection", () => {
       expect(container.firstChild).not.toHaveStyleRule("border", "1px solid #ff4d4f");
     });
 
+    test("Indents the header horizontally by default", () => {
+      const { container } = render(<ContentSection title="title" />);
+
+      const header = container.firstChild?.firstChild;
+      expect(header).toHaveStyleRule("padding", "10px 24px");
+    });
+
+    test("Removes the header horizontal padding when hasHorizontalRule is false", () => {
+      const { container } = render(<ContentSection title="title" hasHorizontalRule={false} />);
+
+      const header = container.firstChild?.firstChild;
+      expect(header).toHaveStyleRule("padding", "10px 0px");
+    });
+
+    test("Keeps the header horizontal indent even when hasPadding is false", () => {
+      const { container } = render(<ContentSection title="title" hasPadding={false} />);
+
+      const header = container.firstChild?.firstChild;
+      expect(header).toHaveStyleRule("padding", "10px 24px");
+    });
+
     test("Removes the header bottom border when hasHorizontalRule is false", () => {
       const { container } = render(<ContentSection title="title" hasHorizontalRule={false} />);
 
