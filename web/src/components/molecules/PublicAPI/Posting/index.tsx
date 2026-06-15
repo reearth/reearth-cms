@@ -112,20 +112,18 @@ const PostingEditor: React.FC<EditorProps> = ({
         "Post API allows anonymous users to submit data to a model without authentication.",
       )}
       headerActions={
-        !isPublic && (
-          <Tooltip
-            title={
-              isSaveDisabled ? t("Please add at least one origin to enable Post API") : undefined
-            }>
-            <Button
-              type="primary"
-              disabled={isSaveDisabled}
-              onClick={handleSave}
-              loading={updateLoading}>
-              {t("Save changes")}
-            </Button>
-          </Tooltip>
-        )
+        <Tooltip
+          title={
+            isSaveDisabled ? t("Please add at least one origin to enable Post API") : undefined
+          }>
+          <Button
+            type="primary"
+            disabled={isSaveDisabled}
+            onClick={handleSave}
+            loading={updateLoading}>
+            {t("Save changes")}
+          </Button>
+        </Tooltip>
       }>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <AllowedOrigins origins={origins} onChange={setOrigins} />
