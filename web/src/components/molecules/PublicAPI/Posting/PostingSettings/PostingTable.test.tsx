@@ -26,20 +26,8 @@ describe("PostingTable", () => {
     expect(screen.queryByText(`${apiUrl}assets`)).not.toBeInTheDocument();
   });
 
-  test("shows the enable column with switches when not public", () => {
-    renderTable({ isPublic: false });
-    expect(screen.getByText(t("POST API Enable"))).toBeVisible();
-    expect(screen.getAllByRole("switch")).toHaveLength(models.length);
-  });
-
-  test("hides the enable column and switches when public", () => {
-    renderTable({ isPublic: true });
-    expect(screen.queryByText(t("POST API Enable"))).not.toBeInTheDocument();
-    expect(screen.queryAllByRole("switch")).toHaveLength(0);
-  });
-
   test("disables the switches and greys out the table when disabled", () => {
-    const { container } = renderTable({ isPublic: false, disabled: true });
+    const { container } = renderTable({ disabled: true });
     screen.getAllByRole("switch").forEach(s => expect(s).toBeDisabled());
     const wrapper = container.querySelector("form")?.firstElementChild;
     expect(wrapper).toHaveStyleRule("pointer-events", "none");
@@ -47,7 +35,7 @@ describe("PostingTable", () => {
   });
 
   test("keeps the table interactive when not disabled", () => {
-    const { container } = renderTable({ isPublic: false, disabled: false });
+    const { container } = renderTable({ disabled: false });
     screen.getAllByRole("switch").forEach(s => expect(s).toBeEnabled());
     const wrapper = container.querySelector("form")?.firstElementChild;
     expect(wrapper).toHaveStyleRule("pointer-events", "auto");

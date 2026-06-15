@@ -14,7 +14,6 @@ type Props = {
   apiUrl: string;
   hasPublishRight: boolean;
   models: Pick<Model, "id" | "name" | "key">[];
-  isPublic?: boolean;
   publicModels?: string[];
   disabled?: boolean;
 };
@@ -22,7 +21,6 @@ type Props = {
 const PostingTable: React.FC<Props> = ({
   apiUrl,
   models,
-  isPublic,
   publicModels,
   hasPublishRight,
   disabled,
@@ -30,10 +28,9 @@ const PostingTable: React.FC<Props> = ({
   const t = useT();
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
 
-  const columns: TableColumnsType<ModelDataType> = useMemo(() => {
-    const cols: TableColumnsType<ModelDataType> = [];
-    if (!isPublic) {
-      cols.push({
+  const columns: TableColumnsType<ModelDataType> = useMemo(
+    () => [
+      {
         key: "enable",
         title: t("POST API Enable"),
         dataIndex: "id",
@@ -48,9 +45,7 @@ const PostingTable: React.FC<Props> = ({
             />
           </StyledFormItem>
         ),
-      });
-    }
-    cols.push(
+      },
       {
         key: "name",
         title: t("Model"),
@@ -67,9 +62,9 @@ const PostingTable: React.FC<Props> = ({
           </StyledAnchor>
         ),
       },
-    );
-    return cols;
-  }, [disabled, hasPublishRight, isPublic, publicModelsSet, t]);
+    ],
+    [disabled, hasPublishRight, publicModelsSet, t],
+  );
 
   // TODO(public-api): asset posting UX pending team-lead confirmation; assets are
   // intentionally excluded from the Posting table for now.

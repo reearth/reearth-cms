@@ -15,7 +15,6 @@ import PostingSettings from "./PostingSettings";
 
 type Props = {
   apiUrl: string;
-  isPublic?: boolean;
   initialValues: PostingFormType;
   savedOrigins: string[];
   hasPublishRight: boolean;
@@ -51,7 +50,6 @@ type EditorProps = Omit<Props, "hasPostingRight">;
 
 const PostingEditor: React.FC<EditorProps> = ({
   apiUrl,
-  isPublic,
   initialValues,
   savedOrigins,
   hasPublishRight,
@@ -130,7 +128,6 @@ const PostingEditor: React.FC<EditorProps> = ({
         <Divider />
         <PostingSettings
           apiUrl={apiUrl}
-          isPublic={isPublic}
           hasPublishRight={hasPublishRight}
           models={models}
           origins={origins}

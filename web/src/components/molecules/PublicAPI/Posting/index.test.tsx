@@ -33,7 +33,6 @@ describe("PostingTab", () => {
         apiUrl={apiUrl}
         initialValues={initialValues}
         savedOrigins={savedOrigins}
-        isPublic={false}
         hasPublishRight
         hasPostingRight={hasPostingRight}
         models={models}

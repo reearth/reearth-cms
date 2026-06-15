@@ -7,19 +7,12 @@ import PostingTable from "./PostingTable";
 
 type Props = {
   apiUrl: string;
-  isPublic?: boolean;
   hasPublishRight: boolean;
   models: Pick<Model, "id" | "name" | "key">[];
   origins?: string[];
 };
 
-const PostingSettings: React.FC<Props> = ({
-  apiUrl,
-  isPublic,
-  hasPublishRight,
-  models,
-  origins,
-}) => {
+const PostingSettings: React.FC<Props> = ({ apiUrl, hasPublishRight, models, origins }) => {
   return (
     <ContentSection hasPadding={false}>
       {!origins?.length && (
@@ -33,7 +26,6 @@ const PostingSettings: React.FC<Props> = ({
         apiUrl={apiUrl}
         hasPublishRight={hasPublishRight}
         models={models}
-        isPublic={isPublic}
         disabled={!origins?.length}
       />
     </ContentSection>

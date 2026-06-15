@@ -117,7 +117,6 @@ const PublicAPI: React.FC<Props> = ({
               apiUrl={apiUrl}
               initialValues={postingInitialValues}
               savedOrigins={savedOrigins}
-              isPublic={isProjectPublic}
               hasPublishRight={hasPublishRight}
               hasPostingRight={hasPostingRight}
               models={models}
