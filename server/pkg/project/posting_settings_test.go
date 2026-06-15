@@ -65,31 +65,54 @@ func TestNewPostingSettings(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		enabled        bool
 		allowedOrigins []string
 		wantErr        bool
 		wantOrigins    []string
 	}{
 		{
-			name:        "nil origins normalises to empty slice",
+			name:        "enabled=true, nil origins normalises to empty slice",
+			enabled:     true,
 			wantOrigins: []string{},
 		},
 		{
-			name:           "empty allowedOrigins stays empty",
+			name:        "enabled=false, nil origins normalises to empty slice",
+			enabled:     false,
+			wantOrigins: []string{},
+		},
+		{
+			name:           "enabled=true, empty allowedOrigins stays empty",
+			enabled:        true,
 			allowedOrigins: []string{},
 			wantOrigins:    []string{},
 		},
 		{
-			name:           "valid origins are preserved",
+			name:           "enabled=false, empty allowedOrigins stays empty",
+			enabled:        false,
+			allowedOrigins: []string{},
+			wantOrigins:    []string{},
+		},
+		{
+			name:           "enabled=true, valid origins are preserved",
+			enabled:        true,
+			allowedOrigins: []string{"https://a.com", "https://b.com"},
+			wantOrigins:    []string{"https://a.com", "https://b.com"},
+		},
+		{
+			name:           "enabled=false, valid origins are preserved",
+			enabled:        false,
 			allowedOrigins: []string{"https://a.com", "https://b.com"},
 			wantOrigins:    []string{"https://a.com", "https://b.com"},
 		},
 		{
 			name:           "invalid origin returns ErrInvalidOrigin",
+			enabled:        true,
 			allowedOrigins: []string{"not-a-url"},
 			wantErr:        true,
 		},
 		{
 			name:           "wildcard origin returns ErrInvalidOrigin",
+			enabled:        true,
 			allowedOrigins: []string{"*"},
 			wantErr:        true,
 		},
@@ -99,14 +122,14 @@ func TestNewPostingSettings(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ps, err := NewPostingSettings(true, tt.allowedOrigins)
+			ps, err := NewPostingSettings(tt.enabled, tt.allowedOrigins)
 			if tt.wantErr {
 				assert.ErrorIs(t, err, ErrInvalidOrigin)
 				assert.Nil(t, ps)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, ps)
-				assert.True(t, ps.Enabled())
+				assert.Equal(t, tt.enabled, ps.Enabled())
 				assert.Equal(t, tt.wantOrigins, ps.AllowedOrigins())
 			}
 		})

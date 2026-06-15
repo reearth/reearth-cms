@@ -289,6 +289,7 @@ func TestHandler_PostItem(t *testing.T) {
 			origin:                allowedOrigin,
 			wantStatus:            http.StatusForbidden,
 			wantErrorCode:         "posting_disabled",
+			wantMessage:           msgPostingDisabled,
 		},
 		{
 			name:                "model posting disabled returns 403",
@@ -297,6 +298,7 @@ func TestHandler_PostItem(t *testing.T) {
 			origin:              allowedOrigin,
 			wantStatus:          http.StatusForbidden,
 			wantErrorCode:       "model_posting_disabled",
+			wantMessage:         msgModelPostingDisabled,
 		},
 		{
 			name:           "no origins configured returns 403",

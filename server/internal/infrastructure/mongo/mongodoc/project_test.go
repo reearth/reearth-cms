@@ -249,49 +249,52 @@ func TestProjectPublicationDocument_Model(t *testing.T) {
 }
 
 func TestPostingSettingsDocument_Model(t *testing.T) {
+
+	mustPS := func(enabled bool, origins []string) *project.PostingSettings {
+		ps, err := project.NewPostingSettings(enabled, origins)
+		require.NoError(t, err)
+		return ps
+	}
+
 	tests := []struct {
-		name        string
-		doc         *PostingSettingsDocument
-		wantNil     bool
-		wantEnabled bool
-		wantOrigins []string
+		name    string
+		doc     *PostingSettingsDocument
+		wantErr error
+		want    *project.PostingSettings
 	}{
 		{
-			name:    "nil document returns nil",
-			doc:     nil,
-			wantNil: true,
+			name: "nil document returns nil",
+			doc:  nil,
+			want: nil,
 		},
 		{
-			name:        "missing enabled field defaults to true",
-			doc:         &PostingSettingsDocument{AllowedOrigins: []string{"https://a.com"}},
-			wantEnabled: true,
-			wantOrigins: []string{"https://a.com"},
+			name: "missing enabled field defaults to true",
+			doc:  &PostingSettingsDocument{AllowedOrigins: []string{"https://a.com"}},
+			want: mustPS(true, []string{"https://a.com"}),
 		},
 		{
-			name:        "stored enabled=false is respected",
-			doc:         &PostingSettingsDocument{Enabled: lo.ToPtr(false)},
-			wantEnabled: false,
-			wantOrigins: []string{},
+			name: "stored enabled=false is respected",
+			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(false)},
+			want: mustPS(false, []string{}),
 		},
 		{
-			name:        "stored enabled=true is respected",
-			doc:         &PostingSettingsDocument{Enabled: lo.ToPtr(true)},
-			wantEnabled: true,
-			wantOrigins: []string{},
+			name: "stored enabled=true is respected",
+			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(true)},
+			want: mustPS(true, []string{}),
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := tt.doc.Model()
-			require.NoError(t, err)
-			if tt.wantNil {
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Nil(t, got)
 				return
 			}
-			require.NotNil(t, got)
-			assert.Equal(t, tt.wantEnabled, got.Enabled())
-			assert.Equal(t, tt.wantOrigins, got.AllowedOrigins())
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

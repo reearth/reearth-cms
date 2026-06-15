@@ -21,28 +21,36 @@ type apiErrorResponse struct {
 	Details any    `json:"details,omitempty"`
 }
 
-// Error codes and messages returned by the posting endpoint.
+// Error codes returned by the posting endpoint.
 const (
 	codePostingDisabled      = "posting_disabled"
 	codeModelPostingDisabled = "model_posting_disabled"
 	codeOriginNotAllowed     = "origin_not_allowed"
+)
 
-	msgNoOriginsConfigured = "No origins are configured for posting on this project."
-	msgOriginNotAllowed    = "Origin is not allowed for posting on this project."
+// Human-readable messages paired with each error response.
+const (
+	msgPostingDisabled      = "Posting is disabled for this project."
+	msgModelPostingDisabled = "Posting is disabled for this model."
+	msgNoOriginsConfigured  = "No origins are configured for posting on this project."
+	msgOriginNotAllowed     = "Origin is not allowed for posting on this project."
 )
 
 // postingAccessErrorResponse maps errors from ValidatePostingAccess to their HTTP responses.
+// Every response carries both a machine-readable code and a human-readable message.
 func postingAccessErrorResponse(c *echo.Context, err error) error {
 	switch {
 	case errors.Is(err, ErrProjectPostingDisabled):
 		return c.JSON(http.StatusForbidden, apiErrorResponse{
-			Error: codePostingDisabled,
-			Code:  codePostingDisabled,
+			Error:   codePostingDisabled,
+			Code:    codePostingDisabled,
+			Message: msgPostingDisabled,
 		})
 	case errors.Is(err, ErrModelPostingDisabled):
 		return c.JSON(http.StatusForbidden, apiErrorResponse{
-			Error: codeModelPostingDisabled,
-			Code:  codeModelPostingDisabled,
+			Error:   codeModelPostingDisabled,
+			Code:    codeModelPostingDisabled,
+			Message: msgModelPostingDisabled,
 		})
 	case errors.Is(err, project.ErrNoOriginsConfigured):
 		return c.JSON(http.StatusForbidden, apiErrorResponse{
