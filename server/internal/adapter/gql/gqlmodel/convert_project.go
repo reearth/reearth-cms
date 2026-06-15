@@ -84,6 +84,9 @@ func ToAPIKeys(ps project.APIKeys) []*ProjectAPIKey {
 }
 
 func ToPostingSettings(p *project.PostingSettings) *PostingSettings {
+	if p == nil {
+		return &PostingSettings{AllowedOrigins: []string{}}
+	}
 	return &PostingSettings{AllowedOrigins: p.AllowedOrigins()}
 }
 
