@@ -269,10 +269,7 @@ func PostItem() echo.HandlerFunc {
 		var req postItemRequest
 		if c.Request().ContentLength != 0 {
 			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
-				return c.JSON(http.StatusBadRequest, apiErrorResponse{
-					Error: "Request body is not valid JSON",
-					Code:  "INVALID_JSON",
-				})
+				return c.JSON(http.StatusBadRequest, newAPIError(codeInvalidJSON, msgInvalidJSON, nil))
 			}
 		}
 		if req.Fields == nil {
@@ -286,19 +283,13 @@ func PostItem() echo.HandlerFunc {
 		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, apiErrorResponse{
-					Error: "not found",
-				})
+				return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
 			}
 			return result.Err
 		}
 
 		if len(result.FieldErrors) > 0 {
-			return c.JSON(http.StatusBadRequest, apiErrorResponse{
-				Error:   "Validation failed",
-				Code:    "VALIDATION_ERROR",
-				Details: result.FieldErrors,
-			})
+			return c.JSON(http.StatusBadRequest, newAPIError(codeValidationError, msgValidationError, result.FieldErrors))
 		}
 
 		if isBrowserRequest(origin) {

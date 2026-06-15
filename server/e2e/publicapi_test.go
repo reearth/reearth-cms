@@ -1165,21 +1165,21 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", "nonexistent-workspace", pId, mKey).
 			Expect().
 			Status(http.StatusNotFound).
-			JSON().IsEqual(map[string]any{"error": "not found"})
+			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
 	t.Run("unknown project returns 404", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), "nonexistent-project", mKey).
 			Expect().
 			Status(http.StatusNotFound).
-			JSON().IsEqual(map[string]any{"error": "not found"})
+			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
 	t.Run("unknown model returns 404", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, "nonexistent-model").
 			Expect().
 			Status(http.StatusNotFound).
-			JSON().IsEqual(map[string]any{"error": "not found"})
+			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
 	t.Run("model posting disabled returns 403", func(t *testing.T) {
@@ -1239,7 +1239,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			Status(http.StatusAccepted)
 	}
 	assertFieldError := func(obj *httpexpect.Object, field, code string) {
-		obj.Value("code").IsEqual("VALIDATION_ERROR")
+		obj.Value("code").IsEqual("validation_error")
 		details := obj.Value("details").Array()
 		details.Length().IsEqual(1)
 		details.Value(0).Object().Value("field").IsEqual(field)
@@ -1270,7 +1270,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object()
-		obj.Value("code").IsEqual("VALIDATION_ERROR")
+		obj.Value("code").IsEqual("validation_error")
 		obj.Value("details").Array().Length().IsEqual(2)
 	})
 
