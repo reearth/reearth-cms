@@ -33,6 +33,7 @@ const AllowedOrigins: React.FC<Props> = ({ origins, onChange }) => {
       if (!RegexUtils.validateOrigin(added)) {
         Notification.warning({
           message: t("Please enter a valid origin (e.g. https://example.com)."),
+          duration: null,
         });
         return;
       }
