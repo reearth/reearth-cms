@@ -375,6 +375,7 @@ func TestHandler_PostItem(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			reqCtx := AttachController(baseCtx, ctrl)
+			reqCtx = adapter.AttachOperator(reqCtx, newAnonymousOperator())
 			req = req.WithContext(reqCtx)
 
 			c := e.NewContext(req, rec)

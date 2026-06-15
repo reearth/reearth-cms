@@ -1231,12 +1231,13 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			Status(http.StatusBadRequest).
 			JSON().Object()
 	}
-	postVOK := func(fields map[string]any) {
-		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+	postVOK := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
 			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
-			Status(http.StatusAccepted)
+			Status(http.StatusAccepted).
+			JSON().Object()
 	}
 	assertFieldError := func(obj *httpexpect.Object, field, code string) {
 		obj.Value("code").IsEqual("VALIDATION_ERROR")
@@ -1253,6 +1254,24 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			"active": true, "agreed": false, "publishedAt": "2024-01-15T10:00:00Z",
 			"website": "https://example.com",
 		})
+	})
+
+	t.Run("response fields reflect submitted values", func(t *testing.T) {
+		obj := postVOK(map[string]any{
+			"title": "world", "count": 42, "score": 0.75, "status": "closed",
+			"active": true, "agreed": true, "publishedAt": "2025-03-01T00:00:00Z",
+			"website": "https://reearth.io",
+		})
+		obj.ContainsKey("id")
+		obj.ContainsKey("$createdAt")
+		fields := obj.Value("fields").Object()
+		fields.Value("title").IsEqual("world")
+		fields.Value("count").IsEqual(float64(42))
+		fields.Value("score").IsEqual(0.75)
+		fields.Value("status").IsEqual("closed")
+		fields.Value("active").IsEqual(true)
+		fields.Value("agreed").IsEqual(true)
+		fields.Value("website").IsEqual("https://reearth.io")
 	})
 
 	t.Run("unknown keys are silently ignored", func(t *testing.T) {

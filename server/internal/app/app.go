@@ -119,7 +119,7 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 	}
 
 	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
-	publicapi.Echo(publicAPIGroup)
+	publicapi.Echo(publicAPIGroup, AnonymousOperatorMiddleware())
 }
 
 func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {

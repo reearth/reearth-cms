@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -42,7 +43,7 @@ func GetController(ctx context.Context) *Controller {
 	return ctx.Value(controllerCK).(*Controller)
 }
 
-func Echo(e *echo.Group) {
+func Echo(e *echo.Group, postingMiddleware echo.MiddlewareFunc) {
 
 	// --- Public API routing ---
 	// ws: workspace (id or alias)
@@ -62,7 +63,7 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
-	e.POST("/:workspace/:project/:model/items", PostItem())
+	e.POST("/:workspace/:project/:model/items", PostItem(), postingMiddleware)
 	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
 
@@ -312,7 +313,8 @@ func PostItem() echo.HandlerFunc {
 			return err
 		}
 
-		result := ctrl.PostItem(ctx, ws, p, m, newAnonymousOperator(), req.Fields)
+		op:= adapter.Operator(ctx)
+		result := ctrl.PostItem(ctx, ws, p, m, op, req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, apiErrorResponse{
