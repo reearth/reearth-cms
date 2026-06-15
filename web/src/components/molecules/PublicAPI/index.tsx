@@ -13,7 +13,8 @@ import { Constant } from "@reearth-cms/utils/constant";
 import APIDocLinks from "../APIDocLinks";
 
 import PostingTab from "./Posting";
-import ReadingTab from "./Reading";
+import APIKeyComponent from "./Reading/APIKey";
+import ReadingSettings from "./Reading/ReadingSettings";
 
 type Props = {
   apiKeys?: APIKey[];
@@ -83,25 +84,30 @@ const PublicAPI: React.FC<Props> = ({
         {
           key: "reading",
           label: t("Reading"),
-          children: (
-            <ReadingTab
+          children: [
+            <ReadingSettings
+              key="settings"
               apiUrl={apiUrl}
               initialValues={initialValues}
               isPublic={isProjectPublic}
               hasPublishRight={hasPublishRight}
+              models={models}
+              updateLoading={updateLoading}
+              onPublicUpdate={onPublicUpdate}
+            />,
+            <APIKeyComponent
+              key="apikey"
+              keys={apiKeys}
+              isPublic={isProjectPublic}
               hasCreateRight={hasCreateRight}
               hasUpdateRight={hasUpdateRight}
               hasDeleteRight={hasDeleteRight}
-              models={models}
-              updateLoading={updateLoading}
-              apiKeys={apiKeys}
               onAPIKeyNew={onAPIKeyNew}
               onAPIKeyEdit={onAPIKeyEdit}
               onAPIKeyDelete={onAPIKeyDelete}
-              onPublicUpdate={onPublicUpdate}
               onSettingsPageOpen={onSettingsPageOpen}
-            />
-          ),
+            />,
+          ],
         },
         {
           key: "posting",

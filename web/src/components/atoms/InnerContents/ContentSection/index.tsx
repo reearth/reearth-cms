@@ -12,7 +12,6 @@ type Props = {
   description?: string;
   hasPadding?: boolean;
   hasHorizontalRule?: boolean;
-  hasGap?: boolean;
 };
 
 const ContentSection: React.FC<Props> = ({
@@ -23,7 +22,6 @@ const ContentSection: React.FC<Props> = ({
   description,
   hasPadding = true,
   hasHorizontalRule = true,
-  hasGap = false,
 }) => {
   const hasHeader = !!(title || description || headerActions);
 
@@ -42,9 +40,7 @@ const ContentSection: React.FC<Props> = ({
           <div>{headerActions}</div>
         </Header>
       )}
-      <GridArea hasPadding={hasPadding} hasGap={hasGap}>
-        {children}
-      </GridArea>
+      <GridArea hasPadding={hasPadding}>{children}</GridArea>
     </Wrapper>
   );
 };
@@ -79,10 +75,9 @@ const Description = styled.p`
   margin: ${AntdToken.SPACING.XXS}px 0 0;
 `;
 
-const GridArea = styled.div<{ hasPadding: boolean; hasGap?: boolean }>`
+const GridArea = styled.div<{ hasPadding: boolean }>`
   padding: ${({ hasPadding }) => (hasPadding ? AntdToken.SPACING.LG : 0)}px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: ${({ hasGap }) => (hasGap ? AntdToken.SPACING.BASE : 0)}px;
 `;

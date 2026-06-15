@@ -128,27 +128,5 @@ describe("ContentSection", () => {
       const gridArea = container.firstChild?.firstChild;
       expect(gridArea).not.toHaveStyleRule("padding", "0px");
     });
-
-    test("Applies a non-zero gap to the grid area when hasGap is true", () => {
-      const { container } = render(
-        <ContentSection hasGap>
-          <span>child</span>
-        </ContentSection>,
-      );
-
-      const gridArea = container.firstChild?.firstChild;
-      expect(gridArea).not.toHaveStyleRule("gap", "0px");
-    });
-
-    test("Has no grid area gap by default", () => {
-      const { container } = render(
-        <ContentSection>
-          <span>child</span>
-        </ContentSection>,
-      );
-
-      const gridArea = container.firstChild?.firstChild;
-      expect(gridArea).toHaveStyleRule("gap", "0px");
-    });
   });
 });
