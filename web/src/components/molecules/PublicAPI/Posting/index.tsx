@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -73,10 +73,17 @@ const PostingEditor: React.FC<EditorProps> = ({
     setOrigins(savedOrigins);
   }, [savedOrigins]);
 
-  const isOriginsUnchanged =
-    origins.length === savedOrigins.length &&
-    origins.every((origin, i) => origin === savedOrigins[i]);
-  const isSaveDisabled = isFormUnchanged && isOriginsUnchanged;
+  const savedOriginsSet = useMemo<Set<string>>(() => new Set<string>(savedOrigins), [savedOrigins]);
+
+  const isOriginsUnchanged = useMemo<boolean>(
+    () => origins.length === savedOrigins.length && origins.every(o => savedOriginsSet.has(o)),
+    [origins, savedOrigins.length, savedOriginsSet],
+  );
+
+  const isSaveDisabled = useMemo<boolean>(
+    () => isFormUnchanged && isOriginsUnchanged,
+    [isFormUnchanged, isOriginsUnchanged],
+  );
 
   const handleValuesChange = useCallback((changedValues: Partial<PostingFormType>) => {
     if (changedValues.models) {
