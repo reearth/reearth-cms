@@ -13,7 +13,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group) {
+func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	publicOrigins := allowedPublicOrigins(appCtx)
 	if len(publicOrigins) > 0 {
 		publicAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -30,7 +30,7 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group) {
 		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 
-	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx))
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
 	publicapi.Echo(publicAPIGroup, PublicAPIPostingMiddleware())
 }
 

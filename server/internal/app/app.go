@@ -54,7 +54,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	}
 
 	// Public API
-	initPublicApi(appCtx, e.Group("/api/p"))
+	initPublicApi(appCtx, e.Group("/api/p"), usecaseMiddleware)
 
 	// Integration API
 	initIntegrationApi(appCtx, e.Group("/api"), usecaseMiddleware)
