@@ -1,17 +1,20 @@
-import AccessibilityMolecule from "@reearth-cms/components/molecules/Accessibility";
+import PublicAPIMolecule from "@reearth-cms/components/molecules/PublicAPI";
 
 import useHooks from "./hooks";
 
-const Accessibility: React.FC = () => {
+const PublicAPI: React.FC = () => {
   const {
     apiKeys,
     isProjectPublic,
     initialValues,
+    postingInitialValues,
+    savedOrigins,
     models,
     hasPublishRight,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasPostingRight,
     updateLoading,
     apiUrl,
     alias,
@@ -19,20 +22,24 @@ const Accessibility: React.FC = () => {
     handleAPIKeyEdit,
     handleAPIKeyDelete,
     handlePublicUpdate,
+    handlePostingUpdate,
     handleSettingsPageOpen,
     currentLang,
   } = useHooks();
 
   return (
-    <AccessibilityMolecule
+    <PublicAPIMolecule
       apiKeys={apiKeys}
       isProjectPublic={isProjectPublic}
       initialValues={initialValues}
+      postingInitialValues={postingInitialValues}
+      savedOrigins={savedOrigins}
       models={models}
       hasPublishRight={hasPublishRight}
       hasCreateRight={hasCreateRight}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
+      hasPostingRight={hasPostingRight}
       updateLoading={updateLoading}
       apiUrl={apiUrl}
       alias={alias}
@@ -40,10 +47,11 @@ const Accessibility: React.FC = () => {
       onAPIKeyEdit={handleAPIKeyEdit}
       onAPIKeyDelete={handleAPIKeyDelete}
       onPublicUpdate={handlePublicUpdate}
+      onPostingUpdate={handlePostingUpdate}
       onSettingsPageOpen={handleSettingsPageOpen}
       currentLang={currentLang}
     />
   );
 };
 
-export default Accessibility;
+export default PublicAPI;

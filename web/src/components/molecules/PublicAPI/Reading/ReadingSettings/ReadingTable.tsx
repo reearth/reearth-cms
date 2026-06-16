@@ -8,7 +8,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { ModelDataType } from "../types";
+import { ModelDataType } from "../../types";
 
 type Props = {
   apiUrl: string;
@@ -18,7 +18,7 @@ type Props = {
   publicModels?: string[];
 };
 
-const AccessAPITable: React.FC<Props> = ({
+const ReadingTable: React.FC<Props> = ({
   apiUrl,
   models,
   isPublic,
@@ -90,7 +90,7 @@ const AccessAPITable: React.FC<Props> = ({
   );
 };
 
-export default AccessAPITable;
+export default ReadingTable;
 
 const TableWrapper = styled.div`
   margin: ${AntdToken.SPACING.LG}px 0;

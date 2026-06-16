@@ -1,5 +1,5 @@
 import { RuleObject } from "@reearth-cms/components/atoms/Form";
-import { validateURL } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 
 export const checkIfEmpty = (value: unknown) =>
   value === undefined || value === null || value === "";
@@ -18,9 +18,9 @@ export const urlErrorIndexesGet = (value: string | string[]) => {
   const indexes: number[] = [];
   if (Array.isArray(value)) {
     value.forEach((v: string, index: number) => {
-      if (v && !validateURL(v)) indexes.push(index);
+      if (v && !RegexUtils.validateURL(v)) indexes.push(index);
     });
-  } else if (value && !validateURL(value)) {
+  } else if (value && !RegexUtils.validateURL(value)) {
     indexes.push(0);
   }
   return indexes;

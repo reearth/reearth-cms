@@ -1,10 +1,10 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ApiDocs from "@reearth-cms/components/molecules/ApiDocs";
 
-import useHooks from "./hooks";
+import usePublicApiUrl from "../usePublicApiUrl";
 
-const AccessibilityDocs: React.FC = () => {
-  const { specUrl } = useHooks();
+const PublicAPIDocs: React.FC = () => {
+  const specUrl = usePublicApiUrl();
 
   return (
     <InnerContent isFullHeight>
@@ -13,4 +13,4 @@ const AccessibilityDocs: React.FC = () => {
   );
 };
 
-export default AccessibilityDocs;
+export default PublicAPIDocs;
