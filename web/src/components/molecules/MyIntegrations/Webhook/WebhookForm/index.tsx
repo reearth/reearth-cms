@@ -17,7 +17,7 @@ import {
   Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
-import { validateURL } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -161,7 +161,7 @@ const WebhookForm: React.FC<Props> = ({
                   required: true,
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
-                    return validateURL(value) ? Promise.resolve() : Promise.reject();
+                    return RegexUtils.validateURL(value) ? Promise.resolve() : Promise.reject();
                   },
                 },
               ]}>

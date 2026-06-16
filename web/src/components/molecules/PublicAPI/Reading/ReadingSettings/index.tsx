@@ -1,15 +1,13 @@
-import styled from "@emotion/styled";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import AccessAPITable from "./AccessAPITable";
+import ReadingTable from "./ReadingTable";
 
 type Props = {
   apiUrl: string;
@@ -18,14 +16,13 @@ type Props = {
   hasPublishRight: boolean;
   models: Pick<Model, "id" | "name" | "key">[];
   updateLoading: boolean;
-  onAPIKeyEdit: (keyId?: string) => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
 };
 
-const AccessAPIComponent: React.FC<Props> = ({
+const ReadingComponent: React.FC<Props> = ({
   apiUrl,
   isPublic,
   initialValues,
@@ -77,20 +74,12 @@ const AccessAPIComponent: React.FC<Props> = ({
   }, [form, onPublicUpdate]);
 
   return (
-    <ContentSection title={t("Access API")}>
-      <Paragraph>
-        {t(
-          "Once Access API is enabled, anyone with the endpoint can access it. If a model is exposed via Access API, it cannot be restricted through API Key settings.",
-        )}
-      </Paragraph>
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-        <AccessAPITable
-          apiUrl={apiUrl}
-          hasPublishRight={hasPublishRight}
-          models={models}
-          isPublic={isPublic}
-        />
-        {!isPublic && (
+    <ContentSection
+      description={t(
+        "Once Public API is enabled, anyone with the endpoint can read data from the model. If a model is exposed via Public API, it cannot be restricted through API Key settings.",
+      )}
+      headerActions={
+        !isPublic && (
           <Button
             type="primary"
             disabled={isSaveDisabled}
@@ -98,15 +87,18 @@ const AccessAPIComponent: React.FC<Props> = ({
             loading={updateLoading}>
             {t("Save changes")}
           </Button>
-        )}
+        )
+      }>
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
+        <ReadingTable
+          apiUrl={apiUrl}
+          hasPublishRight={hasPublishRight}
+          models={models}
+          isPublic={isPublic}
+        />
       </Form>
     </ContentSection>
   );
 };
 
-export default AccessAPIComponent;
-
-const Paragraph = styled.p`
-  color: ${AntdColor.GREY.GREY_2};
-  padding-bottom: ${AntdToken.SPACING.BASE}px;
-`;
+export default ReadingComponent;

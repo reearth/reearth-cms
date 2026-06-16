@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { expect, test, describe } from "vitest";
 
-import Accessibility from ".";
+import PublicAPI from ".";
 
-describe("Accessibility", () => {
+describe("PublicAPI", () => {
   const user = userEvent.setup();
 
   const hasCreateRight = true;
@@ -25,6 +26,8 @@ describe("Accessibility", () => {
     assetPublic: false,
     models: { [model1Id]: false },
   };
+  const postingInitialValues = { models: { [model1Id]: false } };
+  const savedOrigins: string[] = [];
   const onAPIKeyNew = () => {
     return Promise.resolve();
   };
@@ -37,29 +40,38 @@ describe("Accessibility", () => {
   const onPublicUpdate = () => {
     return Promise.resolve();
   };
+  const onPostingUpdate = () => {
+    return Promise.resolve();
+  };
   const onSettingsPageOpen = () => {
     return Promise.resolve();
   };
 
   test("Scope, alias, and public status and API end point of models and assets are displayed successfully", async () => {
     render(
-      <Accessibility
-        initialValues={initialValues}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={hasPublishRight}
-        models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-        onSettingsPageOpen={onSettingsPageOpen}
-        currentLang={currentLang}
-      />,
+      <MemoryRouter>
+        <PublicAPI
+          initialValues={initialValues}
+          postingInitialValues={postingInitialValues}
+          savedOrigins={savedOrigins}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          hasPublishRight={hasPublishRight}
+          hasPostingRight
+          models={models}
+          updateLoading={updateLoading}
+          apiUrl={apiUrl}
+          alias={alias}
+          onAPIKeyNew={onAPIKeyNew}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+          onPublicUpdate={onPublicUpdate}
+          onPostingUpdate={onPostingUpdate}
+          onSettingsPageOpen={onSettingsPageOpen}
+          currentLang={currentLang}
+        />
+      </MemoryRouter>,
     );
 
     let switches = screen.getAllByRole("switch");
@@ -80,23 +92,29 @@ describe("Accessibility", () => {
 
   test("Toggle save button successfully", async () => {
     render(
-      <Accessibility
-        initialValues={initialValues}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={hasPublishRight}
-        models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-        onSettingsPageOpen={onSettingsPageOpen}
-        currentLang={currentLang}
-      />,
+      <MemoryRouter>
+        <PublicAPI
+          initialValues={initialValues}
+          postingInitialValues={postingInitialValues}
+          savedOrigins={savedOrigins}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          hasPublishRight={hasPublishRight}
+          hasPostingRight
+          models={models}
+          updateLoading={updateLoading}
+          apiUrl={apiUrl}
+          alias={alias}
+          onAPIKeyNew={onAPIKeyNew}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+          onPublicUpdate={onPublicUpdate}
+          onPostingUpdate={onPostingUpdate}
+          onSettingsPageOpen={onSettingsPageOpen}
+          currentLang={currentLang}
+        />
+      </MemoryRouter>,
     );
 
     let switches = screen.getAllByRole("switch");
@@ -123,23 +141,29 @@ describe("Accessibility", () => {
 
   test("Disable switch and button according to user right successfully", async () => {
     render(
-      <Accessibility
-        initialValues={initialValues}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={false}
-        models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyDelete={onAPIKeyDelete}
-        onAPIKeyEdit={onAPIKeyEdit}
-        onPublicUpdate={onPublicUpdate}
-        onSettingsPageOpen={onSettingsPageOpen}
-        currentLang={currentLang}
-      />,
+      <MemoryRouter>
+        <PublicAPI
+          initialValues={initialValues}
+          postingInitialValues={postingInitialValues}
+          savedOrigins={savedOrigins}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          hasPublishRight={false}
+          hasPostingRight
+          models={models}
+          updateLoading={updateLoading}
+          apiUrl={apiUrl}
+          alias={alias}
+          onAPIKeyNew={onAPIKeyNew}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+          onPublicUpdate={onPublicUpdate}
+          onPostingUpdate={onPostingUpdate}
+          onSettingsPageOpen={onSettingsPageOpen}
+          currentLang={currentLang}
+        />
+      </MemoryRouter>,
     );
 
     let switches = screen.getAllByRole("switch");

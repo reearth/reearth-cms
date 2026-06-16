@@ -1,4 +1,4 @@
-import APIKeyDetailsMolecule from "@reearth-cms/components/molecules/Accessibility/APIKeyDetails";
+import APIKeyDetailsMolecule from "@reearth-cms/components/molecules/PublicAPI/APIKeyDetails";
 
 import useHooks from "./hooks";
 

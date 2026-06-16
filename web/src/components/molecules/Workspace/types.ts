@@ -1,6 +1,6 @@
-import { ProjectAccessibility } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { User, Role } from "@reearth-cms/components/molecules/Member/types";
+import { ProjectAccessibility } from "@reearth-cms/components/molecules/PublicAPI/types";
 
 export type Project = {
   id: string;
