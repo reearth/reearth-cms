@@ -465,7 +465,7 @@ export default {
   "Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.": "プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。",
   "Permissions": "権限",
   "Personal Account": "パーソナルアカウント",
-  "Please add at least one origin to enable Post API": "",
+  "Please add at least one origin to enable Post API": "Post APIを有効にするには、少なくとも1つのオリジンを追加してください。",
   "Please add some field from right panel": "右のパネルからフィールドを追加してください",
   "Please add some items manually or import from JSON/GeoJSON/CSV": "手動でアイテムを追加するか、<l>JSON/GeoJSON/CSV</l> からインポートしてください",
   "Please choose the visibility settings of the project!": "プロジェクトの公開範囲を選択してください！",

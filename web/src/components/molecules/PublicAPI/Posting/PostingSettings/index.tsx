@@ -2,6 +2,7 @@ import { Alert } from "antd";
 
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { useT } from "@reearth-cms/i18n";
 
 import PostingTable from "./PostingTable";
 
@@ -13,12 +14,14 @@ type Props = {
 };
 
 const PostingSettings: React.FC<Props> = ({ apiUrl, hasPublishRight, models, origins }) => {
+  const t = useT();
+
   return (
     <ContentSection hasPadding={false}>
       {!origins?.length && (
         <Alert
           showIcon
-          description="Please add at least one origin to enable Post API"
+          description={t("Please add at least one origin to enable Post API")}
           type="warning"
         />
       )}
