@@ -258,6 +258,24 @@ type postItemRequest struct {
 	Fields map[string]any `json:"fields"`
 }
 
+// postingAccessError writes the appropriate HTTP error response for known posting-access errors
+// and returns true if the error was handled. Returns false for unknown errors.
+func postingAccessError(c *echo.Context, err error) (bool, error) {
+	if errors.Is(err, ErrProjectPostingDisabled) {
+		return true, c.JSON(http.StatusForbidden, apiErrorResponse{Error: "posting_disabled", Code: "posting_disabled"})
+	}
+	if errors.Is(err, ErrModelPostingDisabled) {
+		return true, c.JSON(http.StatusForbidden, apiErrorResponse{Error: "model_posting_disabled", Code: "model_posting_disabled"})
+	}
+	if errors.Is(err, project.ErrNoOriginsConfigured) || errors.Is(err, project.ErrOriginNotAllowed) {
+		return true, c.JSON(http.StatusForbidden, apiErrorResponse{Error: "origin_not_allowed", Code: "origin_not_allowed"})
+	}
+	if errors.Is(err, rerror.ErrNotFound) {
+		return true, c.JSON(http.StatusNotFound, apiErrorResponse{Error: "not found"})
+	}
+	return false, nil
+}
+
 // PostItem handles POST /:workspace/:project/:model/items to create a new item.
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
@@ -280,46 +298,14 @@ func PostItem() echo.HandlerFunc {
 			req.Fields = map[string]any{}
 		}
 
-		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
-			if errors.Is(err, ErrProjectPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "posting_disabled",
-					Code:  "posting_disabled",
-				})
-			}
-			if errors.Is(err, ErrModelPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "model_posting_disabled",
-					Code:  "model_posting_disabled",
-				})
-			}
-			if errors.Is(err, project.ErrNoOriginsConfigured) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "origin_not_allowed",
-					Code:  "origin_not_allowed",
-				})
-			}
-			if errors.Is(err, project.ErrOriginNotAllowed) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "origin_not_allowed",
-					Code:  "origin_not_allowed",
-				})
-			}
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, apiErrorResponse{
-					Error: "not found",
-				})
-			}
-			return err
-		}
-
-		op:= adapter.Operator(ctx)
-		result := ctrl.PostItem(ctx, ws, p, m, op, req.Fields)
+		op := adapter.Operator(ctx)
+		result := ctrl.PostItem(ctx, ws, p, m, origin, op, req.Fields)
 		if result.Err != nil {
+			if handled, resp := postingAccessError(c, result.Err); handled {
+				return resp
+			}
 			if errors.Is(result.Err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, apiErrorResponse{
-					Error: "not found",
-				})
+				return c.JSON(http.StatusNotFound, apiErrorResponse{Error: "not found"})
 			}
 			return result.Err
 		}
@@ -348,26 +334,8 @@ func PreflightItem() echo.HandlerFunc {
 		origin := c.Request().Header.Get("Origin")
 
 		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
-			if errors.Is(err, ErrProjectPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "posting_disabled",
-					Code:  "posting_disabled",
-				})
-			}
-			if errors.Is(err, ErrModelPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "model_posting_disabled",
-					Code:  "model_posting_disabled",
-				})
-			}
-			if errors.Is(err, project.ErrNoOriginsConfigured) || errors.Is(err, project.ErrOriginNotAllowed) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "origin_not_allowed",
-					Code:  "origin_not_allowed",
-				})
-			}
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			if handled, resp := postingAccessError(c, err); handled {
+				return resp
 			}
 			return err
 		}

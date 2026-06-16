@@ -265,7 +265,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		if mi != nil {
 			mi.Value().SetOriginalItem(it.ID())
-			if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
+			if operator.Anonymous {
+				if err := i.repos.Item.SaveDraft(ctx, mi.Value()); err != nil {
+					return nil, err
+				}
+			} else if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
 				return nil, err
 			}
 		}

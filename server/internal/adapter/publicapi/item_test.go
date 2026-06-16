@@ -169,7 +169,7 @@ func TestController_PostItem(t *testing.T) {
 			if body == nil {
 				body = map[string]any{}
 			}
-			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, newAnonymousOperator(), body)
+			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, allowedOrigin, usecase.NewAnonymousOperator(), body)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, result.Err, tt.wantErr)
@@ -375,7 +375,7 @@ func TestHandler_PostItem(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			reqCtx := AttachController(baseCtx, ctrl)
-			reqCtx = adapter.AttachOperator(reqCtx, newAnonymousOperator())
+			reqCtx = adapter.AttachOperator(reqCtx, usecase.NewAnonymousOperator())
 			req = req.WithContext(reqCtx)
 
 			c := e.NewContext(req, rec)

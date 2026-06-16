@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -203,18 +202,21 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 	return params
 }
 
-func newAnonymousOperator() *usecase.Operator {
-	return &usecase.Operator{
-		AcOperator: &accountusecase.Operator{},
-		Anonymous:  true,
-	}
-}
-
-// PostItem validates the payload against the model schema and creates a Draft item.
-// Posting access (project/model enabled, origin) is checked by the handler before this is called.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, op *usecase.Operator, body map[string]any) PostItemResult {
+// PostItem validates posting access, validates the payload, and creates a Draft item.
+// A single loadWPMContextForWrite call is shared for both the access check and item creation.
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey, origin string, op *usecase.Operator, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
+		return PostItemResult{Err: err}
+	}
+
+	if !wpm.Project.Accessibility().PostingEnabled() {
+		return PostItemResult{Err: ErrProjectPostingDisabled}
+	}
+	if !wpm.Model.PostingEnabled() {
+		return PostItemResult{Err: ErrModelPostingDisabled}
+	}
+	if err := wpm.Project.Accessibility().Posting().CheckOrigin(origin); err != nil {
 		return PostItemResult{Err: err}
 	}
 
@@ -223,9 +225,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
-		return PostItemResult{
-			FieldErrors: fieldErrs,
-		}
+		return PostItemResult{FieldErrors: fieldErrs}
 	}
 
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
@@ -246,7 +246,8 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}}
 }
 
-// ValidatePostingAccess checks that posting is enabled for the project and model to post.
+// ValidatePostingAccess checks that posting is enabled for the project and model.
+// Used by the OPTIONS preflight handler only — PostItem performs its own check atomically.
 func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) error {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {

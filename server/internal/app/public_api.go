@@ -9,8 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
-	"github.com/reearth/reearthx/account/accountusecase"
-	"golang.org/x/text/language"
 )
 
 func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
@@ -37,15 +35,7 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 func PublicAPIPostingMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			op := &usecase.Operator{
-				AcOperator: &accountusecase.Operator{
-					User: nil,
-				},
-				Integration: nil,
-				Lang:        language.English.String(),
-				Anonymous:   true,
-			}
-			ctx := adapter.AttachOperator(c.Request().Context(), op)
+			ctx := adapter.AttachOperator(c.Request().Context(), usecase.NewAnonymousOperator())
 			c.SetRequest(c.Request().WithContext(ctx))
 			return next(c)
 		}
