@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 import Icon, { IconName } from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style.ts";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   count: number;
