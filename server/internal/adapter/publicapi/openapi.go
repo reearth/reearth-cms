@@ -137,12 +137,12 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 
 		modelKey := m.Key().String()
 
-		// Add path for creating items when posting is enabled for the project and model.
+		// Add path for posting items when posting is enabled for the project and model.
 		if postingEnabled && m.PostingEnabled() {
 			spec.Paths[fmt.Sprintf("/%s/items", modelKey)] = map[string]interface{}{
 				"post": map[string]interface{}{
-					"summary":     fmt.Sprintf("Create a %s item", m.Name()),
-					"description": fmt.Sprintf("Create a new item in the %s model. For browser clients the request Origin must be in the project's allowed origins.", m.Name()),
+					"summary":     fmt.Sprintf("Post a %s item", m.Name()),
+					"description": fmt.Sprintf("Post an item to the %s model. The item is stored as unpublished (draft) and is not exposed through the public read API until it is published. For browser clients the request Origin must be in the project's allowed origins.", m.Name()),
 					"requestBody": map[string]interface{}{
 						"required": true,
 						"content": map[string]interface{}{
@@ -161,7 +161,7 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 					},
 					"responses": map[string]interface{}{
 						"202": map[string]interface{}{
-							"description": "Item accepted for creation",
+							"description": "Item accepted and stored as unpublished (draft)",
 						},
 						"400": map[string]interface{}{
 							"description": "Invalid JSON body (invalid_json) or field validation failed (validation_error)",
