@@ -224,11 +224,11 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 			wantErr:        project.ErrNoOriginsConfigured,
 		},
 		{
-			name:           "absent origin returns ErrOriginNotAllowed",
+			name:           "absent origin skips origin check",
 			postingEnabled: true,
 			allowedOrigins: []string{allowedOrigin},
 			origin:         "",
-			wantErr:        project.ErrOriginNotAllowed,
+			wantErr:        nil,
 		},
 		{
 			name:           "origin not in list returns ErrOriginNotAllowed",
@@ -303,12 +303,11 @@ func TestHandler_PostItem(t *testing.T) {
 			wantErrorCode:  "origin_not_allowed",
 		},
 		{
-			name:           "absent origin returns 403",
+			name:           "absent origin passes through without CORS header",
 			postingEnabled: true,
 			allowedOrigins: []string{allowedOrigin},
 			origin:         "",
-			wantStatus:     http.StatusForbidden,
-			wantErrorCode:  "origin_not_allowed",
+			wantStatus:     http.StatusAccepted,
 		},
 		{
 			name:           "origin not in list returns 403",
@@ -344,6 +343,7 @@ func TestHandler_PostItem(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			reqCtx := AttachController(baseCtx, ctrl)
+			reqCtx = adapter.AttachOperator(reqCtx, usecase.NewAnonymousOperator())
 			req = req.WithContext(reqCtx)
 
 			c := e.NewContext(req, rec)

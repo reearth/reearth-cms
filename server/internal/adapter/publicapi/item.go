@@ -216,8 +216,10 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey, origin
 	if !wpm.Model.PostingEnabled() {
 		return PostItemResult{Err: ErrModelPostingDisabled}
 	}
-	if err := wpm.Project.Accessibility().Posting().CheckOrigin(origin); err != nil {
-		return PostItemResult{Err: err}
+	if isBrowserRequest(origin) {
+		if err := wpm.Project.Accessibility().Posting().CheckOrigin(origin); err != nil {
+			return PostItemResult{Err: err}
+		}
 	}
 
 	if wpm.SchemaPackage == nil {
