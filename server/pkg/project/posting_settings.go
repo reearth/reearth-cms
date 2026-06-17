@@ -31,7 +31,7 @@ func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings
 
 func (p *PostingSettings) Enabled() bool {
 	if p == nil {
-		return false
+		return true
 	}
 	return p.enabled
 }
@@ -56,7 +56,7 @@ func (p *PostingSettings) Clone() *PostingSettings {
 
 // CheckOrigin validates the request origin against the allowedOrigins list.
 func (p *PostingSettings) CheckOrigin(origin string) error {
-	if len(p.allowedOrigins) == 0 {
+	if p == nil || len(p.allowedOrigins) == 0 {
 		return ErrNoOriginsConfigured
 	}
 	if origin == "" {

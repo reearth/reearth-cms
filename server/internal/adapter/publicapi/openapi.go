@@ -84,6 +84,51 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		"name": "Authorization",
 	}
 
+	// Add the shared error schema. code enumerates every machine-readable error
+	// code the posting endpoint can return (see PostingErrorCodes in error.go).
+	spec.Components.Schemas["Error"] = map[string]interface{}{
+		"type":     "object",
+		"required": []string{"error", "code", "message"},
+		"properties": map[string]interface{}{
+			"error": map[string]interface{}{
+				"type":        "string",
+				"description": "Machine-readable error code (mirrors code).",
+			},
+			"code": map[string]interface{}{
+				"type":        "string",
+				"description": "Machine-readable error code.",
+				"enum":        PostingErrorCodes,
+			},
+			"message": map[string]interface{}{
+				"type":        "string",
+				"description": "Human-readable description of the error.",
+			},
+			"details": map[string]interface{}{
+				"type":        "array",
+				"description": "Field-level validation errors, present only for validation_error.",
+				"items": map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"field":   map[string]interface{}{"type": "string"},
+						"code":    map[string]interface{}{"type": "string"},
+						"message": map[string]interface{}{"type": "string"},
+					},
+				},
+			},
+		},
+	}
+
+	// errorContent references the shared Error schema for error responses.
+	errorContent := map[string]interface{}{
+		"application/json": map[string]interface{}{
+			"schema": map[string]interface{}{
+				"$ref": "#/components/schemas/Error",
+			},
+		},
+	}
+
+	postingEnabled := wpm.Project.Accessibility().PostingEnabled()
+
 	// Generate paths for each public model
 	for _, m := range models {
 		if !wpm.Project.Accessibility().IsModelPublic(m.ID(), nil) {
@@ -91,6 +136,49 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		}
 
 		modelKey := m.Key().String()
+
+		// Add path for posting items when posting is enabled for the project and model.
+		if postingEnabled && m.PostingEnabled() {
+			spec.Paths[fmt.Sprintf("/%s/items", modelKey)] = map[string]interface{}{
+				"post": map[string]interface{}{
+					"summary":     fmt.Sprintf("Post a %s item", m.Name()),
+					"description": fmt.Sprintf("Post an item to the %s model. The item is stored as unpublished (draft) and is not exposed through the public read API until it is published. For browser clients the request Origin must be in the project's allowed origins.", m.Name()),
+					"requestBody": map[string]interface{}{
+						"required": true,
+						"content": map[string]interface{}{
+							"application/json": map[string]interface{}{
+								"schema": map[string]interface{}{
+									"type": "object",
+									"properties": map[string]interface{}{
+										"fields": map[string]interface{}{
+											"type":        "object",
+											"description": "Field values keyed by field key.",
+										},
+									},
+								},
+							},
+						},
+					},
+					"responses": map[string]interface{}{
+						"202": map[string]interface{}{
+							"description": "Item accepted and stored as unpublished (draft)",
+						},
+						"400": map[string]interface{}{
+							"description": "Invalid JSON body (invalid_json) or field validation failed (validation_error)",
+							"content":     errorContent,
+						},
+						"403": map[string]interface{}{
+							"description": "Posting disabled (posting_disabled, model_posting_disabled) or origin not allowed (origin_not_allowed)",
+							"content":     errorContent,
+						},
+						"404": map[string]interface{}{
+							"description": "Workspace, project, or model not found (not_found)",
+							"content":     errorContent,
+						},
+					},
+				},
+			}
+		}
 
 		// Add path for getting all items
 		spec.Paths[fmt.Sprintf("/%s", modelKey)] = map[string]interface{}{

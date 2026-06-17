@@ -15,14 +15,9 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
-	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
-
-var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
-var ErrProjectPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
-var ErrModelPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this model"))
 
 type Controller struct {
 	project   repo.Project
