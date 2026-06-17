@@ -292,7 +292,9 @@ func PostItem() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, newAPIError(codeValidationError, msgValidationError, result.FieldErrors))
 		}
 
-		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+		if isBrowserRequest(origin) {
+			c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+		}
 
 		return c.JSON(http.StatusAccepted, result.Item)
 	}

@@ -9,10 +9,10 @@ import (
 )
 
 func TestComment_CommentType(t *testing.T) {
-	before := time.Now()
 	cid := NewCommentID()
 	uid := NewUserID()
 	c := "xxx"
+	mocknow := time.Now().Truncate(time.Millisecond)
 
 	got := Comment{
 		id:      cid,
@@ -23,7 +23,7 @@ func TestComment_CommentType(t *testing.T) {
 	assert.Equal(t, cid, got.ID())
 	assert.Equal(t, uid, *got.Author().User())
 	assert.Equal(t, c, got.Content())
-	assert.WithinDuration(t, before, got.CreatedAt(), time.Second)
+	assert.Equal(t, mocknow, got.CreatedAt())
 }
 
 func TestComment_SetContent(t *testing.T) {
