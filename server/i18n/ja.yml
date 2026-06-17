@@ -67,6 +67,7 @@ invalid value: 無効な値です。
 invalid values: 無効な値です。
 item field required: このフィールドは必須項目です。
 item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
+item must have a user, integration, or be anonymous: "アイテムにはユーザー、インテグレーション、または匿名のいずれかが必要です。"
 items are required for export: ""
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
