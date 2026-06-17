@@ -13,7 +13,8 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >+
       - name: Print event information
         run: |
           echo "Event name: ${{ github.event_name }}"
@@ -42,7 +43,14 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            dl.google.com:443
+            github.com:443
+            iamcredentials.googleapis.com:443
+            raw.githubusercontent.com:443
+            sts.googleapis.com:443
+            us-central1-run.googleapis.com:443
       - name: Remove Cloud Run Tag
         uses: reearth/actions/remove-cloud-run-tag@ff086d73d8dfc552101f9a84c9601c5b2b4a6299 # main
         with:
