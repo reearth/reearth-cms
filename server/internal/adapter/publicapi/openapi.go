@@ -84,6 +84,27 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		"name": "Authorization",
 	}
 
+	// PostItemResponse schema — returned by POST /:model/items
+	spec.Components.Schemas["PostItemResponse"] = map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"id": map[string]interface{}{
+				"type":        "string",
+				"description": "Unique ID of the created item",
+			},
+			"$createdAt": map[string]interface{}{
+				"type":        "string",
+				"format":      "date-time",
+				"description": "Timestamp when the item was created",
+			},
+			"fields": map[string]interface{}{
+				"type":        "object",
+				"description": "Field values keyed by field key",
+			},
+		},
+		"required": []string{"id", "$createdAt", "fields"},
+	}
+
 	// Generate paths for each public model
 	for _, m := range models {
 		if !wpm.Project.Accessibility().IsModelPublic(m.ID(), nil) {
@@ -92,8 +113,8 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 
 		modelKey := m.Key().String()
 
-		// Add path for getting all items
-		spec.Paths[fmt.Sprintf("/%s", modelKey)] = map[string]interface{}{
+		// Add path for getting all items (and optionally posting)
+		itemsPath := map[string]interface{}{
 			"get": map[string]interface{}{
 				"summary":     fmt.Sprintf("Get all %s items", m.Name()),
 				"description": fmt.Sprintf("Retrieve all items from the %s model", m.Name()),
@@ -139,6 +160,47 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 				},
 			},
 		}
+		if m.PostingEnabled() {
+			itemsPath["post"] = map[string]interface{}{
+				"summary":     fmt.Sprintf("Create a new %s item", m.Name()),
+				"description": fmt.Sprintf("Submit a new item to the %s model", m.Name()),
+				"requestBody": map[string]interface{}{
+					"required": true,
+					"content": map[string]interface{}{
+						"application/json": map[string]interface{}{
+							"schema": map[string]interface{}{
+								"type": "object",
+								"properties": map[string]interface{}{
+									"fields": map[string]interface{}{
+										"type":        "object",
+										"description": "Field values keyed by field key",
+									},
+								},
+							},
+						},
+					},
+				},
+				"responses": map[string]interface{}{
+					"202": map[string]interface{}{
+						"description": "Item accepted",
+						"content": map[string]interface{}{
+							"application/json": map[string]interface{}{
+								"schema": map[string]interface{}{
+									"$ref": "#/components/schemas/PostItemResponse",
+								},
+							},
+						},
+					},
+					"400": map[string]interface{}{
+						"description": "Validation error",
+					},
+					"403": map[string]interface{}{
+						"description": "Posting disabled or origin not allowed",
+					},
+				},
+			}
+		}
+		spec.Paths[fmt.Sprintf("/%s/items", modelKey)] = itemsPath
 
 		// Add path for getting a single item
 		spec.Paths[fmt.Sprintf("/%s/{itemId}", modelKey)] = map[string]interface{}{
