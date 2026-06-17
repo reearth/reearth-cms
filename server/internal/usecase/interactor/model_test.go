@@ -490,7 +490,7 @@ func TestModel_Delete(t *testing.T) {
 		assert.NoError(t, db.View.Save(ctx, v))
 
 		// seed an item for the model
-		it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+		it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 		assert.NoError(t, db.Item.Save(ctx, it))
 
 		sp := *schema.NewPackage(s, nil, nil, nil)
