@@ -1274,6 +1274,15 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		fields.Value("website").IsEqual("https://reearth.io")
 	})
 
+	t.Run("created item is not publicly accessible (draft only)", func(t *testing.T) {
+		obj := postVOK(map[string]any{"title": "draft-check"})
+		itemID := obj.Value("id").String().Raw()
+		// A freshly posted item is a draft — it must not appear via the public GET endpoint.
+		e.GET("/api/p/{workspace}/{project}/{model}/{item}", wId.String(), pIdV, mKeyV, itemID).
+			Expect().
+			Status(http.StatusNotFound)
+	})
+
 	t.Run("unknown keys are silently ignored", func(t *testing.T) {
 		postVOK(map[string]any{"title": "hello", "unknown_field": "ignored"})
 	})
@@ -1429,7 +1438,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		postMOK(map[string]any{"tag": "one"})
 	})
 	t.Run("single field rejects array with multiple values", func(t *testing.T) {
-		assertFieldError(postM(map[string]any{"tag": []any{"one", "two"}}), "tag", "CONSTRAINT_VIOLATION")
+		assertFieldError(postM(map[string]any{"tag": []any{"one", "two"}}), "tag", "TYPE_MISMATCH")
 	})
 	t.Run("multiple field accepts array of values", func(t *testing.T) {
 		postMOK(map[string]any{"tags": []any{"one", "two", "three"}})

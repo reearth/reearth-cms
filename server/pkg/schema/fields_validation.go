@@ -72,6 +72,14 @@ func validateFieldEntry(f *Field, raw any) *FieldValidationError {
 	key := f.Key().String()
 	ft := f.Type()
 
+	// A non-multiple field must not receive an array.
+	if _, isSlice := raw.([]any); isSlice && !f.Multiple() {
+		return &FieldValidationError{
+			Field: key,
+			Code:  FieldValidationCodeTypeMismatch,
+		}
+	}
+
 	// normalize: wrap scalars into a slice so NewMultiple works uniformly.
 	var raws []any
 	if arr, ok := raw.([]any); ok {

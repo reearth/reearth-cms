@@ -187,7 +187,7 @@ func TestSchema_ValidateFields(t *testing.T) {
 			name:      "single field rejects array with multiple values",
 			schema:    s,
 			body:      map[string]any{"title": "hello", "tag": []any{"one", "two"}},
-			wantCodes: map[string]FieldValidationCode{"tag": FieldValidationCodeConstraint},
+			wantCodes: map[string]FieldValidationCode{"tag": FieldValidationCodeTypeMismatch},
 		},
 		{
 			name:      "multiple field type mismatch on invalid item in array",
