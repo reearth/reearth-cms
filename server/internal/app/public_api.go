@@ -28,8 +28,8 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 
-	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
-	publicapi.Echo(publicAPIGroup, PublicAPIPostingMiddleware())
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware, PublicAPIPostingMiddleware())
+	publicapi.Echo(publicAPIGroup)
 }
 
 func PublicAPIPostingMiddleware() echo.MiddlewareFunc {
