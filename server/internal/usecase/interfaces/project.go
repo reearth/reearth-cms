@@ -52,7 +52,6 @@ type AccessibilityParam struct {
 }
 
 type PostingSettingsParam struct {
-	Enabled        bool
 	AllowedOrigins []string
 }
 

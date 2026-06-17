@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mustPS(t *testing.T, enabled bool, allowedOrigins []string) *project.PostingSettings {
+func mustPS(t *testing.T, allowedOrigins []string) *project.PostingSettings {
 	t.Helper()
-	ps, err := project.NewPostingSettings(enabled, allowedOrigins)
+	ps, err := project.NewPostingSettings(true, allowedOrigins)
 	require.NoError(t, err)
 	return ps
 }
@@ -38,7 +38,7 @@ func TestConvertProject_ToProject(t *testing.T) {
 		UpdatedAt:   p.UpdatedAt(),
 		Accessibility: &ProjectAccessibility{
 			Visibility: ProjectVisibilityPublic,
-			Posting:    &PostingSettings{Enabled: false, AllowedOrigins: []string{}},
+			Posting:    &PostingSettings{AllowedOrigins: []string{}},
 		},
 		RequestRoles: []Role{RoleOwner},
 	}
@@ -159,24 +159,19 @@ func TestToPostingSettings(t *testing.T) {
 		want PostingSettings
 	}{
 		{
-			name: "nil receiver — enabled=false, origins empty",
+			name: "nil receiver — origins empty",
 			p:    nil,
-			want: PostingSettings{Enabled: false, AllowedOrigins: []string{}},
+			want: PostingSettings{AllowedOrigins: []string{}},
 		},
 		{
-			name: "enabled=true, no origins",
-			p:    mustPS(t, true, []string{}),
-			want: PostingSettings{Enabled: true, AllowedOrigins: []string{}},
+			name: "no origins",
+			p:    mustPS(t, []string{}),
+			want: PostingSettings{AllowedOrigins: []string{}},
 		},
 		{
-			name: "enabled=false, no origins",
-			p:    mustPS(t, false, []string{}),
-			want: PostingSettings{Enabled: false, AllowedOrigins: []string{}},
-		},
-		{
-			name: "enabled=true, with origins",
-			p:    mustPS(t, true, []string{"https://a.com", "https://b.com"}),
-			want: PostingSettings{Enabled: true, AllowedOrigins: []string{"https://a.com", "https://b.com"}},
+			name: "with origins",
+			p:    mustPS(t, []string{"https://a.com", "https://b.com"}),
+			want: PostingSettings{AllowedOrigins: []string{"https://a.com", "https://b.com"}},
 		},
 	}
 
@@ -201,13 +196,13 @@ func TestToProjectAccessibility(t *testing.T) {
 
 	t.Run("non-nil maps all fields", func(t *testing.T) {
 		t.Parallel()
-		ps := mustPS(t, true, []string{"https://x.com"})
+		ps := mustPS(t, []string{"https://x.com"})
 		a11y := project.NewAccessibility(project.VisibilityPrivate, nil, ps, nil)
 		got := ToProjectAccessibility(a11y)
 		assert.NotNil(t, got)
 		assert.Equal(t, ProjectVisibilityPrivate, got.Visibility)
 		assert.NotNil(t, got.Posting)
-		assert.True(t, got.Posting.Enabled)
+		assert.Equal(t, []string{"https://x.com"}, got.Posting.AllowedOrigins)
 	})
 }
 
@@ -304,24 +299,19 @@ func TestFromPostingSettings(t *testing.T) {
 	}{
 		{name: "nil returns nil", p: nil, want: nil},
 		{
-			name: "enabled=true, no origins",
-			p:    &UpdatePostingSettingsInput{Enabled: true, AllowedOrigins: []string{}},
-			want: &interfaces.PostingSettingsParam{Enabled: true, AllowedOrigins: []string{}},
-		},
-		{
-			name: "enabled=false, no origins",
-			p:    &UpdatePostingSettingsInput{Enabled: false, AllowedOrigins: []string{}},
-			want: &interfaces.PostingSettingsParam{Enabled: false, AllowedOrigins: []string{}},
+			name: "no origins",
+			p:    &UpdatePostingSettingsInput{AllowedOrigins: []string{}},
+			want: &interfaces.PostingSettingsParam{AllowedOrigins: []string{}},
 		},
 		{
 			name: "nil AllowedOrigins normalises to empty slice",
-			p:    &UpdatePostingSettingsInput{Enabled: true, AllowedOrigins: nil},
-			want: &interfaces.PostingSettingsParam{Enabled: true, AllowedOrigins: []string{}},
+			p:    &UpdatePostingSettingsInput{AllowedOrigins: nil},
+			want: &interfaces.PostingSettingsParam{AllowedOrigins: []string{}},
 		},
 		{
 			name: "with origins",
-			p:    &UpdatePostingSettingsInput{Enabled: true, AllowedOrigins: []string{"https://a.com"}},
-			want: &interfaces.PostingSettingsParam{Enabled: true, AllowedOrigins: []string{"https://a.com"}},
+			p:    &UpdatePostingSettingsInput{AllowedOrigins: []string{"https://a.com"}},
+			want: &interfaces.PostingSettingsParam{AllowedOrigins: []string{"https://a.com"}},
 		},
 	}
 

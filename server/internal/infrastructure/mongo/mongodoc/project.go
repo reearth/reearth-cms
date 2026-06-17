@@ -35,7 +35,8 @@ type PublicationSettingsDocument struct {
 }
 
 type PostingSettingsDocument struct {
-	Enabled        bool
+	// Enabled is not exposed through the API; a missing field means enabled.
+	Enabled        *bool
 	AllowedOrigins []string
 }
 
@@ -95,7 +96,7 @@ func NewProjectPostingSettings(p *project.PostingSettings) *PostingSettingsDocum
 		return nil
 	}
 	return &PostingSettingsDocument{
-		Enabled:        p.Enabled(),
+		Enabled:        lo.ToPtr(p.Enabled()),
 		AllowedOrigins: p.AllowedOrigins(),
 	}
 }
@@ -197,7 +198,11 @@ func (d *PostingSettingsDocument) Model() (*project.PostingSettings, error) {
 	if origins == nil {
 		origins = []string{}
 	}
-	return project.NewPostingSettings(d.Enabled, origins)
+	enabled := true
+	if d.Enabled != nil {
+		enabled = *d.Enabled
+	}
+	return project.NewPostingSettings(enabled, origins)
 }
 
 func (d *ProjectAccessibilityDocument) Model() (*project.Accessibility, error) {

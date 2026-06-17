@@ -1165,31 +1165,31 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", "nonexistent-workspace", pId, mKey).
 			Expect().
 			Status(http.StatusNotFound).
-			JSON().IsEqual(map[string]any{"error": "not found"})
+			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
 	t.Run("unknown project returns 404", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), "nonexistent-project", mKey).
 			Expect().
 			Status(http.StatusNotFound).
-			JSON().IsEqual(map[string]any{"error": "not found"})
+			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
 	t.Run("unknown model returns 404", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, "nonexistent-model").
 			Expect().
 			Status(http.StatusNotFound).
-			JSON().IsEqual(map[string]any{"error": "not found"})
+			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
-	t.Run("posting disabled returns 403", func(t *testing.T) {
+	t.Run("model posting disabled returns 403", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
 			Status(http.StatusForbidden).
-			JSON().Object().Value("error").IsEqual("posting_disabled")
+			JSON().Object().Value("error").IsEqual("model_posting_disabled")
 	})
 
-	updateProjectPosting(e, pId, true, []string{"https://allowed.com"})
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
 	updateModelPostingEnabled(e, mId, true)
 
 	t.Run("posting enabled returns 202 with item id", func(t *testing.T) {
@@ -1204,7 +1204,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Add a required text field and an integer field with constraints to the model.
 	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
-	updateProjectPosting(e, pIdV, true, []string{"https://example.com"})
+	updateProjectPosting(e, pIdV, []string{"https://example.com"})
 	mIdV, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
 	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
 	updateModelPostingEnabled(e, mIdV, true)
@@ -1240,7 +1240,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			JSON().Object()
 	}
 	assertFieldError := func(obj *httpexpect.Object, field, code string) {
-		obj.Value("code").IsEqual("VALIDATION_ERROR")
+		obj.Value("code").IsEqual("validation_error")
 		details := obj.Value("details").Array()
 		details.Length().IsEqual(1)
 		details.Value(0).Object().Value("field").IsEqual(field)
@@ -1298,7 +1298,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object()
-		obj.Value("code").IsEqual("VALIDATION_ERROR")
+		obj.Value("code").IsEqual("validation_error")
 		obj.Value("details").Array().Length().IsEqual(2)
 	})
 
@@ -1406,7 +1406,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 
 	// Create a separate model with single and multiple text fields.
 	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
-	updateProjectPosting(e, pIdM, true, []string{"https://example.com"})
+	updateProjectPosting(e, pIdM, []string{"https://example.com"})
 	mIdM, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
 	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
 	updateModelPostingEnabled(e, mIdM, true)
@@ -1464,13 +1464,13 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	mCorId, mRes := createModel(e, pId, "cors-model", "cors-model", "cors-model")
 	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
 
-	// posting enabled, one allowed origin
-	updateProjectPosting(e, pId, true, []string{"https://example.com"})
+	// one allowed origin configured
+	updateProjectPosting(e, pId, []string{"https://example.com"})
 	updateModelPostingEnabled(e, mCorId, true)
 
 	t.Run("no origins configured returns 403", func(t *testing.T) {
-		updateProjectPosting(e, pId, true, []string{})
-		defer updateProjectPosting(e, pId, true, []string{"https://example.com"})
+		updateProjectPosting(e, pId, []string{})
+		defer updateProjectPosting(e, pId, []string{"https://example.com"})
 
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://example.com").
@@ -1479,11 +1479,11 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 			JSON().Object().Value("error").IsEqual("origin_not_allowed")
 	})
 
-	t.Run("absent origin returns 403", func(t *testing.T) {
-		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+	t.Run("absent origin passes through (non-browser client)", func(t *testing.T) {
+		res := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
-			Status(http.StatusForbidden).
-			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+			Status(http.StatusAccepted)
+		res.Header("Access-Control-Allow-Origin").IsEmpty()
 	})
 
 	t.Run("wrong origin returns 403", func(t *testing.T) {

@@ -246,8 +246,10 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey, origin
 	}}
 }
 
-// ValidatePostingAccess checks that posting is enabled for the project and model.
-// Used by the OPTIONS preflight handler only — PostItem performs its own check atomically.
+// ValidatePostingAccess checks that posting is enabled for the project and
+// model to post, and that the request origin is allowed by the project's
+// posting settings. Requests without an Origin header come from non-browser
+// clients and skip the origin check entirely.
 func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) error {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
@@ -258,6 +260,9 @@ func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias,
 	}
 	if !wpm.Model.PostingEnabled() {
 		return ErrModelPostingDisabled
+	}
+	if !isBrowserRequest(origin) {
+		return nil
 	}
 	return wpm.Project.Accessibility().Posting().CheckOrigin(origin)
 }

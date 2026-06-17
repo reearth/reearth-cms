@@ -12,17 +12,10 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
-
-type apiErrorResponse struct {
-	Error   string `json:"error"`
-	Code    string `json:"code,omitempty"`
-	Details any    `json:"details,omitempty"`
-}
 
 type contextKey string
 
@@ -258,6 +251,13 @@ type postItemRequest struct {
 	Fields map[string]any `json:"fields"`
 }
 
+// isBrowserRequest reports whether the request carries an Origin header.
+// Browsers always attach Origin to cross-origin requests, while non-browser
+// clients (curl, SDKs, server-to-server) do not and are exempt from CORS.
+func isBrowserRequest(origin string) bool {
+	return origin != ""
+}
+
 // PostItem handles POST /:workspace/:project/:model/items to create a new item.
 func PostItem() echo.HandlerFunc {
 	return func(c *echo.Context) error {
@@ -270,10 +270,7 @@ func PostItem() echo.HandlerFunc {
 		var req postItemRequest
 		if c.Request().ContentLength != 0 {
 			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
-				return c.JSON(http.StatusBadRequest, apiErrorResponse{
-					Error: "Request body is not valid JSON",
-					Code:  "INVALID_JSON",
-				})
+				return c.JSON(http.StatusBadRequest, newAPIError(codeInvalidJSON, msgInvalidJSON, nil))
 			}
 		}
 		if req.Fields == nil {
@@ -281,60 +278,35 @@ func PostItem() echo.HandlerFunc {
 		}
 
 		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
-			if errors.Is(err, ErrProjectPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "posting_disabled",
-					Code:  "posting_disabled",
-				})
-			}
-			if errors.Is(err, ErrModelPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "model_posting_disabled",
-					Code:  "model_posting_disabled",
-				})
-			}
-			if errors.Is(err, project.ErrNoOriginsConfigured) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "origin_not_allowed",
-					Code:  "origin_not_allowed",
-				})
-			}
-			if errors.Is(err, project.ErrOriginNotAllowed) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "origin_not_allowed",
-					Code:  "origin_not_allowed",
-				})
-			}
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, apiErrorResponse{
-					Error: "not found",
-				})
-			}
-			return err
+			return postingAccessErrorResponse(c, err)
 		}
 
 		op := adapter.Operator(ctx)
 		result := ctrl.PostItem(ctx, ws, p, m, origin, op, req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, apiErrorResponse{
-					Error: "not found",
-				})
+				return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
 			}
 			return result.Err
 		}
 
 		if len(result.FieldErrors) > 0 {
-			return c.JSON(http.StatusBadRequest, apiErrorResponse{
-				Error:   "Validation failed",
-				Code:    "VALIDATION_ERROR",
-				Details: result.FieldErrors,
-			})
+			return c.JSON(http.StatusBadRequest, newAPIError(codeValidationError, msgValidationError, result.FieldErrors))
 		}
 
 		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
 
-		return c.JSON(http.StatusAccepted, result.Item)
+		/* TODO: success response will be updated in the draft item creation task
+		{
+			"id": "<item-id>",
+			"$createdAt": "<timestamp>",
+			"fields": {}
+		}
+		*/
+		return c.JSON(http.StatusAccepted, map[string]string{
+			"status":  "accepted",
+			"message": "Posting is enabled.",
+		})
 	}
 }
 
@@ -348,33 +320,15 @@ func PreflightItem() echo.HandlerFunc {
 		origin := c.Request().Header.Get("Origin")
 
 		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
-			if errors.Is(err, ErrProjectPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "posting_disabled",
-					Code:  "posting_disabled",
-				})
-			}
-			if errors.Is(err, ErrModelPostingDisabled) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "model_posting_disabled",
-					Code:  "model_posting_disabled",
-				})
-			}
-			if errors.Is(err, project.ErrNoOriginsConfigured) || errors.Is(err, project.ErrOriginNotAllowed) {
-				return c.JSON(http.StatusForbidden, apiErrorResponse{
-					Error: "origin_not_allowed",
-					Code:  "origin_not_allowed",
-				})
-			}
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-			}
-			return err
+			return postingAccessErrorResponse(c, err)
 		}
 
-		c.Response().Header().Set("Access-Control-Allow-Origin", origin)
-		c.Response().Header().Set("Access-Control-Allow-Methods", "POST")
-		c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		// Non-browser requests are not real preflights — pass through without CORS headers.
+		if isBrowserRequest(origin) {
+			c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+			c.Response().Header().Set("Access-Control-Allow-Methods", "POST")
+			c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		}
 		return c.NoContent(http.StatusNoContent)
 	}
 }

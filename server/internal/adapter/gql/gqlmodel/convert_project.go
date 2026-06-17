@@ -84,7 +84,10 @@ func ToAPIKeys(ps project.APIKeys) []*ProjectAPIKey {
 }
 
 func ToPostingSettings(p *project.PostingSettings) *PostingSettings {
-	return &PostingSettings{Enabled: p.Enabled(), AllowedOrigins: p.AllowedOrigins()}
+	if p == nil {
+		return &PostingSettings{AllowedOrigins: []string{}}
+	}
+	return &PostingSettings{AllowedOrigins: p.AllowedOrigins()}
 }
 
 func ToProjectAccessibility(p *project.Accessibility) *ProjectAccessibility {
@@ -141,6 +144,6 @@ func FromPostingSettings(p *UpdatePostingSettingsInput) *interfaces.PostingSetti
 	if origins == nil {
 		origins = []string{}
 	}
-	return &interfaces.PostingSettingsParam{Enabled: p.Enabled, AllowedOrigins: origins}
+	return &interfaces.PostingSettingsParam{AllowedOrigins: origins}
 }
 
