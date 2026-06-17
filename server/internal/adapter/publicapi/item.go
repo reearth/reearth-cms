@@ -202,24 +202,12 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 	return params
 }
 
-// PostItem validates posting access, validates the payload, and creates a Draft item.
-// A single loadWPMContextForWrite call is shared for both the access check and item creation.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey, origin string, op *usecase.Operator, body map[string]any) PostItemResult {
+// PostItem creates a Draft item from the validated payload.
+// Posting access must be verified by the caller (ValidatePostingAccess) before calling this.
+func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return PostItemResult{Err: err}
-	}
-
-	if !wpm.Project.Accessibility().PostingEnabled() {
-		return PostItemResult{Err: ErrProjectPostingDisabled}
-	}
-	if !wpm.Model.PostingEnabled() {
-		return PostItemResult{Err: ErrModelPostingDisabled}
-	}
-	if isBrowserRequest(origin) {
-		if err := wpm.Project.Accessibility().Posting().CheckOrigin(origin); err != nil {
-			return PostItemResult{Err: err}
-		}
 	}
 
 	if wpm.SchemaPackage == nil {
@@ -230,6 +218,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey, origin
 		return PostItemResult{FieldErrors: fieldErrs}
 	}
 
+	op := usecase.NewAnonymousOperator()
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: wpm.SchemaPackage.Schema().ID(),
 		ModelID:  wpm.Model.ID(),

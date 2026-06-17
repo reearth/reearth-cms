@@ -165,7 +165,7 @@ func TestController_PostItem(t *testing.T) {
 			if body == nil {
 				body = map[string]any{}
 			}
-			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, allowedOrigin, usecase.NewAnonymousOperator(), body)
+			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, body)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, result.Err, tt.wantErr)

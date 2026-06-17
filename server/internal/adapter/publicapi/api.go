@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
-	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -281,8 +280,7 @@ func PostItem() echo.HandlerFunc {
 			return postingAccessErrorResponse(c, err)
 		}
 
-		op := adapter.Operator(ctx)
-		result := ctrl.PostItem(ctx, ws, p, m, origin, op, req.Fields)
+		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))

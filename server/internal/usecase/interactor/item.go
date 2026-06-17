@@ -232,6 +232,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 		if operator.Anonymous {
 			ib = ib.Anonymous(true)
+			// TODO(WP3-T4): set origin marker for public API submissions
 		}
 
 		var mi item.Versioned
