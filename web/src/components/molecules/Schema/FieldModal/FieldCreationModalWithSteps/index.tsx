@@ -24,7 +24,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { Step } = Steps;
@@ -324,7 +324,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     (value: string, prevKey: typeof prevFieldKey, handleKeyUnique: typeof handleFieldKeyUnique) => {
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (validateKey(value) && handleKeyUnique(value)) {
+      } else if (RegexUtils.validateKey(value) && handleKeyUnique(value)) {
         prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {
