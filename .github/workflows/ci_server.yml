@@ -111,7 +111,7 @@ jobs:
           check-latest: true
           cache-dependency-path: 'server/go.sum'
       - name: test
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m ./...
         working-directory: server
         env:
           REEARTH_CMS_DB: mongodb://localhost
