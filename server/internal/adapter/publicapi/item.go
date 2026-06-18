@@ -214,7 +214,9 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
-		return PostItemResult{FieldErrors: fieldErrs}
+		return PostItemResult{
+			FieldErrors: fieldErrs,
+		}
 	}
 
 	op := getOperator(ctx)
@@ -231,7 +233,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	fields := NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil)
 	return PostItemResult{Item: &PostItemResponse{
 		ID:        itv.ID().String(),
-		CreatedAt: itv.Timestamp(),
+		CreatedAt: itv.ID().Timestamp(),
 		Fields:    map[string]any(fields),
 	}}
 }
