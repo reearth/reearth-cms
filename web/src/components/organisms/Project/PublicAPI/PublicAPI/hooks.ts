@@ -155,13 +155,12 @@ export default () => {
       setUpdateLoading(true);
 
       try {
-        // enabled is derived from origins: an empty list means deny-all (disabled).
+        // Project posting is controlled by allowedOrigins: an empty list means deny-all.
         const projRes = await updateProjectMutation({
           variables: {
             projectId: currentProject.id,
             accessibility: {
               posting: {
-                enabled: origins.length > 0,
                 allowedOrigins: origins,
               },
             },
