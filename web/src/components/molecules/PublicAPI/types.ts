@@ -6,7 +6,6 @@ export type PublicationSettings = {
 };
 
 export type PostingSettings = {
-  enabled: boolean;
   allowedOrigins: string[];
 };
 

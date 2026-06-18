@@ -1426,7 +1426,6 @@ export type Pagination = {
 export type PostingSettings = {
   __typename?: "PostingSettings";
   allowedOrigins: Array<Scalars["String"]["output"]>;
-  enabled: Scalars["Boolean"]["output"];
 };
 
 export enum PreviewType {
@@ -2348,7 +2347,6 @@ export type UpdateModelsOrderInput = {
 
 export type UpdatePostingSettingsInput = {
   allowedOrigins: Array<Scalars["String"]["input"]>;
-  enabled: Scalars["Boolean"]["input"];
 };
 
 export type UpdateProjectAccessibilityInput = {

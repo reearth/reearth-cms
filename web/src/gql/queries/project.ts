@@ -27,7 +27,6 @@ export const GET_PROJECT = gql`
             }
           }
           posting {
-            enabled
             allowedOrigins
           }
         }
