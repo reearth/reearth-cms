@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
@@ -218,7 +217,7 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 		return PostItemResult{FieldErrors: fieldErrs}
 	}
 
-	op := usecase.NewAnonymousOperator()
+	op := getOperator(ctx)
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: wpm.SchemaPackage.Schema().ID(),
 		ModelID:  wpm.Model.ID(),

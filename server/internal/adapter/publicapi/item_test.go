@@ -95,7 +95,7 @@ func setupPostingTest(t *testing.T, projectPostingEnabled *bool, allowedOrigins 
 	ar := &accountrepo.Container{Workspace: wsRepo}
 	uc := interactor.New(db, nil, ar, nil, interactor.ContainerConfig{})
 
-	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}, Anonymous: true}
 	ctx = adapter.AttachOperator(ctx, op)
 	ctx = adapter.AttachUsecases(ctx, &uc)
 

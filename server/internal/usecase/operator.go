@@ -187,13 +187,6 @@ func (o *Operator) RoleByProject(pid id.ProjectID) workspace.Role {
 	return ""
 }
 
-func NewAnonymousOperator() *Operator {
-	return &Operator{
-		AcOperator: &accountusecase.Operator{},
-		Anonymous:  true,
-	}
-}
-
 func (o *Operator) IsUserOrIntegration() bool {
 	if o == nil {
 		return false
