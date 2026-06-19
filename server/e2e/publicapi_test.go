@@ -1443,8 +1443,8 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	t.Run("multiple field accepts array of values", func(t *testing.T) {
 		postMOK(map[string]any{"tags": []any{"one", "two", "three"}})
 	})
-	t.Run("multiple field accepts scalar as single-item", func(t *testing.T) {
-		postMOK(map[string]any{"tags": "one"})
+	t.Run("multiple field rejects scalar", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"tags": "one"}), "tags", "TYPE_MISMATCH")
 	})
 	t.Run("multiple field reports type mismatch on invalid item in array", func(t *testing.T) {
 		assertFieldError(postM(map[string]any{"counts": []any{float64(1), map[string]any{"bad": "value"}}}), "counts", "TYPE_MISMATCH")
