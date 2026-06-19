@@ -58,11 +58,15 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.server == 'true'
     uses: ./.github/workflows/ci_server.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ci-worker:
     needs: prepare
     if: needs.prepare.outputs.worker == 'true'
     uses: ./.github/workflows/ci_worker.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ci:
     runs-on: ubuntu-latest
