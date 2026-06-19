@@ -120,3 +120,4 @@ jobs:
         with:
           flags: server
           files: coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
