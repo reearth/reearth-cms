@@ -208,7 +208,7 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		if postingEnabled && m.PostingEnabled() {
 			itemsPath["post"] = map[string]interface{}{
 				"summary":     fmt.Sprintf("Create a new %s item", m.Name()),
-				"description": fmt.Sprintf("Submit a new item to the %s model", m.Name()),
+				"description": fmt.Sprintf("Submit a new item to the %s model. The created item is unpublished and will not appear in the public read API until it is published.", m.Name()),
 				"requestBody": map[string]interface{}{
 					"required": true,
 					"content": map[string]interface{}{
@@ -227,7 +227,7 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 				},
 				"responses": map[string]interface{}{
 					"202": map[string]interface{}{
-						"description": "Item accepted",
+						"description": "Item accepted and created as unpublished",
 						"content": map[string]interface{}{
 							"application/json": map[string]interface{}{
 								"schema": map[string]interface{}{

@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -512,33 +513,33 @@ func TestFieldsFromBody(t *testing.T) {
 		Fields([]*schema.Field{textField, numberField}).
 		MustBuild()
 
+	titleParam := interfaces.ItemFieldParam{Field: textField.ID().Ref(), Key: textField.Key().Ref(), Value: "hello"}
+	countParam := interfaces.ItemFieldParam{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 42}
+
 	tests := []struct {
-		name       string
-		body       map[string]any
-		wantKeys   []string
-		wantAbsent []string
+		name string
+		body map[string]any
+		want []interfaces.ItemFieldParam
 	}{
 		{
-			name:     "maps known fields by key",
-			body:     map[string]any{"title": "hello", "count": 42},
-			wantKeys: []string{"title", "count"},
+			name: "maps known fields by key",
+			body: map[string]any{"title": "hello", "count": 42},
+			want: []interfaces.ItemFieldParam{titleParam, countParam},
 		},
 		{
-			name:       "ignores keys not in schema",
-			body:       map[string]any{"title": "hello", "unknown": "x"},
-			wantKeys:   []string{"title"},
-			wantAbsent: []string{"unknown"},
+			name: "ignores keys not in schema",
+			body: map[string]any{"title": "hello", "unknown": "x"},
+			want: []interfaces.ItemFieldParam{titleParam},
 		},
 		{
-			name:     "empty body returns empty slice",
-			body:     map[string]any{},
-			wantKeys: []string{},
+			name: "empty body returns empty slice",
+			body: map[string]any{},
+			want: []interfaces.ItemFieldParam{},
 		},
 		{
-			name:       "missing field is not included",
-			body:       map[string]any{"count": 1},
-			wantKeys:   []string{"count"},
-			wantAbsent: []string{"title"},
+			name: "missing field is not included",
+			body: map[string]any{"count": 1},
+			want: []interfaces.ItemFieldParam{{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 1}},
 		},
 	}
 
@@ -547,22 +548,7 @@ func TestFieldsFromBody(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			params := fieldsFromBody(tt.body, s)
-
-			gotKeys := make([]string, 0, len(params))
-			for _, p := range params {
-				require.NotNil(t, p.Key)
-				gotKeys = append(gotKeys, p.Key.String())
-				assert.NotNil(t, p.Field)
-				assert.Equal(t, tt.body[p.Key.String()], p.Value)
-			}
-
-			for _, wk := range tt.wantKeys {
-				assert.Contains(t, gotKeys, wk)
-			}
-			for _, ak := range tt.wantAbsent {
-				assert.NotContains(t, gotKeys, ak)
-			}
+			assert.ElementsMatch(t, tt.want, fieldsFromBody(tt.body, s))
 		})
 	}
 }

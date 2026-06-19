@@ -30,11 +30,11 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 
-	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware, PublicAPIPostingMiddleware())
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware, AnonymousOperatorMiddleware())
 	publicapi.Echo(publicAPIGroup)
 }
 
-func PublicAPIPostingMiddleware() echo.MiddlewareFunc {
+func AnonymousOperatorMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
 			op, err := generateAnonymousOperator(language.English.String())
