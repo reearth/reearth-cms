@@ -92,9 +92,24 @@ func FromResources(rd []*ResourceDocument) []*workspacesettings.Resource {
 	if rd == nil {
 		return nil
 	}
-	return lo.Map(rd, func(r *ResourceDocument, _ int) *workspacesettings.Resource {
-		return FromResourceDocument(r)
+	return lo.FilterMap(rd, func(r *ResourceDocument, _ int) (*workspacesettings.Resource, bool) {
+		res := FromResourceDocument(r)
+		return res, res != nil
 	})
+}
+
+var validTileTypes = map[workspacesettings.TileType]bool{
+	workspacesettings.TileTypeDefault:             true,
+	workspacesettings.TileTypeRoadMap:             true,
+	workspacesettings.TileTypeOpenStreetMap:       true,
+	workspacesettings.TileTypeEarthAtNight:        true,
+	workspacesettings.TileTypeJapanGSIStandardMap: true,
+	workspacesettings.TileTypeURL:                 true,
+}
+
+var validTerrainTypes = map[workspacesettings.TerrainType]bool{
+	workspacesettings.TerrainTypeReearthTerrain: true,
+	workspacesettings.TerrainTypeCesiumIon:      true,
 }
 
 func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
@@ -103,22 +118,28 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 	}
 
 	if r.Tile != nil {
+		tileType := workspacesettings.TileType(r.Tile.Type)
+		if !validTileTypes[tileType] {
+			return nil
+		}
 		rid, err := id.ResourceIDFrom(r.Tile.ID)
 		if err != nil {
 			return nil
 		}
-
-		tile := workspacesettings.NewTileResource(rid, workspacesettings.TileType(r.Tile.Type), FromUrlResourcePropsDocument(r.Tile.Props))
+		tile := workspacesettings.NewTileResource(rid, tileType, FromUrlResourcePropsDocument(r.Tile.Props))
 		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tile, nil)
 	}
 
 	if r.Terrain != nil {
+		terrainType := workspacesettings.TerrainType(r.Terrain.Type)
+		if !validTerrainTypes[terrainType] {
+			return nil
+		}
 		rid, err := id.ResourceIDFrom(r.Terrain.ID)
 		if err != nil {
 			return nil
 		}
-
-		terrain := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(r.Terrain.Type), FromCesiumResourcePropsDocument(r.Terrain.Props))
+		terrain := workspacesettings.NewTerrainResource(rid, terrainType, FromCesiumResourcePropsDocument(r.Terrain.Props))
 		return workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrain)
 	}
 

@@ -1,4 +1,4 @@
-FROM node:24.14.1-slim AS builder
+FROM node:24.16.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -52,6 +52,7 @@ ENV REEARTH_CMS_MULTI_TENANT=null
 ENV REEARTH_CMS_DISABLE_WORKSPACE_UI=null
 ENV REEARTH_CMS_DASHBOARD_BASE_URL=null
 ENV REEARTH_CMS_TILES_URL=null
+ENV REEARTH_CMS_TERRAIN_URL=null
 ENV REEARTH_CMS_TILES_TOKEN=null
 
 RUN --mount=type=cache,target=/var/cache/apk \
