@@ -65,5 +65,4 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           flags: worker
-          files: coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
