@@ -26,6 +26,7 @@ type ItemDocument struct {
 	Assets               []string `bson:"assets,omitempty"`
 	MetadataItem         *string
 	IsMetadata           bool
+	IsAnonymous          bool
 	OriginalItem         *string
 	UpdatedByUser        *string
 	UpdatedByIntegration *string
@@ -85,6 +86,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Integration:          i.Integration().StringRef(),
 		Assets:               i.AssetIDs().Strings(),
 		IsMetadata:           i.IsMetadata(),
+		IsAnonymous:          i.IsAnonymous(),
 		Thread:               i.Thread().StringRef(),
 	}, itmId
 }
@@ -132,6 +134,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		MetadataItem(id.ItemIDFromRef(d.MetadataItem)).
 		OriginalItem(id.ItemIDFromRef(d.OriginalItem)).
 		IsMetadata(d.IsMetadata).
+		Anonymous(d.IsAnonymous).
 		Fields(fields).
 		Timestamp(d.Timestamp).
 		Thread(id.ThreadIDFromRef(d.Thread))

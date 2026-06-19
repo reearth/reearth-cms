@@ -23,6 +23,7 @@ type Item struct {
 	timestamp            time.Time
 	thread               *ThreadID
 	isMetadata           bool
+	isAnonymous          bool
 	user                 *UserID
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
@@ -70,6 +71,10 @@ func (i *Item) MetadataItem() *ID {
 }
 func (i *Item) IsMetadata() bool {
 	return i.isMetadata
+}
+
+func (i *Item) IsAnonymous() bool {
+	return i.isAnonymous
 }
 
 func (i *Item) OriginalItem() *ID {
@@ -365,6 +370,7 @@ func (i *Item) Clone() *Item {
 		timestamp:            i.timestamp,
 		thread:               i.thread,
 		isMetadata:           i.isMetadata,
+		isAnonymous:          i.isAnonymous,
 		user:                 i.user,
 		updatedByUser:        i.updatedByUser,
 		updatedByIntegration: i.updatedByIntegration,

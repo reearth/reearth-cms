@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -95,7 +96,7 @@ func setupPostingTest(t *testing.T, projectPostingEnabled *bool, allowedOrigins 
 	ar := &accountrepo.Container{Workspace: wsRepo}
 	uc := interactor.New(db, nil, ar, nil, interactor.ContainerConfig{})
 
-	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}}
+	op := &usecase.Operator{AcOperator: &accountusecase.Operator{}, Anonymous: true}
 	ctx = adapter.AttachOperator(ctx, op)
 	ctx = adapter.AttachUsecases(ctx, &uc)
 
@@ -492,6 +493,62 @@ func TestHandler_PreflightItem(t *testing.T) {
 				assert.Empty(t, rec.Header().Get("Access-Control-Allow-Methods"))
 				assert.Empty(t, rec.Header().Get("Access-Control-Allow-Headers"))
 			}
+		})
+	}
+}
+
+func TestFieldsFromBody(t *testing.T) {
+	t.Parallel()
+
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).
+		NewID().Key(id.NewKey("title")).MustBuild()
+	numberTP, err := schema.NewNumber(nil, nil)
+	require.NoError(t, err)
+	numberField := schema.NewField(numberTP.TypeProperty()).
+		NewID().Key(id.NewKey("count")).MustBuild()
+
+	s := schema.New().NewID().
+		Workspace(accountdomain.NewWorkspaceID()).
+		Project(id.NewProjectID()).
+		Fields([]*schema.Field{textField, numberField}).
+		MustBuild()
+
+	titleParam := interfaces.ItemFieldParam{Field: textField.ID().Ref(), Key: textField.Key().Ref(), Value: "hello"}
+	countParam := interfaces.ItemFieldParam{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 42}
+
+	tests := []struct {
+		name string
+		body map[string]any
+		want []interfaces.ItemFieldParam
+	}{
+		{
+			name: "maps known fields by key",
+			body: map[string]any{"title": "hello", "count": 42},
+			want: []interfaces.ItemFieldParam{titleParam, countParam},
+		},
+		{
+			name: "ignores keys not in schema",
+			body: map[string]any{"title": "hello", "unknown": "x"},
+			want: []interfaces.ItemFieldParam{titleParam},
+		},
+		{
+			name: "empty body returns empty slice",
+			body: map[string]any{},
+			want: []interfaces.ItemFieldParam{},
+		},
+		{
+			name: "missing field is not included",
+			body: map[string]any{"count": 1},
+			want: []interfaces.ItemFieldParam{{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 1}},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.ElementsMatch(t, tt.want, fieldsFromBody(tt.body, s))
 		})
 	}
 }

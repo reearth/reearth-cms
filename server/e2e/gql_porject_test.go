@@ -320,7 +320,7 @@ func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
 			wantStatus:     http.StatusAccepted,
 			checkResp: func(t *testing.T, resp *httpexpect.Response) {
 				assert.Equal(t, "https://allowed.com", resp.Header("Access-Control-Allow-Origin").Raw())
-				resp.JSON().Object().HasValue("status", "accepted")
+				resp.JSON().Object().ContainsKey("id").ContainsKey("$createdAt")
 			},
 		},
 		{

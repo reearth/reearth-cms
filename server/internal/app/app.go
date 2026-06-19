@@ -4,15 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/labstack/echo-opentelemetry"
+	echootel "github.com/labstack/echo-opentelemetry"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
-	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
@@ -99,27 +97,6 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 	}
 
 	api.POST("/signup", Signup(), usecaseMiddleware)
-}
-
-func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
-	publicOrigins := allowedPublicOrigins(appCtx)
-	if len(publicOrigins) > 0 {
-		publicAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOrigins: publicOrigins,
-			// Skip the global CORS middleware for the posting endpoint's OPTIONS
-			// preflight — PreflightItem() handles origin validation per-project.
-			Skipper: func(c *echo.Context) bool {
-				return c.Request().Method == http.MethodOptions &&
-					strings.HasSuffix(c.Request().URL.Path, "/items")
-			},
-		}))
-
-		// register dummy OPTIONS route so CORS middleware works fine!
-		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
-	}
-
-	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
-	publicapi.Echo(publicAPIGroup)
 }
 
 func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {

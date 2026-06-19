@@ -1192,12 +1192,12 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	updateProjectPosting(e, pId, []string{"https://allowed.com"})
 	updateModelPostingEnabled(e, mId, true)
 
-	t.Run("posting enabled returns 202", func(t *testing.T) {
+	t.Run("posting enabled returns 202 with item id", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://allowed.com").
 			Expect().
 			Status(http.StatusAccepted).
-			JSON().Object().Value("status").IsEqual("accepted")
+			JSON().Object().ContainsKey("id").ContainsKey("$createdAt")
 	})
 
 	// --- schema-based validation ---
@@ -1231,12 +1231,13 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			Status(http.StatusBadRequest).
 			JSON().Object()
 	}
-	postVOK := func(fields map[string]any) {
-		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+	postVOK := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
 			WithHeader("Origin", "https://example.com").
 			WithJSON(map[string]any{"fields": fields}).
 			Expect().
-			Status(http.StatusAccepted)
+			Status(http.StatusAccepted).
+			JSON().Object()
 	}
 	assertFieldError := func(obj *httpexpect.Object, field, code string) {
 		obj.Value("code").IsEqual("validation_error")
@@ -1253,6 +1254,33 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			"active": true, "agreed": false, "publishedAt": "2024-01-15T10:00:00Z",
 			"website": "https://example.com",
 		})
+	})
+
+	t.Run("response fields reflect submitted values", func(t *testing.T) {
+		obj := postVOK(map[string]any{
+			"title": "world", "count": 42, "score": 0.75, "status": "closed",
+			"active": true, "agreed": true, "publishedAt": "2025-03-01T00:00:00Z",
+			"website": "https://reearth.io",
+		})
+		obj.ContainsKey("id")
+		obj.ContainsKey("$createdAt")
+		fields := obj.Value("fields").Object()
+		fields.Value("title").IsEqual("world")
+		fields.Value("count").IsEqual(float64(42))
+		fields.Value("score").IsEqual(0.75)
+		fields.Value("status").IsEqual("closed")
+		fields.Value("active").IsEqual(true)
+		fields.Value("agreed").IsEqual(true)
+		fields.Value("website").IsEqual("https://reearth.io")
+	})
+
+	t.Run("created item is not publicly accessible (draft only)", func(t *testing.T) {
+		obj := postVOK(map[string]any{"title": "draft-check"})
+		itemID := obj.Value("id").String().Raw()
+		// A freshly posted item is a draft — it must not appear via the public GET endpoint.
+		e.GET("/api/p/{workspace}/{project}/{model}/{item}", wId.String(), pIdV, mKeyV, itemID).
+			Expect().
+			Status(http.StatusNotFound)
 	})
 
 	t.Run("unknown keys are silently ignored", func(t *testing.T) {
@@ -1410,13 +1438,13 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		postMOK(map[string]any{"tag": "one"})
 	})
 	t.Run("single field rejects array with multiple values", func(t *testing.T) {
-		assertFieldError(postM(map[string]any{"tag": []any{"one", "two"}}), "tag", "CONSTRAINT_VIOLATION")
+		assertFieldError(postM(map[string]any{"tag": []any{"one", "two"}}), "tag", "TYPE_MISMATCH")
 	})
 	t.Run("multiple field accepts array of values", func(t *testing.T) {
 		postMOK(map[string]any{"tags": []any{"one", "two", "three"}})
 	})
-	t.Run("multiple field accepts scalar as single-item", func(t *testing.T) {
-		postMOK(map[string]any{"tags": "one"})
+	t.Run("multiple field rejects scalar", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"tags": "one"}), "tags", "TYPE_MISMATCH")
 	})
 	t.Run("multiple field reports type mismatch on invalid item in array", func(t *testing.T) {
 		assertFieldError(postM(map[string]any{"counts": []any{float64(1), map[string]any{"bad": "value"}}}), "counts", "TYPE_MISMATCH")

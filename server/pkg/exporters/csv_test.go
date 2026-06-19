@@ -61,6 +61,7 @@ func TestRowFromItem(t *testing.T) {
 		Fields([]*item.Field{}).
 		Model(mid).
 		Thread(tid.Ref()).
+		Anonymous(true).
 		MustBuild()
 
 	// Test with no fields
@@ -76,6 +77,7 @@ func TestRowFromItem(t *testing.T) {
 		Fields([]*item.Field{fi3, fi4}).
 		Model(mid).
 		Thread(tid.Ref()).
+		Anonymous(true).
 		MustBuild()
 	row2, ok2 := RowFromItem(i2, sp)
 	assert.True(t, ok2)
@@ -89,6 +91,7 @@ func TestRowFromItem(t *testing.T) {
 		Fields([]*item.Field{fi1, fi2, fi3, fi4}).
 		Model(mid).
 		Thread(tid.Ref()).
+		Anonymous(true).
 		MustBuild()
 	row3, ok3 := RowFromItem(i3, sp)
 	assert.True(t, ok3)

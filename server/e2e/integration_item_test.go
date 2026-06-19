@@ -376,6 +376,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(s1.ID()).
 		Model(m1.ID()).
 		Project(p.ID()).
+		User(uId).
 		Thread(thId1.Ref()).
 		Fields([]*item.Field{
 			item.NewField(fId2, value.TypeAsset.Value(aid1).AsMultiple(), nil),
@@ -389,6 +390,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(s2.ID()).
 		Model(m2.ID()).
 		Project(p.ID()).
+		User(uId).
 		Thread(thId2.Ref()).
 		Fields([]*item.Field{
 			item.NewField(fId3, value.TypeReference.Value(itmId1).AsMultiple(), nil),
@@ -402,6 +404,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(s3.ID()).
 		Model(m1.ID()).
 		Project(p.ID()).
+		User(uId).
 		Thread(thId3.Ref()).
 		IsMetadata(true).
 		Fields([]*item.Field{
@@ -416,6 +419,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(s5.ID()).
 		Model(m3.ID()).
 		Project(p.ID()).
+		User(uId).
 		Thread(thId4.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
@@ -432,6 +436,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(s7.ID()).
 		Model(m4.ID()).
 		Project(p.ID()).
+		User(uId).
 		Thread(thId5.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
@@ -447,6 +452,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(s8.ID()).
 		Model(m5.ID()).
 		Project(p.ID()).
+		User(uId).
 		Thread(thId6.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
@@ -462,6 +468,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Schema(id.NewSchemaID()).
 		Model(id.NewModelID()).
 		Project(p.ID()).
+		User(uId).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm7); err != nil {
 		return err
@@ -2215,6 +2222,7 @@ func baseSeederWithTextItem(ctx context.Context, r *repo.Container, gr *gateway.
 		Schema(id.SchemaID(sid1)).
 		Model(id.ModelID(mId1)).
 		Project(id.ProjectID(pid)).
+		User(uId).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*item.Field{
 			item.NewField(fId1, value.TypeText.Value("this is a test value").AsMultiple(), nil),
