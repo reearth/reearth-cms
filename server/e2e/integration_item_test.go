@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -34,12 +35,12 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 var (
 	secret  = "secret_1234567890"
 	wId0    = accountdomain.NewWorkspaceID()
+	wId1    = accountdomain.NewWorkspaceID()
 	uId     = accountdomain.NewUserID()
 	uId_2   = accountdomain.NewUserID()
 	iId     = id.NewIntegrationID()
@@ -56,9 +57,11 @@ var (
 	aid1    = id.NewAssetID()
 	aid2    = id.NewAssetID()
 	aid3    = id.NewAssetID() // no thread
+	aid4    = id.NewAssetID() // private project (pid2)
 	auuid1  = uuid.NewString()
 	auuid2  = uuid.NewString()
 	auuid3  = uuid.NewString()
+	auuid4  = uuid.NewString()
 	itmId1  = id.NewItemID()
 	itmId2  = id.NewItemID()
 	itmId3  = id.NewItemID()
@@ -140,8 +143,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	u2 := user.New().ID(uId_2).
 		Name("e2e2").
 		Email("e2e2@e2e.com").
-		Workspace(wId0).
-		Metadata(metadata).
+		Workspace(wId1).
+		Metadata(user.NewMetadata()).
 		MustBuild()
 	if err := r.User.Save(ctx, u2); err != nil {
 		return err
@@ -174,6 +177,17 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
+		return err
+	}
+
+	w2 := workspace.New().
+		ID(wId1).
+		Name("e2e").
+		Personal(false).
+		Members(map[accountdomain.UserID]workspace.Member{uId_2: {Role: workspace.RoleOwner, InvitedBy: u2.ID()}}).
+		Metadata(workspace.NewMetadata()).
+		MustBuild()
+	if err := r.Workspace.Save(ctx, w2); err != nil {
 		return err
 	}
 
@@ -503,6 +517,13 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Size(1000).
 		UUID(auuid3).
 		MustBuild()
+	a4 := asset.New().ID(aid4).
+		Project(p2.ID()).
+		CreatedByUser(u.ID()).
+		FileName("ddd.jpg").
+		Size(1000).
+		UUID(auuid4).
+		MustBuild()
 
 	if err := r.Asset.Save(ctx, a1); err != nil {
 		return err
@@ -511,6 +532,9 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 	if err := r.Asset.Save(ctx, a3); err != nil {
+		return err
+	}
+	if err := r.Asset.Save(ctx, a4); err != nil {
 		return err
 	}
 	if err := r.AssetFile.Save(ctx, a1.ID(), f1); err != nil {
@@ -1651,9 +1675,9 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 		ContainsAll("id", "modelId", "fields", "createdAt", "metadataFields", "isMetadata", "updatedAt", "version", "parents", "refs")
 	r.Path("$.fields[:]").Array().Length().IsEqual(4)
 	raw := r.Path("$.fields[:].value").Array().Raw()
-	assert.True(t, slices.Contains(raw, "default"))
-	assert.True(t, slices.Contains(raw, "default group"))
-	assert.True(t, slices.Contains(raw, "test value"))
+	assert.True(t, slices.Contains(raw, any("default")))
+	assert.True(t, slices.Contains(raw, any("default group")))
+	assert.True(t, slices.Contains(raw, any("test value")))
 	r.Path("$.metadataFields[:]").Array().Length().IsEqual(1)
 	raw2 := r.Path("$.metadataFields[:].value").Array().Raw()
 	assert.True(t, slices.Contains(raw2, true))

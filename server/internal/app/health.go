@@ -10,7 +10,7 @@ import (
 
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
 	"go.opentelemetry.io/otel"
@@ -22,7 +22,7 @@ type HealthChecker struct {
 }
 
 func (hc *HealthChecker) Handler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		// Optional HTTP Basic Auth
 		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
 			username, password, ok := c.Request().BasicAuth()

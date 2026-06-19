@@ -13,19 +13,16 @@ test("@smoke Workspace CRUD has succeeded", async ({ workspacePage }) => {
   await workspacePage.createWorkspaceButton.click();
   await workspacePage.workspaceNameInput.click();
   await workspacePage.workspaceNameInput.fill("workspace name");
-  await workspacePage.okButton.click();
-  await workspacePage.closeNotification();
+  await workspacePage.clickAndExpectSuccess(workspacePage.okButton);
 
   await workspacePage.workspaceSettingsButton.click();
   await workspacePage.workspaceNameSettingsInput.click();
   await workspacePage.workspaceNameSettingsInput.fill("new workspace name");
-  await workspacePage.saveChangesButton.click();
-  await workspacePage.closeNotification();
+  await workspacePage.clickAndExpectSuccess(workspacePage.saveChangesButton);
 
   await expect(workspacePage.header).toContainText("new workspace name");
   await workspacePage.removeWorkspaceButton.click();
-  await workspacePage.okButton.click();
-  await workspacePage.closeNotification();
+  await workspacePage.clickAndExpectSuccess(workspacePage.okButton);
 
   await workspacePage.firstWorkspaceLink.click();
   await expect(workspacePage.workspaceTextByName("new workspace name")).toBeHidden();
@@ -36,12 +33,10 @@ test("Workspace Creating from tab has succeeded", async ({ workspacePage }) => {
   await workspacePage.createWorkspaceTabButton.click();
   await workspacePage.workspaceNameInput.click();
   await workspacePage.workspaceNameInput.fill("workspace name");
-  await workspacePage.okButton.click();
-  await workspacePage.closeNotification();
+  await workspacePage.clickAndExpectSuccess(workspacePage.okButton);
   await expect(workspacePage.header).toContainText("workspace name");
 
   await workspacePage.workspaceSettingsButton.click();
   await workspacePage.removeWorkspaceButton.click();
-  await workspacePage.okButton.click();
-  await workspacePage.closeNotification();
+  await workspacePage.clickAndExpectSuccess(workspacePage.okButton);
 });

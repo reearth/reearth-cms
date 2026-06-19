@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -22,7 +23,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {

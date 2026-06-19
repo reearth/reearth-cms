@@ -119,7 +119,9 @@ const ResiumViewer: React.FC<Props> = ({
   }, [viewerRef]);
 
   const imagery = useMemo(() => {
-    return workspaceSettings.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
+    // Always return at least the default provider so Cesium never falls back to
+    // its built-in Ion base imagery (asset 2), which 401s now that the Ion token is gone.
+    return imageryGet(workspaceSettings.tiles?.resources ?? []);
   }, [workspaceSettings.tiles]);
 
   const terrain = useMemo(() => {
@@ -139,6 +141,7 @@ const ResiumViewer: React.FC<Props> = ({
         sceneModePicker={false}
         baseLayerPicker={true}
         imageryProviderViewModels={imagery}
+        selectedImageryProviderViewModel={imagery[0]}
         selectedTerrainProviderViewModel={terrain[1]}
         terrainProviderViewModels={terrain}
         fullscreenButton={false}

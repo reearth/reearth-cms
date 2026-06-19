@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -72,7 +72,7 @@ func parseSubRoute(subRoute string) (name, ext string) {
 
 // SubRoute since echo supports only / separated params, we need to route inside the handler
 func SubRoute() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		wsAlias, pAlias := c.Param("workspace"), c.Param("project")
 		mKey, ext := parseSubRoute(c.Param("sub-route"))
 
@@ -101,7 +101,7 @@ func SubRoute() echo.HandlerFunc {
 	}
 }
 
-func SchemaOrMetadataSchema(c echo.Context, wsAlias, pAlias string, mKey string, schemaType string) error {
+func SchemaOrMetadataSchema(c *echo.Context, wsAlias, pAlias string, mKey string, schemaType string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
@@ -120,7 +120,7 @@ func SchemaOrMetadataSchema(c echo.Context, wsAlias, pAlias string, mKey string,
 	return c.JSON(http.StatusOK, res)
 }
 
-func Assets(c echo.Context, wsAlias, pAlias, model, ext string) error {
+func Assets(c *echo.Context, wsAlias, pAlias, model, ext string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
@@ -143,7 +143,7 @@ func Assets(c echo.Context, wsAlias, pAlias, model, ext string) error {
 	return c.JSONBlob(http.StatusOK, w.Bytes())
 }
 
-func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
+func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
@@ -173,7 +173,7 @@ func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
 }
 
 func ItemOrAsset() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
 
@@ -197,7 +197,7 @@ func ItemOrAsset() echo.HandlerFunc {
 	}
 }
 
-func paginationFrom(c echo.Context) *usecasex.Pagination {
+func paginationFrom(c *echo.Context) *usecasex.Pagination {
 	limit, _ := intParams(c, "limit", "perPage", "per_page", "page_size", "pageSize")
 	if limit <= 0 {
 		limit = defaultLimit
@@ -232,7 +232,7 @@ func paginationFrom(c echo.Context) *usecasex.Pagination {
 	return nil
 }
 
-func intParams(c echo.Context, params ...string) (int64, bool) {
+func intParams(c *echo.Context, params ...string) (int64, bool) {
 	for _, p := range params {
 		if q := c.QueryParam(p); q != "" {
 			if p, err := strconv.ParseInt(q, 10, 64); err == nil {
@@ -244,7 +244,7 @@ func intParams(c echo.Context, params ...string) (int64, bool) {
 }
 
 func OpenAPISchema() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)
 

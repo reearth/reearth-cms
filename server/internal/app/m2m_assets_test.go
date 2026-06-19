@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
@@ -80,14 +80,14 @@ func TestM2MEndpointIntegration(t *testing.T) {
 	token := "test-m2m-token"
 	authMiddleware := M2MTokenAuthMiddleware(token)
 	usecaseMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			ctx := adapter.AttachUsecases(c.Request().Context(), uc)
 			c.SetRequest(c.Request().WithContext(ctx))
 			return next(c)
 		}
 	}
 
-	handler := echo.HandlerFunc(func(c echo.Context) error {
+	handler := echo.HandlerFunc(func(c *echo.Context) error {
 		return authMiddleware(usecaseMiddleware(M2MAssetHandler()))(c)
 	})
 
@@ -145,8 +145,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 
 			c := e.NewContext(req, rec)
 			c.SetPath("/api/m2m/assets/:uuid/is-private")
-			c.SetParamNames("uuid")
-			c.SetParamValues(tt.uuid)
+			c.SetPathValues(echo.PathValues{{Name: "uuid", Value: tt.uuid}})
 
 			err := handler(c)
 			assert.NoError(t, err)

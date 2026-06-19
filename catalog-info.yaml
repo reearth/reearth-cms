@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: reearth-cms
+  namespace: reearth
+  description: Tailor-made CMS platform for GIS data; data structure management for
+    non-developers
+  annotations:
+    github.com/project-slug: reearth/reearth-cms
+  links:
+  - url: https://github.com/reearth/reearth-cms
+    title: GitHub
+    icon: github
+  - url: https://reearth.io/product/cms
+    title: Website
+    icon: web
+  tags:
+  - typescript
+  - go
+  - cms
+  - gis
+spec:
+  type: service
+  lifecycle: production
+  owner: reearth/cms

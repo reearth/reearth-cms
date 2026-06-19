@@ -2,11 +2,13 @@ package app
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo-opentelemetry"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
@@ -16,7 +18,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" // nolint:staticcheck
 )
 
 func initEcho(appCtx *ApplicationContext) *echo.Echo {
@@ -25,19 +26,16 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	}
 
 	e := echo.New()
-	e.Debug = appCtx.Debug
-	e.HideBanner = true
-	e.HidePort = true
-	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
+	e.HTTPErrorHandler = errorHandler(echo.DefaultHTTPErrorHandler(false))
 
 	// basic middleware
-	logger := log.NewEcho()
-	e.Logger = logger
+	logger := log.New()
+	e.Logger = log.NewSlogLogger(logger)
 	e.Use(
-		logger.AccessLogger(),
+		log.AccessLoggerV5(logger),
 		middleware.Recover(),
 		middleware.Gzip(),
-		otelecho.Middleware("reearth-cms"),
+		echootel.NewMiddleware("reearth-cms"),
 	)
 
 	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
@@ -75,19 +73,19 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 	api.Use(private)
 	api.GET("/ping", Ping())
 	api.GET("/health", appCtx.HealthChecker.Handler())
-	graphqlHandler := GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev)
-	graphqlMiddlewares := []echo.MiddlewareFunc{
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
+
+	graphqlMiddlewares := []echo.MiddlewareFunc{}
+	if o := allowedOrigins(appCtx); len(o) > 0 {
+		graphqlMiddlewares = append(graphqlMiddlewares, middleware.CORS(o...))
+	}
+	graphqlMiddlewares = append(graphqlMiddlewares,
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
 		usecaseMiddleware,
-	}
-	api.Any("/graphql", graphqlHandler, graphqlMiddlewares...)
-	api.POST(
-		"/notify", NotifyHandler(),
-		M2MAuthMiddleware(appCtx.Config),
-		usecaseMiddleware,
 	)
+	api.Any("/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev), graphqlMiddlewares...)
+
+	api.POST("/notify", NotifyHandler(), M2MAuthMiddleware(appCtx.Config), usecaseMiddleware)
 
 	// M2M API endpoints
 	if appCtx.Config.AuthM2M.Token != "" {
@@ -105,8 +103,12 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	publicOrigins := allowedPublicOrigins(appCtx)
 	if len(publicOrigins) > 0 {
-		publicAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: publicOrigins}))
+		publicAPIGroup.Use(middleware.CORS(publicOrigins...))
+
+		// register dummy OPTIONS route so CORS middleware works fine!
+		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
+
 	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
 	publicapi.Echo(publicAPIGroup)
 }
@@ -114,7 +116,10 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	integrationOrigins := allowedIntegrationOrigins(appCtx)
 	if len(integrationOrigins) > 0 {
-		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
+		integrationAPIGroup.Use(middleware.CORS(integrationOrigins...))
+
+		// register dummy OPTIONS route so CORS middleware works fine!
+		integrationAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 
 	// OpenAPI spec endpoint - no auth required
@@ -129,7 +134,10 @@ func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Gr
 func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
 	origins := allowedOrigins(appCtx)
 	if len(origins) > 0 {
-		fileServeGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
+		fileServeGroup.Use(middleware.CORS(origins...))
+
+		// register dummy OPTIONS route so CORS middleware works fine!
+		fileServeGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 	serveFiles(fileServeGroup, appCtx)
 }
@@ -145,10 +153,10 @@ func allowedOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.Origins...)
-	if appCtx.Debug {
-		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	if appCtx.Config.Dev {
+		origins = append(origins, "*")
 	}
-	return origins
+	return lo.Uniq(origins)
 }
 
 func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
@@ -156,10 +164,10 @@ func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.Integration_Origins...)
-	if appCtx.Debug {
-		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	if appCtx.Config.Dev {
+		origins = append(origins, "*")
 	}
-	return origins
+	return lo.Uniq(origins)
 }
 
 func allowedPublicOrigins(appCtx *ApplicationContext) []string {
@@ -167,80 +175,67 @@ func allowedPublicOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.Public_Origins...)
-	if appCtx.Debug {
+	if appCtx.Config.Dev {
 		origins = append(origins, "*")
 	}
-	return origins
+	return lo.Uniq(origins)
 }
 
 func errorMessage(err error, log func(string, ...interface{})) (int, string) {
-	code := http.StatusInternalServerError
-	msg := "internal server error"
-
-	var httpErr *echo.HTTPError
-	if errors.As(err, &httpErr) {
-		code = httpErr.Code
-		if m, ok := httpErr.Message.(string); ok {
-			msg = m
-		} else if m, ok := httpErr.Message.(error); ok {
-			msg = m.Error()
-		} else {
-			msg = "error"
-		}
-		if httpErr.Internal != nil {
+	if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok {
+		if httpErr.Unwrap() != nil {
 			log("echo internal err: %+v", httpErr)
 		}
-		return code, msg
+		return httpErr.Code, httpErr.Message
+	}
+
+	var sc echo.HTTPStatusCoder
+	if errors.As(err, &sc) {
+		if code := sc.StatusCode(); code != 0 {
+			return code, http.StatusText(code)
+		}
 	}
 
 	if errors.Is(err, rerror.ErrNotFound) {
-		code = http.StatusNotFound
-		msg = "not found"
-		return code, msg
+		return http.StatusNotFound, "not found"
 	}
 
 	if errors.Is(err, rerror.ErrTooManyRequests) {
-		code = http.StatusTooManyRequests
-		msg = "too many requests"
-		return code, msg
+		return http.StatusTooManyRequests, "too many requests"
 	}
 
-	var rErr *rerror.E
-	if errors.As(err, &rErr) {
-		code = http.StatusBadRequest
-		msg = rErr.Error()
-		return code, msg
+	if rErr, ok := errors.AsType[*rerror.E](err); ok {
+		return http.StatusBadRequest, rErr.Error()
 	}
 
-	var gqlErr *gqlerror.Error
-	if errors.As(err, &gqlErr) {
-		code = http.StatusBadRequest
-		msg = gqlErr.Error()
-		return code, msg
+	if gqlErr, ok := errors.AsType[*gqlerror.Error](err); ok {
+		return http.StatusBadRequest, gqlErr.Error()
 	}
 
-	return code, msg
+	log("echo internal err: %+v", err)
+	return http.StatusInternalServerError, "internal server error"
 }
 
-func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
-	return func(err error, c echo.Context) {
-		if c.Response().Committed {
+func errorHandler(next echo.HTTPErrorHandler) echo.HTTPErrorHandler {
+	return func(c *echo.Context, err error) {
+		resp, _ := echo.UnwrapResponse(c.Response())
+		if resp != nil && resp.Committed {
 			return
 		}
 
 		code, msg := errorMessage(err, func(f string, args ...interface{}) {
-			c.Echo().Logger.Errorf(f, args...)
+			c.Logger().Error(fmt.Sprintf(f, args...))
 		})
 		if err := c.JSON(code, map[string]string{
 			"error": msg,
 		}); err != nil {
-			next(err, c)
+			next(c, err)
 		}
 	}
 }
 
 func private(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		c.Response().Header().Set(echo.HeaderCacheControl, "private, no-store, no-cache, must-revalidate")
 		return next(c)
 	}

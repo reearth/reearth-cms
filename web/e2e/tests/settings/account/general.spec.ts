@@ -20,8 +20,7 @@ test.afterEach(async ({ reearth, settingsPage }) => {
   } else {
     await settingsPage.accountNameInput.fill(originalUsername);
     await settingsPage.yourEmailInput.fill(originalEmail);
-    await settingsPage.formSubmitButton.click();
-    await settingsPage.closeNotification();
+    await settingsPage.clickAndExpectSuccess(settingsPage.formSubmitButton);
   }
 });
 
@@ -34,14 +33,12 @@ test("Name and email updating has succeeded", async ({ reearth, settingsPage }) 
   await settingsPage.accountNameInputExact.fill("new name");
   await settingsPage.yourEmailInputExact.click();
   await settingsPage.yourEmailInputExact.fill("test@test.com");
-  await settingsPage.formSubmitButton.click();
-  await settingsPage.closeNotification();
+  await settingsPage.clickAndExpectSuccess(settingsPage.formSubmitButton);
 
   await settingsPage.accountNameInputExact.click();
   await settingsPage.accountNameInputExact.fill(originalUsername);
   await settingsPage.yourEmailInputExact.click();
   await settingsPage.yourEmailInputExact.fill(originalEmail);
-  await settingsPage.formSubmitButton.click();
-  await settingsPage.closeNotification();
+  await settingsPage.clickAndExpectSuccess(settingsPage.formSubmitButton);
   await expect(settingsPage.headerElement).toContainText(originalUsername);
 });

@@ -24,6 +24,10 @@ jobs:
     env:
       IMAGE_NAME: reearth/reearth-cms-worker
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v6
       - name: Set up QEMU
@@ -77,6 +81,10 @@ jobs:
     env:
       IMAGE_NAME: reearth/reearth-cms-decompressor
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v6
       - name: Set up QEMU
@@ -130,6 +138,10 @@ jobs:
     env:
       IMAGE_NAME: reearth/reearth-cms-copier
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v6
       - name: Set up QEMU

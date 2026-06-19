@@ -1,8 +1,9 @@
 package item
 
 import (
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"golang.org/x/exp/slices"
 )
 
 type FieldChangeType string
