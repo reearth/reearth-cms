@@ -1,6 +1,9 @@
 name: ci-server
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
 
 jobs:
   ci-server-lint:
