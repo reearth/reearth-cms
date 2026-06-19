@@ -190,6 +190,18 @@ func TestSchema_ValidateFields(t *testing.T) {
 			wantCodes: map[string]FieldValidationCode{"tag": FieldValidationCodeTypeMismatch},
 		},
 		{
+			name:      "single field rejects array with one value",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "tag": []any{"one"}},
+			wantCodes: map[string]FieldValidationCode{"tag": FieldValidationCodeTypeMismatch},
+		},
+		{
+			name:      "multiple field rejects scalar",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "tags": "one"},
+			wantCodes: map[string]FieldValidationCode{"tags": FieldValidationCodeTypeMismatch},
+		},
+		{
 			name:      "multiple field type mismatch on invalid item in array",
 			schema:    s,
 			body:      map[string]any{"title": "hello", "counts": []any{float64(5), map[string]any{"bad": "value"}}},

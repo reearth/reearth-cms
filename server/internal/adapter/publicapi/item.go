@@ -186,12 +186,6 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 		if !ok {
 			continue
 		}
-		// itemFieldsFromParams expects []any for multiple fields; normalize scalars here.
-		if f.Multiple() {
-			if _, isSlice := v.([]any); !isSlice {
-				v = []any{v}
-			}
-		}
 		params = append(params, interfaces.ItemFieldParam{
 			Field: f.ID().Ref(),
 			Key:   key.Ref(),
