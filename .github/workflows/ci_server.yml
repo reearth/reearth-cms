@@ -1,6 +1,9 @@
 name: ci-server
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
 
 jobs:
   ci-server-lint:
@@ -111,7 +114,7 @@ jobs:
           check-latest: true
           cache-dependency-path: 'server/go.sum'
       - name: test
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m ./...
         working-directory: server
         env:
           REEARTH_CMS_DB: mongodb://localhost
@@ -119,4 +122,4 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           flags: server
-          files: coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
