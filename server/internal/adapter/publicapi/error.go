@@ -55,6 +55,7 @@ var PostingErrorCodes = []string{
 	codeModelPostingDisabled,
 	codeOriginNotAllowed,
 	codeNotFound,
+	codePayloadTooLarge,
 }
 
 // newAPIError builds a uniform error body with both code and message set.

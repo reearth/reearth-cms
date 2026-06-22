@@ -248,6 +248,10 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 						"description": "Not found",
 						"content":     errorContent,
 					},
+					"413": map[string]interface{}{
+						"description": "Request body exceeds the allowed size limit",
+						"content":     errorContent,
+					},
 				},
 			}
 		}

@@ -106,11 +106,11 @@ func checkGeoLimits(key string, raw any) *FieldValidationError {
 	if !ok {
 		return &FieldValidationError{Field: key, Code: FieldValidationCodeInvalidGeoStructure}
 	}
-	if _, valid := isValidGeoJSON(gj); !valid {
-		return &FieldValidationError{Field: key, Code: FieldValidationCodeInvalidGeoStructure}
-	}
 	if len(gj) > maxGeoFieldBytes {
 		return &FieldValidationError{Field: key, Code: FieldValidationCodeMaxSizeExceeded}
+	}
+	if _, valid := isValidGeoJSON(gj); !valid {
+		return &FieldValidationError{Field: key, Code: FieldValidationCodeInvalidGeoStructure}
 	}
 	return nil
 }

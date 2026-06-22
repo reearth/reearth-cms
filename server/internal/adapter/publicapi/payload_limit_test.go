@@ -37,16 +37,19 @@ func TestHandler_PostItem_PayloadLimit(t *testing.T) {
 	// bodyOfSize returns a JSON posting request whose serialized length is
 	// exactly size bytes, padded via a field not present in the schema.
 	bodyOfSize := func(size int) []byte {
-		base, _ := json.Marshal(postItemRequest{Fields: map[string]any{"pad": ""}})
+		base, err := json.Marshal(postItemRequest{Fields: map[string]any{"pad": ""}})
+		require.NoError(t, err)
 		pad := size - len(base)
 		if pad < 0 {
 			pad = 0
 		}
-		b, _ := json.Marshal(postItemRequest{Fields: map[string]any{"pad": strings.Repeat("a", pad)}})
+		b, err := json.Marshal(postItemRequest{Fields: map[string]any{"pad": strings.Repeat("a", pad)}})
+		require.NoError(t, err)
 		return b
 	}
 	jsonBody := func(fields map[string]any) []byte {
-		b, _ := json.Marshal(postItemRequest{Fields: fields})
+		b, err := json.Marshal(postItemRequest{Fields: fields})
+		require.NoError(t, err)
 		return b
 	}
 
