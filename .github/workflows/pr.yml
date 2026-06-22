@@ -72,4 +72,4 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
-      - uses: toshimaru/auto-author-assign@v3.0.2
+      - uses: toshimaru/auto-author-assign@v3.0.3
