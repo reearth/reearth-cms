@@ -2,8 +2,10 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -1222,6 +1224,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	createField(e, mIdV, "agreed", "", "agreed", false, false, false, false, "Checkbox", map[string]any{"checkbox": map[string]any{}})
 	createField(e, mIdV, "publishedAt", "", "publishedAt", false, false, false, false, "Date", map[string]any{"date": map[string]any{}})
 	createField(e, mIdV, "website", "", "website", false, false, false, false, "URL", map[string]any{"url": map[string]any{}})
+	createField(e, mIdV, "location", "", "location", false, false, false, false, "GeometryObject", map[string]any{"geometryObject": map[string]any{"defaultValue": nil, "supportedTypes": []string{"POINT", "LINESTRING"}}})
 
 	postV := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
@@ -1400,6 +1403,42 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	})
 	t.Run("url valid value returns 201", func(t *testing.T) {
 		postVOK(map[string]any{"title": "hello", "website": "https://example.com"})
+	})
+
+	// --- URL hard limit (2,048 chars) ---
+	t.Run("url at exactly 2048 chars returns 201", func(t *testing.T) {
+		u := "https://e.com/"
+		postVOK(map[string]any{"title": "hello", "website": u + strings.Repeat("a", 2048-len(u))})
+	})
+	t.Run("url exceeding 2048 chars returns MAX_LENGTH_EXCEEDED", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "website": "https://e.com/" + strings.Repeat("a", 2049)}), "website", "MAX_LENGTH_EXCEEDED")
+	})
+
+	// --- Geo hard limits (structure + size) ---
+	t.Run("geo valid structure returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "location": `{"type":"Point","coordinates":[1,2]}`})
+	})
+	t.Run("geo invalid structure returns INVALID_GEO_STRUCTURE", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "location": `{"type":"Point"}`}), "location", "INVALID_GEO_STRUCTURE")
+	})
+	t.Run("geo exceeding 10KB returns MAX_SIZE_EXCEEDED", func(t *testing.T) {
+		coords := make([][]float64, 0, 1400)
+		for i := 0; i < 1400; i++ {
+			coords = append(coords, []float64{1.234567, 2.345678})
+		}
+		big, _ := json.Marshal(map[string]any{"type": "LineString", "coordinates": coords})
+		assertFieldError(postV(map[string]any{"title": "hello", "location": string(big)}), "location", "MAX_SIZE_EXCEEDED")
+	})
+
+	// --- payload size limit (256 KB) ---
+	t.Run("payload exceeding 256KB returns 413 before parsing", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": map[string]any{"title": strings.Repeat("a", 270000)}}).
+			Expect().
+			Status(http.StatusRequestEntityTooLarge).
+			JSON().Object().
+			Value("code").IsEqual("payload_too_large")
 	})
 
 	// --- single vs multiple ---
