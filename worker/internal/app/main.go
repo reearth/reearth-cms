@@ -20,8 +20,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 func Start(debug bool, version string) {
@@ -115,12 +113,19 @@ func (w *WebServer) Run(ctx context.Context) {
 		GracefulTimeout: 10 * time.Second,
 		HideBanner:      true,
 		HidePort:        true,
+		BeforeServeFunc: func(s *http.Server) error {
+			protocols := new(http.Protocols)
+			protocols.SetHTTP1(true)
+			protocols.SetUnencryptedHTTP2(true)
+			s.Protocols = protocols
+			return nil
+		},
 	}
 
 	log.Infof("server started at http://%s", w.address)
 	defer log.Infoc(ctx, "shutting down server...")
 
-	if err := sc.Start(ctx, h2c.NewHandler(w.appServer, &http2.Server{})); err != nil &&
+	if err := sc.Start(ctx, w.appServer); err != nil &&
 		!errors.Is(err, context.Canceled) &&
 		!errors.Is(err, http.ErrServerClosed) {
 		log.Fatalc(ctx, err.Error())
