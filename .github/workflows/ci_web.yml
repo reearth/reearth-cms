@@ -1,6 +1,9 @@
 name: ci-web
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
 jobs:
   validate-nginx-config:
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@4a7719ea2bfbcf3841b58eaedb01e91d3520227a
@@ -105,6 +108,7 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           flags: web
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: build
