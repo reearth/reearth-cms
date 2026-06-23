@@ -14,20 +14,16 @@ import (
 
 // bigValidGeoJSON builds a valid GeoJSON LineString whose serialized form is at
 // least size bytes by padding it with coordinate pairs.
-func bigValidGeoJSON(t *testing.T, size int) string {
-	t.Helper()
+func bigValidGeoJSON(size int) string {
 	coords := make([][]float64, 0, size/8)
-	for len(coords) < 2 || len(mustMarshalJSON(t, map[string]any{"type": "LineString", "coordinates": coords})) < size {
+	for len(coords) < 2 || len(mustMarshalJSON(map[string]any{"type": "LineString", "coordinates": coords})) < size {
 		coords = append(coords, []float64{1.234567, 2.345678})
 	}
-	return string(mustMarshalJSON(t, map[string]any{"type": "LineString", "coordinates": coords}))
+	return string(mustMarshalJSON(map[string]any{"type": "LineString", "coordinates": coords}))
 }
 
-func mustMarshalJSON(t *testing.T, v any) []byte {
-	t.Helper()
-	b, err := json.Marshal(v)
-	require.NoError(t, err)
-	return b
+func mustMarshalJSON(v any) []byte {
+	return lo.Must(json.Marshal(v))
 }
 
 func buildTestField(key string, tp *TypeProperty, required bool) *Field {
@@ -270,7 +266,7 @@ func TestSchema_ValidateFields(t *testing.T) {
 		{
 			name:      "geo exceeding size cap",
 			schema:    s,
-			body:      map[string]any{"title": "hello", "location": bigValidGeoJSON(t, maxGeoFieldBytes+1)},
+			body:      map[string]any{"title": "hello", "location": bigValidGeoJSON(maxGeoFieldBytes + 1)},
 			wantCodes: map[string]FieldValidationCode{"location": FieldValidationCodeMaxSizeExceeded},
 		},
 		// multiple errors at once
@@ -314,7 +310,7 @@ func TestSchema_ValidateFields_GlobalLimits(t *testing.T) {
 	t.Parallel()
 
 	overURL := "https://e.com/" + strings.Repeat("a", maxURLFieldLength)
-	overGeo := bigValidGeoJSON(t, maxGeoFieldBytes+1)
+	overGeo := bigValidGeoJSON(maxGeoFieldBytes + 1)
 
 	// buildTestSchema assigns a fresh workspace/project ID on each call, so these
 	// two schemas belong to different projects.
