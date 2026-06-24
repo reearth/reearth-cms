@@ -1523,16 +1523,10 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	})
 }
 
-// TestPublicAPI_PostItem_RateLimit verifies that the posting endpoint enforces
-// the per-IP token-bucket rate limit: requests within the burst pass through,
-// the request that exceeds it is rejected with 429 + Retry-After, and the
-// read-only GET endpoints remain unaffected.
 func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 	const burst = 3
 	e := StartServer(t, &app.Config{
 		Public_RateLimit: app.PublicRateLimitConfig{
-			// Very low refill rate so the burst is effectively the only budget
-			// for the duration of the test; the burst is exhausted, then denied.
 			Rate:  0.01,
 			Burst: burst,
 		},
@@ -1563,8 +1557,6 @@ func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 	})
 
 	t.Run("read-only GET endpoints are not rate limited", func(t *testing.T) {
-		// The POST budget is already exhausted, but GETs use a separate path
-		// with no limiter and must still succeed.
 		for i := 0; i < burst+2; i++ {
 			e.GET("/api/p/{workspace}/{project}", wId.String(), pId).
 				Expect().

@@ -15,17 +15,11 @@ import (
 func TestRateLimitMiddleware(t *testing.T) {
 	t.Parallel()
 
-	// Mirror the production Echo config: RealIP() resolves the client IP from
-	// X-Forwarded-For (nearest untrusted entry). Public IPs are used below
-	// because private/loopback addresses are treated as trusted infra and
-	// skipped by the XFF extractor.
 	e := echo.New()
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
 	newReq := func(ip string) (*echo.Context, *httptest.ResponseRecorder) {
 		req := httptest.NewRequest(http.MethodPost, "/", nil)
-		// Private RemoteAddr stands in for the trusted proxy hop, so the XFF
-		// extractor skips it and resolves the public client IP from the header.
 		req.RemoteAddr = "10.0.0.1:1234"
 		req.Header.Set(echo.HeaderXForwardedFor, ip)
 		rec := httptest.NewRecorder()
@@ -38,7 +32,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 
 	t.Run("requests within the burst pass through", func(t *testing.T) {
 		t.Parallel()
-		// low rate so refill is negligible during the test; burst of 3.
 		h := RateLimitMiddleware(0.01, 3)(okHandler)
 
 		for i := 0; i < 3; i++ {
@@ -51,7 +44,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 
 	t.Run("request exceeding the burst returns 429 with Retry-After and rate_limited body", func(t *testing.T) {
 		t.Parallel()
-		// rate 0.5/s -> one token every 2s -> Retry-After = 2.
 		h := RateLimitMiddleware(0.5, 1)(okHandler)
 
 		c, _ := newReq("8.8.8.8")
@@ -85,7 +77,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 		require.NoError(t, h(c))
 		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
 
-		// a different IP has its own bucket
 		c, rec = newReq("2.2.2.2")
 		require.NoError(t, h(c))
 		assert.Equal(t, http.StatusAccepted, rec.Code)
@@ -93,7 +84,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 
 	t.Run("non-positive rate and burst fall back to defaults", func(t *testing.T) {
 		t.Parallel()
-		// defaults: burst 100, so 100 requests pass and the 101st is denied.
 		h := RateLimitMiddleware(0, 0)(okHandler)
 
 		for i := 0; i < defaultBurst; i++ {
@@ -105,7 +95,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 		c, rec := newReq("3.3.3.3")
 		require.NoError(t, h(c))
 		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
-		// default rate ~1.667/s -> one token in <1s -> Retry-After rounds up to 1.
 		assert.Equal(t, "1", rec.Header().Get("Retry-After"))
 	})
 }

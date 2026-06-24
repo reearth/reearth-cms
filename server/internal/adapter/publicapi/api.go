@@ -35,10 +35,6 @@ func GetController(ctx context.Context) *Controller {
 	return ctx.Value(controllerCK).(*Controller)
 }
 
-// RateLimitConfig configures the posting endpoint rate limiter (a per-IP token
-// bucket). Rate is the sustained refill rate in requests per second and Burst
-// is the maximum number of requests allowed at once. Zero values fall back to
-// the TI-2 defaults (~100 requests per minute, per IP).
 type RateLimitConfig struct {
 	Rate  float64
 	Burst int
@@ -64,8 +60,6 @@ func Echo(e *echo.Group, rl RateLimitConfig) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
-	// Rate limiting is applied to the posting endpoint only (per IP, token
-	// bucket), leaving the read-only GET routes unaffected.
 	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl.Rate, rl.Burst))
 	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
