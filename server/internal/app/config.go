@@ -87,11 +87,13 @@ type Config struct {
 }
 
 // PublicRateLimitConfig configures rate limiting for the public posting
-// endpoint. Zero values fall back to the defaults defined in TI-2 (100
-// requests per minute, per IP, fixed window).
+// endpoint (a per-IP token bucket). Rate is the sustained refill rate in
+// requests per second and Burst is the maximum number of requests allowed at
+// once. Zero values fall back to the defaults defined in TI-2 (~100 requests
+// per minute, per IP).
 type PublicRateLimitConfig struct {
-	Limit  int           `pp:",omitempty"`
-	Window time.Duration `pp:",omitempty"`
+	Rate  float64 `pp:",omitempty"`
+	Burst int     `pp:",omitempty"`
 }
 
 type OtelConfig struct {

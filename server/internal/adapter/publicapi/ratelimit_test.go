@@ -6,88 +6,14 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestFixedWindowLimiter_Allow(t *testing.T) {
-	t.Parallel()
-
-	base := time.Date(2026, 6, 22, 0, 0, 0, 0, time.UTC)
-
-	t.Run("requests within the limit are allowed", func(t *testing.T) {
-		t.Parallel()
-		l := newFixedWindowLimiter(3, time.Minute, func() time.Time { return base })
-
-		for i := 0; i < 3; i++ {
-			allowed, retryAfter := l.allow("1.2.3.4")
-			assert.True(t, allowed, "request %d should be allowed", i)
-			assert.Zero(t, retryAfter)
-		}
-	})
-
-	t.Run("request exceeding the limit is rejected with retry-after", func(t *testing.T) {
-		t.Parallel()
-		now := base
-		l := newFixedWindowLimiter(2, time.Minute, func() time.Time { return now })
-
-		_, _ = l.allow("1.2.3.4")
-		_, _ = l.allow("1.2.3.4")
-
-		// advance 20s within the same window
-		now = base.Add(20 * time.Second)
-		allowed, retryAfter := l.allow("1.2.3.4")
-		assert.False(t, allowed)
-		assert.Equal(t, 40*time.Second, retryAfter, "retry-after should cover the rest of the window")
-	})
-
-	t.Run("window resets after it elapses", func(t *testing.T) {
-		t.Parallel()
-		now := base
-		l := newFixedWindowLimiter(1, time.Minute, func() time.Time { return now })
-
-		allowed, _ := l.allow("1.2.3.4")
-		require.True(t, allowed)
-
-		allowed, _ = l.allow("1.2.3.4")
-		require.False(t, allowed)
-
-		// advance past the window boundary
-		now = base.Add(time.Minute)
-		allowed, retryAfter := l.allow("1.2.3.4")
-		assert.True(t, allowed)
-		assert.Zero(t, retryAfter)
-	})
-
-	t.Run("limits are tracked independently per key", func(t *testing.T) {
-		t.Parallel()
-		l := newFixedWindowLimiter(1, time.Minute, func() time.Time { return base })
-
-		allowed, _ := l.allow("1.1.1.1")
-		assert.True(t, allowed)
-		allowed, _ = l.allow("1.1.1.1")
-		assert.False(t, allowed)
-
-		// a different IP has its own window
-		allowed, _ = l.allow("2.2.2.2")
-		assert.True(t, allowed)
-	})
-
-	t.Run("non-positive limit and window fall back to defaults", func(t *testing.T) {
-		t.Parallel()
-		l := newFixedWindowLimiter(0, 0, nil)
-		assert.Equal(t, defaultRateLimit, l.limit)
-		assert.Equal(t, defaultRateWindow, l.window)
-	})
-}
-
 func TestRateLimitMiddleware(t *testing.T) {
 	t.Parallel()
-
-	base := time.Date(2026, 6, 22, 0, 0, 0, 0, time.UTC)
 
 	newReq := func(ip string) (*echo.Context, *httptest.ResponseRecorder) {
 		e := echo.New()
@@ -101,37 +27,35 @@ func TestRateLimitMiddleware(t *testing.T) {
 		return c.NoContent(http.StatusAccepted)
 	}
 
-	t.Run("passes through requests within the limit", func(t *testing.T) {
+	t.Run("requests within the burst pass through", func(t *testing.T) {
 		t.Parallel()
-		l := newFixedWindowLimiter(2, time.Minute, func() time.Time { return base })
-		h := rateLimitMiddleware(l)(okHandler)
+		// low rate so refill is negligible during the test; burst of 3.
+		h := RateLimitMiddleware(0.01, 3)(okHandler)
 
-		c, rec := newReq("9.9.9.9")
-		require.NoError(t, h(c))
-		assert.Equal(t, http.StatusAccepted, rec.Code)
-		assert.Empty(t, rec.Header().Get("Retry-After"))
+		for i := 0; i < 3; i++ {
+			c, rec := newReq("9.9.9.9")
+			require.NoError(t, h(c))
+			assert.Equal(t, http.StatusAccepted, rec.Code, "request %d should pass", i)
+			assert.Empty(t, rec.Header().Get("Retry-After"))
+		}
 	})
 
-	t.Run("rejects with 429, Retry-After header and rate_limited body", func(t *testing.T) {
+	t.Run("request exceeding the burst returns 429 with Retry-After and rate_limited body", func(t *testing.T) {
 		t.Parallel()
-		now := base
-		l := newFixedWindowLimiter(1, time.Minute, func() time.Time { return now })
-		h := rateLimitMiddleware(l)(okHandler)
+		// rate 0.5/s -> one token every 2s -> Retry-After = 2.
+		h := RateLimitMiddleware(0.5, 1)(okHandler)
 
 		c, _ := newReq("8.8.8.8")
 		require.NoError(t, h(c))
 
-		// advance 10s; 50s remain in the window
-		now = base.Add(10 * time.Second)
 		c, rec := newReq("8.8.8.8")
 		require.NoError(t, h(c))
 
 		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
 
-		retryAfter := rec.Header().Get("Retry-After")
-		secs, err := strconv.Atoi(retryAfter)
+		secs, err := strconv.Atoi(rec.Header().Get("Retry-After"))
 		require.NoError(t, err)
-		assert.Equal(t, 50, secs)
+		assert.Equal(t, 2, secs)
 
 		var resp apiErrorResponse
 		require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
@@ -140,21 +64,39 @@ func TestRateLimitMiddleware(t *testing.T) {
 		assert.Equal(t, msgRateLimited, resp.Message)
 	})
 
-	t.Run("Retry-After is at least 1 second and rounds up sub-second remainders", func(t *testing.T) {
+	t.Run("limits are tracked independently per IP", func(t *testing.T) {
 		t.Parallel()
-		now := base
-		l := newFixedWindowLimiter(1, time.Minute, func() time.Time { return now })
-		h := rateLimitMiddleware(l)(okHandler)
+		h := RateLimitMiddleware(0.01, 1)(okHandler)
 
-		c, _ := newReq("7.7.7.7")
+		c, rec := newReq("1.1.1.1")
 		require.NoError(t, h(c))
+		assert.Equal(t, http.StatusAccepted, rec.Code)
 
-		// 59.5s elapsed -> 0.5s remains, must round up to 1
-		now = base.Add(59500 * time.Millisecond)
-		c, rec := newReq("7.7.7.7")
+		c, rec = newReq("1.1.1.1")
 		require.NoError(t, h(c))
-
 		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
+
+		// a different IP has its own bucket
+		c, rec = newReq("2.2.2.2")
+		require.NoError(t, h(c))
+		assert.Equal(t, http.StatusAccepted, rec.Code)
+	})
+
+	t.Run("non-positive rate and burst fall back to defaults", func(t *testing.T) {
+		t.Parallel()
+		// defaults: burst 100, so 100 requests pass and the 101st is denied.
+		h := RateLimitMiddleware(0, 0)(okHandler)
+
+		for i := 0; i < defaultBurst; i++ {
+			c, rec := newReq("3.3.3.3")
+			require.NoError(t, h(c))
+			require.Equal(t, http.StatusAccepted, rec.Code, "request %d should pass", i)
+		}
+
+		c, rec := newReq("3.3.3.3")
+		require.NoError(t, h(c))
+		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
+		// default rate ~1.667/s -> one token in <1s -> Retry-After rounds up to 1.
 		assert.Equal(t, "1", rec.Header().Get("Retry-After"))
 	})
 }

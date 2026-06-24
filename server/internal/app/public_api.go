@@ -39,8 +39,8 @@ func publicApiRateLimit(appCtx *ApplicationContext) publicapi.RateLimitConfig {
 		return publicapi.RateLimitConfig{}
 	}
 	return publicapi.RateLimitConfig{
-		Limit:  appCtx.Config.Public_RateLimit.Limit,
-		Window: appCtx.Config.Public_RateLimit.Window,
+		Rate:  appCtx.Config.Public_RateLimit.Rate,
+		Burst: appCtx.Config.Public_RateLimit.Burst,
 	}
 }
 

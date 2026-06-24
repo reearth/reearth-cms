@@ -104,7 +104,6 @@ schema is required for export: ""
 the number of models in a project has exceeded the limit: プロジェクト内のモデル数が上限を超えています。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
-too many requests: リクエストが多すぎます。しばらくしてから再試行してください。
 unauthorized: 未認証
 unsupported content encoding: サポートされていないContent-Encodingです。
 unsupported entity: サポートされていないエンティティです。

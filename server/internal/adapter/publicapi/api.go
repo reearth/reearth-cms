@@ -9,7 +9,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/rerror"
@@ -36,11 +35,13 @@ func GetController(ctx context.Context) *Controller {
 	return ctx.Value(controllerCK).(*Controller)
 }
 
-// RateLimitConfig configures the posting endpoint rate limiter. Zero values
-// fall back to the TI-2 defaults (100 requests per minute, per IP).
+// RateLimitConfig configures the posting endpoint rate limiter (a per-IP token
+// bucket). Rate is the sustained refill rate in requests per second and Burst
+// is the maximum number of requests allowed at once. Zero values fall back to
+// the TI-2 defaults (~100 requests per minute, per IP).
 type RateLimitConfig struct {
-	Limit  int
-	Window time.Duration
+	Rate  float64
+	Burst int
 }
 
 func Echo(e *echo.Group, rl RateLimitConfig) {
@@ -65,7 +66,7 @@ func Echo(e *echo.Group, rl RateLimitConfig) {
 	e.GET("/:workspace/:project", OpenAPISchema())
 	// Rate limiting is applied to the posting endpoint only (per IP, fixed
 	// window), leaving the read-only GET routes unaffected.
-	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl.Limit, rl.Window))
+	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl.Rate, rl.Burst))
 	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
 
