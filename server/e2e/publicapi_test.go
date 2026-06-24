@@ -1523,6 +1523,54 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	})
 }
 
+// TestPublicAPI_PostItem_RateLimit verifies that the posting endpoint enforces
+// the per-IP fixed-window rate limit: requests within the limit pass through,
+// the request that exceeds it is rejected with 429 + Retry-After, and the
+// read-only GET endpoints remain unaffected.
+func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
+	const limit = 3
+	e := StartServer(t, &app.Config{
+		Public_RateLimit: app.PublicRateLimitConfig{
+			Limit:  limit,
+			Window: time.Minute,
+		},
+	}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "ratelimit-test", "ratelimit-test", "ratelimit-test")
+	mId, mRes := createModel(e, pId, "ratelimit-model", "ratelimit-model", "ratelimit-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+	updateModelPostingEnabled(e, mId, true)
+
+	post := func() *httpexpect.Response {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			Expect()
+	}
+
+	t.Run("requests within the limit pass through", func(t *testing.T) {
+		for i := 0; i < limit; i++ {
+			post().Status(http.StatusAccepted)
+		}
+	})
+
+	t.Run("request exceeding the limit returns 429 with Retry-After", func(t *testing.T) {
+		res := post().Status(http.StatusTooManyRequests)
+		res.Header("Retry-After").NotEmpty()
+		res.JSON().Object().Value("code").IsEqual("rate_limited")
+	})
+
+	t.Run("read-only GET endpoints are not rate limited", func(t *testing.T) {
+		// The POST limit is already exhausted, but GETs use a separate path
+		// with no limiter and must still succeed.
+		for i := 0; i < limit+2; i++ {
+			e.GET("/api/p/{workspace}/{project}", wId.String(), pId).
+				Expect().
+				Status(http.StatusOK)
+		}
+	})
+}
+
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
 	pApiUid = uid

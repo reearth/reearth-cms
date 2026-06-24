@@ -31,6 +31,7 @@ const (
 	codeModelPostingDisabled = "model_posting_disabled"
 	codeOriginNotAllowed     = "origin_not_allowed"
 	codeNotFound             = "not_found"
+	codeRateLimited          = "rate_limited"
 )
 
 // Human-readable messages paired with each error code.
@@ -42,6 +43,7 @@ const (
 	msgNoOriginsConfigured  = "No origins are configured for posting on this project."
 	msgOriginNotAllowed     = "Origin is not allowed for posting on this project."
 	msgNotFound             = "The requested resource was not found."
+	msgRateLimited          = "Too many requests. Please retry later."
 )
 
 // PostingErrorCodes lists every machine-readable code the posting endpoint can
@@ -53,6 +55,7 @@ var PostingErrorCodes = []string{
 	codeModelPostingDisabled,
 	codeOriginNotAllowed,
 	codeNotFound,
+	codeRateLimited,
 }
 
 // newAPIError builds a uniform error body with both code and message set.
