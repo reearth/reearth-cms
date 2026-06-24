@@ -44,10 +44,8 @@ func RateLimitMiddleware(ratePerSecond float64, burst int) echo.MiddlewareFunc {
 		ExpiresIn: visitorExpiresIn,
 	})
 
-	// retryAfter is an approximate hint (in whole seconds) of how long a denied
-	// client should wait for the bucket to refill one token: ceil(1/rate), at
-	// least 1. It's a fixed value derived from the rate rather than the exact
-	// time to the next token, which is sufficient as a Retry-After hint.
+	// retryAfter is the number of whole seconds a denied client must wait for
+	// the bucket to refill one token. ceil(1/rate), at least 1.
 	retryAfter := strconv.Itoa(int(math.Max(1, math.Ceil(1/ratePerSecond))))
 
 	// The limiter keys on the client IP via the default IdentifierExtractor,
