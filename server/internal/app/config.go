@@ -24,27 +24,28 @@ func init() {
 }
 
 type Config struct {
-	Port                string            `default:"8080" envconfig:"PORT"`
-	ServerHost          string            `pp:",omitempty"`
-	Host                string            `default:"http://localhost:8080"`
-	Dev                 bool              `pp:",omitempty"`
-	Host_Web            string            `pp:",omitempty"`
-	GraphQL             GraphQLConfig     `pp:",omitempty"`
-	Origins             []string          `pp:",omitempty"`
-	Integration_Origins []string          `pp:",omitempty"`
-	Public_Origins      []string          `pp:",omitempty"`
-	DB                  string            `default:"mongodb://localhost"`
-	Mailer              string            `pp:",omitempty"`
-	SMTP                SMTPConfig        `pp:",omitempty"`
-	SendGrid            SendGridConfig    `pp:",omitempty"`
-	SignupSecret        string            `pp:",omitempty"`
-	GCS                 GCSConfig         `pp:",omitempty"`
-	S3                  S3Config          `pp:",omitempty"`
-	Task                gcp.TaskConfig    `pp:",omitempty"`
-	AWSTask             aws.TaskConfig    `pp:",omitempty"`
-	Web                 map[string]string `pp:",omitempty"`
-	Web_Config          JSON              `pp:",omitempty"`
-	Web_Disabled        bool              `pp:",omitempty"`
+	Port                string                `default:"8080" envconfig:"PORT"`
+	ServerHost          string                `pp:",omitempty"`
+	Host                string                `default:"http://localhost:8080"`
+	Dev                 bool                  `pp:",omitempty"`
+	Host_Web            string                `pp:",omitempty"`
+	GraphQL             GraphQLConfig         `pp:",omitempty"`
+	Origins             []string              `pp:",omitempty"`
+	Integration_Origins []string              `pp:",omitempty"`
+	Public_Origins      []string              `pp:",omitempty"`
+	Public_RateLimit    PublicRateLimitConfig `pp:",omitempty"`
+	DB                  string                `default:"mongodb://localhost"`
+	Mailer              string                `pp:",omitempty"`
+	SMTP                SMTPConfig            `pp:",omitempty"`
+	SendGrid            SendGridConfig        `pp:",omitempty"`
+	SignupSecret        string                `pp:",omitempty"`
+	GCS                 GCSConfig             `pp:",omitempty"`
+	S3                  S3Config              `pp:",omitempty"`
+	Task                gcp.TaskConfig        `pp:",omitempty"`
+	AWSTask             aws.TaskConfig        `pp:",omitempty"`
+	Web                 map[string]string     `pp:",omitempty"`
+	Web_Config          JSON                  `pp:",omitempty"`
+	Web_Disabled        bool                  `pp:",omitempty"`
 	// asset
 	Asset_Public              bool   `default:"true" pp:",omitempty"`
 	AssetBaseURL              string `pp:",omitempty"`
@@ -83,6 +84,16 @@ type Config struct {
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+}
+
+// PublicRateLimitConfig configures rate limiting for the public posting
+// endpoint (a per-IP token bucket). Rate is the sustained refill rate in
+// requests per second and Burst is the maximum number of requests allowed at
+// once. Zero values fall back to the defaults defined in TI-2 (~100 requests
+// per minute, per IP).
+type PublicRateLimitConfig struct {
+	Rate  float64 `pp:",omitempty"`
+	Burst int     `pp:",omitempty"`
 }
 
 type OtelConfig struct {
