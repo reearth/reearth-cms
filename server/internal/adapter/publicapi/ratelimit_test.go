@@ -15,10 +15,19 @@ import (
 func TestRateLimitMiddleware(t *testing.T) {
 	t.Parallel()
 
+	// Mirror the production Echo config: RealIP() resolves the client IP from
+	// X-Forwarded-For (nearest untrusted entry). Public IPs are used below
+	// because private/loopback addresses are treated as trusted infra and
+	// skipped by the XFF extractor.
+	e := echo.New()
+	e.IPExtractor = echo.ExtractIPFromXFFHeader()
+
 	newReq := func(ip string) (*echo.Context, *httptest.ResponseRecorder) {
-		e := echo.New()
 		req := httptest.NewRequest(http.MethodPost, "/", nil)
-		req.Header.Set(echo.HeaderXRealIP, ip)
+		// Private RemoteAddr stands in for the trusted proxy hop, so the XFF
+		// extractor skips it and resolves the public client IP from the header.
+		req.RemoteAddr = "10.0.0.1:1234"
+		req.Header.Set(echo.HeaderXForwardedFor, ip)
 		rec := httptest.NewRecorder()
 		return e.NewContext(req, rec), rec
 	}

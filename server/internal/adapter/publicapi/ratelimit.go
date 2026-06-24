@@ -4,7 +4,6 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/labstack/echo/v5"
@@ -49,30 +48,15 @@ func RateLimitMiddleware(ratePerSecond float64, burst int) echo.MiddlewareFunc {
 	// the bucket to refill one token. ceil(1/rate), at least 1.
 	retryAfter := strconv.Itoa(int(math.Max(1, math.Ceil(1/ratePerSecond))))
 
+	// The limiter keys on the client IP via the default IdentifierExtractor,
+	// which calls c.RealIP(). The Echo instance is configured with a
+	// spoof-resistant XFF extractor at app init (see initEcho), so behind the
+	// Cloud Armor + GCLB proxy this resolves to the real client IP.
 	return middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
-		Store:               store,
-		IdentifierExtractor: clientIPExtractor,
+		Store: store,
 		DenyHandler: func(c *echo.Context, _ string, _ error) error {
 			c.Response().Header().Set("Retry-After", retryAfter)
 			return c.JSON(http.StatusTooManyRequests, newAPIError(codeRateLimited, msgRateLimited, nil))
 		},
 	})
-}
-
-// clientIPExtractor keys the limiter on the originating client IP. The posting
-// endpoint runs behind a proxy/load balancer (Cloud Armor + GCLB), so the real
-// client IP is the leftmost entry of X-Forwarded-For. We read it directly
-// rather than echo's RealIP(), which by default does not trust forwarding
-// headers and would collapse every client onto the proxy's IP — one shared
-// bucket for all traffic. Falls back to X-Real-IP, then the direct RemoteAddr.
-func clientIPExtractor(c *echo.Context) (string, error) {
-	if xff := c.Request().Header.Get("X-Forwarded-For"); xff != "" {
-		if first := strings.TrimSpace(strings.SplitN(xff, ",", 2)[0]); first != "" {
-			return first, nil
-		}
-	}
-	if xrip := strings.TrimSpace(c.Request().Header.Get("X-Real-IP")); xrip != "" {
-		return xrip, nil
-	}
-	return c.RealIP(), nil
 }
