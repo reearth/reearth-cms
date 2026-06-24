@@ -27,6 +27,13 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	e := echo.New()
 	e.HTTPErrorHandler = errorHandler(echo.DefaultHTTPErrorHandler(false))
 
+	// The server runs behind an L7 proxy (Cloud Armor + GCLB) that relays the
+	// client IP via X-Forwarded-For. Configure RealIP() to read the nearest
+	// untrusted IP from XFF (spoof-resistant), instead of the legacy default
+	// that trusts client-supplied headers as-is. This is relied on by the
+	// public posting endpoint's rate limiter and by access logging.
+	e.IPExtractor = echo.ExtractIPFromXFFHeader()
+
 	// basic middleware
 	logger := log.New()
 	e.Logger = log.NewSlogLogger(logger)
