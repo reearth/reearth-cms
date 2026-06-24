@@ -18,7 +18,7 @@ jobs:
           allowed-endpoints: >
             github.com:443
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: changed files for web
         id: web
         uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
