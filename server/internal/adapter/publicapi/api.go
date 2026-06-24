@@ -27,6 +27,9 @@ var controllerCK = contextKey("controller")
 const defaultLimit = 50
 const maxLimit = 100
 
+// maxPayloadBytes caps the raw posting request body before parsing (256 KB).
+const maxPayloadBytes = 256 * 1024
+
 func AttachController(ctx context.Context, c *Controller) context.Context {
 	return context.WithValue(ctx, controllerCK, c)
 }
@@ -266,20 +269,26 @@ func PostItem() echo.HandlerFunc {
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 		origin := c.Request().Header.Get("Origin")
 
+		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
+			return postingAccessErrorResponse(c, err)
+		}
+
+		r := c.Request()
+		r.Body = http.MaxBytesReader(c.Response(), r.Body, maxPayloadBytes)
+
 		var req postItemRequest
-		if c.Request().ContentLength != 0 {
-			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
+		if r.ContentLength != 0 {
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				var maxBytesErr *http.MaxBytesError
+				if errors.As(err, &maxBytesErr) {
+					return c.JSON(http.StatusRequestEntityTooLarge, newAPIError(codePayloadTooLarge, msgPayloadTooLarge, nil))
+				}
 				return c.JSON(http.StatusBadRequest, newAPIError(codeInvalidJSON, msgInvalidJSON, nil))
 			}
 		}
 		if req.Fields == nil {
 			req.Fields = map[string]any{}
 		}
-
-		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
-			return postingAccessErrorResponse(c, err)
-		}
-
 		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
 		if result.Err != nil {
 			if errors.Is(result.Err, rerror.ErrNotFound) {
