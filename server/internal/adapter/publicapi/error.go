@@ -32,6 +32,7 @@ const (
 	codeOriginNotAllowed     = "origin_not_allowed"
 	codeNotFound             = "not_found"
 	codeRateLimited          = "rate_limited"
+	codePayloadTooLarge      = "payload_too_large"
 )
 
 // Human-readable messages paired with each error code.
@@ -44,6 +45,7 @@ const (
 	msgOriginNotAllowed     = "Origin is not allowed for posting on this project."
 	msgNotFound             = "The requested resource was not found."
 	msgRateLimited          = "Too many requests. Please retry later."
+	msgPayloadTooLarge      = "Request body exceeds the allowed limit"
 )
 
 // PostingErrorCodes lists every machine-readable code the posting endpoint can
@@ -56,6 +58,7 @@ var PostingErrorCodes = []string{
 	codeOriginNotAllowed,
 	codeNotFound,
 	codeRateLimited,
+	codePayloadTooLarge,
 }
 
 // newAPIError builds a uniform error body with both code and message set.

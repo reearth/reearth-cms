@@ -1,13 +1,30 @@
 package schema
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// bigValidGeoJSON builds a valid GeoJSON LineString whose serialized form is at
+// least size bytes by padding it with coordinate pairs.
+func bigValidGeoJSON(size int) string {
+	coords := make([][]float64, 0, size/8)
+	for len(coords) < 2 || len(mustMarshalJSON(map[string]any{"type": "LineString", "coordinates": coords})) < size {
+		coords = append(coords, []float64{1.234567, 2.345678})
+	}
+	return string(mustMarshalJSON(map[string]any{"type": "LineString", "coordinates": coords}))
+}
+
+func mustMarshalJSON(v any) []byte {
+	return lo.Must(json.Marshal(v))
+}
 
 func buildTestField(key string, tp *TypeProperty, required bool) *Field {
 	k := id.NewKey(key)
@@ -44,6 +61,9 @@ func TestSchema_ValidateFields(t *testing.T) {
 		buildTestField("agreed", NewCheckbox().TypeProperty(), false),
 		buildTestField("publishedAt", NewDateTime().TypeProperty(), false),
 		buildTestField("website", NewURL().TypeProperty(), false),
+		buildTestField("location", NewGeometryObject(GeometryObjectSupportedTypeList{
+			GeometryObjectSupportedTypePoint, GeometryObjectSupportedTypeLineString,
+		}).TypeProperty(), false),
 		buildTestField("tag", NewText(nil).TypeProperty(), false),
 		buildTestFieldMultiple("tags", NewText(nil).TypeProperty(), false),
 		buildTestFieldMultiple("counts", intField.TypeProperty(), false),
@@ -213,6 +233,42 @@ func TestSchema_ValidateFields(t *testing.T) {
 			body:      map[string]any{"title": "hello", "counts": []any{float64(5), float64(999)}},
 			wantCodes: map[string]FieldValidationCode{"counts": FieldValidationCodeConstraint},
 		},
+		// URL hard limit (2,048 chars)
+		{
+			name:   "url at max length passes",
+			schema: s,
+			body:   map[string]any{"title": "hello", "website": "https://example.com/" + strings.Repeat("a", maxURLFieldLength-len("https://example.com/"))},
+		},
+		{
+			name:      "url exceeding max length",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "website": "https://example.com/" + strings.Repeat("a", maxURLFieldLength)},
+			wantCodes: map[string]FieldValidationCode{"website": FieldValidationCodeMaxLengthExceeded},
+		},
+		// Geo hard limits (structure + size)
+		{
+			name:   "valid geo within bounds passes",
+			schema: s,
+			body:   map[string]any{"title": "hello", "location": `{"type":"Point","coordinates":[1,2]}`},
+		},
+		{
+			name:      "invalid geo structure",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "location": `{"type":"Point"}`},
+			wantCodes: map[string]FieldValidationCode{"location": FieldValidationCodeInvalidGeoStructure},
+		},
+		{
+			name:      "non-json geo value is invalid structure",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "location": "not json"},
+			wantCodes: map[string]FieldValidationCode{"location": FieldValidationCodeInvalidGeoStructure},
+		},
+		{
+			name:      "geo exceeding size cap",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "location": bigValidGeoJSON(maxGeoFieldBytes + 1)},
+			wantCodes: map[string]FieldValidationCode{"location": FieldValidationCodeMaxSizeExceeded},
+		},
 		// multiple errors at once
 		{
 			name:   "multiple field errors reported together",
@@ -244,5 +300,35 @@ func TestSchema_ValidateFields(t *testing.T) {
 				assert.Equal(t, wantCode, fe.Code)
 			}
 		})
+	}
+}
+
+// TestSchema_ValidateFields_GlobalLimits asserts the hard limits are fixed and
+// global: two schemas in different workspaces/projects reject the same
+// over-limit values identically. There is no per-project configuration.
+func TestSchema_ValidateFields_GlobalLimits(t *testing.T) {
+	t.Parallel()
+
+	overURL := "https://e.com/" + strings.Repeat("a", maxURLFieldLength)
+	overGeo := bigValidGeoJSON(maxGeoFieldBytes + 1)
+
+	// buildTestSchema assigns a fresh workspace/project ID on each call, so these
+	// two schemas belong to different projects.
+	for i, s := range []*Schema{
+		buildTestSchema(buildTestField("website", NewURL().TypeProperty(), false)),
+		buildTestSchema(buildTestField("website", NewURL().TypeProperty(), false)),
+	} {
+		errs := s.ValidateFields(map[string]any{"website": overURL})
+		require.Len(t, errs, 1, "schema %d", i)
+		assert.Equal(t, FieldValidationCodeMaxLengthExceeded, errs[0].Code, "schema %d", i)
+	}
+
+	for i, s := range []*Schema{
+		buildTestSchema(buildTestField("location", NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypeLineString}).TypeProperty(), false)),
+		buildTestSchema(buildTestField("location", NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypeLineString}).TypeProperty(), false)),
+	} {
+		errs := s.ValidateFields(map[string]any{"location": overGeo})
+		require.Len(t, errs, 1, "schema %d", i)
+		assert.Equal(t, FieldValidationCodeMaxSizeExceeded, errs[0].Code, "schema %d", i)
 	}
 }
