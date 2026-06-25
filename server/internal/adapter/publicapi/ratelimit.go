@@ -4,33 +4,24 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
 
-const (
-	defaultRatePerSecond = 100.0 / 60.0
-	defaultBurst         = 100
-	visitorExpiresIn = 3 * time.Minute
-)
-
-func RateLimitMiddleware(ratePerSecond float64, burst int) echo.MiddlewareFunc {
-	if ratePerSecond <= 0 {
-		ratePerSecond = defaultRatePerSecond
-	}
-	if burst <= 0 {
-		burst = defaultBurst
-	}
-
+// RateLimitMiddleware builds the posting endpoint's per-IP token-bucket rate
+func RateLimitMiddleware(rl RateLimitConfig) echo.MiddlewareFunc {
 	store := middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
-		Rate:      ratePerSecond,
-		Burst:     burst,
-		ExpiresIn: visitorExpiresIn,
+		Rate:      rl.Rate,
+		Burst:     rl.Burst,
+		ExpiresIn: rl.ExpiresIn,
 	})
 
-	retryAfter := strconv.Itoa(int(math.Max(1, math.Ceil(1/ratePerSecond))))
+	retryAfterSecs := 1
+	if rl.Rate > 0 {
+		retryAfterSecs = int(math.Max(1, math.Ceil(1/rl.Rate)))
+	}
+	retryAfter := strconv.Itoa(retryAfterSecs)
 
 	return middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
 		Store: store,

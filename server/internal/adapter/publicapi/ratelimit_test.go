@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
@@ -30,9 +31,13 @@ func TestRateLimitMiddleware(t *testing.T) {
 		return c.NoContent(http.StatusAccepted)
 	}
 
+	cfg := func(rate float64, burst int) RateLimitConfig {
+		return RateLimitConfig{Rate: rate, Burst: burst, ExpiresIn: time.Minute}
+	}
+
 	t.Run("requests within the burst pass through", func(t *testing.T) {
 		t.Parallel()
-		h := RateLimitMiddleware(0.01, 3)(okHandler)
+		h := RateLimitMiddleware(cfg(0.01, 3))(okHandler)
 
 		for i := 0; i < 3; i++ {
 			c, rec := newReq("9.9.9.9")
@@ -44,7 +49,7 @@ func TestRateLimitMiddleware(t *testing.T) {
 
 	t.Run("request exceeding the burst returns 429 with Retry-After and rate_limited body", func(t *testing.T) {
 		t.Parallel()
-		h := RateLimitMiddleware(0.5, 1)(okHandler)
+		h := RateLimitMiddleware(cfg(0.5, 1))(okHandler)
 
 		c, _ := newReq("8.8.8.8")
 		require.NoError(t, h(c))
@@ -67,7 +72,7 @@ func TestRateLimitMiddleware(t *testing.T) {
 
 	t.Run("limits are tracked independently per IP", func(t *testing.T) {
 		t.Parallel()
-		h := RateLimitMiddleware(0.01, 1)(okHandler)
+		h := RateLimitMiddleware(cfg(0.01, 1))(okHandler)
 
 		c, rec := newReq("1.1.1.1")
 		require.NoError(t, h(c))
@@ -82,11 +87,12 @@ func TestRateLimitMiddleware(t *testing.T) {
 		assert.Equal(t, http.StatusAccepted, rec.Code)
 	})
 
-	t.Run("non-positive rate and burst fall back to defaults", func(t *testing.T) {
+	t.Run("burst requests pass, then the next is denied", func(t *testing.T) {
 		t.Parallel()
-		h := RateLimitMiddleware(0, 0)(okHandler)
+		const burst = 5
+		h := RateLimitMiddleware(cfg(0.01, burst))(okHandler)
 
-		for i := 0; i < defaultBurst; i++ {
+		for i := 0; i < burst; i++ {
 			c, rec := newReq("3.3.3.3")
 			require.NoError(t, h(c))
 			require.Equal(t, http.StatusAccepted, rec.Code, "request %d should pass", i)
@@ -95,6 +101,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 		c, rec := newReq("3.3.3.3")
 		require.NoError(t, h(c))
 		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
-		assert.Equal(t, "1", rec.Header().Get("Retry-After"))
+		assert.Equal(t, "100", rec.Header().Get("Retry-After"))
 	})
 }

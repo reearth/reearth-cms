@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/rerror"
@@ -39,8 +40,9 @@ func GetController(ctx context.Context) *Controller {
 }
 
 type RateLimitConfig struct {
-	Rate  float64
-	Burst int
+	Rate      float64
+	Burst     int
+	ExpiresIn time.Duration
 }
 
 func Echo(e *echo.Group, rl RateLimitConfig) {
@@ -63,7 +65,7 @@ func Echo(e *echo.Group, rl RateLimitConfig) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
-	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl.Rate, rl.Burst))
+	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl))
 	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
 

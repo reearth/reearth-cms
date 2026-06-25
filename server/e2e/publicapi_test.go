@@ -1566,8 +1566,8 @@ func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 	const burst = 3
 	e := StartServer(t, &app.Config{
 		Public_RateLimit: app.PublicRateLimitConfig{
-			Rate:  0.01,
-			Burst: burst,
+			RatePerMinute: 1,
+			Burst:         burst,
 		},
 	}, true, baseSeederUser)
 

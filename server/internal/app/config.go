@@ -86,9 +86,16 @@ type Config struct {
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
 }
 
+const (
+	defaultPublicRateLimitPerMinute = 100
+	defaultPublicRateLimitBurst     = 100
+	defaultPublicRateLimitExpires   = 1 * time.Minute
+)
+
 type PublicRateLimitConfig struct {
-	Rate  float64 `pp:",omitempty"`
-	Burst int     `pp:",omitempty"`
+	RatePerMinute int           `default:"100" pp:",omitempty"`
+	Burst         int           `default:"100" pp:",omitempty"`
+	ExpiresIn     time.Duration `default:"1m" pp:",omitempty"`
 }
 
 type OtelConfig struct {

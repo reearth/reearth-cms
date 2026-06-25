@@ -248,6 +248,10 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 						"description": "Not found",
 						"content":     errorContent,
 					},
+					"413": map[string]interface{}{
+						"description": "Request body exceeds the allowed size limit",
+						"content":     errorContent,
+					},
 					"429": map[string]interface{}{
 						"description": "Too many requests; retry after the period indicated by the Retry-After header",
 						"headers": map[string]interface{}{
@@ -257,10 +261,6 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 							},
 						},
 						"content": errorContent,
-          },
-					"413": map[string]interface{}{
-						"description": "Request body exceeds the allowed size limit",
-						"content":     errorContent,
 					},
 				},
 			}

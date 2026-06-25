@@ -35,12 +35,24 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 }
 
 func publicApiRateLimit(appCtx *ApplicationContext) publicapi.RateLimitConfig {
-	if appCtx == nil {
-		return publicapi.RateLimitConfig{}
+	perMinute, burst := defaultPublicRateLimitPerMinute, defaultPublicRateLimitBurst
+	expiresIn := defaultPublicRateLimitExpires
+	if appCtx != nil {
+		c := appCtx.Config.Public_RateLimit
+		if c.RatePerMinute > 0 {
+			perMinute = c.RatePerMinute
+		}
+		if c.Burst > 0 {
+			burst = c.Burst
+		}
+		if c.ExpiresIn > 0 {
+			expiresIn = c.ExpiresIn
+		}
 	}
 	return publicapi.RateLimitConfig{
-		Rate:  appCtx.Config.Public_RateLimit.Rate,
-		Burst: appCtx.Config.Public_RateLimit.Burst,
+		Rate:      float64(perMinute) / 60.0,
+		Burst:     burst,
+		ExpiresIn: expiresIn,
 	}
 }
 
