@@ -24,9 +24,9 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
   const t = useT();
   const statusTitle: Record<StateType, string> = useMemo(
     () => ({
-      DRAFT: t("DRAFT"),
-      PUBLIC: t("PUBLIC"),
-      REVIEW: t("REVIEW"),
+      DRAFT: t("Draft").toUpperCase(),
+      PUBLIC: t("Public").toUpperCase(),
+      REVIEW: t("Review").toUpperCase(),
     }),
     [t],
   );
@@ -51,7 +51,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
             )}
           </HistoryTitle>
           <HistoryInfo>
-            <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
+            <User>{`${index === versions.length - 1 ? t("Created By") : t("Updated By")} ${version.creator.name}`}</User>
             {version.status === "REVIEW" && (
               <Requests>
                 {version.requests?.map(request => (

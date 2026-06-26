@@ -319,7 +319,7 @@ const FieldModal: React.FC<Props> = ({
                 </Radio.Group>
               </Form.Item>
             )}
-            <OptionTitle>{t("options")}</OptionTitle>
+            <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"

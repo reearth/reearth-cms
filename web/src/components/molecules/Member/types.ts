@@ -7,10 +7,10 @@ export type User = {
 };
 
 export type Role = "READER" | "WRITER" | "MAINTAINER" | "OWNER";
-t("WRITER");
-t("READER");
-t("MAINTAINER");
-t("OWNER");
+t("Writer");
+t("Reader");
+t("Maintainer");
+t("Owner");
 
 export type UserRights = {
   role: Role;

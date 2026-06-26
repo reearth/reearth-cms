@@ -95,7 +95,7 @@ const ModelsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
             <SchemaAddButton
               onClick={onModalOpen}
               icon={<Icon icon="plus" />}
@@ -143,6 +143,7 @@ const SchemaStyledMenuTitle = styled.h1`
   font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  text-transform: uppercase;
 `;
 
 const SchemaStyledMenu = styled.div`

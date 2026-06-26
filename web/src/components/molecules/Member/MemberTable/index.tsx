@@ -34,6 +34,13 @@ type Props = {
   hasChangeRoleRight: boolean;
 };
 
+const roleKeyMap: Record<string, string> = {
+  READER: "Reader",
+  WRITER: "Writer",
+  MAINTAINER: "Maintainer",
+  OWNER: "Owner",
+};
+
 const MemberTable: React.FC<Props> = ({
   workspaceUserMembers,
   userId,
@@ -147,7 +154,7 @@ const MemberTable: React.FC<Props> = ({
         id: member.userId,
         name: member.user.name,
         email: member.user.email,
-        role: t(member.role),
+        role: t(roleKeyMap[member.role] ?? member.role).toUpperCase(),
         action: (
           <>
             <ActionButton
