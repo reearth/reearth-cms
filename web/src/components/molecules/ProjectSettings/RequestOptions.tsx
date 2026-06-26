@@ -114,7 +114,7 @@ const RequestOptions: React.FC<Props> = ({
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
       <StyledButton type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
-        {t("Save changes")}
+        {t("Save Changes")}
       </StyledButton>
     </>
   );

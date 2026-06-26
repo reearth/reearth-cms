@@ -54,6 +54,13 @@ type Props = {
   hasCloseRight: boolean;
 };
 
+const stateKeyMap: Record<RequestState, string> = {
+  WAITING: "Waiting",
+  APPROVED: "Approved",
+  CLOSED: "Closed",
+  DRAFT: "Draft",
+};
+
 const RequestListTable: React.FC<Props> = ({
   requests,
   loading,
@@ -129,13 +136,16 @@ const RequestListTable: React.FC<Props> = ({
         dataIndex: "requestState",
         key: "requestState",
         render: (_, request) => (
-          <Badge color={badgeColors[request.state]} text={t(request.state)} />
+          <Badge
+            color={badgeColors[request.state]}
+            text={t(stateKeyMap[request.state]).toUpperCase()}
+          />
         ),
         filters: [
-          { text: t("WAITING"), value: "WAITING" },
-          { text: t("APPROVED"), value: "APPROVED" },
-          { text: t("CLOSED"), value: "CLOSED" },
-          { text: t("DRAFT"), value: "DRAFT" },
+          { text: t("Waiting").toUpperCase(), value: "WAITING" },
+          { text: t("Approved").toUpperCase(), value: "APPROVED" },
+          { text: t("Closed").toUpperCase(), value: "CLOSED" },
+          { text: t("Draft").toUpperCase(), value: "DRAFT" },
         ],
         defaultFilteredValue: requestState,
         width: 130,

@@ -73,6 +73,8 @@ jobs:
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
         run: yarn i18n --ci
+      - name: Check i18n duplicate keys
+        run: yarn i18n:check
 
   test:
     name: test

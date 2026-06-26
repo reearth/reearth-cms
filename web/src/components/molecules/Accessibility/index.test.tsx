@@ -66,7 +66,7 @@ describe("Accessibility", () => {
     switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
 
     expect(screen.getByText(model1Name)).toBeVisible();
     expect(model1Switch).not.toBeChecked();
@@ -100,7 +100,7 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];

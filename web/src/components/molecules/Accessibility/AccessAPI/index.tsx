@@ -96,7 +96,7 @@ const AccessAPIComponent: React.FC<Props> = ({
             disabled={isSaveDisabled}
             onClick={handleSave}
             loading={updateLoading}>
-            {t("Save changes")}
+            {t("Save Changes")}
           </Button>
         )}
       </Form>

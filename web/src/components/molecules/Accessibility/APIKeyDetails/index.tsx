@@ -193,7 +193,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
             disabled={isSaveDisabled}
             onClick={handleSave}
             loading={createLoading || updateLoading}>
-            {t("Save changes")}
+            {t("Save Changes")}
           </Button>
         </Form>
       </ContentSection>
