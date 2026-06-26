@@ -18,7 +18,7 @@ export default {
   "Add Comment": "コメントを追加",
   "Add Field": "フィールドを追加",
   "Add Filter": "絞り込む",
-  "Add member": "メンバー追加",
+  "Add member": "メンバーを追加",
   "Add new Terrain option": "新しい地形を追加",
   "Add new Tiles option": "新しいタイルを追加",
   "Add Sort": "並び替える",
