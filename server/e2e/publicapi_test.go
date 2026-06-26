@@ -1565,7 +1565,7 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 	const burst = 3
 	e := StartServer(t, &app.Config{
-		Public_RateLimit: app.PublicRateLimitConfig{
+		Public_RateLimit: app.RateLimitConfig{
 			RatePerMinute: 1,
 			Burst:         burst,
 		},

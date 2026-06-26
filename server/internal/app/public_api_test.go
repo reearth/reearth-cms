@@ -23,7 +23,7 @@ func TestPublicApiRateLimit(t *testing.T) {
 
 	t.Run("converts per-minute rate to per-second and passes burst/expiresIn through", func(t *testing.T) {
 		rl := publicApiRateLimit(&ApplicationContext{Config: &Config{
-			Public_RateLimit: PublicRateLimitConfig{RatePerMinute: 120, Burst: 20, ExpiresIn: 5 * time.Minute},
+			Public_RateLimit: RateLimitConfig{RatePerMinute: 120, Burst: 20, ExpiresIn: 5 * time.Minute},
 		}})
 		assert.InDelta(t, 2.0, rl.Rate, 1e-9) // 120/min = 2/s
 		assert.Equal(t, 20, rl.Burst)
