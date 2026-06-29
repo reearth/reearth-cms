@@ -26,6 +26,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 
 	e := echo.New()
 	e.HTTPErrorHandler = errorHandler(echo.DefaultHTTPErrorHandler(false))
+	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
 	// basic middleware
 	logger := log.New()
