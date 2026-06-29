@@ -5,11 +5,12 @@ import (
 	"github.com/samber/lo"
 )
 
-// Resource represents a Cerbos resource type.
-type Resource = string
-
-// Action represents a Cerbos action.
-type Action = string
+type (
+	Resource = string
+	Action   = string
+	Role     = string
+	RoleList = []Role
+)
 
 const (
 	ServiceName   = "cms"
@@ -71,22 +72,22 @@ const (
 
 // Roles
 const (
-	roleReader     = "reader"
-	roleWriter     = "writer"
-	roleMaintainer = "maintainer"
-	roleOwner      = "owner"
-	roleSelf       = "self"
+	roleReader     Role = "reader"
+	roleWriter     Role = "writer"
+	roleMaintainer Role = "maintainer"
+	roleOwner      Role = "owner"
+	roleSelf       Role = "self"
 )
 
 // Common role combinations to reduce repetition
 var (
-	allRoles           = []string{roleReader, roleWriter, roleMaintainer, roleOwner}
-	writerAndAbove     = []string{roleWriter, roleMaintainer, roleOwner}
-	maintainerAndAbove = []string{roleMaintainer, roleOwner}
-	ownerOnly          = []string{roleOwner}
-	selfOnly           = []string{roleSelf}
+	allRoles           = RoleList{roleReader, roleWriter, roleMaintainer, roleOwner}
+	writerAndAbove     = RoleList{roleWriter, roleMaintainer, roleOwner}
+	maintainerAndAbove = RoleList{roleMaintainer, roleOwner}
+	ownerOnly          = RoleList{roleOwner}
+	selfOnly           = RoleList{roleSelf}
 	// selfAndMaintainers is currently unused
-	// selfAndMaintainers  = []string{roleSelf, roleMaintainer, roleOwner}
+	// selfAndMaintainers  = RoleList{roleSelf, roleMaintainer, roleOwner}
 )
 
 // jwtRequired is a shared condition that requires a JWT token to be present in the request.
@@ -117,7 +118,7 @@ var ResourceRules = []generator.ResourceRule{
 			ActionRead:               {Roles: allRoles},
 			ActionUpdate:             {Roles: maintainerAndAbove},
 			ActionDelete:             {Roles: ownerOnly},
-			ActionList:               {Roles: []string{roleSelf, roleReader, roleWriter, roleMaintainer, roleOwner}},
+			ActionList:               {Roles: RoleList{roleSelf, roleReader, roleWriter, roleMaintainer, roleOwner}},
 			ActionManageMembers:      {Roles: maintainerAndAbove},
 			ActionManageSubscription: {Roles: ownerOnly},
 			ActionTransferOwnership:  {Roles: ownerOnly},
