@@ -11,8 +11,11 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -30,15 +33,74 @@ func NewGroup(r *repo.Container, g *gateway.Container) interfaces.Group {
 	}
 }
 
+func (i Group) checkPermission(ctx context.Context, operator *usecase.Operator, workspaceID *workspace.ID, caller string, action rbac.Action) error {
+	if i.gateways == nil || i.gateways.Authorization == nil {
+		return nil
+	}
+	userID := "unknown"
+	if operator != nil && operator.User() != nil {
+		userID = operator.User().String()
+	}
+	allowed, authErr := i.gateways.Authorization.CheckPermission(ctx, rbac.ResourceGroup, action, workspaceID)
+	if authErr != nil {
+		log.Errorf("%s: permission check failed for user=%s: %v", caller, userID, authErr)
+		return authErr
+	}
+	if !allowed {
+		log.Warnf("%s: permission denied for user=%s action=%s", caller, userID, action)
+		return interfaces.ErrOperationDenied
+	}
+	return nil
+}
+
+func (i Group) workspaceIDForProject(ctx context.Context, projectID id.ProjectID) (workspace.ID, error) {
+	p, err := i.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return workspace.ID{}, err
+	}
+	return p.Workspace(), nil
+}
+
 func (i Group) FindByID(ctx context.Context, id id.GroupID, operator *usecase.Operator) (*group.Group, error) {
-	return i.repos.Group.FindByID(ctx, id)
+	g, err := i.repos.Group.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForProject(ctx, g.Project())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindByID", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return g, nil
 }
 
 func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usecase.Operator) (group.List, error) {
-	return i.repos.Group.FindByIDs(ctx, ids)
+	gs, err := i.repos.Group.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	if len(gs) > 0 {
+		wid, err := i.workspaceIDForProject(ctx, gs[0].Project())
+		if err != nil {
+			return nil, err
+		}
+		if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindByIDs", rbac.ActionRead); err != nil {
+			return nil, err
+		}
+	}
+	return gs, nil
 }
 
 func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (group.List, error) {
+	wid, err := i.workspaceIDForProject(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindByProject", rbac.ActionList); err != nil {
+		return nil, err
+	}
 	g, err := i.repos.Group.FindByProject(ctx, projectID)
 	if err != nil {
 		return nil, err
@@ -47,6 +109,13 @@ func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operat
 }
 
 func (i Group) Filter(ctx context.Context, projectID id.ProjectID, sort *group.Sort, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List, *usecasex.PageInfo, error) {
+	wid, err := i.workspaceIDForProject(ctx, projectID)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "group.Filter", rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
 	g, p, err := i.repos.Group.Filter(ctx, projectID, sort, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -54,22 +123,36 @@ func (i Group) Filter(ctx context.Context, projectID id.ProjectID, sort *group.S
 	return g, p, nil
 }
 
-func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
-	return i.repos.Group.FindByKey(ctx, pid, group)
+func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, key string, operator *usecase.Operator) (*group.Group, error) {
+	wid, err := i.workspaceIDForProject(ctx, pid)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindByKey", rbac.ActionRead); err != nil {
+		return nil, err
+	}
+	return i.repos.Group.FindByKey(ctx, pid, key)
 }
 
 func (i Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, idOrKey group.IDOrKey, operator *usecase.Operator) (*group.Group, error) {
+	wid, err := i.workspaceIDForProject(ctx, pid)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindByIDOrKey", rbac.ActionRead); err != nil {
+		return nil, err
+	}
 	return i.repos.Group.FindByIDOrKey(ctx, pid, idOrKey)
 }
 
 func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, operator *usecase.Operator) (*group.Group, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *group.Group, err error) {
-			if !operator.IsMaintainingProject(param.ProjectId) {
-				return nil, interfaces.ErrOperationDenied
-			}
 			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
 			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, operator, p.Workspace().Ref(), "group.Create", rbac.ActionCreate); err != nil {
 				return nil, err
 			}
 			g, err := i.repos.Group.FindByKey(ctx, param.ProjectId, param.Key)
@@ -128,9 +211,12 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 			if err != nil {
 				return nil, err
 			}
-
-			if !operator.IsMaintainingProject(g.Project()) {
-				return nil, interfaces.ErrOperationDenied
+			wid, err := i.workspaceIDForProject(ctx, g.Project())
+			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, operator, wid.Ref(), "group.Update", rbac.ActionUpdate); err != nil {
+				return nil, err
 			}
 
 			if param.Name != nil {
@@ -182,8 +268,12 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 			if err != nil {
 				return err
 			}
-			if !operator.IsMaintainingProject(g.Project()) {
-				return interfaces.ErrOperationDenied
+			wid, err := i.workspaceIDForProject(ctx, g.Project())
+			if err != nil {
+				return err
+			}
+			if err := i.checkPermission(ctx, operator, wid.Ref(), "group.Delete", rbac.ActionDelete); err != nil {
+				return err
 			}
 			ml, err := i.getModelsByGroup(ctx, g)
 			if err != nil {
@@ -199,9 +289,16 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 		})
 }
 
-func (i Group) FindModelsByGroup(ctx context.Context, groupID id.GroupID, op *usecase.Operator) (model.List, error) {
+func (i Group) FindModelsByGroup(ctx context.Context, groupID id.GroupID, operator *usecase.Operator) (model.List, error) {
 	g, err := i.repos.Group.FindByID(ctx, groupID)
 	if err != nil {
+		return nil, err
+	}
+	wid, err := i.workspaceIDForProject(ctx, g.Project())
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindModelsByGroup", rbac.ActionRead); err != nil {
 		return nil, err
 	}
 	return i.getModelsByGroup(ctx, g)
@@ -214,8 +311,12 @@ func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *us
 			if err != nil {
 				return nil, err
 			}
-			if !operator.IsReadableProject(m.Project()) {
-				return nil, interfaces.ErrOperationDenied
+			wid, err := i.workspaceIDForProject(ctx, m.Project())
+			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, operator, wid.Ref(), "group.FindByModel", rbac.ActionRead); err != nil {
+				return nil, err
 			}
 			s, err := i.repos.Schema.FindByID(ctx, m.Schema())
 			if err != nil {
@@ -285,8 +386,12 @@ func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *us
 				return nil, rerror.ErrNotFound
 			}
 			pid := g[0].Project()
-			if !operator.IsMaintainingProject(pid) {
-				return nil, interfaces.ErrOperationDenied
+			wid, err := i.workspaceIDForProject(ctx, pid)
+			if err != nil {
+				return nil, err
+			}
+			if err := i.checkPermission(ctx, operator, wid.Ref(), "group.UpdateOrder", rbac.ActionUpdate); err != nil {
+				return nil, err
 			}
 			groups, err := i.repos.Group.FindByProject(ctx, pid)
 			if err != nil {

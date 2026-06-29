@@ -26,6 +26,7 @@ const (
 	// CMS Schema Resources
 	ResourceModel  Resource = "model"
 	ResourceSchema Resource = "schema"
+	ResourceGroup  Resource = "group"
 
 	// CMS Content Resources
 	ResourceItem  Resource = "item"
@@ -160,12 +161,26 @@ var ResourceRules = []generator.ResourceRule{
 		},
 	},
 
+	// ========== Group ==========
+	{
+		Resource: ResourceGroup,
+		Actions: map[Action]generator.ActionRule{
+			ActionRead:   {Roles: allRoles},
+			ActionList:   {Roles: allRoles},
+			ActionCreate: {Roles: maintainerAndAbove},
+			ActionUpdate: {Roles: maintainerAndAbove},
+			ActionDelete: {Roles: maintainerAndAbove},
+		},
+	},
+
 	// ========== Integration ==========
 	{
 		Resource: ResourceIntegration,
 		Actions: map[Action]generator.ActionRule{
-			ActionRead:   {Roles: selfOnly, Condition: jwtRequired},
-			ActionList:   {Roles: selfOnly, Condition: jwtRequired},
+			// read: any workspace member can view integration details (e.g. listing workspace members' integrations)
+			ActionRead: {Roles: allRoles},
+			// list: any authenticated user can list their own integrations (FindByMe filters by user)
+			ActionList:   {Roles: allRoles, Condition: jwtRequired},
 			ActionCreate: {Roles: selfOnly, Condition: jwtRequired},
 			ActionUpdate: {Roles: selfOnly, Condition: jwtRequired},
 			ActionDelete: {Roles: selfOnly, Condition: jwtRequired},
