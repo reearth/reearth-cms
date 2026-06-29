@@ -3,11 +3,11 @@ import {
   WorkspaceSettings,
   Member,
   Workspace,
+  TileType,
+  TerrainType,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   WorkspaceSettings as GQLWorkspaceSettings,
-  TileType,
-  TerrainType,
   UrlResourceProps,
   CesiumResourceProps,
   Integration as GQLIntegration,

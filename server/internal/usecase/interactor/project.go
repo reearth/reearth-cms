@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -635,16 +634,7 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 			WithPermission(i.authz(), rbac.ResourceProject, rbac.ActionRead, p.Workspace()).
 			Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
-			if slices.Contains(p.StarredBy(), userID.String()) {
-				p.Unstar(*userID)
-			} else {
-				p.Star(*userID)
-			}
 
-			if err := i.repos.Project.Save(ctx, p); err != nil {
-				return nil, err
-			}
-
-			return p, nil
+			return i.repos.Project.Star(ctx, p.ID(), *userID)
 		})
 }

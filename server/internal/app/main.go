@@ -11,15 +11,12 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v5"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
-	"google.golang.org/grpc"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
+	"google.golang.org/grpc"
 )
 
 func Start(debug bool, version string) {
@@ -67,9 +64,9 @@ func Start(debug bool, version string) {
 
 type WebServer struct {
 	debug          bool
-	appAddress   string
-	appServer    *http.Server
-	internalPort string
+	appAddress     string
+	appServer      *http.Server
+	internalPort   string
 	internalServer *grpc.Server
 }
 
@@ -104,8 +101,15 @@ func NewServer(_ context.Context, appCtx *ApplicationContext) *WebServer {
 		}
 		address := host + ":" + port
 
+		protocols := new(http.Protocols)
+		protocols.SetHTTP1(true)
+		protocols.SetUnencryptedHTTP2(true)
+
 		w.appAddress = address
-		w.appServer = &http.Server{Handler: h2c.NewHandler(initEcho(appCtx), &http2.Server{})}
+		w.appServer = &http.Server{
+			Handler:   initEcho(appCtx),
+			Protocols: protocols,
+		}
 	}
 
 	if appCtx.Config.InternalApi.Active {

@@ -3,9 +3,8 @@ package workspacesettings
 type TerrainType string
 
 const (
-	TerrainTypeCesiumWorldTerrain TerrainType = "CESIUM_WORLD_TERRAIN"
-	TerrainTypeArcGISTerrain      TerrainType = "ARC_GIS_TERRAIN"
-	TerrainTypeCesiumIon          TerrainType = "CESIUM_ION"
+	TerrainTypeReearthTerrain TerrainType = "REEARTH_TERRAIN"
+	TerrainTypeCesiumIon      TerrainType = "CESIUM_ION"
 )
 
 type TerrainResource struct {

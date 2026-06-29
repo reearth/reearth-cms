@@ -58,7 +58,7 @@ describe("Cards", () => {
       />,
     );
 
-    expect(screen.getAllByText("DEFAULT").length).toBe(2);
+    expect(screen.getAllByText("Google Satellite").length).toBe(2);
     expect(screen.getAllByLabelText("menu")[0]).toBeVisible();
 
     await user.click(screen.getAllByLabelText("edit")[0]);
