@@ -572,26 +572,23 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 		return nil, nil
 	}
 
-	m, err := i.repos.Model.FindByID(ctx, ids[0])
+	models, err := i.repos.Model.FindByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	wid, err := workspaceIDForProject(ctx, i.repos, m.Project())
+	if len(models) != len(ids) {
+		return nil, rerror.ErrNotFound
+	}
+	if !models.SameProject() {
+		return nil, rerror.ErrInvalidParams
+	}
+	wid, err := workspaceIDForProject(ctx, i.repos, models[0].Project())
 	if err != nil {
 		return nil, err
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithPermission(i.authz(), rbac.ResourceModel, rbac.ActionUpdate, wid),
 		func(ctx context.Context) (_ model.List, err error) {
-
-			models, err := i.repos.Model.FindByIDs(ctx, ids)
-			if err != nil {
-				return nil, err
-			}
-			if len(models) != len(ids) {
-				return nil, rerror.ErrNotFound
-			}
-
 			if !operator.IsWritableProject(models.Projects()...) {
 				return nil, interfaces.ErrOperationDenied
 			}
