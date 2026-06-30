@@ -86,7 +86,7 @@ export default () => {
         return;
       }
 
-      Notification.success({ message: t("Successfully updated Request!") });
+      Notification.success({ message: t("Successfully updated request!") });
     },
     [updateRequest, t],
   );
