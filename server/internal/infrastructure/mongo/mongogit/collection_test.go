@@ -659,39 +659,81 @@ func TestCollection_UpdateRef(t *testing.T) {
 }
 
 func TestCollection_BulkUpdateRef(t *testing.T) {
-	ctx := context.Background()
-	col := initCollection(t)
-	c := col.Client().Client()
+	tests := []struct {
+		name      string
+		setupDocs []any
+		ids       []string
+		ref       version.Ref
+		dest      *version.VersionOrRef
+		// expected refs per document id after the call
+		want map[string][]version.Ref
+	}{
+		{
+			name: "no-op on empty ids",
+			setupDocs: []any{
+				bson.M{"id": "x", versionKey: version.New(), refsKey: []string{"latest"}},
+			},
+			ids:  nil,
+			ref:  "foo",
+			dest: version.Latest.OrVersion().Ref(),
+			want: map[string][]version.Ref{"x": {"latest"}},
+		},
+		{
+			name: "attach ref to matching docs in one call",
+			setupDocs: []any{
+				bson.M{"id": "x", versionKey: version.New(), refsKey: []string{"latest"}},
+				bson.M{"id": "y", versionKey: version.New(), refsKey: []string{"latest"}},
+			},
+			ids:  []string{"x", "y"},
+			ref:  "foo",
+			dest: version.Latest.OrVersion().Ref(),
+			want: map[string][]version.Ref{"x": {"latest", "foo"}, "y": {"latest", "foo"}},
+		},
+		{
+			name: "remove ref from docs in one call",
+			setupDocs: []any{
+				bson.M{"id": "x", versionKey: version.New(), refsKey: []string{"latest", "foo"}},
+				bson.M{"id": "z", versionKey: version.New(), refsKey: []string{"foo"}},
+			},
+			ids:  []string{"x", "z"},
+			ref:  "foo",
+			dest: nil,
+			want: map[string][]version.Ref{"x": {"latest"}, "z": {}},
+		},
+		{
+			name: "attach skips docs not matching dest version",
+			setupDocs: []any{
+				bson.M{"id": "a", versionKey: version.New(), refsKey: []string{"foo"}},
+			},
+			ids:  []string{"a"},
+			ref:  "bar",
+			dest: version.Latest.OrVersion().Ref(),
+			want: map[string][]version.Ref{"a": {"foo"}},
+		},
+	}
 
-	vx, vy, vz := version.New(), version.New(), version.New()
-	_, _ = c.InsertMany(ctx, []any{
-		bson.M{"id": "x", versionKey: vx, refsKey: []string{"latest"}},
-		bson.M{"id": "y", versionKey: vy, refsKey: []string{"latest"}},
-		bson.M{"id": "z", versionKey: vz, refsKey: []string{"foo"}},
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	var meta Meta
+			ctx := context.Background()
+			col := initCollection(t)
+			c := col.Client().Client()
 
-	// no-op on empty ids
-	assert.NoError(t, col.BulkUpdateRef(ctx, nil, "foo", version.Latest.OrVersion().Ref()))
+			if len(tt.setupDocs) > 0 {
+				_, _ = c.InsertMany(ctx, tt.setupDocs)
+			}
 
-	// attach foo ref to x and y in a single call
-	assert.NoError(t, col.BulkUpdateRef(ctx, []string{"x", "y"}, "foo", version.Latest.OrVersion().Ref()))
-	got := c.FindOne(ctx, bson.M{"id": "x", versionKey: vx})
-	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, []version.Ref{"latest", "foo"}, meta.Refs)
-	got = c.FindOne(ctx, bson.M{"id": "y", versionKey: vy})
-	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, []version.Ref{"latest", "foo"}, meta.Refs)
+			assert.NoError(t, col.BulkUpdateRef(ctx, tt.ids, tt.ref, tt.dest))
 
-	// remove foo ref from x and z in a single call
-	assert.NoError(t, col.BulkUpdateRef(ctx, []string{"x", "z"}, "foo", nil))
-	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: vx})
-	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, []version.Ref{"latest"}, meta.Refs)
-	got = c.FindOne(ctx, bson.M{"id": "z", versionKey: vz})
-	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, []version.Ref{}, meta.Refs)
+			for docID, wantRefs := range tt.want {
+				var meta Meta
+				got := c.FindOne(ctx, bson.M{"id": docID})
+				assert.NoError(t, got.Decode(&meta))
+				assert.Equal(t, wantRefs, meta.Refs)
+			}
+		})
+	}
 }
 
 func TestCollection_IsArchived(t *testing.T) {
