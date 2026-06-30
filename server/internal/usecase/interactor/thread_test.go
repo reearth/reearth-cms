@@ -2,16 +2,22 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -593,6 +599,189 @@ func TestThread_DeleteComment(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, len(tc.seed.Comments())-1, len(thread2.Comments()))
 			assert.False(t, lo.ContainsBy(thread2.Comments(), func(cc *thread.Comment) bool { return cc.ID() == commentID }))
+		})
+	}
+}
+
+func TestThread_FindByID_CheckPermission(t *testing.T) {
+
+	wid := accountdomain.NewWorkspaceID()
+	th := thread.New().NewID().Workspace(wid).MustBuild()
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(user.NewID()),
+		},
+	}
+
+	tests := []struct {
+		name      string
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+		wantErr   error
+	}{
+		{
+			name: "permission allowed",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionRead, gomock.Any()).Return(true, nil)
+			},
+		},
+		{
+			name: "permission denied",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionRead, gomock.Any()).Return(false, nil)
+			},
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name: "permission check error",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionRead, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+			wantErr: errors.New("cerbos unavailable"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Thread.Save(ctx, th))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			gateways := &gateway.Container{Authorization: mockAuth}
+
+			threadUC := NewThread(db, gateways)
+			got, err := threadUC.FindByID(ctx, th.ID(), op)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, th.ID(), got.ID())
+		})
+	}
+}
+
+func TestThread_AddComment_CheckPermission(t *testing.T) {
+
+	uid := user.NewID()
+	wid := accountdomain.NewWorkspaceID()
+	th := thread.New().NewID().Workspace(wid).MustBuild()
+
+	opWriter := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(uid),
+			WritableWorkspaces: accountdomain.WorkspaceIDList{wid},
+		},
+	}
+
+	tests := []struct {
+		name      string
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+		wantErr   error
+	}{
+		{
+			name: "permission denied",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionComment, gomock.Any()).Return(false, nil)
+			},
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name: "permission check error",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionComment, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+			wantErr: errors.New("cerbos unavailable"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Thread.Save(ctx, th))
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			gateways := &gateway.Container{Authorization: mockAuth}
+
+			threadUC := NewThread(db, gateways)
+			gotTh, gotC, err := threadUC.AddComment(ctx, th.ID(), "hello", opWriter)
+			assert.EqualError(t, err, tc.wantErr.Error())
+			assert.Nil(t, gotTh)
+			assert.Nil(t, gotC)
+		})
+	}
+}
+
+func TestThread_CreateThreadWithComment_CheckPermission(t *testing.T) {
+
+	uid := user.NewID()
+	wid := accountdomain.NewWorkspaceID()
+
+	opWriter := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(uid),
+			WritableWorkspaces: accountdomain.WorkspaceIDList{wid},
+		},
+	}
+
+	input := interfaces.CreateThreadWithCommentInput{
+		WorkspaceID:  wid,
+		ResourceType: interfaces.ResourceTypeItem,
+		ResourceID:   id.NewItemID().String(),
+		Content:      "test comment",
+	}
+
+	tests := []struct {
+		name      string
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+		wantErr   error
+	}{
+		{
+			name: "permission denied",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionCreate, gomock.Any()).Return(false, nil)
+			},
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name: "permission check error",
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceThread, rbac.ActionCreate, gomock.Any()).Return(false, errors.New("cerbos unavailable"))
+			},
+			wantErr: errors.New("cerbos unavailable"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			ctrl := gomock.NewController(t)
+			mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+			tc.setupAuth(mockAuth)
+			gateways := &gateway.Container{Authorization: mockAuth}
+
+			threadUC := NewThread(db, gateways)
+			gotTh, gotC, err := threadUC.CreateThreadWithComment(ctx, input, opWriter)
+			assert.EqualError(t, err, tc.wantErr.Error())
+			assert.Nil(t, gotTh)
+			assert.Nil(t, gotC)
 		})
 	}
 }

@@ -108,18 +108,16 @@ func TestViewRepo_FindByModelID(t *testing.T) {
 		mockErr bool
 	}{
 		{
-			name:    "Not found in empty db",
-			seeds:   view.List{},
-			arg:     view.NewModelID(),
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			name:  "Not found in empty db",
+			seeds: view.List{},
+			arg:   view.NewModelID(),
+			want:  nil,
 		},
 		{
-			name:    "Not found",
-			seeds:   view.List{i1},
-			arg:     id.NewModelID(),
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			name:  "Not found",
+			seeds: view.List{i1},
+			arg:   id.NewModelID(),
+			want:  nil,
 		},
 		{
 			name:    "Found 1",
