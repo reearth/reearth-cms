@@ -59,5 +59,8 @@ func (a *authorizationGateway) CheckPermission(ctx context.Context, resource rba
 	if err := eg.Wait(); err != nil {
 		return false, err
 	}
+	if denied.Load() {
+		log.Warnf("permission denied for resource %s, action %s, workspaces %v", resource, action, workspaceIDs)
+	}
 	return !denied.Load(), nil
 }
