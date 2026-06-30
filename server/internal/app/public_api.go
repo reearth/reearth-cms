@@ -31,7 +31,29 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 	}
 
 	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware, AnonymousOperatorMiddleware())
-	publicapi.Echo(publicAPIGroup)
+	publicapi.Echo(publicAPIGroup, publicApiRateLimit(appCtx))
+}
+
+func publicApiRateLimit(appCtx *ApplicationContext) publicapi.RateLimitConfig {
+	perMinute, burst := defaultPublicRateLimitPerMinute, defaultPublicRateLimitBurst
+	expiresIn := defaultPublicRateLimitExpires
+	if appCtx != nil {
+		c := appCtx.Config.Public_RateLimit
+		if c.RatePerMinute > 0 {
+			perMinute = c.RatePerMinute
+		}
+		if c.Burst > 0 {
+			burst = c.Burst
+		}
+		if c.ExpiresIn > 0 {
+			expiresIn = c.ExpiresIn
+		}
+	}
+	return publicapi.RateLimitConfig{
+		Rate:      float64(perMinute) / 60.0,
+		Burst:     burst,
+		ExpiresIn: expiresIn,
+	}
 }
 
 func AnonymousOperatorMiddleware() echo.MiddlewareFunc {

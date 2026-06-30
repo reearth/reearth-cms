@@ -33,6 +33,7 @@ type Config struct {
 	Origins             []string          `pp:",omitempty"`
 	Integration_Origins []string          `pp:",omitempty"`
 	Public_Origins      []string          `pp:",omitempty"`
+	Public_RateLimit    RateLimitConfig   `pp:",omitempty"`
 	DB                  string            `default:"mongodb://localhost"`
 	Mailer              string            `pp:",omitempty"`
 	SMTP                SMTPConfig        `pp:",omitempty"`
@@ -83,6 +84,18 @@ type Config struct {
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+}
+
+const (
+	defaultPublicRateLimitPerMinute = 100
+	defaultPublicRateLimitBurst     = 100
+	defaultPublicRateLimitExpires   = 1 * time.Minute
+)
+
+type RateLimitConfig struct {
+	RatePerMinute int           `default:"100" pp:",omitempty"`
+	Burst         int           `default:"100" pp:",omitempty"`
+	ExpiresIn     time.Duration `default:"1m" pp:",omitempty"`
 }
 
 type OtelConfig struct {
