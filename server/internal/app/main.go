@@ -101,14 +101,9 @@ func NewServer(_ context.Context, appCtx *ApplicationContext) *WebServer {
 		}
 		address := host + ":" + port
 
-		protocols := new(http.Protocols)
-		protocols.SetHTTP1(true)
-		protocols.SetUnencryptedHTTP2(true)
-
 		w.appAddress = address
 		w.appServer = &http.Server{
-			Handler:   initEcho(appCtx),
-			Protocols: protocols,
+			Handler: initEcho(appCtx),
 		}
 	}
 
@@ -135,6 +130,13 @@ func (w *WebServer) Run(ctx context.Context) {
 				GracefulTimeout: 10 * time.Second,
 				HideBanner:      true,
 				HidePort:        true,
+				BeforeServeFunc: func(s *http.Server) error {
+					protocols := new(http.Protocols)
+					protocols.SetHTTP1(true)
+					protocols.SetUnencryptedHTTP2(true)
+					s.Protocols = protocols
+					return nil
+				},
 			}
 			if err := sc.Start(ctx, w.appServer.Handler); err != nil &&
 				!errors.Is(err, context.Canceled) &&
