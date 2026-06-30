@@ -61,7 +61,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
           });
 
           if (error || !data?.createThreadWithComment?.thread?.id) {
-            Notification.error({ message: t("Failed to create thread.") });
+            Notification.error({ title: t("Failed to create thread.") });
             return;
           }
         } else {
@@ -70,13 +70,13 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
           });
 
           if (commentErrors || !commentData?.addComment) {
-            Notification.error({ message: t("Failed to create comment.") });
+            Notification.error({ title: t("Failed to create comment.") });
             return;
           }
         }
-        Notification.success({ message: t("Successfully created comment!") });
+        Notification.success({ title: t("Successfully created comment!") });
       } catch (error) {
-        Notification.error({ message: t("An unexpected error occurred.") });
+        Notification.error({ title: t("An unexpected error occurred.") });
         console.error("Error creating comment:", error);
       }
     },
@@ -106,10 +106,10 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
         },
       });
       if (comment.error || !comment.data?.updateComment) {
-        Notification.error({ message: t("Failed to update comment.") });
+        Notification.error({ title: t("Failed to update comment.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated comment!") });
+      Notification.success({ title: t("Successfully updated comment!") });
     },
     [updateComment, threadId, t],
   );
@@ -128,10 +128,10 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
         },
       });
       if (comment.error || !comment.data?.deleteComment) {
-        Notification.error({ message: t("Failed to delete comment.") });
+        Notification.error({ title: t("Failed to delete comment.") });
         return;
       }
-      Notification.success({ message: t("Successfully deleted comment!") });
+      Notification.success({ title: t("Successfully deleted comment!") });
     },
     [deleteComment, threadId, t],
   );

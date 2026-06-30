@@ -1,3 +1,5 @@
-import Password from "antd/lib/input/Password";
+import { Input } from "antd";
+
+const Password = Input.Password;
 
 export default Password;

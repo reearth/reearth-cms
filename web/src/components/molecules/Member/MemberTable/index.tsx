@@ -13,6 +13,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -156,7 +157,7 @@ const MemberTable: React.FC<Props> = ({
               disabled={!hasChangeRoleRight || member.userId === userId}>
               {t("Change Role?")}
             </ActionButton>
-            <Divider type="vertical" />
+            <Divider orientation="vertical" />
             {member.userId === userId ? (
               <ActionButton
                 type="link"
@@ -172,7 +173,8 @@ const MemberTable: React.FC<Props> = ({
                 onClick={() => {
                   handleMemberDelete([member.user]);
                 }}
-                disabled={!hasRemoveRight}>
+                disabled={!hasRemoveRight}
+                data-testid={DATA_TEST_ID.Member__MemberTable__RemoveButton}>
                 {t("Remove")}
               </ActionButton>
             )}
@@ -192,7 +194,7 @@ const MemberTable: React.FC<Props> = ({
     ],
   );
 
-  const toolbar: ListToolBarProps = useMemo(
+  const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search
@@ -216,13 +218,13 @@ const MemberTable: React.FC<Props> = ({
     [page, pageSize],
   );
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection = useMemo<TableRowSelection<User>>(
     () => ({
       selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
         setSelection(selectedRowKeys);
       },
-      getCheckboxProps: record => ({
+      getCheckboxProps: (record: { id: string }) => ({
         disabled: record.id === userId,
       }),
     }),
@@ -237,7 +239,8 @@ const MemberTable: React.FC<Props> = ({
         icon={<Icon icon="userGroupDelete" />}
         onClick={() => handleMemberDelete(props.selectedRows)}
         danger
-        disabled={!hasRemoveRight}>
+        disabled={!hasRemoveRight}
+        data-testid={DATA_TEST_ID.Member__MemberTable__GroupRemoveButton}>
         {t("Remove")}
       </Button>
     ),
@@ -261,7 +264,8 @@ const MemberTable: React.FC<Props> = ({
             type="primary"
             onClick={onMemberAddModalOpen}
             icon={<Icon icon="userGroupAdd" />}
-            disabled={!hasInviteRight}>
+            disabled={!hasInviteRight}
+            data-testid={DATA_TEST_ID.Member__MemberTable__NewMemberButton}>
             {t("New Member")}
           </Button>
         }
@@ -325,6 +329,7 @@ const TableWrapper = styled.div`
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   height: calc(100% - 72px);
+  padding: 0 24px;
 `;
 
 const ActionButton = styled(Button)`

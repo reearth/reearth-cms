@@ -1,7 +1,7 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
+import { CheckboxProps } from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import {
   keyAutoFill,
@@ -20,6 +20,8 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 
 export default (
   selectedSchemaType: SelectedSchemaType,

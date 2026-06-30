@@ -8,8 +8,6 @@ import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-const { Option } = Select;
-
 type FormValues = {
   role: Role;
 };
@@ -84,12 +82,16 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
               message: t("Please input the appropriate role for this member!"),
             },
           ]}>
-          <Select placeholder={t("select role")} onSelect={handleSelect}>
-            <Option value="OWNER">{t("Owner")}</Option>
-            <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
-            <Option value="READER">{t("Reader")}</Option>
-          </Select>
+          <Select
+            placeholder={t("select role")}
+            onSelect={handleSelect}
+            options={[
+              { value: "OWNER", label: t("Owner") },
+              { value: "MAINTAINER", label: t("Maintainer") },
+              { value: "WRITER", label: t("Writer") },
+              { value: "READER", label: t("Reader") },
+            ]}
+          />
         </Form.Item>
       </Form>
     </Modal>

@@ -40,13 +40,15 @@ export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpd
     { name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
-    <StyledSelect value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
-      {previewTypeList.map((type, index) => (
-        <Select.Option key={index} value={type.value}>
-          {type.name}
-        </Select.Option>
-      ))}
-    </StyledSelect>
+    <StyledSelect
+      value={value}
+      onChange={onTypeChange}
+      disabled={!hasUpdateRight}
+      options={previewTypeList.map(type => ({
+        value: type.value,
+        label: type.name,
+      }))}
+    />
   );
 };
 

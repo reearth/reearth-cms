@@ -21,7 +21,8 @@ export function configureCognito(cognito: CognitoParams) {
   const cognitoOauthRedirectSignOut = cognito.cognitoOauthRedirectSignOut;
   const cognitoOauthResponseType = cognito.cognitoOauthResponseType;
 
-  const config = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config: Record<string, any> = {
     Auth: {
       region: cognitoRegion,
       userPoolId: cognitoUserPoolId,

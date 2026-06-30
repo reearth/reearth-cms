@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@apollo/client/react";
+import { skipToken, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -47,18 +47,47 @@ export default () => {
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsedMainMenu, setCollapsedMainMenu] = useCollapsedMainMenu();
 
-  const { data, refetch } = useQuery(GetMeDocument);
+  const { data, refetch } = useQuery(GetMeDocument, { fetchPolicy: "cache-and-network" });
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
-  const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
+  const {
+    username,
+    profilePictureUrl,
+    workspaces,
+    workspace,
+    personalWorkspace,
+    isCurrentWorkspacePersonal,
+  } = useMemo(() => {
+    const workspaces = data?.me?.workspaces?.map(workspace =>
+      fromGraphQLWorkspace(workspace as GQLWorkspace),
+    );
+    const findWorkspace = workspaces?.find(workspace => workspace.id === data?.me?.myWorkspace?.id);
 
-  const profilePictureUrl = useMemo(
-    () => data?.me?.profilePictureUrl ?? undefined,
-    [data?.me?.profilePictureUrl],
-  );
+    const currentWorkspace = workspaces?.find(workspace => workspace.id === workspaceId);
 
-  setCurrentUserId(data?.me?.id);
+    return {
+      username: data?.me?.name || "",
+      profilePictureUrl: data?.me?.profilePictureUrl ?? undefined,
+      workspaces,
+      workspace: currentWorkspace,
+      isCurrentWorkspacePersonal: !!currentWorkspace,
+      personalWorkspace: findWorkspace
+        ? {
+            id: findWorkspace.id,
+            name: findWorkspace.name,
+            alias: findWorkspace.alias,
+            members: findWorkspace.members?.map(member =>
+              fromGraphQLMember(member as WorkspaceMember),
+            ),
+          }
+        : undefined,
+    };
+  }, [data, workspaceId]);
+
+  useEffect(() => {
+    setCurrentUserId(data?.me?.id);
+  }, [data?.me?.id, setCurrentUserId]);
 
   const handleCollapse = useCallback(
     (collapse: boolean) => {
@@ -67,51 +96,32 @@ export default () => {
     [setCollapsedMainMenu],
   );
 
-  const workspaces = data?.me?.workspaces?.map(workspace =>
-    fromGraphQLWorkspace(workspace as GQLWorkspace),
-  );
-  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
-  const personalWorkspace = useMemo(() => {
-    const foundWorkspace = workspaces?.find(
-      workspace => workspace.id === data?.me?.myWorkspace?.id,
-    );
-    return foundWorkspace
-      ? {
-          id: foundWorkspace.id,
-          name: foundWorkspace.name,
-          alias: foundWorkspace.alias,
-          members: foundWorkspace.members?.map(member =>
-            fromGraphQLMember(member as WorkspaceMember),
-          ),
-        }
-      : undefined;
-  }, [data?.me?.myWorkspace?.id, workspaces]);
-  const personal = workspaceId === data?.me?.myWorkspace?.id;
-
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
-    setCurrentWorkspace(personalWorkspace ?? undefined);
-    setCurrentWorkspaceId(personalWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
-  }, [
-    data,
-    navigate,
-    setCurrentWorkspace,
-    setCurrentWorkspaceId,
-    currentWorkspace,
-    workspaceId,
-    personalWorkspace,
-  ]);
+  }, [currentWorkspace, data, navigate, workspaceId]);
 
   useEffect(() => {
-    if (workspace?.id && workspace.id !== currentWorkspace?.id) {
-      setCurrentWorkspace({
-        personal,
-        ...workspace,
-      });
-      setCurrentWorkspaceId(workspace.id);
+    if (!workspace) return;
+
+    if (isCurrentWorkspacePersonal) {
+      setCurrentWorkspace(prev =>
+        workspace.id === prev?.id ? prev : { personal: isCurrentWorkspacePersonal, ...workspace },
+      );
+      setCurrentWorkspaceId(prev =>
+        prev === personalWorkspace?.id ? prev : personalWorkspace?.id,
+      );
+    } else {
+      setCurrentWorkspace(prev => (prev?.id === personalWorkspace?.id ? prev : personalWorkspace));
+      setCurrentWorkspaceId(prev => (workspace.id === prev ? prev : workspace.id));
     }
-  }, [currentWorkspace, workspace, personal, setCurrentWorkspace, setCurrentWorkspaceId]);
+  }, [
+    isCurrentWorkspacePersonal,
+    personalWorkspace,
+    setCurrentWorkspace,
+    setCurrentWorkspaceId,
+    workspace,
+  ]);
 
   useEffect(() => {
     const userInfo = currentWorkspace?.members?.find(
@@ -129,7 +139,7 @@ export default () => {
         variables: { name: data.name },
       });
       if (results.data?.createWorkspace) {
-        Notification.success({ message: t("Successfully created workspace!") });
+        Notification.success({ title: t("Successfully created workspace!") });
         setCurrentWorkspace(
           fromGraphQLWorkspace(results.data.createWorkspace.workspace as GQLWorkspace),
         );
@@ -137,7 +147,7 @@ export default () => {
       }
       refetch();
     },
-    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate, t],
+    [createWorkspaceMutation, refetch, t, setCurrentWorkspace, navigate],
   );
 
   const handleWorkspaceModalClose = useCallback(() => {
@@ -154,10 +164,10 @@ export default () => {
     }
   }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
-  const { data: projectData } = useQuery(GetProjectDocument, {
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
-  });
+  const { data: projectData } = useQuery(
+    GetProjectDocument,
+    projectId ? { variables: { projectId } } : skipToken,
+  );
 
   useEffect(() => {
     if (projectId) {

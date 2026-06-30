@@ -28,7 +28,7 @@ const Dropdown: React.FC<Props> = ({
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
-      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
+      popupRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
       <a onClick={e => e.preventDefault()}>
         <Space>

@@ -1,6 +1,6 @@
-import { DataNode } from "@reearth-cms/components/atoms/Tree";
+import { TreeDataNode } from "@reearth-cms/components/atoms/Tree";
 
-export type FileNode = DataNode & {
+export type FileNode = TreeDataNode & {
   name: string;
   path: string;
   children: FileNode[];

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Progress from "@reearth-cms/components/atoms/Progress";
