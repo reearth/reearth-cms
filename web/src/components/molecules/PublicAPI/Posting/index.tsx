@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
@@ -121,13 +122,13 @@ const PostingEditor: React.FC<EditorProps> = ({
           title={
             isSaveDisabled ? t("Please add at least one origin to enable Post API") : undefined
           }>
-          <Button
+          <StyledButton
             type="primary"
             disabled={isSaveDisabled}
             onClick={handleSave}
             loading={updateLoading}>
             {t("Save changes")}
-          </Button>
+          </StyledButton>
         </Tooltip>
       }>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
@@ -143,3 +144,7 @@ const PostingEditor: React.FC<EditorProps> = ({
     </ContentSection>
   );
 };
+
+const StyledButton = styled(Button)`
+  text-transform: capitalize;
+`;

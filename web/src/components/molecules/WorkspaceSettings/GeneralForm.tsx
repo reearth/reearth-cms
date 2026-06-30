@@ -77,19 +77,23 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
         ]}>
         <Input disabled={!hasUpdateRight} />
       </Form.Item>
-      <Button
+      <StyledButton
         onClick={handleSubmit}
         type="primary"
         loading={updateWorkspaceLoading}
         disabled={isDisabled}>
-        {t("Save Changes")}
-      </Button>
+        {t("Save changes")}
+      </StyledButton>
     </StyledForm>
   );
 };
 
 const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
+`;
+
+const StyledButton = styled(Button)`
+  text-transform: capitalize;
 `;
 
 export default WorkspaceGeneralForm;

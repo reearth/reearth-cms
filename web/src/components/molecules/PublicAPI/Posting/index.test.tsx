@@ -64,7 +64,7 @@ describe("PostingTab", () => {
 
   test("Save changes is disabled until origins or a model toggle change", async () => {
     renderTab();
-    const saveButton = () => screen.getByRole("button", { name: t("Save changes") });
+    const saveButton = () => screen.getByRole("button", { name: "Save changes" });
 
     // nothing changed yet → disabled
     expect(saveButton()).toBeDisabled();
@@ -78,7 +78,7 @@ describe("PostingTab", () => {
     renderTab({ savedOrigins: ["example.com"] });
     expect(screen.getByText(/1 configured/)).toBeVisible();
     expect(screen.queryByText(ORIGIN_WARNING)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: t("Save changes") })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled();
   });
 
   test("Save submits the current origins and toggled models", async () => {
@@ -87,7 +87,7 @@ describe("PostingTab", () => {
 
     await user.type(screen.getByRole("combobox"), "https://example.com,");
     await user.click(screen.getByRole("switch"));
-    await user.click(screen.getByRole("button", { name: t("Save changes") }));
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
 
     expect(onPostingUpdate).toHaveBeenCalledWith(
       ["https://example.com"],

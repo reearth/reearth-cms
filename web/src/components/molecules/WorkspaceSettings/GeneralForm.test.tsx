@@ -65,7 +65,7 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save Changes" });
+    const saveButton = screen.getByRole("button", { name: "Save changes" });
     const nameInput = screen.getByLabelText("Workspace Name");
 
     expect(saveButton).toBeDisabled();
@@ -90,7 +90,7 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save Changes" });
+    const saveButton = screen.getByRole("button", { name: "Save changes" });
     const nameInput = screen.getByLabelText("Workspace Name");
 
     await user.click(nameInput);

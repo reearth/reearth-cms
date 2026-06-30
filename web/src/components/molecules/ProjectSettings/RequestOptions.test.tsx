@@ -49,7 +49,7 @@ describe("Request options", () => {
     );
 
     const firstSwitch = screen.getAllByRole("switch")[0];
-    const saveButton = screen.getByRole("button", { name: "Save Changes" });
+    const saveButton = screen.getByRole("button", { name: "Save changes" });
     expect(saveButton).toBeDisabled();
     await user.click(firstSwitch);
     expect(saveButton).toBeEnabled();
@@ -69,7 +69,7 @@ describe("Request options", () => {
     );
 
     const secondSwitch = screen.getAllByRole("switch")[1];
-    const saveButton = screen.getByRole("button", { name: "Save Changes" });
+    const saveButton = screen.getByRole("button", { name: "Save changes" });
     await user.click(secondSwitch);
     await user.click(saveButton);
     expect(screen.getByLabelText("loading")).toBeVisible();
@@ -98,7 +98,7 @@ describe("Request options", () => {
     );
 
     const firstSwitch = screen.getAllByRole("switch")[0];
-    const saveButton = screen.getByRole("button", { name: "Save Changes" });
+    const saveButton = screen.getByRole("button", { name: "Save changes" });
     await user.click(firstSwitch);
     expect(saveButton).toBeEnabled();
     await user.click(saveButton);

@@ -43,13 +43,13 @@ const License: React.FC<Props> = ({
       subtitle={t("License defines whether others can legally use and share your project & data")}
       extra={
         licenseEditMode ? (
-          <Button
+          <StyledButton
             type="primary"
             icon={<Icon icon="save" />}
             onClick={onLicenseSave}
             disabled={!hasUpdateRight}>
-            {t("Save Changes")}
-          </Button>
+            {t("Save changes")}
+          </StyledButton>
         ) : (
           <Button
             type="primary"
@@ -79,6 +79,10 @@ const License: React.FC<Props> = ({
 };
 
 export default License;
+
+const StyledButton = styled(Button)`
+  text-transform: capitalize;
+`;
 
 const StyledContainer = styled.div`
   padding: 1rem;

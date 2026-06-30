@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -80,13 +81,13 @@ const ReadingComponent: React.FC<Props> = ({
       )}
       headerActions={
         !isPublic && (
-          <Button
+          <StyledButton
             type="primary"
             disabled={isSaveDisabled}
             onClick={handleSave}
             loading={updateLoading}>
-            {t("Save Changes")}
-          </Button>
+            {t("Save changes")}
+          </StyledButton>
         )
       }>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
@@ -102,3 +103,7 @@ const ReadingComponent: React.FC<Props> = ({
 };
 
 export default ReadingComponent;
+
+const StyledButton = styled(Button)`
+  text-transform: capitalize;
+`;
