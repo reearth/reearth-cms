@@ -230,6 +230,13 @@ func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, v
 	return r.client.UpdateRef(ctx, item.String(), ref, vr)
 }
 
+func (r *Item) BulkUpdateRef(ctx context.Context, ids id.ItemIDList, ref version.Ref, vr *version.VersionOrRef) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.BulkUpdateRef(ctx, ids.Strings(), ref, vr)
+}
+
 func (r *Item) Remove(ctx context.Context, id id.ItemID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }

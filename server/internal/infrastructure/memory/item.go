@@ -200,6 +200,17 @@ func (r *Item) UpdateRef(_ context.Context, item id.ItemID, ref version.Ref, vr 
 	return nil
 }
 
+func (r *Item) BulkUpdateRef(_ context.Context, ids id.ItemIDList, ref version.Ref, vr *version.VersionOrRef) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, iid := range ids {
+		r.data.UpdateRef(iid, ref, vr)
+	}
+	return nil
+}
+
 func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 	if r.err != nil {
 		return r.err
