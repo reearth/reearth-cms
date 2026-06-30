@@ -658,6 +658,42 @@ func TestCollection_UpdateRef(t *testing.T) {
 	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v3, Refs: []version.Ref{}}, meta)
 }
 
+func TestCollection_BulkUpdateRef(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Client()
+
+	vx, vy, vz := version.New(), version.New(), version.New()
+	_, _ = c.InsertMany(ctx, []any{
+		bson.M{"id": "x", versionKey: vx, refsKey: []string{"latest"}},
+		bson.M{"id": "y", versionKey: vy, refsKey: []string{"latest"}},
+		bson.M{"id": "z", versionKey: vz, refsKey: []string{"foo"}},
+	})
+
+	var meta Meta
+
+	// no-op on empty ids
+	assert.NoError(t, col.BulkUpdateRef(ctx, nil, "foo", version.Latest.OrVersion().Ref()))
+
+	// attach foo ref to x and y in a single call
+	assert.NoError(t, col.BulkUpdateRef(ctx, []string{"x", "y"}, "foo", version.Latest.OrVersion().Ref()))
+	got := c.FindOne(ctx, bson.M{"id": "x", versionKey: vx})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, []version.Ref{"latest", "foo"}, meta.Refs)
+	got = c.FindOne(ctx, bson.M{"id": "y", versionKey: vy})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, []version.Ref{"latest", "foo"}, meta.Refs)
+
+	// remove foo ref from x and z in a single call
+	assert.NoError(t, col.BulkUpdateRef(ctx, []string{"x", "z"}, "foo", nil))
+	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: vx})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, []version.Ref{"latest"}, meta.Refs)
+	got = c.FindOne(ctx, bson.M{"id": "z", versionKey: vz})
+	assert.NoError(t, got.Decode(&meta))
+	assert.Equal(t, []version.Ref{}, meta.Refs)
+}
+
 func TestCollection_IsArchived(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
