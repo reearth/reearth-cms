@@ -531,6 +531,9 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
+	if len(itemIDs) == 0 {
+		return nil, interfaces.ErrItemMissing
+	}
 
 	var events []Event
 	items, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
@@ -700,9 +703,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 
 	// dispatch events/webhooks outside the transaction
 	if len(events) > 0 {
-		if err := i.events(ctx, events); err != nil {
-			return nil, err
-		}
+		_ = i.events(ctx, events)
 	}
 
 	return updated, nil
@@ -958,7 +959,7 @@ func referencedItemIDs(fields []*item.Field) id.ItemIDList {
 			if !ok {
 				continue
 			}
-			ids = ids.Add(iid)
+			ids = ids.AddUniq(iid)
 		}
 	}
 	return ids

@@ -1631,6 +1631,35 @@ func TestItem_PublishUnpublishBatch(t *testing.T) {
 	}
 }
 
+func TestItem_PublishUnpublishEmpty(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	itemUC := NewItem(db, nil)
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:             lo.ToPtr(u.ID()),
+			OwningWorkspaces: id.WorkspaceIDList{wid},
+		},
+	}
+
+	// an empty list must be rejected, not panic on items[0]
+	res, err := itemUC.Unpublish(ctx, id.ItemIDList{}, op)
+	assert.Nil(t, res)
+	assert.Equal(t, interfaces.ErrItemMissing, err)
+
+	res, err = itemUC.Unpublish(ctx, nil, op)
+	assert.Nil(t, res)
+	assert.Equal(t, interfaces.ErrItemMissing, err)
+
+	res, err = itemUC.Publish(ctx, id.ItemIDList{}, op)
+	assert.Nil(t, res)
+	assert.Equal(t, interfaces.ErrItemMissing, err)
+}
+
 //func TestItem_ItemsAsCSV(t *testing.T) {
 //	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 //	w := accountdomain.NewWorkspaceID()
