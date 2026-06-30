@@ -84,7 +84,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
               message: t("Please input the appropriate role for this member!"),
             },
           ]}>
-          <Select placeholder={t("select role")} onSelect={handleSelect}>
+          <Select placeholder={t("Select role")} onSelect={handleSelect}>
             <Option value="OWNER">{t("Owner")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>

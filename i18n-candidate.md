@@ -49,30 +49,33 @@
   - [ ] カスタムインテグレーションを作成・テストできます。(2)
   - [ ] 自分のインテグレーションを作成・テストできます。
   - [ ] インテグレーションを作成・テストできます。(1)
-- line.127: CSV export only supports simple fields (text, number, date).
+- line.125: CSV export only supports simple fields (text, number, date).
   - [ ] ...単純なフィールド...(c)
   - [ ] ...プリミティブなフィールド...(2)
   - [ ] ...基本型フィールド...(1)
   - [ ] ...基本フィールド...
-- line.131: Customize your API key to control the visibility of your models (「control」の訳)
+- line.129: Customize your API key to control the visibility of your models (「control」の訳)
   - [ ] 制御(c)
   - [ ] 管理
-- line.133: Danger Zone
+- line.131: Danger Zone
   - [ ] 重要操作(c)
   - [ ] 危険な操作(1)
   - [ ] 取り扱い注意
   - [ ] 危険ゾーン
-- line.295: greater than
+- line.292: greater than
   - [ ] 超過(c)
   - [ ] より大きい(1)
   - [ ] 超える
-- line.542: Render
+- line.537: Render
   - [ ] レンダー(c)
   - [ ] レンダリング(2)
   - [ ] 描画(1)
-- line.553: Role
+- line.548: Role
   - [ ] ロール(c)
   - [ ] 役割(dashboard use this)
-- line.721: Validation / Validation errors
+- line.549: Role Settings
+  - [ ] ロール設定(c)
+  - [ ] 役割設定(1)
+- line.713: Validation / Validation errors
   - [ ] バリデーション / バリデーションエラー(c)
   - [ ] 検証 / 検証エラー

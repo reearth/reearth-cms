@@ -63,7 +63,9 @@ export default () => {
         items.some(item2 => item1.id === item2.itemId),
       );
       if (hasDuplicatedItem) {
-        Notification.error({ message: t("One of the items already exists in the request.") });
+        Notification.error({
+          message: t("One of the items has already been added to the request."),
+        });
         return;
       }
       const item = await updateRequest({

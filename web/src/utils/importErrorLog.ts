@@ -26,7 +26,7 @@ export abstract class ImportErrorLogUtils {
     "x-defaultValue": () => t("Default value"),
     "x-fieldType": () => t("Field Type"),
     "x-geoSupportedTypes": () => t("Supported types"),
-    "x-geoSupportedType": () => t("Supported type"),
+    "x-geoSupportedType": () => t("Supported types"),
     "x-options": () => t("Options"),
     "x-multiple": () => t("Multiple"),
   };

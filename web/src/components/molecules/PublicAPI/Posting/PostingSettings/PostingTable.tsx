@@ -54,7 +54,7 @@ const PostingTable: React.FC<Props> = ({
       },
       {
         key: "endpoint",
-        title: t("End point"),
+        title: t("Endpoint"),
         dataIndex: "endpoint",
         render: url => (
           <StyledAnchor target="_blank" href={url} rel="noreferrer">
