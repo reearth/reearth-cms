@@ -119,9 +119,9 @@ const GeneralForm: React.FC<Props> = ({
         <TextArea rows={4} disabled={!hasUpdateRight} />
       </Form.Item>
       <Form.Item>
-        <StyledButton type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
-          {t("Save changes")}
-        </StyledButton>
+        <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
+          {t("Save Changes")}
+        </Button>
       </Form.Item>
     </StyledForm>
   );
@@ -129,10 +129,6 @@ const GeneralForm: React.FC<Props> = ({
 
 const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
-`;
-
-const StyledButton = styled(Button)`
-  text-transform: capitalize;
 `;
 
 export default GeneralForm;

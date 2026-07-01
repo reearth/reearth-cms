@@ -41,13 +41,13 @@ const Readme: React.FC<Props> = ({
       subtitle={t("README is a crucial document helping people quickly understand your project")}
       extra={
         readmeEditMode ? (
-          <StyledButton
+          <Button
             type="primary"
             icon={<Icon icon="save" />}
             onClick={onReadmeSave}
             disabled={!hasUpdateRight}>
-            {t("Save changes")}
-          </StyledButton>
+            {t("Save Changes")}
+          </Button>
         ) : (
           <Button
             type="primary"
@@ -72,10 +72,6 @@ const Readme: React.FC<Props> = ({
 };
 
 export default Readme;
-
-const StyledButton = styled(Button)`
-  text-transform: capitalize;
-`;
 
 const StyledContainer = styled.div`
   padding: 1rem;

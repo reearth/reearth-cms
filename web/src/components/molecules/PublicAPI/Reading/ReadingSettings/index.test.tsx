@@ -16,7 +16,7 @@ describe("ReadingSettings", () => {
   // The table renders one switch per model plus a trailing "Assets" row.
   const modelSwitch = () => screen.getAllByRole("switch")[0];
   const assetSwitch = () => screen.getAllByRole("switch")[1];
-  const saveButton = () => screen.getByRole("button", { name: "Save changes" });
+  const saveButton = () => screen.getByRole("button", { name: "Save Changes" });
 
   const renderSettings = ({
     isPublic = false,
@@ -42,7 +42,7 @@ describe("ReadingSettings", () => {
       />,
     );
 
-  test("Save changes is disabled until a model is toggled", async () => {
+  test("Save Changes is disabled until a model is toggled", async () => {
     renderSettings();
     expect(saveButton()).toBeDisabled();
 
@@ -85,7 +85,7 @@ describe("ReadingSettings", () => {
 
   test("hides the Save button when public", () => {
     renderSettings({ isPublic: true });
-    expect(screen.queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save Changes" })).not.toBeInTheDocument();
   });
 
   test("disables the switches without publish right", () => {

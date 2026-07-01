@@ -186,13 +186,13 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
               publicModels={currentProject?.accessibility?.publication.publicModels ?? []}
             />
           </Form.Item>
-          <StyledButton
+          <Button
             type="primary"
             disabled={isSaveDisabled}
             onClick={handleSave}
             loading={createLoading || updateLoading}>
-            {t("Save changes")}
-          </StyledButton>
+            {t("Save Changes")}
+          </Button>
         </Form>
       </ContentSection>
     </InnerContent>
@@ -202,10 +202,6 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
 export default APIKeyDetailsMolecule;
 
 const maxWidth = "500px";
-
-const StyledButton = styled(Button)`
-  text-transform: capitalize;
-`;
 
 const StyledInput = styled(Input)`
   max-width: ${maxWidth};

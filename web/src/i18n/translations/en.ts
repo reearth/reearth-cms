@@ -553,7 +553,7 @@ export default {
   "Row {{number}}": "",
   "Save": "",
   "Save as new view": "",
-  "Save changes": "",
+  "Save Changes": "",
   "Schema": "",
   "Schema must contain at least one field to import": "Schema must contain at least one field to import",
   "Schema preview": "",

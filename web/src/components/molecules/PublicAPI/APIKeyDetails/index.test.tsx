@@ -35,7 +35,7 @@ describe("APIKeyDetails", () => {
     models: { m1: false },
   };
 
-  const saveButton = () => screen.getByRole("button", { name: "Save changes" });
+  const saveButton = () => screen.getByRole("button", { name: "Save Changes" });
   const regenerateButton = () => screen.getByRole("button", { name: t("Re-generate") });
 
   const renderDetails = ({
