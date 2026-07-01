@@ -646,6 +646,7 @@ export default {
   "Successfully updated workspace!": "",
   "Summary": "",
   "Support multiple values": "",
+  "Supported type": "",
   "Supported types": "",
   "SVG": "",
   "Tag": "",

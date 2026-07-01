@@ -309,7 +309,7 @@ const FieldModal: React.FC<Props> = ({
             {selectedType === "GeometryEditor" && (
               <Form.Item
                 name="supportedTypes"
-                label={t("Supported types")}
+                label={t("Supported type")}
                 extra={t("Please select what type of Geometry this field will support")}
                 rules={[{ required: true, message: t("Please select the Support Type!") }]}>
                 <Radio.Group>

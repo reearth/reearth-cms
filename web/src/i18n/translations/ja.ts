@@ -643,6 +643,7 @@ export default {
   "Successfully updated workspace!": "ワークスペースの更新に成功しました。",
   "Summary": "概要",
   "Support multiple values": "複数値の設定を許可",
+  "Supported type": "対応タイプ",
   "Supported types": "対応タイプ",
   "SVG": "SVG",
   "Tag": "タグ",

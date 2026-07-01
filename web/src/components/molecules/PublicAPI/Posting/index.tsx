@@ -143,4 +143,3 @@ const PostingEditor: React.FC<EditorProps> = ({
     </ContentSection>
   );
 };
-
