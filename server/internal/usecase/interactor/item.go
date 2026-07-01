@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -38,8 +39,36 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 	}
 }
 
+func (i Item) authz() gateway.Authorization {
+	if i.gateways == nil {
+		return nil
+	}
+	return i.gateways.Authorization
+}
+
+// checkPermissions enforces a Cerbos check on the item resource for the workspaces
+// owning the given projects. When no project is supplied there is nothing to
+// authorize (e.g. an empty result set), so the check is skipped.
+func (i Item) checkPermissions(ctx context.Context, action rbac.Action, projectIDs id.ProjectIDList) error {
+	if len(projectIDs) == 0 {
+		return nil
+	}
+	projects, err := i.repos.Project.FindByIDs(ctx, projectIDs)
+	if err != nil {
+		return err
+	}
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceItem, action, lo.Uniq(projects.Workspaces())...)
+}
+
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID, nil)
+	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{itm.Value().Project()}); err != nil {
+		return nil, err
+	}
+	return itm, nil
 }
 
 func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
@@ -47,7 +76,14 @@ func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.O
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {
-	return i.repos.Item.FindByIDs(ctx, ids, nil)
+	items, err := i.repos.Item.FindByIDs(ctx, ids, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, items.Projects()); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
@@ -57,6 +93,9 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 	}
 	items, err := i.repos.Item.FindAllVersionsByIDs(ctx, itemsIds)
 	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, items.Projects()); err != nil {
 		return nil, err
 	}
 	res := map[id.ItemID]item.Status{}
@@ -108,12 +147,22 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
+	items, pi, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, items.Projects()); err != nil {
+		return nil, nil, err
+	}
+	return items, pi, nil
 }
 
 func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]item.VersionedList, error) {
 	itms, err := i.repos.Item.FindByAssets(ctx, list, nil)
 	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, itms.Projects()); err != nil {
 		return nil, err
 	}
 	res := map[id.AssetID]item.VersionedList{}
@@ -128,20 +177,45 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 }
 
 func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
+	itm, err := i.repos.Item.FindVersionByID(ctx, itemID, ver)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{itm.Value().Project()}); err != nil {
+		return nil, err
+	}
+	return itm, nil
 }
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
-	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+	items, err := i.repos.Item.FindAllVersionsByID(ctx, itemID)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionRead, items.Projects()); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 func (i Item) Search(ctx context.Context, sp schema.Package, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.Search(ctx, sp, q, p)
+	items, pi, err := i.repos.Item.Search(ctx, sp, q, p)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, items.Projects()); err != nil {
+		return nil, nil, err
+	}
+	return items, pi, nil
 }
 
 func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
 	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
 	if err != nil {
+		return false, err
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{itm.Value().Project()}); err != nil {
 		return false, err
 	}
 
@@ -179,128 +253,132 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
-		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
-		if err != nil {
-			return nil, err
-		}
-		//if m.Schema() != param.SchemaID {
-		//	return nil, interfaces.ErrInvalidSchema
-		//}
+	s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+	if err != nil {
+		return nil, err
+	}
 
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
-		if err != nil {
-			return nil, err
-		}
-
-		if !operator.IsWritableWorkspace(s.Workspace()) {
-			return nil, interfaces.ErrOperationDenied
-		}
-
-		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
-
-		fields, err := itemFieldsFromParams(modelSchemaFields, s)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
-			return nil, err
-		}
-
-		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
-		if err != nil {
-			return nil, err
-		}
-
-		isMetadata := m.Metadata() != nil && param.SchemaID == *m.Metadata()
-
-		fields = append(fields, groupFields...)
-		ib := item.New().
-			NewID().
-			Schema(s.ID()).
-			IsMetadata(isMetadata).
-			Project(s.Project()).
-			Model(m.ID()).
-			Fields(fields)
-
-		if operator.AcOperator.User != nil {
-			ib = ib.User(*operator.AcOperator.User)
-		}
-		if operator.Integration != nil {
-			ib = ib.Integration(*operator.Integration)
-		}
-
-		var mi item.Versioned
-		if param.MetadataID != nil {
-			mi, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+	return Run1(ctx, operator, i.repos,
+		Usecase().
+			WithPermission(i.authz(), rbac.ResourceItem, rbac.ActionCreate, s.Workspace()).
+			Transaction(),
+		func(ctx context.Context) (item.Versioned, error) {
+			m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 			if err != nil {
 				return nil, err
 			}
-			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
-				return nil, interfaces.ErrMetadataMismatch
+			//if m.Schema() != param.SchemaID {
+			//	return nil, interfaces.ErrInvalidSchema
+			//}
+
+			if !operator.IsWritableWorkspace(s.Workspace()) {
+				return nil, interfaces.ErrOperationDenied
 			}
-			ib = ib.MetadataItem(param.MetadataID)
-		}
 
-		it, err := ib.Build()
-		if err != nil {
-			return nil, err
-		}
+			modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
 
-		if err = i.handleReferenceFields(ctx, *s, it, item.Fields{}); err != nil {
-			return nil, err
-		}
-
-		if err := i.repos.Item.Save(ctx, it); err != nil {
-			return nil, err
-		}
-
-		if mi != nil {
-			mi.Value().SetOriginalItem(it.ID())
-			if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
+			fields, err := itemFieldsFromParams(modelSchemaFields, s)
+			if err != nil {
 				return nil, err
 			}
-		}
 
-		vi, err := i.repos.Item.FindByID(ctx, it.ID(), nil)
-		if err != nil {
-			return nil, err
-		}
+			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
+				return nil, err
+			}
 
-		refItems, err := i.getReferencedItems(ctx, fields)
-		if err != nil {
-			return nil, err
-		}
+			groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+			if err != nil {
+				return nil, err
+			}
 
-		if isMetadata {
+			isMetadata := m.Metadata() != nil && param.SchemaID == *m.Metadata()
+
+			fields = append(fields, groupFields...)
+			ib := item.New().
+				NewID().
+				Schema(s.ID()).
+				IsMetadata(isMetadata).
+				Project(s.Project()).
+				Model(m.ID()).
+				Fields(fields)
+
+			if operator.AcOperator.User != nil {
+				ib = ib.User(*operator.AcOperator.User)
+			}
+			if operator.Integration != nil {
+				ib = ib.Integration(*operator.Integration)
+			}
+
+			var mi item.Versioned
+			if param.MetadataID != nil {
+				mi, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+				if err != nil {
+					return nil, err
+				}
+				if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+					return nil, interfaces.ErrMetadataMismatch
+				}
+				ib = ib.MetadataItem(param.MetadataID)
+			}
+
+			it, err := ib.Build()
+			if err != nil {
+				return nil, err
+			}
+
+			if err = i.handleReferenceFields(ctx, *s, it, item.Fields{}); err != nil {
+				return nil, err
+			}
+
+			if err := i.repos.Item.Save(ctx, it); err != nil {
+				return nil, err
+			}
+
+			if mi != nil {
+				mi.Value().SetOriginalItem(it.ID())
+				if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
+					return nil, err
+				}
+			}
+
+			vi, err := i.repos.Item.FindByID(ctx, it.ID(), nil)
+			if err != nil {
+				return nil, err
+			}
+
+			refItems, err := i.getReferencedItems(ctx, fields)
+			if err != nil {
+				return nil, err
+			}
+
+			if isMetadata {
+				return vi, nil
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, s.Project())
+			if err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemCreate,
+				Object:    vi,
+				WebhookObject: item.ItemModelSchema{
+					Item:            vi.Value(),
+					Model:           m,
+					Schema:          s,
+					GroupSchemas:    groupSchemas,
+					ReferencedItems: refItems,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+
 			return vi, nil
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
-		if err != nil {
-			return nil, err
-		}
-
-		if err := i.event(ctx, Event{
-			Project:   prj,
-			Workspace: s.Workspace(),
-			Type:      event.ItemCreate,
-			Object:    vi,
-			WebhookObject: item.ItemModelSchema{
-				Item:            vi.Value(),
-				Model:           m,
-				Schema:          s,
-				GroupSchemas:    groupSchemas,
-				ReferencedItems: refItems,
-			},
-			Operator: operator.Operator(),
-		}); err != nil {
-			return nil, err
-		}
-
-		return vi, nil
-	})
+		})
 }
 
 func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, _ *usecase.Operator) (time.Time, error) {
@@ -315,117 +393,130 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		return nil, interfaces.ErrItemFieldRequired
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
-		itm, err := i.repos.Item.FindByID(ctx, param.ItemID, nil)
-		if err != nil {
-			return nil, err
-		}
-		itv := itm.Value()
-		if !operator.CanUpdate(itv) {
-			return nil, interfaces.ErrOperationDenied
-		}
+	target, err := i.repos.Item.FindByID(ctx, param.ItemID, nil)
+	if err != nil {
+		return nil, err
+	}
+	wid, err := workspaceIDForProject(ctx, i.repos, target.Value().Project())
+	if err != nil {
+		return nil, err
+	}
 
-		m, err := i.repos.Model.FindByID(ctx, itv.Model())
-		if err != nil {
-			return nil, err
-		}
-
-		if param.Version != nil && itm.Version() != *param.Version {
-			return nil, interfaces.ErrItemConflicted
-		}
-
-		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
-		if err != nil {
-			return nil, err
-		}
-
-		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
-
-		fields, err := itemFieldsFromParams(modelSchemaFields, s)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := i.checkUnique(ctx, fields, s, itv.Model(), itv); err != nil {
-			return nil, err
-		}
-
-		oldFields := itv.Fields()
-		itv.UpdateFields(fields)
-
-		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), itv.Fields())
-		if err != nil {
-			return nil, err
-		}
-		itv.UpdateFields(groupFields)
-
-		if operator.AcOperator.User != nil {
-			itv.SetUpdatedByUser(*operator.AcOperator.User)
-		} else if operator.Integration != nil {
-			itv.SetUpdatedByIntegration(*operator.Integration)
-		}
-
-		var mi item.Versioned
-		if param.MetadataID != nil {
-			mi, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+	return Run1(ctx, operator, i.repos,
+		Usecase().
+			WithPermission(i.authz(), rbac.ResourceItem, rbac.ActionUpdate, wid).
+			Transaction(),
+		func(ctx context.Context) (item.Versioned, error) {
+			itm, err := i.repos.Item.FindByID(ctx, param.ItemID, nil)
 			if err != nil {
 				return nil, err
 			}
-			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
-				return nil, interfaces.ErrMetadataMismatch
+			itv := itm.Value()
+			if !operator.CanUpdate(itv) {
+				return nil, interfaces.ErrOperationDenied
 			}
-			itv.SetMetadataItem(*param.MetadataID)
-			if mi.Value().OriginalItem() == nil {
-				mi.Value().SetOriginalItem(itv.ID())
-				if err = i.repos.Item.Save(ctx, mi.Value()); err != nil {
+
+			m, err := i.repos.Model.FindByID(ctx, itv.Model())
+			if err != nil {
+				return nil, err
+			}
+
+			if param.Version != nil && itm.Version() != *param.Version {
+				return nil, interfaces.ErrItemConflicted
+			}
+
+			s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
+			if err != nil {
+				return nil, err
+			}
+
+			modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
+
+			fields, err := itemFieldsFromParams(modelSchemaFields, s)
+			if err != nil {
+				return nil, err
+			}
+
+			if err := i.checkUnique(ctx, fields, s, itv.Model(), itv); err != nil {
+				return nil, err
+			}
+
+			oldFields := itv.Fields()
+			itv.UpdateFields(fields)
+
+			groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), itv.Fields())
+			if err != nil {
+				return nil, err
+			}
+			itv.UpdateFields(groupFields)
+
+			if operator.AcOperator.User != nil {
+				itv.SetUpdatedByUser(*operator.AcOperator.User)
+			} else if operator.Integration != nil {
+				itv.SetUpdatedByIntegration(*operator.Integration)
+			}
+
+			var mi item.Versioned
+			if param.MetadataID != nil {
+				mi, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+				if err != nil {
 					return nil, err
 				}
+				if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+					return nil, interfaces.ErrMetadataMismatch
+				}
+				itv.SetMetadataItem(*param.MetadataID)
+				if mi.Value().OriginalItem() == nil {
+					mi.Value().SetOriginalItem(itv.ID())
+					if err = i.repos.Item.Save(ctx, mi.Value()); err != nil {
+						return nil, err
+					}
+				}
 			}
-		}
 
-		if err := i.repos.Item.Save(ctx, itv); err != nil {
-			return nil, err
-		}
+			if err := i.repos.Item.Save(ctx, itv); err != nil {
+				return nil, err
+			}
 
-		// re-fetch item so the new version is returned
-		itm, err = i.repos.Item.FindByID(ctx, param.ItemID, nil)
-		if err != nil {
-			return nil, err
-		}
+			// re-fetch item so the new version is returned
+			itm, err = i.repos.Item.FindByID(ctx, param.ItemID, nil)
+			if err != nil {
+				return nil, err
+			}
 
-		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
-			return nil, err
-		}
-		refItems, err := i.getReferencedItems(ctx, fields)
-		if err != nil {
-			return nil, err
-		}
+			if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
+				return nil, err
+			}
+			refItems, err := i.getReferencedItems(ctx, fields)
+			if err != nil {
+				return nil, err
+			}
 
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
-		if err != nil {
-			return nil, err
-		}
+			prj, err := i.repos.Project.FindByID(ctx, s.Project())
+			if err != nil {
+				return nil, err
+			}
 
-		if err := i.event(ctx, Event{
-			Project:   prj,
-			Workspace: s.Workspace(),
-			Type:      event.ItemUpdate,
-			Object:    itm,
-			WebhookObject: item.ItemModelSchema{
-				Item:            itv,
-				Model:           m,
-				Schema:          s,
-				GroupSchemas:    groupSchemas,
-				ReferencedItems: refItems,
-				Changes:         item.CompareFields(itv.Fields(), oldFields),
-			},
-			Operator: operator.Operator(),
-		}); err != nil {
-			return nil, err
-		}
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemUpdate,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:            itv,
+					Model:           m,
+					Schema:          s,
+					GroupSchemas:    groupSchemas,
+					ReferencedItems: refItems,
+					Changes:         item.CompareFields(itv.Fields(), oldFields),
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
 
-		return itm, nil
-	})
+			return itm, nil
+		})
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, sp schema.Package, operator *usecase.Operator) error {
@@ -471,6 +562,10 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 
 		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
 		if err != nil {
+			return nil, err
+		}
+
+		if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionUnpublish, prj.Workspace()); err != nil {
 			return nil, err
 		}
 
@@ -538,6 +633,10 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 
 		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
 		if err != nil {
+			return nil, err
+		}
+
+		if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionPublish, prj.Workspace()); err != nil {
 			return nil, err
 		}
 
@@ -985,6 +1084,10 @@ func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Pac
 		}
 
 		iList := vList.Unwrap()
+
+		if err := i.checkPermissions(ctx, rbac.ActionDelete, iList.Projects()); err != nil {
+			return nil, err
+		}
 
 		// check permissions and all items are related to the same model
 		for _, itm := range iList {
