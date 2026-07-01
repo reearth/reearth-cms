@@ -24,7 +24,7 @@ jobs:
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
@@ -55,7 +55,7 @@ jobs:
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
@@ -86,7 +86,7 @@ jobs:
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
@@ -123,7 +123,7 @@ jobs:
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6

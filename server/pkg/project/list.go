@@ -3,6 +3,7 @@ package project
 import (
 	"slices"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -14,6 +15,10 @@ func (l List) IDs() IDList {
 		ids = append(ids, p.ID())
 	}
 	return ids
+}
+
+func (l List) Workspaces() accountdomain.WorkspaceIDList {
+	return util.Map(l, func(p *Project) accountdomain.WorkspaceID { return p.Workspace() })
 }
 
 func (l List) SortByID() List {

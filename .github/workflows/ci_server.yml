@@ -23,7 +23,7 @@ jobs:
             storage.googleapis.com:443
             sum.golang.org:443
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: go setup
         uses: actions/setup-go@v6
         with:
@@ -70,7 +70,7 @@ jobs:
             release-assets.githubusercontent.com:443
             sum.golang.org:443
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: go setup
         uses: actions/setup-go@v6
         with:
@@ -106,7 +106,7 @@ jobs:
             storage.googleapis.com:443
             sum.golang.org:443
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: go setup
         uses: actions/setup-go@v6
         with:
