@@ -20,7 +20,6 @@ func TestField_Validate(t *testing.T) {
         {name: "required without value", field: ..., value: nil, wantErr: true},
     }
     for _, tt := range tests {
-        tt := tt // capture — required for parallel subtests
         t.Run(tt.name, func(t *testing.T) {
             t.Parallel()
             err := tt.field.Validate(tt.value)
@@ -36,7 +35,6 @@ func TestField_Validate(t *testing.T) {
 
 Rules:
 - `t.Parallel()` on the parent **and** each subtest.
-- Always `tt := tt` before the subtest closure.
 - Build **fresh** test data inside each subtest — no shared mutable state across cases (race detector runs in CI: `go test -race`).
 - Use `testify`: `assert` for soft checks, `require` when later lines depend on the result.
 
