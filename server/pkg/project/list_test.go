@@ -3,6 +3,7 @@ package project
 import (
 	"testing"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,6 +54,18 @@ func TestList_IDs(t *testing.T) {
 			assert.Equal(t, tt.expected, got)
 		})
 	}
+}
+
+func TestList_Workspaces(t *testing.T) {
+	w1 := accountdomain.NewWorkspaceID()
+	w2 := accountdomain.NewWorkspaceID()
+
+	assert.Equal(t, accountdomain.WorkspaceIDList{w1, w2}, List{
+		&Project{workspaceID: w1},
+		&Project{workspaceID: w2},
+	}.Workspaces())
+	assert.Equal(t, accountdomain.WorkspaceIDList{}, List{}.Workspaces())
+	assert.Equal(t, accountdomain.WorkspaceIDList(nil), List(nil).Workspaces())
 }
 
 func TestList_SortByID(t *testing.T) {

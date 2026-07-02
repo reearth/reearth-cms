@@ -8,4 +8,5 @@ type Container struct {
 	TaskRunner    TaskRunner
 	Accounts      Account
 	JobPubSub     JobPubSub
+	Authorization Authorization
 }
