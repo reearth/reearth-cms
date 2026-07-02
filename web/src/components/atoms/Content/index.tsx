@@ -1,3 +1,5 @@
-import { Content } from "antd/lib/layout/layout";
+import { Layout } from "antd";
+
+const Content = Layout.Content;
 
 export default Content;

@@ -11,6 +11,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -24,8 +25,6 @@ type Props = {
 };
 
 type FormValues = { search: string } & Record<string, Role>;
-
-const { Option } = Select;
 
 const MemberAddModal: React.FC<Props> = ({
   open,
@@ -173,7 +172,8 @@ const MemberAddModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           loading={addLoading}
-          disabled={selectedUsers.length === 0}>
+          disabled={selectedUsers.length === 0}
+          data-testid={DATA_TEST_ID.Member__MemberAddModal__AddToWorkspaceButton}>
           {t("Add to workspace")}
         </Button>,
       ]}>
@@ -214,12 +214,16 @@ const MemberAddModal: React.FC<Props> = ({
                 </UserInfo>
                 <Actions>
                   <FormItemRole name={[user.id]}>
-                    <Select defaultValue={"READER"} popupMatchSelectWidth={105}>
-                      <Option value="OWNER">{t("Owner")}</Option>
-                      <Option value="MAINTAINER">{t("Maintainer")}</Option>
-                      <Option value="WRITER">{t("Writer")}</Option>
-                      <Option value="READER">{t("Reader")}</Option>
-                    </Select>
+                    <Select
+                      defaultValue={"READER"}
+                      popupMatchSelectWidth={105}
+                      options={[
+                        { value: "OWNER", label: t("Owner") },
+                        { value: "MAINTAINER", label: t("Maintainer") },
+                        { value: "WRITER", label: t("Writer") },
+                        { value: "READER", label: t("Reader") },
+                      ]}
+                    />
                   </FormItemRole>
                   <Button
                     type="text"

@@ -1,0 +1,12 @@
+version: 3
+
+analyze:
+  modules:
+    - name: server
+      type: gomod
+      path: server/
+    - name: web
+      type: npm
+      path: web/
+      options:
+        production-only: true

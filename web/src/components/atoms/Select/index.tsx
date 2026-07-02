@@ -1,6 +1,7 @@
-import { Select } from "antd";
+import { Select, SelectProps } from "antd";
 
-export type { SelectProps } from "antd";
-export type { DefaultOptionType } from "antd/lib/select";
+type DefaultOptionType = NonNullable<SelectProps["options"]>[number];
+
+export type { SelectProps, DefaultOptionType };
 
 export default Select;

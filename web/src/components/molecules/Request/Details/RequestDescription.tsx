@@ -13,8 +13,6 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestItemForm from "./ItemForm";
 
-const { Panel } = Collapse;
-
 type Props = {
   currentRequest: Request;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
@@ -66,17 +64,24 @@ export const RequestDescription: React.FC<Props> = ({
             {currentRequest.items
               .filter(item => item.schema)
               .map(item => (
-                <Collapse key={item.id}>
-                  <StyledPanel header={headerGet(item)} key={1}>
-                    <RequestItemForm
-                      schema={item.schema}
-                      initialFormValues={item.initialValues}
-                      referencedItems={item.referencedItems}
-                      onGetAsset={onGetAsset}
-                      onGroupGet={onGroupGet}
-                    />
-                  </StyledPanel>
-                </Collapse>
+                <StyledCollapse
+                  key={item.id}
+                  items={[
+                    {
+                      key: 1,
+                      label: headerGet(item),
+                      children: (
+                        <RequestItemForm
+                          schema={item.schema}
+                          initialFormValues={item.initialValues}
+                          referencedItems={item.referencedItems}
+                          onGetAsset={onGetAsset}
+                          onGroupGet={onGroupGet}
+                        />
+                      ),
+                    },
+                  ]}
+                />
               ))}
           </RequestItemsWrapper>
         </>
@@ -145,14 +150,14 @@ const RequestItemsWrapper = styled.div`
   }
 `;
 
-const StyledPanel = styled(Panel)`
-  > .ant-collapse-header {
+const StyledCollapse = styled(Collapse)`
+  .ant-collapse-header {
     align-items: center !important;
-    > .ant-collapse-header-text {
+    .ant-collapse-header-text {
       overflow: hidden;
     }
   }
-  > .ant-collapse-content {
+  .ant-collapse-content {
     max-height: 640px;
     overflow: auto;
   }

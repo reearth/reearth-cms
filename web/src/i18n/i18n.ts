@@ -2,8 +2,7 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import z from "zod";
-import enLocale from "zod/v4/locales/en";
-import jaLocale from "zod/v4/locales/ja";
+import { en as enLocale, ja as jaLocale } from "zod/v4/locales";
 
 import en from "./translations/en";
 import ja from "./translations/ja";

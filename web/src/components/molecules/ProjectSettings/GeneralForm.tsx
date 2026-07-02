@@ -93,7 +93,7 @@ const GeneralForm: React.FC<Props> = ({
       initialValues={project}
       onFinish={handleSubmit}
       onValuesChange={handleValuesChange}
-      validateTrigger="">
+      validateTrigger={[]}>
       <Form.Item
         name="name"
         label={t("Name")}

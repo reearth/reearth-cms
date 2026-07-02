@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
@@ -117,11 +117,11 @@ export default () => {
       });
       const workspace = result.data?.addUsersToWorkspace?.workspace;
       if (result.error || !workspace) {
-        Notification.error({ message: t("Failed to add one or more members.") });
+        Notification.error({ title: t("Failed to add one or more members.") });
         return;
       }
       setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
-      Notification.success({ message: t("Successfully added member(s) to the workspace!") });
+      Notification.success({ title: t("Successfully added member(s) to the workspace!") });
     },
     [addUsersToWorkspaceMutation, setWorkspace, t, workspaceId],
   );
@@ -147,11 +147,11 @@ export default () => {
       });
       const workspace = result.data?.updateUserOfWorkspace?.workspace;
       if (result.error || !workspace) {
-        Notification.error({ message: t("Failed to update member's role.") });
+        Notification.error({ title: t("Failed to update member's role.") });
         return;
       }
       setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
-      Notification.success({ message: t("Successfully updated member's role!") });
+      Notification.success({ title: t("Successfully updated member's role!") });
     },
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
@@ -168,12 +168,12 @@ export default () => {
       });
       if (result.error) {
         Notification.error({
-          message: t("Failed to remove member(s) from the workspace."),
+          title: t("Failed to remove member(s) from the workspace."),
         });
         throw new Error();
       }
       Notification.success({
-        message: t("Successfully removed member(s) from the workspace!"),
+        title: t("Successfully removed member(s) from the workspace!"),
       });
     },
     [workspaceId, removeMultipleMembersFromWorkspaceMutation, t],
@@ -187,11 +187,11 @@ export default () => {
       });
       if (result.error) {
         Notification.error({
-          message: t("Failed to leave the workspace."),
+          title: t("Failed to leave the workspace."),
         });
       } else {
         Notification.success({
-          message: t("Successfully left the workspace!"),
+          title: t("Successfully left the workspace!"),
         });
         refetchMe();
         navigate(`/workspace/${me.myWorkspace}`);

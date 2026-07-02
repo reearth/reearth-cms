@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client/react";
 import { useCallback, useState, useMemo, useEffect, ChangeEvent } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
@@ -39,10 +39,10 @@ export default () => {
         },
       });
       if (Project.error || !Project.data?.updateProject) {
-        Notification.error({ message: t("Failed to update Project.") });
+        Notification.error({ title: t("Failed to update Project.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated Project!") });
+      Notification.success({ title: t("Successfully updated Project!") });
     },
     [updateProjectMutation, t],
   );
