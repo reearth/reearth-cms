@@ -213,6 +213,9 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 }
 
 func (r *Item) SaveDraft(ctx context.Context, item *item.Item) error {
+	if !r.f.CanWrite(item.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, id := mongodoc.NewItem(item)
 	return r.client.SaveOne(ctx, id, doc, nil)
 }

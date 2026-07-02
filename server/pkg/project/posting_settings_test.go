@@ -11,7 +11,7 @@ import (
 // mustNewPS is a test helper that calls NewPostingSettings and fails the test on error.
 func mustNewPS(t *testing.T, allowedOrigins []string) *PostingSettings {
 	t.Helper()
-	ps, err := NewPostingSettings(true, allowedOrigins)
+	ps, err := NewPostingSettings(allowedOrigins)
 	require.NoError(t, err)
 	return ps
 }
@@ -65,54 +65,31 @@ func TestNewPostingSettings(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		enabled        bool
 		allowedOrigins []string
 		wantErr        bool
 		wantOrigins    []string
 	}{
 		{
-			name:        "enabled=true, nil origins normalises to empty slice",
-			enabled:     true,
+			name:        "nil origins normalises to empty slice",
 			wantOrigins: []string{},
 		},
 		{
-			name:        "enabled=false, nil origins normalises to empty slice",
-			enabled:     false,
-			wantOrigins: []string{},
-		},
-		{
-			name:           "enabled=true, empty allowedOrigins stays empty",
-			enabled:        true,
+			name:           "empty allowedOrigins stays empty",
 			allowedOrigins: []string{},
 			wantOrigins:    []string{},
 		},
 		{
-			name:           "enabled=false, empty allowedOrigins stays empty",
-			enabled:        false,
-			allowedOrigins: []string{},
-			wantOrigins:    []string{},
-		},
-		{
-			name:           "enabled=true, valid origins are preserved",
-			enabled:        true,
-			allowedOrigins: []string{"https://a.com", "https://b.com"},
-			wantOrigins:    []string{"https://a.com", "https://b.com"},
-		},
-		{
-			name:           "enabled=false, valid origins are preserved",
-			enabled:        false,
+			name:           "valid origins are preserved",
 			allowedOrigins: []string{"https://a.com", "https://b.com"},
 			wantOrigins:    []string{"https://a.com", "https://b.com"},
 		},
 		{
 			name:           "invalid origin returns ErrInvalidOrigin",
-			enabled:        true,
 			allowedOrigins: []string{"not-a-url"},
 			wantErr:        true,
 		},
 		{
 			name:           "wildcard origin returns ErrInvalidOrigin",
-			enabled:        true,
 			allowedOrigins: []string{"*"},
 			wantErr:        true,
 		},
@@ -122,38 +99,15 @@ func TestNewPostingSettings(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ps, err := NewPostingSettings(tt.enabled, tt.allowedOrigins)
+			ps, err := NewPostingSettings(tt.allowedOrigins)
 			if tt.wantErr {
 				assert.ErrorIs(t, err, ErrInvalidOrigin)
 				assert.Nil(t, ps)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, ps)
-				assert.Equal(t, tt.enabled, ps.Enabled())
 				assert.Equal(t, tt.wantOrigins, ps.AllowedOrigins())
 			}
-		})
-	}
-}
-
-func TestPostingSettings_Enabled(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name string
-		p    *PostingSettings
-		want bool
-	}{
-		{name: "nil receiver defaults to true", p: nil, want: true},
-		{name: "enabled=true returns true", p: &PostingSettings{enabled: true}, want: true},
-		{name: "enabled=false returns false", p: &PostingSettings{enabled: false}, want: false},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.p.Enabled())
 		})
 	}
 }
@@ -207,11 +161,6 @@ func TestPostingSettings_Clone(t *testing.T) {
 			wantOrigins: []string{},
 		},
 		{
-			name:        "clone copies enabled flag",
-			p:           &PostingSettings{enabled: false, allowedOrigins: []string{}},
-			wantOrigins: []string{},
-		},
-		{
 			name:        "clone copies allowedOrigins as distinct slice",
 			p:           mustNewPS(t, []string{"https://a.com"}),
 			wantOrigins: []string{"https://a.com"},
@@ -233,7 +182,6 @@ func TestPostingSettings_Clone(t *testing.T) {
 			}
 			require.NotNil(t, c)
 			assert.NotSame(t, tt.p, c)
-			assert.Equal(t, tt.p.Enabled(), c.Enabled())
 			assert.Equal(t, tt.wantOrigins, c.AllowedOrigins())
 			if tt.mutateFn != nil {
 				tt.mutateFn(c)
