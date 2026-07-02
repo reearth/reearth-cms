@@ -111,10 +111,10 @@ const IntegrationSettingsModal: React.FC<Props> = ({
             },
           ]}>
           <StyledSelect placeholder={t("Select role")} onSelect={handleSelect}>
-            <Option value="READER">{t("Reader")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
-            <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="OWNER">{t("Owner")}</Option>
+            <Option value="READER">{t("READER")}</Option>
+            <Option value="WRITER">{t("WRITER")}</Option>
+            <Option value="MAINTAINER">{t("MAINTAINER")}</Option>
+            <Option value="OWNER">{t("OWNER")}</Option>
           </StyledSelect>
         </Form.Item>
       </StyledForm>
