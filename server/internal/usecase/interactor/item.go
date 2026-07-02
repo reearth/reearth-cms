@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -268,13 +269,17 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		refItems, err := i.getReferencedItems(ctx, fields)
+		if isMetadata {
+			return vi, nil
+		}
+
+		sp, err := i.schemaPackage(ctx, m, s)
 		if err != nil {
 			return nil, err
 		}
-
-		if isMetadata {
-			return vi, nil
+		refItems, err := i.getReferencedItems(ctx, vi.Value(), *sp)
+		if err != nil {
+			return nil, err
 		}
 
 		prj, err := i.repos.Project.FindByID(ctx, s.Project())
@@ -396,7 +401,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
-		refItems, err := i.getReferencedItems(ctx, fields)
+
+		sp, err := i.schemaPackage(ctx, m, s)
+		if err != nil {
+			return nil, err
+		}
+		refItems, err := i.getReferencedItems(ctx, itm.Value(), *sp)
 		if err != nil {
 			return nil, err
 		}
@@ -489,7 +499,11 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		}
 
 		// resolve all referenced items across the whole batch in one query
-		refItemsByID, err := i.batchReferencedItems(ctx, items)
+		sp, err := i.schemaPackage(ctx, m, sch)
+		if err != nil {
+			return nil, err
+		}
+		refItemsByID, err := i.batchReferencedItems(ctx, items, *sp)
 		if err != nil {
 			return nil, err
 		}
@@ -574,7 +588,11 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 		}
 
 		// resolve all referenced items across the whole batch in one query
-		refItemsByID, err := i.batchReferencedItems(ctx, updated)
+		sp, err := i.schemaPackage(ctx, m, sch)
+		if err != nil {
+			return nil, err
+		}
+		refItemsByID, err := i.batchReferencedItems(ctx, updated, *sp)
 		if err != nil {
 			return nil, err
 		}
@@ -844,56 +862,64 @@ func (i Item) events(ctx context.Context, e []Event) error {
 	return err
 }
 
-func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]item.Versioned, error) {
-	return i.repos.Item.FindByIDs(ctx, referencedItemIDs(fields), nil)
+func (i Item) getReferencedItems(ctx context.Context, itm *item.Item, sp schema.Package) (item.VersionedList, error) {
+	return i.repos.Item.FindByIDs(ctx, itm.RefItemsIDs(sp), nil)
 }
 
-// referencedItemIDs collects the unique referenced item ids from the given fields.
-func referencedItemIDs(fields []*item.Field) id.ItemIDList {
-	var ids id.ItemIDList
-	for _, f := range fields {
-		if f.Type() != value.TypeReference {
-			continue
-		}
-		for _, v := range f.Value().Values() {
-			iid, ok := v.Value().(id.ItemID)
-			if !ok {
-				continue
-			}
-			ids = ids.AddUniq(iid)
+// schemaPackage builds the full schema package for the given model and schema,
+// including metadata, group, and referenced schemas
+func (i Item) schemaPackage(ctx context.Context, m *model.Model, s *schema.Schema) (*schema.Package, error) {
+	var meta *schema.Schema
+	if m.Metadata() != nil {
+		var err error
+		meta, err = i.repos.Schema.FindByID(ctx, *m.Metadata())
+		if err != nil {
+			return nil, err
 		}
 	}
-	return ids
+
+	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+	if err != nil {
+		return nil, err
+	}
+
+	sl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+	if err != nil {
+		return nil, err
+	}
+
+	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
+	})
+	rs := lo.Map(s.ReferencedSchemas(), func(sid schema.ID, _ int) *schema.Schema {
+		return sl.Schema(&sid)
+	})
+
+	return schema.NewPackage(s, meta, gsm, rs), nil
 }
 
 // batchReferencedItems resolves the referenced items for every item in the list
 // using a single FindByIDs call, and returns a map keyed by the owning item id
 // so each item only gets the items it actually references.
-func (i Item) batchReferencedItems(ctx context.Context, items item.VersionedList) (map[id.ItemID]item.VersionedList, error) {
-	var allIDs id.ItemIDList
-	for _, itm := range items {
-		allIDs = allIDs.AddUniq(referencedItemIDs(itm.Value().Fields())...)
-	}
+func (i Item) batchReferencedItems(ctx context.Context, items item.VersionedList, sp schema.Package) (map[id.ItemID]item.VersionedList, error) {
+	list := items.Unwrap()
 
-	refs, err := i.repos.Item.FindByIDs(ctx, allIDs, nil)
+	refs, err := i.repos.Item.FindByIDs(ctx, list.RefItemsIDs(sp), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	byID := make(map[id.ItemID]item.Versioned, len(refs))
-	for _, r := range refs {
-		byID[r.Value().ID()] = r
-	}
+	byID := refs.ToMap()
 
-	result := make(map[id.ItemID]item.VersionedList, len(items))
-	for _, itm := range items {
-		var list item.VersionedList
-		for _, rid := range referencedItemIDs(itm.Value().Fields()) {
+	result := make(map[id.ItemID]item.VersionedList, len(list))
+	for _, itm := range list {
+		var refList item.VersionedList
+		for _, rid := range itm.RefItemsIDs(sp) {
 			if r, ok := byID[rid]; ok {
-				list = append(list, r)
+				refList = append(refList, r)
 			}
 		}
-		result[itm.Value().ID()] = list
+		result[itm.ID()] = refList
 	}
 	return result, nil
 }
