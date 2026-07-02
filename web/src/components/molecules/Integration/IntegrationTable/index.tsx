@@ -73,7 +73,7 @@ const IntegrationTable: React.FC<Props> = ({
         minWidth: 100,
       },
       {
-        title: t("Creator"),
+        title: t("Created By"),
         dataIndex: ["createdBy", "name"],
         key: "creator",
         width: 250,
@@ -189,7 +189,7 @@ const IntegrationTable: React.FC<Props> = ({
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
-            <Title>{t("No Integration yet")}</Title>
+            <Title>{t("No integration yet")}</Title>
             <Action>
               {t("Create a new")}
               <ConnectButton />

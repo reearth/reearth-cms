@@ -509,9 +509,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               <Form.Item
                 name="unique"
                 valuePropName="checked"
-                extra={t(
-                  "Ensures that a multiple entries can't have the same value for this field",
-                )}>
+                extra={t("Ensures that multiple entries can't have the same value for this field")}>
                 <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
