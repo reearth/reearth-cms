@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/event"
-	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -273,7 +272,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return vi, nil
 		}
 
-		sp, err := i.schemaPackage(ctx, m, s)
+		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
@@ -402,7 +401,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		sp, err := i.schemaPackage(ctx, m, s)
+		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
@@ -499,7 +498,7 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		}
 
 		// resolve all referenced items across the whole batch in one query
-		sp, err := i.schemaPackage(ctx, m, sch)
+		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
@@ -588,7 +587,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 		}
 
 		// resolve all referenced items across the whole batch in one query
-		sp, err := i.schemaPackage(ctx, m, sch)
+		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
@@ -864,38 +863,6 @@ func (i Item) events(ctx context.Context, e []Event) error {
 
 func (i Item) getReferencedItems(ctx context.Context, itm *item.Item, sp schema.Package) (item.VersionedList, error) {
 	return i.repos.Item.FindByIDs(ctx, itm.RefItemsIDs(sp), nil)
-}
-
-// schemaPackage builds the full schema package for the given model and schema,
-// including metadata, group, and referenced schemas
-func (i Item) schemaPackage(ctx context.Context, m *model.Model, s *schema.Schema) (*schema.Package, error) {
-	var meta *schema.Schema
-	if m.Metadata() != nil {
-		var err error
-		meta, err = i.repos.Schema.FindByID(ctx, *m.Metadata())
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
-	if err != nil {
-		return nil, err
-	}
-
-	sl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
-	if err != nil {
-		return nil, err
-	}
-
-	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
-	})
-	rs := lo.Map(s.ReferencedSchemas(), func(sid schema.ID, _ int) *schema.Schema {
-		return sl.Schema(&sid)
-	})
-
-	return schema.NewPackage(s, meta, gsm, rs), nil
 }
 
 // batchReferencedItems resolves the referenced items for every item in the list
