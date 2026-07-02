@@ -101,6 +101,6 @@ func TestRateLimitMiddleware(t *testing.T) {
 		c, rec := newReq("3.3.3.3")
 		require.NoError(t, h(c))
 		assert.Equal(t, http.StatusTooManyRequests, rec.Code)
-		assert.Equal(t, "100", rec.Header().Get("Retry-After"))
+		assert.Equal(t, "500", rec.Header().Get("Retry-After"))
 	})
 }

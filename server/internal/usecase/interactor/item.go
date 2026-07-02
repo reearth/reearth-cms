@@ -178,6 +178,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Anonymous {
 		return nil, interfaces.ErrInvalidOperator
 	}
+	if operator.Anonymous && operator.AnonymousWorkspace == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
@@ -193,7 +196,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if !operator.Anonymous && !operator.IsWritableWorkspace(s.Workspace()) {
+		if operator.Anonymous {
+			// Defense-in-depth: an anonymous operator must only write to the workspace
+			// that the public API project belongs to. The adapter has already validated
+			// project/model/origin, but we re-verify the workspace here so a logic error
+			// upstream cannot let a crafted operator write to an arbitrary workspace.
+			if operator.AnonymousWorkspace == nil || *operator.AnonymousWorkspace != s.Workspace() {
+				return nil, interfaces.ErrOperationDenied
+			}
+		} else if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -255,7 +266,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if operator.Anonymous {
+		if param.SaveAsDraft {
 			if err := i.repos.Item.SaveDraft(ctx, it); err != nil {
 				return nil, err
 			}
@@ -265,7 +276,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		if mi != nil {
 			mi.Value().SetOriginalItem(it.ID())
-			if operator.Anonymous {
+			if param.SaveAsDraft {
 				if err := i.repos.Item.SaveDraft(ctx, mi.Value()); err != nil {
 					return nil, err
 				}

@@ -78,10 +78,10 @@ func TestAccessibility_PostingEnabled(t *testing.T) {
 		a    *Accessibility
 		want bool
 	}{
-		{name: "nil receiver defaults to true", a: nil, want: true},
-		{name: "nil posting defaults to true", a: &Accessibility{}, want: true},
-		{name: "posting disabled", a: &Accessibility{posting: &PostingSettings{enabled: false}}, want: false},
-		{name: "posting enabled", a: &Accessibility{posting: &PostingSettings{enabled: true}}, want: true},
+		{name: "nil receiver defaults to false", a: nil, want: false},
+		{name: "nil posting defaults to false", a: &Accessibility{}, want: false},
+		{name: "posting disabled", a: &Accessibility{posting: &PostingSettings{allowedOrigins: []string{}}}, want: false},
+		{name: "posting enabled", a: &Accessibility{posting: &PostingSettings{allowedOrigins: []string{"https://example.com"}}}, want: true},
 	}
 
 	for _, tt := range tests {

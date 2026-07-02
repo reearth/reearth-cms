@@ -11,11 +11,10 @@ var ErrNoOriginsConfigured = fmt.Errorf("no origins are configured for posting o
 var ErrOriginNotAllowed = fmt.Errorf("origin is not allowed for posting on this project")
 
 type PostingSettings struct {
-	enabled        bool
 	allowedOrigins []string
 }
 
-func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings, error) {
+func NewPostingSettings(allowedOrigins []string) (*PostingSettings, error) {
 	var origins []string
 	if allowedOrigins == nil {
 		origins = []string{}
@@ -26,14 +25,7 @@ func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings
 	if err := ValidateOrigins(origins); err != nil {
 		return nil, err
 	}
-	return &PostingSettings{enabled: enabled, allowedOrigins: origins}, nil
-}
-
-func (p *PostingSettings) Enabled() bool {
-	if p == nil {
-		return true
-	}
-	return p.enabled
+	return &PostingSettings{allowedOrigins: origins}, nil
 }
 
 func (p *PostingSettings) AllowedOrigins() []string {
@@ -51,7 +43,7 @@ func (p *PostingSettings) Clone() *PostingSettings {
 	}
 	origins := make([]string, len(p.allowedOrigins))
 	copy(origins, p.allowedOrigins)
-	return &PostingSettings{enabled: p.enabled, allowedOrigins: origins}
+	return &PostingSettings{allowedOrigins: origins}
 }
 
 // CheckOrigin validates the request origin against the allowedOrigins list.
@@ -87,7 +79,7 @@ func validateOrigin(origin string) error {
 		strings.Contains(origin, "*") ||
 		(u.Scheme != "http" && u.Scheme != "https") ||
 		u.Host == "" ||
-		(u.Path != "" && u.Path != "/") ||
+		u.Path != "" ||
 		u.RawQuery != "" ||
 		u.Fragment != "" {
 		return fmt.Errorf("%w: %q", ErrInvalidOrigin, origin)

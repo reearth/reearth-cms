@@ -195,14 +195,9 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 	return params
 }
 
-// PostItem creates a Draft item from the validated payload.
+// PostItem creates a Draft item from the pre-validated WPM context and body.
 // Posting access must be verified by the caller (ValidatePostingAccess) before calling this.
-func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string, body map[string]any) PostItemResult {
-	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
-	if err != nil {
-		return PostItemResult{Err: err}
-	}
-
+func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[string]any) PostItemResult {
 	if wpm.SchemaPackage == nil {
 		return PostItemResult{Err: rerror.ErrNotFound}
 	}
@@ -214,10 +209,13 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 	}
 
 	op := getOperator(ctx)
+	wsID := wpm.Project.Workspace()
+	op.AnonymousWorkspace = &wsID
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: wpm.SchemaPackage.Schema().ID(),
-		ModelID:  wpm.Model.ID(),
-		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
+		SchemaID:    wpm.SchemaPackage.Schema().ID(),
+		ModelID:     wpm.Model.ID(),
+		Fields:      fieldsFromBody(body, wpm.SchemaPackage.Schema()),
+		SaveAsDraft: true,
 	}, op)
 	if err != nil {
 		return PostItemResult{Err: err}
@@ -233,22 +231,22 @@ func (c *Controller) PostItem(ctx context.Context, wsAlias, pAlias, mKey string,
 }
 
 // ValidatePostingAccess checks that posting is enabled for the project and
-// model to post, and that the request origin is allowed by the project's
-// posting settings. Requests without an Origin header come from non-browser
-// clients and skip the origin check entirely.
-func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) error {
+// model, and that the request origin is allowed. It returns the loaded WPM
+// context so the caller can pass it directly to PostItem, avoiding a second
+// database round-trip. Requests without an Origin header skip the origin check.
+func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) (*WPMContext, error) {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !wpm.Project.Accessibility().PostingEnabled() {
-		return ErrProjectPostingDisabled
+		return nil, ErrProjectPostingDisabled
 	}
 	if !wpm.Model.PostingEnabled() {
-		return ErrModelPostingDisabled
+		return nil, ErrModelPostingDisabled
 	}
 	if !isBrowserRequest(origin) {
-		return nil
+		return wpm, nil
 	}
-	return wpm.Project.Accessibility().Posting().CheckOrigin(origin)
+	return wpm, wpm.Project.Accessibility().Posting().CheckOrigin(origin)
 }
