@@ -1184,6 +1184,8 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+
 	t.Run("model posting disabled returns 403", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
@@ -1191,7 +1193,6 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			JSON().Object().Value("error").IsEqual("model_posting_disabled")
 	})
 
-	updateProjectPosting(e, pId, []string{"https://allowed.com"})
 	updateModelPostingEnabled(e, mId, true)
 
 	t.Run("posting enabled returns 202 with item id", func(t *testing.T) {
@@ -1515,7 +1516,7 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 			WithHeader("Origin", "https://example.com").
 			Expect().
 			Status(http.StatusForbidden).
-			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+			JSON().Object().Value("error").IsEqual("posting_disabled")
 	})
 
 	t.Run("absent origin passes through (non-browser client)", func(t *testing.T) {
