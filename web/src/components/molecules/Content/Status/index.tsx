@@ -16,7 +16,7 @@ const Status: React.FC<Props> = ({ status }) => {
   const itemStatusTitle = {
     DRAFT: t("DRAFT"),
     PUBLIC: t("Published"),
-    REVIEW: t("Review"),
+    REVIEW: t("REVIEW"),
   };
 
   const itemStatus = status.split("_") as StateType[];

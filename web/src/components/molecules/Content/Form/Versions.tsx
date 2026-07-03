@@ -25,8 +25,8 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
   const statusTitle: Record<StateType, string> = useMemo(
     () => ({
       DRAFT: t("DRAFT"),
-      PUBLIC: t("Public").toUpperCase(),
-      REVIEW: t("Review").toUpperCase(),
+      PUBLIC: t("PUBLIC"),
+      REVIEW: t("REVIEW"),
     }),
     [t],
   );
