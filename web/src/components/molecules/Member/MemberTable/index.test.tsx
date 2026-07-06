@@ -150,7 +150,7 @@ describe("Member table", () => {
       />,
     );
 
-    const { user, role } = workspaceUserMembers[0];
+    const { user } = workspaceUserMembers[0];
 
     expect(screen.getByText("Name")).toBeInTheDocument();
     expect(screen.getByText("Email")).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe("Member table", () => {
     expect(screen.getByText("Action")).toBeInTheDocument();
     expect(screen.getByText(user.name)).toBeVisible();
     expect(screen.getByText(user.email)).toBeVisible();
-    expect(screen.getByText(role)).toBeVisible();
+    expect(screen.getByText("Owner")).toBeVisible();
   });
 
   test("Own checkbox, change role button, and leave button are disabled successfully", async () => {

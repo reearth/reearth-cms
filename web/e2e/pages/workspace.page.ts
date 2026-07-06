@@ -25,7 +25,7 @@ export class WorkspacePage extends BasePage {
     return this.getByLabel("Workspace Name");
   }
   get saveChangesButton(): Locator {
-    return this.getByRole("button", { name: "Save changes" });
+    return this.getByRole("button", { name: "Save Changes" });
   }
   get removeWorkspaceButton(): Locator {
     return this.getByRole("button", { name: "Remove Workspace" });

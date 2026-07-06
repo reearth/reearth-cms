@@ -154,7 +154,7 @@ const WebhookForm: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="url"
-              label={t("Url")}
+              label={t("URL")}
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {

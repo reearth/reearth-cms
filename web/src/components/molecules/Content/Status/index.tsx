@@ -14,9 +14,9 @@ type Props = {
 const Status: React.FC<Props> = ({ status }) => {
   const t = useT();
   const itemStatusTitle = {
-    DRAFT: t("Draft"),
+    DRAFT: t("DRAFT"),
     PUBLIC: t("Published"),
-    REVIEW: t("Review"),
+    REVIEW: t("REVIEW"),
   };
 
   const itemStatus = status.split("_") as StateType[];

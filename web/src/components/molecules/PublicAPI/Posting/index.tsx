@@ -126,7 +126,7 @@ const PostingEditor: React.FC<EditorProps> = ({
             disabled={isSaveDisabled}
             onClick={handleSave}
             loading={updateLoading}>
-            {t("Save changes")}
+            {t("Save Changes")}
           </Button>
         </Tooltip>
       }>
