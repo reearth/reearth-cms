@@ -287,14 +287,13 @@ func (r *Item) Archive(_ context.Context, itemID id.ItemID, projectID id.Project
 		return r.err
 	}
 
+	if !r.f.CanWrite(projectID) {
+		return repo.ErrOperationDenied
+	}
+
 	iv, _ := r.data.Load(itemID, version.Latest.OrVersion())
 	if iv == nil {
 		return rerror.ErrNotFound
-	}
-	i := iv.Value()
-
-	if !r.f.CanWrite(i.Project()) {
-		return repo.ErrOperationDenied
 	}
 
 	r.data.Archive(itemID, archived)
@@ -327,16 +326,19 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
-		_, searchMatched := lo.Find(itv.Fields(), func(f *item.Field) bool {
-			return lo.SomeBy(f.Value().Values(), func(v *value.Value) bool {
-				if s, ok := v.ValueString(); ok {
-					if strings.Contains(s, qq) {
-						return true
+		searchMatched := qq == ""
+		if !searchMatched {
+			_, searchMatched = lo.Find(itv.Fields(), func(f *item.Field) bool {
+				return lo.SomeBy(f.Value().Values(), func(v *value.Value) bool {
+					if s, ok := v.ValueString(); ok {
+						if strings.Contains(s, qq) {
+							return true
+						}
 					}
-				}
-				return false
+					return false
+				})
 			})
-		})
+		}
 		schemaMatched := q.Schema() == nil || itv.Schema() == *q.Schema()
 		modelMatched := itv.Model() == q.Model()
 		if searchMatched && schemaMatched && modelMatched && r.f.CanRead(itv.Project()) {
