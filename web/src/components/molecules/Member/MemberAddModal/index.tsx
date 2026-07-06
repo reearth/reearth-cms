@@ -215,10 +215,10 @@ const MemberAddModal: React.FC<Props> = ({
                 <Actions>
                   <FormItemRole name={[user.id]}>
                     <Select defaultValue={"READER"} popupMatchSelectWidth={105}>
-                      <Option value="OWNER">{t("Owner")}</Option>
-                      <Option value="MAINTAINER">{t("Maintainer")}</Option>
-                      <Option value="WRITER">{t("Writer")}</Option>
-                      <Option value="READER">{t("Reader")}</Option>
+                      <Option value="OWNER">{t("OWNER")}</Option>
+                      <Option value="MAINTAINER">{t("MAINTAINER")}</Option>
+                      <Option value="WRITER">{t("WRITER")}</Option>
+                      <Option value="READER">{t("READER")}</Option>
                     </Select>
                   </FormItemRole>
                   <Button

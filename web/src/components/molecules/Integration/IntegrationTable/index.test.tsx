@@ -156,9 +156,9 @@ describe("Integration table", () => {
 
     expect(screen.getByText("Name")).toBeInTheDocument();
     expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Creator")).toBeInTheDocument();
+    expect(screen.getByText("Created By")).toBeInTheDocument();
     expect(screen.getByText(name)).toBeVisible();
-    expect(screen.getByText(role)).toBeVisible();
+    expect(screen.getByText("Reader")).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
   });
 

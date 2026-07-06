@@ -31,7 +31,7 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, proj
     <Container>
       <StyledSearch
         onSearch={onProjectSearch}
-        placeholder={t("search projects")}
+        placeholder={t("Search projects")}
         allowClear
         type="text"
       />

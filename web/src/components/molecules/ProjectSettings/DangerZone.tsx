@@ -55,7 +55,7 @@ const DangerZone: React.FC<Props> = ({
   const publicScopeList = useMemo(
     () => [
       { name: t("Private"), value: "PRIVATE" },
-      { name: t("Public"), value: "PUBLIC" },
+      { name: t("PUBLIC"), value: "PUBLIC" },
     ],
     [t],
   );

@@ -93,7 +93,7 @@ const PublishItemModal: React.FC<Props> = ({
         {unpublishedItems?.length !== 0 && (
           <WarningText
             text={t(
-              "We found some referenced items that not been published yet. Please select to publish the items.",
+              "We found some referenced items that have not been published yet. Please select to publish the items.",
             )}
           />
         )}

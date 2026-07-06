@@ -27,6 +27,7 @@
     "type": "tsc",
     "gql": "graphql-codegen --config codegen.ts",
     "i18n": "i18next-cli extract",
+    "i18n:check": "node scripts/check-i18n-duplicates.mjs",
     "i18n:status": "i18next-cli status",
     "i18n:types": "i18next-cli types",
     "storybook": "storybook dev -p 6006",
