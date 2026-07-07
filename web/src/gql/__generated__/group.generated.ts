@@ -1,8 +1,44 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetGroupsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
+export type GeometryEditorSupportedType = "ANY" | "LINESTRING" | "POINT" | "POLYGON";
+
+export type GeometryObjectSupportedType =
+  | "GEOMETRYCOLLECTION"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "MULTIPOINT"
+  | "MULTIPOLYGON"
+  | "POINT"
+  | "POLYGON";
+
+export type SchemaFieldType =
+  | "Asset"
+  | "Bool"
+  | "Checkbox"
+  | "Date"
+  | "GeometryEditor"
+  | "GeometryObject"
+  | "Group"
+  | "Integer"
+  | "MarkdownText"
+  | "Number"
+  | "Reference"
+  | "RichText"
+  | "Select"
+  | "Tag"
+  | "Text"
+  | "TextArea"
+  | "URL";
+
+export type GetGroupsQueryVariables = Exact<{
+  projectId: string;
 }>;
 
 export type GetGroupsQuery = {
@@ -15,8 +51,8 @@ export type GetGroupsQuery = {
   } | null>;
 };
 
-export type GetGroupQueryVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
+export type GetGroupQueryVariables = Exact<{
+  id: string;
 }>;
 
 export type GetGroupQuery = {
@@ -45,18 +81,18 @@ export type GetGroupQuery = {
             isTitle: boolean;
             multiple: boolean;
             typeProperty:
-              | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-              | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+              | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
-              | { __typename: "SchemaFieldDate"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldDate"; defaultValue: unknown }
               | {
                   __typename: "SchemaFieldGeometryEditor";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   editorSupportedTypes: Array<Types.GeometryEditorSupportedType>;
                 }
               | {
                   __typename: "SchemaFieldGeometryObject";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   objectSupportedTypes: Array<Types.GeometryObjectSupportedType>;
                 }
               | { __typename: "SchemaFieldGroup" }
@@ -64,11 +100,11 @@ export type GetGroupQuery = {
                   __typename: "SchemaFieldInteger";
                   min: number | null;
                   max: number | null;
-                  integerDefaultValue: unknown | null;
+                  integerDefaultValue: unknown;
                 }
               | {
                   __typename: "SchemaFieldMarkdown";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   maxLength: number | null;
                 }
               | { __typename: "SchemaFieldNumber" }
@@ -77,20 +113,16 @@ export type GetGroupQuery = {
               | {
                   __typename: "SchemaFieldSelect";
                   values: Array<string>;
-                  selectDefaultValue: unknown | null;
+                  selectDefaultValue: unknown;
                 }
               | { __typename: "SchemaFieldTag" }
-              | {
-                  __typename: "SchemaFieldText";
-                  defaultValue: unknown | null;
-                  maxLength: number | null;
-                }
+              | { __typename: "SchemaFieldText"; defaultValue: unknown; maxLength: number | null }
               | {
                   __typename: "SchemaFieldTextArea";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   maxLength: number | null;
                 }
-              | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldURL"; defaultValue: unknown }
               | null;
           }>;
         };
@@ -109,55 +141,55 @@ export type GetGroupQuery = {
     | null;
 };
 
-export type CreateGroupMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  key: Types.Scalars["String"]["input"];
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+export type CreateGroupMutationVariables = Exact<{
+  projectId: string;
+  name: string;
+  key: string;
+  description?: string | null | undefined;
 }>;
 
 export type CreateGroupMutation = {
   createGroup: { __typename: "GroupPayload"; group: { __typename: "Group"; id: string } } | null;
 };
 
-export type UpdateGroupMutationVariables = Types.Exact<{
-  groupId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  key: Types.Scalars["String"]["input"];
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+export type UpdateGroupMutationVariables = Exact<{
+  groupId: string;
+  name: string;
+  key: string;
+  description?: string | null | undefined;
 }>;
 
 export type UpdateGroupMutation = {
   updateGroup: { __typename: "GroupPayload"; group: { __typename: "Group"; id: string } } | null;
 };
 
-export type DeleteGroupMutationVariables = Types.Exact<{
-  groupId: Types.Scalars["ID"]["input"];
+export type DeleteGroupMutationVariables = Exact<{
+  groupId: string;
 }>;
 
 export type DeleteGroupMutation = {
   deleteGroup: { __typename: "DeleteGroupPayload"; groupId: string } | null;
 };
 
-export type CheckGroupKeyAvailabilityQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  key: Types.Scalars["String"]["input"];
+export type CheckGroupKeyAvailabilityQueryVariables = Exact<{
+  projectId: string;
+  key: string;
 }>;
 
 export type CheckGroupKeyAvailabilityQuery = {
   checkGroupKeyAvailability: { __typename: "KeyAvailability"; key: string; available: boolean };
 };
 
-export type ModelsByGroupQueryVariables = Types.Exact<{
-  groupId: Types.Scalars["ID"]["input"];
+export type ModelsByGroupQueryVariables = Exact<{
+  groupId: string;
 }>;
 
 export type ModelsByGroupQuery = {
   modelsByGroup: Array<{ __typename: "Model"; name: string } | null>;
 };
 
-export type UpdateGroupsOrderMutationVariables = Types.Exact<{
-  groupIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type UpdateGroupsOrderMutationVariables = Exact<{
+  groupIds: Array<string> | string;
 }>;
 
 export type UpdateGroupsOrderMutation = {

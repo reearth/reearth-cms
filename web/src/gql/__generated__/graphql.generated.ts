@@ -1,14 +1,5 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
-  [_ in K]?: never;
-};
-export type Incremental<T> =
-  | T
-  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string };
@@ -16,13 +7,13 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean };
   Int: { input: number; output: number };
   Float: { input: number; output: number };
-  Any: { input: any; output: any };
-  Cursor: { input: any; output: any };
-  DateTime: { input: any; output: any };
-  FileSize: { input: any; output: any };
-  Lang: { input: any; output: any };
-  URL: { input: any; output: any };
-  Upload: { input: any; output: any };
+  Any: { input: unknown; output: unknown };
+  Cursor: { input: string; output: string };
+  DateTime: { input: Date; output: Date };
+  FileSize: { input: number; output: number };
+  Lang: { input: string; output: string };
+  URL: { input: string; output: string };
+  Upload: { input: unknown; output: unknown };
 };
 
 export type ApiKeyPayload = {
@@ -2151,9 +2142,8 @@ export type TerrainResourceInput = {
 };
 
 export enum TerrainType {
-  ArcGisTerrain = "ARC_GIS_TERRAIN",
   CesiumIon = "CESIUM_ION",
-  CesiumWorldTerrain = "CESIUM_WORLD_TERRAIN",
+  ReearthTerrain = "REEARTH_TERRAIN",
 }
 
 export enum Theme {
@@ -2186,9 +2176,7 @@ export type TileResourceInput = {
 export enum TileType {
   Default = "DEFAULT",
   EarthAtNight = "EARTH_AT_NIGHT",
-  EsriTopography = "ESRI_TOPOGRAPHY",
   JapanGsiStandardMap = "JAPAN_GSI_STANDARD_MAP",
-  Labelled = "LABELLED",
   OpenStreetMap = "OPEN_STREET_MAP",
   RoadMap = "ROAD_MAP",
   Url = "URL",

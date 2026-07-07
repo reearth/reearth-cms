@@ -1,9 +1,195 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetItemsQueryVariables = Types.Exact<{
+export type AndConditionInput = {
+  conditions: Array<ConditionInput>;
+};
+
+export type BasicFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: BasicOperator;
+  value: unknown;
+};
+
+export type BasicOperator = "EQUALS" | "NOT_EQUALS";
+
+export type BoolFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: BoolOperator;
+  value: boolean;
+};
+
+export type BoolOperator = "EQUALS" | "NOT_EQUALS";
+
+export type ConditionInput = {
+  and?: AndConditionInput | null | undefined;
+  basic?: BasicFieldConditionInput | null | undefined;
+  bool?: BoolFieldConditionInput | null | undefined;
+  multiple?: MultipleFieldConditionInput | null | undefined;
+  nullable?: NullableFieldConditionInput | null | undefined;
+  number?: NumberFieldConditionInput | null | undefined;
+  or?: OrConditionInput | null | undefined;
+  string?: StringFieldConditionInput | null | undefined;
+  time?: TimeFieldConditionInput | null | undefined;
+};
+
+export type FieldSelectorInput = {
+  id?: string | null | undefined;
+  type: FieldType;
+};
+
+export type FieldType =
+  | "CREATION_DATE"
+  | "CREATION_USER"
+  | "FIELD"
+  | "ID"
+  | "META_FIELD"
+  | "MODIFICATION_DATE"
+  | "MODIFICATION_USER"
+  | "STATUS";
+
+export type ImportItemsInput = {
+  file: unknown;
+  geoField?: string | null | undefined;
+  modelId: string;
+};
+
+export type ItemFieldInput = {
+  itemGroupId?: string | null | undefined;
+  schemaFieldId: string;
+  type: SchemaFieldType;
+  value: unknown;
+};
+
+export type ItemQueryInput = {
+  model: string;
+  project: string;
+  q?: string | null | undefined;
+  schema?: string | null | undefined;
+};
+
+export type ItemSortInput = {
+  direction?: SortDirection | null | undefined;
+  field: FieldSelectorInput;
+};
+
+export type ItemStatus = "DRAFT" | "PUBLIC" | "PUBLIC_DRAFT" | "PUBLIC_REVIEW" | "REVIEW";
+
+export type JobStatus = "CANCELLED" | "COMPLETED" | "FAILED" | "IN_PROGRESS" | "PENDING";
+
+export type JobType = "IMPORT";
+
+export type MultipleFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: MultipleOperator;
+  value: Array<unknown>;
+};
+
+export type MultipleOperator =
+  | "INCLUDES_ALL"
+  | "INCLUDES_ANY"
+  | "NOT_INCLUDES_ALL"
+  | "NOT_INCLUDES_ANY";
+
+export type NullableFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: NullableOperator;
+};
+
+export type NullableOperator = "EMPTY" | "NOT_EMPTY";
+
+export type NumberFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: NumberOperator;
+  value: number;
+};
+
+export type NumberOperator =
+  | "GREATER_THAN"
+  | "GREATER_THAN_OR_EQUAL_TO"
+  | "LESS_THAN"
+  | "LESS_THAN_OR_EQUAL_TO";
+
+export type OrConditionInput = {
+  conditions: Array<ConditionInput>;
+};
+
+export type Pagination = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
+  offset?: number | null | undefined;
+};
+
+export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
+
+export type SchemaFieldType =
+  | "Asset"
+  | "Bool"
+  | "Checkbox"
+  | "Date"
+  | "GeometryEditor"
+  | "GeometryObject"
+  | "Group"
+  | "Integer"
+  | "MarkdownText"
+  | "Number"
+  | "Reference"
+  | "RichText"
+  | "Select"
+  | "Tag"
+  | "Text"
+  | "TextArea"
+  | "URL";
+
+export type SearchItemInput = {
+  filter?: ConditionInput | null | undefined;
+  pagination?: Pagination | null | undefined;
+  query: ItemQueryInput;
+  sort?: ItemSortInput | null | undefined;
+};
+
+export type SortDirection = "ASC" | "DESC";
+
+export type StringFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: StringOperator;
+  value: string;
+};
+
+export type StringOperator =
+  | "CONTAINS"
+  | "ENDS_WITH"
+  | "NOT_CONTAINS"
+  | "NOT_ENDS_WITH"
+  | "NOT_STARTS_WITH"
+  | "STARTS_WITH";
+
+export type TimeFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: TimeOperator;
+  value: Date;
+};
+
+export type TimeOperator =
+  | "AFTER"
+  | "AFTER_OR_ON"
+  | "BEFORE"
+  | "BEFORE_OR_ON"
+  | "OF_THIS_MONTH"
+  | "OF_THIS_WEEK"
+  | "OF_THIS_YEAR";
+
+export type GetItemsQueryVariables = Exact<{
   query: Types.ItemQueryInput;
-  pagination?: Types.InputMaybe<Types.Pagination>;
+  pagination?: Types.Pagination | null | undefined;
 }>;
 
 export type GetItemsQuery = {
@@ -42,7 +228,7 @@ export type GetItemsQuery = {
         schemaFieldId: string;
         itemGroupId: string | null;
         type: Types.SchemaFieldType;
-        value: unknown | null;
+        value: unknown;
       }>;
       thread: {
         __typename: "Thread";
@@ -69,15 +255,15 @@ export type GetItemsQuery = {
           schemaFieldId: string;
           itemGroupId: string | null;
           type: Types.SchemaFieldType;
-          value: unknown | null;
+          value: unknown;
         }>;
       } | null;
     } | null>;
   };
 };
 
-export type GetItemQueryVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
+export type GetItemQueryVariables = Exact<{
+  id: string;
 }>;
 
 export type GetItemQuery = {
@@ -122,7 +308,7 @@ export type GetItemQuery = {
           schemaFieldId: string;
           itemGroupId: string | null;
           type: Types.SchemaFieldType;
-          value: unknown | null;
+          value: unknown;
         }>;
         metadata: {
           __typename: "Item";
@@ -132,7 +318,7 @@ export type GetItemQuery = {
             __typename: "ItemField";
             schemaFieldId: string;
             type: Types.SchemaFieldType;
-            value: unknown | null;
+            value: unknown;
           }>;
         } | null;
         thread: {
@@ -170,15 +356,15 @@ export type GetItemQuery = {
     | null;
 };
 
-export type IsItemReferencedQueryVariables = Types.Exact<{
-  itemId: Types.Scalars["ID"]["input"];
-  correspondingFieldId: Types.Scalars["ID"]["input"];
+export type IsItemReferencedQueryVariables = Exact<{
+  itemId: string;
+  correspondingFieldId: string;
 }>;
 
 export type IsItemReferencedQuery = { isItemReferenced: boolean };
 
-export type VersionsByItemQueryVariables = Types.Exact<{
-  itemId: Types.Scalars["ID"]["input"];
+export type VersionsByItemQueryVariables = Exact<{
+  itemId: string;
 }>;
 
 export type VersionsByItemQuery = {
@@ -207,7 +393,7 @@ export type VersionsByItemQuery = {
         schemaFieldId: string;
         itemGroupId: string | null;
         type: Types.SchemaFieldType;
-        value: unknown | null;
+        value: unknown;
       }>;
       requests: Array<{
         __typename: "Request";
@@ -228,7 +414,7 @@ export type VersionsByItemQuery = {
   }>;
 };
 
-export type SearchItemQueryVariables = Types.Exact<{
+export type SearchItemQueryVariables = Exact<{
   searchItemInput: Types.SearchItemInput;
 }>;
 
@@ -265,7 +451,7 @@ export type SearchItemQuery = {
         schemaFieldId: string;
         itemGroupId: string | null;
         type: Types.SchemaFieldType;
-        value: unknown | null;
+        value: unknown;
       }>;
       createdBy:
         | { __typename: "Integration"; id: string; name: string }
@@ -283,7 +469,7 @@ export type SearchItemQuery = {
           __typename: "ItemField";
           schemaFieldId: string;
           type: Types.SchemaFieldType;
-          value: unknown | null;
+          value: unknown;
         }>;
       } | null;
       thread: {
@@ -313,10 +499,10 @@ export type SearchItemQuery = {
   };
 };
 
-export type CreateItemMutationVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
-  schemaId: Types.Scalars["ID"]["input"];
-  metadataId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
+export type CreateItemMutationVariables = Exact<{
+  modelId: string;
+  schemaId: string;
+  metadataId?: string | null | undefined;
   fields: Array<Types.ItemFieldInput> | Types.ItemFieldInput;
 }>;
 
@@ -330,7 +516,7 @@ export type CreateItemMutation = {
       version: string;
       fields: Array<{
         __typename: "ItemField";
-        value: unknown | null;
+        value: unknown;
         type: Types.SchemaFieldType;
         schemaFieldId: string;
         itemGroupId: string | null;
@@ -353,27 +539,27 @@ export type CreateItemMutation = {
   } | null;
 };
 
-export type DeleteItemMutationVariables = Types.Exact<{
-  itemId: Types.Scalars["ID"]["input"];
+export type DeleteItemMutationVariables = Exact<{
+  itemId: string;
 }>;
 
 export type DeleteItemMutation = {
   deleteItem: { __typename: "DeleteItemPayload"; itemId: string } | null;
 };
 
-export type DeleteItemsMutationVariables = Types.Exact<{
-  itemIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type DeleteItemsMutationVariables = Exact<{
+  itemIds: Array<string> | string;
 }>;
 
 export type DeleteItemsMutation = {
   deleteItems: { __typename: "DeleteItemsPayload"; itemIds: Array<string> } | null;
 };
 
-export type UpdateItemMutationVariables = Types.Exact<{
-  itemId: Types.Scalars["ID"]["input"];
+export type UpdateItemMutationVariables = Exact<{
+  itemId: string;
   fields: Array<Types.ItemFieldInput> | Types.ItemFieldInput;
-  metadataId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  version: Types.Scalars["String"]["input"];
+  metadataId?: string | null | undefined;
+  version: string;
 }>;
 
 export type UpdateItemMutation = {
@@ -386,7 +572,7 @@ export type UpdateItemMutation = {
       version: string;
       fields: Array<{
         __typename: "ItemField";
-        value: unknown | null;
+        value: unknown;
         type: Types.SchemaFieldType;
         schemaFieldId: string;
         itemGroupId: string | null;
@@ -409,8 +595,8 @@ export type UpdateItemMutation = {
   } | null;
 };
 
-export type UnpublishItemMutationVariables = Types.Exact<{
-  itemIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type UnpublishItemMutationVariables = Exact<{
+  itemIds: Array<string> | string;
 }>;
 
 export type UnpublishItemMutation = {
@@ -438,8 +624,8 @@ export type UnpublishItemMutation = {
   } | null;
 };
 
-export type PublishItemMutationVariables = Types.Exact<{
-  itemIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type PublishItemMutationVariables = Exact<{
+  itemIds: Array<string> | string;
 }>;
 
 export type PublishItemMutation = {
@@ -467,7 +653,7 @@ export type PublishItemMutation = {
   } | null;
 };
 
-export type ImportItemsMutationVariables = Types.Exact<{
+export type ImportItemsMutationVariables = Exact<{
   input: Types.ImportItemsInput;
 }>;
 
@@ -482,7 +668,7 @@ export type ImportItemsMutation = {
   } | null;
 };
 
-export type ImportItemsAsyncMutationVariables = Types.Exact<{
+export type ImportItemsAsyncMutationVariables = Exact<{
   input: Types.ImportItemsInput;
 }>;
 

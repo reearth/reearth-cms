@@ -1,12 +1,51 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetAssetsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  keyword?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  sort?: Types.InputMaybe<Types.AssetSort>;
-  pagination?: Types.InputMaybe<Types.Pagination>;
-  contentTypes?: Types.InputMaybe<Array<Types.ContentTypesEnum> | Types.ContentTypesEnum>;
+export type ArchiveExtractionStatus = "DONE" | "FAILED" | "IN_PROGRESS" | "PENDING" | "SKIPPED";
+
+export type AssetSort = {
+  direction?: SortDirection | null | undefined;
+  sortBy: AssetSortType;
+};
+
+export type AssetSortType = "DATE" | "NAME" | "SIZE";
+
+export type ContentTypesEnum = "CSV" | "GEOJSON" | "HTML" | "JSON" | "PDF" | "PLAIN" | "XML";
+
+export type IntegrationType = "Private" | "Public";
+
+export type Pagination = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
+  offset?: number | null | undefined;
+};
+
+export type PreviewType =
+  | "CSV"
+  | "GEO"
+  | "GEO_3D_TILES"
+  | "GEO_MVT"
+  | "IMAGE"
+  | "IMAGE_SVG"
+  | "MODEL_3D"
+  | "UNKNOWN";
+
+export type SortDirection = "ASC" | "DESC";
+
+export type GetAssetsQueryVariables = Exact<{
+  projectId: string;
+  keyword?: string | null | undefined;
+  sort?: Types.AssetSort | null | undefined;
+  pagination?: Types.Pagination | null | undefined;
+  contentTypes?: Array<Types.ContentTypesEnum> | Types.ContentTypesEnum | null | undefined;
 }>;
 
 export type GetAssetsQuery = {
@@ -91,12 +130,12 @@ export type GetAssetsQuery = {
   };
 };
 
-export type GetAssetsItemsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  keyword?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  sort?: Types.InputMaybe<Types.AssetSort>;
-  pagination?: Types.InputMaybe<Types.Pagination>;
-  contentTypes?: Types.InputMaybe<Array<Types.ContentTypesEnum> | Types.ContentTypesEnum>;
+export type GetAssetsItemsQueryVariables = Exact<{
+  projectId: string;
+  keyword?: string | null | undefined;
+  sort?: Types.AssetSort | null | undefined;
+  pagination?: Types.Pagination | null | undefined;
+  contentTypes?: Array<Types.ContentTypesEnum> | Types.ContentTypesEnum | null | undefined;
 }>;
 
 export type GetAssetsItemsQuery = {
@@ -182,8 +221,8 @@ export type GetAssetsItemsQuery = {
   };
 };
 
-export type GetAssetQueryVariables = Types.Exact<{
-  assetId: Types.Scalars["ID"]["input"];
+export type GetAssetQueryVariables = Exact<{
+  assetId: string;
 }>;
 
 export type GetAssetQuery = {
@@ -271,8 +310,8 @@ export type GetAssetQuery = {
     | null;
 };
 
-export type GetAssetFileQueryVariables = Types.Exact<{
-  assetId: Types.Scalars["ID"]["input"];
+export type GetAssetFileQueryVariables = Exact<{
+  assetId: string;
 }>;
 
 export type GetAssetFileQuery = {
@@ -284,8 +323,8 @@ export type GetAssetFileQuery = {
   };
 };
 
-export type GetAssetItemQueryVariables = Types.Exact<{
-  assetId: Types.Scalars["ID"]["input"];
+export type GetAssetItemQueryVariables = Exact<{
+  assetId: string;
 }>;
 
 export type GetAssetItemQuery = {
@@ -374,9 +413,9 @@ export type GetAssetItemQuery = {
     | null;
 };
 
-export type GuessSchemaFieldsQueryVariables = Types.Exact<{
-  assetId: Types.Scalars["ID"]["input"];
-  modelId: Types.Scalars["ID"]["input"];
+export type GuessSchemaFieldsQueryVariables = Exact<{
+  assetId: string;
+  modelId: string;
 }>;
 
 export type GuessSchemaFieldsQuery = {
@@ -387,12 +426,12 @@ export type GuessSchemaFieldsQuery = {
   };
 };
 
-export type CreateAssetMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  file?: Types.InputMaybe<Types.Scalars["Upload"]["input"]>;
-  token?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  url?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  skipDecompression?: Types.InputMaybe<Types.Scalars["Boolean"]["input"]>;
+export type CreateAssetMutationVariables = Exact<{
+  projectId: string;
+  file?: unknown;
+  token?: string | null | undefined;
+  url?: string | null | undefined;
+  skipDecompression?: boolean | null | undefined;
 }>;
 
 export type CreateAssetMutation = {
@@ -469,9 +508,9 @@ export type CreateAssetMutation = {
   } | null;
 };
 
-export type UpdateAssetMutationVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
-  previewType?: Types.InputMaybe<Types.PreviewType>;
+export type UpdateAssetMutationVariables = Exact<{
+  id: string;
+  previewType?: Types.PreviewType | null | undefined;
 }>;
 
 export type UpdateAssetMutation = {
@@ -548,24 +587,24 @@ export type UpdateAssetMutation = {
   } | null;
 };
 
-export type DeleteAssetMutationVariables = Types.Exact<{
-  assetId: Types.Scalars["ID"]["input"];
+export type DeleteAssetMutationVariables = Exact<{
+  assetId: string;
 }>;
 
 export type DeleteAssetMutation = {
   deleteAsset: { __typename: "DeleteAssetPayload"; assetId: string } | null;
 };
 
-export type DeleteAssetsMutationVariables = Types.Exact<{
-  assetIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type DeleteAssetsMutationVariables = Exact<{
+  assetIds: Array<string> | string;
 }>;
 
 export type DeleteAssetsMutation = {
   deleteAssets: { __typename: "DeleteAssetsPayload"; assetIds: Array<string> | null } | null;
 };
 
-export type DecompressAssetMutationVariables = Types.Exact<{
-  assetId: Types.Scalars["ID"]["input"];
+export type DecompressAssetMutationVariables = Exact<{
+  assetId: string;
 }>;
 
 export type DecompressAssetMutation = {
@@ -642,12 +681,12 @@ export type DecompressAssetMutation = {
   } | null;
 };
 
-export type CreateAssetUploadMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  filename: Types.Scalars["String"]["input"];
-  cursor: Types.Scalars["String"]["input"];
-  contentLength: Types.Scalars["Int"]["input"];
-  contentEncoding?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+export type CreateAssetUploadMutationVariables = Exact<{
+  projectId: string;
+  filename: string;
+  cursor: string;
+  contentLength: number;
+  contentEncoding?: string | null | undefined;
 }>;
 
 export type CreateAssetUploadMutation = {

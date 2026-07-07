@@ -1,8 +1,18 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type JobQueryVariables = Types.Exact<{
-  jobId: Types.Scalars["ID"]["input"];
+export type JobStatus = "CANCELLED" | "COMPLETED" | "FAILED" | "IN_PROGRESS" | "PENDING";
+
+export type JobType = "IMPORT";
+
+export type JobQueryVariables = Exact<{
+  jobId: string;
 }>;
 
 export type JobQuery = {
@@ -21,10 +31,10 @@ export type JobQuery = {
   } | null;
 };
 
-export type JobsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  type?: Types.InputMaybe<Types.JobType>;
-  status?: Types.InputMaybe<Types.JobStatus>;
+export type JobsQueryVariables = Exact<{
+  projectId: string;
+  type?: Types.JobType | null | undefined;
+  status?: Types.JobStatus | null | undefined;
 }>;
 
 export type JobsQuery = {
@@ -38,8 +48,8 @@ export type JobsQuery = {
   }>;
 };
 
-export type JobStateSubscriptionVariables = Types.Exact<{
-  jobId: Types.Scalars["ID"]["input"];
+export type JobStateSubscriptionVariables = Exact<{
+  jobId: string;
 }>;
 
 export type JobStateSubscription = {
@@ -56,8 +66,8 @@ export type JobStateSubscription = {
   };
 };
 
-export type CancelJobMutationVariables = Types.Exact<{
-  jobId: Types.Scalars["ID"]["input"];
+export type CancelJobMutationVariables = Exact<{
+  jobId: string;
 }>;
 
 export type CancelJobMutation = {

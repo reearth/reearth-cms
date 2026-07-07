@@ -1,6 +1,16 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+export type OperatorType = "Integration" | "User";
+
+export type ResourceType = "ASSET" | "ITEM" | "REQUEST";
+
 export type ThreadFragmentFragment = {
   __typename: "Thread";
   id: string;
@@ -18,11 +28,11 @@ export type ThreadFragmentFragment = {
   }>;
 };
 
-export type CreateThreadWithCommentMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  resourceId: Types.Scalars["ID"]["input"];
+export type CreateThreadWithCommentMutationVariables = Exact<{
+  workspaceId: string;
+  resourceId: string;
   resourceType: Types.ResourceType;
-  content: Types.Scalars["String"]["input"];
+  content: string;
 }>;
 
 export type CreateThreadWithCommentMutation = {

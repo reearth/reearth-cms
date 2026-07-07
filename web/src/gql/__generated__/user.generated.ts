@@ -1,23 +1,35 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetUserByNameOrEmailQueryVariables = Types.Exact<{
-  nameOrEmail: Types.Scalars["String"]["input"];
+export type IntegrationType = "Private" | "Public";
+
+export type Role = "MAINTAINER" | "OWNER" | "READER" | "WRITER";
+
+export type Theme = "DARK" | "DEFAULT" | "LIGHT";
+
+export type GetUserByNameOrEmailQueryVariables = Exact<{
+  nameOrEmail: string;
 }>;
 
 export type GetUserByNameOrEmailQuery = {
   userByNameOrEmail: { __typename: "User"; id: string; name: string; email: string } | null;
 };
 
-export type GetUsersQueryVariables = Types.Exact<{
-  keyword: Types.Scalars["String"]["input"];
+export type GetUsersQueryVariables = Exact<{
+  keyword: string;
 }>;
 
 export type GetUsersQuery = {
   userSearch: Array<{ __typename: "User"; id: string; name: string; email: string }>;
 };
 
-export type GetMeQueryVariables = Types.Exact<{ [key: string]: never }>;
+export type GetMeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetMeQuery = {
   me: {
@@ -128,7 +140,7 @@ export type GetMeQuery = {
   } | null;
 };
 
-export type GetProfileQueryVariables = Types.Exact<{ [key: string]: never }>;
+export type GetProfileQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetProfileQuery = {
   me: {
@@ -143,21 +155,21 @@ export type GetProfileQuery = {
   } | null;
 };
 
-export type GetLanguageQueryVariables = Types.Exact<{ [key: string]: never }>;
+export type GetLanguageQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetLanguageQuery = { me: { __typename: "Me"; id: string; lang: string } | null };
 
-export type GetThemeQueryVariables = Types.Exact<{ [key: string]: never }>;
+export type GetThemeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetThemeQuery = { me: { __typename: "Me"; id: string; theme: Types.Theme } | null };
 
-export type UpdateMeMutationVariables = Types.Exact<{
-  name?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  email?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  lang?: Types.InputMaybe<Types.Scalars["Lang"]["input"]>;
-  theme?: Types.InputMaybe<Types.Theme>;
-  password?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  passwordConfirmation?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+export type UpdateMeMutationVariables = Exact<{
+  name?: string | null | undefined;
+  email?: string | null | undefined;
+  lang?: string | null | undefined;
+  theme?: Types.Theme | null | undefined;
+  password?: string | null | undefined;
+  passwordConfirmation?: string | null | undefined;
 }>;
 
 export type UpdateMeMutation = {
@@ -180,8 +192,8 @@ export type UpdateMeMutation = {
   } | null;
 };
 
-export type DeleteMeMutationVariables = Types.Exact<{
-  userId: Types.Scalars["ID"]["input"];
+export type DeleteMeMutationVariables = Exact<{
+  userId: string;
 }>;
 
 export type DeleteMeMutation = {

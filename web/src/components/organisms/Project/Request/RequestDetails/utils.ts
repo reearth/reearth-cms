@@ -1,3 +1,4 @@
+import { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 import { dateConvert } from "@reearth-cms/components/organisms/Project/Content/ContentDetails/utils";
 import { ItemField } from "@reearth-cms/gql/__generated__/graphql.generated";
 
@@ -8,11 +9,14 @@ export const initialValuesGet = (fields?: ItemField[]): Record<string, unknown> 
     if (field.itemGroupId) {
       initialValues[field.schemaFieldId] = {
         ...initialValues[field.schemaFieldId],
-        ...{ [field.itemGroupId]: field.type === "Date" ? dateConvert(field.value) : field.value },
+        ...{
+          [field.itemGroupId]:
+            field.type === "Date" ? dateConvert(field.value as ItemValue | null) : field.value,
+        },
       };
     } else {
       initialValues[field.schemaFieldId] =
-        field.type === "Date" ? dateConvert(field.value) : field.value;
+        field.type === "Date" ? dateConvert(field.value as ItemValue | null) : field.value;
     }
   });
   return initialValues;

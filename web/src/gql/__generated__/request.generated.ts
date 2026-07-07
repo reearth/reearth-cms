@@ -1,6 +1,33 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  | T
+  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+export type ItemStatus = "DRAFT" | "PUBLIC" | "PUBLIC_DRAFT" | "PUBLIC_REVIEW" | "REVIEW";
+
+export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
+
+export type SchemaFieldType =
+  | "Asset"
+  | "Bool"
+  | "Checkbox"
+  | "Date"
+  | "GeometryEditor"
+  | "GeometryObject"
+  | "Group"
+  | "Integer"
+  | "MarkdownText"
+  | "Number"
+  | "Reference"
+  | "RichText"
+  | "Select"
+  | "Tag"
+  | "Text"
+  | "TextArea"
+  | "URL";
+
 export type RequestFragmentFragment = {
   __typename: "Request";
   id: string;
@@ -36,7 +63,7 @@ export type RequestFragmentFragment = {
           __typename: "ItemField";
           schemaFieldId: string;
           type: Types.SchemaFieldType;
-          value: unknown | null;
+          value: unknown;
           itemGroupId: string | null;
         }>;
         referencedItems: Array<{
@@ -68,8 +95,8 @@ export type RequestFragmentFragment = {
             isTitle: boolean;
             multiple: boolean;
             typeProperty:
-              | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-              | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+              | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate" }
               | { __typename: "SchemaFieldGeometryEditor" }
@@ -79,11 +106,11 @@ export type RequestFragmentFragment = {
                   __typename: "SchemaFieldInteger";
                   min: number | null;
                   max: number | null;
-                  integerDefaultValue: unknown | null;
+                  integerDefaultValue: unknown;
                 }
               | {
                   __typename: "SchemaFieldMarkdown";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   maxLength: number | null;
                 }
               | { __typename: "SchemaFieldNumber" }
@@ -92,20 +119,16 @@ export type RequestFragmentFragment = {
               | {
                   __typename: "SchemaFieldSelect";
                   values: Array<string>;
-                  selectDefaultValue: unknown | null;
+                  selectDefaultValue: unknown;
                 }
               | { __typename: "SchemaFieldTag" }
-              | {
-                  __typename: "SchemaFieldText";
-                  defaultValue: unknown | null;
-                  maxLength: number | null;
-                }
+              | { __typename: "SchemaFieldText"; defaultValue: unknown; maxLength: number | null }
               | {
                   __typename: "SchemaFieldTextArea";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   maxLength: number | null;
                 }
-              | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldURL"; defaultValue: unknown }
               | null;
           }>;
         };
