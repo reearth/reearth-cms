@@ -16,7 +16,7 @@ import (
 
 func mustPS(t *testing.T, allowedOrigins []string) *project.PostingSettings {
 	t.Helper()
-	ps, err := project.NewPostingSettings(allowedOrigins)
+	ps, err := project.NewPostingSettings(true, allowedOrigins)
 	require.NoError(t, err)
 	return ps
 }

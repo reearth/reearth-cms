@@ -35,9 +35,7 @@ type PublicationSettingsDocument struct {
 }
 
 type PostingSettingsDocument struct {
-	// Enabled is a legacy field written by older versions of the server.
-	// When present and false it overrides origins, keeping a project disabled
-	// on upgrade even if origins are configured.
+	// Enabled is not exposed through the API; a missing field means enabled.
 	Enabled        *bool
 	AllowedOrigins []string
 }
@@ -98,6 +96,7 @@ func NewProjectPostingSettings(p *project.PostingSettings) *PostingSettingsDocum
 		return nil
 	}
 	return &PostingSettingsDocument{
+		Enabled:        lo.ToPtr(p.Enabled()),
 		AllowedOrigins: p.AllowedOrigins(),
 	}
 }
@@ -195,17 +194,15 @@ func (d *PostingSettingsDocument) Model() (*project.PostingSettings, error) {
 	if d == nil {
 		return nil, nil
 	}
-	// Honour a legacy explicit disabled flag: a document saved by an older
-	// server version with enabled=false must stay disabled even if origins are
-	// present, so we clear the origins to preserve the operator's intent.
 	origins := d.AllowedOrigins
-	if d.Enabled != nil && !*d.Enabled {
-		origins = []string{}
-	}
 	if origins == nil {
 		origins = []string{}
 	}
-	return project.NewPostingSettings(origins)
+	enabled := true
+	if d.Enabled != nil {
+		enabled = *d.Enabled
+	}
+	return project.NewPostingSettings(enabled, origins)
 }
 
 func (d *ProjectAccessibilityDocument) Model() (*project.Accessibility, error) {

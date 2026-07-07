@@ -11,10 +11,11 @@ var ErrNoOriginsConfigured = fmt.Errorf("no origins are configured for posting o
 var ErrOriginNotAllowed = fmt.Errorf("origin is not allowed for posting on this project")
 
 type PostingSettings struct {
+	enabled        bool
 	allowedOrigins []string
 }
 
-func NewPostingSettings(allowedOrigins []string) (*PostingSettings, error) {
+func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings, error) {
 	var origins []string
 	if allowedOrigins == nil {
 		origins = []string{}
@@ -25,11 +26,14 @@ func NewPostingSettings(allowedOrigins []string) (*PostingSettings, error) {
 	if err := ValidateOrigins(origins); err != nil {
 		return nil, err
 	}
-	return &PostingSettings{allowedOrigins: origins}, nil
+	return &PostingSettings{enabled: enabled, allowedOrigins: origins}, nil
 }
 
 func (p *PostingSettings) Enabled() bool {
-	return p != nil && len(p.allowedOrigins) > 0
+	if p == nil {
+		return false
+	}
+	return p.enabled
 }
 
 func (p *PostingSettings) AllowedOrigins() []string {
@@ -47,7 +51,7 @@ func (p *PostingSettings) Clone() *PostingSettings {
 	}
 	origins := make([]string, len(p.allowedOrigins))
 	copy(origins, p.allowedOrigins)
-	return &PostingSettings{allowedOrigins: origins}
+	return &PostingSettings{enabled: p.enabled, allowedOrigins: origins}
 }
 
 // CheckOrigin validates the request origin against the allowedOrigins list.

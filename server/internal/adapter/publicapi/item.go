@@ -229,13 +229,9 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 }
 
 // ValidatePostingAccess checks that posting is enabled for the project and
-// model, and that the request origin is allowed. It returns the loaded WPM
-// context so the caller can pass it directly to PostItem, avoiding a second
-// database round-trip.
-//
-// The allowedOrigins list is a browser-only CORS restriction: requests without
-// an Origin header (server-to-server calls, cURL, etc.) bypass the origin check
-// by design and are gated solely by the project/model posting-enabled flag.
+// model to post, and that the request origin is allowed by the project's
+// posting settings. Requests without an Origin header come from non-browser
+// clients and skip the origin check entirely.
 func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) (*WPMContext, error) {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {

@@ -250,8 +250,8 @@ func TestProjectPublicationDocument_Model(t *testing.T) {
 
 func TestPostingSettingsDocument_Model(t *testing.T) {
 
-	mustPS := func(origins []string) *project.PostingSettings {
-		ps, err := project.NewPostingSettings(origins)
+	mustPS := func(enabled bool, origins []string) *project.PostingSettings {
+		ps, err := project.NewPostingSettings(enabled, origins)
 		require.NoError(t, err)
 		return ps
 	}
@@ -268,24 +268,19 @@ func TestPostingSettingsDocument_Model(t *testing.T) {
 			want: nil,
 		},
 		{
-			name: "origins are preserved",
+			name: "missing enabled field defaults to true",
 			doc:  &PostingSettingsDocument{AllowedOrigins: []string{"https://a.com"}},
-			want: mustPS([]string{"https://a.com"}),
+			want: mustPS(true, []string{"https://a.com"}),
 		},
 		{
-			name: "empty origins produce empty settings",
-			doc:  &PostingSettingsDocument{AllowedOrigins: []string{}},
-			want: mustPS([]string{}),
+			name: "stored enabled=false is respected",
+			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(false)},
+			want: mustPS(false, []string{}),
 		},
 		{
-			name: "legacy enabled=false clears origins (migration: explicit disable preserved)",
-			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(false), AllowedOrigins: []string{"https://a.com"}},
-			want: mustPS([]string{}),
-		},
-		{
-			name: "legacy enabled=true with origins preserved",
-			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(true), AllowedOrigins: []string{"https://a.com"}},
-			want: mustPS([]string{"https://a.com"}),
+			name: "stored enabled=true is respected",
+			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(true)},
+			want: mustPS(true, []string{}),
 		},
 	}
 	for _, tt := range tests {

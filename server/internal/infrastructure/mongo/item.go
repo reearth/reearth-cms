@@ -212,10 +212,6 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	return r.client.SaveOne(ctx, id, doc, nil)
 }
 
-// SaveDraft stores the item without attaching a version.Public ref.
-// Draft isolation is structural: the item exists in the version store but
-// the public read path (FindPublicByID / FindPublicByModel) filters by the
-// Public ref, so draft items are invisible to public readers.
 func (r *Item) SaveDraft(ctx context.Context, item *item.Item) error {
 	if !r.f.CanWrite(item.Project()) {
 		return repo.ErrOperationDenied

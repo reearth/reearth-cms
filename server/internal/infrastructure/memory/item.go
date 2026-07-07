@@ -177,10 +177,6 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 	return nil
 }
 
-// SaveDraft stores the item without attaching a version.Public ref.
-// Draft isolation is structural: the item exists in the version store but
-// the public read path filters by the Public ref, so draft items are
-// invisible to public readers.
 func (r *Item) SaveDraft(_ context.Context, t *item.Item) error {
 	if r.err != nil {
 		return r.err

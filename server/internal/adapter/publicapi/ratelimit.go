@@ -11,12 +11,6 @@ import (
 
 // RateLimitMiddleware builds the posting endpoint's per-IP token-bucket rate
 func RateLimitMiddleware(rl RateLimitConfig) echo.MiddlewareFunc {
-	// TODO: this is an in-process memory store — each replica maintains its own
-	// independent counter. In a multi-replica deployment a client can send N*rate
-	// requests per minute (one burst per pod) before any pod throttles them.
-	// This is only safe if an upstream layer (e.g. Cloud Armor, nginx) enforces a
-	// hard global rate limit before traffic reaches the application pods.
-	// If no such layer exists, replace with a shared store (Redis / Memcached).
 	store := middleware.NewRateLimiterMemoryStoreWithConfig(middleware.RateLimiterMemoryStoreConfig{
 		Rate:      rl.Rate,
 		Burst:     rl.Burst,

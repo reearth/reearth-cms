@@ -292,7 +292,7 @@ func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
 			method:         http.MethodPost,
 			origin:         "https://example.com",
 			wantStatus:     http.StatusForbidden,
-			wantErrorCode:  "posting_disabled",
+			wantErrorCode:  "origin_not_allowed",
 		},
 		{
 			name:           "accepted when Origin header is absent (non-browser client)",
@@ -352,7 +352,7 @@ func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
 			method:         http.MethodOptions,
 			origin:         "https://allowed.com",
 			wantStatus:     http.StatusForbidden,
-			wantErrorCode:  "posting_disabled",
+			wantErrorCode:  "origin_not_allowed",
 			checkResp: func(t *testing.T, resp *httpexpect.Response) {
 				assert.Empty(t, resp.Header("Access-Control-Allow-Origin").Raw())
 			},

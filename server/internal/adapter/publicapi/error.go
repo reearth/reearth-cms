@@ -41,6 +41,7 @@ const (
 	msgValidationError      = "One or more fields failed validation."
 	msgPostingDisabled      = "Posting is disabled for this project."
 	msgModelPostingDisabled = "Posting is disabled for this model."
+	msgNoOriginsConfigured  = "No origins are configured for posting on this project."
 	msgOriginNotAllowed     = "Origin is not allowed for posting on this project."
 	msgNotFound             = "The requested resource was not found."
 	msgPayloadTooLarge      = "Request body exceeds the allowed limit."
@@ -73,7 +74,7 @@ func postingAccessErrorResponse(c *echo.Context, err error) error {
 	case errors.Is(err, ErrModelPostingDisabled):
 		return c.JSON(http.StatusForbidden, newAPIError(codeModelPostingDisabled, msgModelPostingDisabled, nil))
 	case errors.Is(err, project.ErrNoOriginsConfigured):
-		return c.JSON(http.StatusForbidden, newAPIError(codePostingDisabled, msgPostingDisabled, nil))
+		return c.JSON(http.StatusForbidden, newAPIError(codeOriginNotAllowed, msgNoOriginsConfigured, nil))
 	case errors.Is(err, project.ErrOriginNotAllowed):
 		return c.JSON(http.StatusForbidden, newAPIError(codeOriginNotAllowed, msgOriginNotAllowed, nil))
 	case errors.Is(err, rerror.ErrNotFound):

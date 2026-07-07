@@ -197,8 +197,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 
 		if operator.Anonymous {
-			// Defense-in-depth: the adapter validated posting access for this
-			// project, so the model must belong to that exact project.
 			if m.Project() != param.ProjectID {
 				return nil, interfaces.ErrOperationDenied
 			}

@@ -29,7 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupPostingTest(t *testing.T, _ *bool, allowedOrigins []string, modelPostingEnabled *bool, schemaFields ...*schema.Field) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
+func setupPostingTest(t *testing.T, projectPostingEnabled *bool, allowedOrigins []string, modelPostingEnabled *bool, schemaFields ...*schema.Field) (ctrl *Controller, wAlias, pAlias, mKey string, ctx context.Context) {
 	t.Helper()
 	ctx = context.Background()
 
@@ -44,7 +44,11 @@ func setupPostingTest(t *testing.T, _ *bool, allowedOrigins []string, modelPosti
 		Members(map[accountdomain.UserID]workspace.Member{}).
 		MustBuild()
 
-	ps, psErr := project.NewPostingSettings(allowedOrigins)
+	pEnabled := true
+	if projectPostingEnabled != nil {
+		pEnabled = *projectPostingEnabled
+	}
+	ps, psErr := project.NewPostingSettings(pEnabled, allowedOrigins)
 	require.NoError(t, psErr)
 	a11y := project.NewAccessibility(
 		project.VisibilityPublic,
@@ -214,10 +218,11 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:           "project posting disabled returns ErrProjectPostingDisabled",
-			allowedOrigins: []string{},
-			origin:         allowedOrigin,
-			wantErr:        ErrProjectPostingDisabled,
+			name:                  "project posting disabled returns ErrProjectPostingDisabled",
+			projectPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:        []string{allowedOrigin},
+			origin:                allowedOrigin,
+			wantErr:               ErrProjectPostingDisabled,
 		},
 		{
 			name:                "model posting disabled returns ErrModelPostingDisabled",
@@ -227,10 +232,10 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 			wantErr:             ErrModelPostingDisabled,
 		},
 		{
-			name:           "no origins configured returns ErrProjectPostingDisabled",
+			name:           "no origins configured returns ErrNoOriginsConfigured",
 			allowedOrigins: []string{},
 			origin:         allowedOrigin,
-			wantErr:        ErrProjectPostingDisabled,
+			wantErr:        project.ErrNoOriginsConfigured,
 		},
 		{
 			name:           "absent origin skips origin check",
@@ -239,10 +244,10 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 			wantErr:        nil,
 		},
 		{
-			name:           "absent origin with no origins configured returns ErrProjectPostingDisabled",
+			name:           "absent origin with no origins configured skips origin check",
 			allowedOrigins: []string{},
 			origin:         "",
-			wantErr:        ErrProjectPostingDisabled,
+			wantErr:        nil,
 		},
 		{
 			name:           "origin not in list returns ErrOriginNotAllowed",
@@ -291,12 +296,13 @@ func TestHandler_PostItem(t *testing.T) {
 		wantACOrigin          string
 	}{
 		{
-			name:           "project posting disabled returns 403",
-			allowedOrigins: []string{},
-			origin:         allowedOrigin,
-			wantStatus:     http.StatusForbidden,
-			wantErrorCode:  "posting_disabled",
-			wantMessage:    msgPostingDisabled,
+			name:                  "project posting disabled returns 403",
+			projectPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:        []string{allowedOrigin},
+			origin:                allowedOrigin,
+			wantStatus:            http.StatusForbidden,
+			wantErrorCode:         "posting_disabled",
+			wantMessage:           msgPostingDisabled,
 		},
 		{
 			name:                "model posting disabled returns 403",
@@ -312,8 +318,8 @@ func TestHandler_PostItem(t *testing.T) {
 			allowedOrigins: []string{},
 			origin:         allowedOrigin,
 			wantStatus:     http.StatusForbidden,
-			wantErrorCode:  "posting_disabled",
-			wantMessage:    msgPostingDisabled,
+			wantErrorCode:  "origin_not_allowed",
+			wantMessage:    msgNoOriginsConfigured,
 		},
 		{
 			name:           "absent origin passes through without CORS header",
@@ -322,12 +328,10 @@ func TestHandler_PostItem(t *testing.T) {
 			wantStatus:     http.StatusAccepted,
 		},
 		{
-			name:           "absent origin with no origins configured returns 403",
+			name:           "absent origin with no origins configured passes through",
 			allowedOrigins: []string{},
 			origin:         "",
-			wantStatus:     http.StatusForbidden,
-			wantErrorCode:  "posting_disabled",
-			wantMessage:    msgPostingDisabled,
+			wantStatus:     http.StatusAccepted,
 		},
 		{
 			name:           "origin not in list returns 403",
@@ -409,12 +413,13 @@ func TestHandler_PreflightItem(t *testing.T) {
 			wantACOrigin:   allowedOrigin,
 		},
 		{
-			name:          "project posting disabled returns 403",
-			allowedOrigins: []string{},
-			origin:        allowedOrigin,
-			wantStatus:    http.StatusForbidden,
-			wantACOrigin:  "",
-			wantErrorCode: "posting_disabled",
+			name:                  "project posting disabled returns 403",
+			projectPostingEnabled: lo.ToPtr(false),
+			allowedOrigins:        []string{allowedOrigin},
+			origin:                allowedOrigin,
+			wantStatus:            http.StatusForbidden,
+			wantACOrigin:          "",
+			wantErrorCode:         "posting_disabled",
 		},
 		{
 			name:                "model posting disabled returns 403",
@@ -439,7 +444,7 @@ func TestHandler_PreflightItem(t *testing.T) {
 			origin:         allowedOrigin,
 			wantStatus:     http.StatusForbidden,
 			wantACOrigin:   "",
-			wantErrorCode:  "posting_disabled",
+			wantErrorCode:  "origin_not_allowed",
 		},
 		{
 			name:           "absent origin passes through without CORS headers",
@@ -449,12 +454,11 @@ func TestHandler_PreflightItem(t *testing.T) {
 			wantACOrigin:   "",
 		},
 		{
-			name:           "absent origin with no origins configured returns 403",
+			name:           "absent origin with no origins configured passes through",
 			allowedOrigins: []string{},
 			origin:         "",
-			wantStatus:     http.StatusForbidden,
+			wantStatus:     http.StatusNoContent,
 			wantACOrigin:   "",
-			wantErrorCode:  "posting_disabled",
 		},
 	}
 
