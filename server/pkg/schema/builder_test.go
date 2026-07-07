@@ -44,8 +44,8 @@ func TestBuilder_Build(t *testing.T) {
 		},
 		{
 			name:    "full",
-			s:       &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
-			want:    &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
+			s:       &Schema{id: sId, workspace: wId, project: pId, fields: FieldList{{name: "F1"}}},
+			want:    &Schema{id: sId, workspace: wId, project: pId, fields: FieldList{{name: "F1"}}},
 			wantErr: nil,
 		},
 	}
@@ -121,8 +121,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 		},
 		{
 			name:    "full",
-			s:       &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
-			want:    &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
+			s:       &Schema{id: sId, workspace: wId, project: pId, fields: FieldList{{name: "F1"}}},
+			want:    &Schema{id: sId, workspace: wId, project: pId, fields: FieldList{{name: "F1"}}},
 			wantErr: nil,
 		},
 	}

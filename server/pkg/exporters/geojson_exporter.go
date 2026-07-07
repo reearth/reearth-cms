@@ -44,12 +44,19 @@ func (e *GeoJSONExporter) ValidateRequest(req *ExportRequest) error {
 		return ErrInvalidGeometryField
 	}
 
+	if !req.Schema.Field(*req.Options.GeometryField).IsGeometryField() {
+		return ErrInvalidGeometryField
+	}
+
 	return nil
 }
 
 // Export performs the GeoJSON export
 func (e *GeoJSONExporter) Export(ctx context.Context, req *ExportRequest, il item.List, al asset.List) error {
-	fc, err := FeatureCollectionFromItems(il, e.schema, e.geo, al)
+	if err := e.ValidateRequest(req); err != nil {
+		return err
+	}
+	fc, err := FeatureCollectionFromItems(il, &req.Schema, *req.Options.GeometryField, al)
 	if err != nil {
 		return err
 	}
