@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v5"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -33,6 +34,7 @@ const (
 	codeNotFound             = "not_found"
 	codePayloadTooLarge      = "payload_too_large"
 	codeRateLimited          = "rate_limited"
+	codeAccessDenied         = "access_denied"
 )
 
 // Human-readable messages paired with each error code.
@@ -46,6 +48,7 @@ const (
 	msgNotFound             = "The requested resource was not found."
 	msgPayloadTooLarge      = "Request body exceeds the allowed limit."
 	msgRateLimited          = "Too many requests. Please retry later."
+	msgAccessDenied         = "You are not allowed to perform this action."
 )
 
 // PostingErrorCodes lists every machine-readable code the posting endpoint can
@@ -59,6 +62,7 @@ var PostingErrorCodes = []string{
 	codeNotFound,
 	codePayloadTooLarge,
 	codeRateLimited,
+	codeAccessDenied,
 }
 
 // newAPIError builds a uniform error body with both code and message set.
@@ -79,6 +83,17 @@ func postingAccessErrorResponse(c *echo.Context, err error) error {
 		return c.JSON(http.StatusForbidden, newAPIError(codeOriginNotAllowed, msgOriginNotAllowed, nil))
 	case errors.Is(err, rerror.ErrNotFound):
 		return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
+	default:
+		return err
+	}
+}
+
+func postItemErrorResponse(c *echo.Context, err error) error {
+	switch {
+	case errors.Is(err, rerror.ErrNotFound):
+		return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
+	case errors.Is(err, interfaces.ErrOperationDenied), errors.Is(err, interfaces.ErrInvalidOperator):
+		return c.JSON(http.StatusForbidden, newAPIError(codeAccessDenied, msgAccessDenied, nil))
 	default:
 		return err
 	}

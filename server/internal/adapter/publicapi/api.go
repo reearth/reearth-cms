@@ -298,10 +298,7 @@ func PostItem() echo.HandlerFunc {
 		}
 		result := ctrl.PostItem(ctx, wpm, req.Fields)
 		if result.Err != nil {
-			if errors.Is(result.Err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
-			}
-			return result.Err
+			return postItemErrorResponse(c, result.Err)
 		}
 
 		if len(result.FieldErrors) > 0 {
