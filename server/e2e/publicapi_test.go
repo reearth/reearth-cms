@@ -1566,7 +1566,7 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 			WithHeader("Origin", "https://example.com").
 			Expect().
 			Status(http.StatusForbidden).
-			JSON().Object().Value("error").IsEqual("posting_disabled")
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
 	})
 
 	t.Run("absent origin passes through (non-browser client)", func(t *testing.T) {
