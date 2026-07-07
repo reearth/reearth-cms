@@ -49,6 +49,14 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		Options: params.Options,
 	}
 
+	if params.Format == exporters.FormatGeoJSON && params.Options.GeometryField == nil {
+		geoField := params.SchemaPackage.Schema().FirstGeometryField()
+		if geoField == nil {
+			return exporters.ErrNoGeometryField
+		}
+		req.Options.GeometryField = geoField.ID().Ref()
+	}
+
 	if err := exporter.ValidateRequest(req); err != nil {
 		return err
 	}
