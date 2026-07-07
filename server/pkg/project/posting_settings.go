@@ -31,7 +31,7 @@ func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings
 
 func (p *PostingSettings) Enabled() bool {
 	if p == nil {
-		return false
+		return true
 	}
 	return p.enabled
 }

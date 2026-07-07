@@ -45,9 +45,9 @@ type ItemFieldParam struct {
 }
 
 type CreateItemParam struct {
-	SchemaID  schema.ID
-	ModelID   model.ID
-	ProjectID id.ProjectID
+	SchemaID   schema.ID
+	ModelID    model.ID
+	ProjectID  id.ProjectID
 	MetadataID *item.ID
 	Fields     []ItemFieldParam
 }
