@@ -653,53 +653,78 @@ func TestModel_FindByIDs(t *testing.T) {
 }
 
 func TestModel_Update(t *testing.T) {
-	type args struct {
-		param    interfaces.UpdateModelParam
-		operator *usecase.Operator
-	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
-	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		want    *model.Model
-		mockErr bool
-		wantErr error
-	}{
-		{},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+	t.Parallel()
 
-			ctx := context.Background()
-			db := memory.New()
-			if tt.mockErr {
-				memory.SetModelError(db.Model, tt.wantErr)
-			}
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
-			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-			u := NewModel(db, nil)
+	wid := accountdomain.NewWorkspaceID()
+	p := project.New().NewID().Workspace(wid).MustBuild()
+	m := model.New().NewID().Key(id.RandomKey()).Project(p.ID()).Schema(id.NewSchemaID()).MustBuild()
 
-			got, err := u.Update(ctx, tt.args.param, tt.args.operator)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-				assert.Nil(t, got)
-				return
-			}
-			assert.Equal(t, tt.want, got)
-		})
+	ownerOp := &usecase.Operator{
+		OwningProjects: []id.ProjectID{p.ID()},
+		AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
 	}
+	maintainerOp := &usecase.Operator{
+		MaintainableProjects: []id.ProjectID{p.ID()},
+		AcOperator:           &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+	}
+	writerOp := &usecase.Operator{
+		WritableProjects: []id.ProjectID{p.ID()},
+		AcOperator:       &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+	}
+
+	setup := func() interfaces.Model {
+		ctx := context.Background()
+		db := memory.New()
+		_ = db.Project.Save(ctx, p.Clone())
+		_ = db.Model.Save(ctx, m.Clone())
+		return NewModel(db, nil)
+	}
+
+	enabled := true
+
+	t.Run("owner can toggle PostingEnabled", func(t *testing.T) {
+		t.Parallel()
+		u := setup()
+		got, err := u.Update(context.Background(), interfaces.UpdateModelParam{
+			ModelID:        m.ID(),
+			PostingEnabled: &enabled,
+		}, ownerOp)
+		assert.NoError(t, err)
+		assert.True(t, got.PostingEnabled())
+	})
+
+	t.Run("maintainer can toggle PostingEnabled", func(t *testing.T) {
+		t.Parallel()
+		u := setup()
+		got, err := u.Update(context.Background(), interfaces.UpdateModelParam{
+			ModelID:        m.ID(),
+			PostingEnabled: &enabled,
+		}, maintainerOp)
+		assert.NoError(t, err)
+		assert.True(t, got.PostingEnabled())
+	})
+
+	t.Run("writer cannot toggle PostingEnabled", func(t *testing.T) {
+		t.Parallel()
+		u := setup()
+		_, err := u.Update(context.Background(), interfaces.UpdateModelParam{
+			ModelID:        m.ID(),
+			PostingEnabled: &enabled,
+		}, writerOp)
+		assert.ErrorIs(t, err, interfaces.ErrOperationDenied)
+	})
+
+	t.Run("writer can still update name/description", func(t *testing.T) {
+		t.Parallel()
+		u := setup()
+		newName := "updated"
+		got, err := u.Update(context.Background(), interfaces.UpdateModelParam{
+			ModelID: m.ID(),
+			Name:    &newName,
+		}, writerOp)
+		assert.NoError(t, err)
+		assert.Equal(t, "updated", got.Name())
+	})
 }
 
 func TestNewModel(t *testing.T) {

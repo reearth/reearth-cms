@@ -189,6 +189,9 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				}
 			}
 			if param.PostingEnabled != nil {
+				if !operator.IsMaintainingProject(m.Project()) {
+					return nil, interfaces.ErrOperationDenied
+				}
 				m.SetPostingEnabled(*param.PostingEnabled)
 			}
 
