@@ -209,13 +209,11 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 	}
 
 	op := getOperator(ctx)
-	wsID := wpm.Project.Workspace()
-	op.AnonymousWorkspace = &wsID
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID:    wpm.SchemaPackage.Schema().ID(),
-		ModelID:     wpm.Model.ID(),
-		Fields:      fieldsFromBody(body, wpm.SchemaPackage.Schema()),
-		SaveAsDraft: true,
+		SchemaID:  wpm.SchemaPackage.Schema().ID(),
+		ModelID:   wpm.Model.ID(),
+		ProjectID: wpm.Project.ID(),
+		Fields:    fieldsFromBody(body, wpm.SchemaPackage.Schema()),
 	}, op)
 	if err != nil {
 		return PostItemResult{Err: err}
@@ -233,7 +231,11 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 // ValidatePostingAccess checks that posting is enabled for the project and
 // model, and that the request origin is allowed. It returns the loaded WPM
 // context so the caller can pass it directly to PostItem, avoiding a second
-// database round-trip. Requests without an Origin header skip the origin check.
+// database round-trip.
+//
+// The allowedOrigins list is a browser-only CORS restriction: requests without
+// an Origin header (server-to-server calls, cURL, etc.) bypass the origin check
+// by design and are gated solely by the project/model posting-enabled flag.
 func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) (*WPMContext, error) {
 	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
 	if err != nil {

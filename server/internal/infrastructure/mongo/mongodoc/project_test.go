@@ -277,6 +277,16 @@ func TestPostingSettingsDocument_Model(t *testing.T) {
 			doc:  &PostingSettingsDocument{AllowedOrigins: []string{}},
 			want: mustPS([]string{}),
 		},
+		{
+			name: "legacy enabled=false clears origins (migration: explicit disable preserved)",
+			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(false), AllowedOrigins: []string{"https://a.com"}},
+			want: mustPS([]string{}),
+		},
+		{
+			name: "legacy enabled=true with origins preserved",
+			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(true), AllowedOrigins: []string{"https://a.com"}},
+			want: mustPS([]string{"https://a.com"}),
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

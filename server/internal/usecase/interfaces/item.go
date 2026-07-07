@@ -45,11 +45,11 @@ type ItemFieldParam struct {
 }
 
 type CreateItemParam struct {
-	SchemaID    schema.ID
-	ModelID     model.ID
-	MetadataID  *item.ID
-	Fields      []ItemFieldParam
-	SaveAsDraft bool
+	SchemaID  schema.ID
+	ModelID   model.ID
+	ProjectID id.ProjectID
+	MetadataID *item.ID
+	Fields     []ItemFieldParam
 }
 
 type UpdateItemParam struct {

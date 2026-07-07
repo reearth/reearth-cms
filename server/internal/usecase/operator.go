@@ -15,10 +15,6 @@ type Operator struct {
 	Integration          *integration.ID
 	Machine              bool
 	Anonymous            bool
-	// AnonymousWorkspace is set by the public API adapter to the workspace that
-	// owns the project being posted to. The interactor uses it to enforce that an
-	// anonymous operator can only write to that specific workspace.
-	AnonymousWorkspace   *accountdomain.WorkspaceID
 	Lang                 string
 	ReadableProjects     project.IDList
 	WritableProjects     project.IDList

@@ -64,10 +64,10 @@ func (p *Accessibility) Posting() *PostingSettings {
 }
 
 func (p *Accessibility) PostingEnabled() bool {
-	if p == nil || p.posting == nil {
+	if p == nil {
 		return false
 	}
-	return len(p.posting.allowedOrigins) > 0
+	return p.posting.Enabled()
 }
 
 func (p *Accessibility) SetVisibility(visibility Visibility) {

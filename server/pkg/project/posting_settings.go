@@ -28,6 +28,10 @@ func NewPostingSettings(allowedOrigins []string) (*PostingSettings, error) {
 	return &PostingSettings{allowedOrigins: origins}, nil
 }
 
+func (p *PostingSettings) Enabled() bool {
+	return p != nil && len(p.allowedOrigins) > 0
+}
+
 func (p *PostingSettings) AllowedOrigins() []string {
 	if p == nil {
 		return []string{}
@@ -79,7 +83,7 @@ func validateOrigin(origin string) error {
 		strings.Contains(origin, "*") ||
 		(u.Scheme != "http" && u.Scheme != "https") ||
 		u.Host == "" ||
-		u.Path != "" ||
+		(u.Path != "" && u.Path != "/") ||
 		u.RawQuery != "" ||
 		u.Fragment != "" {
 		return fmt.Errorf("%w: %q", ErrInvalidOrigin, origin)
