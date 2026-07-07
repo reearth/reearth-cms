@@ -47,6 +47,29 @@ func TestItem_MemorySpecific_RemoveSemantics(t *testing.T) {
 	assert.Equal(t, repo.ErrOperationDenied, r.BatchRemove(ctx, id.ItemIDList{i2.ID()}))
 }
 
+// TestItem_MemorySpecific_ArchiveScope tests that Archive rejects a writable
+// project the item does not belong to.
+func TestItem_MemorySpecific_ArchiveScope(t *testing.T) {
+	ctx := context.Background()
+	pid, pid2 := id.NewProjectID(), id.NewProjectID()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	base := NewItem()
+	_ = base.Save(ctx, i1)
+
+	// pid2 is writable, but the item belongs to pid
+	r := base.Filtered(repo.ProjectFilter{
+		Readable: []id.ProjectID{pid, pid2},
+		Writable: []id.ProjectID{pid2},
+	})
+
+	assert.Equal(t, rerror.ErrNotFound, r.Archive(ctx, i1.ID(), pid2, true))
+
+	res, err := base.IsArchived(ctx, i1.ID())
+	assert.NoError(t, err)
+	assert.False(t, res)
+}
+
 // TestItem_MemorySpecific_Errors tests the SetItemError injection helper used
 // by interactor tests to simulate repository failures.
 func TestItem_MemorySpecific_Errors(t *testing.T) {

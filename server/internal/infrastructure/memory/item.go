@@ -292,7 +292,7 @@ func (r *Item) Archive(_ context.Context, itemID id.ItemID, projectID id.Project
 	}
 
 	iv, _ := r.data.Load(itemID, version.Latest.OrVersion())
-	if iv == nil {
+	if iv == nil || iv.Value().Project() != projectID {
 		return rerror.ErrNotFound
 	}
 
