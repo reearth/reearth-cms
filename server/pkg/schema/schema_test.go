@@ -199,6 +199,72 @@ func TestSchema_Field(t *testing.T) {
 	}
 }
 
+func TestSchema_FirstGeometryField(t *testing.T) {
+	tp := func(tp *TypeProperty) *TypeProperty { return tp }
+	boolTP := tp(NewBool().TypeProperty())
+	geoObjTP := tp(NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty())
+	geoEdtTP := tp(NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty())
+
+	fid1 := NewFieldID()
+	fid2 := NewFieldID()
+	fid3 := NewFieldID()
+
+	tests := []struct {
+		name string
+		s    *Schema
+		want *Field
+	}{
+		{
+			name: "nil schema",
+			s:    nil,
+			want: nil,
+		},
+		{
+			name: "nil fields",
+			s:    &Schema{},
+			want: nil,
+		},
+		{
+			name: "no geometry field",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", typeProperty: boolTP}}},
+			want: nil,
+		},
+		{
+			name: "geometry object field",
+			s: &Schema{fields: []*Field{
+				{id: fid1, name: "f1", typeProperty: boolTP},
+				{id: fid2, name: "f2", typeProperty: geoObjTP},
+			}},
+			want: &Field{id: fid2, name: "f2", typeProperty: geoObjTP},
+		},
+		{
+			name: "geometry editor field",
+			s: &Schema{fields: []*Field{
+				{id: fid1, name: "f1", typeProperty: boolTP},
+				{id: fid2, name: "f2", typeProperty: geoEdtTP},
+			}},
+			want: &Field{id: fid2, name: "f2", typeProperty: geoEdtTP},
+		},
+		{
+			name: "returns first geometry field by order",
+			s: &Schema{fields: []*Field{
+				{id: fid1, name: "f1", typeProperty: geoObjTP, order: 2},
+				{id: fid2, name: "f2", typeProperty: boolTP, order: 1},
+				{id: fid3, name: "f3", typeProperty: geoEdtTP, order: 0},
+			}},
+			want: &Field{id: fid3, name: "f3", typeProperty: geoEdtTP, order: 0},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.s.FirstGeometryField())
+		})
+	}
+}
+
 func TestSchema_FieldByIDOrKey(t *testing.T) {
 	f1 := &Field{id: NewFieldID(), name: "f1"}
 	f2 := &Field{id: NewFieldID(), name: "f2"}

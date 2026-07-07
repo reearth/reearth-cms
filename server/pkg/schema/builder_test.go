@@ -69,7 +69,7 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_Fields(t *testing.T) {
 	b := &Builder{s: &Schema{}}
-	f := []*Field{{name: "N1"}}
+	f := FieldList{{name: "N1"}}
 	b.Fields(f)
 	assert.Equal(t, f, b.s.fields)
 	for i := 0; i < len(f); i++ {
