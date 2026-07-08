@@ -1,9 +1,12 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
+import useSettings from "@reearth-cms/components/molecules/Settings/useSettings.ts";
+import { Resource, TerrainType, TileType } from "@reearth-cms/components/molecules/Workspace/types";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {
   resources: Resource[];
@@ -25,6 +28,23 @@ const Cards: React.FC<Props> = ({
   onDragEnd,
   hasUpdateRight,
 }) => {
+  const { TileTypeFormat, TerrainTypeFormat } = useSettings();
+
+  const cardTitle = useCallback<(resource: Resource) => string>(
+    resource => {
+      if (resource.props?.name) {
+        return resource.props.name;
+      }
+
+      if (isTile) {
+        return TileTypeFormat[resource.type as TileType] || resource.type;
+      } else {
+        return TerrainTypeFormat[resource.type as TerrainType] || resource.type;
+      }
+    },
+    [TerrainTypeFormat, TileTypeFormat, isTile],
+  );
+
   return (
     <DragColumn
       nodeSelector=".ant-card"
@@ -52,7 +72,7 @@ const Cards: React.FC<Props> = ({
               <TitleWrapper>
                 <StyledMeta
                   avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
-                  title={resource.props?.name ? resource.props.name : resource.type}
+                  title={cardTitle(resource)}
                 />
                 {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
               </TitleWrapper>
@@ -68,9 +88,9 @@ export default Cards;
 
 const GridArea = styled.div`
   display: grid;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  padding-bottom: 12px;
+  padding-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledCard = styled(Card)<{ hasUpdateRight: boolean }>`
@@ -78,14 +98,14 @@ const StyledCard = styled(Card)<{ hasUpdateRight: boolean }>`
     ${({ hasUpdateRight }) => !hasUpdateRight && "cursor: not-allowed;"}
     > .anticon {
       ${({ hasUpdateRight }) =>
-        !hasUpdateRight && "cursor: not-allowed; color: rgba(0, 0, 0, 0.25);"}
+        !hasUpdateRight && `cursor: not-allowed; color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
       :hover {
-        ${({ hasUpdateRight }) => !hasUpdateRight && "color: rgba(0, 0, 0, 0.25);"}
+        ${({ hasUpdateRight }) => !hasUpdateRight && `color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
       }
     }
   }
   .ant-card-body {
-    padding: 16px;
+    padding: ${AntdToken.SPACING.BASE}px;
   }
 `;
 
@@ -98,10 +118,10 @@ const TitleWrapper = styled.div`
 const StyledMeta = styled(Meta)`
   overflow: hidden;
   .ant-card-meta-avatar {
-    padding-right: 8px;
+    padding-right: ${AntdToken.SPACING.XS}px;
     img {
-      width: 20px;
-      height: 20px;
+      width: ${AntdToken.SPACING.MD}px;
+      height: ${AntdToken.SPACING.MD}px;
       object-fit: cover;
     }
   }

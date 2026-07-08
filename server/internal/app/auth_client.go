@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -29,7 +29,7 @@ var (
 
 func authMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) (err error) {
+		return func(c *echo.Context) (err error) {
 			req := c.Request()
 			ctx := req.Context()
 
@@ -129,7 +129,7 @@ func attachIntegrationOperator(ctx context.Context, req *http.Request, appCtx *A
 
 func publicAPIAuthMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
 			key := getKey(req)
@@ -297,7 +297,7 @@ func generateIntegrationOperator(ctx context.Context, appCtx *ApplicationContext
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			ctx := c.Request().Context()
 			if adapter.Operator(ctx) == nil {
 				return echo.ErrUnauthorized

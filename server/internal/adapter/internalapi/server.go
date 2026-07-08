@@ -47,6 +47,10 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 		return nil, err
 	}
 
+	if op == nil || !op.IsWritableWorkspace(wId) {
+		return nil, status.Error(codes.PermissionDenied, "no permission to create project in this workspace")
+	}
+
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
 		WorkspaceID: wId,
 		Name:        &req.Name,
@@ -77,6 +81,17 @@ func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest)
 	pId, err := project.IDFrom(req.ProjectId)
 	if err != nil {
 		return nil, err
+	}
+
+	dbP, err := uc.Project.Fetch(ctx, project.IDList{pId}, op)
+	if err != nil {
+		return nil, err
+	}
+	if len(dbP) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+	if op == nil || !op.IsWritableProject(pId) {
+		return nil, status.Error(codes.PermissionDenied, "no permission to update this project")
 	}
 
 	// todo accessibility
@@ -110,6 +125,17 @@ func (s server) DeleteProject(ctx context.Context, req *pb.DeleteProjectRequest)
 	pId, err := project.IDFrom(req.ProjectId)
 	if err != nil {
 		return nil, err
+	}
+
+	dbP, err := uc.Project.Fetch(ctx, project.IDList{pId}, op)
+	if err != nil {
+		return nil, err
+	}
+	if len(dbP) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+	if op == nil || !op.IsWritableProject(pId) {
+		return nil, status.Error(codes.PermissionDenied, "no permission to delete this project")
 	}
 
 	err = uc.Project.Delete(ctx, pId, op)
@@ -147,16 +173,13 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
 	}
-	if p == nil {
-		return nil, rerror.ErrNotFound
-	}
 
-	if p.Accessibility().Visibility() == project.VisibilityPrivate && (op == nil || !op.IsReadableProject(p.ID())) {
-		return nil, rerror.ErrNotFound
+	if p.Accessibility().Visibility() != project.VisibilityPublic && (op == nil || !op.IsReadableProject(p.ID())) {
+		return nil, status.Error(codes.NotFound, "not found")
 	}
 
 	return &pb.ProjectResponse{
@@ -173,10 +196,6 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
-	if req.PublicOnly {
-		f.Visibility = lo.ToPtr(project.VisibilityPublic)
-	}
-
 	wIds := lo.FilterMap(req.WorkspaceIds, func(wid string, _ int) (accountdomain.WorkspaceID, bool) {
 		wId, err := accountdomain.WorkspaceIDFrom(wid)
 		if err != nil {
@@ -185,8 +204,23 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		return wId, true
 	})
 
-	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
+	// listing projects from workspaces that user is member and non-member at the same time is not supported
+	if i := op.AllReadableWorkspaces().Intersect(wIds); i.Len() > 0 && i.Len() < len(wIds) {
+		return nil, status.Error(codes.InvalidArgument, "mixed workspaces")
+	}
 
+	// enforce public filter if:
+	// - user intend to
+	// - user does not select workspaces
+	// - no logged-in user
+	// - user is not a member in the selected workspace
+	if req.PublicOnly || len(wIds) == 0 || op == nil || op.AcOperator.User == nil || !op.IsReadableWorkspace(wIds...) {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	}
+
+	if len(wIds) > 0 {
+		f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
+	}
 	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {
 		return nil, err
@@ -220,6 +254,19 @@ func (s server) GetAsset(ctx context.Context, req *pb.AssetRequest) (*pb.AssetRe
 		return nil, rerror.ErrNotFound
 	}
 
+	pl, err := uc.Project.Fetch(ctx, project.IDList{a.Project()}, op)
+	if err != nil {
+		return nil, err
+	}
+	if len(pl) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+	p := pl[0]
+
+	if p.Accessibility().Visibility() != project.VisibilityPublic && (op == nil || !op.IsReadableProject(p.ID())) {
+		return nil, status.Error(codes.NotFound, "not found")
+	}
+
 	return &pb.AssetResponse{
 		Asset: internalapimodel.ToAsset(a),
 	}, nil
@@ -248,6 +295,10 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 
 	p := pl[0]
 
+	if p.Accessibility().Visibility() != project.VisibilityPublic && (op == nil || !op.IsReadableProject(p.ID())) {
+		return nil, status.Error(codes.NotFound, "not found")
+	}
+
 	f := interfaces.AssetFilter{
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
@@ -272,12 +323,13 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
 	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
 	}
-	if p == nil {
-		return nil, rerror.ErrNotFound
+
+	if p.Accessibility().Visibility() != project.VisibilityPublic && (op == nil || !op.IsReadableProject(p.ID())) {
+		return nil, status.Error(codes.NotFound, "not found")
 	}
 
 	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(req.ModelIdOrAlias), op)
@@ -329,6 +381,10 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 	}
 	p := pl[0]
 
+	if p.Accessibility().Visibility() != project.VisibilityPublic && (op == nil || !op.IsReadableProject(p.ID())) {
+		return nil, status.Error(codes.NotFound, "not found")
+	}
+
 	ml, pi, err := uc.Model.FindByProject(ctx, pId, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
 		return nil, err
@@ -375,6 +431,19 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 	sp, err := uc.Schema.FindByModel(ctx, mId, op)
 	if err != nil {
 		return nil, err
+	}
+
+	pl, err := uc.Project.Fetch(ctx, project.IDList{sp.Schema().Project()}, op)
+	if err != nil {
+		return nil, err
+	}
+	if len(pl) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+	p := pl[0]
+
+	if p.Accessibility().Visibility() != project.VisibilityPublic && (op == nil || !op.IsReadableProject(p.ID())) {
+		return nil, status.Error(codes.NotFound, "not found")
 	}
 
 	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), req.GetKeyword(), version.Public.Ref())

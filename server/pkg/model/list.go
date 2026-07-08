@@ -1,10 +1,11 @@
 package model
 
 import (
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type List []*Model
@@ -25,6 +26,20 @@ func (l List) Projects() id.ProjectIDList {
 		return m.Project(), true
 	}))
 }
+
+func (l List) SameProject() bool {
+	if len(l) == 0 {
+		return true
+	}
+	projectID := l[0].Project()
+	for _, m := range l[1:] {
+		if m.Project() != projectID {
+			return false
+		}
+	}
+	return true
+}
+
 func (l List) Clone() List {
 	return util.Map(l, func(m *Model) *Model { return m.Clone() })
 }
@@ -76,4 +91,15 @@ func (l List) Model(modelID id.ModelID) *Model {
 		}
 	}
 	return nil
+}
+
+func (l List) SchemaIDs() id.SchemaIDList {
+	var ids id.SchemaIDList
+	for _, m := range l {
+		if m == nil {
+			continue
+		}
+		ids = append(ids, m.Schema())
+	}
+	return ids
 }

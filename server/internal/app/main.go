@@ -2,19 +2,21 @@ package app
 
 import (
 	"context"
+	"errors"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/labstack/echo/v4"
-	"golang.org/x/net/http2"
-	"google.golang.org/grpc"
-
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
+	"google.golang.org/grpc"
 )
 
 func Start(debug bool, version string) {
@@ -28,6 +30,9 @@ func Start(debug bool, version string) {
 		log.Fatal(cerr)
 	}
 	log.Infof("config: %s", conf.Print())
+
+	// Init telemetry
+	defer initTelemetry(ctx, conf.Otel1())()
 
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
@@ -60,7 +65,7 @@ func Start(debug bool, version string) {
 type WebServer struct {
 	debug          bool
 	appAddress     string
-	appServer      *echo.Echo
+	appServer      *http.Server
 	internalPort   string
 	internalServer *grpc.Server
 }
@@ -76,7 +81,7 @@ type ApplicationContext struct {
 	HealthChecker *HealthChecker
 }
 
-func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
+func NewServer(_ context.Context, appCtx *ApplicationContext) *WebServer {
 	w := &WebServer{
 		debug: appCtx.Debug,
 	}
@@ -97,7 +102,9 @@ func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 		address := host + ":" + port
 
 		w.appAddress = address
-		w.appServer = initEcho(appCtx)
+		w.appServer = &http.Server{
+			Handler: initEcho(appCtx),
+		}
 	}
 
 	if appCtx.Config.InternalApi.Active {
@@ -108,8 +115,6 @@ func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 }
 
 func (w *WebServer) Run(ctx context.Context) {
-	defer log.Infof("server: shutdown")
-
 	debugLog := ""
 	if w.debug {
 		debugLog += " with debug mode"
@@ -117,10 +122,30 @@ func (w *WebServer) Run(ctx context.Context) {
 
 	if w.appServer != nil {
 		go func() {
-			err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
-			log.Fatalc(ctx, err.Error())
+			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+			defer stop()
+
+			sc := echo.StartConfig{
+				Address:         w.appAddress,
+				GracefulTimeout: 10 * time.Second,
+				HideBanner:      true,
+				HidePort:        true,
+				BeforeServeFunc: func(s *http.Server) error {
+					protocols := new(http.Protocols)
+					protocols.SetHTTP1(true)
+					protocols.SetUnencryptedHTTP2(true)
+					s.Protocols = protocols
+					return nil
+				},
+			}
+			if err := sc.Start(ctx, w.appServer.Handler); err != nil &&
+				!errors.Is(err, context.Canceled) &&
+				!errors.Is(err, http.ErrServerClosed) {
+				log.Fatalc(ctx, err.Error())
+			}
 		}()
 		log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+		defer log.Infof("server: http server shutdown")
 	} else {
 		log.Info("server: http server is not configured")
 	}
@@ -135,17 +160,18 @@ func (w *WebServer) Run(ctx context.Context) {
 			log.Fatalc(ctx, err.Error())
 		}()
 		log.Infof("server: started%s internal grpc server at %s", debugLog, w.internalPort)
+		defer log.Infof("server: grpc server shutdown")
 	} else {
 		log.Info("server: grpc server is not configured")
 	}
 
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 }
 
 func (w *WebServer) HttpServe(l net.Listener) error {
-	return w.appServer.Server.Serve(l)
+	return w.appServer.Serve(l)
 }
 
 func (w *WebServer) GrpcServe(l net.Listener) error {
@@ -159,7 +185,7 @@ func (w *WebServer) HttpShutdown(ctx context.Context) error {
 	return nil
 }
 
-func (w *WebServer) GrpcShutdown(ctx context.Context) error {
+func (w *WebServer) GrpcShutdown(_ context.Context) error {
 	if w.internalServer != nil {
 		w.internalServer.GracefulStop()
 	}

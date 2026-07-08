@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/text/language"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -31,7 +32,10 @@ func initGrpc(appCtx *ApplicationContext) *grpc.Server {
 		unaryAttachOperatorInterceptor(appCtx),
 		unaryAttachUsecaseInterceptor(appCtx),
 	)
-	s := grpc.NewServer(ui)
+	s := grpc.NewServer(
+		ui,
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 	pb.RegisterReEarthCMSServer(s, internalapi.NewServer(appCtx.Config.Host_Web, appCtx.Config.Host))
 
 	return s
@@ -123,6 +127,7 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 		}
 
 		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
+		// TODO: use operator-filtered repos once filtering supports internal API usecases
 		uc := interactor.New(r, g, ar, ag, interactor.ContainerConfig{})
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		ctx = adapter.AttachGateways(ctx, g)

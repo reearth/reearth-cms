@@ -42,10 +42,9 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
     await expect(contentPage.optionTextByName("Labels must be unique")).toBeVisible();
     await expect(fieldEditorPage.okButton).toBeDisabled();
     await fieldEditorPage.lastTextbox.fill(tag2);
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.groupNameByText(`${fieldName}#${fieldName}`)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify metadata field settings", async () => {
@@ -63,7 +62,7 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeEmpty();
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create item with tag value", async () => {
@@ -72,36 +71,33 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
     await expect(contentPage.optionTextByName(description)).toBeVisible();
     await contentPage.fieldInput(fieldName).click();
     await fieldEditorPage.tagOptionText(tag1).click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update tag from table view", async () => {
     await contentPage.backButtonRole.click();
     await contentPage.cellByText(fieldName).locator("div").nth(1).click();
-    await fieldEditorPage.tagOptionText(tag2).last().click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.tagOptionText(tag2).last());
     await expect(contentPage.cellByText(tag2)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update tag from edit view", async () => {
     await contentPage.editButton.click();
     await expect(contentPage.tabPanel.getByText(tag2)).toBeVisible();
     await fieldEditorPage.tagOptionText(tag2).click();
-    await fieldEditorPage.tagOptionText(tag1).click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.tagOptionText(tag1));
     await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify updated tag in table view", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.cellByText(tag1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -131,9 +127,8 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.click();
     await fieldEditorPage.tagOptionText(tag1).last().click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
@@ -141,9 +136,8 @@ test("Tag metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit(fieldName)).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(contentPage.optionTextByName("Tag1")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update metadata with multiple values, validations and new tag", async () => {
@@ -169,7 +163,7 @@ test("Tag metadata editing has succeeded", async ({
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag1)).toBeVisible();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag2)).toBeVisible();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag3)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Delete tag option and verify default values update", async () => {
@@ -182,10 +176,9 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.antSelectSelector.click();
     await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeHidden();
     await fieldEditorPage.antSelectSelector.click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
@@ -197,19 +190,17 @@ test("Tag metadata editing has succeeded", async ({
     await expect(contentPage.optionTextByName(newDescription)).toBeVisible();
     await expect(contentPage.optionTextByName(tag2)).toBeVisible();
     await expect(contentPage.optionTextByName(tag3)).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.optionTextByName(tag2)).toBeVisible();
     await expect(contentPage.optionTextByName(tag3)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update tag from table view", async () => {
     await contentPage.backButton.click();
     await contentPage.cellByTagNames(`${tag2} ${tag3}`).click();
-    await fieldEditorPage.tagOptionText(tag2).last().click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.tagOptionText(tag2).last());
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify tag removal and required field validation", async () => {
@@ -219,15 +210,14 @@ test("Tag metadata editing has succeeded", async ({
     await contentPage.closeCircleLabel.locator("svg").hover();
     await contentPage.closeCircleLabel.locator("svg").click();
     await expect(contentPage.pleaseInputFieldText).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add tag back and verify in table view", async () => {
     await fieldEditorPage.antSelectSelector.click();
-    await fieldEditorPage.tagOptionText(tag2).click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.tagOptionText(tag2));
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(tag2)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, renderHook, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe } from "vitest";
 
 import { TileInput, TerrainInput } from "@reearth-cms/components/molecules/Workspace/types";
 
-import FormModal, { TileTypeFormat, TerrainTypeFormat } from "./FormModal";
+import FormModal from "./FormModal";
+import useSettings from "./useSettings";
 
 describe("FormModal", () => {
   const user = userEvent.setup();
@@ -28,6 +29,7 @@ describe("FormModal", () => {
     );
 
     await user.click(screen.getByLabelText("Tiles type"));
+    const { TileTypeFormat } = renderHook(() => useSettings()).result.current;
     Object.values(TileTypeFormat).forEach(value => {
       expect(screen.getAllByText(value).length).toBeGreaterThan(0);
     });
@@ -80,6 +82,7 @@ describe("FormModal", () => {
     );
 
     await user.click(screen.getByLabelText("Terrain type"));
+    const { TerrainTypeFormat } = renderHook(() => useSettings()).result.current;
     Object.values(TerrainTypeFormat).forEach(value => {
       expect(screen.getAllByText(value).length).toBeGreaterThan(0);
     });

@@ -19,6 +19,7 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   integration: IntegrationInfo & Pick<Integration, "config">;
@@ -180,19 +181,19 @@ const MyIntegrationForm: React.FC<Props> = ({
 };
 
 const CodeExampleTitle = styled.h2`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const CodeExample = styled.pre`
-  border: 1px solid #d9d9d9;
-  padding: 5px 12px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
+  padding: 5px ${AntdToken.SPACING.SM}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
   position: relative;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -205,7 +206,7 @@ const StyledDivider = styled(Divider)`
 const StyledFormItem = styled(Form.Item)`
   .ant-form-item-control-input-content {
     display: flex;
-    gap: 4px;
+    gap: ${AntdToken.SPACING.XXS}px;
   }
 `;
 
@@ -213,11 +214,11 @@ const StyledTokenInput = styled(Password)`
   flex: 1;
   .ant-input-prefix {
     order: 1;
-    margin-left: 4px;
-    color: rgb(0, 0, 0, 0.45);
+    margin-left: ${AntdToken.SPACING.XXS}px;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
     transition: all 0.3s;
     :hover {
-      color: rgba(0, 0, 0, 0.88);
+      color: ${AntdColor.NEUTRAL.TEXT_V5};
     }
   }
   .ant-input-suffix {
@@ -228,8 +229,8 @@ const StyledTokenInput = styled(Password)`
 const StyledCopyButton = styled(CopyButton)`
   position: absolute;
   top: 5px;
-  right: 12px;
-  background: #ffffff;
+  right: ${AntdToken.SPACING.SM}px;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 export default MyIntegrationForm;

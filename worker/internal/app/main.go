@@ -2,23 +2,24 @@ package app
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/samber/lo"
-	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
-	"golang.org/x/net/http2"
-
+	"github.com/labstack/echo/v5"
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
 	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 func Start(debug bool, version string) {
@@ -97,29 +98,36 @@ func NewServer(ctx context.Context, cfg *ServerConfig, handler *Handler) *WebSer
 	}
 	address := host + ":" + port
 
-	w := &WebServer{
-		address: address,
+	return &WebServer{
+		address:   address,
+		appServer: initEcho(ctx, cfg, handler),
 	}
-
-	w.appServer = initEcho(ctx, cfg, handler)
-	return w
 }
 
 func (w *WebServer) Run(ctx context.Context) {
-	defer log.Infoc(ctx, "Server shutdown")
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	debugLog := ""
-	if w.appServer.Debug {
-		debugLog += " with debug mode"
+	sc := echo.StartConfig{
+		Address:         w.address,
+		GracefulTimeout: 10 * time.Second,
+		HideBanner:      true,
+		HidePort:        true,
+		BeforeServeFunc: func(s *http.Server) error {
+			protocols := new(http.Protocols)
+			protocols.SetHTTP1(true)
+			protocols.SetUnencryptedHTTP2(true)
+			s.Protocols = protocols
+			return nil
+		},
 	}
-	log.Infof("server started%s at http://%s\n", debugLog, w.address)
 
-	go func() {
-		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
+	log.Infof("server started at http://%s", w.address)
+	defer log.Infoc(ctx, "shutting down server...")
+
+	if err := sc.Start(ctx, w.appServer); err != nil &&
+		!errors.Is(err, context.Canceled) &&
+		!errors.Is(err, http.ErrServerClosed) {
 		log.Fatalc(ctx, err.Error())
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
+	}
 }

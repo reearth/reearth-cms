@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -12,8 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -56,26 +54,19 @@ func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i strin
 		}
 	}
 
-	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, wpm.PublicAssets)), nil
+	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, sp, wpm.PublicAssets)), nil
 }
 
 func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, ext string, p *usecasex.Pagination, w io.Writer) error {
-	start := time.Now()
-	log.Debugfc(ctx, "controller: [START] GetPublicItems for model=%s", mKey)
-
-	loadContextStart := time.Now()
 	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "controller: loadWPMContext took %v", time.Since(loadContextStart))
 
-	schemaStart := time.Now()
 	sp, err := c.usecases.Schema.FindByModel(ctx, wpm.Model.ID(), nil)
 	if err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "controller: Schema.FindByModel took %v", time.Since(schemaStart))
 
 	format := exporters.FormatJSON
 	switch ext {
@@ -87,8 +78,6 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 		format = exporters.FormatCSV
 	}
 
-	exportStart := time.Now()
-	log.Debugfc(ctx, "controller: [START] Item.Export - format=%v, publicAssets=%v", format, wpm.PublicAssets)
 	err = c.usecases.Item.Export(ctx, interfaces.ExportItemParams{
 		ModelID:       wpm.Model.ID(),
 		SchemaPackage: *sp,
@@ -99,13 +88,9 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 			IncludeGeometry:  true,
 			GeometryField:    nil,
 			Pagination:       p,
-			IncloudRefModels: wpm.PublicModels,
+			IncludeRefModels: wpm.PublicModels,
 		},
 	}, w, nil)
-	exportDuration := time.Since(exportStart)
-	totalDuration := time.Since(start)
-	log.Debugfc(ctx, "controller: [END] Item.Export took %v, total GetPublicItems took %v", exportDuration, totalDuration)
-
 	if err != nil {
 		return err
 	}
@@ -113,7 +98,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 	return nil
 }
 
-func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
+func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, prp bool) []Item {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -121,30 +106,60 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 		return nil
 	}
 
-	var vi []Item
-	for _, f := range i.Fields().FieldsByType(value.TypeReference) {
-		for _, v := range f.Value().Values() {
-			iid, ok := v.Value().(id.ItemID)
-			if !ok {
+	// Step 1: Collect all referenced item IDs
+	refItemIDs := item.List{i}.RefItemsIDs(*sp)
+
+	if len(refItemIDs) == 0 {
+		return nil
+	}
+
+	// Step 2: Batch load all referenced items
+	referencedItems, err := uc.Item.FindByIDs(ctx, refItemIDs, op)
+	if err != nil || len(referencedItems) == 0 {
+		return nil
+	}
+
+	// Step 3: Batch load all assets if needed
+	var assetsMap asset.Map
+	if prp {
+		var allAssetIDs asset.IDList
+		for _, ii := range referencedItems {
+			refSchema := sp.SchemaByModel(ii.Value().Model())
+			if refSchema == nil {
 				continue
 			}
-			ii, err := uc.Item.FindByID(ctx, iid, op)
-			if err != nil || ii == nil {
-				continue
+			refPkg := schema.NewPackage(refSchema, nil, nil, nil)
+			allAssetIDs = allAssetIDs.AddUniq(ii.Value().AssetIDsBySchema(*refPkg)...)
+		}
+		if len(allAssetIDs) > 0 {
+			assets, err := uc.Asset.FindByIDs(ctx, allAssetIDs, nil)
+			if err == nil {
+				assetsMap = assets.Map()
 			}
-			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
-			if err != nil {
-				continue
-			}
-			var assets asset.List
-			if prp {
-				assets, err = uc.Asset.FindByIDs(ctx, ii.Value().AssetIDs(), nil)
-				if err != nil {
-					continue
+		}
+	}
+
+	// Step 4: Build result from loaded data
+	vi := make([]Item, 0, len(referencedItems))
+	for _, ii := range referencedItems {
+		refSchema := sp.SchemaByModel(ii.Value().Model())
+		if refSchema == nil {
+			continue
+		}
+
+		// Create a simple schema package for the referenced item
+		refSchemaPackage := schema.NewPackage(refSchema, nil, nil, nil)
+
+		var itemAssets asset.List
+		if prp && assetsMap != nil {
+			for _, aid := range ii.Value().AssetIDs() {
+				if a, exists := assetsMap[aid]; exists {
+					itemAssets = append(itemAssets, a)
 				}
 			}
-			vi = append(vi, NewItem(ii.Value(), sp, assets, nil))
 		}
+
+		vi = append(vi, NewItem(ii.Value(), refSchemaPackage, itemAssets, nil))
 	}
 
 	return vi

@@ -61,6 +61,34 @@ func TestItem_UpdateFields(t *testing.T) {
 			target: &Item{},
 			want:   &Item{},
 		},
+		func() struct {
+			name   string
+			target *Item
+			input  []*Field
+			want   *Item
+		} {
+			gid1, gid2 := id.NewItemGroupID(), id.NewItemGroupID()
+			groupField := NewField(id.NewFieldID(), value.NewMultiple(value.TypeGroup, []any{gid1, gid2}), nil)
+			fg1old := NewField(fid, value.TypeText.Value("group1_old").AsMultiple(), &gid1)
+			fg1new := NewField(fid, value.TypeText.Value("group1_new").AsMultiple(), &gid1)
+			fg2new := NewField(fid, value.TypeText.Value("group2_new").AsMultiple(), &gid2)
+			return struct {
+				name   string
+				target *Item
+				input  []*Field
+				want   *Item
+			}{
+				name:  "should update fields in different groups with same field ID",
+				input: []*Field{fg1new, fg2new, groupField},
+				target: &Item{
+					fields: []*Field{fg1old, groupField},
+				},
+				want: &Item{
+					fields:    []*Field{fg1new, groupField, fg2new},
+					timestamp: now,
+				},
+			}
+		}(),
 	}
 
 	for _, tt := range tests {
@@ -307,6 +335,293 @@ func TestItem_AssetIDsBySchema(t *testing.T) {
 	}
 }
 
+func TestItem_RefItemIDsByModels(t *testing.T) {
+	t.Parallel()
+
+	refID1 := id.NewItemID()
+	refID2 := id.NewItemID()
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+
+	refFieldID := id.NewFieldID()
+	otherRefFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+
+	modelId := id.NewModelID()
+	otherModelId := id.NewModelID()
+
+	refField := schema.NewField(schema.NewReference(modelId, id.NewSchemaID(), nil, nil).TypeProperty()).
+		ID(refFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	otherRefField := schema.NewField(schema.NewReference(otherModelId, id.NewSchemaID(), nil, nil).TypeProperty()).
+		ID(otherRefFieldID).Key(id.RandomKey()).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).
+		ID(textFieldID).Key(id.RandomKey()).MustBuild()
+
+	pkgRefOnly := *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField}).MustBuild(), nil, nil, nil)
+	pkgBothRefs := *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField, otherRefField}).MustBuild(), nil, nil, nil)
+	pkgNoRefs := *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{textField}).MustBuild(), nil, nil, nil)
+
+	tests := []struct {
+		name     string
+		item     *Item
+		pkg      schema.Package
+		models   id.ModelIDList
+		expected IDList
+	}{
+		{
+			name:     "schema with no reference fields returns nil",
+			item:     &Item{fields: []*Field{{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()}}},
+			pkg:      pkgNoRefs,
+			models:   id.ModelIDList{modelId, otherModelId},
+			expected: nil,
+		},
+		{
+			name:     "item has no matching fields",
+			item:     &Item{fields: []*Field{{field: textFieldID, value: value.TypeText.Value("test").AsMultiple()}}},
+			pkg:      pkgRefOnly,
+			expected: IDList{},
+		},
+		{
+			name: "single reference field single value",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+			}},
+			pkg:      pkgRefOnly,
+			models:   id.ModelIDList{modelId, otherModelId},
+			expected: IDList{refID1},
+		},
+		{
+			name: "multiple values in reference field",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2})},
+			}},
+			pkg:      pkgRefOnly,
+			models:   id.ModelIDList{modelId},
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "only schema reference fields are collected",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+				{field: otherRefFieldID, value: value.TypeReference.Value(refID2).AsMultiple()},
+			}},
+			pkg:      pkgRefOnly,
+			models:   id.ModelIDList{modelId},
+			expected: IDList{refID1},
+		},
+		{
+			name: "both reference fields collected when both in schema",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+				{field: otherRefFieldID, value: value.TypeReference.Value(refID2).AsMultiple()},
+			}},
+			pkg:      pkgBothRefs,
+			models:   id.ModelIDList{modelId, otherModelId},
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "both reference fields collected when both in schema",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+				{field: otherRefFieldID, value: value.TypeReference.Value(refID2).AsMultiple()},
+			}},
+			pkg:      pkgBothRefs,
+			models:   id.ModelIDList{modelId},
+			expected: IDList{refID1},
+		},
+		{
+			name: "non-reference value in field is ignored",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.TypeText.Value("not-a-ref").AsMultiple()},
+			}},
+			pkg:      pkgRefOnly,
+			expected: IDList{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.item.RefItemsIDsByModels(tt.pkg, tt.models)
+			assert.ElementsMatch(t, tt.expected, got)
+		})
+	}
+}
+
+func TestItem_RefItemIDsBySchema(t *testing.T) {
+	t.Parallel()
+
+	refID1 := id.NewItemID()
+	refID2 := id.NewItemID()
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+
+	refFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+
+	refField := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).
+		ID(refFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).
+		ID(textFieldID).Key(id.RandomKey()).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField, textField}).MustBuild()
+
+	tests := []struct {
+		name     string
+		item     *Item
+		pkg      schema.Package
+		expected IDList
+	}{
+		{
+			name:     "empty schema package returns nil",
+			item:     &Item{fields: []*Field{{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()}}},
+			pkg:      schema.Package{},
+			expected: nil,
+		},
+		{
+			name: "no reference fields in schema returns nil",
+			item: &Item{fields: []*Field{
+				{field: textFieldID, value: value.TypeText.Value("test").AsMultiple()},
+			}},
+			pkg:      *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{textField}).MustBuild(), nil, nil, nil),
+			expected: nil,
+		},
+		{
+			name: "collects ref IDs from matching schema fields",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+				{field: textFieldID, value: value.TypeText.Value("test").AsMultiple()},
+			}},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1},
+		},
+		{
+			name: "collects multiple ref IDs from multi-value field",
+			item: &Item{fields: []*Field{
+				{field: refFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2})},
+			}},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "field not in schema is ignored",
+			item: &Item{fields: []*Field{
+				{field: id.NewFieldID(), value: value.TypeReference.Value(refID1).AsMultiple()},
+			}},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.item.RefItemsIDs(tt.pkg)
+			assert.ElementsMatch(t, tt.expected, got)
+		})
+	}
+}
+
+func TestItem_RefItemsIds(t *testing.T) {
+	t.Parallel()
+
+	refID1, refID2, refID3 := id.NewItemID(), id.NewItemID(), id.NewItemID()
+	refFieldID := id.NewFieldID()
+	refFieldID2 := id.NewFieldID()
+	multiRefFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+
+	wid := accountdomain.NewWorkspaceID()
+	refField := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(refFieldID).Key(id.RandomKey()).MustBuild()
+	refField2 := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(refFieldID2).Key(id.RandomKey()).MustBuild()
+	multiRefField := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(multiRefFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).ID(textFieldID).Key(id.RandomKey()).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(id.NewProjectID()).Fields([]*schema.Field{refField, refField2, multiRefField, textField}).MustBuild()
+
+	tests := []struct {
+		name     string
+		item     *Item
+		pkg      schema.Package
+		expected IDList
+	}{
+		{
+			name: "empty schema package",
+			item: &Item{
+				fields: []*Field{
+					{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+				},
+			},
+			pkg:      schema.Package{},
+			expected: nil,
+		},
+		{
+			name: "single reference field",
+			item: &Item{
+				fields: []*Field{
+					{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+					{field: textFieldID, value: value.TypeText.Value("test").AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1},
+		},
+		{
+			name: "multiple reference values",
+			item: &Item{
+				fields: []*Field{
+					{field: multiRefFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2})},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "non-multiple field extracts only first reference",
+			item: &Item{
+				fields: []*Field{
+					{field: refFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2})},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1},
+		},
+		{
+			name: "deduplicate duplicated references",
+			item: &Item{
+				fields: []*Field{
+					{field: refFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2, refID1})},
+					{field: refFieldID2, value: value.TypeReference.Value(refID2).AsMultiple()},
+					{field: textFieldID, value: value.TypeText.Value("test").AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "ignore references from fields not in schema package",
+			item: &Item{
+				fields: []*Field{
+					{field: id.NewFieldID(), value: value.TypeReference.Value(refID3).AsMultiple()},
+					{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.expected, tt.item.RefItemsIDs(tt.pkg))
+		})
+	}
+}
+
 func TestItem_User(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	uid := accountdomain.NewUserID()
@@ -384,81 +699,6 @@ func TestItem_GetTitle(t *testing.T) {
 	assert.NoError(t, err)
 	title = i1.GetTitle(s1)
 	assert.Equal(t, "test", *title)
-}
-
-func TestGetFirstGeometryField(t *testing.T) {
-	iid := id.NewItemID()
-	sid := id.NewSchemaID()
-	mid := id.NewModelID()
-	uid := accountdomain.NewUserID()
-	nid := id.NewIntegrationID()
-	tid := id.NewThreadID().Ref()
-	pid := id.NewProjectID()
-	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
-	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString, schema.GeometryEditorSupportedTypePolygon}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(id.RandomKey()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(id.RandomKey()).Multiple(true).MustBuild()
-	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(id.RandomKey()).MustBuild()
-	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
-	tp4 := in4.TypeProperty()
-	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(id.RandomKey()).MustBuild()
-	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(id.RandomKey()).MustBuild()
-	fi1 := NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
-	fi2 := NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
-	fi3 := NewField(sf3.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
-	fi4 := NewField(sf4.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
-	fi5 := NewField(sf5.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
-	i1 := New().
-		ID(iid).
-		Schema(sid).
-		Project(pid).
-		Fields([]*Field{fi1, fi2, fi3, fi4, fi5}).
-		Model(mid).
-		Thread(tid).
-		User(uid).
-		Integration(nid).
-		MustBuild()
-	i2 := New().
-		ID(iid).
-		Schema(sid).
-		Project(pid).
-		Fields([]*Field{fi1, fi2, fi4, fi5}).
-		Model(mid).
-		Thread(tid).
-		User(uid).
-		Integration(nid).
-		MustBuild()
-	i3 := New().
-		ID(iid).
-		Schema(sid).
-		Project(pid).
-		Fields([]*Field{fi2, fi4, fi5}).
-		Model(mid).
-		Thread(tid).
-		User(uid).
-		Integration(nid).
-		MustBuild()
-
-	// Test with item that has two geometry fields
-	geometry1, ok1 := i1.GetFirstGeometryField()
-	assert.True(t, ok1)
-	assert.NotNil(t, geometry1)
-
-	// Test with item that has one geometry field
-	geometry2, ok2 := i2.GetFirstGeometryField()
-	assert.True(t, ok2)
-	assert.NotNil(t, geometry2)
-
-	// Test with item that has no geometry fields
-	geometry3, ok3 := i3.GetFirstGeometryField()
-	assert.False(t, ok3)
-	assert.Nil(t, geometry3)
-
-	// Test with item that equals nil
-	var i4 *Item
-	geometry4, ok4 := i4.GetFirstGeometryField()
-	assert.False(t, ok4)
-	assert.Nil(t, geometry4)
 }
 
 func TestItem_Clone(t *testing.T) {

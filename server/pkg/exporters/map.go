@@ -1,10 +1,8 @@
 package exporters
 
 import (
-	"context"
 	"encoding/json"
 	"reflect"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -12,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
@@ -26,7 +23,7 @@ func (i ItemMap) DropEmptyFields() ItemMap {
 		}
 		rv := reflect.ValueOf(v)
 		// Check for nil pointers, interfaces, slices, arrays, maps
-		if (rv.Kind() == reflect.Ptr && rv.IsNil()) ||
+		if (rv.Kind() == reflect.Pointer && rv.IsNil()) ||
 			(rv.Kind() == reflect.Interface && rv.IsNil()) ||
 			((rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array || rv.Kind() == reflect.Map) && (rv.IsNil() || rv.Len() == 0)) {
 			delete(i, k)
@@ -39,9 +36,6 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 	if itm == nil {
 		return nil
 	}
-
-	// Create a context for logging (will be tied to the item processing)
-	ctx := context.Background()
 
 	var convertFields func(iid *id.ItemID, fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, al AssetLoader, il ItemLoader, deep int) ItemMap
 
@@ -131,21 +125,14 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 				}
 			} else if sf.Type() == value.TypeGeometryObject || sf.Type() == value.TypeGeometryEditor {
 				// Parse geometry JSON strings into actual JSON objects
-				geoStart := time.Now()
 				if sf.Multiple() {
 					var geoValues []any
-					for idx, v := range f.Value().Values() {
+					for _, v := range f.Value().Values() {
 						if geoStr, ok := v.Value().(string); ok && geoStr != "" {
 							var geoJSON any
-							parseStart := time.Now()
 							if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
 								geoValues = append(geoValues, geoJSON)
-								parseDuration := time.Since(parseStart)
-								if parseDuration > 5*time.Millisecond {
-									log.Debugfc(ctx, "exporter: Geometry field %s[%d] parsing took %v", k, idx, parseDuration)
-								}
 							} else {
-								log.Debugfc(ctx, "exporter: Geometry field %s[%d] parse failed: %v", k, idx, err)
 								geoValues = append(geoValues, geoStr) // fallback to string if parsing fails
 							}
 						} else {
@@ -157,25 +144,15 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 					if first := f.Value().First(); first != nil {
 						if geoStr, ok := first.Value().(string); ok && geoStr != "" {
 							var geoJSON any
-							parseStart := time.Now()
 							if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
 								val = geoJSON
-								parseDuration := time.Since(parseStart)
-								if parseDuration > 5*time.Millisecond {
-									log.Debugfc(ctx, "exporter: Geometry field %s parsing took %v", k, parseDuration)
-								}
 							} else {
-								log.Debugfc(ctx, "exporter: Geometry field %s parse failed: %v", k, err)
 								val = geoStr // fallback to string if parsing fails
 							}
 						} else {
 							val = first.Value() // fallback to the original value if not a non-empty string
 						}
 					}
-				}
-				geoDuration := time.Since(geoStart)
-				if geoDuration > 10*time.Millisecond {
-					log.Debugfc(ctx, "exporter: Geometry field %s total processing took %v", k, geoDuration)
 				}
 			} else if sf.Multiple() {
 				val = f.Value().Interface()
@@ -192,6 +169,25 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 	}
 
 	m := convertFields(itm.ID().Ref(), itm.Fields(), sp.Schema().Fields(), sp.GroupSchemas().Fields(), al, il, 0)
+
+	m["$createdAt"] = itm.ID().Timestamp()
+	m["$updatedAt"] = itm.Timestamp()
+
+	if itm.User() != nil {
+		m["$createdBy"] = itm.User().String()
+	} else if itm.Integration() != nil {
+		m["$createdBy"] = itm.Integration().String()
+	}
+
+	if itm.UpdatedByUser() != nil {
+		m["$updatedBy"] = itm.UpdatedByUser().String()
+	} else if itm.UpdatedByIntegration() != nil {
+		m["$updatedBy"] = itm.UpdatedByIntegration().String()
+	} else if itm.User() != nil {
+		m["$updatedBy"] = itm.User().String()
+	} else if itm.Integration() != nil {
+		m["$updatedBy"] = itm.Integration().String()
+	}
 
 	return m.DropEmptyFields()
 }

@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"time"
 
@@ -17,7 +18,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -214,6 +214,21 @@ func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 	}
 
 	r.data.Delete(itemID)
+	return nil
+}
+
+func (r *Item) RemoveByModel(_ context.Context, modelID id.ModelID) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(version.Latest.OrVersion())
+		if itv != nil && itv.Value().Model() == modelID {
+			r.data.Delete(k)
+		}
+		return true
+	})
 	return nil
 }
 

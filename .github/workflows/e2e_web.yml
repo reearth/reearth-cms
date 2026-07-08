@@ -60,7 +60,7 @@ env:
 jobs:
   e2e:
     name: playwright
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       id-token: write
@@ -68,10 +68,14 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v6
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v7
         with:
           repository: reearth/reearth-cms
-          ref: ${{ inputs.branch || 'main' }}
+          ref: ${{ inputs.branch || github.ref }}
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*
@@ -87,9 +91,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: "${{ runner.os }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
+          key: "${{ runner.os }}-${{ runner.arch }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
           restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
+            ${{ runner.os }}-${{ runner.arch }}-playwright-chromium-
       - name: Install Playwright system dependencies and browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps chromium
@@ -120,6 +124,15 @@ jobs:
           echo "REEARTH_CMS_API is $REEARTH_CMS_API"
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
           echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
+          echo "::group::Playwright setup"
+          echo "smoke: ${{ inputs.smoke_only && 'true' || 'false' }}"
+          echo "workers: 1"
+          echo "retries: 4"
+          echo "maxFailures: 4"
+          echo "fullyParallel: false"
+          echo "slowMo: 300ms"
+          echo "shards: none"
+          echo "::endgroup::"
       - name: Run Playwright tests
         timeout-minutes: 120
         env:
@@ -127,7 +140,7 @@ jobs:
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
         run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results

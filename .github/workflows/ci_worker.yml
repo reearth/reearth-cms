@@ -1,13 +1,20 @@
 name: ci-worker
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
 jobs:
   ci-server-lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: go setup
         uses: actions/setup-go@v6
         with:
@@ -17,7 +24,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.6.2
+          version: v2.12.2
           working-directory: worker
           args: --config=../.golangci.yml
           skip-cache: true
@@ -40,8 +47,12 @@ jobs:
         ports:
           - 27017:27017
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: go setup
         uses: actions/setup-go@v6
         with:
@@ -49,12 +60,12 @@ jobs:
           check-latest: true
           cache-dependency-path: 'worker/go.sum'
       - name: test
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m ./...
         working-directory: worker
         env:
           REEARTH_CMS_DB: mongodb://localhost
       - name: Send coverage report
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           flags: worker
-          file: coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}

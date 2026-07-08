@@ -16,7 +16,7 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
 import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
@@ -36,6 +36,7 @@ import {
   toGraphConditionInput,
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+import { useExportContent } from "@reearth-cms/components/organisms/Project/hooks/useExportContent";
 import {
   Item as GQLItem,
   Comment as GQLComment,
@@ -55,6 +56,7 @@ import {
 import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
 import { fileName } from "./utils";
 
@@ -65,12 +67,8 @@ const defaultViewSort: ItemSort = {
   },
 };
 
-export type ValidateImportResult = {
-  type: "warning" | "error";
-  title: string;
-  description: string;
-  canForwardToImport?: boolean;
-  hint?: string;
+export type ImportValidationResult = {
+  errorLogMeta?: ErrorLogMeta;
 };
 
 export default () => {
@@ -98,6 +96,15 @@ export default () => {
   } = useContentHooks();
   const t = useT();
   const { handleEnqueueJob, uploaderState } = useUploaderHook();
+  const { handleContentExportClick, exportContentLoading } = useExportContent();
+
+  const handleContentExport = useCallback(
+    async (format: ExportFormat, geometryFieldsCount?: number) => {
+      if (!currentModel?.id) return;
+      await handleContentExportClick(currentModel.id, format, geometryFieldsCount);
+    },
+    [currentModel?.id, handleContentExportClick],
+  );
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -119,9 +126,8 @@ export default () => {
   );
   const [dataChecking, setDataChecking] = useState(false);
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
-  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
-    null,
-  );
+  const [importValidationResult, setImportValidationResult] =
+    useState<ImportValidationResult | null>(null);
 
   const [userId] = useUserId();
   const [userRights] = useUserRights();
@@ -655,7 +661,7 @@ export default () => {
   const handleImportContentModalClose = useCallback(() => {
     setIsImportContentModalOpen(false);
     setAlertList([]);
-    setValidateImportResult(null);
+    setImportValidationResult(null);
   }, []);
 
   const handlePublish = useCallback(
@@ -702,6 +708,11 @@ export default () => {
     uploaderState.queue,
     viewLoading,
   ]);
+
+  const isExportContentLoading = useMemo<boolean>(
+    () => !currentModel?.id || exportContentLoading,
+    [currentModel?.id, exportContentLoading],
+  );
 
   return {
     currentModel,
@@ -766,9 +777,11 @@ export default () => {
     currentWorkspaceId,
     currentProjectId,
     hasModelFields,
+    handleContentExport,
+    exportContentLoading: isExportContentLoading,
     alertList,
     setAlertList,
-    validateImportResult,
-    setValidateImportResult,
+    importValidationResult,
+    setImportValidationResult,
   };
 };

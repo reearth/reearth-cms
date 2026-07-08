@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	MaxImportFileSize    = 10 * 1024 * 1024 // 10 MB
+	MaxImportFileSize    = 100 * 1024 * 1024 // 100 MB
 	MaxImportRecordCount = 50_000
 )
 
@@ -32,7 +32,7 @@ var (
 	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
 	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
-	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 10MB)"))
+	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 100MB)"))
 	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 50,000)"))
 )
 

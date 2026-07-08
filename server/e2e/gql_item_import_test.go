@@ -119,14 +119,14 @@ func TestGQLImportItems(t *testing.T) {
 			expectedIgnore: 0,
 		},
 		{
-			name: "file too large (exceeds 10MB)",
+			name: "file too large (exceeds 100MB)",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
 			},
 			fileName: "large.json",
 			fileContent: func() string {
-				// Create content larger than 10MB limit (~12MB)
-				largeContent := strings.Repeat(`{"name": "test"},`, 800000)
+				// Create content larger than 100MB limit (~120MB)
+				largeContent := strings.Repeat(`{"name": "test"},`, 8000000)
 				return "[" + largeContent[:len(largeContent)-1] + "]"
 			},
 			expectError:   true,

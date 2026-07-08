@@ -22,8 +22,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("url1 description");
 
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("url1#url1");
   await contentPage.contentText.click();
@@ -32,8 +31,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
   await expect(contentPage.mainElement).toContainText("url1 description");
   await contentPage.fieldInput("url1").click();
   await contentPage.fieldInput("url1").fill("http://test1.com");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test1.com")).toBeVisible();
 
@@ -41,8 +39,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://test1.com");
   await contentPage.fieldInput("url1").click();
   await contentPage.fieldInput("url1").fill("http://test2.com");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test2.com")).toBeVisible();
 });
@@ -58,14 +55,12 @@ test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, s
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.setDefaultValueInput.fill("http://test1.com");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
 
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("url1");
   await contentPage.newItemButton.click();
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test1.com")).toBeVisible();
 
@@ -88,8 +83,7 @@ test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, s
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.defaultValueInputByIndex(1).click();
   await fieldEditorPage.defaultValueInputByIndex(1).fill("http://test2.com");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
 
   await expect(schemaPage.uniqueFieldText("new url1", "new-url1")).toBeVisible();
   await contentPage.contentText.click();
@@ -99,8 +93,7 @@ test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, s
   await expect(contentPage.uniqueFieldLabel("new url1")).toBeVisible();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://test1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://test2.com");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
+  await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButton.click();
   await contentPage.x2Button.click();
   await expect(contentPage.tooltip).toContainText("http://test1.comhttp://test2.com");

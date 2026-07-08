@@ -2,12 +2,12 @@ package schema
 
 import (
 	"errors"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 var ErrInvalidTitleField = errors.New("title field must be one of schema fields")
@@ -16,7 +16,7 @@ type Schema struct {
 	id         ID
 	project    ProjectID
 	workspace  accountdomain.WorkspaceID
-	fields     []*Field
+	fields     FieldList
 	titleField *FieldID
 }
 
@@ -86,6 +86,18 @@ func (s *Schema) Field(fId FieldID) *Field {
 	return f
 }
 
+func (s *Schema) FirstGeometryField() *Field {
+	if s == nil || s.fields == nil {
+		return nil
+	}
+	for _, f := range s.fields.Ordered() {
+		if f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor {
+			return f
+		}
+	}
+	return nil
+}
+
 func (s *Schema) FieldByIDOrKey(fId *FieldID, key *id.Key) *Field {
 	if s == nil || s.fields == nil {
 		return nil
@@ -100,7 +112,7 @@ func (s *Schema) Fields() FieldList {
 	if s == nil {
 		return nil
 	}
-	var fl FieldList = slices.Clone(s.fields)
+	var fl = slices.Clone(s.fields)
 	return fl.Ordered()
 }
 

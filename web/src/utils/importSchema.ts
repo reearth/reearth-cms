@@ -18,6 +18,7 @@ import {
   GeoJSONPolygonSchema,
 } from "zod-geojson";
 
+import { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
 import {
   ObjectSupportedType,
   EditorSupportedType,
@@ -299,7 +300,9 @@ export interface ImportSchema {
 export abstract class ImportSchemaUtils {
   public static validateSchemaFromJSON(
     json: ImportSchema,
-  ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
+  ):
+    | { isValid: true; data: ImportSchema }
+    | { isValid: false; error: string; zodIssues: z.core.$ZodIssue[] } {
     const timer = new PerformanceTimer("validateSchemaFromJSON");
 
     const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
@@ -309,7 +312,11 @@ export abstract class ImportSchemaUtils {
     if (validation.success) {
       return { isValid: true, data: validation.data };
     } else {
-      return { isValid: false, error: validation.error.message };
+      return {
+        isValid: false,
+        error: validation.error.message,
+        zodIssues: validation.error.issues,
+      };
     }
   }
 
@@ -330,12 +337,16 @@ export abstract class ImportSchemaUtils {
     })
     .superRefine((values, context) => {
       const { "x-defaultValue": defaultValue, maxLength } = values;
-      if (defaultValue && maxLength && defaultValue.length > maxLength) {
+      if (
+        defaultValue !== undefined &&
+        maxLength !== undefined &&
+        defaultValue.length > maxLength
+      ) {
         context.addIssue({
           code: "too_big",
           origin: "string",
           maximum: maxLength,
-          message: "defaultValue should be less than maxLength",
+          message: t("defaultValue should be less than maxLength"),
           input: defaultValue,
         });
       }
@@ -350,12 +361,16 @@ export abstract class ImportSchemaUtils {
     })
     .superRefine((values, context) => {
       const { "x-defaultValue": defaultValue, maxLength } = values;
-      if (defaultValue && maxLength && defaultValue.some(value => value.length > maxLength)) {
+      if (
+        defaultValue !== undefined &&
+        maxLength !== undefined &&
+        defaultValue.some(value => value.length > maxLength)
+      ) {
         context.addIssue({
           code: "too_big",
           origin: "string",
           maximum: maxLength,
-          message: "each defaultValue item should be less than maxLength",
+          message: t("each defaultValue item should be less than maxLength"),
           input: defaultValue,
         });
       }
@@ -398,15 +413,14 @@ export abstract class ImportSchemaUtils {
         geoSupportedTypes.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
       );
 
-      const defaultValueType =
-        defaultValue.type.toLocaleLowerCase() as Lowercase<ObjectSupportedType>;
+      const defaultValueType = defaultValue.type.toLowerCase() as Lowercase<ObjectSupportedType>;
 
       if (!geoSupportTypeSet.has(defaultValueType)) {
         context.addIssue({
           code: "custom",
           expected:
             "Legal support types: POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, GEOMETRYCOLLECTION",
-          message: "defaultValue type is invalid",
+          message: t("defaultValue type is invalid"),
         });
       }
     })
@@ -450,7 +464,7 @@ export abstract class ImportSchemaUtils {
       );
 
       const defaultValueTypes = defaultValue.map(_defaultValue =>
-        _defaultValue.type.toLocaleLowerCase(),
+        _defaultValue.type.toLowerCase(),
       ) as Lowercase<ObjectSupportedType>[];
 
       if (defaultValueTypes.some(defaultValueType => !supportTypeSet.has(defaultValueType))) {
@@ -458,7 +472,7 @@ export abstract class ImportSchemaUtils {
           code: "custom",
           expected:
             "Legal support types: POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, GEOMETRYCOLLECTION",
-          message: "defaultValue type is invalid",
+          message: t("defaultValue type is invalid"),
         });
       }
     })
@@ -627,22 +641,22 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue < minimum) {
+            if (minimum !== undefined && defaultValue !== undefined && defaultValue < minimum) {
               context.addIssue({
                 code: "too_small",
                 origin: "number",
                 minimum,
-                message: "defaultValue should be greater than minimum",
+                message: t("defaultValue should be greater than minimum"),
                 input: defaultValue,
               });
             }
 
-            if (maximum && defaultValue && defaultValue > maximum) {
+            if (maximum !== undefined && defaultValue !== undefined && defaultValue > maximum) {
               context.addIssue({
                 code: "too_big",
                 origin: "number",
                 maximum,
-                message: "defaultValue should be less than maximum",
+                message: t("defaultValue should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -659,22 +673,30 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
+            if (
+              minimum !== undefined &&
+              defaultValue !== undefined &&
+              defaultValue.some(value => value < minimum)
+            ) {
               context.addIssue({
                 code: "too_small",
                 origin: "number",
                 minimum,
-                message: "each defaultValue item should be greater than minimum",
+                message: t("each defaultValue item should be greater than minimum"),
                 input: defaultValue,
               });
             }
 
-            if (maximum && defaultValue && defaultValue.some(value => value > maximum)) {
+            if (
+              maximum !== undefined &&
+              defaultValue !== undefined &&
+              defaultValue.some(value => value > maximum)
+            ) {
               context.addIssue({
                 code: "too_big",
                 origin: "number",
                 maximum,
-                message: "each defaultValue item should be less than maximum",
+                message: t("each defaultValue item should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -691,22 +713,22 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue < minimum) {
+            if (minimum !== undefined && defaultValue !== undefined && defaultValue < minimum) {
               context.addIssue({
                 code: "too_small",
                 origin: "int",
                 minimum,
-                message: "defaultValue should be greater than minimum",
+                message: t("defaultValue should be greater than minimum"),
                 input: defaultValue,
               });
             }
 
-            if (maximum && defaultValue && defaultValue > maximum) {
+            if (maximum !== undefined && defaultValue !== undefined && defaultValue > maximum) {
               context.addIssue({
                 code: "too_big",
                 origin: "int",
                 maximum,
-                message: "defaultValue should be less than maximum",
+                message: t("defaultValue should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -723,22 +745,30 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
+            if (
+              minimum !== undefined &&
+              defaultValue !== undefined &&
+              defaultValue.some(value => value < minimum)
+            ) {
               context.addIssue({
                 code: "too_small",
                 origin: "int",
                 minimum,
-                message: "each defaultValue item should be greater than minimum",
+                message: t("each defaultValue item should be greater than minimum"),
                 input: defaultValue,
               });
             }
 
-            if (maximum && defaultValue && defaultValue.some(value => value > maximum)) {
+            if (
+              maximum !== undefined &&
+              defaultValue !== undefined &&
+              defaultValue.some(value => value > maximum)
+            ) {
               context.addIssue({
                 code: "too_big",
                 origin: "int",
                 maximum,
-                message: "each defaultValue item should be less than maximum",
+                message: t("each defaultValue item should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -757,7 +787,7 @@ export abstract class ImportSchemaUtils {
             if (defaultValue && !valuesSet.has(defaultValue)) {
               context.addIssue({
                 code: "invalid_value",
-                message: "defaultValue should be in one of values",
+                message: t("defaultValue should be in one of options"),
                 input: value,
                 values: options,
               });
@@ -777,7 +807,7 @@ export abstract class ImportSchemaUtils {
             if (defaultValue && defaultValue.some(_value => !valuesSet.has(_value))) {
               context.addIssue({
                 code: "invalid_value",
-                message: "defaultValue should be in one of values",
+                message: t("defaultValue should be in one of options"),
                 input: value,
                 values: options,
               });
@@ -806,18 +836,32 @@ export abstract class ImportSchemaUtils {
     ),
   });
 
-  public static getUIMetadata(params: { hasSchemaCreateRight: boolean; hasModelFields: boolean }): {
-    tooltipMessage: string | undefined;
+  public static getUIMetadata(params: {
+    hasSchemaCreateRight: boolean;
+    hasModelFields: boolean;
+    isFieldTab?: boolean;
+    isModel?: boolean;
+  }): {
+    tooltipMessage: TooltipProps["title"];
     shouldDisable: boolean;
   } {
-    const { hasModelFields, hasSchemaCreateRight } = params;
+    const { hasModelFields, hasSchemaCreateRight, isFieldTab = true, isModel = true } = params;
+
+    let tooltipMessage: TooltipProps["title"] = undefined;
+
+    if (!isModel) {
+      tooltipMessage = t("Importing into groups is not supported");
+    } else if (!isFieldTab) {
+      tooltipMessage = t("Importing into meta data is not supported");
+    } else if (!hasSchemaCreateRight) {
+      tooltipMessage = t("Reader cannot import schema.");
+    } else if (hasModelFields) {
+      tooltipMessage = t("Only empty schemas can be imported into");
+    }
+
     return {
-      tooltipMessage: !hasSchemaCreateRight
-        ? t("Reader cannot import schema.")
-        : !hasModelFields
-          ? undefined
-          : t("Only empty schemas can be imported into"),
-      shouldDisable: hasModelFields || !hasSchemaCreateRight,
+      tooltipMessage,
+      shouldDisable: !isModel || !isFieldTab || !hasSchemaCreateRight || hasModelFields,
     };
   }
 }

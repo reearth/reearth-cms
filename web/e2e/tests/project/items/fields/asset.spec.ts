@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { isCesiumViewerReady } from "@reearth-cms/e2e/helpers/viewer.helper";
 
 const uploadFileUrl_1 =
   "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
@@ -35,9 +34,8 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsKeyInput.fill("asset1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify field created and navigate to new item", async () => {
@@ -46,7 +44,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.locator("label")).toContainText("asset1");
     await expect(contentPage.mainRole).toContainText("asset1 description");
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Upload first asset via URL", async () => {
@@ -55,23 +53,21 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify first asset uploaded", async () => {
     await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Save item and verify asset appears in list", async () => {
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit item and replace asset with second file", async () => {
@@ -81,9 +77,8 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify second asset replaced first and save changes", async () => {
@@ -91,11 +86,11 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
     await contentPage.backButton.click();
     await contentPage.cancelButton.click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await expect(page.locator(".ant-notification-notice")).toHaveCount(0, { timeout: 5_000 });
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -111,9 +106,8 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("asset1");
     await fieldEditorPage.settingsKeyInput.fill("asset1");
     await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
+    await page.waitForLoadState("networkidle");
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
   });
 
@@ -129,17 +123,13 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     await fieldEditorPage.uploadAssetButton.click();
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
     await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
   });
 
   await test.step("Save item", async () => {
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   });
 
   await test.step("Preview asset in new tab and verify viewer loads", async () => {
@@ -149,9 +139,15 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     ]);
     await viewerPage.waitForLoadState("domcontentloaded");
 
-    const isViewerReady = await isCesiumViewerReady(viewerPage);
-    expect(isViewerReady).toBe(true);
-    await page.waitForTimeout(300);
+    // Cesium canvas is rendered (attached to DOM) but Playwright considers it
+    // hidden because the WebGL canvas is not passing visibility checks.
+    await expect(viewerPage.locator("canvas").first()).toBeAttached();
+    // Wait until the Cesium canvas has non-zero dimensions to ensure it has
+    // been initialized/rendered, even in headless mode.
+    await viewerPage.waitForFunction(() => {
+      const canvas = document.querySelector("canvas") as HTMLCanvasElement | null;
+      return !!canvas && canvas.width > 0 && canvas.height > 0;
+    });
   });
 });
 
@@ -175,9 +171,8 @@ test("Asset field editing has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify default asset and test asset picker search", async () => {
@@ -196,9 +191,8 @@ test("Asset field editing has succeeded", async ({
     await contentPage.antTableRowTd.first().getByRole("button").click();
     await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create new item and verify default value applied", async () => {
@@ -209,15 +203,14 @@ test("Asset field editing has succeeded", async ({
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
     await expect(contentPage.optionTextByName("asset1")).toBeVisible();
     await expect(contentPage.optionTextByName("asset1 description")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify item saved with default asset", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit field settings: rename, enable multiple values, and validations", async () => {
@@ -237,7 +230,7 @@ test("Asset field editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Add second default asset and reorder", async () => {
@@ -247,25 +240,23 @@ test("Asset field editing has succeeded", async ({
     await fieldEditorPage.urlTab.click();
     await fieldEditorPage.urlInput.click();
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.uploadAndLinkButton);
+    await page.waitForLoadState("networkidle");
 
     await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
     await fieldEditorPage.arrowUpButton.nth(1).click();
     await expect(contentPage.cssAssetByIndex(0)).toContainText(uploadFileName_2);
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify updated field in schema", async () => {
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
       "new asset1 *#new-asset1(unique)",
     );
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create new item with updated field and verify multiple assets", async () => {
@@ -277,9 +268,8 @@ test("Asset field editing has succeeded", async ({
     await expect(contentPage.cssAssetByIndex(0)).toContainText(uploadFileName_2);
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
     await fieldEditorPage.plusNewButton.click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Verify multiple assets displayed in list view tooltip", async () => {
@@ -288,6 +278,6 @@ test("Asset field editing has succeeded", async ({
     await expect(contentPage.tooltip).toContainText(`new asset1`);
     await expect(contentPage.tooltipParagraphs.first()).toContainText(uploadFileName_2);
     await expect(contentPage.tooltipParagraphs.last()).toContainText(uploadFileName_1);
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 });

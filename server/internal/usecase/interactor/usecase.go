@@ -4,13 +4,21 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 const transactionRetry = 2
+
+type authzCheck struct {
+	resource    rbac.Resource
+	action      rbac.Action
+	workspaceID accountdomain.WorkspaceIDList
+}
 
 type uc struct {
 	tx                     bool
@@ -18,6 +26,8 @@ type uc struct {
 	writableWorkspaces     accountdomain.WorkspaceIDList
 	maintainableWorkspaces accountdomain.WorkspaceIDList
 	ownableWorkspaces      accountdomain.WorkspaceIDList
+	authz                  gateway.Authorization
+	authzChecks            []authzCheck
 }
 
 func Usecase() *uc {
@@ -46,6 +56,14 @@ func (u *uc) WithOwnableWorkspaces(ids ...accountdomain.WorkspaceID) *uc {
 
 func (u *uc) Transaction() *uc {
 	u.tx = true
+	return u
+}
+
+// WithPermission registers a Cerbos permission check to be enforced before the use case runs.
+// authz must be non-nil; workspaceID may be nil for workspace-agnostic resources.
+func (u *uc) WithPermission(authz gateway.Authorization, resource rbac.Resource, action rbac.Action, workspaceID ...accountdomain.WorkspaceID) *uc {
+	u.authz = authz
+	u.authzChecks = append(u.authzChecks, authzCheck{resource, action, workspaceID})
 	return u
 }
 
@@ -83,6 +101,9 @@ func Run3[A, B, C any](ctx context.Context, op *usecase.Operator, r *repo.Contai
 	if err = e.checkPermission(op); err != nil {
 		return
 	}
+	if err = e.checkPermissions2(ctx); err != nil {
+		return
+	}
 
 	var tr usecasex.Transaction
 	if e.tx && r.Transaction != nil {
@@ -95,6 +116,22 @@ func Run3[A, B, C any](ctx context.Context, op *usecase.Operator, r *repo.Contai
 	})
 
 	return
+}
+
+func (u *uc) checkPermissions2(ctx context.Context) error {
+	if u.authz == nil || len(u.authzChecks) == 0 {
+		return nil
+	}
+	for _, c := range u.authzChecks {
+		allowed, err := u.authz.CheckPermission(ctx, c.resource, c.action, c.workspaceID...)
+		if err != nil {
+			return err
+		}
+		if !allowed {
+			return interfaces.ErrOperationDenied
+		}
+	}
+	return nil
 }
 
 func (u *uc) checkPermission(op *usecase.Operator) error {

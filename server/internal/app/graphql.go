@@ -11,7 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql"
@@ -71,7 +71,11 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		Cache: lru.New[string](100),
 	})
 
-	srv.Use(otelgqlgen.Middleware())
+	srv.Use(otelgqlgen.Middleware(
+		otelgqlgen.WithCreateSpanFromFields(func(fCtx *graphql.FieldContext) bool {
+			return fCtx.IsResolver || fCtx.IsMethod
+		}),
+	))
 
 	if conf.ComplexityLimit > 0 {
 		srv.Use(extension.FixedComplexityLimit(conf.ComplexityLimit))
@@ -85,7 +89,7 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		Cache: lru.New[string](30),
 	})
 
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		req := c.Request()
 		ctx := req.Context()
 

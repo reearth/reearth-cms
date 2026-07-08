@@ -53,7 +53,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Group:             c.Group.Filtered(project),
 		Item:              c.Item.Filtered(project),
 		View:              c.View.Filtered(project),
-		Project:           c.Project.Filtered(workspace),
+		Project:           c.Project.Filtered(workspace, project),
 		Model:             c.Model.Filtered(project),
 		Schema:            c.Schema.Filtered(workspace),
 		Thread:            c.Thread.Filtered(workspace),
@@ -70,10 +70,17 @@ type WorkspaceFilter struct {
 }
 
 func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
+	if o == nil {
+		return WorkspaceFilter{}
+	}
 	return WorkspaceFilter{
 		Readable: o.AllReadableWorkspaces(),
 		Writable: o.AllWritableWorkspaces(),
 	}
+}
+
+func (f WorkspaceFilter) IsAccessScopeDefined() bool {
+	return f.Readable != nil && f.Writable != nil
 }
 
 func (f WorkspaceFilter) Clone() WorkspaceFilter {
@@ -105,6 +112,10 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 	}
 }
 
+func (f WorkspaceFilter) ReadableIDs() user.WorkspaceIDList {
+	return append(f.Readable, f.Writable...)
+}
+
 func (f WorkspaceFilter) CanRead(id accountdomain.WorkspaceID) bool {
 	return f.Readable == nil || f.Readable.Has(id) || f.CanWrite(id)
 }
@@ -114,21 +125,36 @@ func (f WorkspaceFilter) CanWrite(id accountdomain.WorkspaceID) bool {
 }
 
 type ProjectFilter struct {
-	Readable project.IDList
-	Writable project.IDList
+	Readable     project.IDList
+	Writable     project.IDList
+	AttachPublic bool
 }
 
-func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
-	return ProjectFilter{
-		Readable: o.AllReadableProjects(),
-		Writable: o.AllWritableProjects(),
+func ProjectFilterFromOperator(o *usecase.Operator, attachPublic bool) ProjectFilter {
+	if o == nil {
+		return ProjectFilter{AttachPublic: attachPublic}
 	}
+	if o.Machine {
+		return ProjectFilter{
+			Writable: o.AllWritableProjects(),
+		}
+	}
+	return ProjectFilter{
+		Readable:     o.AllReadableProjects(),
+		Writable:     o.AllWritableProjects(),
+		AttachPublic: attachPublic,
+	}
+}
+
+func (f ProjectFilter) IsAccessScopeDefined() bool {
+	return f.Readable != nil && f.Writable != nil
 }
 
 func (f ProjectFilter) Clone() ProjectFilter {
 	return ProjectFilter{
-		Readable: f.Readable.Clone(),
-		Writable: f.Writable.Clone(),
+		Readable:     f.Readable.Clone(),
+		Writable:     f.Writable.Clone(),
+		AttachPublic: f.AttachPublic,
 	}
 }
 
@@ -149,9 +175,14 @@ func (f ProjectFilter) Merge(g ProjectFilter) ProjectFilter {
 		}
 	}
 	return ProjectFilter{
-		Readable: r,
-		Writable: w,
+		Readable:     r,
+		Writable:     w,
+		AttachPublic: f.AttachPublic || g.AttachPublic,
 	}
+}
+
+func (f ProjectFilter) ReadableIDs() project.IDList {
+	return append(f.Readable, f.Writable...)
 }
 
 func (f ProjectFilter) CanRead(ids ...project.ID) bool {

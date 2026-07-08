@@ -8,6 +8,7 @@ import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ProjectVisibility } from "../Accessibility/types";
 
@@ -128,21 +129,21 @@ const maxWidth = "316px";
 
 const StyledSelect = styled(Select)`
   width: ${maxWidth};
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const Title = styled.h1`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.NEUTRAL.TEXT};
   text-transform: capitalize;
 `;
 
 const Text = styled.p`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 const StyledButton = styled(Button)`

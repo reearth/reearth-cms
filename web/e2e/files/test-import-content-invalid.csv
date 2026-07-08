@@ -1,0 +1,4 @@
+text_field,integer_field,bool_field,url_field,date_field,select_field
+12345,not-an-integer,not-a-boolean,not-a-url,not-a-date,invalid_option
+"valid text",99999,42,123,999,456
+,3.14,,,,

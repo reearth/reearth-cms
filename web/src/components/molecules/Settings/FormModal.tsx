@@ -5,6 +5,7 @@ import Form, { Rule } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
+import useSettings from "@reearth-cms/components/molecules/Settings/useSettings.ts";
 import {
   TileType,
   TerrainType,
@@ -23,23 +24,6 @@ type FormValues = {
   image?: string;
   cesiumIonAssetId?: string;
   cesiumIonAccessToken?: string;
-};
-
-export const TileTypeFormat: Record<TileType, string> = {
-  DEFAULT: "Default",
-  LABELLED: "Labelled",
-  ROAD_MAP: "Road Map",
-  OPEN_STREET_MAP: "OpenStreetMap",
-  ESRI_TOPOGRAPHY: "ESRI Topography",
-  EARTH_AT_NIGHT: "Earth at night",
-  JAPAN_GSI_STANDARD_MAP: "Japan GSI Standard Map",
-  URL: "URL",
-};
-
-export const TerrainTypeFormat: Record<TerrainType, string> = {
-  CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
-  ARC_GIS_TERRAIN: "ArcGIS Terrain",
-  CESIUM_ION: "Cesium Ion",
 };
 
 type Props = {
@@ -64,6 +48,7 @@ const FormModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [extraOpen, setExtraOpen] = useState(false);
+  const { TileTypeFormat, TerrainTypeFormat } = useSettings();
 
   const options = useMemo(() => {
     const typeFormat = isTile ? TileTypeFormat : TerrainTypeFormat;
@@ -71,7 +56,7 @@ const FormModal: React.FC<Props> = ({
       value: key,
       label: typeFormat[key as keyof typeof typeFormat],
     }));
-  }, [isTile]);
+  }, [TerrainTypeFormat, TileTypeFormat, isTile]);
 
   useEffect(() => {
     if (open) {

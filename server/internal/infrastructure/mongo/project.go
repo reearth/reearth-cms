@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,6 +34,7 @@ var (
 type ProjectRepo struct {
 	client *mongox.Collection
 	f      repo.WorkspaceFilter
+	pf     repo.ProjectFilter
 }
 
 func NewProject(client *mongox.Client) repo.Project {
@@ -58,10 +60,11 @@ func (r *ProjectRepo) Init() error {
 	return createIndexes2(context.Background(), r.client, idx...)
 }
 
-func (r *ProjectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
+func (r *ProjectRepo) Filtered(wf repo.WorkspaceFilter, pf repo.ProjectFilter) repo.Project {
 	return &ProjectRepo{
 		client: r.client,
-		f:      r.f.Merge(f),
+		f:      r.f.Merge(wf),
+		pf:     r.pf.Merge(pf),
 	}
 }
 
@@ -85,7 +88,7 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	if err != nil {
 		return nil, err
 	}
-	return filterProjects(ids, res), nil
+	return res.OrderByIds(ids), nil
 }
 
 func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
@@ -174,9 +177,10 @@ func (r *ProjectRepo) FindByPublicAPIKey(ctx context.Context, key string) (*proj
 }
 
 func (r *ProjectRepo) CountByWorkspace(ctx context.Context, wId accountdomain.WorkspaceID) (int, error) {
-	count, err := r.client.Count(ctx, bson.M{
+	filter := bson.M{
 		"workspace": wId.String(),
-	})
+	}
+	count, err := r.client.Count(ctx, r.readFilter(filter))
 	return int(count), err
 }
 
@@ -186,6 +190,32 @@ func (r *ProjectRepo) Save(ctx context.Context, project *project.Project) error 
 	}
 	doc, id := mongodoc.NewProject(project)
 	return r.client.SaveOne(ctx, id, doc)
+}
+
+func (r *ProjectRepo) Star(ctx context.Context, projectID id.ProjectID, userID accountdomain.UserID) (*project.Project, error) {
+	c := mongodoc.NewProjectConsumer()
+	if err := r.client.FindOne(ctx, bson.M{"id": projectID.String()}, c); err != nil {
+		return nil, err
+	}
+	p := c.Result[0]
+
+	isPublic := p.Accessibility().Visibility() == project.VisibilityPublic
+	canRead := r.f.CanRead(p.Workspace()) || r.pf.CanRead(p.ID())
+	if !canRead && !isPublic {
+		return nil, repo.ErrOperationDenied
+	}
+
+	if slices.Contains(p.StarredBy(), userID.String()) {
+		p.Unstar(userID)
+	} else {
+		p.Star(userID)
+	}
+
+	doc, docID := mongodoc.NewProject(p)
+	if err := r.client.SaveOne(ctx, docID, doc); err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 func (r *ProjectRepo) Remove(ctx context.Context, id id.ProjectID) error {
@@ -205,6 +235,9 @@ func (r *ProjectRepo) findOne(ctx context.Context, filter any, options ...*optio
 	if err := r.client.FindOne(ctx, r.readFilter(filter), c, options...); err != nil {
 		return nil, err
 	}
+	if len(c.Result) == 0 {
+		return nil, rerror.ErrNotFound
+	}
 	return c.Result[0], nil
 }
 
@@ -217,21 +250,31 @@ func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, s *usecasex.S
 	return c.Result, pageInfo, nil
 }
 
-func filterProjects(ids []id.ProjectID, rows project.List) project.List {
-	res := make(project.List, 0, len(ids))
-	for _, id := range ids {
-		for _, r := range rows {
-			if r.ID() == id {
-				res = append(res, r)
-				break
-			}
-		}
-	}
-	return res
-}
-
 func (r *ProjectRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
+	if !r.f.IsAccessScopeDefined() && !r.pf.IsAccessScopeDefined() && !r.pf.AttachPublic {
+		return filter
+	}
+	if len(r.f.ReadableIDs()) == 0 && len(r.pf.ReadableIDs()) == 0 && !r.pf.AttachPublic {
+		return bson.M{"_id": bson.M{"$exists": false}}
+	}
+
+	readFilter := bson.A{}
+	if len(r.f.ReadableIDs()) > 0 {
+		readFilter = append(readFilter, bson.M{"workspace": bson.M{"$in": r.f.ReadableIDs().Strings()}})
+	}
+	if len(r.pf.ReadableIDs()) > 0 {
+		readFilter = append(readFilter, bson.M{"id": bson.M{"$in": r.pf.ReadableIDs().Strings()}})
+	}
+	if r.pf.AttachPublic {
+		readFilter = append(readFilter, bson.M{"accessibility.visibility": project.VisibilityPublic.String()})
+	}
+
+	return bson.M{
+		"$and": bson.A{
+			filter,
+			bson.M{"$or": readFilter},
+		},
+	}
 }
 
 func (r *ProjectRepo) writeFilter(filter any) any {

@@ -11,7 +11,7 @@ import (
 )
 
 type Project interface {
-	Filtered(filter WorkspaceFilter) Project
+	Filtered(WorkspaceFilter, ProjectFilter) Project
 	FindByID(context.Context, id.ProjectID) (*project.Project, error)
 	FindByIDOrAlias(context.Context, accountdomain.WorkspaceID, project.IDOrAlias) (*project.Project, error)
 	FindByIDs(context.Context, id.ProjectIDList) (project.List, error)
@@ -20,5 +20,6 @@ type Project interface {
 	CountByWorkspace(context.Context, accountdomain.WorkspaceID) (int, error)
 	FindByPublicAPIKey(context.Context, string) (*project.Project, error)
 	Save(context.Context, *project.Project) error
+	Star(context.Context, id.ProjectID, accountdomain.UserID) (*project.Project, error)
 	Remove(context.Context, id.ProjectID) error
 }

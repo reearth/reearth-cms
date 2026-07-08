@@ -7,6 +7,7 @@ import (
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *httpexpect.Value) {
@@ -345,6 +346,54 @@ func TestUpdateModel(t *testing.T) {
 		HasValue("name", "updated name").
 		HasValue("description", "updated desc").
 		HasValue("key", "updated_key")
+}
+
+func TestDeleteModelCascade(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-cascade")
+	mId, _ := createModel(e, pId, "cascade-model", "test", "cascade-model")
+
+	// Get schema ID for item creation
+	sId, _, _ := getModel(e, mId)
+
+	// Create a view for this model
+	_, _ = createView(e, pId, mId, "test-view", nil, nil, nil)
+
+	// Create an item for this model
+	iId, _ := createItem(e, mId, sId, nil, []map[string]any{})
+
+	// Delete the model — should cascade to views and items
+	deletedId, _ := deleteModel(e, mId)
+	assert.Equal(t, mId, deletedId)
+
+	// Model should no longer exist
+	nodeRes := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(GraphQLRequest{
+			Query:     `query GetNode($id: ID!) { node(id: $id, type: Model) { id } }`,
+			Variables: map[string]any{"id": mId},
+		}).
+		Expect().Status(http.StatusOK).JSON()
+	nodeRes.Path("$.data.node").IsNull()
+
+	// Item should no longer exist
+	itemRes := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(GraphQLRequest{
+			Query:     `query GetNode($id: ID!) { node(id: $id, type: Item) { id } }`,
+			Variables: map[string]any{"id": iId},
+		}).
+		Expect().Status(http.StatusOK).JSON()
+	itemRes.Path("$.data.node").IsNull()
+
+	// View should no longer exist (views query returns empty list)
+	viewRes := getViews(e, mId)
+	viewRes.Path("$.data.view").Array().IsEmpty()
 }
 
 func TestUpdateModelsOrder(t *testing.T) {

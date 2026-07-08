@@ -11,6 +11,7 @@ import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
@@ -151,10 +152,10 @@ const LinkItemRequestModal: React.FC<Props> = ({
       centered
       onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
-      width="70vw"
+      width={CustomToken.MODAL.WIDTH_LG}
       styles={{
         body: {
-          height: "70vh",
+          height: CustomToken.MODAL.HEIGHT_LG,
         },
       }}
       afterClose={() => {
@@ -187,7 +188,7 @@ const StyledModal = styled(Modal)`
     padding: 0;
 
     .ant-pro-table-list-toolbar {
-      padding-left: 12px;
+      padding-left: ${AntdToken.SPACING.SM}px;
     }
   }
 `;

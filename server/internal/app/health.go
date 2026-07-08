@@ -10,9 +10,10 @@ import (
 
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
+	"go.opentelemetry.io/otel"
 )
 
 type HealthChecker struct {
@@ -21,7 +22,7 @@ type HealthChecker struct {
 }
 
 func (hc *HealthChecker) Handler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		// Optional HTTP Basic Auth
 		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
 			username, password, ok := c.Request().BasicAuth()
@@ -83,10 +84,11 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 		}
 	}
 
-	h, err := health.New(health.WithComponent(health.Component{
-		Name:    "reearth-cms",
-		Version: ver,
-	}), health.WithChecks(checks...))
+	h, err := health.New(
+		health.WithComponent(health.Component{Name: "reearth-cms", Version: ver}),
+		health.WithChecks(checks...),
+		health.WithTracerProvider(otel.GetTracerProvider(), "reearth-cms"),
+	)
 	if err != nil {
 		log.Fatalf("failed to create health check: %v", err)
 	}

@@ -47,41 +47,52 @@ export class ProjectPage extends BasePage {
   get modelsMenuItem(): Locator {
     return this.getByText("Models").first();
   }
-  get modelUtilDropdown(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownIcon);
+
+  // ModelCard action icons (dropdown triggers)
+  get modelFileOperationIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationIcon);
   }
-  get modelExportLink(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExport);
+  get modelMiscIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscIcon);
   }
-  get modelImportLink(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImport);
+
+  // ModelCard > Misc dropdown menu items
+  get modelMiscEdit(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscEdit);
   }
-  get modelListLink(): Locator {
-    return this.getByRole("list").locator("a").nth(0);
+  get modelMiscDelete(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscDelete);
   }
-  get editText(): Locator {
-    return this.getByText("Edit", { exact: true });
-  }
-  get deleteText(): Locator {
-    return this.getByText("Delete");
-  }
-  get exportAsJSONText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON);
-  }
-  get exportAsCSVText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV);
-  }
-  get exportAsGeoJSONText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON);
+
+  // ModelCard > File Operation > Export menu items
+  get modelFileOperationExport(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExport);
   }
   get exportSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportSchema);
+  }
+  get exportContentSubmenu(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContent);
+  }
+  get exportContentJSONText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentJSON);
+  }
+  get exportContentCSVText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentCSV);
+  }
+  get exportContentGeoJSONText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON);
+  }
+
+  // ModelCard > File Operation > Import menu items
+  get modelFileOperationImport(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelCard__FileOperationImport);
   }
   get importSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportSchema);
   }
   get importContentText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportContent);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__MiscImportContent);
   }
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });
@@ -197,80 +208,144 @@ export class ProjectPage extends BasePage {
     return this.getByRole("button", { name: "Change project visibility" });
   }
 
+  // ========== ModelCard Action Methods ==========
+
+  async openModelEditModal(): Promise<void> {
+    await this.modelMiscIcon.click();
+    await this.modelMiscEdit.click();
+  }
+
+  async openModelDeleteModal(): Promise<void> {
+    await this.modelMiscIcon.click();
+    await this.modelMiscDelete.click();
+    await this.getByRole("button", { name: "Delete model" }).click();
+  }
+
+  async clickExportSchema(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportSchemaText.click();
+  }
+
+  async clickExportContentJSON(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentJSONText.click();
+  }
+
+  async clickExportContentCSV(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentCSVText.click();
+  }
+
+  async clickExportContentGeoJSON(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationExport.click();
+    await this.exportContentSubmenu.click();
+    await this.exportContentGeoJSONText.click();
+  }
+
+  async clickImportSchema(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationImport.click();
+    await this.importSchemaText.click();
+  }
+
+  async clickImportContent(): Promise<void> {
+    await this.modelFileOperationIcon.click();
+    await this.modelFileOperationImport.click();
+    await this.importContentText.click();
+  }
+
   // ========== Action Methods (POM Pattern) ==========
 
   async createProject(name: string): Promise<void> {
-    await this.getByRole("button", { name: "plus New Project" }).first().click();
+    const newProjectButton = this.getByRole("button", { name: "plus New Project" }).first();
+    await expect(newProjectButton).toBeVisible();
+    await newProjectButton.click();
+    await expect(this.getByRole("dialog")).toBeVisible();
     await this.getByRole("dialog").locator("#name").fill(name);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   async gotoProject(name: string): Promise<void> {
-    await this.getByText(name, { exact: true }).click();
+    const projectLink = this.getByText(name, { exact: true });
+    await expect(projectLink).toBeVisible();
+    await projectLink.click();
     const projectName = this.locator(".ant-layout-header p").nth(2);
     await expect(projectName).toHaveText(name);
   }
 
   async deleteProject(): Promise<void> {
-    // Close any open modals/dialogs before attempting to delete
-    // Check if modal is present and stable (not animating)
-    const modalWrap = this.page.locator(".ant-modal-wrap");
-    const isModalVisible = await modalWrap
-      .first()
-      .isVisible({ timeout: 500 })
-      .catch(() => false);
-
-    if (isModalVisible) {
-      // Check if modal is actually blocking (has pointer-events)
-      const modalStyle = await modalWrap
+    try {
+      // Close any open modals/dialogs before attempting to delete
+      const modalWrap = this.page.locator(".ant-modal-wrap");
+      const isModalVisible = await modalWrap
         .first()
-        .evaluate(el => window.getComputedStyle(el).pointerEvents)
-        .catch(() => "auto");
+        .isVisible({ timeout: 500 })
+        .catch(() => false);
 
-      if (modalStyle !== "none") {
-        // Try to close the modal using close button
-        const modalClose = this.page.locator(".ant-modal-close");
-        const isCloseButtonVisible = await modalClose
+      if (isModalVisible) {
+        const modalStyle = await modalWrap
           .first()
-          .isVisible({ timeout: 500 })
-          .catch(() => false);
+          .evaluate(el => window.getComputedStyle(el).pointerEvents)
+          .catch(() => "auto");
 
-        if (isCloseButtonVisible) {
-          try {
-            await modalClose.first().click({ timeout: 2000 });
-            // Wait for modal to fully disappear
+        if (modalStyle !== "none") {
+          const modalClose = this.page.locator(".ant-modal-close");
+          const isCloseButtonVisible = await modalClose
+            .first()
+            .isVisible({ timeout: 500 })
+            .catch(() => false);
+
+          if (isCloseButtonVisible) {
+            try {
+              await modalClose.first().click({ timeout: 2_000 });
+              await modalWrap
+                .first()
+                .waitFor({ state: "hidden", timeout: 2_000 })
+                .catch(() => {});
+            } catch {
+              await this.page.keyboard.press("Escape");
+              await modalWrap
+                .first()
+                .waitFor({ state: "hidden", timeout: 2_000 })
+                .catch(() => {});
+            }
+          } else {
+            await this.page.keyboard.press("Escape");
             await modalWrap
               .first()
-              .waitFor({ state: "hidden", timeout: 2000 })
+              .waitFor({ state: "hidden", timeout: 2_000 })
               .catch(() => {});
-          } catch {
-            // If clicking fails, try ESC key as fallback
-            await this.page.keyboard.press("Escape");
-            await this.page.waitForTimeout(300);
           }
-        } else {
-          // No close button, use ESC key
-          await this.page.keyboard.press("Escape");
-          await this.page.waitForTimeout(300);
         }
       }
-    }
 
-    await this.getByText("Settings").first().click();
-    await this.deleteProjectButton.click();
-    await this.confirmDeleteProjectButton.click();
-    await this.closeNotification();
+      await this.page.waitForLoadState("networkidle");
+      await expect(this.getByText("Settings").first()).toBeVisible();
+      await this.getByText("Settings").first().click();
+      await this.deleteProjectButton.click();
+      await this.clickAndExpectSuccess(this.confirmDeleteProjectButton);
+    } catch (error) {
+      console.warn(`[E2E] deleteProject cleanup failed: ${error}`);
+    }
   }
 
   async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
     await this.getByRole("button", { name: "plus New Model" }).first().click();
+    await expect(this.getByLabel("Model name")).toBeVisible();
     await this.getByLabel("Model name").fill(name);
+    await expect(this.getByLabel("Model name")).toHaveValue(name);
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
+    await this.clickAndExpectSuccess(this.getByRole("button", { name: "OK" }));
   }
 
   projectCardDescription(description: string): Locator {

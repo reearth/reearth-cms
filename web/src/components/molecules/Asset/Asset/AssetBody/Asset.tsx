@@ -30,8 +30,11 @@ import {
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
+
+const { XS } = AntdToken.SPACING;
 
 type Props = {
   asset: Asset;
@@ -246,11 +249,11 @@ const AssetName = styled.span`
 
 const Buttons = styled.div`
   display: flex;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
 `;
 
 const UnzipButton = styled(Button)`
-  margin-left: 24px;
+  margin-left: ${AntdToken.SPACING.LG}px;
 `;
 
 const BodyContainer = styled.div`
@@ -258,14 +261,14 @@ const BodyContainer = styled.div`
   flex-direction: row;
   width: 100%;
   height: calc(100% - 72px);
-  border-top: 1px solid #00000008;
+  border-top: 1px solid ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
 `;
 
 const BodyWrapper = styled.div`
-  padding: 16px 24px;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
   width: 70%;
   height: 100%;
   overflow-y: auto;
@@ -273,9 +276,9 @@ const BodyWrapper = styled.div`
 `;
 
 const SideBarWrapper = styled.div`
-  padding: 8px;
+  padding: ${AntdToken.SPACING.XS}px;
   width: 272px;
-  background-color: #fafafa;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const StyledButton = styled(Button)`
@@ -285,37 +288,37 @@ const StyledButton = styled(Button)`
 const AssetInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
 `;
 
 const InfoRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   line-height: 28px;
 `;
 
 const InfoKey = styled.p`
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   margin: 0;
   flex-shrink: 0;
 `;
 
 const InfoValue = styled.p`
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
-  padding: 0px 8px;
+  padding: 0px ${XS}px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
 const ID = styled(InfoValue)`
-  color: #848484;
-  background-color: #f0f0f0;
-  border-radius: 4px;
+  color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
+  background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  border-radius: ${AntdToken.RADIUS.SM}px;
 `;
 
 export default AssetMolecule;

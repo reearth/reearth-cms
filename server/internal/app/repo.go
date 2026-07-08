@@ -64,13 +64,14 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	acGateways := &accountgateway.Container{}
 
 	// Mongo
+	monitor := otelmongo.NewMonitor()
+	if conf.Dev {
+		monitor = combineMonitors(monitor, NewLogMonitor())
+	}
 	co := options.Client().
 		ApplyURI(conf.DB).
 		SetConnectTimeout(time.Second * 10).
-		SetMonitor(otelmongo.NewMonitor())
-	if conf.Dev {
-		co.SetMonitor(NewLogMonitor())
-	}
+		SetMonitor(monitor)
 	client, err := mongo.Connect(ctx, co)
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
@@ -174,6 +175,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		}
 		transport := NewDynamicAuthTransport()
 		gateways.Accounts = account.New(conf.Account_Api.Host, timeout, transport)
+		if conf.Account_Api.Check_Permission {
+			gateways.Authorization = account.NewAuthorization(conf.Account_Api.Host, timeout, transport)
+		}
 		log.Infof("accounts api: external GraphQL API configured: %s (timeout: %ds)", conf.Account_Api.Host, timeout)
 	} else {
 		log.Infof("accounts api: not configured or disabled")
@@ -193,5 +197,34 @@ func NewLogMonitor() *event.CommandMonitor {
 		},
 		Succeeded: nil,
 		Failed:    nil,
+	}
+}
+
+func combineMonitors(a, b *event.CommandMonitor) *event.CommandMonitor {
+	return &event.CommandMonitor{
+		Started: func(ctx context.Context, evt *event.CommandStartedEvent) {
+			if a.Started != nil {
+				a.Started(ctx, evt)
+			}
+			if b.Started != nil {
+				b.Started(ctx, evt)
+			}
+		},
+		Succeeded: func(ctx context.Context, evt *event.CommandSucceededEvent) {
+			if a.Succeeded != nil {
+				a.Succeeded(ctx, evt)
+			}
+			if b.Succeeded != nil {
+				b.Succeeded(ctx, evt)
+			}
+		},
+		Failed: func(ctx context.Context, evt *event.CommandFailedEvent) {
+			if a.Failed != nil {
+				a.Failed(ctx, evt)
+			}
+			if b.Failed != nil {
+				b.Failed(ctx, evt)
+			}
+		},
 	}
 }

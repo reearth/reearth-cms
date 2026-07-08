@@ -7,6 +7,7 @@ import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCa
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   hasCreateRight: boolean;
@@ -85,7 +86,7 @@ const ProjectList: React.FC<Props> = ({
 };
 
 const StyledDashboardBlock = styled.div`
-  margin-top: 16px;
+  margin-top: ${AntdToken.SPACING.BASE}px;
   width: 100%;
   flex: 1;
   display: flex;
@@ -96,9 +97,9 @@ const ProjectCardWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   justify-content: space-between;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
   max-height: 350px;
-  margin: 0 24px;
+  margin: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const GridContainer = styled.div`
@@ -124,28 +125,28 @@ const EmptyListWrapper = styled.div`
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
 `;
 
 const Suggestion = styled.p`
-  margin-top: 8px;
-  margin-bottom: 8px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  margin-top: ${AntdToken.SPACING.XS}px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Title = styled.h1`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #000;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
+  color: ${AntdColor.GREY.GREY_8};
 `;
 
 const ProjectPagination = styled(Pagination)`
-  box-shadow: 0 1px 0 0 #f0f0f0 inset;
-  padding: 12px;
+  box-shadow: 0 1px 0 0 ${AntdColor.NEUTRAL.BORDER_SECONDARY} inset;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 // a space holder to prevent shadow of project card being blocked by parent element
