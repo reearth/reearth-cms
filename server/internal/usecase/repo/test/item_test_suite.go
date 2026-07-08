@@ -1,11 +1,7 @@
-// Package test provides interface-level test suites for the repositories
-// defined in the repo package. Each suite exercises the behavior required by
-// the repository interface contract and is run by both the mongo and memory
-// infrastructure packages through thin entry-point tests.
-//
-// Suites must depend only on the repo package's interfaces and domain types.
-// Backend-specific behavior (Mongo query semantics, memory error injection,
-// persistence formats) is tested in the respective infrastructure packages.
+// Package test provides interface-level test suites that both the mongo and
+// memory repository implementations run via thin entry-point tests. Suites
+// depend only on the repo interfaces; backend-specific behavior is tested in
+// the respective infrastructure packages.
 package test
 
 import (
