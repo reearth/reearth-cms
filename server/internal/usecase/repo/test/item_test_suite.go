@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // itemFactory returns a fresh, empty, unfiltered repository for each call.
@@ -46,6 +47,13 @@ func TestItemRepo(t *testing.T, newRepo itemFactory) {
 	t.Run("CountByModel", func(t *testing.T) { testItemCountByModel(t, newRepo) })
 }
 
+// seedItems saves the given items into r, failing the test on any error. It is
+// the shared seeder for the table-driven cases across every method below.
+func seedItems(t *testing.T, r repo.Item, seeds item.List) {
+	t.Helper()
+	require.NoError(t, r.SaveAll(context.Background(), seeds))
+}
+
 // newItem builds an item whose timestamp survives a persistence round-trip
 // unchanged (millisecond-truncated UTC), so it can be compared by deep equality.
 func newItem(pid id.ProjectID, sid id.SchemaID, mid id.ModelID, fields ...*item.Field) *item.Item {
@@ -64,35 +72,39 @@ func testItemFindByID(t *testing.T, newRepo itemFactory) {
 
 	tests := []struct {
 		name    string
-		input   id.ItemID
+		seeds   item.List
+		arg     id.ItemID
+		want    *item.Item
 		wantErr error
 	}{
 		{
 			name:  "must find a item",
-			input: i1.ID(),
+			seeds: item.List{i1},
+			arg:   i1.ID(),
+			want:  i1,
 		},
 		{
 			name:    "must not find any item",
-			input:   id.NewItemID(),
+			seeds:   item.List{i1},
+			arg:     id.NewItemID(),
 			wantErr: rerror.ErrNotFound,
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			assert.NoError(t, r.Save(ctx, i1))
+			seedItems(t, r, tc.seeds)
 
-			got, err := r.FindByID(ctx, tc.input, nil)
+			got, err := r.FindByID(ctx, tc.arg, nil)
 			if tc.wantErr != nil {
 				assert.Nil(t, got)
 				assert.Equal(t, tc.wantErr, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, i1, got.Value())
+				assert.Equal(t, tc.want, got.Value())
 			}
 		})
 	}
@@ -103,42 +115,44 @@ func testItemFindByIDs(t *testing.T, newRepo itemFactory) {
 	pid, sid := id.NewProjectID(), id.NewSchemaID()
 	i1 := newItem(pid, sid, id.NewModelID(), boolField())
 	i2 := newItem(pid, sid, id.NewModelID(), boolField())
+	seeds := item.List{i1, i2}
 
 	tests := []struct {
-		name     string
-		input    id.ItemIDList
-		expected item.List
+		name  string
+		seeds item.List
+		arg   id.ItemIDList
+		want  item.List
 	}{
 		{
-			name:     "must find two items",
-			input:    id.ItemIDList{i1.ID(), i2.ID()},
-			expected: item.List{i1, i2},
+			name:  "must find two items",
+			seeds: seeds,
+			arg:   id.ItemIDList{i1.ID(), i2.ID()},
+			want:  item.List{i1, i2},
 		},
 		{
-			name:     "must find one of two items",
-			input:    id.ItemIDList{i1.ID()},
-			expected: item.List{i1},
+			name:  "must find one of two items",
+			seeds: seeds,
+			arg:   id.ItemIDList{i1.ID()},
+			want:  item.List{i1},
 		},
 		{
-			name:     "must not find any item",
-			input:    id.ItemIDList{id.NewItemID()},
-			expected: item.List{},
+			name:  "must not find any item",
+			seeds: seeds,
+			arg:   id.ItemIDList{id.NewItemID()},
+			want:  item.List{},
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			for _, i := range []*item.Item{i1, i2} {
-				assert.NoError(t, r.Save(ctx, i))
-			}
+			seedItems(t, r, tc.seeds)
 
-			got, err := r.FindByIDs(ctx, tc.input, nil)
+			got, err := r.FindByIDs(ctx, tc.arg, nil)
 			assert.NoError(t, err)
-			assert.ElementsMatch(t, tc.expected, got.Unwrap())
+			assert.ElementsMatch(t, tc.want, got.Unwrap())
 		})
 	}
 }
@@ -159,7 +173,7 @@ func testItemFindAllVersionsByID(t *testing.T, newRepo itemFactory) {
 	// safe: no parallel subtests here, and sibling groups' parallel cases
 	// have already finished (t.Run waits for them)
 	defer util.MockNow(now1)()
-	assert.NoError(t, r.Save(ctx, i1))
+	require.NoError(t, r.Save(ctx, i1))
 
 	got1, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
@@ -168,7 +182,7 @@ func testItemFindAllVersionsByID(t *testing.T, newRepo itemFactory) {
 	}, got1)
 
 	defer util.MockNow(now2)()
-	assert.NoError(t, r.Save(ctx, i2))
+	require.NoError(t, r.Save(ctx, i2))
 
 	got2, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
@@ -201,8 +215,10 @@ func testItemFindAllVersionsByIDs(t *testing.T, newRepo itemFactory) {
 	i2 := item.New().ID(iid2).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
 
 	r := newRepo(t)
+	// safe: no parallel subtests here, and sibling groups' parallel cases
+	// have already finished (t.Run waits for them)
 	defer util.MockNow(now1)()
-	assert.NoError(t, r.Save(ctx, i1))
+	require.NoError(t, r.Save(ctx, i1))
 
 	got1, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1})
 	assert.NoError(t, err)
@@ -211,7 +227,7 @@ func testItemFindAllVersionsByIDs(t *testing.T, newRepo itemFactory) {
 	}, got1)
 
 	defer util.MockNow(now2)()
-	assert.NoError(t, r.Save(ctx, i2))
+	require.NoError(t, r.Save(ctx, i2))
 
 	got2, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
 	assert.NoError(t, err)
@@ -239,41 +255,38 @@ func testItemFindBySchema(t *testing.T, newRepo itemFactory) {
 	i4 := newItem(pid, id.NewSchemaID(), id.NewModelID(), boolField())
 
 	tests := []struct {
-		name     string
-		input    id.SchemaID
-		seeds    item.List
-		expected item.List
+		name  string
+		seeds item.List
+		arg   id.SchemaID
+		want  item.List
 	}{
 		{
-			name:     "must find two items (first 10)",
-			input:    sid,
-			seeds:    item.List{i1, i2, i3},
-			expected: item.List{i1, i2},
+			name:  "must find two items (first 10)",
+			seeds: item.List{i1, i2, i3},
+			arg:   sid,
+			want:  item.List{i1, i2},
 		},
 		{
 			name:  "must not find any item",
-			input: sid,
 			seeds: item.List{i4},
+			arg:   sid,
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			for _, i := range tc.seeds {
-				assert.NoError(t, r.Save(ctx, i))
-			}
+			seedItems(t, r, tc.seeds)
 			r = r.Filtered(repo.ProjectFilter{
 				Readable: []id.ProjectID{pid},
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.input, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.arg, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.NoError(t, err)
-			assert.ElementsMatch(t, tc.expected, got.Unwrap())
+			assert.ElementsMatch(t, tc.want, got.Unwrap())
 		})
 	}
 }
@@ -288,7 +301,7 @@ func testItemSave(t *testing.T, newRepo itemFactory) {
 		Writable: []id.ProjectID{i1.Project()},
 	})
 
-	assert.NoError(t, r.Save(ctx, i1))
+	require.NoError(t, r.Save(ctx, i1))
 	got, err := r.FindByID(ctx, i1.ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, i1, got.Value())
@@ -304,9 +317,7 @@ func testItemRemove(t *testing.T, newRepo itemFactory) {
 	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	base := newRepo(t)
-	for _, i := range []*item.Item{i1, i2, i3} {
-		assert.NoError(t, base.Save(ctx, i))
-	}
+	seedItems(t, base, item.List{i1, i2, i3})
 	r := base.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
@@ -335,56 +346,60 @@ func testItemBatchRemove(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	seeds := item.List{i1, i2, i3}
 
 	tests := []struct {
 		name     string
+		seeds    item.List
 		toRemove id.ItemIDList
-		expected id.ItemIDList
+		want     id.ItemIDList
 	}{
 		{
 			name:     "remove multiple items",
+			seeds:    seeds,
 			toRemove: id.ItemIDList{i1.ID(), i2.ID()},
-			expected: id.ItemIDList{i3.ID()},
+			want:     id.ItemIDList{i3.ID()},
 		},
 		{
 			name:     "remove all items",
+			seeds:    seeds,
 			toRemove: id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
-			expected: id.ItemIDList{},
+			want:     id.ItemIDList{},
 		},
 		{
 			name:     "remove empty list",
+			seeds:    seeds,
 			toRemove: id.ItemIDList{},
-			expected: id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
+			want:     id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
 		},
 		{
 			name:     "remove non-existent items",
+			seeds:    seeds,
 			toRemove: id.ItemIDList{id.NewItemID()},
-			expected: id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
+			want:     id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			r := newRepo(t).Filtered(repo.ProjectFilter{
+			r := newRepo(t)
+			seedItems(t, r, tc.seeds)
+			r = r.Filtered(repo.ProjectFilter{
 				Readable: []id.ProjectID{pid},
 				Writable: []id.ProjectID{pid},
 			})
-			for _, i := range []*item.Item{i1, i2, i3} {
-				assert.NoError(t, r.Save(ctx, i))
-			}
 
 			assert.NoError(t, r.BatchRemove(ctx, tc.toRemove))
 
-			for _, expectedID := range tc.expected {
-				got, err := r.FindByID(ctx, expectedID, nil)
+			for _, wantID := range tc.want {
+				got, err := r.FindByID(ctx, wantID, nil)
 				assert.NoError(t, err)
-				assert.Equal(t, expectedID, got.Value().ID())
+				assert.Equal(t, wantID, got.Value().ID())
 			}
 			for _, removedID := range tc.toRemove {
-				if !tc.expected.Has(removedID) {
+				if !tc.want.Has(removedID) {
 					got, err := r.FindByID(ctx, removedID, nil)
 					assert.Nil(t, got)
 					assert.Equal(t, rerror.ErrNotFound, err)
@@ -400,8 +415,7 @@ func testItemBatchRemove(t *testing.T, newRepo itemFactory) {
 		i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
 
 		base := newRepo(t)
-		assert.NoError(t, base.Save(ctx, i1))
-		assert.NoError(t, base.Save(ctx, i4))
+		seedItems(t, base, item.List{i1, i4})
 		r := base.Filtered(repo.ProjectFilter{
 			Readable: []id.ProjectID{pid},
 			Writable: []id.ProjectID{pid},
@@ -423,7 +437,7 @@ func testItemArchive(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	base := newRepo(t)
-	assert.NoError(t, base.Save(ctx, i1))
+	seedItems(t, base, item.List{i1})
 	r := base.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
@@ -481,44 +495,41 @@ func testItemSearch(t *testing.T, newRepo itemFactory) {
 	sp := schema.NewPackage(s1, nil, nil, nil)
 
 	tests := []struct {
-		name     string
-		input    *item.Query
-		seeds    item.List
-		expected int
+		name  string
+		seeds item.List
+		arg   *item.Query
+		want  int
 	}{
 		{
-			name:     "must find two items (first 10)",
-			input:    item.NewQuery(pid, mid, nil, "foo", nil),
-			seeds:    item.List{i1, i2, i3},
-			expected: 2,
+			name:  "must find two items (first 10)",
+			seeds: item.List{i1, i2, i3},
+			arg:   item.NewQuery(pid, mid, nil, "foo", nil),
+			want:  2,
 		},
 		{
-			name:     "must find all items",
-			input:    item.NewQuery(pid, mid, nil, "", nil),
-			seeds:    item.List{i1, i2, i3},
-			expected: 3,
+			name:  "must find all items",
+			seeds: item.List{i1, i2, i3},
+			arg:   item.NewQuery(pid, mid, nil, "", nil),
+			want:  3,
 		},
 		{
-			name:     "must find one item",
-			input:    item.NewQuery(pid, mid, s2.ID().Ref(), "foo", nil),
-			seeds:    item.List{i1, i2, i3, i4},
-			expected: 1,
+			name:  "must find one item",
+			seeds: item.List{i1, i2, i3, i4},
+			arg:   item.NewQuery(pid, mid, s2.ID().Ref(), "foo", nil),
+			want:  1,
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			for _, i := range tc.seeds {
-				assert.NoError(t, r.Save(ctx, i))
-			}
+			seedItems(t, r, tc.seeds)
 
-			got, _, err := r.Search(ctx, *sp, tc.input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.Search(ctx, *sp, tc.arg, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.NoError(t, err)
-			assert.Equal(t, tc.expected, len(got))
+			assert.Equal(t, tc.want, len(got))
 		})
 	}
 }
@@ -534,41 +545,38 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 	mid := id.NewModelID()
 	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	seeds := item.List{i1, i2}
 
 	tests := []struct {
-		name     string
-		fields   []repo.FieldAndValue
-		expected int
+		name   string
+		seeds  item.List
+		fields []repo.FieldAndValue
+		want   int
 	}{
 		{
-			name: "must not find any item",
-			fields: []repo.FieldAndValue{
-				{Field: f2.FieldID(), Value: f2.Value()},
-			},
-			expected: 0,
+			name:   "must not find any item",
+			seeds:  seeds,
+			fields: []repo.FieldAndValue{{Field: f2.FieldID(), Value: f2.Value()}},
+			want:   0,
 		},
 		{
-			name: "must find one item",
-			fields: []repo.FieldAndValue{
-				{Field: f1.FieldID(), Value: f1.Value()},
-			},
-			expected: 1,
+			name:   "must find one item",
+			seeds:  seeds,
+			fields: []repo.FieldAndValue{{Field: f1.FieldID(), Value: f1.Value()}},
+			want:   1,
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			for _, i := range []*item.Item{i1, i2} {
-				assert.NoError(t, r.Save(ctx, i))
-			}
+			seedItems(t, r, tc.seeds)
 
 			got, err := r.FindByModelAndValue(ctx, mid, tc.fields, nil)
 			assert.NoError(t, err)
-			assert.Equal(t, tc.expected, len(got))
+			assert.Equal(t, tc.want, len(got))
 		})
 	}
 }
@@ -579,9 +587,9 @@ func testItemUpdateRef(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	r := newRepo(t)
-	assert.NoError(t, r.Save(ctx, i1))
+	require.NoError(t, r.Save(ctx, i1))
 	v, err := r.FindByID(ctx, i1.ID(), nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.NoError(t, r.UpdateRef(ctx, i1.ID(), vx, v.Version().OrRef().Ref()))
 
@@ -604,42 +612,44 @@ func testItemFindByAssets(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	seeds := item.List{i1, i2, i3}
 
 	tests := []struct {
-		name     string
-		input    id.AssetIDList
-		expected int
+		name  string
+		seeds item.List
+		arg   id.AssetIDList
+		want  int
 	}{
 		{
-			name:     "must find two items",
-			input:    id.AssetIDList{aid1, aid2},
-			expected: 2,
+			name:  "must find two items",
+			seeds: seeds,
+			arg:   id.AssetIDList{aid1, aid2},
+			want:  2,
 		},
 		{
-			name:     "must find one item",
-			input:    id.AssetIDList{aid2},
-			expected: 1,
+			name:  "must find one item",
+			seeds: seeds,
+			arg:   id.AssetIDList{aid2},
+			want:  1,
 		},
 		{
-			name:     "must not find any item",
-			input:    id.AssetIDList{},
-			expected: 0,
+			name:  "must not find any item",
+			seeds: seeds,
+			arg:   id.AssetIDList{},
+			want:  0,
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			for _, i := range []*item.Item{i1, i2, i3} {
-				assert.NoError(t, r.Save(ctx, i))
-			}
+			seedItems(t, r, tc.seeds)
 
-			got, err := r.FindByAssets(ctx, tc.input, nil)
+			got, err := r.FindByAssets(ctx, tc.arg, nil)
 			assert.NoError(t, err)
-			assert.Equal(t, tc.expected, len(got))
+			assert.Equal(t, tc.want, len(got))
 		})
 	}
 }
@@ -658,76 +668,62 @@ func testItemCountByModel(t *testing.T, newRepo itemFactory) {
 	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
 	i4 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
 
+	rwPid1 := repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}}
+
 	tests := []struct {
-		name     string
-		modelID  id.ModelID
-		seeds    item.List
-		filter   repo.ProjectFilter
-		expected int
+		name    string
+		seeds   item.List
+		modelID id.ModelID
+		filter  repo.ProjectFilter
+		want    int
 	}{
 		{
 			name:    "count items for model with 2 items",
-			modelID: mid1,
 			seeds:   item.List{i1, i2, i3},
-			filter: repo.ProjectFilter{
-				Readable: []id.ProjectID{pid1},
-				Writable: []id.ProjectID{pid1},
-			},
-			expected: 2,
+			modelID: mid1,
+			filter:  rwPid1,
+			want:    2,
 		},
 		{
 			name:    "count items for model with 1 item",
-			modelID: mid2,
 			seeds:   item.List{i1, i2, i3},
-			filter: repo.ProjectFilter{
-				Readable: []id.ProjectID{pid1},
-				Writable: []id.ProjectID{pid1},
-			},
-			expected: 1,
+			modelID: mid2,
+			filter:  rwPid1,
+			want:    1,
 		},
 		{
 			name:    "count items for model with no items",
-			modelID: id.NewModelID(),
 			seeds:   item.List{i1, i2, i3},
-			filter: repo.ProjectFilter{
-				Readable: []id.ProjectID{pid1},
-				Writable: []id.ProjectID{pid1},
-			},
-			expected: 0,
+			modelID: id.NewModelID(),
+			filter:  rwPid1,
+			want:    0,
 		},
 		{
 			name:    "count items with cross-project permission filtering",
-			modelID: mid1,
 			seeds:   item.List{i1, i2, i4},
-			filter: repo.ProjectFilter{
-				Readable: []id.ProjectID{pid1},
-				Writable: []id.ProjectID{pid1},
-			},
-			expected: 2,
+			modelID: mid1,
+			filter:  rwPid1,
+			want:    2,
 		},
 		{
 			name:    "count items with no accessible projects",
-			modelID: mid1,
 			seeds:   item.List{i1, i2},
-			filter: repo.ProjectFilter{
-				Readable: []id.ProjectID{},
-				Writable: []id.ProjectID{},
-			},
-			expected: 0,
+			modelID: mid1,
+			filter:  repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
+			want:    0,
 		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			r := newRepo(t)
-			assert.NoError(t, r.SaveAll(ctx, tc.seeds))
+			seedItems(t, r, tc.seeds)
 
 			got, err := r.Filtered(tc.filter).CountByModel(ctx, tc.modelID)
 			assert.NoError(t, err)
-			assert.Equal(t, tc.expected, got)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
