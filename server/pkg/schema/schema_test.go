@@ -21,19 +21,19 @@ func TestSchema_AddField(t *testing.T) {
 			name: "add on empty array",
 			s:    &Schema{},
 			f:    &Field{name: "f1"},
-			want: &Schema{fields: []*Field{{name: "f1", order: 0}}},
+			want: &Schema{fields: FieldList{{name: "f1", order: 0}}},
 		},
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid, name: "f1", order: 1}}},
+			s:    &Schema{fields: FieldList{{id: fid, name: "f1", order: 1}}},
 			f:    &Field{name: "f2"},
-			want: &Schema{fields: []*Field{{id: fid, name: "f1", order: 1}, {name: "f2", order: 2}}},
+			want: &Schema{fields: FieldList{{id: fid, name: "f1", order: 1}, {name: "f2", order: 2}}},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid, name: "f1"}}},
+			s:    &Schema{fields: FieldList{{id: fid, name: "f1"}}},
 			f:    &Field{id: fid, name: "f2"},
-			want: &Schema{fields: []*Field{{id: fid, name: "f1"}}},
+			want: &Schema{fields: FieldList{{id: fid, name: "f1"}}},
 		},
 	}
 
@@ -66,19 +66,19 @@ func TestSchema_HasField(t *testing.T) {
 		},
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}}},
 			fid:  fid1,
 			want: true,
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  fid1,
 			want: true,
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  NewFieldID(),
 			want: false,
 		},
@@ -112,27 +112,27 @@ func TestSchema_RemoveField(t *testing.T) {
 		},
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}}},
 			fid:  fid1,
-			want: &Schema{fields: []*Field{}},
+			want: &Schema{fields: FieldList{}},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  fid1,
-			want: &Schema{fields: []*Field{{id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			want: &Schema{fields: FieldList{{id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  fid2,
-			want: &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid3, name: "f3"}}},
+			want: &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid3, name: "f3"}}},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}, titleField: fid3.Ref()},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}, titleField: fid3.Ref()},
 			fid:  fid3,
-			want: &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}}},
+			want: &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}}},
 		},
 	}
 
@@ -165,25 +165,25 @@ func TestSchema_Field(t *testing.T) {
 		},
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}}},
 			fid:  fid1,
 			want: &Field{id: fid1, name: "f1"},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  fid1,
 			want: &Field{id: fid1, name: "f1"},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  fid2,
 			want: &Field{id: fid2, name: "f2"},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fid:  fid3,
 			want: &Field{id: fid3, name: "f3"},
 		},
@@ -199,12 +199,78 @@ func TestSchema_Field(t *testing.T) {
 	}
 }
 
+func TestSchema_FirstGeometryField(t *testing.T) {
+	tp := func(tp *TypeProperty) *TypeProperty { return tp }
+	boolTP := tp(NewBool().TypeProperty())
+	geoObjTP := tp(NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty())
+	geoEdtTP := tp(NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty())
+
+	fid1 := NewFieldID()
+	fid2 := NewFieldID()
+	fid3 := NewFieldID()
+
+	tests := []struct {
+		name string
+		s    *Schema
+		want *Field
+	}{
+		{
+			name: "nil schema",
+			s:    nil,
+			want: nil,
+		},
+		{
+			name: "nil fields",
+			s:    &Schema{},
+			want: nil,
+		},
+		{
+			name: "no geometry field",
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1", typeProperty: boolTP}}},
+			want: nil,
+		},
+		{
+			name: "geometry object field",
+			s: &Schema{fields: FieldList{
+				{id: fid1, name: "f1", typeProperty: boolTP},
+				{id: fid2, name: "f2", typeProperty: geoObjTP},
+			}},
+			want: &Field{id: fid2, name: "f2", typeProperty: geoObjTP},
+		},
+		{
+			name: "geometry editor field",
+			s: &Schema{fields: FieldList{
+				{id: fid1, name: "f1", typeProperty: boolTP},
+				{id: fid2, name: "f2", typeProperty: geoEdtTP},
+			}},
+			want: &Field{id: fid2, name: "f2", typeProperty: geoEdtTP},
+		},
+		{
+			name: "returns first geometry field by order",
+			s: &Schema{fields: FieldList{
+				{id: fid1, name: "f1", typeProperty: geoObjTP, order: 2},
+				{id: fid2, name: "f2", typeProperty: boolTP, order: 1},
+				{id: fid3, name: "f3", typeProperty: geoEdtTP, order: 0},
+			}},
+			want: &Field{id: fid3, name: "f3", typeProperty: geoEdtTP, order: 0},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.s.FirstGeometryField())
+		})
+	}
+}
+
 func TestSchema_FieldByIDOrKey(t *testing.T) {
 	f1 := &Field{id: NewFieldID(), name: "f1"}
 	f2 := &Field{id: NewFieldID(), name: "f2"}
 	f3 := &Field{id: NewFieldID(), name: "f3", key: id.NewKey("KEY")}
 	f4 := &Field{id: NewFieldID(), name: "f4", key: id.NewKey("id")}
-	s := &Schema{fields: []*Field{f1, f2, f3, f4}}
+	s := &Schema{fields: FieldList{f1, f2, f3, f4}}
 
 	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), nil))
 	assert.Equal(t, f2, s.FieldByIDOrKey(f2.ID().Ref(), nil))
@@ -229,13 +295,13 @@ func TestSchema_Fields(t *testing.T) {
 	}{
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}}},
-			want: []*Field{{id: fid1, name: "f1"}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}}},
+			want: FieldList{{id: fid1, name: "f1"}},
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
-			want: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			want: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}},
 		},
 	}
 
@@ -256,7 +322,7 @@ func TestSchema_FieldsByType(t *testing.T) {
 	f2 := Field{id: fid2, name: "f2", typeProperty: &TypeProperty{t: value.TypeText, text: NewText(nil)}}
 	fid3 := NewFieldID()
 	f3 := Field{id: fid3, name: "f3", typeProperty: &TypeProperty{t: value.TypeBool, bool: NewBool()}}
-	s := &Schema{fields: []*Field{&f1, &f2, &f3}}
+	s := &Schema{fields: FieldList{&f1, &f2, &f3}}
 
 	assert.Equal(t, FieldList{&f1, &f3}, s.FieldsByType(value.TypeBool))
 }
@@ -384,7 +450,7 @@ func TestSchema_TitleField(t *testing.T) {
 	fid := id.NewFieldID()
 	s2 := &Schema{
 		titleField: &fid,
-		fields:     []*Field{{id: fid, name: "f1"}},
+		fields:     FieldList{{id: fid, name: "f1"}},
 	}
 	assert.Equal(t, fid.Ref(), s2.TitleField().Ref())
 
@@ -395,7 +461,7 @@ func TestSchema_TitleField(t *testing.T) {
 	assert.Nil(t, s3.TitleField())
 
 	s4 := &Schema{
-		fields:     []*Field{},
+		fields:     FieldList{},
 		titleField: fid3.Ref(),
 	}
 	assert.Nil(t, s4.TitleField())
@@ -403,7 +469,7 @@ func TestSchema_TitleField(t *testing.T) {
 
 func TestSchema_SetTitleField(t *testing.T) {
 	sf := NewField(NewBool().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-	f := []*Field{sf}
+	f := FieldList{sf}
 	s := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f).MustBuild()
 
 	err := s.SetTitleField(id.NewFieldID().Ref())
@@ -413,7 +479,7 @@ func TestSchema_SetTitleField(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, sf.ID().Ref(), s.TitleField().Ref())
 
-	f2 := []*Field{}
+	f2 := FieldList{}
 	s2 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f2).MustBuild()
 	err = s2.SetTitleField(id.NewFieldID().Ref())
 	assert.ErrorIs(t, err, ErrInvalidTitleField)
@@ -424,7 +490,7 @@ func TestSchema_SetTitleField(t *testing.T) {
 }
 
 func TestSchema_Clone(t *testing.T) {
-	s := &Schema{id: NewID(), fields: []*Field{{id: id.NewFieldID(), name: "f1"}}, titleField: NewFieldID().Ref()}
+	s := &Schema{id: NewID(), fields: FieldList{{id: id.NewFieldID(), name: "f1"}}, titleField: NewFieldID().Ref()}
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)
@@ -452,19 +518,19 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 		},
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: id.NewKey("K123123")}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1", key: id.NewKey("K123123")}}},
 			fKey: "K123123",
 			want: true,
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: id.NewKey("K123123")}, {id: fid2, name: "f2", key: id.NewKey("K111222")}, {id: fid3, name: "f3", key: id.NewKey("K123111")}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1", key: id.NewKey("K123123")}, {id: fid2, name: "f2", key: id.NewKey("K111222")}, {id: fid3, name: "f3", key: id.NewKey("K123111")}}},
 			fKey: "K123123",
 			want: true,
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: FieldList{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
 			fKey: "K123123",
 			want: false,
 		},
@@ -482,13 +548,13 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 
 func TestSchema_CopyFrom(t *testing.T) {
 	fid := id.NewFieldID()
-	s1 := &Schema{id: id.NewSchemaID(), fields: []*Field{{id: id.NewFieldID(), name: "f1", key: id.RandomKey()}}, titleField: fid.Ref()}
-	s2 := &Schema{id: id.NewSchemaID(), fields: []*Field{}}
+	s1 := &Schema{id: id.NewSchemaID(), fields: FieldList{{id: id.NewFieldID(), name: "f1", key: id.RandomKey()}}, titleField: fid.Ref()}
+	s2 := &Schema{id: id.NewSchemaID(), fields: FieldList{}}
 	s2.CopyFrom(s1)
 	assert.Equal(t, s1.fields, s2.fields)
 	assert.Equal(t, s1.titleField, s2.titleField)
 
-	s3 := &Schema{id: id.NewSchemaID(), fields: []*Field{}}
+	s3 := &Schema{id: id.NewSchemaID(), fields: FieldList{}}
 	s3.CopyFrom(nil)
 	assert.Equal(t, 0, len(s3.fields))
 	assert.Nil(t, s3.titleField)

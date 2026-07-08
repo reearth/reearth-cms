@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFeatureCollectionFromItems(t *testing.T) {
@@ -104,7 +105,9 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Features: &[]types.Feature{f},
 	}
 
-	fc1, err1 := FeatureCollectionFromItems(ver1, sp1, nil)
+	geoField := s1.FirstGeometryField()
+	require.NotNil(t, geoField)
+	fc1, err1 := FeatureCollectionFromItems(ver1, sp1, geoField.ID(), nil)
 	assert.Nil(t, err1)
 	assert.Equal(t, expected1, fc1)
 
@@ -112,7 +115,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	ver2 := item.List{vi2.Value()}
 	expectErr2 := noGeometryFieldError
 
-	fc, err := FeatureCollectionFromItems(ver2, sp2, nil)
+	fc, err := FeatureCollectionFromItems(ver2, sp2, schema.NewFieldID(), nil)
 	assert.Equal(t, expectErr2, err)
 	assert.Nil(t, fc)
 }
