@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState, useRef, MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, RefObject } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -99,7 +99,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const handleValuesChange = useCallback(
     async (
       changedValues: Field | CorrespondingField,
-      ref: MutableRefObject<typeof changedValues | null>,
+      ref: RefObject<typeof changedValues | null>,
     ) => {
       const [key, value] = Object.entries(changedValues)[0];
       const defaultValue = ref.current?.[key as keyof typeof changedValues];
