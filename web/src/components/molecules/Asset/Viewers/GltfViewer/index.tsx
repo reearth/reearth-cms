@@ -10,7 +10,7 @@ import { Imagery } from "./Imagery";
 type Props = {
   isAssetPublic?: boolean;
   url: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
   workspaceSettings: WorkspaceSettings;
 };
 

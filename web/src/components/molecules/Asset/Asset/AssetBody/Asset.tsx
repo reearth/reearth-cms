@@ -86,7 +86,7 @@ const AssetMolecule: React.FC<Props> = ({
             assetFileExt={assetFileExt}
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef as any}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -96,7 +96,7 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            viewerRef={viewerRef as any}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -105,7 +105,7 @@ const AssetMolecule: React.FC<Props> = ({
           <MvtViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef as any}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -118,7 +118,7 @@ const AssetMolecule: React.FC<Props> = ({
           <GltfViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef as any}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -127,7 +127,7 @@ const AssetMolecule: React.FC<Props> = ({
           <CsvViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef as any}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );

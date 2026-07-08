@@ -83,7 +83,7 @@ const ViewsMenuItem: React.FC<Props> = ({
     <Wrapper>
       {view.name}
       <StyledDropdown key="more" menu={{ items: dropdownItems }} trigger={["click"]}>
-        <Button type="text" icon={<Icon icon="more" size={16} />} />
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_LG} />} />
       </StyledDropdown>
     </Wrapper>
   );

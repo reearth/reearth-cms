@@ -12,7 +12,7 @@ import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
   children: React.ReactNode;
   properties?: Property;
   showDescription?: boolean;

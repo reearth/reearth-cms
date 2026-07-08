@@ -15,7 +15,7 @@ type Props = {
   url: string;
   workspaceSettings: WorkspaceSettings;
   setAssetUrl: (url: string) => void;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
 };
 
 const Geo3dViewer: React.FC<Props> = ({

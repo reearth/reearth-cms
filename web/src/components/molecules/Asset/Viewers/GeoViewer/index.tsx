@@ -14,7 +14,7 @@ type Props = {
   isAssetPublic?: boolean;
   url: string;
   assetFileExt?: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
   workspaceSettings: WorkspaceSettings;
 };
 

@@ -445,7 +445,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           initialValues={initialValues}
           requiredMark={requiredMark}
           onValuesChange={changedValues => {
-            handleValuesChange(changedValues, defaultFieldValues as MutableRefObject<Field | null>);
+            handleValuesChange(changedValues, defaultFieldValues);
           }}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
@@ -525,7 +525,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           initialValues={initialValues}
           requiredMark={requiredMark}
           onValuesChange={changedValues => {
-            handleValuesChange(changedValues, defaultCorrespondingValues as MutableRefObject<CorrespondingField | null>);
+            handleValuesChange(changedValues, defaultCorrespondingValues);
           }}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>

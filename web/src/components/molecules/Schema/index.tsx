@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
+import { Dispatch, ReactNode, SetStateAction, useCallback, useMemo, useState } from "react";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -70,7 +70,7 @@ type Props = {
   onAssetSelect: (id?: string) => void;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
-  modelsMenu: JSX.Element;
+  modelsMenu: ReactNode;
   setIsMeta: (isMeta: boolean) => void;
   onCollapse: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void>;
@@ -313,7 +313,7 @@ const Schema: React.FC<Props> = ({
           collapsedWidth={54}
           width={208}
           trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}>
-          {modelsMenu as React.ReactNode}
+          {modelsMenu}
         </Sidebar>
       }
       center={
