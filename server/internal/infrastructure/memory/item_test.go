@@ -24,9 +24,7 @@ import (
 // repo_suite_test.go. This file only contains memory-specific tests.
 
 // TestItem_MemorySpecific_RemoveSemantics tests the error values the memory
-// implementation returns when removing missing or non-writable items; mongo
-// folds the project filter into the delete query and cannot distinguish these
-// cases, so they are not part of the shared interface suite.
+// implementation returns when removing missing or non-writable items.
 func TestItem_MemorySpecific_RemoveSemantics(t *testing.T) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
