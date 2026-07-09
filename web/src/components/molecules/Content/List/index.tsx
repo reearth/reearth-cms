@@ -29,7 +29,7 @@ import { Field } from "../../Schema/types";
 
 export type Props = {
   commentsPanel: ReactNode;
-  viewsMenu: JSX.Element;
+  viewsMenu: ReactNode;
   collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];

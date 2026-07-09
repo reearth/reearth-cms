@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { ReactNode, useCallback, useState, useEffect, useRef } from "react";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -42,7 +42,7 @@ const MemberAddModal: React.FC<Props> = ({
     {
       value: string;
       user: User;
-      label: JSX.Element;
+      label: ReactNode;
     }[]
   >([]);
   const [isResultOpen, setIsResultOpen] = useState(false);
