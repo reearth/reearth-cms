@@ -47,14 +47,13 @@ func (l List) Projects() id.ProjectIDList {
 		if i == nil {
 			return id.ProjectID{}, false
 		}
-		return i.Project(), true
+		return i.Project(), !i.Project().IsEmpty()
 	}))
 }
 
 func (l List) MetadataIDs() IDList {
 	return lo.FilterMap(l, func(i *Item, _ int) (ID, bool) {
-		id := i.MetadataItem()
-		if id == nil {
+		if i.MetadataItem().IsNil() {
 			return ID{}, false
 		}
 		return *i.MetadataItem(), true
