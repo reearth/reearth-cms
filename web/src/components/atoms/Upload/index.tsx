@@ -1,5 +1,5 @@
 import { Upload } from "antd";
-import {
+import type {
   UploadChangeParam,
   UploadFile as ANTDFileUpload,
   UploadProps,

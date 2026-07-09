@@ -3,15 +3,15 @@ import dayjs from "dayjs";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import { FormInstance } from "@reearth-cms/components/atoms/Form";
+import type { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import type { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import type { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 import { AntdToken } from "@reearth-cms/utils/style";
 
-import { AssetProps } from "../../Form/AssetItem";
+import type { AssetProps } from "../../Form/AssetItem";
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 

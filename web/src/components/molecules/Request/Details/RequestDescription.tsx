@@ -6,8 +6,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
+import type { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

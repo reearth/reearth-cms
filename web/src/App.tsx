@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
+import localeData from "dayjs/plugin/localeData";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
+import weekday from "dayjs/plugin/weekday";
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -39,6 +41,8 @@ import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
+dayjs.extend(weekday);
+dayjs.extend(localeData);
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
 

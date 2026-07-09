@@ -2,8 +2,7 @@
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 /** Internal type. DO NOT USE DIRECTLY. */
 export type Incremental<T> =
-  | T
-  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
@@ -92,10 +91,7 @@ export type MultipleFieldConditionInput = {
 };
 
 export type MultipleOperator =
-  | "INCLUDES_ALL"
-  | "INCLUDES_ANY"
-  | "NOT_INCLUDES_ALL"
-  | "NOT_INCLUDES_ANY";
+  "INCLUDES_ALL" | "INCLUDES_ANY" | "NOT_INCLUDES_ALL" | "NOT_INCLUDES_ANY";
 
 export type NullableFieldConditionInput = {
   fieldId: FieldSelectorInput;
@@ -111,10 +107,7 @@ export type NumberFieldConditionInput = {
 };
 
 export type NumberOperator =
-  | "GREATER_THAN"
-  | "GREATER_THAN_OR_EQUAL_TO"
-  | "LESS_THAN"
-  | "LESS_THAN_OR_EQUAL_TO";
+  "GREATER_THAN" | "GREATER_THAN_OR_EQUAL_TO" | "LESS_THAN" | "LESS_THAN_OR_EQUAL_TO";
 
 export type OrConditionInput = {
   conditions: Array<ConditionInput>;
@@ -165,12 +158,7 @@ export type StringFieldConditionInput = {
 };
 
 export type StringOperator =
-  | "CONTAINS"
-  | "ENDS_WITH"
-  | "NOT_CONTAINS"
-  | "NOT_ENDS_WITH"
-  | "NOT_STARTS_WITH"
-  | "STARTS_WITH";
+  "CONTAINS" | "ENDS_WITH" | "NOT_CONTAINS" | "NOT_ENDS_WITH" | "NOT_STARTS_WITH" | "STARTS_WITH";
 
 export type TimeFieldConditionInput = {
   fieldId: FieldSelectorInput;
@@ -215,14 +203,10 @@ export type GetItemsQuery = {
         createdAt: Date;
         updatedAt: Date;
         createdBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       }> | null;
       createdBy:
-        | { __typename: "Integration"; name: string }
-        | { __typename: "User"; name: string }
-        | null;
+        { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       fields: Array<{
         __typename: "ItemField";
         schemaFieldId: string;
@@ -300,9 +284,7 @@ export type GetItemQuery = {
           | { __typename: "User"; id: string; name: string }
           | null;
         updatedBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
         fields: Array<{
           __typename: "ItemField";
           schemaFieldId: string;
@@ -381,13 +363,9 @@ export type VersionsByItemQuery = {
       createdAt: Date;
       updatedAt: Date;
       createdBy:
-        | { __typename: "Integration"; name: string }
-        | { __typename: "User"; name: string }
-        | null;
+        { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       updatedBy:
-        | { __typename: "Integration"; name: string }
-        | { __typename: "User"; name: string }
-        | null;
+        { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       fields: Array<{
         __typename: "ItemField";
         schemaFieldId: string;
@@ -441,9 +419,7 @@ export type SearchItemQuery = {
         createdAt: Date;
         updatedAt: Date;
         createdBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       }> | null;
       assets: Array<{ __typename: "Asset"; id: string; url: string } | null>;
       fields: Array<{
@@ -458,9 +434,7 @@ export type SearchItemQuery = {
         | { __typename: "User"; id: string; name: string }
         | null;
       updatedBy:
-        | { __typename: "Integration"; name: string }
-        | { __typename: "User"; name: string }
-        | null;
+        { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       metadata: {
         __typename: "Item";
         id: string;
@@ -531,9 +505,7 @@ export type CreateItemMutation = {
         createdAt: Date;
         updatedAt: Date;
         createdBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       }> | null;
     };
   } | null;
@@ -587,9 +559,7 @@ export type UpdateItemMutation = {
         createdAt: Date;
         updatedAt: Date;
         createdBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       }> | null;
     };
   } | null;
@@ -616,9 +586,7 @@ export type UnpublishItemMutation = {
         createdAt: Date;
         updatedAt: Date;
         createdBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       }> | null;
     }>;
   } | null;
@@ -645,9 +613,7 @@ export type PublishItemMutation = {
         createdAt: Date;
         updatedAt: Date;
         createdBy:
-          | { __typename: "Integration"; name: string }
-          | { __typename: "User"; name: string }
-          | null;
+          { __typename: "Integration"; name: string } | { __typename: "User"; name: string } | null;
       }> | null;
     }>;
   } | null;

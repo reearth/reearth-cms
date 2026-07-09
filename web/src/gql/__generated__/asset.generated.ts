@@ -1,7 +1,6 @@
 /** Internal type. DO NOT USE DIRECTLY. */
 export type Incremental<T> =
-  | T
-  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
@@ -10,14 +9,7 @@ export type ArchiveExtractionStatus = "DONE" | "FAILED" | "IN_PROGRESS" | "PENDI
 export type IntegrationType = "Private" | "Public";
 
 export type PreviewType =
-  | "CSV"
-  | "GEO"
-  | "GEO_3D_TILES"
-  | "GEO_MVT"
-  | "IMAGE"
-  | "IMAGE_SVG"
-  | "MODEL_3D"
-  | "UNKNOWN";
+  "CSV" | "GEO" | "GEO_3D_TILES" | "GEO_MVT" | "IMAGE" | "IMAGE_SVG" | "MODEL_3D" | "UNKNOWN";
 
 export type AssetFragmentFragment = {
   __typename: "Asset";

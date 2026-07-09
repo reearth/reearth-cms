@@ -4,11 +4,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
+import type { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { SortBy, UpdateProjectInput } from "../Workspace/types";
+import type { SortBy, UpdateProjectInput } from "../Workspace/types";
 
 import ModelCard from "./ModelCard";
 import ProjectHeader from "./ProjectHeader";

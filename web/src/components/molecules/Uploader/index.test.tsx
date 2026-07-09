@@ -6,8 +6,9 @@ import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
-import { UploaderHookState, UploaderHookStateContext } from "./provider";
-import { UploaderQueueItem, UploaderState } from "./types";
+import type { UploaderHookState } from "./provider";
+import { UploaderHookStateContext } from "./provider";
+import type { UploaderQueueItem, UploaderState } from "./types";
 
 import Uploader from "./index";
 

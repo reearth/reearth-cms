@@ -10,7 +10,7 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Cards from "@reearth-cms/components/molecules/Settings/Cards";
 import FormModal from "@reearth-cms/components/molecules/Settings/FormModal";
-import {
+import type {
   WorkspaceSettings,
   TileInput,
   TerrainInput,

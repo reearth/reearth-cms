@@ -1,9 +1,9 @@
-import { Viewer as CesiumViewer } from "cesium";
-import { RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import type { Viewer as CesiumViewer } from "cesium";
+import type { RefObject } from "react";
+import type { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 import { Imagery } from "./Imagery";
 

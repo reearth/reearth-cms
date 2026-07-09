@@ -1,4 +1,4 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
@@ -8,7 +8,7 @@ import {
   keyReplace,
   emptyConvert,
 } from "@reearth-cms/components/molecules/Common/Form/utils";
-import {
+import type {
   Field,
   FieldModalTabs,
   SchemaFieldType,

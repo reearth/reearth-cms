@@ -1,6 +1,7 @@
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { Project, UpdateProjectInput } from "../Workspace/types";
+import type { Project, UpdateProjectInput } from "../Workspace/types";
 
 export default ({
   project,

@@ -1,12 +1,12 @@
 import { useSubscription } from "@apollo/client/react";
 
-import {
-  JobStateDocument,
+import type {
   JobStateSubscription,
   JobStateSubscriptionVariables,
 } from "@reearth-cms/gql/__generated__/job.generated";
+import { JobStateDocument } from "@reearth-cms/gql/__generated__/job.generated";
 
-import { UploaderQueueItem } from "./types";
+import type { UploaderQueueItem } from "./types";
 
 type Params = {
   jobId: UploaderQueueItem["jobId"];

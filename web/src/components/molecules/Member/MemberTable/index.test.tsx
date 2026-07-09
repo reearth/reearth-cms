@@ -2,7 +2,7 @@ import { render, screen, getByText } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 import MemberTable from ".";
 

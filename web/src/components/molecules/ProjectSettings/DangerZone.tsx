@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { ProjectVisibility } from "../Accessibility/types";
+import type { ProjectVisibility } from "../Accessibility/types";
 
 type Props = {
   projectName: string;

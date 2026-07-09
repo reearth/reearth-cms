@@ -28,7 +28,7 @@ export async function uploadFiles<T extends File, U>(
       const gzip = isGzippable(file);
       let cursor = "";
       let offset = 0;
-      let uploadToken = "";
+      let uploadToken: string;
 
       while (true) {
         const res = await createAssetUpload({

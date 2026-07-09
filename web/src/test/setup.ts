@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { type EmotionMatchers, matchers as emotionMatchers } from "@emotion/jest";
+import { matchers as emotionMatchers } from "@emotion/jest";
+import type { EmotionMatchers } from "@emotion/jest";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
 import { beforeAll, afterEach, expect } from "vitest";

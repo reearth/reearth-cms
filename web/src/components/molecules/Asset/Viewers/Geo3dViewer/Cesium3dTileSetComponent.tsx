@@ -1,5 +1,6 @@
-import { Cesium3DTileset } from "cesium";
-import { ComponentProps, useCallback } from "react";
+import type { Cesium3DTileset } from "cesium";
+import type { ComponentProps } from "react";
+import { useCallback } from "react";
 import { Cesium3DTileset as Resium3DTileset, useCesium } from "resium";
 
 type Props = ComponentProps<typeof Resium3DTileset>;

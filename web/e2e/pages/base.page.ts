@@ -1,4 +1,4 @@
-import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import type { Page, Locator } from "@reearth-cms/e2e/fixtures/test";
 import {
   clickAndExpectSuccess,
   closeNotification,

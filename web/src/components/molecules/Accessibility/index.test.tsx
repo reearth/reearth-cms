@@ -62,8 +62,7 @@ describe("Accessibility", () => {
       />,
     );
 
-    let switches = screen.getAllByRole("switch");
-    switches = screen.getAllByRole("switch");
+    const switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
     const saveButton = screen.getByRole("button", { name: "Save changes" });
@@ -99,9 +98,8 @@ describe("Accessibility", () => {
       />,
     );
 
-    let switches = screen.getAllByRole("switch");
     const saveButton = screen.getByRole("button", { name: "Save changes" });
-    switches = screen.getAllByRole("switch");
+    const switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
 
@@ -142,8 +140,7 @@ describe("Accessibility", () => {
       />,
     );
 
-    let switches = screen.getAllByRole("switch");
-    switches = screen.getAllByRole("switch");
+    const switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
 

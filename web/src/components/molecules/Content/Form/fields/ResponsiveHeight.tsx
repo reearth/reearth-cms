@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { cloneElement, ReactElement, useEffect, useRef } from "react";
+import type { ReactElement } from "react";
+import { cloneElement, useEffect, useRef } from "react";
 
 type Props = {
   id?: string;

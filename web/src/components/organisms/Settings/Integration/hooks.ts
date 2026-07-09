@@ -2,19 +2,17 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {
+import type {
   IntegrationMember,
   WorkspaceIntegration,
 } from "@reearth-cms/components/molecules/Integration/types";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 import {
   fromGraphQLIntegration,
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
-import {
-  Role as GQLRole,
-  Workspace as GQLWorkspace,
-} from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { Workspace as GQLWorkspace } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { Role as GQLRole } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import {
   AddIntegrationToWorkspaceDocument,

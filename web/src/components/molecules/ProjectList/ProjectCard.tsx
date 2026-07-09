@@ -3,7 +3,7 @@ import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
+import type { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";

@@ -4,8 +4,8 @@ import { useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

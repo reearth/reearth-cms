@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 
-import { ExtendedColumns } from "./types";
+import type { ExtendedColumns } from "./types";
 
-import ContentTable, { Props } from ".";
+import type { Props } from ".";
+import ContentTable from ".";
 
 const DEFAULT_PROPS: Props = {
   totalCount: 20,

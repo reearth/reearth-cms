@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useCallback, useState, FocusEvent } from "react";
+import type { FocusEvent } from "react";
+import { useCallback, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 

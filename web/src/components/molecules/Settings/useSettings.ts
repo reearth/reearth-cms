@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { TerrainType, TileType } from "@reearth-cms/components/molecules/Workspace/types.ts";
+import type { TerrainType, TileType } from "@reearth-cms/components/molecules/Workspace/types.ts";
 import { useT } from "@reearth-cms/i18n";
 
 export const TerrainTypeFormat: Record<TerrainType, string> = {

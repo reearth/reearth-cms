@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
-import { ChangeEventHandler, useMemo } from "react";
+import type { ChangeEventHandler } from "react";
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";

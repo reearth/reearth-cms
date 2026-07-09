@@ -1,5 +1,7 @@
-import { KmlDataSource, ConstantProperty, Resource } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState } from "react";
+import type { KmlDataSource } from "cesium";
+import { ConstantProperty, Resource } from "cesium";
+import type { ComponentProps } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";

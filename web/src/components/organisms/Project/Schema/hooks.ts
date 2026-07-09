@@ -4,8 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
-import {
+import type { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
+import type {
   CreateFieldInput,
   Field,
   SchemaFieldType,
@@ -13,8 +13,9 @@ import {
   SelectedSchemaType,
   Schema,
   MetaDataSchema,
+  FormValues,
+  ModelFormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
-import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
@@ -24,7 +25,7 @@ import {
   UpdateFieldDocument,
   UpdateFieldsDocument,
 } from "@reearth-cms/gql/__generated__/field.generated";
-import {
+import type {
   Model as GQLModel,
   Group as GQLGroup,
   SchemaFieldType as GQLSchemaFieldType,

@@ -4,19 +4,19 @@ import { useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
-import {
+import type {
   StretchColumn,
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
+import type { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
-import { FormItem } from "../types";
+import type { FormItem } from "../types";
 
 import useHooks from "./hooks";
 

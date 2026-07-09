@@ -4,7 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import { useT } from "@reearth-cms/i18n";
 
-import { SchemaFieldType } from "../../types";
+import type { SchemaFieldType } from "../../types";
 
 type Props = {
   selectedType: SchemaFieldType;

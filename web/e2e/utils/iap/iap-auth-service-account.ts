@@ -1,4 +1,4 @@
-import { Browser, BrowserContext } from "@playwright/test";
+import type { Browser, BrowserContext } from "@playwright/test";
 import { JWT } from "google-auth-library";
 
 import { createIAPBrowserContext } from "./iap-auth-common";

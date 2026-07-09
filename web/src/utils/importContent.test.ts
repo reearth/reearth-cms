@@ -1,19 +1,20 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { FeatureCollection, GeoJSON } from "geojson";
+import type { FeatureCollection, GeoJSON } from "geojson";
 import { describe, expect, test } from "vitest";
 
-import {
+import type {
   EditorSupportedType,
   Field,
   ObjectSupportedType,
-  SchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Test } from "@reearth-cms/test/utils";
 
 import { Constant } from "./constant";
-import { ContentSourceFormat, ImportContentItem, ImportContentUtils } from "./importContent";
+import type { ContentSourceFormat, ImportContentItem } from "./importContent";
+import { ImportContentUtils } from "./importContent";
 import { ObjectUtils } from "./object";
 
 async function readFromJSONFile(

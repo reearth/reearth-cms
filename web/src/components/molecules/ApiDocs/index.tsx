@@ -1,7 +1,9 @@
 import "@scalar/api-reference-react/style.css";
 import styled from "@emotion/styled";
-import { AnyApiReferenceConfiguration, ApiReferenceReact } from "@scalar/api-reference-react";
-import { FC, useMemo } from "react";
+import type { AnyApiReferenceConfiguration } from "@scalar/api-reference-react";
+import { ApiReferenceReact } from "@scalar/api-reference-react";
+import type { FC } from "react";
+import { useMemo } from "react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 

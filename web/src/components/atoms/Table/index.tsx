@@ -1,5 +1,6 @@
-import { Table, TableColumnsType } from "antd";
-import { SorterResult, TablePaginationConfig } from "antd/lib/table/interface";
+import type { TableColumnsType } from "antd";
+import { Table } from "antd";
+import type { SorterResult, TablePaginationConfig } from "antd/lib/table/interface";
 
 export type { TableColumnsType, SorterResult, TablePaginationConfig };
 

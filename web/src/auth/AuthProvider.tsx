@@ -1,10 +1,11 @@
 import { Auth0Provider } from "@auth0/auth0-react";
-import React, { createContext, ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { createContext, useState } from "react";
 
 import { getAuthInfo, getSignInCallbackUrl, logInToTenant } from "@reearth-cms/config";
 
 import { useAuth0Auth } from "./Auth0Auth";
-import AuthHook from "./AuthHook";
+import type AuthHook from "./AuthHook";
 import { useCognitoAuth } from "./CognitoAuth";
 import { useFirebaseAuth } from "./FirebaseAuth";
 import FirebaseProvider from "./FirebaseProvider";

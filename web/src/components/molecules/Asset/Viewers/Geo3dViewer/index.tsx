@@ -1,10 +1,12 @@
-import { Resource, Viewer as CesiumViewer } from "cesium";
-import { useEffect, useMemo, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import type { Viewer as CesiumViewer } from "cesium";
+import { Resource } from "cesium";
+import type { RefObject } from "react";
+import { useEffect, useMemo } from "react";
+import type { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { compressedFileFormats } from "@reearth-cms/components/molecules/Common/Asset";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useAuthHeader } from "@reearth-cms/gql";
 import { FileUtils } from "@reearth-cms/utils/file";
 

@@ -1,15 +1,15 @@
 import styled from "@emotion/styled";
-import { Viewer as CesiumViewer } from "cesium";
-import { RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import type { Viewer as CesiumViewer } from "cesium";
+import type { RefObject } from "react";
+import type { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
-import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
-import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import type { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import type { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
+import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {

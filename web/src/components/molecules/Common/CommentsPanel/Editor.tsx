@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";

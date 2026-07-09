@@ -5,7 +5,7 @@ import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModa
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
-import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
+import type { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import useAssetHooks, {
   ImportSchemaError,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";

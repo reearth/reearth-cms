@@ -1,4 +1,4 @@
-import { User } from "@reearth-cms/components/molecules/Member/types";
+import type { User } from "@reearth-cms/components/molecules/Member/types";
 
 export type Integration = {
   id: string;

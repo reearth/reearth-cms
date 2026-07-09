@@ -3,7 +3,8 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AntdColor, CustomColor } from "@reearth-cms/utils/style";
 
-import Avatar, { AvatarProps } from "../Avatar";
+import type { AvatarProps } from "../Avatar";
+import Avatar from "../Avatar";
 
 type Props = {
   username?: string;

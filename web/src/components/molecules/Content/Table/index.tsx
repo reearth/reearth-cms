@@ -1,23 +1,16 @@
 import styled from "@emotion/styled";
-import React, {
-  Key,
-  useMemo,
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import type { Key, Dispatch, SetStateAction } from "react";
+import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import {
+import type {
   TableRowSelection,
   ListToolBarProps,
   ColumnsState,
@@ -28,14 +21,14 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import Status from "@reearth-cms/components/molecules/Content/Status";
-import {
+import type {
   DefaultFilterValueType,
   DropdownFilterType,
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import {
+import type { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type {
   ItemSort,
   FieldType,
   Column,

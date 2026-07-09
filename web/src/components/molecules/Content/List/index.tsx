@@ -1,21 +1,24 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction, useCallback, useMemo } from "react";
+import type { Dispatch, Key, SetStateAction } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
-import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import type { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
+import type { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
-import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import {
+import type {
   ConditionInput,
   CurrentView,
   ItemSort,
@@ -25,7 +28,7 @@ import { ExportContentUtils } from "@reearth-cms/utils/exportContent";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { Field } from "../../Schema/types";
+import type { Field } from "../../Schema/types";
 
 export type Props = {
   commentsPanel: JSX.Element;

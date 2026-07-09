@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 import { logOutFromTenant } from "@reearth-cms/config";
 
-import AuthHook from "./AuthHook";
+import type AuthHook from "./AuthHook";
 
 export const useCognitoAuth = (): AuthHook => {
   const [user, setUser] = useState<unknown>(null);

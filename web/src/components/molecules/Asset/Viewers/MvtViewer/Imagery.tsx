@@ -1,13 +1,7 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import {
-  Cartesian3,
-  Math,
-  BoundingSphere,
-  HeadingPitchRange,
-  ImageryLayerCollection,
-  ImageryLayer,
-} from "cesium";
+import type { ImageryLayerCollection, ImageryLayer } from "cesium";
+import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";

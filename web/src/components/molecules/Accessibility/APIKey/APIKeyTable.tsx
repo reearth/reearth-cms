@@ -5,11 +5,12 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import Table from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";
 
-import { APIKey, APIKeyModelType } from "../types";
+import type { APIKey, APIKeyModelType } from "../types";
 
 import KeyCell from "./KeyCell";
 

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { Children, ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Children } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";

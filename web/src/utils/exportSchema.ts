@@ -1,4 +1,4 @@
-import { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
+import type { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
 import { t } from "@reearth-cms/i18n";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

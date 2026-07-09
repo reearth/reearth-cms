@@ -3,13 +3,11 @@ import { useMemo } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import Table from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
-import {
-  ErrorLogEntry,
-  ErrorLogMeta,
-  ImportErrorLogUtils,
-} from "@reearth-cms/utils/importErrorLog";
+import type { ErrorLogEntry, ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { AntdColor, AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 type Props = {

@@ -1,26 +1,14 @@
-import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
-import { SortDirection } from "@reearth-cms/components/molecules/View/types";
+import type { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import type { SortDirection } from "@reearth-cms/components/molecules/View/types";
 
-import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
+import type { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
 export type PreviewType = PreviewTypeType;
 export type ArchiveExtractionStatus =
-  | "SKIPPED"
-  | "PENDING"
-  | "IN_PROGRESS"
-  | "DONE"
-  | "FAILED"
-  | undefined;
+  "SKIPPED" | "PENDING" | "IN_PROGRESS" | "DONE" | "FAILED" | undefined;
 
 export type ViewerType =
-  | "geo"
-  | "geo_3d_tiles"
-  | "geo_mvt"
-  | "image"
-  | "image_svg"
-  | "model_3d"
-  | "csv"
-  | "unknown";
+  "geo" | "geo_3d_tiles" | "geo_mvt" | "image" | "image_svg" | "model_3d" | "csv" | "unknown";
 
 export type Asset = {
   id: string;

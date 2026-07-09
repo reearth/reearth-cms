@@ -6,11 +6,7 @@ export type Comment = {
 };
 
 export type RefetchQueries = (
-  | "GetItem"
-  | "SearchItem"
-  | "GetAssetItem"
-  | "GetAssetsItems"
-  | "GetRequests"
+  "GetItem" | "SearchItem" | "GetAssetItem" | "GetAssetsItems" | "GetRequests"
 )[];
 
 export type ResourceType = "ITEM" | "ASSET" | "REQUEST";

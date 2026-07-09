@@ -1,4 +1,5 @@
-import { Modal, ModalFuncProps } from "antd";
+import type { ModalFuncProps } from "antd";
+import { Modal } from "antd";
 
 import { useT } from "@reearth-cms/i18n";
 

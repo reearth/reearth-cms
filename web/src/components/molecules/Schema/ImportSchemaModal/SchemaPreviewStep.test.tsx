@@ -6,9 +6,10 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { ImportFieldInput } from "../types";
+import type { ImportFieldInput } from "../types";
 
-import SchemaPreviewStep, { type Props } from "./SchemaPreviewStep";
+import SchemaPreviewStep from "./SchemaPreviewStep";
+import type { Props } from "./SchemaPreviewStep";
 
 const user = userEvent.setup();
 

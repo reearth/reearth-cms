@@ -6,11 +6,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemModal";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
-import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
+import type { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { FormItem } from "../../types";
+import type { FormItem } from "../../types";
 
 export type ReferenceProps = {
   referencedItems: FormItem[];

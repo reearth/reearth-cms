@@ -1,4 +1,4 @@
-import { RuleObject } from "@reearth-cms/components/atoms/Form";
+import type { RuleObject } from "@reearth-cms/components/atoms/Form";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export const checkIfEmpty = (value: unknown) =>

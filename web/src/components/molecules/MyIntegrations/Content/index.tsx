@@ -5,7 +5,7 @@ import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrations/Settings";
-import {
+import type {
   Integration,
   IntegrationInfo,
   Webhook as WebhookType,

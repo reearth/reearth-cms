@@ -1,15 +1,22 @@
-import dayjs, { Dayjs } from "dayjs";
-import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
+import dayjs from "dayjs";
+import type { Dispatch, SetStateAction } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 
-import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
+import type { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
-import {
+import type {
   DefaultFilterValueType,
   Operator,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import {
+import type {
   ConditionInput,
+  SortDirection,
+  FieldType,
+  CurrentView,
+  FieldSelector,
+} from "@reearth-cms/components/molecules/View/types";
+import {
   BasicOperator,
   BoolOperator,
   NullableOperator,
@@ -17,10 +24,6 @@ import {
   TimeOperator,
   // MultipleOperator,
   StringOperator,
-  SortDirection,
-  FieldType,
-  CurrentView,
-  FieldSelector,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -413,12 +416,11 @@ export default (
     filterValue.current = e.target.value;
   }, []);
 
-  const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Dayjs | null, dateString: string | string[]) => {
-      if (typeof dateString === "string") filterValue.current = dateString;
-    },
-    [],
-  );
+  const onDateChange: DatePickerProps["onChange"] = useCallback<
+    NonNullable<DatePickerProps["onChange"]>
+  >((_date, dateString) => {
+    if (typeof dateString === "string") filterValue.current = dateString;
+  }, []);
 
   return {
     valueOptions,

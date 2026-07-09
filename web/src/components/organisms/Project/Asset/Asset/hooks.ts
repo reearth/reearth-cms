@@ -1,13 +1,13 @@
 import { NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { Viewer as CesiumViewer } from "cesium";
+import type { Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { CesiumComponentRef } from "resium";
+import type { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {
+import type {
   Asset,
   AssetItem,
   PreviewType,
@@ -32,7 +32,7 @@ import {
   GetAssetItemDocument,
   UpdateAssetDocument,
 } from "@reearth-cms/gql/__generated__/assets.generated";
-import {
+import type {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
 } from "@reearth-cms/gql/__generated__/graphql.generated";

@@ -10,9 +10,9 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Input from "@reearth-cms/components/atoms/Input";
 import Password from "@reearth-cms/components/atoms/Password";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { APIKey, KeyFormType } from "@reearth-cms/components/molecules/Accessibility/types";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import type { APIKey, KeyFormType } from "@reearth-cms/components/molecules/Accessibility/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

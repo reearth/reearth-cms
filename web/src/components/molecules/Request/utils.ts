@@ -1,6 +1,6 @@
 import { AntdColor } from "@reearth-cms/utils/style";
 
-import { RequestState } from "./types";
+import type { RequestState } from "./types";
 
 export const badgeColors: Record<RequestState, string> = {
   APPROVED: AntdColor.GREEN.GREEN_5,

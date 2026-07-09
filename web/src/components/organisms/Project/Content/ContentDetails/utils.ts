@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-import { ItemValue } from "@reearth-cms/components/molecules/Content/types";
+import type { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 
 export function dateConvert(value?: ItemValue | null) {
   if (Array.isArray(value)) {

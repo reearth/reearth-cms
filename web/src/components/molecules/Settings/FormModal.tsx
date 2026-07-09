@@ -1,12 +1,13 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { Rule } from "@reearth-cms/components/atoms/Form";
+import type { Rule } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import useSettings from "@reearth-cms/components/molecules/Settings/useSettings.ts";
-import {
+import type {
   TileType,
   TerrainType,
   TileInput,

@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {
+import type {
   RefetchQueries,
   ResourceType,
 } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
@@ -11,7 +11,7 @@ import {
   DeleteCommentDocument,
   UpdateCommentDocument,
 } from "@reearth-cms/gql/__generated__/comment.generated";
-import { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";

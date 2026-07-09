@@ -65,7 +65,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await contentPage.backButtonRole.click();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-01");
     await contentPage.textBoxes.fill("2024-01-02");
-    await contentPage.textBoxes.press("Enter");
+    await page.keyboard.press("Enter");
     await contentPage.closeNotification();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-02");
     await page.waitForLoadState("networkidle");
@@ -163,7 +163,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-02");
 
     await fieldEditorPage.tooltipTextbox(1).fill("2024-01-03");
-    await fieldEditorPage.tooltipTextbox(1).press("Enter");
+    await page.keyboard.press("Enter");
     await contentPage.closeNotification();
     await page.waitForLoadState("networkidle");
   });

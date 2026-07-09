@@ -6,7 +6,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";
 
-import { APIKey } from "../types";
+import type { APIKey } from "../types";
 
 import APIKeyTable from "./APIKeyTable";
 

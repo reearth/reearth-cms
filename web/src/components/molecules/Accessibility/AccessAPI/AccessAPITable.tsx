@@ -3,12 +3,13 @@ import { useMemo } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import Table from "@reearth-cms/components/atoms/Table";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { ModelDataType } from "../types";
+import type { ModelDataType } from "../types";
 
 type Props = {
   apiUrl: string;

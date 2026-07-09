@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 import { AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import MarkdownComponent from "../Common/MarkdownComponent";
-import { UpdateProjectInput } from "../Workspace/types";
+import type { UpdateProjectInput } from "../Workspace/types";
 
 type Props = {
   readmeValue: string;

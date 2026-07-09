@@ -1,11 +1,13 @@
-import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import type { Viewer as CesiumViewer } from "cesium";
+import type { RefObject } from "react";
+import { useCallback, useState } from "react";
+import type { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-import { Imagery, Property } from "./Imagery";
+import type { Property } from "./Imagery";
+import { Imagery } from "./Imagery";
 
 type Props = {
   isAssetPublic?: boolean;

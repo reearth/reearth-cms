@@ -1,4 +1,4 @@
-import { SiderProps } from "antd";
+import type { SiderProps } from "antd";
 import Sider from "antd/lib/layout/Sider";
 
 export default Sider;

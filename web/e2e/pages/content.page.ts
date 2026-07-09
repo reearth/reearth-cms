@@ -1,5 +1,6 @@
 // e2e/pages/content.page.ts
-import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect } from "@reearth-cms/e2e/fixtures/test";
+import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -459,10 +460,6 @@ export class ContentPage extends BasePage {
   // Geometry field specific elements
   get viewLinesEditor(): Locator {
     return this.locator(".view-lines");
-  }
-
-  get editorContent(): Locator {
-    return this.getByLabel("Editor content;Press Alt+F1");
   }
 
   // Table column selection

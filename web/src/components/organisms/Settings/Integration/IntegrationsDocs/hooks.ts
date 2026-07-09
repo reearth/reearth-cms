@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useWorkspace } from "@reearth-cms/state";
 
-import { OpenApiSpec, OpenApiSpecTransformer } from "./utils";
+import type { OpenApiSpec } from "./utils";
+import { OpenApiSpecTransformer } from "./utils";
 
 export default () => {
   const [currentWorkspace] = useWorkspace();

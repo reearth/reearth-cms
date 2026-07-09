@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { UploaderQueueItem } from "../types";
+import type { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
 
 type Props = {

@@ -3,8 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import Table from "@reearth-cms/components/atoms/Table";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

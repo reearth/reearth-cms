@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { GeoJsonProperties, GeoJSON } from "geojson";
-import Papa, { ParseResult } from "papaparse";
+import type { GeoJsonProperties, GeoJSON } from "geojson";
+import type { ParseResult } from "papaparse";
+import Papa from "papaparse";
 import z from "zod";
 import { GeoJSON2DSchema } from "zod-geojson";
 
-import { ItemValue } from "@reearth-cms/components/molecules/Content/types";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/types";
+import type { ItemValue } from "@reearth-cms/components/molecules/Content/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/types";
 import { t } from "@reearth-cms/i18n";
 
 import { Constant } from "./constant";

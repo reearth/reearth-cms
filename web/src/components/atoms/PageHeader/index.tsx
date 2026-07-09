@@ -1,4 +1,5 @@
-import { PageHeader, PageHeaderProps } from "@ant-design/pro-layout";
+import type { PageHeaderProps } from "@ant-design/pro-layout";
+import { PageHeader } from "@ant-design/pro-layout";
 import styled from "@emotion/styled";
 
 import { AntdToken } from "@reearth-cms/utils/style";

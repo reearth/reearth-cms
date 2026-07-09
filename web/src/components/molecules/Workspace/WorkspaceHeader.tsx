@@ -7,7 +7,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { SortBy, SortOption } from "./types";
+import type { SortBy, SortOption } from "./types";
 
 type Props = {
   projectSort: SortBy;

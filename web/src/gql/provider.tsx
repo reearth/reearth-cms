@@ -25,8 +25,7 @@ type Props = {
 };
 function _getHttpProtocol(): "HTTP/2" | "HTTP/3" | "HTTP/1.1" | "HTTP/1.0" | "Unknown" {
   const navEntry = performance.getEntriesByType("navigation")[0] as
-    | PerformanceNavigationTiming
-    | undefined;
+    PerformanceNavigationTiming | undefined;
   if (!navEntry) return "Unknown";
 
   switch (navEntry.nextHopProtocol) {
@@ -128,7 +127,7 @@ const Provider: React.FC<Props> = ({ children }) => {
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (!error) return;
 
-    let message = "";
+    let message: string;
 
     if (CombinedGraphQLErrors.is(error)) {
       message = error.errors.map(e => e.message).join(", ");

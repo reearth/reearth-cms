@@ -1,5 +1,5 @@
-import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
-import { Tag } from "@reearth-cms/components/molecules/Schema/types";
+import type { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import type { Tag } from "@reearth-cms/components/molecules/Schema/types";
 import { AntdColor } from "@reearth-cms/utils/style";
 
 export const stateColors: Record<StateType, ColorType> = {
