@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
@@ -72,7 +72,7 @@ describe("Request options", () => {
     const saveButton = screen.getByRole("button", { name: "Save changes" });
     await user.click(secondSwitch);
     await user.click(saveButton);
-    await waitFor(() => expect(screen.getByLabelText("loading")).toBeVisible());
+    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
     expect(onProjectRequestRolesUpdateMock).toHaveBeenCalledWith(
       initialRequestRoles.concat(["MAINTAINER"]),
     );

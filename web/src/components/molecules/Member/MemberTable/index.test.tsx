@@ -152,10 +152,10 @@ describe("Member table", () => {
 
     const { user, role } = workspaceUserMembers[0];
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Email")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Action")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Email" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Role" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Action" })).toBeInTheDocument();
     expect(screen.getByText(user.name)).toBeVisible();
     expect(screen.getByText(user.email)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
@@ -256,7 +256,7 @@ describe("Member table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
     await user.click(screen.getByRole("button", { name: "usergroup-deleteRemove" }));
     const dialog = screen.getByRole("dialog");
     await expect.poll(() => dialog).toBeVisible();

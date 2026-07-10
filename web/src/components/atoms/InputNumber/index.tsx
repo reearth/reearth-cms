@@ -3,7 +3,7 @@ import { InputNumber as AntDInputNumber } from "antd";
 import { useMemo } from "react";
 
 const InputNumber: <T extends string | number>(
-  props: React.PropsWithChildren<InputNumberProps<T>> & React.RefAttributes<HTMLInputElement>,
+  props: React.PropsWithChildren<InputNumberProps<T>>,
 ) => React.ReactElement = ({ value, ...props }) => {
   const status = useMemo(() => {
     if (typeof value === "number") {

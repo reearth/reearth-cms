@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import type { Key } from "react";
-import { useCallback } from "react";
+import { ReactNode, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -15,7 +15,7 @@ import { AntdColor } from "@reearth-cms/utils/style";
 export type UploadType = "local" | "url";
 
 type Props = {
-  commentsPanel: JSX.Element;
+  commentsPanel: ReactNode;
   assetList: Asset[];
   fileList: UploadFile[];
   selection: {

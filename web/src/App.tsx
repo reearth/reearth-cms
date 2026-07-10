@@ -1,3 +1,4 @@
+import { App as AntdProvider } from "antd";
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -10,6 +11,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+import "@ant-design/v5-patch-for-react-19";
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import { UploaderProvider } from "@reearth-cms/components/molecules/Uploader/provider";
@@ -105,15 +107,17 @@ const router = createBrowserRouter(
 
 function App() {
   return (
-    <AuthProvider>
-      <GqlProvider>
-        <I18nProvider>
-          <UploaderProvider>
-            <RouterProvider router={router} />
-          </UploaderProvider>
-        </I18nProvider>
-      </GqlProvider>
-    </AuthProvider>
+    <AntdProvider>
+      <AuthProvider>
+        <GqlProvider>
+          <I18nProvider>
+            <UploaderProvider>
+              <RouterProvider router={router} />
+            </UploaderProvider>
+          </I18nProvider>
+        </GqlProvider>
+      </AuthProvider>
+    </AntdProvider>
   );
 }
 

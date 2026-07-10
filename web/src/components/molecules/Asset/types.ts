@@ -1,9 +1,14 @@
+import { Viewer as CesiumViewer } from "cesium";
+import { RefObject } from "react";
+import { CesiumComponentRef } from "resium";
+
 import type { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import type { SortDirection } from "@reearth-cms/components/molecules/View/types";
 
 import type { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
 export type PreviewType = PreviewTypeType;
+export type CesiumViewerRef = RefObject<CesiumComponentRef<CesiumViewer> | null>;
 export type ArchiveExtractionStatus =
   "SKIPPED" | "PENDING" | "IN_PROGRESS" | "DONE" | "FAILED" | undefined;
 

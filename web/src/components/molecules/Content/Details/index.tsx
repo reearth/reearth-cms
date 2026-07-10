@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
@@ -51,7 +53,7 @@ type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
-  commentsPanel?: JSX.Element;
+  commentsPanel?: ReactNode;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
   workspaceUserMembers: UserMember[];

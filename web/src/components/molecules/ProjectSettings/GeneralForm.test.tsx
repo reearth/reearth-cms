@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
@@ -116,7 +116,7 @@ describe("General form", () => {
     await user.type(screen.getByLabelText("Description"), "new");
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
-    await waitFor(() => expect(screen.getByLabelText("loading")).toBeVisible());
+    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
     expect(saveButton).toBeDisabled();
     expect(onProjectUpdateMock).toHaveBeenCalledWith(
       `${name}new`,

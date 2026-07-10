@@ -12,7 +12,7 @@ export default (
   onChange: (value: Request, items: RequestItem[]) => Promise<void>,
 ) => {
   const resetFlag = useRef(false);
-  const selectedRequest = useRef<Request>();
+  const selectedRequest = useRef<Request | null>(null);
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +33,7 @@ export default (
 
   useEffect(() => {
     setIsDisabled(!selectedRequestId);
-    selectedRequest.current = requestList.find(request => request.id === selectedRequestId);
+    selectedRequest.current = requestList.find(request => request.id === selectedRequestId) ?? null;
   }, [requestList, selectedRequestId]);
 
   const submit = useCallback(async () => {

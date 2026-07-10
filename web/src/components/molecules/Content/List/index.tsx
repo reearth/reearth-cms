@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import type { Dispatch, Key, SetStateAction } from "react";
+import type { Dispatch, Key, ReactNode, SetStateAction } from "react";
 import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -31,8 +31,8 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import type { Field } from "../../Schema/types";
 
 export type Props = {
-  commentsPanel: JSX.Element;
-  viewsMenu: JSX.Element;
+  commentsPanel: ReactNode;
+  viewsMenu: ReactNode;
   collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];

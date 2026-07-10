@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
-  title: string | JSX.Element;
+  title: ReactNode;
   toolbar?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;

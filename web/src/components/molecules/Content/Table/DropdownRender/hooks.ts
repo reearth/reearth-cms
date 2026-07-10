@@ -254,8 +254,10 @@ export default (
     return options;
   }, [filter]);
 
-  const filterOption = useRef<{ value: Operator | SortDirection; operatorType: string }>();
-  const filterValue = useRef<string>();
+  const filterOption = useRef<{ value: Operator | SortDirection; operatorType: string } | null>(
+    null,
+  );
+  const filterValue = useRef<string | null>(null);
 
   useEffect(() => {
     let isShow = true;
@@ -265,7 +267,7 @@ export default (
         value: operator,
         operatorType,
       };
-      filterValue.current = value;
+      filterValue.current = value ?? null;
       if (
         operatorType === "nullable" ||
         operator === TimeOperator.OfThisWeek ||
@@ -288,7 +290,7 @@ export default (
   }, [defaultValue, options]);
 
   const confirm = useCallback(() => {
-    if (filterOption.current === undefined) return;
+    if (filterOption.current === null) return;
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
@@ -408,7 +410,7 @@ export default (
 
   const onNumberChange = useCallback((value: string | null) => {
     if (value) {
-      filterValue.current = value;
+      filterValue.current = value ?? null;
     }
   }, []);
 

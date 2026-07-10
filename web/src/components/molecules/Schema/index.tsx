@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, ReactNode } from "react";
 
 import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -73,7 +73,7 @@ type Props = {
   onAssetSelect: (id?: string) => void;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
-  modelsMenu: JSX.Element;
+  modelsMenu: ReactNode;
   setIsMeta: (isMeta: boolean) => void;
   onCollapse: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void>;

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import type { Key } from "react";
+import { ReactNode } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -10,7 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
-  commentsPanel: JSX.Element;
+  commentsPanel: ReactNode;
   requests: Request[];
   loading: boolean;
   selectedRequest?: Request;

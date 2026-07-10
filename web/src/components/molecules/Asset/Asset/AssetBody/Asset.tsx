@@ -1,8 +1,5 @@
 import styled from "@emotion/styled";
-import type { Viewer as CesiumViewer } from "cesium";
-import type { RefObject } from "react";
 import { useMemo, useState } from "react";
-import type { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -17,6 +14,7 @@ import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBo
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import type { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
+import { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
 import {
   GeoViewer,
   Geo3dViewer,
@@ -41,7 +39,7 @@ type Props = {
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: CesiumViewerRef;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
