@@ -210,10 +210,9 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 
 	op := getOperator(ctx)
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID:  wpm.SchemaPackage.Schema().ID(),
-		ModelID:   wpm.Model.ID(),
-		ProjectID: wpm.Project.ID(),
-		Fields:    fieldsFromBody(body, wpm.SchemaPackage.Schema()),
+		SchemaID: wpm.SchemaPackage.Schema().ID(),
+		ModelID:  wpm.Model.ID(),
+		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
 	}, op)
 	if err != nil {
 		return PostItemResult{Err: err}

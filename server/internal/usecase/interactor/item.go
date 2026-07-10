@@ -178,9 +178,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Anonymous {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	if operator.Anonymous && param.ProjectID.IsEmpty() {
-		return nil, interfaces.ErrInvalidOperator
-	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
@@ -196,11 +193,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if operator.Anonymous {
-			if m.Project() != param.ProjectID {
-				return nil, interfaces.ErrOperationDenied
-			}
-		} else if !operator.IsWritableWorkspace(s.Workspace()) {
+		if !operator.Anonymous && !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 

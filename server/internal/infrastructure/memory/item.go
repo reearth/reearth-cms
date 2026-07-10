@@ -181,9 +181,6 @@ func (r *Item) SaveDraft(_ context.Context, t *item.Item) error {
 	if r.err != nil {
 		return r.err
 	}
-	if !r.f.CanWrite(t.Project()) {
-		return repo.ErrOperationDenied
-	}
 	r.data.SaveOne(t.ID(), t, nil)
 	return nil
 }
