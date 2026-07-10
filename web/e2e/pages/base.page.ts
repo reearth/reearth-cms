@@ -154,4 +154,12 @@ export abstract class BasePage {
   async keypress(key: string, delay?: number): Promise<void> {
     await this.page.keyboard.press(key, { delay });
   }
+
+  async typeInMonacoEditor(editor: Locator, content: string): Promise<void> {
+    await editor.click();
+    await this.page.locator(".monaco-editor.focused").waitFor({ state: "visible" });
+    await this.page.keyboard.press("ControlOrMeta+a");
+    await this.page.keyboard.type(content);
+    await this.page.locator(".suggest-widget.visible").waitFor({ state: "hidden" });
+  }
 }

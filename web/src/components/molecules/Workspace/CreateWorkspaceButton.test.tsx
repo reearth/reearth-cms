@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test } from "vitest";
 
@@ -18,5 +18,5 @@ test("Create workspace button works successfully", async () => {
   expect(screen.queryByRole("dialog")).toBeInTheDocument();
 
   await user.click(screen.getByRole("button", { name: "Cancel" }));
-  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 });
