@@ -369,7 +369,6 @@ func TestItem_UpdateField(t *testing.T) {
     }
 
     for _, tt := range tests {
-        tt := tt // Capture range variable for parallel execution
         t.Run(tt.name, func(t *testing.T) {
             t.Parallel() // Run each subtest in parallel
 
@@ -437,7 +436,6 @@ func TestField_Validate(t *testing.T) {
     }
 
     for _, tt := range tests {
-        tt := tt
         t.Run(tt.name, func(t *testing.T) {
             t.Parallel()
 
