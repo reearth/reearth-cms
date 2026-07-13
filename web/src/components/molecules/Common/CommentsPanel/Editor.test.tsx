@@ -45,7 +45,7 @@ describe("Comments panel", () => {
     const content = "content";
     await user.type(screen.getByRole("textbox"), content);
     await user.click(button);
-    const loading = screen.getByLabelText("loading");
+    const loading = await screen.findByLabelText("loading");
     expect(button).toBeDisabled();
     expect(loading).toBeVisible();
     expect(onCommentCreateMock).toHaveBeenCalledWith(content);

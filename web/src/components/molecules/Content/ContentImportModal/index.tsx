@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import { Dispatch, ReactNode, SetStateAction, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
@@ -384,7 +384,7 @@ const ContentImportModal: React.FC<Props> = ({
     [importValidationResult?.errorLogMeta],
   );
 
-  const modalFooter = useMemo<JSX.Element | null>(() => {
+  const modalFooter = useMemo<ReactNode | null>(() => {
     if (!importValidationResult) return null;
     return (
       <Flex justify="space-between">
