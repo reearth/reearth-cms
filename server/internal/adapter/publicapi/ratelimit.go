@@ -17,8 +17,16 @@ func RateLimitMiddleware(rl RateLimitConfig) echo.MiddlewareFunc {
 		ExpiresIn: rl.ExpiresIn,
 	})
 
-	// Retry-After hint in whole seconds ≈ time to refill one token: ceil(1/rate).
-	retryAfter := strconv.Itoa(int(math.Ceil(1 / rl.Rate)))
+	// Retry-After hint in whole seconds ≈ time to drain then refill the full burst: ceil(burst/rate).
+	// Clamp to at least 1 so clients don't interpret Retry-After: 0 as "retry immediately".
+	ra := 1
+	if rl.Rate > 0 {
+		ra = int(math.Ceil(float64(rl.Burst) / rl.Rate))
+		if ra < 1 {
+			ra = 1
+		}
+	}
+	retryAfter := strconv.Itoa(ra)
 
 	return middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
 		Store: store,

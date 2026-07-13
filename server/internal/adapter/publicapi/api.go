@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"path"
 	"strconv"
@@ -276,7 +277,8 @@ func PostItem() echo.HandlerFunc {
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 		origin := c.Request().Header.Get("Origin")
 
-		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
+		wpm, err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin)
+		if err != nil {
 			return postingAccessErrorResponse(c, err)
 		}
 
@@ -284,24 +286,19 @@ func PostItem() echo.HandlerFunc {
 		r.Body = http.MaxBytesReader(c.Response(), r.Body, maxPayloadBytes)
 
 		var req postItemRequest
-		if r.ContentLength != 0 {
-			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-				var maxBytesErr *http.MaxBytesError
-				if errors.As(err, &maxBytesErr) {
-					return c.JSON(http.StatusRequestEntityTooLarge, newAPIError(codePayloadTooLarge, msgPayloadTooLarge, nil))
-				}
-				return c.JSON(http.StatusBadRequest, newAPIError(codeInvalidJSON, msgInvalidJSON, nil))
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil && !errors.Is(err, io.EOF) {
+			var maxBytesErr *http.MaxBytesError
+			if errors.As(err, &maxBytesErr) {
+				return c.JSON(http.StatusRequestEntityTooLarge, newAPIError(codePayloadTooLarge, msgPayloadTooLarge, nil))
 			}
+			return c.JSON(http.StatusBadRequest, newAPIError(codeInvalidJSON, msgInvalidJSON, nil))
 		}
 		if req.Fields == nil {
 			req.Fields = map[string]any{}
 		}
-		result := ctrl.PostItem(ctx, ws, p, m, req.Fields)
+		result := ctrl.PostItem(ctx, wpm, req.Fields)
 		if result.Err != nil {
-			if errors.Is(result.Err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
-			}
-			return result.Err
+			return postItemErrorResponse(c, result.Err)
 		}
 
 		if len(result.FieldErrors) > 0 {
@@ -325,7 +322,7 @@ func PreflightItem() echo.HandlerFunc {
 		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
 		origin := c.Request().Header.Get("Origin")
 
-		if err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
+		if _, err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
 			return postingAccessErrorResponse(c, err)
 		}
 

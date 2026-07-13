@@ -1184,6 +1184,21 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			JSON().Object().Value("code").IsEqual("not_found")
 	})
 
+	// Model that belongs to a different project in the same workspace must return 404.
+	pIdOther, _ := createProject(e, wId.String(), "posting-other-project", "posting-other-project", "posting-other-project")
+	_, mResOther := createModel(e, pIdOther, "other-model", "other-model", "other-model")
+	mKeyOther := mResOther.Path("$.data.createModel.model.key").Raw().(string)
+
+	t.Run("model from a different project returns 404", func(t *testing.T) {
+		// pId is used as the project path, but mKeyOther belongs to pIdOther.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKeyOther).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().Object().Value("code").IsEqual("not_found")
+	})
+
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+
 	t.Run("model posting disabled returns 403", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			Expect().
@@ -1191,7 +1206,6 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			JSON().Object().Value("error").IsEqual("model_posting_disabled")
 	})
 
-	updateProjectPosting(e, pId, []string{"https://allowed.com"})
 	updateModelPostingEnabled(e, mId, true)
 
 	t.Run("posting enabled returns 202 with item id", func(t *testing.T) {
@@ -1290,8 +1304,18 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		postVOK(map[string]any{"title": "hello", "unknown_field": "ignored"})
 	})
 
+	t.Run("field submitted by UUID key is silently ignored", func(t *testing.T) {
+		// UUIDs are not valid field keys in posting — they must be ignored so the
+		// submission does not fail with an unknown-field error.
+		postVOK(map[string]any{"title": "hello", id.NewFieldID().String(): "should-be-ignored"})
+	})
+
 	t.Run("missing required field returns FIELD_REQUIRED", func(t *testing.T) {
 		assertFieldError(postV(map[string]any{"count": 5}), "title", "FIELD_REQUIRED")
+	})
+
+	t.Run("empty string in required field returns FIELD_REQUIRED", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": ""}), "title", "FIELD_REQUIRED")
 	})
 
 	t.Run("multiple field errors returned together", func(t *testing.T) {
@@ -1392,6 +1416,9 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	// --- Date ---
 	t.Run("date type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
 		assertFieldError(postV(map[string]any{"title": "hello", "publishedAt": map[string]any{"bad": "value"}}), "publishedAt", "TYPE_MISMATCH")
+	})
+	t.Run("badly formatted date string returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "publishedAt": "not-a-date"}), "publishedAt", "TYPE_MISMATCH")
 	})
 	t.Run("date valid RFC3339 returns 201", func(t *testing.T) {
 		postVOK(map[string]any{"title": "hello", "publishedAt": "2024-01-15T10:00:00Z"})
@@ -1494,6 +1521,30 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	t.Run("multiple field accepts all valid items", func(t *testing.T) {
 		postMOK(map[string]any{"counts": []any{float64(1), float64(5), float64(10)}})
 	})
+
+	// --- unsupported field types (Asset, Reference) are silently skipped ---
+
+	pIdU, _ := createProject(e, wId.String(), "posting-unsupported-test", "posting-unsupported-test", "posting-unsupported-test")
+	updateProjectPosting(e, pIdU, []string{"https://example.com"})
+	mIdU, mResU := createModel(e, pIdU, "unsupported-model", "unsupported-model", "unsupported-model")
+	mKeyU := mResU.Path("$.data.createModel.model.key").Raw().(string)
+	updateModelPostingEnabled(e, mIdU, true)
+	createField(e, mIdU, "name", "", "name", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	createField(e, mIdU, "attachment", "", "attachment", false, false, false, false, "Asset", map[string]any{"asset": map[string]any{}})
+
+	t.Run("Asset field value in body is silently ignored and item is created", func(t *testing.T) {
+		// Asset and Reference fields are excluded from posting validation and creation.
+		// Submitting values for them must not cause an error.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdU, mKeyU).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": map[string]any{
+				"name":       "test",
+				"attachment": id.NewAssetID().String(),
+			}}).
+			Expect().
+			Status(http.StatusAccepted).
+			JSON().Object().ContainsKey("id")
+	})
 }
 
 func TestPublicAPI_PostingCORS(t *testing.T) {
@@ -1528,6 +1579,15 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	t.Run("wrong origin returns 403", func(t *testing.T) {
 		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
 			WithHeader("Origin", "https://evil.com").
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("http origin rejected when allowed origin is https", func(t *testing.T) {
+		// http://example.com must not match the configured https://example.com origin.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "http://example.com").
 			Expect().
 			Status(http.StatusForbidden).
 			JSON().Object().Value("error").IsEqual("origin_not_allowed")
@@ -1601,6 +1661,45 @@ func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 				Expect().
 				Status(http.StatusOK)
 		}
+	})
+}
+
+func TestPublicAPI_PostItem_RateLimit_BadRequests(t *testing.T) {
+	const burst = 3
+	e := StartServer(t, &app.Config{
+		Public_RateLimit: app.RateLimitConfig{
+			RatePerMinute: 1,
+			Burst:         burst,
+		},
+	}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "ratelimit-bad-test", "ratelimit-bad-test", "ratelimit-bad-test")
+	mId, mRes := createModel(e, pId, "ratelimit-bad-model", "ratelimit-bad-model", "ratelimit-bad-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+	updateModelPostingEnabled(e, mId, true)
+
+	postBadJSON := func() *httpexpect.Response {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte(`{bad json`)).
+			Expect()
+	}
+
+	t.Run("malformed JSON requests count against the rate limit", func(t *testing.T) {
+		// Exhaust the burst with bad JSON requests; they should each consume a token.
+		for i := 0; i < burst; i++ {
+			postBadJSON().Status(http.StatusBadRequest)
+		}
+		// The next request — even a well-formed one — must be rate limited.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte(`{"fields":{}}`)).
+			Expect().
+			Status(http.StatusTooManyRequests).
+			JSON().Object().Value("code").IsEqual("rate_limited")
 	})
 }
 

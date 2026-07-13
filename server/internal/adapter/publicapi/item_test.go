@@ -170,7 +170,19 @@ func TestController_PostItem(t *testing.T) {
 			if body == nil {
 				body = map[string]any{}
 			}
-			result := ctrl.PostItem(ctx, wAlias, pAlias, mKey, body)
+
+			// ValidatePostingAccess now returns the WPM so PostItem avoids a second load.
+			wpm, validateErr := ctrl.ValidatePostingAccess(ctx, wAlias, pAlias, mKey, allowedOrigin)
+			if validateErr != nil {
+				if tt.wantErr != nil {
+					assert.ErrorIs(t, validateErr, tt.wantErr)
+				} else {
+					assert.NoError(t, validateErr)
+				}
+				return
+			}
+
+			result := ctrl.PostItem(ctx, wpm, body)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, result.Err, tt.wantErr)
@@ -260,7 +272,7 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 				wAlias, pAlias, mKey = tt.mutateAliases(wAlias, pAlias, mKey)
 			}
 
-			err := ctrl.ValidatePostingAccess(ctx, wAlias, pAlias, mKey, tt.origin)
+			_, err := ctrl.ValidatePostingAccess(ctx, wAlias, pAlias, mKey, tt.origin)
 
 			assert.ErrorIs(t, err, tt.wantErr)
 		})
