@@ -56,7 +56,7 @@ Shared helpers come from `reearthx`: `rerror`, `usecasex`, `util`, `accountdomai
 
 ## Testing (see `write-go-tests`)
 
-- Table-driven, `t.Parallel()` on both the parent and each subtest, capture `tt := tt`.
+- Table-driven, `t.Parallel()` on both the parent and each subtest.
 - Interactor tests use `internal/infrastructure/memory` repos.
 - e2e tests need `REEARTH_CMS_DB` set or they skip (`testing.Short()`).
 
