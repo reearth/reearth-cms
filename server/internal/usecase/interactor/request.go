@@ -69,19 +69,19 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecas
 }
 
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
-	reqs, pi, err := r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
+	wid, err := workspaceIDForProject(ctx, r.repos, pid)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := r.checkPermissions(ctx, rbac.ActionList, wid); err != nil {
+		return nil, nil, err
+	}
+	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
 		State:     filter.State,
 		Keyword:   filter.Keyword,
 		Reviewer:  filter.Reviewer,
 		CreatedBy: filter.CreatedBy,
 	}, sort, pagination)
-	if err != nil {
-		return nil, nil, err
-	}
-	if err := r.checkPermissions(ctx, rbac.ActionList, reqs.Workspaces()...); err != nil {
-		return nil, nil, err
-	}
-	return reqs, pi, nil
 }
 
 func (r Request) FindByItem(ctx context.Context, iId id.ItemID, filter *interfaces.RequestFilter, _ *usecase.Operator) (request.List, error) {
@@ -273,12 +273,16 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 		return interfaces.ErrInvalidOperator
 	}
 
-	reqs, err := r.FindByIDs(ctx, ids, operator)
+	wid, err := workspaceIDForProject(ctx, r.repos, pid)
 	if err != nil {
 		return err
 	}
+	if err := r.checkPermissions(ctx, rbac.ActionUpdate, wid); err != nil {
+		return err
+	}
 
-	if err := r.checkPermissions(ctx, rbac.ActionUpdate, reqs.Workspaces()...); err != nil {
+	reqs, err := r.repos.Request.FindByIDs(ctx, ids)
+	if err != nil {
 		return err
 	}
 
