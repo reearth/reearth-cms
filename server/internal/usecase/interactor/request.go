@@ -12,12 +12,15 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Request struct {
@@ -33,15 +36,46 @@ func NewRequest(r *repo.Container, g *gateway.Container) *Request {
 	}
 }
 
+// checkPermissions enforces a Cerbos check on the request resource for the given
+// workspaces. When no workspace is supplied there is nothing to authorize
+// (e.g. an empty result set), so the check is skipped.
+func (r Request) checkPermissions(ctx context.Context, action rbac.Action, workspaceIDs ...accountdomain.WorkspaceID) error {
+	if len(workspaceIDs) == 0 {
+		return nil
+	}
+	return doCheckPermission(ctx, r.gateways, rbac.ResourceRequest, action, lo.Uniq(workspaceIDs)...)
+}
+
 func (r Request) FindByID(ctx context.Context, id id.RequestID, _ *usecase.Operator) (*request.Request, error) {
-	return r.repos.Request.FindByID(ctx, id)
+	req, err := r.repos.Request.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := r.checkPermissions(ctx, rbac.ActionRead, req.Workspace()); err != nil {
+		return nil, err
+	}
+	return req, nil
 }
 
 func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecase.Operator) (request.List, error) {
-	return r.repos.Request.FindByIDs(ctx, list)
+	reqs, err := r.repos.Request.FindByIDs(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	if err := r.checkPermissions(ctx, rbac.ActionList, reqs.Workspaces()...); err != nil {
+		return nil, err
+	}
+	return reqs, nil
 }
 
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
+	wid, err := workspaceIDForProject(ctx, r.repos, pid)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := r.checkPermissions(ctx, rbac.ActionList, wid); err != nil {
+		return nil, nil, err
+	}
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
 		State:     filter.State,
 		Keyword:   filter.Keyword,
@@ -60,7 +94,14 @@ func (r Request) FindByItem(ctx context.Context, iId id.ItemID, filter *interfac
 			CreatedBy: filter.CreatedBy,
 		}
 	}
-	return r.repos.Request.FindByItems(ctx, id.ItemIDList{iId}, f)
+	reqs, err := r.repos.Request.FindByItems(ctx, id.ItemIDList{iId}, f)
+	if err != nil {
+		return nil, err
+	}
+	if err := r.checkPermissions(ctx, rbac.ActionList, reqs.Workspaces()...); err != nil {
+		return nil, err
+	}
+	return reqs, nil
 }
 
 func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam, operator *usecase.Operator) (*request.Request, error) {
@@ -75,6 +116,10 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 		}
 		ws, err := r.repos.Workspace.FindByID(ctx, p.Workspace())
 		if err != nil {
+			return nil, err
+		}
+
+		if err := r.checkPermissions(ctx, rbac.ActionCreate, ws.ID()); err != nil {
 			return nil, err
 		}
 
@@ -135,6 +180,10 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 
 		ws, err := r.repos.Workspace.FindByID(ctx, req.Workspace())
 		if err != nil {
+			return nil, err
+		}
+
+		if err := r.checkPermissions(ctx, rbac.ActionUpdate, req.Workspace()); err != nil {
 			return nil, err
 		}
 
@@ -224,7 +273,15 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 		return interfaces.ErrInvalidOperator
 	}
 
-	reqs, err := r.FindByIDs(ctx, ids, operator)
+	wid, err := workspaceIDForProject(ctx, r.repos, pid)
+	if err != nil {
+		return err
+	}
+	if err := r.checkPermissions(ctx, rbac.ActionUpdate, wid); err != nil {
+		return err
+	}
+
+	reqs, err := r.repos.Request.FindByIDs(ctx, ids)
 	if err != nil {
 		return err
 	}
@@ -245,6 +302,9 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		}
 		if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
 			return nil, interfaces.ErrInvalidOperator
+		}
+		if err := r.checkPermissions(ctx, rbac.ActionApprove, req.Workspace()); err != nil {
+			return nil, err
 		}
 		// only reviewers can approve
 		if !req.Reviewers().Has(*operator.AcOperator.User) {
