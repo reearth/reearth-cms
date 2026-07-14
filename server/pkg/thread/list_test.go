@@ -35,3 +35,47 @@ func TestList_Clone(t *testing.T) {
 	assert.Equal(t, list, got)
 	assert.NotSame(t, list[0], got[0])
 }
+
+func TestList_Workspaces(t *testing.T) {
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	tests := []struct {
+		name string
+		list List
+		want accountdomain.WorkspaceIDList
+	}{
+		{
+			name: "nil list",
+			list: nil,
+			want: accountdomain.WorkspaceIDList{},
+		},
+		{
+			name: "empty list",
+			list: List{},
+			want: accountdomain.WorkspaceIDList{},
+		},
+		{
+			name: "single workspace deduplicated",
+			list: List{&Thread{workspace: wid1}, &Thread{workspace: wid1}},
+			want: accountdomain.WorkspaceIDList{wid1},
+		},
+		{
+			name: "multiple workspaces deduplicated",
+			list: List{&Thread{workspace: wid1}, &Thread{workspace: wid1}, &Thread{workspace: wid2}},
+			want: accountdomain.WorkspaceIDList{wid1, wid2},
+		},
+		{
+			name: "nil entries are skipped",
+			list: List{nil, &Thread{workspace: wid1}, nil, &Thread{workspace: wid2}},
+			want: accountdomain.WorkspaceIDList{wid1, wid2},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.list.Workspaces())
+		})
+	}
+}

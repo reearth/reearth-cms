@@ -11,9 +11,11 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
@@ -29,12 +31,36 @@ func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 	}
 }
 
+// checkPermissions enforces a Cerbos check on the schema resource for the given
+// workspaces. When no workspace is supplied there is nothing to authorize
+// (e.g. an empty result set), so the check is skipped.
+func (i Schema) checkPermissions(ctx context.Context, action rbac.Action, workspaceIDs ...accountdomain.WorkspaceID) error {
+	if len(workspaceIDs) == 0 {
+		return nil
+	}
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceSchema, action, lo.Uniq(workspaceIDs)...)
+}
+
 func (i Schema) FindByID(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*schema.Schema, error) {
-	return i.repos.Schema.FindByID(ctx, id)
+	s, err := i.repos.Schema.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionRead, s.Workspace()); err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, _ *usecase.Operator) (schema.List, error) {
-	return i.repos.Schema.FindByIDs(ctx, ids)
+	sList, err := i.repos.Schema.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, sList.Workspaces()...); err != nil {
+		return nil, err
+	}
+	return sList, nil
 }
 
 func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Operator) (*schema.Package, error) {
@@ -54,6 +80,10 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 	s := sList.Schema(lo.ToPtr(m.Schema()))
 	if s == nil {
 		return nil, nil
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionRead, s.Workspace()); err != nil {
+		return nil, err
 	}
 
 	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
@@ -86,6 +116,10 @@ func (i Schema) FindByGroup(ctx context.Context, gID id.GroupID, _ *usecase.Oper
 		return nil, err
 	}
 
+	if err := i.checkPermissions(ctx, rbac.ActionRead, s.Workspace()); err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
 
@@ -97,6 +131,10 @@ func (i Schema) FindByGroups(ctx context.Context, gIDs id.GroupIDList, op *useca
 
 	schemas, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
 	if err != nil {
+		return nil, err
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionList, schemas.Workspaces()...); err != nil {
 		return nil, err
 	}
 
@@ -128,6 +166,10 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 
 		if !op.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
+		}
+
+		if err := i.checkPermissions(ctx, rbac.ActionUpdate, s.Workspace()); err != nil {
+			return nil, err
 		}
 
 		if param.Key == "" || s.HasFieldByKey(param.Key) {
@@ -225,6 +267,10 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 
 		if !op.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
+		}
+
+		if err := i.checkPermissions(ctx, rbac.ActionUpdate, s.Workspace()); err != nil {
+			return nil, err
 		}
 
 		f := s.Field(param.FieldID)
@@ -350,6 +396,10 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 				return interfaces.ErrOperationDenied
 			}
 
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, s.Workspace()); err != nil {
+				return err
+			}
+
 			f := s.Field(fieldID)
 			if f == nil {
 				return interfaces.ErrFieldNotFound
@@ -397,6 +447,10 @@ func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []inte
 		}
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
+		}
+
+		if err := i.checkPermissions(ctx, rbac.ActionUpdate, s.Workspace()); err != nil {
+			return nil, err
 		}
 
 		for _, param := range params {
@@ -471,6 +525,9 @@ func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.Sche
 	if err != nil {
 		return
 	}
+	if err = i.checkPermissions(ctx, rbac.ActionList, schemas.Workspaces()...); err != nil {
+		return
+	}
 	var gIds id.GroupIDList
 	for _, s := range schemas {
 		sg := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
@@ -508,6 +565,10 @@ func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsP
 			}
 			if !op.IsWritableProject(s.Project()) {
 				return nil, interfaces.ErrOperationDenied
+			}
+
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, s.Workspace()); err != nil {
+				return nil, err
 			}
 
 			if len(createFieldsParams) == 0 {
@@ -613,6 +674,10 @@ func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID
 
 	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
 	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionRead, s.Workspace()); err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 

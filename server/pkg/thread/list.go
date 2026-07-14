@@ -3,11 +3,21 @@ package thread
 import (
 	"slices"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 type List []*Thread
+
+func (l List) Workspaces() accountdomain.WorkspaceIDList {
+	return lo.Uniq(lo.FilterMap(l, func(th *Thread, _ int) (accountdomain.WorkspaceID, bool) {
+		if th == nil {
+			return accountdomain.WorkspaceID{}, false
+		}
+		return th.Workspace(), true
+	}))
+}
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
