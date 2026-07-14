@@ -112,14 +112,14 @@ func logIndexResult(name string, r mongox.IndexResult) {
 	log.Infof("mongo: %s: index deleted: %v, updated: %v, created: %v", name, d, u, a)
 }
 
-func applyWorkspaceFilter(filter interface{}, ids accountdomain.WorkspaceIDList) interface{} {
+func applyWorkspaceFilter(filter any, ids accountdomain.WorkspaceIDList) any {
 	if ids == nil {
 		return filter
 	}
 	return mongox.And(filter, "workspace", bson.M{"$in": ids.Strings()})
 }
 
-func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
+func applyProjectFilter(filter any, ids id.ProjectIDList) any {
 	if ids == nil {
 		return filter
 	}

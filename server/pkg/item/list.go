@@ -42,10 +42,18 @@ func (l List) IDs() IDList {
 	})
 }
 
+func (l List) Projects() id.ProjectIDList {
+	return lo.Uniq(lo.FilterMap(l, func(i *Item, _ int) (id.ProjectID, bool) {
+		if i == nil {
+			return id.ProjectID{}, false
+		}
+		return i.Project(), !i.Project().IsEmpty()
+	}))
+}
+
 func (l List) MetadataIDs() IDList {
 	return lo.FilterMap(l, func(i *Item, _ int) (ID, bool) {
-		id := i.MetadataItem()
-		if id == nil {
+		if i.MetadataItem().IsNil() {
 			return ID{}, false
 		}
 		return *i.MetadataItem(), true
@@ -120,6 +128,10 @@ func (l VersionedList) Unwrap() List {
 		return nil
 	}
 	return version.UnwrapValues(l)
+}
+
+func (l VersionedList) Projects() id.ProjectIDList {
+	return l.Unwrap().Projects()
 }
 
 func (l VersionedList) Item(iid ID) Versioned {

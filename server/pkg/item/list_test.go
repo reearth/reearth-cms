@@ -122,62 +122,60 @@ func TestList_ItemsByField(t *testing.T) {
 	}
 }
 
-func TestVersionedList_FilterFields(t *testing.T) {
-	now := time.Now()
-	fId := id.NewFieldID()
-	i := New().NewID().
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
-		Project(id.NewProjectID()).
-		Thread(id.NewThreadID().Ref()).
-		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
-		Anonymous(true).
-		MustBuild()
-	vl := VersionedList{
-		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
+func TestList_Projects(t *testing.T) {
+	t.Parallel()
+
+	pid1, pid2 := id.NewProjectID(), id.NewProjectID()
+
+	tests := []struct {
+		name     string
+		list     List
+		expected id.ProjectIDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			expected: id.ProjectIDList{},
+		},
+		{
+			name:     "empty list",
+			list:     List{},
+			expected: id.ProjectIDList{},
+		},
+		{
+			name:     "single item",
+			list:     List{&Item{project: pid1}},
+			expected: id.ProjectIDList{pid1},
+		},
+		{
+			name:     "multiple items with distinct projects",
+			list:     List{&Item{project: pid1}, &Item{project: pid2}},
+			expected: id.ProjectIDList{pid1, pid2},
+		},
+		{
+			name:     "duplicate projects are deduplicated",
+			list:     List{&Item{project: pid1}, &Item{project: pid1}, &Item{project: pid2}},
+			expected: id.ProjectIDList{pid1, pid2},
+		},
+		{
+			name:     "nil items are skipped",
+			list:     List{nil, &Item{project: pid1}, nil},
+			expected: id.ProjectIDList{pid1},
+		},
+		{
+			name:     "empty project ids are skipped",
+			list:     List{&Item{project: id.ProjectID{}}, &Item{project: pid1}},
+			expected: id.ProjectIDList{pid1},
+		},
 	}
 
-	assert.Equal(t, vl.FilterFields(id.FieldIDList{fId}), vl.FilterFields(id.FieldIDList{fId}))
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-func TestVersionedList_Item(t *testing.T) {
-	now := time.Now()
-	fId := id.NewFieldID()
-	iId := id.NewItemID()
-	i := New().ID(iId).
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
-		Project(id.NewProjectID()).
-		Thread(id.NewThreadID().Ref()).
-		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
-		Anonymous(true).
-		MustBuild()
-	v := version.New()
-	vl := VersionedList{
-		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+			assert.Equal(t, tt.expected, tt.list.Projects())
+		})
 	}
-
-	assert.Equal(t, version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i), vl.Item(iId))
-}
-
-func TestVersionedList_Unwrap(t *testing.T) {
-	now := time.Now()
-	fId := id.NewFieldID()
-	iId := id.NewItemID()
-	i := New().ID(iId).
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
-		Project(id.NewProjectID()).
-		Thread(id.NewThreadID().Ref()).
-		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
-		Anonymous(true).
-		MustBuild()
-	v := version.New()
-	vl := VersionedList{
-		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
-	}
-
-	assert.Equal(t, List{i}, vl.Unwrap())
 }
 
 func TestToMap(t *testing.T) {
@@ -784,4 +782,136 @@ func TestVersionedList_AssetIDs(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestVersionedList_Projects(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	pid1, pid2 := id.NewProjectID(), id.NewProjectID()
+
+	newVersioned := func(pid id.ProjectID) Versioned {
+		i := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).
+			Thread(id.NewThreadID().Ref()).MustBuild()
+		return version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i)
+	}
+
+	tests := []struct {
+		name     string
+		list     VersionedList
+		expected id.ProjectIDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			expected: id.ProjectIDList{},
+		},
+		{
+			name:     "single item",
+			list:     VersionedList{newVersioned(pid1)},
+			expected: id.ProjectIDList{pid1},
+		},
+		{
+			name:     "multiple items with duplicates deduplicated",
+			list:     VersionedList{newVersioned(pid1), newVersioned(pid1), newVersioned(pid2)},
+			expected: id.ProjectIDList{pid1, pid2},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.expected, tt.list.Projects())
+		})
+	}
+}
+
+func TestVersionedList_FilterFields(t *testing.T) {
+	now := time.Now()
+	fId := id.NewFieldID()
+	i := New().NewID().
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
+		MustBuild()
+	vl := VersionedList{
+		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
+	}
+
+	assert.Equal(t, vl.FilterFields(id.FieldIDList{fId}), vl.FilterFields(id.FieldIDList{fId}))
+}
+
+func TestVersionedList_Item(t *testing.T) {
+	now := time.Now()
+	fId := id.NewFieldID()
+	iId := id.NewItemID()
+	i := New().ID(iId).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
+		MustBuild()
+	v := version.New()
+	vl := VersionedList{
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+	}
+
+	assert.Equal(t, version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i), vl.Item(iId))
+}
+
+func TestVersionedList_Unwrap(t *testing.T) {
+	now := time.Now()
+	fId := id.NewFieldID()
+	iId := id.NewItemID()
+	i := New().ID(iId).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
+		MustBuild()
+	v := version.New()
+	vl := VersionedList{
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+	}
+
+	assert.Equal(t, List{i}, vl.Unwrap())
+}
+
+func TestVersionedList_ToMap(t *testing.T) {
+	now := time.Now()
+	fId1 := id.NewFieldID()
+	iId1 := id.NewItemID()
+	i1 := New().ID(iId1).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId1, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		MustBuild()
+	vi1 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i1)
+	fId2 := id.NewFieldID()
+	iId2 := id.NewItemID()
+	i2 := New().ID(iId2).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId2, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		MustBuild()
+	vi2 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i2)
+	vl := VersionedList{vi1, vi2}
+	m := vl.ToMap()
+
+	assert.Equal(t, 2, len(m))
+	assert.Equal(t, vi1, m[iId1])
+	assert.Equal(t, vi2, m[iId2])
+	assert.Nil(t, m[id.NewItemID()])
 }

@@ -114,9 +114,10 @@ type HealthCheckConfig struct {
 }
 
 type AccountAPIConfig struct {
-	Enabled bool   `pp:",omitempty"`
-	Host    string `pp:",omitempty"`
-	Timeout int    `pp:",omitempty"`
+	Enabled          bool   `pp:",omitempty"`
+	Host             string `pp:",omitempty"`
+	Timeout          int    `pp:",omitempty"`
+	Check_Permission bool   `pp:",omitempty"`
 }
 
 type PolicyCheckerConfig struct {

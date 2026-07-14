@@ -58,6 +58,53 @@ func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string,
 	return res.Path("$.data.createProject.project.id").Raw().(string), res
 }
 
+func getProject(e *httpexpect.Expect, pID string) (string, *httpexpect.Value) {
+	requestBody := GraphQLRequest{
+		Query: `query GetProject($projectId: ID!) {
+    	node(id: $projectId, type: PROJECT) {
+		id
+        ... on Project {
+            id
+            name
+            description
+            alias
+            accessibility {
+                visibility
+                publication {
+                    publicAssets
+                    publicModels
+                }
+                apiKeys {
+                    id
+                    name
+                    description
+                    key
+                    publication {
+                        publicAssets
+                        publicModels
+                    }
+                }
+            }
+        }
+    }
+}`,
+		Variables: map[string]any{
+			"projectId": pID,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res.Path("$.data.node.id").Raw().(string), res
+}
+
 func updateProject(e *httpexpect.Expect, pID, name, desc, alias, visibility string, publicAssets bool, publicModels []string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateProject($projectId: ID!, $name: String!, $description: String!, $alias: String!, $visibility: ProjectVisibility!,  $publicAssets: Boolean!, $publicModels: [ID!]!) {

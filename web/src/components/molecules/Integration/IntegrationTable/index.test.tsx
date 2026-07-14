@@ -154,9 +154,9 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Created By")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Role" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Creator" })).toBeInTheDocument();
     expect(screen.getByText(name)).toBeVisible();
     expect(screen.getByText("Reader")).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
@@ -183,7 +183,7 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
     await user.click(screen.getByRole("button", { name: "deleteRemove" }));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
@@ -207,7 +207,7 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
     expect(screen.getByLabelText("loading")).toBeVisible();
   });
 
@@ -256,7 +256,7 @@ describe("Integration table", () => {
 
     expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
     expect(screen.getByRole("button", { name: "deleteRemove" })).toBeDisabled();
   });
 });

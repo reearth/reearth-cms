@@ -340,18 +340,6 @@ func (i *Item) SetThread(thid id.ThreadID) {
 	i.thread = &thid
 }
 
-func (i *Item) GetFirstGeometryField() (*Field, bool) {
-	if i == nil {
-		return nil, false
-	}
-	for _, f := range i.Fields() {
-		if f.IsGeometryField() && !f.Value().IsEmpty() {
-			return f, true
-		}
-	}
-	return nil, false
-}
-
 func (i *Item) Clone() *Item {
 	if i == nil {
 		return nil

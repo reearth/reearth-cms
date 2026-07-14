@@ -12,11 +12,13 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: changed files for web
         id: web
         uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
@@ -51,16 +53,22 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.web == 'true'
     uses: ./.github/workflows/ci_web.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ci-server:
     needs: prepare
     if: needs.prepare.outputs.server == 'true'
     uses: ./.github/workflows/ci_server.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ci-worker:
     needs: prepare
     if: needs.prepare.outputs.worker == 'true'
     uses: ./.github/workflows/ci_worker.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ci:
     runs-on: ubuntu-latest
@@ -71,9 +79,10 @@ jobs:
     if: '!failure()'
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >+
       - run: echo OK
 
   build-prepare:
@@ -87,10 +96,12 @@ jobs:
       name: ${{ steps.prepare.outputs.name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
-          egress-policy: audit
-      - uses: reearth/actions/prepare-build@ee8a23fc9256524828d4074e0e607904cfd8dffc # main
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+      - uses: reearth/actions/prepare-build@a75bb60a59c8192805a55c3e0854c8298d8a2bcc # main
         id: prepare
         with:
           repo: ${{ github.repository }}
@@ -170,10 +181,10 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
-      - uses: reearth/actions/deploy-cloud-run-with-tag@ee8a23fc9256524828d4074e0e607904cfd8dffc # main
+      - uses: reearth/actions/deploy-cloud-run-with-tag@a75bb60a59c8192805a55c3e0854c8298d8a2bcc # main
         id: deploy
         with:
           image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'

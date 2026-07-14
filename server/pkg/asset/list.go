@@ -45,6 +45,15 @@ func (l List) IDs() (ids id.AssetIDList) {
 	return
 }
 
+func (l List) Projects() id.ProjectIDList {
+	return lo.Uniq(lo.FilterMap(l, func(a *Asset, _ int) (id.ProjectID, bool) {
+		if a == nil {
+			return id.ProjectID{}, false
+		}
+		return a.Project(), true
+	}))
+}
+
 func (l List) FindByID(id ID) *Asset {
 	for _, a := range l {
 		if a != nil && a.ID() == id {

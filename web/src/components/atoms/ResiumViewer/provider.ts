@@ -1,17 +1,12 @@
 import {
   ProviderViewModel,
-  ArcGisMapServerImageryProvider,
   OpenStreetMapImageryProvider,
-  ArcGISTiledElevationTerrainProvider,
   UrlTemplateImageryProvider,
   CesiumTerrainProvider,
+  Credit,
   IonResource,
   EllipsoidTerrainProvider,
-  createWorldTerrainAsync,
   buildModuleUrl,
-  createWorldImageryAsync,
-  IonWorldImageryStyle,
-  IonImageryProvider,
 } from "cesium";
 
 import {
@@ -20,41 +15,49 @@ import {
   UrlResourceProps,
   CesiumResourceProps,
 } from "@reearth-cms/components/molecules/Workspace/types";
+import { t } from "@reearth-cms/i18n";
 
-import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";
 
-const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
+const GOOGLE_MAP_CREDIT = new Credit("© Google", false);
+const REEARTH_TERRAIN_CREDIT = new Credit(
+  "Re:Earth Terrain, Mapterhorn, EGM2008 (NGA), Protomaps, OpenStreetMap",
+  false,
+);
+const BLACK_MARBLE_CREDIT = new Credit("NASA Earth Observatory / Black Marble", false);
 
-const defaultTile = new ProviderViewModel({
-  name: "Default",
+const getReearthLandConfig = () => {
+  const tilesUrl = window.REEARTH_CONFIG?.tilesUrl ?? "https://tiles.reearth.land";
+  const terrainUrl = window.REEARTH_CONFIG?.terrainUrl ?? "https://terrain.reearth.land";
+  const tilesToken = window.REEARTH_CONFIG?.tilesToken ?? "";
+  const tokenQuery = tilesToken ? `?${new URLSearchParams({ token: tilesToken }).toString()}` : "";
+  return { tilesUrl, terrainUrl, tokenQuery };
+};
+
+const googleSatellite = new ProviderViewModel({
+  name: "Google Satellite",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.AERIAL,
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-satellite/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
 
-const labelled = new ProviderViewModel({
-  name: "Labelled",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
-  tooltip: "",
-  creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
-    });
-  },
-});
-
-const roadMap = new ProviderViewModel({
-  name: "RoadMap",
+const googleRoadMap = new ProviderViewModel({
+  name: "Google Road Map",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldImageryAsync({
-      style: IonWorldImageryStyle.ROAD,
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/google-roadmap/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 22,
+      credit: GOOGLE_MAP_CREDIT,
     });
   },
 });
@@ -70,34 +73,22 @@ const openStreetMap = new ProviderViewModel({
   },
 });
 
-const esriTopography = new ProviderViewModel({
-  name: "ESRI Topography",
-  iconUrl:
-    "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/0/0/0",
-  tooltip: "",
-  creationFunction: () => {
-    return ArcGisMapServerImageryProvider.fromUrl(
-      "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",
-      {
-        credit:
-          "Copyright: Tiles © Esri — Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Communit",
-        enablePickFeatures: false,
-      },
-    );
-  },
-});
-
-const earthAtNight = new ProviderViewModel({
-  name: "Earth at night",
+const nasaBlackMarble = new ProviderViewModel({
+  name: "NASA Black Marble",
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
-    return IonImageryProvider.fromAssetId(3812, { accessToken });
+    const { tilesUrl, tokenQuery } = getReearthLandConfig();
+    return new UrlTemplateImageryProvider({
+      url: `${tilesUrl}/imagery/blackmarble/{z}/{x}/{y}.png${tokenQuery}`,
+      maximumLevel: 8,
+      credit: BLACK_MARBLE_CREDIT,
+    });
   },
 });
 
 const japanGsi = new ProviderViewModel({
-  name: "Japan GSI Standard Map",
+  name: t("Japan GSI Standard Map"),
   iconUrl: "https://maps.gsi.go.jp/xyz/std/0/0/0.png",
   tooltip: "",
   creationFunction: () => {
@@ -124,20 +115,14 @@ export const imageryGet = (tiles: TileResource[]) => {
   const result: ProviderViewModel[] = [];
   tiles.forEach(tile => {
     switch (tile.type) {
-      case "LABELLED":
-        result.push(labelled);
-        break;
       case "ROAD_MAP":
-        result.push(roadMap);
+        result.push(googleRoadMap);
         break;
       case "OPEN_STREET_MAP":
         result.push(openStreetMap);
         break;
-      case "ESRI_TOPOGRAPHY":
-        result.push(esriTopography);
-        break;
       case "EARTH_AT_NIGHT":
-        result.push(earthAtNight);
+        result.push(nasaBlackMarble);
         break;
       case "JAPAN_GSI_STANDARD_MAP":
         result.push(japanGsi);
@@ -147,12 +132,12 @@ export const imageryGet = (tiles: TileResource[]) => {
         if (url) result.push(urlGet(tile.props));
         break;
       }
-      default:
-        result.push(defaultTile);
+      case "DEFAULT":
+        result.push(googleSatellite);
         break;
     }
   });
-  if (result.length === 0) result.push(defaultTile);
+  if (result.length === 0) result.push(googleSatellite);
   return result;
 };
 
@@ -165,26 +150,17 @@ const ellipsoid = new ProviderViewModel({
   },
 });
 
-const cesiumWorld = new ProviderViewModel({
-  name: "Cesium World Terrain",
+const reearthTerrain = new ProviderViewModel({
+  name: "Re:Earth Terrain",
   iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
   creationFunction: () => {
-    return createWorldTerrainAsync({
-      requestWaterMask: true,
+    const { terrainUrl, tokenQuery } = getReearthLandConfig();
+    return CesiumTerrainProvider.fromUrl(`${terrainUrl}/cesium-mesh/ellipsoid${tokenQuery}`, {
       requestVertexNormals: true,
+      requestWaterMask: true,
+      credit: REEARTH_TERRAIN_CREDIT,
     });
-  },
-});
-
-const arcGis = new ProviderViewModel({
-  name: "ArcGIS Terrain",
-  iconUrl: ArcgisThumbnail,
-  tooltip: "",
-  creationFunction: () => {
-    return ArcGISTiledElevationTerrainProvider.fromUrl(
-      "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
-    );
   },
 });
 
@@ -203,7 +179,7 @@ const cesiumIonGet = ({
       return CesiumTerrainProvider.fromUrl(
         url ||
           IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
-            accessToken: cesiumIonAccessToken || accessToken,
+            accessToken: cesiumIonAccessToken,
           }),
       );
     },
@@ -215,16 +191,13 @@ export const terrainGet = (terrains: TerrainResource[]) => {
   result.push(ellipsoid);
   terrains.forEach(terrain => {
     switch (terrain.type) {
-      case "ARC_GIS_TERRAIN":
-        result.push(arcGis);
+      case "REEARTH_TERRAIN":
+        result.push(reearthTerrain);
         break;
       case "CESIUM_ION": {
         result.push(cesiumIonGet(terrain.props));
         break;
       }
-      default:
-        result.push(cesiumWorld);
-        break;
     }
   });
   return result;

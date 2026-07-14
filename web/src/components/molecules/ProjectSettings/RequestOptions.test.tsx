@@ -72,7 +72,7 @@ describe("Request options", () => {
     const saveButton = screen.getByRole("button", { name: "Save Changes" });
     await user.click(secondSwitch);
     await user.click(saveButton);
-    expect(screen.getByLabelText("loading")).toBeVisible();
+    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
     expect(onProjectRequestRolesUpdateMock).toHaveBeenCalledWith(
       initialRequestRoles.concat(["MAINTAINER"]),
     );

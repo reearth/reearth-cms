@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
@@ -27,13 +28,13 @@ const ViewsMenuItem: React.FC<Props> = ({
   const t = useT();
   const { confirm } = useModal();
 
-  const children = [
+  const dropdownItems = [
     {
       label: t("Update View"),
       key: "update",
       icon: <Icon icon="reload" />,
       onClick: () => onUpdate(view.id, view.name),
-      disabled: !hasDeleteRight,
+      disabled: !hasUpdateRight,
     },
     {
       label: t("Rename"),
@@ -70,15 +71,15 @@ const ViewsMenuItem: React.FC<Props> = ({
           },
         });
       },
-      disabled: !hasUpdateRight,
+      disabled: !hasDeleteRight,
     },
   ];
 
   return (
     <Wrapper>
       {view.name}
-      <StyledDropdown trigger={["click"]} menu={{ items: children }}>
-        <Icon icon="more" size={AntdToken.FONT.SIZE_LG} />
+      <StyledDropdown menu={{ items: dropdownItems }} trigger={["click"]}>
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_LG} />} />
       </StyledDropdown>
     </Wrapper>
   );
