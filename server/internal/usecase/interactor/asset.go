@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearthx/i18n"
@@ -45,12 +46,36 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	}
 }
 
+func (i *Asset) authz() gateway.Authorization {
+	if i.gateways == nil {
+		return nil
+	}
+	return i.gateways.Authorization
+}
+
+// checkPermissions enforces a Cerbos check on the asset resource for the workspaces
+// owning the given projects. When no project is supplied there is nothing to
+// authorize (e.g. an empty result set), so the check is skipped.
+func (i *Asset) checkPermissions(ctx context.Context, action rbac.Action, projectIDs id.ProjectIDList) error {
+	if len(projectIDs) == 0 {
+		return nil
+	}
+	projects, err := i.repos.Project.FindByIDs(ctx, projectIDs)
+	if err != nil {
+		return err
+	}
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceAsset, action, lo.Uniq(projects.Workspaces())...)
+}
+
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.Asset, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		return nil, err
 	}
 	if a != nil {
+		if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{a.Project()}); err != nil {
+			return nil, err
+		}
 		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 	}
 	return a, nil
@@ -62,6 +87,9 @@ func (i *Asset) FindByUUID(ctx context.Context, uuid string, _ *usecase.Operator
 		return nil, err
 	}
 	if a != nil {
+		if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{a.Project()}); err != nil {
+			return nil, err
+		}
 		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 	}
 	return a, nil
@@ -72,6 +100,9 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 	if err != nil {
 		return nil, err
 	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, al.Projects()); err != nil {
+		return nil, err
+	}
 	if al != nil {
 		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 	}
@@ -79,6 +110,9 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 }
 
 func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+	if err := i.checkPermissions(ctx, rbac.ActionList, id.ProjectIDList{projectID}); err != nil {
+		return nil, nil, err
+	}
 	al, pi, err := i.repos.Asset.Search(ctx, projectID, repo.AssetFilter{
 		Sort:         filter.Sort,
 		Keyword:      filter.Keyword,
@@ -95,6 +129,9 @@ func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter inter
 }
 
 func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams, w io.Writer, _ *usecase.Operator) error {
+	if err := i.checkPermissions(ctx, rbac.ActionExport, id.ProjectIDList{params.ProjectID}); err != nil {
+		return err
+	}
 
 	_, err := w.Write([]byte(`{"results":[`))
 	if err != nil {
@@ -264,9 +301,15 @@ func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams
 }
 
 func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
-	_, err := i.repos.Asset.FindByID(ctx, aid)
+	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		return nil, err
+	}
+
+	if a != nil {
+		if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{a.Project()}); err != nil {
+			return nil, err
+		}
 	}
 
 	files, err := i.repos.AssetFile.FindByID(ctx, aid)
@@ -278,8 +321,12 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 }
 
 func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]*asset.File, error) {
-	_, err := i.repos.Asset.FindByIDs(ctx, ids)
+	al, err := i.repos.Asset.FindByIDs(ctx, ids)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionList, al.Projects()); err != nil {
 		return nil, err
 	}
 
@@ -294,6 +341,10 @@ func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, _ *useca
 func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[string]string, _ *usecase.Operator) (io.ReadCloser, map[string]string, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{a.Project()}); err != nil {
 		return nil, nil, err
 	}
 
@@ -381,7 +432,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 	a, f, err := Run2(
 		ctx, op, i.repos,
-		Usecase().Transaction(),
+		Usecase().
+			WithPermission(i.authz(), rbac.ResourceAsset, rbac.ActionCreate, prj.Workspace()).
+			Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
 			if inp.Token != "" {
 				uuid = inp.Token
@@ -494,6 +547,10 @@ func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecas
 
 			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+				return nil, err
+			}
+
 			if !operator.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
 			}
@@ -539,6 +596,10 @@ func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.O
 			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 		}
 
+		if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+			return nil, err
+		}
+
 		if !operator.CanUpdate(a) {
 			return nil, interfaces.ErrOperationDenied
 		}
@@ -577,6 +638,10 @@ func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase
 
 		if a != nil {
 			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		}
+
+		if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+			return nil, err
 		}
 
 		if !operator.CanUpdate(a) {
@@ -687,6 +752,10 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 	}
 	if !op.IsWritableWorkspace(prj.Workspace()) {
 		return nil, interfaces.ErrOperationDenied
+	}
+
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceAsset, rbac.ActionCreate, prj.Workspace()); err != nil {
+		return nil, err
 	}
 
 	param.Workspace = prj.Workspace().String()
@@ -801,6 +870,10 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 
 			if a != nil {
 				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			}
+
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+				return nil, err
 			}
 
 			if !operator.CanUpdate(a) {
@@ -946,6 +1019,10 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			return aId, err
 		}
 
+		if err := i.checkPermissions(ctx, rbac.ActionDelete, id.ProjectIDList{a.Project()}); err != nil {
+			return aId, err
+		}
+
 		if !operator.CanUpdate(a) {
 			return aId, interfaces.ErrOperationDenied
 		}
@@ -1004,6 +1081,10 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 
 		if assets == nil {
 			return assetIDs, nil
+		}
+
+		if err := i.checkPermissions(ctx, rbac.ActionDelete, assets.Projects()); err != nil {
+			return assetIDs, err
 		}
 
 		UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {

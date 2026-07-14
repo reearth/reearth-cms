@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
@@ -30,15 +31,47 @@ func NewGroup(r *repo.Container, g *gateway.Container) interfaces.Group {
 	}
 }
 
+// checkPermissions enforces a Cerbos check on the group resource for the workspaces
+// owning the given projects. Groups have no dedicated Cerbos resource, so they are
+// authorized against the model resource. When no project is supplied there is nothing
+// to authorize (e.g. an empty result set), so the check is skipped.
+func (i Group) checkPermissions(ctx context.Context, action rbac.Action, projectIDs id.ProjectIDList) error {
+	if len(projectIDs) == 0 {
+		return nil
+	}
+	projects, err := i.repos.Project.FindByIDs(ctx, projectIDs)
+	if err != nil {
+		return err
+	}
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceModel, action, lo.Uniq(projects.Workspaces())...)
+}
+
 func (i Group) FindByID(ctx context.Context, id id.GroupID, operator *usecase.Operator) (*group.Group, error) {
-	return i.repos.Group.FindByID(ctx, id)
+	g, err := i.repos.Group.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionRead, group.List{g}.Projects()); err != nil {
+		return nil, err
+	}
+	return g, nil
 }
 
 func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usecase.Operator) (group.List, error) {
-	return i.repos.Group.FindByIDs(ctx, ids)
+	g, err := i.repos.Group.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, g.Projects()); err != nil {
+		return nil, err
+	}
+	return g, nil
 }
 
 func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (group.List, error) {
+	if err := i.checkPermissions(ctx, rbac.ActionList, id.ProjectIDList{projectID}); err != nil {
+		return nil, err
+	}
 	g, err := i.repos.Group.FindByProject(ctx, projectID)
 	if err != nil {
 		return nil, err
@@ -47,6 +80,9 @@ func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operat
 }
 
 func (i Group) Filter(ctx context.Context, projectID id.ProjectID, sort *group.Sort, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List, *usecasex.PageInfo, error) {
+	if err := i.checkPermissions(ctx, rbac.ActionList, id.ProjectIDList{projectID}); err != nil {
+		return nil, nil, err
+	}
 	g, p, err := i.repos.Group.Filter(ctx, projectID, sort, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -55,10 +91,16 @@ func (i Group) Filter(ctx context.Context, projectID id.ProjectID, sort *group.S
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{pid}); err != nil {
+		return nil, err
+	}
 	return i.repos.Group.FindByKey(ctx, pid, group)
 }
 
 func (i Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, idOrKey group.IDOrKey, operator *usecase.Operator) (*group.Group, error) {
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{pid}); err != nil {
+		return nil, err
+	}
 	return i.repos.Group.FindByIDOrKey(ctx, pid, idOrKey)
 }
 
@@ -67,6 +109,9 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 		func(ctx context.Context) (_ *group.Group, err error) {
 			if !operator.IsMaintainingProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
+			}
+			if err := i.checkPermissions(ctx, rbac.ActionCreate, id.ProjectIDList{param.ProjectId}); err != nil {
+				return nil, err
 			}
 			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
 			if err != nil {
@@ -133,6 +178,10 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{g.Project()}); err != nil {
+				return nil, err
+			}
+
 			if param.Name != nil {
 				g.SetName(*param.Name)
 			}
@@ -185,6 +234,9 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 			if !operator.IsMaintainingProject(g.Project()) {
 				return interfaces.ErrOperationDenied
 			}
+			if err := i.checkPermissions(ctx, rbac.ActionDelete, id.ProjectIDList{g.Project()}); err != nil {
+				return err
+			}
 			ml, err := i.getModelsByGroup(ctx, g)
 			if err != nil {
 				return err
@@ -204,6 +256,9 @@ func (i Group) FindModelsByGroup(ctx context.Context, groupID id.GroupID, op *us
 	if err != nil {
 		return nil, err
 	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, id.ProjectIDList{g.Project()}); err != nil {
+		return nil, err
+	}
 	return i.getModelsByGroup(ctx, g)
 }
 
@@ -216,6 +271,9 @@ func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *us
 			}
 			if !operator.IsReadableProject(m.Project()) {
 				return nil, interfaces.ErrOperationDenied
+			}
+			if err := i.checkPermissions(ctx, rbac.ActionList, id.ProjectIDList{m.Project()}); err != nil {
+				return nil, err
 			}
 			s, err := i.repos.Schema.FindByID(ctx, m.Schema())
 			if err != nil {
@@ -287,6 +345,9 @@ func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *us
 			pid := g[0].Project()
 			if !operator.IsMaintainingProject(pid) {
 				return nil, interfaces.ErrOperationDenied
+			}
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{pid}); err != nil {
+				return nil, err
 			}
 			groups, err := i.repos.Group.FindByProject(ctx, pid)
 			if err != nil {
