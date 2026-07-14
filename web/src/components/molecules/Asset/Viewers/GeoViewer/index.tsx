@@ -1,8 +1,7 @@
-import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import { useMemo } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
+import { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { FileUtils } from "@reearth-cms/utils/file";
 
@@ -14,7 +13,7 @@ type Props = {
   isAssetPublic?: boolean;
   url: string;
   assetFileExt?: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: CesiumViewerRef;
   workspaceSettings: WorkspaceSettings;
 };
 

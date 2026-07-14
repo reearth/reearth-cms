@@ -16,6 +16,7 @@ type GeoJSONExporter struct {
 	featureCount int
 	writer       io.Writer
 	schema       *schema.Package
+	geo          schema.FieldID
 }
 
 // NewGeoJSONExporter creates a new GeoJSON exporter
@@ -39,12 +40,23 @@ func (e *GeoJSONExporter) ValidateRequest(req *ExportRequest) error {
 		return ErrNoGeometryField
 	}
 
+	if req.Options.GeometryField == nil || !req.Schema.Schema().HasField(*req.Options.GeometryField) {
+		return ErrInvalidGeometryField
+	}
+
+	if !req.Schema.Field(*req.Options.GeometryField).IsGeometryField() {
+		return ErrInvalidGeometryField
+	}
+
 	return nil
 }
 
 // Export performs the GeoJSON export
 func (e *GeoJSONExporter) Export(ctx context.Context, req *ExportRequest, il item.List, al asset.List) error {
-	fc, err := FeatureCollectionFromItems(il, e.schema, al)
+	if err := e.ValidateRequest(req); err != nil {
+		return err
+	}
+	fc, err := FeatureCollectionFromItems(il, &req.Schema, *req.Options.GeometryField, al)
 	if err != nil {
 		return err
 	}
@@ -60,6 +72,7 @@ func (e *GeoJSONExporter) StartExport(ctx context.Context, req *ExportRequest) e
 	e.isStreaming = true
 	e.featureCount = 0
 	e.schema = &req.Schema
+	e.geo = *req.Options.GeometryField
 
 	// Write opening GeoJSON FeatureCollection structure
 	_, err := e.writer.Write([]byte(`{"type":"FeatureCollection","features":[`))
@@ -73,7 +86,7 @@ func (e *GeoJSONExporter) ProcessBatch(ctx context.Context, items item.List, ass
 	}
 
 	for _, itm := range items {
-		feature, ok := featureFromItem(itm, e.schema, assets)
+		feature, ok := featureFromItem(itm, e.schema, e.geo, assets)
 		if !ok {
 			continue
 		}

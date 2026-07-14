@@ -19,13 +19,13 @@ var (
 	noGeometryFieldError = rerror.NewE(i18n.T("no geometry field in this model"))
 )
 
-func FeatureCollectionFromItems(l item.List, sp *schema.Package, assets asset.List) (*types.GeoJSON, error) {
+func FeatureCollectionFromItems(l item.List, sp *schema.Package, geoFieldId schema.FieldID, assets asset.List) (*types.GeoJSON, error) {
 	if !sp.Schema().HasGeometryFields() {
 		return nil, noGeometryFieldError
 	}
 
 	features := lo.FilterMap(l, func(i *item.Item, _ int) (types.Feature, bool) {
-		return featureFromItem(i, sp, assets)
+		return featureFromItem(i, sp, geoFieldId, assets)
 	})
 
 	if len(features) == 0 {
@@ -38,12 +38,12 @@ func FeatureCollectionFromItems(l item.List, sp *schema.Package, assets asset.Li
 	}, nil
 }
 
-func featureFromItem(itm *item.Item, sp *schema.Package, assets asset.List) (types.Feature, bool) {
+func featureFromItem(itm *item.Item, sp *schema.Package, geoFieldID schema.FieldID, assets asset.List) (types.Feature, bool) {
 	if sp == nil || sp.Schema() == nil {
 		return types.Feature{}, false
 	}
-	geoField, ok := itm.GetFirstGeometryField()
-	if !ok {
+	geoField := itm.Field(geoFieldID)
+	if geoField == nil || geoField.Value() == nil || geoField.Value().IsEmpty() {
 		return types.Feature{}, false
 	}
 	geometry, ok := extractGeometry(geoField)

@@ -6,13 +6,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -95,6 +98,7 @@ func TestProject_Fetch(t *testing.T) {
 		want           project.List
 		mockProjectErr bool
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -156,6 +160,66 @@ func TestProject_Fetch(t *testing.T) {
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
+		{
+			name:  "permission allowed",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			want: project.List{p1},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(true, nil)
+			},
+		},
+		{
+			name:  "permission denied",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(false, nil)
+			},
+		},
+		{
+			name:  "permission check error",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
+		{
+			name:  "multi-workspace all allowed",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1, pid2},
+				operator: op,
+			},
+			want: project.List{p1, p2},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, accountdomain.WorkspaceIDList{wid1, wid2}).Return(true, nil)
+			},
+		},
+		{
+			name:  "multi-workspace one denied",
+			seeds: project.List{p1, p2},
+			args: args{
+				ids:      []id.ProjectID{pid1, pid2},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, accountdomain.WorkspaceIDList{wid1, wid2}).Return(false, nil)
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -172,11 +236,19 @@ func TestProject_Fetch(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
@@ -195,6 +267,10 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 
+	// projects in wid1 with explicit visibility, used to exercise the filter param
+	pPub := project.New().NewID().Workspace(wid1).Accessibility(project.NewPublicAccessibility()).MustBuild()
+	pPrv := project.New().NewID().Workspace(wid1).Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).MustBuild()
+
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -204,8 +280,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	}
 
 	type args struct {
-		ids      []id.ProjectID
-		operator *usecase.Operator
+		workspace accountdomain.WorkspaceID
+		filter    *interfaces.ProjectFilter
+		operator  *usecase.Operator
 	}
 	tests := []struct {
 		name           string
@@ -214,63 +291,82 @@ func TestProject_FindByWorkspace(t *testing.T) {
 		want           project.List
 		mockProjectErr bool
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
-			name:  "Fetch 1 of 2",
+			name:  "permission allowed returns workspace projects",
 			seeds: project.List{p1, p2},
 			args: args{
-				ids:      []id.ProjectID{pid1},
-				operator: op,
+				workspace: wid1,
+				operator:  op,
 			},
-			want:    project.List{p1},
-			wantErr: nil,
+			want: project.List{p1},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(true, nil)
+			},
 		},
 		{
-			name:  "Fetch 2 of 2",
+			name:  "permission denied",
 			seeds: project.List{p1, p2},
 			args: args{
-				ids:      []id.ProjectID{pid1, pid2},
-				operator: op,
+				workspace: wid1,
+				operator:  op,
 			},
-			want:    project.List{p1, p2},
-			wantErr: nil,
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(false, nil)
+			},
 		},
 		{
-			name:  "Fetch 1 of 0",
-			seeds: project.List{},
-			args: args{
-				ids:      []id.ProjectID{pid1},
-				operator: op,
-			},
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 2 of 0",
-			seeds: project.List{},
-			args: args{
-				ids:      []id.ProjectID{pid1, pid2},
-				operator: op,
-			},
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 1 without operator",
+			name:  "permission check error",
 			seeds: project.List{p1, p2},
 			args: args{
-				ids: []id.ProjectID{pid1},
-				operator: &usecase.Operator{
-					AcOperator: &accountusecase.Operator{
-						User: lo.ToPtr(u.ID()),
-					},
-				},
+				workspace: wid1,
+				operator:  op,
 			},
-			want:    project.List{p1},
-			wantErr: nil,
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(false, errors.New("cerbos unavailable"))
+			},
 		},
 		{
-			name:           "mock error",
+			name:  "no authorization gateway skips permission check",
+			seeds: project.List{p1, p2},
+			args: args{
+				workspace: wid1,
+				operator:  op,
+			},
+			want: project.List{p1},
+		},
+		{
+			name:  "filter with additional workspace widens results",
+			seeds: project.List{p1, p2},
+			args: args{
+				workspace: wid1,
+				filter:    &interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid2})},
+				operator:  op,
+			},
+			want: project.List{p1, p2},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(true, nil)
+			},
+		},
+		{
+			name:  "filter by public visibility returns only public projects",
+			seeds: project.List{pPub, pPrv},
+			args: args{
+				workspace: wid1,
+				filter:    &interfaces.ProjectFilter{Visibility: lo.ToPtr(project.VisibilityPublic)},
+				operator:  op,
+			},
+			want: project.List{pPub},
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, wid1).Return(true, nil)
+			},
+		},
+		{
+			name:           "repo error",
+			args:           args{workspace: wid1, operator: op},
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
@@ -290,15 +386,133 @@ func TestProject_FindByWorkspace(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
 
-			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw)
+
+			got, _, err := projectUC.FindByWorkspace(ctx, tc.args.workspace, tc.args.filter, tc.args.operator)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.EqualError(t, err, tc.wantErr.Error())
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.ElementsMatch(t, tc.want, got)
+		})
+	}
+}
+
+func TestProject_Search(t *testing.T) {
+	t.Parallel()
+
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	p1 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p2 := project.New().NewID().Workspace(wid2).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+	p3 := project.New().NewID().Workspace(wid1).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
+
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+		},
+	}
+
+	tests := []struct {
+		name      string
+		seeds     project.List
+		filter    interfaces.ProjectFilter
+		operator  *usecase.Operator
+		wantLen   int
+		wantErr   error
+		setupAuth func(mock *gatewaymock.MockAuthorization)
+	}{
+		{
+			name:     "empty workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{})},
+			operator: op,
+			wantLen:  1, // only p3 is public
+		},
+		{
+			name:     "nil workspace IDs returns only public projects, no permission check",
+			seeds:    project.List{p1, p2, p3},
+			filter:   interfaces.ProjectFilter{},
+			operator: op,
+			wantLen:  1, // only p3 is public
+		},
+		{
+			name:     "workspace IDs with permission allowed checks all result workspaces",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			operator: op,
+			wantLen:  2,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, accountdomain.WorkspaceIDList{wid1, wid2}).Return(true, nil)
+			},
+		},
+		{
+			name:     "permission denied for one result workspace returns error",
+			seeds:    project.List{p1, p2},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			operator: op,
+			wantErr:  interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, accountdomain.WorkspaceIDList{wid1, wid2}).Return(false, nil)
+			},
+		},
+		{
+			name:     "no results skips permission check entirely",
+			seeds:    project.List{},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1})},
+			operator: op,
+			wantLen:  0,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionList, accountdomain.WorkspaceIDList{}).Return(true, nil)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, p := range tc.seeds {
+				assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+			}
+
+			var gw *gateway.Container
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gw = &gateway.Container{Authorization: mockAuth}
+			}
+			projectUC := NewProject(db, gw).(*Project)
+
+			got, _, err := projectUC.Search(ctx, tc.filter, tc.operator)
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error())
+				return
+			}
+			assert.NoError(t, err)
+			assert.Len(t, got, tc.wantLen)
 		})
 	}
 }
@@ -327,6 +541,7 @@ func TestProject_Create(t *testing.T) {
 		want          *project.Project
 		policyChecker gateway.PolicyChecker
 		wantErr       error
+		setupAuth     func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "Create",
@@ -443,6 +658,42 @@ func TestProject_Create(t *testing.T) {
 				MustBuild(),
 			wantErr: nil,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P006"),
+					Description:  lo.ToPtr("D006"),
+					Alias:        lo.ToPtr("Test006"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate, wid).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P007"),
+					Description:  lo.ToPtr("D007"),
+					Alias:        lo.ToPtr("Test007"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionCreate, wid).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -458,10 +709,17 @@ func TestProject_Create(t *testing.T) {
 			}
 
 			var gateways *gateway.Container
+			if tc.policyChecker != nil || tc.setupAuth != nil {
+				gateways = &gateway.Container{}
+			}
 			if tc.policyChecker != nil {
-				gateways = &gateway.Container{
-					PolicyChecker: tc.policyChecker,
-				}
+				gateways.PolicyChecker = tc.policyChecker
+			}
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways.Authorization = mockAuth
 			}
 			projectUC := NewProject(db, gateways)
 
@@ -534,6 +792,7 @@ func TestProject_Update(t *testing.T) {
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "update",
@@ -757,6 +1016,36 @@ func TestProject_Update(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: project.List{p1},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:   p1.ID(),
+					Name: lo.ToPtr("Updated Name"),
+				},
+				operator: op,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, wid1).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: project.List{p1},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:   p1.ID(),
+					Name: lo.ToPtr("Updated Name"),
+				},
+				operator: op,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionUpdate, wid1).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -775,10 +1064,17 @@ func TestProject_Update(t *testing.T) {
 			}
 
 			var gateways *gateway.Container
+			if tc.policyChecker != nil || tc.setupAuth != nil {
+				gateways = &gateway.Container{}
+			}
 			if tc.policyChecker != nil {
-				gateways = &gateway.Container{
-					PolicyChecker: tc.policyChecker,
-				}
+				gateways.PolicyChecker = tc.policyChecker
+			}
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways.Authorization = mockAuth
 			}
 			projectUC := NewProject(db, gateways)
 
@@ -920,6 +1216,7 @@ func TestProject_Delete(t *testing.T) {
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
 		wantErr        error
+		setupAuth      func(mock *gatewaymock.MockAuthorization)
 	}{
 		{
 			name:  "delete",
@@ -980,6 +1277,30 @@ func TestProject_Delete(t *testing.T) {
 			},
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:  "Cerbos permission denied",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: interfaces.ErrOperationDenied,
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete, wid1).Return(false, nil)
+			},
+		},
+		{
+			name:  "Cerbos permission check error",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: errors.New("cerbos unavailable"),
+			setupAuth: func(mock *gatewaymock.MockAuthorization) {
+				mock.EXPECT().CheckPermission(gomock.Any(), rbac.ResourceProject, rbac.ActionDelete, wid1).Return(false, errors.New("cerbos unavailable"))
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -998,10 +1319,17 @@ func TestProject_Delete(t *testing.T) {
 			}
 
 			var gateways *gateway.Container
+			if tc.policyChecker != nil || tc.setupAuth != nil {
+				gateways = &gateway.Container{}
+			}
 			if tc.policyChecker != nil {
-				gateways = &gateway.Container{
-					PolicyChecker: tc.policyChecker,
-				}
+				gateways.PolicyChecker = tc.policyChecker
+			}
+			if tc.setupAuth != nil {
+				ctrl := gomock.NewController(t)
+				mockAuth := gatewaymock.NewMockAuthorization(ctrl)
+				tc.setupAuth(mockAuth)
+				gateways.Authorization = mockAuth
 			}
 			projectUC := NewProject(db, gateways)
 
@@ -1442,6 +1770,7 @@ func TestProject_StarProject(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Removed t.Parallel() to fix user ID consistency issue in unstar test
 

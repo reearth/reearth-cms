@@ -59,6 +59,7 @@ invalid object: 無効なオブジェクトです。
 invalid operator: 無効なオペレーターです。
 invalid params: 無効なパラメーターです。
 invalid project: 無効なプロジェクトです。
+invalid selected geometry field in this model: ""
 invalid smtp url: 無効なSMTP URLです。
 invalid type: 無効な型です。
 invalid type property: 無効な型プロパティです。
