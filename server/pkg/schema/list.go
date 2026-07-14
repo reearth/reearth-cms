@@ -4,11 +4,21 @@ import (
 	"slices"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 type List []*Schema
+
+func (l List) Workspaces() accountdomain.WorkspaceIDList {
+	return lo.Uniq(lo.FilterMap(l, func(s *Schema, _ int) (accountdomain.WorkspaceID, bool) {
+		if s == nil {
+			return accountdomain.WorkspaceID{}, false
+		}
+		return s.Workspace(), true
+	}))
+}
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
