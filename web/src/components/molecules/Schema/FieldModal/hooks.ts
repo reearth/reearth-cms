@@ -2,7 +2,7 @@ import type { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import {
   keyAutoFill,
   keyReplace,
@@ -256,10 +256,26 @@ export default (
       ) {
         setButtonDisabled(true);
       } else {
+        const origValues = defaultValueRef.current;
+        const hasChanges =
+          !origValues ||
+          (Object.keys(origValues) as (keyof FormTypes)[]).some(k => {
+            let curr: unknown = form.getFieldValue(k);
+            let orig: unknown = origValues[k];
+            if (k === "supportedTypes" && Array.isArray(curr) && Array.isArray(orig)) {
+              curr = [...curr].sort();
+              orig = [...orig].sort();
+            }
+            return JSON.stringify(emptyConvert(curr)) !== JSON.stringify(emptyConvert(orig));
+          });
+
         form
           .validateFields()
-          .then(() => setButtonDisabled(changedKeys.current.size === 0))
-          .catch(() => setButtonDisabled(true));
+          .then(() => setButtonDisabled(!hasChanges))
+          .catch((errorInfo: ValidateErrorEntity<FormTypes>) => {
+            if (errorInfo?.outOfDate) return;
+            setButtonDisabled(true);
+          });
       }
     } else {
       setButtonDisabled(true);

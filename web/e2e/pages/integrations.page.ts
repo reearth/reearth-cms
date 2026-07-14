@@ -83,7 +83,7 @@ export class IntegrationsPage extends BasePage {
     return this.locator("#root");
   }
   get mainElement(): Locator {
-    return this.getByRole("main");
+    return this.getByRole("main").first();
   }
   get tabPanel(): Locator {
     return this.getByRole("tabpanel");

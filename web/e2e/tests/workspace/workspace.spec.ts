@@ -24,7 +24,7 @@ test("@smoke Workspace CRUD has succeeded", async ({ workspacePage }) => {
   await workspacePage.removeWorkspaceButton.click();
   await workspacePage.clickAndExpectSuccess(workspacePage.okButton);
 
-  await workspacePage.firstWorkspaceLink.click();
+  await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
   await expect(workspacePage.workspaceTextByName("new workspace name")).toBeHidden();
 });
 

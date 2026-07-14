@@ -77,6 +77,10 @@ export class RequestPage extends BasePage {
     return this.getByText(status, { exact: true });
   }
 
+  badgeStatusText(text: string): Locator {
+    return this.locator(".ant-badge-status-text").filter({ hasText: text });
+  }
+
   // Comments
   get commentTextbox(): Locator {
     return this.getByRole("textbox");

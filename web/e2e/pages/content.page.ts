@@ -440,7 +440,7 @@ export class ContentPage extends BasePage {
 
   // Label elements
   labelElement(): Locator {
-    return this.locator("label");
+    return this.locator(".ant-form-item-label label");
   }
 
   // Main element
