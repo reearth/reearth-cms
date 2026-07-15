@@ -142,7 +142,7 @@ Completed via `bb908efc6`, merged from main.
 | ---------------- | ------ | ------ |
 | react-router-dom | 6.30.4 | 7.18.1 |
 
-### 3e. antd 6 ecosystem — ⏳ Pending
+### 3e. antd 6 ecosystem — 🚫 Blocked
 
 | Package             | Current | Target |
 | ------------------- | ------- | ------ |
@@ -150,8 +150,17 @@ Completed via `bb908efc6`, merged from main.
 | @ant-design/cssinjs | 1.24.0  | 2.1.2  |
 | @ant-design/icons   | 5.6.1   | 6.3.2  |
 
-**Prerequisite:** Confirm `@ant-design/pro-components` supports antd v6 before upgrading (pro-components may lag behind).  
-**Cleanup:** Remove `@ant-design/v5-patch-for-react-19` after this upgrade.
+**Prerequisite check (2026-07-15) — not satisfiable via a normal semver install:**
+
+- `@ant-design/pro-components@2.8.10` (current `latest`) peers on `antd: "^4.24.15 || ^5.11.2"` — no antd-6 support. An antd-6-compatible line exists only as an **unreleased prerelease** (`3.1.14-2`, npm `beta` dist-tag, not `latest`), which also restructures internally: it drops `@ant-design/pro-layout`/`pro-provider`/`pro-table` as separate dependencies entirely (folds them in, pulls in `@rc-component/table`, `@rc-component/form`, `@dnd-kit/*` instead).
+- `@ant-design/pro-layout`, `@ant-design/pro-provider`, `@ant-design/pro-table` (all separate `package.json` deps today) have **zero** antd-6-supporting release in any form — no beta/next track.
+- `@ant-design/compatible@5.1.5` (peer `antd: "^5.0.1"`, no v6 track at all) is the sole source of this repo's `Comment` component (`web/src/components/atoms/Comment/index.tsx`, consumed by 3 files under `Common/CommentsPanel`, `Request/Details`). antd dropped `Comment` from core years ago; this shim never followed past antd 5. A real replacement component is needed independent of antd 6, not just a version bump.
+
+Everything else checked (no `ConfigProvider` theme/token/algorithm customization anywhere in `web/src`, zero direct `@ant-design/cssinjs` API usage, clean modern icon names in `web/src/components/atoms/Icon/icons.ts`, trivial `@ant-design/v5-patch-for-react-19` removal — 2 side-effect-only imports in `App.tsx`/`test/setup.ts`) is low-risk and ready whenever the above unblocks.
+
+**Deferred — revisit when `@ant-design/pro-components` 3.x reaches a stable `latest` release** (or if the team decides to adopt the prerelease deliberately, which would also require dropping `pro-layout`/`pro-provider`/`pro-table`, re-auditing the `vite.config.ts` `test.alias` entries for the pro-* sub-package family, and writing the `Comment` replacement).
+
+**Cleanup (still valid once unblocked):** Remove `@ant-design/v5-patch-for-react-19` after the antd 6 bump.
 
 ### 3f. Firebase 12 — ⏳ Pending
 
