@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import type { ItemType } from "antd/lib/menu/interface";
+import type { ItemType } from "antd/es/menu/interface";
 import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";

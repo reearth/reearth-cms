@@ -106,6 +106,10 @@ Main risk was Vite 8 replacing Rollup with Rolldown as its bundler — `vite-plu
 
 Optional follow-up (not done): Vite 8 suggests replacing the `vite-tsconfig-paths` plugin with its native `resolve.tsconfigPaths: true` option.
 
+**Post-merge regression found and fixed (2026-07-15):** the production build (`yarn build`, Rolldown-based) was fine, but the **dev server** broke on every page with `Element type is invalid ... Check the render method of Styled(Component)`. Root cause: Vite 8's dev-server dependency pre-bundler correctly *detects* `needsInterop: true` for deep default/named imports into antd's CommonJS build (`antd/lib/*`), but generates a broken interop wrapper — e.g. for `antd/lib/layout/layout` it emitted `export default require_layout();` instead of `export default require_layout().default;`, so the import resolved to the whole CJS `exports` object (`{ default, Header, Footer, Content }`) instead of the unwrapped component. This is a genuine Vite/Rolldown-vite dep-optimizer bug, not an app bug — but the app's own deep-imports into antd's internal `antd/lib/*` paths (never a supported public API) are what exposed it. First surfaced via `components/atoms/Layout/index.tsx`'s `styled(Layout)`, rendered on literally every page.
+
+Fix: audited and switched every `antd/lib/*` import (~22 files, both value and type-only, including `Layout`, `Sider`, `Footer`, `Content`, `Header`, `Password`, `Search`, `TextArea`, locale files, and various `import type` usages) to the equivalent `antd/es/*` (ESM) path — confirmed each has a matching module and `.d.ts` before switching. ESM modules need no CJS-interop synthesis, sidestepping the bug entirely regardless of whether/when it's fixed upstream. `yarn type`/`yarn lint`/`yarn test` (810 tests)/`yarn build` all re-verified passing after the fix.
+
 ### 3b. TypeScript 6 — ✅ DONE
 
 | Package    | Was   | Now   |

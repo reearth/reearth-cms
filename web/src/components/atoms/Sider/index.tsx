@@ -1,5 +1,5 @@
 import type { SiderProps } from "antd";
-import Sider from "antd/lib/layout/Sider";
+import Sider from "antd/es/layout/Sider";
 
 export default Sider;
 export type { SiderProps };

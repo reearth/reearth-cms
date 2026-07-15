@@ -1,4 +1,4 @@
-import type { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 

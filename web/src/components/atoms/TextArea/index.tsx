@@ -1,5 +1,5 @@
-import type { TextAreaProps } from "antd/lib/input/TextArea";
-import AntTextArea from "antd/lib/input/TextArea";
+import type { TextAreaProps } from "antd/es/input/TextArea";
+import AntTextArea from "antd/es/input/TextArea";
 import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
 

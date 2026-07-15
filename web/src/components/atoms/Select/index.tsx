@@ -1,6 +1,6 @@
 import { Select } from "antd";
 
 export type { SelectProps } from "antd";
-export type { DefaultOptionType } from "antd/lib/select";
+export type { DefaultOptionType } from "antd/es/select";
 
 export default Select;
