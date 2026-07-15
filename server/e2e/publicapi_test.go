@@ -1570,9 +1570,12 @@ func TestPublicAPI_PostingCORS(t *testing.T) {
 	})
 
 	t.Run("absent origin passes through (non-browser client)", func(t *testing.T) {
+		posting := getProjectPosting(e, pId)
+		t.Logf("DEBUG posting state: %+v", posting.Raw())
 		res := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
-			Expect().
-			Status(http.StatusAccepted)
+			Expect()
+		t.Logf("DEBUG response body: %s", res.Body().Raw())
+		res.Status(http.StatusAccepted)
 		res.Header("Access-Control-Allow-Origin").IsEmpty()
 	})
 
