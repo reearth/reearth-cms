@@ -3,7 +3,7 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **55 upgraded so far, ~10 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **60 upgraded so far, ~5 remaining** (blocked: antd 6 ecosystem, graphql core)  
 **File:** `web/package.json`
 
 ---
@@ -178,9 +178,9 @@ This repo's entire `firebase` usage is 3 files (`config/firebase.ts`, `auth/Fire
 
 ### 3g. AWS Amplify 6 — ✅ DONE
 
-| Package     | Was    | Now     |
-| ----------- | ------ | ------- |
-| aws-amplify | 5.3.29 | 6.18.0  |
+| Package     | Was    | Now    |
+| ----------- | ------ | ------ |
+| aws-amplify | 5.3.29 | 6.18.0 |
 
 Unlike the antd/Firebase/GraphQL subgroups, no ecosystem package pins to `aws-amplify` — this was a first-party code migration only, and smaller than "High migration effort" suggested: exactly 2 files, 5 call sites.
 
@@ -217,21 +217,34 @@ Notable finding: **`graphiql` has zero runtime usage in this app** — grepped n
 
 `react-i18next@17.0.8` (upgraded ahead via the React 19 migration) declares a peer dependency of `i18next >= 26.2.0`, which `25.8.6` did not satisfy — this upgrade closes that gap. `showSupportNotice` was removed from `InitOptions` in v26 (the console support-notice feature was dropped entirely); removed the now-invalid `showSupportNotice: false` from both `web/src/i18n/i18n.ts` and `web/e2e/support/i18n.ts`. No other init options, `<Trans>` props, or `t()` interpolation/pluralization/formatter usage were affected. `yarn type`, `yarn lint`, and `yarn test` (810 tests) all pass.
 
-### 3j. Storybook 10 — ⏳ Pending
+### 3j. Storybook 10 — ✅ DONE
 
-| Package                       | Current | Target |
-| ----------------------------- | ------- | ------ |
-| storybook                     | 8.6.15  | 10.4.6 |
-| @storybook/addon-essentials   | 8.6.15  | 10.4.6 |
-| @storybook/addon-interactions | 8.6.15  | 10.4.6 |
-| @storybook/addon-links        | 8.6.15  | 10.4.6 |
-| @storybook/blocks             | 8.6.15  | 10.4.6 |
-| @storybook/react              | 8.6.15  | 10.4.6 |
-| @storybook/react-vite         | 8.6.15  | 10.4.6 |
-| eslint-plugin-storybook       | 10.2.8  | 10.4.6 |
+| Package                       | Was    | Now    | Status                       |
+| ----------------------------- | ------ | ------ | ---------------------------- |
+| storybook                     | 8.6.15 | 10.5.0 | ✅ Done                       |
+| @storybook/react              | 8.6.15 | 10.5.0 | ✅ Done                       |
+| @storybook/react-vite         | 8.6.15 | 10.5.0 | ✅ Done                       |
+| @storybook/addon-links        | 8.6.15 | 10.5.0 | ✅ Done                       |
+| @storybook/addon-docs         | —      | 10.5.0 | ➕ Added (see below)          |
+| eslint-plugin-storybook       | 10.2.8 | 10.5.0 | ✅ Done                       |
+| @storybook/addon-essentials   | 8.6.15 | —      | 🗑️ Removed (discontinued)     |
+| @storybook/addon-interactions | 8.6.15 | —      | 🗑️ Removed (discontinued)     |
+| @storybook/blocks             | 8.6.15 | —      | 🗑️ Removed (discontinued)     |
+| @storybook/testing-library    | 0.2.2  | —      | 🗑️ Removed (unused, orphaned) |
 
-Use the guided migration CLI: `npx storybook@latest upgrade`  
-Upgrade `eslint-plugin-storybook` (from Group 2) together with this group.
+The original plan's target table was factually wrong for 3 rows: `@storybook/addon-essentials`, `@storybook/addon-interactions`, and `@storybook/blocks` don't exist at `10.4.6` or any 9.x/10.x release — they were discontinued mid-9.0 and their functionality (actions, controls, docs blocks, interactions/play-function support) merged into the core `storybook` package's subpath exports (`storybook/test`, `storybook/actions`, etc.) or the standalone `@storybook/addon-docs` package. `.storybook/main.ts`'s `addons` array was updated to just `["@storybook/addon-links", "@storybook/addon-docs"]`. `@storybook/testing-library` (listed as "up-to-date" in this doc's earlier "no action needed" list) was actually an orphaned, unused package (zero usage in `src/`, superseded by `storybook/test`) — removed.
+
+The `npx storybook@latest upgrade` CLI failed silently in this sandboxed session (no output, exit code 1/0 inconsistently even for `--version`) — the migration was done manually instead, verified via actual `yarn build-storybook` runs, not just `yarn type`/`lint`.
+
+**Real bugs found and fixed along the way (all pre-existing, not upgrade-specific, just never previously surfaced since nobody had run `build-storybook` successfully before):**
+
+1. **`@testing-library/dom` was never a direct dependency** — only present in `node_modules` as a transitive dependency of the now-removed `@storybook/testing-library`, silently satisfying `@testing-library/react`/`@testing-library/user-event`'s long-unmet peer dependencies. Added explicitly (`10.4.1`) to avoid a real regression.
+2. **`src/stories/Button.stories.tsx` can't type-check under this repo's `moduleResolution: "Node10"`** — `@storybook/react@10.5.0` is exports-map-only (no `main`/`types` fallback), same class of issue as the `zod`/`esModuleInterop` deferral from the TypeScript 6 group. Fixed by excluding `src/**/*.stories.tsx` from `tsconfig.json`'s type-checking scope (Storybook's own Vite-based build doesn't need `tsc` to validate these files).
+3. **`.storybook/main.ts` never had a `viteFinal` hook** — the `@reearth-cms/*` path alias (via `vite-tsconfig-paths` in the main `vite.config.ts`) was never wired into Storybook's own build, so `build-storybook` failed to resolve any `@reearth-cms/*` import. Fixed with an explicit `resolve.alias` in a new `viteFinal` hook (the `vite-tsconfig-paths` plugin itself didn't work reliably in Storybook's builder-vite context, so a direct alias was used instead).
+4. **`vite-plugin-cesium` was inherited into Storybook's build** (via `@storybook/react-vite`'s builder auto-loading the root `vite.config.ts`) even though no story uses Cesium, and its asset-copy step has a latent `path.join`-with-absolute-path bug that created a bogus duplicated-path directory tree under `web/` when run with Storybook's different `outDir`. Fixed by filtering the cesium plugin out in `viteFinal`.
+5. **`storybook-static/` (the build output) wasn't in `eslint.config.js`'s ignores** — added `storybook-static/**`, since nobody had generated that directory before to notice `eslint .` would otherwise lint the minified build output.
+
+`yarn type`/`yarn lint`/`yarn test` (810 tests)/`yarn build`/`yarn build-storybook` all verified passing after all of the above.
 
 ### 3k. react-markdown 10 — ✅ DONE
 
@@ -247,4 +260,53 @@ Completed via `bb908efc6`, merged from main.
 
 The following packages are already at their latest version:
 
-`@ant-design/colors`, `@ant-design/pro-components`, `@ant-design/pro-layout`, `@ant-design/pro-provider`, `@ant-design/pro-table`, `@ant-design/v5-patch-for-react-19` *(temporary React 19 shim — remove with antd 6 upgrade)*, `@emotion/jest`, `@graphql-codegen/cli`, `@graphql-codegen/fragment-matcher`, `@graphql-codegen/introspection`, `@graphql-codegen/near-operation-file-preset`, `@graphql-codegen/typed-document-node`, `@graphql-codegen/typescript`, `@graphql-codegen/typescript-operations`, `@placemarkio/check-geojson`, `@scalar/api-reference-react`, `@storybook/testing-library`, `@testing-library/jest-dom`, `@testing-library/react`, `@testing-library/react-hooks`, `@testing-library/user-event`, `@types/file-saver`, `@types/object-hash`, `@types/papaparse`, `@types/react-router-dom`, `apollo-upload-client`, `axios`, `cesium-mvt-imagery-provider`, `firebaseui`, `formik`, `graphql-sse`, `i18next-browser-languagedetector`, `js-file-download`, `js-md5`, `mini-svg-data-uri`, `object-hash`, `ol`, `prop-types`, `rc-field-form`, `rc-menu`, `rc-table`, `read-env`, `remark-gfm`, `runes2`, `rxjs`, `ts-node`, `vite-plugin-cesium`, `vite-tsconfig-paths`
+- `@ant-design/colors`
+- `@ant-design/pro-components`
+- `@ant-design/pro-layout`
+- `@ant-design/pro-provider`
+- `@ant-design/pro-table`
+- `@ant-design/v5-patch-for-react-19` *(temporary React 19 shim — remove with antd 6 upgrade)*
+- `@emotion/jest`
+- `@graphql-codegen/cli`
+- `@graphql-codegen/fragment-matcher`
+- `@graphql-codegen/introspection`
+- `@graphql-codegen/near-operation-file-preset`
+- `@graphql-codegen/typed-document-node`
+- `@graphql-codegen/typescript`
+- `@graphql-codegen/typescript-operations`
+- `@placemarkio/check-geojson`
+- `@scalar/api-reference-react`
+- `@testing-library/dom`
+- `@testing-library/jest-dom`
+- `@testing-library/react`
+- `@testing-library/react-hooks`
+- `@testing-library/user-event`
+- `@types/file-saver`
+- `@types/object-hash`
+- `@types/papaparse`
+- `@types/react-router-dom`
+- `apollo-upload-client`
+- `axios`
+- `cesium-mvt-imagery-provider`
+- `firebaseui`
+- `formik`
+- `graphql-sse`
+- `i18next-browser-languagedetector`
+- `js-file-download`
+- `js-md5`
+- `mini-svg-data-uri`
+- `object-hash`
+- `ol`
+- `prop-types`
+- `rc-field-form`
+- `rc-menu`
+- `rc-table`
+- `read-env`
+- `remark-gfm`
+- `runes2`
+- `rxjs`
+- `ts-node`
+- `vite-plugin-cesium`
+- `vite-tsconfig-paths`
+
+`@storybook/testing-library` removed entirely (Group 3j) — was orphaned/unused, not actually "up to date."

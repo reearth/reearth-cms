@@ -32,7 +32,8 @@ export function configureCognito(cognito: CognitoParams) {
             domain: cognitoOauthDomain ?? "",
             redirectSignIn: cognitoOauthRedirectSignIn ? [cognitoOauthRedirectSignIn] : [],
             redirectSignOut: cognitoOauthRedirectSignOut ? [cognitoOauthRedirectSignOut] : [],
-            responseType: (cognitoOauthResponseType === "token" ? "token" : "code") as "code" | "token",
+            responseType: (cognitoOauthResponseType === "token" ? "token" : "code") as
+              "code" | "token",
           },
         },
       },

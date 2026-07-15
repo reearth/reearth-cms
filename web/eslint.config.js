@@ -30,7 +30,7 @@ export default [
   storyBookConfig,
   playwrightConfig,
   {
-    ignores: ["coverage/*", "src/gql/__generated__/*", "amplify/*"],
+    ignores: ["coverage/*", "src/gql/__generated__/*", "amplify/*", "storybook-static/**"],
   },
   {
     rules: {

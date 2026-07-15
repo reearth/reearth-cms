@@ -29,6 +29,7 @@
     "ignoreDeprecations": "6.0"
   },
   "include": ["src", "e2e", "codegen.ts"],
+  "exclude": ["src/**/*.stories.tsx"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
