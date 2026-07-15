@@ -526,6 +526,7 @@ test("Delete view and switch to remaining view", async ({
 test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
+    await expect(projectPage.modelMenuItemClick(projectPage.modelName)).toBeVisible();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();
     await page.waitForLoadState("networkidle");
   });
