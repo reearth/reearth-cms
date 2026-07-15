@@ -3,17 +3,17 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **51 upgraded so far, ~14 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **52 upgraded so far, ~13 remaining**  
 **File:** `web/package.json`
 
 ---
 
 ## Strategy
 
-| Group   | Risk   | Approach                                                                     |
-| ------- | ------ | ----------------------------------------------------------------------------- |
-| Group 1 | Low    | Batch upgrade all at once; same-major minor/patch only                       |
-| Group 2 | Medium | Upgrade individually, one package at a time, test each                       |
+| Group   | Risk   | Approach                                                                                                                              |
+| ------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Group 1 | Low    | Batch upgrade all at once; same-major minor/patch only                                                                                |
+| Group 2 | Medium | Upgrade individually, one package at a time, test each                                                                                |
 | Group 3 | High   | Coordinated groups; read migration guide first; test thoroughly per subgroup, user reviews and commits each before moving to the next |
 
 ---
@@ -95,10 +95,10 @@ Thorough testing per subgroup. Read the migration guide before starting. (Origin
 
 ### 3a. Vite 8 — ✅ DONE
 
-| Package              | Was     | Now    |
-| -------------------- | ------- | ------ |
-| vite                 | 7.3.6   | 8.1.3  |
-| @vitejs/plugin-react | 5.2.0   | 6.0.3  |
+| Package              | Was   | Now   |
+| -------------------- | ----- | ----- |
+| vite                 | 7.3.6 | 8.1.3 |
+| @vitejs/plugin-react | 5.2.0 | 6.0.3 |
 
 Required together: `@vitejs/plugin-react@6.0.3`'s peer is `vite: ^8.0.0` exactly. `vitest`, `vite-tsconfig-paths`, and `vite-plugin-cesium` already declared support for vite 8 — no changes needed there. `@storybook/react-vite@8.6.15`'s vite peer cap (`^6.0.0`) is a pre-existing, already-tolerated mismatch, unaffected by this bump (tracked under 3j).
 
@@ -106,13 +106,20 @@ Main risk was Vite 8 replacing Rollup with Rolldown as its bundler — `vite-plu
 
 Optional follow-up (not done): Vite 8 suggests replacing the `vite-tsconfig-paths` plugin with its native `resolve.tsconfigPaths: true` option.
 
-### 3b. TypeScript 6 — ⏳ Pending
+### 3b. TypeScript 6 — ✅ DONE
 
-| Package    | Current | Target |
-| ---------- | ------- | ------ |
-| typescript | 5.7.3   | 6.0.3  |
+| Package    | Was   | Now   |
+| ---------- | ----- | ----- |
+| typescript | 5.7.3 | 6.0.3 |
 
-TS6 removes some implicit `any` escape hatches. Run `yarn type` after upgrade and fix all new errors.
+Codebase had zero `@ts-ignore`/`@ts-expect-error`/decorators/`using` usage, so the classic "implicit-any escape hatch" removals were a non-issue. `strict: true`, `types: [...]`, and `target: "ESNext"` were already explicit, matching TS6's new defaults — no-ops.
+
+Two TS6 deprecations (removed in TS7) required action:
+
+- `tsconfig.json`'s `baseUrl: "."` was removed (deprecated in 6.0); its `paths` entries were given explicit `./` prefixes instead (`"./e2e/*"`, `"./src/*"`) since non-relative paths require `baseUrl` — verified equivalent behavior via `yarn type`.
+- `esModuleInterop: false` and `moduleResolution: "Node"` (→ `"Node10"`, the TS6 spelling) are also deprecated, but migrating either for real (`esModuleInterop: true`, or `moduleResolution: "Bundler"`, the officially recommended setting for Vite apps) surfaced genuine new type errors — a Cesium `ImageryProvider`/`tileDiscardPolicy` interop mismatch and 2 `zod/v4/locales/*` resolution failures (zod's `exports` map glob pattern doesn't resolve cleanly under `Bundler`/`node16+`-style resolution, unlike legacy `Node` resolution which ignores `exports` entirely). Rather than debug those as a side effect of a version bump, both are silenced via `"ignoreDeprecations": "6.0"` with a comment. **Follow-up needed**, but not urgent: TS 7.0 already GA'd (2026-07-08, native Go compiler port) — however it ships without a stable programmatic API (expected in 7.1), which `typescript-eslint@8.60.0` depends on, so this repo can't move to TS7 yet regardless. Revisit `Node10`/`esModuleInterop: false` once `typescript-eslint`/tooling actually supports TS7.
+
+`ts-node@10.9.2` (used for `yarn gql`'s `codegen.ts` loading) continued working correctly, and `typescript-eslint@8.60.0`'s peer range (`>=4.8.4 <6.1.0`) already covered 6.0.3. `yarn lint`/`yarn test` (810 tests)/`yarn build` all pass unchanged.
 
 ### 3c. React 19 — ✅ DONE
 
@@ -173,10 +180,10 @@ Upgrade graphql-js and graphiql together. Verify that `@graphql-codegen` plugins
 
 ### 3i. i18next 26 — ✅ DONE
 
-| Package       | Was     | Now    |
-| ------------- | ------- | ------ |
-| i18next       | 25.8.6  | 26.3.4 |
-| react-i18next | 15.0.1  | 17.0.8 |
+| Package       | Was    | Now    |
+| ------------- | ------ | ------ |
+| i18next       | 25.8.6 | 26.3.4 |
+| react-i18next | 15.0.1 | 17.0.8 |
 
 `react-i18next@17.0.8` (upgraded ahead via the React 19 migration) declares a peer dependency of `i18next >= 26.2.0`, which `25.8.6` did not satisfy — this upgrade closes that gap. `showSupportNotice` was removed from `InitOptions` in v26 (the console support-notice feature was dropped entirely); removed the now-invalid `showSupportNotice: false` from both `web/src/i18n/i18n.ts` and `web/e2e/support/i18n.ts`. No other init options, `<Trans>` props, or `t()` interpolation/pluralization/formatter usage were affected. `yarn type`, `yarn lint`, and `yarn test` (810 tests) all pass.
 
