@@ -1,9 +1,9 @@
 # npm Upgrade Plan
 
 **Generated:** 2026-07-08  
-**Last updated:** 2026-07-14  
+**Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **46 upgraded so far, ~19 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **47 upgraded so far, ~18 remaining**  
 **File:** `web/package.json`
 
 ---
@@ -164,14 +164,14 @@ v6 uses modular imports (`import { signIn } from 'aws-amplify/auth'`) instead of
 
 Upgrade graphql-js and graphiql together. Verify that `@graphql-codegen` plugins and `@apollo/client` support graphql v17 before upgrading.
 
-### 3i. i18next 26 — ⚠️ Partially Done
+### 3i. i18next 26 — ✅ DONE
 
-| Package       | Current | Target | Status          |
-| ------------- | ------- | ------ | --------------- |
-| i18next       | 25.8.6  | 26.3.4 | ⏳ Pending       |
-| react-i18next | 15.0.1  | 17.0.8 | ✅ Done (17.0.8) |
+| Package       | Was     | Now    |
+| ------------- | ------- | ------ |
+| i18next       | 25.8.6  | 26.3.4 |
+| react-i18next | 15.0.1  | 17.0.8 |
 
-`react-i18next` was upgraded ahead via the React 19 migration. Upgrade `i18next` alone to `26.x` next; check `i18n.init()` config and `<Trans>` component props.
+`react-i18next@17.0.8` (upgraded ahead via the React 19 migration) declares a peer dependency of `i18next >= 26.2.0`, which `25.8.6` did not satisfy — this upgrade closes that gap. `showSupportNotice` was removed from `InitOptions` in v26 (the console support-notice feature was dropped entirely); removed the now-invalid `showSupportNotice: false` from both `web/src/i18n/i18n.ts` and `web/e2e/support/i18n.ts`. No other init options, `<Trans>` props, or `t()` interpolation/pluralization/formatter usage were affected. `yarn type`, `yarn lint`, and `yarn test` (810 tests) all pass.
 
 ### 3j. Storybook 10 — ⏳ Pending
 
