@@ -3,7 +3,7 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **53 upgraded so far, ~12 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **54 upgraded so far, ~11 remaining**  
 **File:** `web/package.json`
 
 ---
@@ -180,14 +180,24 @@ This repo's entire `firebase` usage is 3 files (`config/firebase.ts`, `auth/Fire
 
 v6 uses modular imports (`import { signIn } from 'aws-amplify/auth'`) instead of v5's top-level pattern. High migration effort.
 
-### 3h. GraphQL 17 ecosystem — ⏳ Pending
+### 3h. GraphQL 17 ecosystem — 🚫 `graphql` blocked; `graphiql` ✅ done separately
 
-| Package  | Current | Target |
-| -------- | ------- | ------ |
-| graphql  | 16.12.0 | 17.0.2 |
-| graphiql | 3.7.2   | 5.2.4  |
+| Package  | Was     | Now   | Status    |
+| -------- | ------- | ----- | --------- |
+| graphql  | 16.12.0 | —     | 🚫 Blocked |
+| graphiql | 3.7.2   | 5.2.4 | ✅ Done    |
 
-Upgrade graphql-js and graphiql together. Verify that `@graphql-codegen` plugins and `@apollo/client` support graphql v17 before upgrading.
+**`graphql`/graphql-js bump — blocked (2026-07-15), three actively-used packages have no v17-compatible release:**
+
+- `graphql-sse@2.6.0` (npm `latest`) caps `graphql` peer at `<=16`; drives the SSE subscription transport in `web/src/gql/provider.tsx`.
+- `apollo-upload-client@19.0.0` (npm `latest`) caps at `graphql: "14 - 16"`; drives file uploads.
+- `@graphql-codegen/near-operation-file-preset@5.2.1` (npm `latest`) caps at `^16`; is the preset actually used in `web/codegen.ts`.
+
+`@apollo/client@4.2.6`, `graphiql`, and the rest of `@graphql-codegen/*` already support `^17` today — `graphql-ws` would need a paired bump (6.0.8→6.1.0) but that's moot while `graphql` itself stays at 16. Revisit once any of the three blockers above ships v17 support.
+
+**`graphiql` bumped standalone (3.7.2 → 5.2.4):** its peer range (`graphql: "^15.5.0 || ^16.0.0 || ^17.0.0"`, `react/react-dom: "^18 || ^19"`) is fully satisfied by the current `graphql@16.12.0`/`react@19.2.7` — fully decoupled from the blocker above. This also fixed a pre-existing peer mismatch: `graphiql@3.7.2` only allowed `react ^16.8.0 || ^17 || ^18`, already incompatible with this repo's React 19 (the peer warning is now gone from `yarn install` output).
+
+Notable finding: **`graphiql` has zero runtime usage in this app** — grepped no matches anywhere in `web/src` outside the `package.json` version pin. The actual API docs page (`web/src/components/molecules/ApiDocs/index.tsx`) renders `@scalar/api-reference-react` instead. Kept per user decision (not removed as dead weight), but worth revisiting separately. `yarn type`/`yarn lint`/`yarn test` (810 tests)/`yarn build` all pass unchanged.
 
 ### 3i. i18next 26 — ✅ DONE
 
