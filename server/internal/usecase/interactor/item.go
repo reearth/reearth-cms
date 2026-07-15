@@ -580,10 +580,44 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			}
 		}
 
+		// collect all ref IDs in one pass to avoid N+1 DB queries
+		var allRefIDsUnpublish id.ItemIDList
 		for _, itm := range items {
-			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
+			for _, f := range itm.Value().Fields() {
+				if f.Type() != value.TypeReference {
+					continue
+				}
+				for _, v := range f.Value().Values() {
+					if iid, ok := v.Value().(id.ItemID); ok {
+						allRefIDsUnpublish = allRefIDsUnpublish.Add(iid)
+					}
+				}
+			}
+		}
+		refItemMapUnpublish := map[id.ItemID]item.Versioned{}
+		if len(allRefIDsUnpublish) > 0 {
+			fetched, err := i.repos.Item.FindByIDs(ctx, allRefIDsUnpublish, nil)
 			if err != nil {
 				return nil, err
+			}
+			for _, ri := range fetched {
+				refItemMapUnpublish[ri.Value().ID()] = ri
+			}
+		}
+
+		for _, itm := range items {
+			var refItems []item.Versioned
+			for _, f := range itm.Value().Fields() {
+				if f.Type() != value.TypeReference {
+					continue
+				}
+				for _, v := range f.Value().Values() {
+					if iid, ok := v.Value().(id.ItemID); ok {
+						if ri, ok := refItemMapUnpublish[iid]; ok {
+							refItems = append(refItems, ri)
+						}
+					}
+				}
 			}
 			if err := i.event(ctx, Event{
 				Project:   prj,
@@ -656,10 +690,44 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, err
 		}
 
+		// collect all ref IDs in one pass to avoid N+1 DB queries
+		var allRefIDs id.ItemIDList
 		for _, itm := range updated {
-			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
+			for _, f := range itm.Value().Fields() {
+				if f.Type() != value.TypeReference {
+					continue
+				}
+				for _, v := range f.Value().Values() {
+					if iid, ok := v.Value().(id.ItemID); ok {
+						allRefIDs = allRefIDs.Add(iid)
+					}
+				}
+			}
+		}
+		refItemMap := map[id.ItemID]item.Versioned{}
+		if len(allRefIDs) > 0 {
+			fetched, err := i.repos.Item.FindByIDs(ctx, allRefIDs, nil)
 			if err != nil {
 				return nil, err
+			}
+			for _, ri := range fetched {
+				refItemMap[ri.Value().ID()] = ri
+			}
+		}
+
+		for _, itm := range updated {
+			var refItems []item.Versioned
+			for _, f := range itm.Value().Fields() {
+				if f.Type() != value.TypeReference {
+					continue
+				}
+				for _, v := range f.Value().Values() {
+					if iid, ok := v.Value().(id.ItemID); ok {
+						if ri, ok := refItemMap[iid]; ok {
+							refItems = append(refItems, ri)
+						}
+					}
+				}
 			}
 
 			if err := i.event(ctx, Event{
