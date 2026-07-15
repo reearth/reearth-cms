@@ -119,7 +119,7 @@
     "cesium": "1.143.0",
     "cesium-mvt-imagery-provider": "1.4.2",
     "dayjs": "1.11.21",
-    "firebase": "10.14.1",
+    "firebase": "12.15.0",
     "firebaseui": "6.1.0",
     "formik": "2.4.9",
     "graphiql": "3.7.2",

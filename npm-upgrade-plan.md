@@ -3,7 +3,7 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **52 upgraded so far, ~13 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **53 upgraded so far, ~12 remaining**  
 **File:** `web/package.json`
 
 ---
@@ -162,13 +162,15 @@ Everything else checked (no `ConfigProvider` theme/token/algorithm customization
 
 **Cleanup (still valid once unblocked):** Remove `@ant-design/v5-patch-for-react-19` after the antd 6 bump.
 
-### 3f. Firebase 12 — ⏳ Pending
+### 3f. Firebase 12 — ✅ DONE (with a flagged caveat)
 
-| Package  | Current | Target  |
+| Package  | Was     | Now     |
 | -------- | ------- | ------- |
 | firebase | 10.14.1 | 12.15.0 |
 
-Two major versions ahead. Review both v11 and v12 changelogs before upgrading.
+This repo's entire `firebase` usage is 3 files (`config/firebase.ts`, `auth/FirebaseAuth.ts`, `auth/FirebaseProvider.tsx`) via the modular SDK only — `initializeApp`, `getAuth`, `onAuthStateChanged`, `signInWithRedirect`, `signOut`, `EmailAuthProvider`. All stable, unchanged since Firebase v9 and confirmed present in 12.15.0's exports. No Firestore/Storage/Analytics/Functions usage. No other installed package depends on `firebase` directly. Node engine (`>=20.19.0`) already satisfied. `yarn type`/`yarn lint`/`yarn test` (810 tests)/`yarn build` all pass unchanged.
+
+**Caveat — not fixed, deliberately accepted:** `firebaseui@6.1.0` (npm `latest`, last published 2023-08-02) peers on `firebase: "^9.1.3 || ^10.0.0"` and has never been updated for firebase 11/12; it internally uses the legacy `firebase/compat/{app,auth}` API rather than the modular SDK. Whether its Email/Password sign-in widget (the only thing it's used for, in `FirebaseProvider.tsx`) still works correctly against the v11-era Auth SDK rewrite is **unverified** — no live Firebase project or browser available in this session, and there's no existing automated test coverage for `FirebaseAuth`/`FirebaseProvider` either. Blast radius is scoped to deployments with `REEARTH_CMS_AUTH_PROVIDER=firebase` (Auth0 is the default; Cognito is the other option), but `.env.example` documents it as a supported configuration. **Action required before trusting this in production:** manually test the firebaseui-driven sign-in flow end-to-end against a real Firebase project.
 
 ### 3g. AWS Amplify 6 — ⏳ Pending
 
