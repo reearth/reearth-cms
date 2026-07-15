@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/utils"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -532,6 +533,19 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 	isMetadata := m.Metadata() != nil && s.ID() == *m.Metadata()
 
+	// Pre-check schema capabilities once per chunk to avoid per-item overhead.
+	// checkUnique issues a FindByModelAndValue per item; skip when the schema
+	// has no unique fields at all (most import schemas).
+	schemaHasUniqueFields := lo.ContainsBy(s.Fields(), func(f *schema.Field) bool {
+		return f.Unique()
+	})
+	// handleReferenceFields issues FindByID calls for two-way reference targets;
+	// skip the entire call when the schema has no two-way reference fields.
+	schemaHasTwoWayRefs := lo.ContainsBy(s.FieldsByType(value.TypeReference), func(f *schema.Field) bool {
+		fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+		return ok && fr.IsTwoWay()
+	})
+
 	type itemChanges struct {
 		oldFields item.Fields
 		action    interfaces.ImportStrategyType
@@ -643,8 +657,13 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				// TODO: Handle default values for groups fields
 			}
 
-			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
-				return nil, nil, err
+			// Only run the uniqueness DB check when the schema actually has
+			// unique fields; the guard inside checkUnique also catches the
+			// empty-fieldsArg case, but skipping here avoids the field-scan loop.
+			if schemaHasUniqueFields {
+				if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
+					return nil, nil, err
+				}
 			}
 
 			oldFields := it.Fields()
@@ -657,8 +676,12 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 			it.UpdateFields(groupFields)
 
-			if err = i.handleReferenceFields(ctx, *s, it, oldFields); err != nil {
-				return nil, nil, err
+			// Two-way reference handling issues per-item FindByID calls for the
+			// referenced counterpart. Skip entirely when no such fields exist.
+			if schemaHasTwoWayRefs {
+				if err = i.handleReferenceFields(ctx, *s, it, oldFields); err != nil {
+					return nil, nil, err
+				}
 			}
 
 			itemsToSave = append(itemsToSave, it)

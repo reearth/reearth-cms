@@ -709,6 +709,11 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 		})
 	}
 
+	// Nothing to check — no unique fields with non-empty, changed values.
+	if len(fieldsArg) == 0 {
+		return nil
+	}
+
 	exists, err := i.repos.Item.FindByModelAndValue(ctx, mid, fieldsArg, nil)
 	if err != nil {
 		return err
