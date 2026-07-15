@@ -258,7 +258,13 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		return nil, err
 	}
 
-	return Run1(ctx, operator, i.repos,
+	// ev is populated inside the transaction and published after it commits,
+	// mirroring the pattern already used by Asset.Create (asset.go:521).
+	// Publishing inside the transaction held the Mongo write-intent lock while
+	// blocking on the PubSub/Cloud Tasks call, causing cascading timeouts.
+	var ev *Event
+
+	vi, err := Run1(ctx, operator, i.repos,
 		Usecase().
 			WithPermission(i.authz(), rbac.ResourceItem, rbac.ActionCreate, s.Workspace()).
 			Transaction(),
@@ -360,7 +366,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				return nil, err
 			}
 
-			if err := i.event(ctx, Event{
+			// Capture the event for dispatch after the transaction commits.
+			ev = &Event{
 				Project:   prj,
 				Workspace: s.Workspace(),
 				Type:      event.ItemCreate,
@@ -373,12 +380,23 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 					ReferencedItems: refItems,
 				},
 				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
 			}
 
 			return vi, nil
 		})
+	if err != nil {
+		return nil, err
+	}
+
+	// Publish outside the transaction so the PubSub/Cloud Tasks call does not
+	// hold an open Mongo write-intent session while waiting for a remote call.
+	if ev != nil {
+		if err := i.event(ctx, *ev); err != nil {
+			return nil, err
+		}
+	}
+
+	return vi, nil
 }
 
 func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, _ *usecase.Operator) (time.Time, error) {
@@ -402,7 +420,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		return nil, err
 	}
 
-	return Run1(ctx, operator, i.repos,
+	// ev is populated inside the transaction and published after it commits,
+	// mirroring the pattern already used by Asset.Create (asset.go:521).
+	var ev *Event
+
+	itm, err := Run1(ctx, operator, i.repos,
 		Usecase().
 			WithPermission(i.authz(), rbac.ResourceItem, rbac.ActionUpdate, wid).
 			Transaction(),
@@ -497,7 +519,8 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				return nil, err
 			}
 
-			if err := i.event(ctx, Event{
+			// Capture the event for dispatch after the transaction commits.
+			ev = &Event{
 				Project:   prj,
 				Workspace: s.Workspace(),
 				Type:      event.ItemUpdate,
@@ -511,12 +534,23 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 					Changes:         item.CompareFields(itv.Fields(), oldFields),
 				},
 				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
 			}
 
 			return itm, nil
 		})
+	if err != nil {
+		return nil, err
+	}
+
+	// Publish outside the transaction so the PubSub/Cloud Tasks call does not
+	// hold an open Mongo write-intent session while waiting for a remote call.
+	if ev != nil {
+		if err := i.event(ctx, *ev); err != nil {
+			return nil, err
+		}
+	}
+
+	return itm, nil
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, sp schema.Package, operator *usecase.Operator) error {
