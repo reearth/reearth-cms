@@ -3,7 +3,7 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **60 upgraded so far, ~5 remaining** (blocked: antd 6 ecosystem, graphql core)  
+**Stats:** 65 outdated packages found out of ~120 total; **75 upgraded so far, ~5 remaining** (blocked: antd 6 ecosystem, graphql core; also newly found: `globals` major, untriaged)  
 **File:** `web/package.json`
 
 ---
@@ -58,6 +58,34 @@ All 31 packages upgraded in `e5796c18a`.
 
 > ¹ `@monaco-editor/react` landed at `4.8.0-rc.3` (target was `4.7.0`) — came in via the React 19 migration merge; rc version accepted.  
 > ² `eslint-config-reearth` was initially held at `0.3.8` (Group 1) since `0.4.0` requires ESLint ≥10. Bumped to `0.4.0` together with the ESLint 10 upgrade (Group 2) — see below.
+
+---
+
+## Group 1b: Low Risk — second pass — ✅ COMPLETE
+
+A follow-up `yarn outdated` pass on 2026-07-15 surfaced 15 newly-outdated packages (all same-major, no breaking-change surface). Batch-upgraded together, matching Group 1's strategy.
+
+| Package                     | Was     | Now     |
+| --------------------------- | ------- | ------- |
+| @apollo/client              | 4.2.6   | 4.2.7   |
+| @auth0/auth0-react          | 2.20.0  | 2.21.0  |
+| @scalar/api-reference-react | 0.9.54  | 0.9.55  |
+| @types/node                 | 26.1.0  | 26.1.1  |
+| eslint                      | 10.6.0  | 10.7.0  |
+| firebase                    | 12.15.0 | 12.16.0 |
+| graphql-ws                  | 6.0.8   | 6.1.0   |
+| i18next                     | 26.3.4  | 26.3.6  |
+| jotai                       | 2.20.1  | 2.20.2  |
+| lodash.tonumber             | 4.0.3   | 4.18.0  |
+| memfs                       | 4.63.0  | 4.64.0  |
+| msw                         | 2.14.7  | 2.15.0  |
+| prettier                    | 3.9.4   | 3.9.5   |
+| react-i18next               | 17.0.8  | 17.0.9  |
+| resium                      | 1.23.0  | 1.24.0  |
+
+Peer-dependency spot checks (`npm view <pkg>@<target> peerDependencies`) confirmed no conflicts: `graphql-ws@6.1.0` peers `graphql: "^15.10.1 || ^16 || ^17"` (fine with `graphql@16.12.0` — see corrected note in Group 3h below), `resium@1.24.0` peers `cesium: "1.x"`/`react/react-dom: ">=18.2.0"` (fine), `eslint-config-reearth@0.4.0` peers `eslint: ">=10"` (fine), `@auth0/auth0-react@2.21.0` peers React up to `^19.2.1` (fine). `yarn install`/`yarn type`/`yarn lint` (0 errors, same 101 pre-existing warnings)/`yarn test` (810 tests)/`yarn build` all pass unchanged.
+
+**Newly found, out of scope — `globals`:** outdated `15.15.0` → `17.7.0`, a two-major jump never previously tracked in this doc (missed when ESLint 10/Group 2 landed). Not a minor/patch bump, so left untriaged for now; revisit alongside the other blocked majors (antd 6, graphql 17, typescript 7) when there's bandwidth to check `globals`' breaking changes across two majors.
 
 ---
 
@@ -202,7 +230,7 @@ Same caveat as Firebase: no automated test coverage for the Cognito path, and un
 - `apollo-upload-client@19.0.0` (npm `latest`) caps at `graphql: "14 - 16"`; drives file uploads.
 - `@graphql-codegen/near-operation-file-preset@5.2.1` (npm `latest`) caps at `^16`; is the preset actually used in `web/codegen.ts`.
 
-`@apollo/client@4.2.6`, `graphiql`, and the rest of `@graphql-codegen/*` already support `^17` today — `graphql-ws` would need a paired bump (6.0.8→6.1.0) but that's moot while `graphql` itself stays at 16. Revisit once any of the three blockers above ships v17 support.
+`@apollo/client@4.2.7`, `graphiql`, and the rest of `@graphql-codegen/*` already support `^17` today. `graphql-ws` was bumped `6.0.8` → `6.1.0` standalone in Group 1b — its peer range (`graphql: "^15.10.1 || ^16 || ^17"`) already covers both today's `graphql@16.12.0` and a future v17, so unlike originally assumed here, it didn't need to wait on the `graphql` bump. Revisit `graphql` itself once any of the three blockers above ships v17 support.
 
 **`graphiql` bumped standalone (3.7.2 → 5.2.4):** its peer range (`graphql: "^15.5.0 || ^16.0.0 || ^17.0.0"`, `react/react-dom: "^18 || ^19"`) is fully satisfied by the current `graphql@16.12.0`/`react@19.2.7` — fully decoupled from the blocker above. This also fixed a pre-existing peer mismatch: `graphiql@3.7.2` only allowed `react ^16.8.0 || ^17 || ^18`, already incompatible with this repo's React 19 (the peer warning is now gone from `yarn install` output).
 
