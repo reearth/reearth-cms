@@ -3,18 +3,18 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **49 upgraded so far, ~16 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **51 upgraded so far, ~14 remaining**  
 **File:** `web/package.json`
 
 ---
 
 ## Strategy
 
-| Group   | Risk   | Approach                                                                 |
-| ------- | ------ | ------------------------------------------------------------------------ |
-| Group 1 | Low    | Batch upgrade all at once; same-major minor/patch only                   |
-| Group 2 | Medium | Upgrade individually, one package at a time, test each                   |
-| Group 3 | High   | Coordinated groups; read migration guide first; separate PR per subgroup |
+| Group   | Risk   | Approach                                                                     |
+| ------- | ------ | ----------------------------------------------------------------------------- |
+| Group 1 | Low    | Batch upgrade all at once; same-major minor/patch only                       |
+| Group 2 | Medium | Upgrade individually, one package at a time, test each                       |
+| Group 3 | High   | Coordinated groups; read migration guide first; test thoroughly per subgroup, user reviews and commits each before moving to the next |
 
 ---
 
@@ -91,17 +91,20 @@ All 31 packages upgraded in `e5796c18a`.
 
 ## Group 3: High Risk (coordinated framework upgrades)
 
-Each subgroup = its own PR + thorough testing. Read the migration guide before starting.
+Thorough testing per subgroup. Read the migration guide before starting. (Originally planned as a separate PR per subgroup; superseded — all subgroups land on the current branch, reviewed by the user before each is committed.)
 
-### 3a. Vite 8 — ⏳ Pending
+### 3a. Vite 8 — ✅ DONE
 
-| Package              | Current | Target |
+| Package              | Was     | Now    |
 | -------------------- | ------- | ------ |
 | vite                 | 7.3.6   | 8.1.3  |
 | @vitejs/plugin-react | 5.2.0   | 6.0.3  |
 
-Migration guide: <https://vitejs.dev/guide/migration>  
-Check: `vite.config.ts` for any removed/renamed APIs.
+Required together: `@vitejs/plugin-react@6.0.3`'s peer is `vite: ^8.0.0` exactly. `vitest`, `vite-tsconfig-paths`, and `vite-plugin-cesium` already declared support for vite 8 — no changes needed there. `@storybook/react-vite@8.6.15`'s vite peer cap (`^6.0.0`) is a pre-existing, already-tolerated mismatch, unaffected by this bump (tracked under 3j).
+
+Main risk was Vite 8 replacing Rollup with Rolldown as its bundler — `vite-plugin-cesium` injects a third-party Rollup plugin (`rollup-plugin-external-globals`) to externalize the `cesium` global. Verified via `yarn build`: `dist/index.html` still loads Cesium as a script-tag global, `dist/cesium-1.143.0/` is copied out as static assets (not bundled), and the main JS chunk only contains bare `Cesium.*` global references — confirming Rolldown's Rollup-plugin-compat layer handles it correctly. `yarn lint`/`yarn type`/`yarn test` (810 tests) all pass unchanged.
+
+Optional follow-up (not done): Vite 8 suggests replacing the `vite-tsconfig-paths` plugin with its native `resolve.tsconfigPaths: true` option.
 
 ### 3b. TypeScript 6 — ⏳ Pending
 
