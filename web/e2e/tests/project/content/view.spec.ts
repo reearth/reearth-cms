@@ -531,6 +531,7 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
   });
 
   await test.step("Create view1", async () => {
+    await expect(contentPage.saveAsNewViewButton).toBeVisible();
     await contentPage.saveAsNewViewButton.click();
     await expect(contentPage.viewNameInput).toBeVisible();
     await expect(async () => {
