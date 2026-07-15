@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -1489,4 +1490,69 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
+}
+
+// TestModel_deleteItemsByModel_flushesPerPage verifies that when a model is
+// deleted its items, threads, and events are cleaned up per page rather than
+// accumulating all in memory before flushing.
+//
+// We test this end-to-end via Model.Delete so the full deleteItemsByModel
+// code-path runs. Three items are seeded (each with a thread); after deletion
+// all items and threads must be gone from the repository.
+func TestModel_deleteItemsByModel_flushesPerPage(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	wid := accountdomain.NewWorkspaceID()
+	db := memory.New()
+
+	p := project.New().NewID().Workspace(wid).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(p.ID()).MustBuild()
+	m := model.New().NewID().Key(id.RandomKey()).Project(p.ID()).Schema(s.ID()).MustBuild()
+
+	ownerOp := &usecase.Operator{
+		OwningProjects: []id.ProjectID{p.ID()},
+		AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+	}
+
+	assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+	assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+	assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+
+	// Seed three items, each with its own thread.
+	threadIDs := make([]id.ThreadID, 3)
+	itemIDs := make([]id.ItemID, 3)
+	for i := range 3 {
+		thid := id.NewThreadID()
+		threadIDs[i] = thid
+
+		// Seed the thread itself so we can verify it is removed afterwards.
+		th := thread.New().ID(thid).Workspace(wid).Comments(nil).MustBuild()
+		assert.NoError(t, db.Thread.Save(ctx, th))
+
+		it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(thid.Ref()).MustBuild()
+		itemIDs[i] = it.ID()
+		assert.NoError(t, db.Item.Save(ctx, it))
+	}
+
+	sp := *schema.NewPackage(s, nil, nil, nil)
+	u := NewModel(db, nil)
+	err := u.Delete(ctx, m.ID(), sp, ownerOp)
+	assert.NoError(t, err)
+
+	// All items must be gone.
+	for _, iid := range itemIDs {
+		_, itemErr := db.Item.FindByID(ctx, iid, nil)
+		assert.ErrorIs(t, itemErr, rerror.ErrNotFound, "item %s should be deleted", iid)
+	}
+
+	// All threads must be gone.
+	for _, thid := range threadIDs {
+		_, thErr := db.Thread.FindByID(ctx, thid)
+		assert.ErrorIs(t, thErr, rerror.ErrNotFound, "thread %s should be deleted", thid)
+	}
+
+	// The model itself must be gone.
+	_, err = db.Model.FindByID(ctx, m.ID())
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
 }

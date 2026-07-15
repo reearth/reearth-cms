@@ -421,10 +421,8 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 
 	itemInteractor := NewItem(i.repos, i.gateways)
 
-	var allThreadIDs id.ThreadIDList
-	var allEvents []Event
-
-	// collect thread IDs, events, and clean up cross-model references
+	// Process items page-by-page, flushing threads and events per page so that
+	// memory usage is bounded regardless of model size.
 	for {
 		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, m.ID(), nil, nil,
 			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
@@ -434,11 +432,14 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 
 		items := vList.Unwrap()
 		if len(items) > 0 {
+			var pageThreadIDs id.ThreadIDList
+			var pageEvents []Event
+
 			for idx, itm := range items {
 				if itm.Thread() != nil {
-					allThreadIDs = append(allThreadIDs, *itm.Thread())
+					pageThreadIDs = append(pageThreadIDs, *itm.Thread())
 				}
-				allEvents = append(allEvents, Event{
+				pageEvents = append(pageEvents, Event{
 					Project:   prj,
 					Workspace: sp.Schema().Workspace(),
 					Type:      event.ItemDelete,
@@ -455,6 +456,20 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 			if err := itemInteractor.handleRelatedReferenceFields(ctx, items.IDs(), sp); err != nil {
 				return err
 			}
+
+			// Flush threads for this page immediately.
+			if len(pageThreadIDs) > 0 {
+				if err := i.repos.Thread.RemoveByIDs(ctx, pageThreadIDs); err != nil {
+					return err
+				}
+			}
+
+			// Flush events for this page immediately.
+			if len(pageEvents) > 0 {
+				if _, err := createEvents(ctx, i.repos, i.gateways, pageEvents); err != nil {
+					return err
+				}
+			}
 		}
 
 		if pageInfo == nil || !pageInfo.HasNextPage {
@@ -463,23 +478,9 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 		cursor = pageInfo.EndCursor
 	}
 
-	// delete all items and metadata items for this model in one query
+	// Delete all items for this model in a single bulk query.
 	if err := i.repos.Item.RemoveByModel(ctx, m.ID()); err != nil {
 		return err
-	}
-
-	// delete threads that belonged to the deleted items
-	if len(allThreadIDs) > 0 {
-		if err := i.repos.Thread.RemoveByIDs(ctx, allThreadIDs); err != nil {
-			return err
-		}
-	}
-
-	// publish item.delete events
-	if len(allEvents) > 0 {
-		if _, err := createEvents(ctx, i.repos, i.gateways, allEvents); err != nil {
-			return err
-		}
 	}
 
 	return nil
