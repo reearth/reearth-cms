@@ -35,6 +35,20 @@ export default [
   {
     rules: {
       "react-refresh/only-export-components": "off",
+      // Newly enabled by eslint-config-reearth@0.4.0's React Compiler rules; downgraded to
+      // warnings pending a dedicated cleanup pass across existing components/tests.
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/immutability": "warn",
+      "react-hooks/preserve-manual-memoization": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/static-components": "warn",
+      "react-hooks/use-memo": "warn",
+    },
+  },
+  {
+    files: ["**/*.test.{js,ts,cjs,mjs,jsx,tsx}"],
+    rules: {
+      "vitest/no-conditional-expect": "warn",
     },
   },
 ];

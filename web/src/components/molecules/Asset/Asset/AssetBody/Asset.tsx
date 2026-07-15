@@ -13,8 +13,12 @@ import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import type { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
-import { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
+import type {
+  Asset,
+  AssetItem,
+  ViewerType,
+  CesiumViewerRef,
+} from "@reearth-cms/components/molecules/Asset/types";
 import {
   GeoViewer,
   Geo3dViewer,

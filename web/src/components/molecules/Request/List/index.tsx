@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
-import type { Key } from "react";
-import { ReactNode } from "react";
+import type { Key, ReactNode } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";

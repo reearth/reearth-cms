@@ -1,6 +1,6 @@
-import { Viewer as CesiumViewer } from "cesium";
-import { RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import type { Viewer as CesiumViewer } from "cesium";
+import type { RefObject } from "react";
+import type { CesiumComponentRef } from "resium";
 
 import type { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import type { SortDirection } from "@reearth-cms/components/molecules/View/types";

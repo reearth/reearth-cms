@@ -3,7 +3,7 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **47 upgraded so far, ~18 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **49 upgraded so far, ~16 remaining**  
 **File:** `web/package.json`
 
 ---
@@ -36,7 +36,7 @@ All 31 packages upgraded in `e5796c18a`.
 | ajv                      | 8.17.1  | 8.20.0       |
 | cesium                   | 1.129.0 | 1.143.0      |
 | dayjs                    | 1.11.13 | 1.11.21      |
-| eslint-config-reearth    | 0.3.8   | 0.3.8 ²      |
+| eslint-config-reearth    | 0.3.8   | 0.4.0 ²      |
 | eslint-plugin-playwright | 2.10.4  | 2.10.5       |
 | google-auth-library      | 10.5.0  | 10.9.0       |
 | i18next-cli              | 1.34.1  | 1.65.0       |
@@ -57,11 +57,11 @@ All 31 packages upgraded in `e5796c18a`.
 | zod-geojson              | 1.6.2   | 1.7.0        |
 
 > ¹ `@monaco-editor/react` landed at `4.8.0-rc.3` (target was `4.7.0`) — came in via the React 19 migration merge; rc version accepted.  
-> ² `eslint-config-reearth` intentionally held at `0.3.8`; `0.4.0` conflicts with ESLint 9.x constraints. Revisit together with the ESLint 10 upgrade (Group 2).
+> ² `eslint-config-reearth` was initially held at `0.3.8` (Group 1) since `0.4.0` requires ESLint ≥10. Bumped to `0.4.0` together with the ESLint 10 upgrade (Group 2) — see below.
 
 ---
 
-## Group 2: Medium Risk — ✅ 13/15 Done
+## Group 2: Medium Risk — ✅ 14/15 Done
 
 | Package                    | Was     | Now    | Status                |
 | -------------------------- | ------- | ------ | --------------------- |
@@ -71,7 +71,7 @@ All 31 packages upgraded in `e5796c18a`.
 | @types/node                | 25.2.3  | 26.1.0 | ✅ Done                |
 | @types/react-resizable     | 3.0.8   | 4.0.0  | ✅ Done                |
 | dotenv                     | 16.6.1  | 17.4.2 | ✅ Done                |
-| eslint                     | 9.39.2  | 10.6.0 | ⏳ Pending (next step) |
+| eslint                     | 9.39.2  | 10.6.0 | ✅ Done                |
 | eslint-plugin-storybook    | 10.2.8  | 10.4.6 | ⏳ Deferred → Group 3j |
 | graphql-ws                 | 5.16.1  | 6.0.8  | ✅ Done                |
 | html-react-parser          | 5.2.17  | 6.1.4  | ✅ Done                |
@@ -81,7 +81,11 @@ All 31 packages upgraded in `e5796c18a`.
 | react-svg                  | 16.1.34 | 17.2.4 | ✅ Done                |
 | ulid                       | 2.4.0   | 3.0.2  | ✅ Done                |
 
-**Remaining order:** `eslint` → (`eslint-plugin-storybook` with Group 3j)
+`eslint-config-reearth` was bumped `0.3.8` → `0.4.0` alongside `eslint` (see Group 1 footnote ²) — its peer dependency required ESLint ≥10. `0.4.0` bundles `eslint-plugin-react-hooks@7.1.1`, which enables new React Compiler lint rules (`react-hooks/set-state-in-effect`, `react-hooks/immutability`, `react-hooks/preserve-manual-memoization`, `react-hooks/refs`, `react-hooks/static-components`, `react-hooks/use-memo`) plus a stricter `vitest/no-conditional-expect`. These surfaced ~100 pre-existing findings across ~30 component files and 3 test files; rather than mass-fixing component behavior as part of a dependency bump, they were downgraded to `warn` in `web/eslint.config.js` (source untouched) so they stay visible without blocking CI. **Follow-up needed:** a dedicated cleanup pass to resolve these warnings file-by-file.
+
+`web/package.json` `engines.node` also tightened `>=20.11.0` → `>=20.19.0` to match ESLint 10's actual Node floor.
+
+**Remaining:** `eslint-plugin-storybook` deferred to Group 3j (blocked on the Storybook 10 upgrade itself).
 
 ---
 

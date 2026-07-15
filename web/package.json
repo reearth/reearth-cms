@@ -9,7 +9,7 @@
   "types": "./dist/reearth-cms.d.ts",
   "packageManager": "yarn@1.22.22",
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "start": "yarn && vite",
@@ -69,8 +69,8 @@
     "@vitest/coverage-v8": "4.1.10",
     "axios": "1.18.1",
     "dotenv": "17.4.2",
-    "eslint": "9.39.2",
-    "eslint-config-reearth": "0.3.8",
+    "eslint": "10.6.0",
+    "eslint-config-reearth": "0.4.0",
     "eslint-plugin-playwright": "2.10.5",
     "eslint-plugin-storybook": "10.2.8",
     "globals": "15.15.0",

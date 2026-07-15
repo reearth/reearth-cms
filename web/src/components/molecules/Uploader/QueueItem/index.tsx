@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { ReactNode, useMemo } from "react";
+import type { ReactNode } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";

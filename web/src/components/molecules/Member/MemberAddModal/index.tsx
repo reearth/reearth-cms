@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import React, { ReactNode, useCallback, useState, useEffect, useRef } from "react";
+import type { ReactNode } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import Button from "@reearth-cms/components/atoms/Button";

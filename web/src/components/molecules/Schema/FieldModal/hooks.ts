@@ -2,7 +2,8 @@ import type { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import {
   keyAutoFill,
   keyReplace,

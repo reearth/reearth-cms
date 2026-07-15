@@ -5,7 +5,7 @@ import type { CesiumMovementEvent, RootEventTarget } from "resium";
 import { Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
-import { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
+import type { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
 import type { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
 import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState, useRef, RefObject } from "react";
+import type { RefObject } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
