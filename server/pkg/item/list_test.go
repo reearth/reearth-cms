@@ -792,7 +792,7 @@ func TestVersionedList_Projects(t *testing.T) {
 
 	newVersioned := func(pid id.ProjectID) Versioned {
 		i := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).
-			Thread(id.NewThreadID().Ref()).MustBuild()
+			Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 		return version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i)
 	}
 
@@ -895,6 +895,7 @@ func TestVersionedList_ToMap(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId1, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	vi1 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i1)
 	fId2 := id.NewFieldID()
@@ -905,6 +906,7 @@ func TestVersionedList_ToMap(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId2, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	vi2 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i2)
 	vl := VersionedList{vi1, vi2}
