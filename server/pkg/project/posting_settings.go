@@ -21,7 +21,9 @@ func NewPostingSettings(enabled bool, allowedOrigins []string) (*PostingSettings
 		origins = []string{}
 	} else {
 		origins = make([]string, len(allowedOrigins))
-		copy(origins, allowedOrigins)
+		for i, o := range allowedOrigins {
+			origins[i] = strings.TrimSuffix(o, "/")
+		}
 	}
 	if err := ValidateOrigins(origins); err != nil {
 		return nil, err

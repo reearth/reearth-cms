@@ -37,7 +37,10 @@ const AllowedOrigins: React.FC<Props> = ({ origins, onChange }) => {
         return;
       }
 
-      onChange([...origins, added]);
+      const normalized = added.replace(/\/+$/, "");
+      if (origins.includes(normalized)) return;
+
+      onChange([...origins, normalized]);
     },
     [onChange, origins, t],
   );
