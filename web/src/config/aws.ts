@@ -12,7 +12,6 @@ export type CognitoParams = {
 };
 
 export function configureCognito(cognito: CognitoParams) {
-  const cognitoRegion = cognito.cognitoRegion;
   const cognitoUserPoolId = cognito.cognitoUserPoolId;
   const cognitoUserPoolWebClientId = cognito.cognitoUserPoolWebClientId;
   const cognitoOauthScope = cognito.cognitoOauthScope?.split(", ");
@@ -21,17 +20,21 @@ export function configureCognito(cognito: CognitoParams) {
   const cognitoOauthRedirectSignOut = cognito.cognitoOauthRedirectSignOut;
   const cognitoOauthResponseType = cognito.cognitoOauthResponseType;
 
+  // v6 infers the region from the user pool ID prefix; there is no top-level `region` field anymore.
   const config = {
     Auth: {
-      region: cognitoRegion,
-      userPoolId: cognitoUserPoolId,
-      userPoolWebClientId: cognitoUserPoolWebClientId,
-      oauth: {
-        scope: cognitoOauthScope,
-        domain: cognitoOauthDomain,
-        redirectSignIn: cognitoOauthRedirectSignIn,
-        redirectSignOut: cognitoOauthRedirectSignOut,
-        responseType: cognitoOauthResponseType,
+      Cognito: {
+        userPoolId: cognitoUserPoolId ?? "",
+        userPoolClientId: cognitoUserPoolWebClientId ?? "",
+        loginWith: {
+          oauth: {
+            scopes: cognitoOauthScope ?? [],
+            domain: cognitoOauthDomain ?? "",
+            redirectSignIn: cognitoOauthRedirectSignIn ? [cognitoOauthRedirectSignIn] : [],
+            redirectSignOut: cognitoOauthRedirectSignOut ? [cognitoOauthRedirectSignOut] : [],
+            responseType: (cognitoOauthResponseType === "token" ? "token" : "code") as "code" | "token",
+          },
+        },
       },
     },
   };

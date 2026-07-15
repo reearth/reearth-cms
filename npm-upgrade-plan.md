@@ -3,7 +3,7 @@
 **Generated:** 2026-07-08  
 **Last updated:** 2026-07-15  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **54 upgraded so far, ~11 remaining**  
+**Stats:** 65 outdated packages found out of ~120 total; **55 upgraded so far, ~10 remaining**  
 **File:** `web/package.json`
 
 ---
@@ -176,13 +176,18 @@ This repo's entire `firebase` usage is 3 files (`config/firebase.ts`, `auth/Fire
 
 **Caveat — not fixed, deliberately accepted:** `firebaseui@6.1.0` (npm `latest`, last published 2023-08-02) peers on `firebase: "^9.1.3 || ^10.0.0"` and has never been updated for firebase 11/12; it internally uses the legacy `firebase/compat/{app,auth}` API rather than the modular SDK. Whether its Email/Password sign-in widget (the only thing it's used for, in `FirebaseProvider.tsx`) still works correctly against the v11-era Auth SDK rewrite is **unverified** — no live Firebase project or browser available in this session, and there's no existing automated test coverage for `FirebaseAuth`/`FirebaseProvider` either. Blast radius is scoped to deployments with `REEARTH_CMS_AUTH_PROVIDER=firebase` (Auth0 is the default; Cognito is the other option), but `.env.example` documents it as a supported configuration. **Action required before trusting this in production:** manually test the firebaseui-driven sign-in flow end-to-end against a real Firebase project.
 
-### 3g. AWS Amplify 6 — ⏳ Pending
+### 3g. AWS Amplify 6 — ✅ DONE
 
-| Package     | Current | Target |
-| ----------- | ------- | ------ |
-| aws-amplify | 5.3.29  | 6.18.0 |
+| Package     | Was    | Now     |
+| ----------- | ------ | ------- |
+| aws-amplify | 5.3.29 | 6.18.0  |
 
-v6 uses modular imports (`import { signIn } from 'aws-amplify/auth'`) instead of v5's top-level pattern. High migration effort.
+Unlike the antd/Firebase/GraphQL subgroups, no ecosystem package pins to `aws-amplify` — this was a first-party code migration only, and smaller than "High migration effort" suggested: exactly 2 files, 5 call sites.
+
+- `web/src/config/aws.ts`: `Amplify.configure()`'s v5-flat config (`Auth: { region, userPoolId, userPoolWebClientId, oauth: {...} }`) rewritten to v6's nested shape (`Auth: { Cognito: { userPoolId, userPoolClientId, loginWith: { oauth: {...} } } }`), verified against `@aws-amplify/core`'s actual `.d.ts` types rather than assumed. `region` has no v6 equivalent (inferred from the user pool ID prefix now) — dropped from the config call; `redirectSignIn`/`redirectSignOut` became `string[]` instead of a single string.
+- `web/src/auth/CognitoAuth.ts`: `Auth.currentAuthenticatedUser/currentSession/federatedSignIn/signOut` (top-level `aws-amplify` import) replaced with `getCurrentUser`/`fetchAuthSession`/`signInWithRedirect`/`signOut` from `aws-amplify/auth`; token extraction changed from `session.getIdToken().getJwtToken()` to `session.tokens?.idToken?.toString()`.
+
+Same caveat as Firebase: no automated test coverage for the Cognito path, and unlike Firebase it isn't even documented in `.env.example` — verified via `yarn type`/`yarn lint`/`yarn test` (810 tests)/`yarn build` only; a live Cognito user pool would be needed to confirm the actual sign-in flow. Bundle size incidentally shrank (~149 kB) from the modular imports pulling in less than v5's monolithic `aws-amplify` import.
 
 ### 3h. GraphQL 17 ecosystem — 🚫 `graphql` blocked; `graphiql` ✅ done separately
 
