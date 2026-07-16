@@ -4,8 +4,53 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestList_Workspaces(t *testing.T) {
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	tests := []struct {
+		name string
+		list List
+		want accountdomain.WorkspaceIDList
+	}{
+		{
+			name: "nil list",
+			list: nil,
+			want: accountdomain.WorkspaceIDList{},
+		},
+		{
+			name: "empty list",
+			list: List{},
+			want: accountdomain.WorkspaceIDList{},
+		},
+		{
+			name: "single workspace deduplicated",
+			list: List{&Schema{workspace: wid1}, &Schema{workspace: wid1}},
+			want: accountdomain.WorkspaceIDList{wid1},
+		},
+		{
+			name: "multiple workspaces deduplicated",
+			list: List{&Schema{workspace: wid1}, &Schema{workspace: wid1}, &Schema{workspace: wid2}},
+			want: accountdomain.WorkspaceIDList{wid1, wid2},
+		},
+		{
+			name: "nil entries are skipped",
+			list: List{nil, &Schema{workspace: wid1}, nil, &Schema{workspace: wid2}},
+			want: accountdomain.WorkspaceIDList{wid1, wid2},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.list.Workspaces())
+		})
+	}
+}
 
 func TestList_SortByID(t *testing.T) {
 	id1 := NewID()

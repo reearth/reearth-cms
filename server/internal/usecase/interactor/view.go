@@ -8,8 +8,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 type View struct {
@@ -24,17 +27,48 @@ func NewView(r *repo.Container, g *gateway.Container) interfaces.View {
 	}
 }
 
+// checkPermissions enforces a Cerbos check on the view resource for the workspaces
+// owning the given projects. When no project is supplied there is nothing to
+// authorize (e.g. an empty result set), so the check is skipped.
+func (i View) checkPermissions(ctx context.Context, action rbac.Action, projectIDs id.ProjectIDList) error {
+	if len(projectIDs) == 0 {
+		return nil
+	}
+	projects, err := i.repos.Project.FindByIDs(ctx, projectIDs)
+	if err != nil {
+		return err
+	}
+	return doCheckPermission(ctx, i.gateways, rbac.ResourceView, action, lo.Uniq(projects.Workspaces())...)
+}
+
 func (i View) FindByID(ctx context.Context, ID view.ID, _ *usecase.Operator) (*view.View, error) {
-	return i.repos.View.FindByID(ctx, ID)
+	v, err := i.repos.View.FindByID(ctx, ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{v.Project()}); err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 func (i View) FindByIDs(ctx context.Context, IDs view.IDList, _ *usecase.Operator) (view.List, error) {
-	return i.repos.View.FindByIDs(ctx, IDs)
+	v, err := i.repos.View.FindByIDs(ctx, IDs)
+	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, v.Projects()); err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 func (i View) FindByModel(ctx context.Context, mID view.ModelID, _ *usecase.Operator) (view.List, error) {
 	v, err := i.repos.View.FindByModel(ctx, mID)
 	if err != nil {
+		return nil, err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionList, v.Projects()); err != nil {
 		return nil, err
 	}
 	return v.Ordered(), nil
@@ -48,6 +82,10 @@ func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *
 		func(ctx context.Context) (_ *view.View, err error) {
 			if !op.IsMaintainingProject(param.Project) {
 				return nil, interfaces.ErrOperationDenied
+			}
+
+			if err := i.checkPermissions(ctx, rbac.ActionCreate, id.ProjectIDList{param.Project}); err != nil {
+				return nil, err
 			}
 
 			m, err := i.repos.Model.FindByID(ctx, param.Model)
@@ -104,6 +142,10 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{v.Project()}); err != nil {
+				return nil, err
+			}
+
 			if param.Name != nil {
 				v.SetName(*param.Name)
 			}
@@ -136,6 +178,10 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{v[0].Project()}); err != nil {
+				return nil, err
+			}
+
 			views, err := i.repos.View.FindByModel(ctx, v[0].Model())
 			if err != nil {
 				return nil, err
@@ -161,6 +207,10 @@ func (i View) Delete(ctx context.Context, ID view.ID, op *usecase.Operator) erro
 			}
 			if !op.IsMaintainingProject(m.Project()) {
 				return interfaces.ErrOperationDenied
+			}
+
+			if err := i.checkPermissions(ctx, rbac.ActionDelete, id.ProjectIDList{m.Project()}); err != nil {
+				return err
 			}
 
 			views, err := i.repos.View.FindByModel(ctx, m.Model())

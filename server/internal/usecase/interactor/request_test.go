@@ -228,9 +228,10 @@ func TestRequest_FindByIDs(t *testing.T) {
 }
 
 func TestRequest_FindByProject(t *testing.T) {
-	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	pid := prj.ID()
 
 	req1 := request.New().
 		NewID().
@@ -317,7 +318,15 @@ func TestRequest_FindByProject(t *testing.T) {
 		{
 			name:           "mock error",
 			mockRequestErr: true,
-			wantErr:        errors.New("test"),
+			args: struct {
+				pid      id.ProjectID
+				filter   interfaces.RequestFilter
+				operator *usecase.Operator
+			}{
+				pid:      pid,
+				operator: op,
+			},
+			wantErr: errors.New("test"),
 		},
 	}
 
@@ -331,6 +340,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			if tc.mockRequestErr {
 				memory.SetRequestError(db.Request, tc.wantErr)
 			}
+			assert.NoError(t, db.Project.Save(ctx, prj))
 			for _, p := range tc.seeds {
 				err := db.Request.Save(ctx, p)
 				assert.NoError(t, err)
