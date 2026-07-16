@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 
-import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
@@ -78,8 +77,8 @@ const ViewsMenuItem: React.FC<Props> = ({
   return (
     <Wrapper>
       {view.name}
-      <StyledDropdown menu={{ items: dropdownItems }} trigger={["click"]}>
-        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_LG} />} />
+      <StyledDropdown trigger={["click"]} menu={{ items: dropdownItems }}>
+        <Icon icon="more" size={AntdToken.FONT.SIZE_LG} />
       </StyledDropdown>
     </Wrapper>
   );

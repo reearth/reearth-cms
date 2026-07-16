@@ -25,7 +25,7 @@ enum Corner {
 }
 
 type Props = {
-  constraintsRef: RefObject<HTMLDivElement | null>;
+  constraintsRef: RefObject<HTMLDivElement>;
 };
 
 function checkCorner(x: number, y: number): Corner {
