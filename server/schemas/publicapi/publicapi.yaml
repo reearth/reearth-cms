@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: Re:Earth CMS - Public API
+  description: Public API for accessing published data from Re:Earth CMS projects.
+  version: "1.0.0"
+
+servers:
+  - url: /api/p/{workspace}/{project}
+    description: Public API endpoint
+    variables:
+      workspace:
+        default: "{workspace}"
+        description: Workspace ID or alias
+      project:
+        default: "{project}"
+        description: Project ID or alias
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        Required only for Private projects.
+        Format: `Bearer <your_api_key>`
+
+  parameters:
+    modelParam:
+      name: model
+      in: path
+      required: true
+      description: Model ID or key
+      schema:
+        type: string
+
+    itemIdParam:
+      name: itemId
+      in: path
+      required: true
+      description: Item ID
+      schema:
+        type: string
+
+    assetIdParam:
+      name: assetId
+      in: path
+      required: true
+      description: Asset ID
+      schema:
+        type: string
+
+    pageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+
+    limitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        default: 50
+        maximum: 100
+
+    offsetParam:
+      name: offset
+      in: query
+      description: Number of items to skip (offset-based pagination)
+      schema:
+        type: integer
+
+    startCursorParam:
+      name: start_cursor
+      in: query
+      description: Cursor for cursor-based pagination
+      schema:
+        type: string
+
+    pageSizeParam:
+      name: page_size
+      in: query
+      description: Number of items per page (cursor-based pagination)
+      schema:
+        type: integer
+        default: 50
+        maximum: 100
+
+  schemas:
+    SuccessResponse:
+      type: object
+      description: |
+        Successful response. The structure varies per project and model.
+        Field keys are defined by the model schema in Re:Earth CMS.
+
+paths:
+  # --- Items ---
+
+  /{model}:
+    get:
+      summary: Get all items
+      description: Returns all published items from the specified model by default, and returns a paginated page response when pagination parameters are provided.
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Model not found or not public
+
+  /{model}.json:
+    get:
+      summary: Get all items (JSON)
+      description: |
+        Returns all published items from the specified model by default,
+        and returns a paginated page response when pagination parameters are provided (explicit JSON endpoint).
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Model not found or not public
+
+  /{model}.csv:
+    get:
+      summary: Get all items (CSV)
+      description: |
+        Returns all published items as CSV from the specified model by default,
+        and returns a paginated page response as CSV when pagination parameters are provided (CSV endpoint).
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            text/csv:
+              schema:
+                type: string
+        '404':
+          description: Model not found or not public
+
+  /{model}.geojson:
+    get:
+      summary: Get all items (GeoJSON)
+      description: |
+        Returns all published items from the specified model by default, and returns a paginated page response when pagination parameters are provided (GeoJSON endpoint).
+        Requires the model to have a Geometry type field defined.
+        Uses the first (bases on the order) Geometry type field in the model schema fields.
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/geo+json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: FeatureCollection
+                  features:
+                    type: array
+                    items:
+                      type: object
+        '404':
+          description: Model not found or not public
+
+  /{model}/{itemId}:
+    get:
+      summary: Get an item by ID
+      description: Retrieve a single published item from the specified model by its ID.
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/itemIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Item not found
+
+  # --- Schema ---
+
+  /{model}.schema.json:
+    get:
+      summary: Get model schema
+      description: Retrieve the JSON schema for the specified model.
+      tags:
+        - Schema
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Model not found
+
+  /{model}.metadata_schema.json:
+    get:
+      summary: Get model metadata schema
+      description: Retrieve the metadata JSON schema for the specified model.
+      tags:
+        - Schema
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Model not found
+
+  # --- Assets ---
+
+  /assets:
+    get:
+      summary: Get all assets
+      description: |
+        Returns all public assets in the project by default,
+        and returns a paginated page response when pagination parameters are provided.
+      tags:
+        - Assets
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: No assets found
+
+  /assets.json:
+    get:
+      summary: Get all assets (JSON)
+      description: |
+        Returns all public assets in the project by default,
+        and returns a paginated page response when pagination parameters are provided (explicit JSON endpoint).
+      tags:
+        - Assets
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: No assets found
+
+  /assets/{assetId}:
+    get:
+      summary: Get an asset by ID
+      description: |
+        Retrieve a single public asset by its ID.
+      tags:
+        - Assets
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/assetIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Asset not found
+
+  # --- OpenAPI Schema ---
+
+  /:
+    get:
+      summary: Get OpenAPI schema
+      description: |
+        Retrieve the OpenAPI schema for this project. Generated dynamically per project.
+      tags:
+        - Schema
+      responses:
+        '200':
+          description: OpenAPI schema
+          content:
+            application/json:
+              schema:
+                type: object
