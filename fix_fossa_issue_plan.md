@@ -6,7 +6,15 @@ FOSSA is flagging licensing violations and security vulnerabilities in the `reea
 
 ---
 
-## Issues to Fix
+## Status (2026-07-16, per `report-3.csv`)
+
+All items below are **resolved** — `codemirror-graphql`, `signedsource`, `highlight.js`, `@inquirer/prompts`, and `neverpanic` no longer appear in the latest FOSSA export, and all npm rows have a non-empty declared license. Vuln-flagged direct deps (`axios`, `storybook`, `vite`, `react-router-dom`, `@scalar/api-reference-react`) are all past the versions listed below.
+
+**Remaining: `ol` — `gpl-2.0-plus-geoserver`.** Now at `10.9.0` (bumped past the `10.x` target below), but the FOSSA scan (still showing `10.8.0`, pre-dating the bump) continues to classify it as `gpl-2.0-plus-geoserver` despite the package being BSD-2-Clause. This is a scanner classification tied to source content inside the package, not a version issue — upgrading will not clear it. **No further code change is possible here.** Resolution is a FOSSA dashboard action: mark as false positive / add a policy exception, the same path already used for the server-side Go exceptions in `.fossa.yml` (commit `c8a6c695`). Confirm on the next rescan whether `10.9.0` clears the flag on its own before filing the exception.
+
+---
+
+## Issues to Fix (historical — all resolved except `ol`, see Status above)
 
 ### Licensing Violations — Denied (must fix)
 
