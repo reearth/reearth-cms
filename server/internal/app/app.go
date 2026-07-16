@@ -31,6 +31,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	// basic middleware
 	logger := log.New()
 	e.Logger = log.NewSlogLogger(logger)
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(
 		log.AccessLoggerV5(logger),
 		middleware.Recover(),

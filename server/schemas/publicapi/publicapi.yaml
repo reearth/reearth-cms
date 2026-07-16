@@ -18,12 +18,12 @@ servers:
 components:
   securitySchemes:
     apiKey:
-      type: apiKey
-      in: header
-      name: Authorization
+      type: http
+      scheme: bearer
       description: |
-        Required only for Private projects.
-        Format: `Bearer <your_api_key>`
+        API key authentication. Required only for Private projects.
+        Send the API key as a bearer token: `Authorization: Bearer <your_api_key>`.
+        An invalid key results in a 401 response.
 
   parameters:
     modelParam:
@@ -53,14 +53,21 @@ components:
     pageParam:
       name: page
       in: query
-      description: Page number for pagination
+      description: |
+        Page number for page-based pagination. Values of 0 or less are treated as 1.
+        Ignored if `start_cursor` or `offset` is also provided
+        (pagination mode precedence: `start_cursor` > `offset` > `page`).
       schema:
         type: integer
 
     limitParam:
       name: limit
       in: query
-      description: Number of items per page
+      description: |
+        Number of items per page. Applies to all pagination modes (page, offset, and cursor).
+        Also accepted under the aliases `perPage`, `per_page`, `page_size`, and `pageSize`;
+        if several are provided, they are checked in that order of precedence, starting with `limit`.
+        Values above 100 are clamped to 100; values of 0 or less fall back to the default of 50.
       schema:
         type: integer
         default: 50
@@ -69,25 +76,20 @@ components:
     offsetParam:
       name: offset
       in: query
-      description: Number of items to skip (offset-based pagination)
+      description: |
+        Number of items to skip (offset-based pagination).
+        Takes precedence over `page`; ignored if `start_cursor` is also provided.
       schema:
         type: integer
 
     startCursorParam:
       name: start_cursor
       in: query
-      description: Cursor for cursor-based pagination
+      description: |
+        Cursor for cursor-based pagination.
+        Takes precedence over `offset` and `page` when provided.
       schema:
         type: string
-
-    pageSizeParam:
-      name: page_size
-      in: query
-      description: Number of items per page (cursor-based pagination)
-      schema:
-        type: integer
-        default: 50
-        maximum: 100
 
   schemas:
     SuccessResponse:
@@ -114,7 +116,6 @@ paths:
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/startCursorParam'
-        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Successful response
@@ -142,7 +143,6 @@ paths:
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/startCursorParam'
-        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Successful response
@@ -170,7 +170,6 @@ paths:
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/startCursorParam'
-        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Successful response
@@ -187,7 +186,7 @@ paths:
       description: |
         Returns all published items from the specified model by default, and returns a paginated page response when pagination parameters are provided (GeoJSON endpoint).
         Requires the model to have a Geometry type field defined.
-        Uses the first (bases on the order) Geometry type field in the model schema fields.
+        Uses the first (based on the order) Geometry type field in the model schema fields.
       tags:
         - Items
       security:
@@ -199,7 +198,6 @@ paths:
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/startCursorParam'
-        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Successful response
@@ -302,7 +300,6 @@ paths:
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/startCursorParam'
-        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Successful response
@@ -329,7 +326,6 @@ paths:
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/startCursorParam'
-        - $ref: '#/components/parameters/pageSizeParam'
       responses:
         '200':
           description: Successful response
@@ -369,6 +365,7 @@ paths:
       summary: Get OpenAPI schema
       description: |
         Retrieve the OpenAPI schema for this project. Generated dynamically per project.
+        Served at the base project URL (`/api/p/{workspace}/{project}`).
       tags:
         - Schema
       responses:

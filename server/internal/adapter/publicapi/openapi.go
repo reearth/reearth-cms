@@ -79,9 +79,8 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 
 	// Add security schemes for API keys
 	spec.Components.SecuritySchemes["apiKey"] = map[string]interface{}{
-		"type": "apiKey",
-		"in":   "header",
-		"name": "Authorization",
+		"type":   "http",
+		"scheme": "bearer",
 	}
 
 	// Generate paths for each public model
