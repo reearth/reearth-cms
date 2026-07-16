@@ -44,7 +44,9 @@ const BasicInnerContents: React.FC<Props> = ({
   );
 };
 
-const PaddedContent = styled(Content)<{ isFullHeight: boolean }>`
+const PaddedContent = styled(Content, {
+  shouldForwardProp: prop => prop !== "isFullHeight",
+})<{ isFullHeight: boolean }>`
   display: flex;
   flex-direction: column;
   padding: ${AntdToken.SPACING.BASE}px;

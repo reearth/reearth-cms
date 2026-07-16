@@ -558,7 +558,7 @@ const ContentTable: React.FC<Props> = ({
   const sharedProps = useMemo(
     () => ({
       menu: { items },
-      dropdownRender: (menu: React.ReactNode) => (
+      popupRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
@@ -682,7 +682,7 @@ const ContentTable: React.FC<Props> = ({
         onOpenChange={handleOptionsOpenChange}
         key="control">
         <Dropdown
-          dropdownRender={() =>
+          popupRender={() =>
             selectedFilter && (
               <DropdownRender
                 filter={selectedFilter}
