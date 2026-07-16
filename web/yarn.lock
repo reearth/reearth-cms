@@ -456,28 +456,28 @@
   resolved "https://registry.yarnpkg.com/@asamuzakjp/nwsapi/-/nwsapi-2.3.9.tgz#ad5549322dfe9d153d4b4dd6f7ff2ae234b06e24"
   integrity sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==
 
-"@auth0/auth0-auth-js@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-auth-js/-/auth0-auth-js-1.4.0.tgz#3f0f7bf91e93f9b81ab7b9506544e71cfe611a29"
-  integrity sha512-ShA7KT4KvcBEtxsXZTcrmoNxai5q1JXhB2aEBFnZD1L6LNLzzmiUWiFTtGMsaaITCylr8TJ/onEQk6XZmUHXbg==
+"@auth0/auth0-auth-js@^1.10.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@auth0/auth0-auth-js/-/auth0-auth-js-1.12.0.tgz#ca46ae6fcd23f6dcd62b8678693f41b957d9b63f"
+  integrity sha512-94r29UxcFEdroO74TUqu5KYy5hSKa6mCXY8lu4hADiyES8qthlSCwaCPEW1adpM5hdheltQ7s1o9TsK8Btyjvg==
   dependencies:
     jose "^6.0.8"
     openid-client "^6.8.0"
 
-"@auth0/auth0-react@2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-react/-/auth0-react-2.2.4.tgz#7f21751a219d4e0e019141819f00e76e436176dd"
-  integrity sha512-l29PQC0WdgkCoOc6WeMAY26gsy/yXJICW0jHfj0nz8rZZphYKrLNqTRWFFCMJY+sagza9tSgB1kG/UvQYgGh9A==
+"@auth0/auth0-react@2.20.0":
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/@auth0/auth0-react/-/auth0-react-2.20.0.tgz#4142ffa4ec8288748fe3e33cba95ace4997da875"
+  integrity sha512-Ic08VdYxt6cUDFwiJBehcuBGkr7DOWD9CrIkDL/LRmgvBX/PU9CgfON7QEsflq7GqXNRJh/+f8Vu0T7hdL8p1Q==
   dependencies:
-    "@auth0/auth0-spa-js" "^2.1.3"
+    "@auth0/auth0-spa-js" "^2.22.0"
 
-"@auth0/auth0-spa-js@^2.1.3":
-  version "2.15.0"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-2.15.0.tgz#cc6243aaa51b206166972a2de5d861941b6fe0b9"
-  integrity sha512-cXv1Isyy4JEc+GxesQPFj3SEbDSnCVQTGiardY9WLSoYTsMMU585Kgm9TJFPJO4dDq3wi+DSJoy3IUcB3rr9nA==
+"@auth0/auth0-spa-js@^2.22.0":
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-2.23.0.tgz#bac6aa1c25f746c4cf42b765d324f545df5be5aa"
+  integrity sha512-fRiPlTIMLahes6eXq5C4CF8zFi9vLxUtii8e7CESmzWBJGSa3jRrnjgQVAPSaox2x+CwzTFcJbt4mR+UiVMk1Q==
   dependencies:
-    "@auth0/auth0-auth-js" "^1.4.0"
-    browser-tabs-lock "^1.2.15"
+    "@auth0/auth0-auth-js" "^1.10.0"
+    browser-tabs-lock "^1.3.0"
     dpop "^2.1.1"
     es-cookie "~1.3.2"
 
@@ -10276,7 +10276,7 @@ browser-assert@^1.2.1:
   resolved "https://registry.yarnpkg.com/browser-assert/-/browser-assert-1.2.1.tgz#9aaa5a2a8c74685c2ae05bfe46efd606f068c200"
   integrity sha512-nfulgvOR6S4gt9UKCeGJOuSGBPGiFT6oQ/2UBnvTY/5aQ1PnksW72fhZkM30DzoRRv2WpwZf1vHHEr3mtuXIWQ==
 
-browser-tabs-lock@^1.2.15:
+browser-tabs-lock@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/browser-tabs-lock/-/browser-tabs-lock-1.3.0.tgz#4c0381b47b55cd29feaaea5846b7bb97aac76053"
   integrity sha512-g6nHaobTiT0eMZ7jh16YpD2kcjAp+PInbiVq3M1x6KKaEIVhT4v9oURNIpZLOZ3LQbQ3XYfNhMAb/9hzNLIWrw==
@@ -17605,12 +17605,13 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-markdown@9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/react-markdown/-/react-markdown-9.0.1.tgz#c05ddbff67fd3b3f839f8c648e6fb35d022397d1"
-  integrity sha512-186Gw/vF1uRkydbsOIkcGXw7aHq0sZOCRFFjGrr7b9+nVZg4UfA4enXCaxm4fUzecU38sWfrNDitGhshuU7rdg==
+react-markdown@10.1.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/react-markdown/-/react-markdown-10.1.0.tgz#e22bc20faddbc07605c15284255653c0f3bad5ca"
+  integrity sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==
   dependencies:
     "@types/hast" "^3.0.0"
+    "@types/mdast" "^4.0.0"
     devlop "^1.0.0"
     hast-util-to-jsx-runtime "^2.0.0"
     html-url-attributes "^3.0.0"
