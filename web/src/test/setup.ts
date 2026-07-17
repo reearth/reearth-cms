@@ -6,6 +6,8 @@ import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
 import { beforeAll, beforeEach, afterEach, expect } from "vitest";
 
+import Modal from "@reearth-cms/components/atoms/Modal";
+
 declare global {
   namespace Vi {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any , @typescript-eslint/consistent-type-definitions
@@ -81,8 +83,12 @@ beforeEach(() => {
 
 afterEach(() => {
   _animationObserver?.disconnect();
+  // Modal.confirm/info/etc. mount a standalone React root outside RTL's render
+  // tree, so cleanup() never unmounts it. Force-unmount here (while window/document
+  // are still alive) instead of just wiping the DOM out from under a live root,
+  // which left pending scheduler work that threw "window is not defined" once the
+  // whole suite tore down (https://github.com/reearth/reearth-cms/actions/runs/29556580184).
+  Modal.destroyAll();
   cleanup();
-  // Purge any orphaned antd portal containers (from Modal.confirm/info/etc.) that
-  // use standalone React roots and are not removed by RTL's cleanup().
   document.body.innerHTML = "";
 });
