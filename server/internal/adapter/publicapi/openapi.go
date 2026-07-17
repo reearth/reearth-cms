@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -32,7 +33,7 @@ type OpenAPIComponents struct {
 	SecuritySchemes map[string]interface{} `json:"securitySchemes"`
 }
 
-// GetOpenAPISchema [WIP] generates the OpenAPI schema for the public API of the given workspace and project.
+// GetOpenAPISchema generates the OpenAPI schema for the public API of the given workspace and project.
 func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias string) (*OpenAPISpec, error) {
 	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, "")
 	if err != nil {
@@ -59,16 +60,16 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		},
 	}
 
-	// if project is private, return empty spec
+	// Endpoints of a private project require an API key; public projects are open
 	a11y := wpm.Project.Accessibility()
-	if a11y != nil && a11y.Visibility() == project.VisibilityPrivate {
-		return spec, nil
-	}
+	isPrivate := a11y != nil && a11y.Visibility() == project.VisibilityPrivate
+	keyId := adapter.APIKeyId(ctx)
 
-	// if no public models and no public assets, return empty spec
-	publication := a11y.Publication()
-	if publication != nil && (len(publication.PublicModels()) == 0 && !publication.PublicAssets()) {
-		return spec, nil
+	if isPrivate {
+		spec.Components.SecuritySchemes["apiKey"] = map[string]interface{}{
+			"type":   "http",
+			"scheme": "bearer",
+		}
 	}
 
 	// Get all models
@@ -77,15 +78,9 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		return nil, err
 	}
 
-	// Add security schemes for API keys
-	spec.Components.SecuritySchemes["apiKey"] = map[string]interface{}{
-		"type":   "http",
-		"scheme": "bearer",
-	}
-
-	// Generate paths for each public model
+	// Generate paths for each model accessible to the caller
 	for _, m := range models {
-		if !wpm.Project.Accessibility().IsModelPublic(m.ID(), nil) {
+		if !a11y.IsModelPublic(m.ID(), keyId) {
 			continue
 		}
 
@@ -129,11 +124,6 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 					},
 					"404": map[string]interface{}{
 						"description": "Model not found",
-					},
-				},
-				"security": []map[string][]string{
-					{
-						"apiKey": {},
 					},
 				},
 			},
@@ -266,6 +256,27 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 					},
 				},
 			},
+		}
+	}
+
+	// Private projects require an API key on every endpoint
+	if isPrivate {
+		security := []map[string][]string{{"apiKey": {}}}
+		for _, pathItem := range spec.Paths {
+			pi, ok := pathItem.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			op, ok := pi["get"].(map[string]interface{})
+			if !ok {
+				continue
+			}
+			op["security"] = security
+			if responses, ok := op["responses"].(map[string]interface{}); ok {
+				responses["401"] = map[string]interface{}{
+					"description": "API key is invalid",
+				}
+			}
 		}
 	}
 

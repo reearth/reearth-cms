@@ -98,6 +98,10 @@ components:
         Successful response. The structure varies per project and model.
         Field keys are defined by the model schema in Re:Earth CMS.
 
+  responses:
+    UnauthorizedError:
+      description: API key is invalid
+
 paths:
   # --- Items ---
 
@@ -123,6 +127,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Model not found or not public
 
@@ -150,6 +156,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Model not found or not public
 
@@ -177,6 +185,8 @@ paths:
             text/csv:
               schema:
                 type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Model not found or not public
 
@@ -213,6 +223,8 @@ paths:
                     type: array
                     items:
                       type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Model not found or not public
 
@@ -235,6 +247,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Item not found
 
@@ -258,6 +272,8 @@ paths:
             application/json:
               schema:
                 type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Model not found
 
@@ -279,6 +295,8 @@ paths:
             application/json:
               schema:
                 type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Model not found
 
@@ -307,6 +325,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: No assets found
 
@@ -333,6 +353,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: No assets found
 
@@ -355,6 +377,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Asset not found
 
