@@ -1,9 +1,9 @@
 # npm Upgrade Plan
 
 **Generated:** 2026-07-08  
-**Last updated:** 2026-07-15  
+**Last updated:** 2026-07-17  
 **Source:** `yarn outdated` in `web/`  
-**Stats:** 65 outdated packages found out of ~120 total; **75 upgraded so far, ~5 remaining** (blocked: antd 6 ecosystem, graphql core; also newly found: `globals` major, untriaged)  
+**Stats:** 65 outdated packages found out of ~120 total; **79 upgraded so far, ~6 remaining** (blocked: antd 6 ecosystem, graphql core, typescript 7; also newly found: `globals` major, untriaged)  
 **File:** `web/package.json`
 
 ---
@@ -58,6 +58,21 @@ All 31 packages upgraded in `e5796c18a`.
 
 > ¹ `@monaco-editor/react` landed at `4.8.0-rc.3` (target was `4.7.0`) — came in via the React 19 migration merge; rc version accepted.  
 > ² `eslint-config-reearth` was initially held at `0.3.8` (Group 1) since `0.4.0` requires ESLint ≥10. Bumped to `0.4.0` together with the ESLint 10 upgrade (Group 2) — see below.
+
+---
+
+## Group 1c: Low Risk — third pass — ✅ COMPLETE
+
+A follow-up `yarn outdated` pass on 2026-07-17 surfaced 10 outdated packages. 6 are deliberately held back (unchanged from prior blockers): `antd`/`@ant-design/cssinjs`/`@ant-design/icons` (Group 3e, blocked on `@ant-design/pro-components` v6 support), `graphql` (Group 3h, blocked on `graphql-sse`/`apollo-upload-client`/`near-operation-file-preset`), `globals` (untriaged two-major jump), and `typescript` (blocked on `typescript-eslint` not yet supporting TS7). The remaining 4 were same-major minor/patch bumps, batch-upgraded:
+
+| Package                     | Was    | Now    |
+| ---------------------------- | ------ | ------ |
+| @scalar/api-reference-react | 0.9.56 | 0.9.58 |
+| html-react-parser           | 6.1.4  | 6.1.5  |
+| i18next-cli                 | 1.66.0 | 1.66.2 |
+| vite                         | 8.1.4  | 8.1.5  |
+
+`yarn install`/`yarn type`/`yarn lint` (0 errors, same 101 pre-existing warnings)/`yarn test` (810 tests)/`yarn build` all pass unchanged.
 
 ---
 
