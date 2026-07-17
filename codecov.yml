@@ -2,6 +2,16 @@ comment:
   layout: "reach, diff, flags, files"
   behavior: default
   require_changes: false
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: server
+      paths:
+        - server/**
+    - name: web
+      paths:
+        - web/**
 ignore:
   - server/**/*_gen.go
   - server/**/*_test.go
