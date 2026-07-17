@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
+import MonacoEditorImport, { OnMount, BeforeMount, EditorProps } from "@monaco-editor/react";
 import Ajv from "ajv";
 import axios from "axios";
-import { json, editor, Range } from "monaco-editor";
+import { editor, Range } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import { defaults as defaultControls, Attribution } from "ol/control";
@@ -15,7 +15,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
 import { fromLonLat } from "ol/proj";
 import { Vector as VectorSource, OSM } from "ol/source";
 import { Icon as IconStyle, Fill, Stroke, Style } from "ol/style";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, ComponentType } from "react";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -34,6 +34,8 @@ import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import schema from "./schema";
+
+const MonacoEditor = MonacoEditorImport as unknown as ComponentType<EditorProps>;
 
 const { Text } = Typography;
 
@@ -149,8 +151,8 @@ const GeometryItem: React.FC<Props> = ({
     [disabled, isEditor, t],
   );
 
-  const handleEditorWillMount: BeforeMount = useCallback(() => {
-    json.jsonDefaults.setDiagnosticsOptions({
+  const handleEditorWillMount: BeforeMount = useCallback(monaco => {
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
       schemas: [
         {
