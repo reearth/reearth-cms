@@ -4,7 +4,8 @@ import type { EmotionMatchers } from "@emotion/jest";
 import "@ant-design/v5-patch-for-react-19";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
-import { beforeAll, beforeEach, afterEach, expect } from "vitest";
+import destroyFns from "antd/es/modal/destroyFns";
+import { beforeAll, beforeEach, afterEach, expect, vi } from "vitest";
 
 import Modal from "@reearth-cms/components/atoms/Modal";
 
@@ -81,14 +82,32 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => {
-  _animationObserver?.disconnect();
+afterEach(async () => {
   // Modal.confirm/info/etc. mount a standalone React root outside RTL's render
-  // tree, so cleanup() never unmounts it. Force-unmount here (while window/document
-  // are still alive) instead of just wiping the DOM out from under a live root,
-  // which left pending scheduler work that threw "window is not defined" once the
-  // whole suite tore down (https://github.com/reearth/reearth-cms/actions/runs/29556580184).
+  // tree, so cleanup() never unmounts it. destroyAll() only *schedules* an async
+  // close (rc-motion waits for a real animationend/transitionend, synthesized by
+  // the observer above) - if one was still open, wait for the resulting unmount
+  // to actually finish before disconnecting the observer or wiping the DOM, or
+  // the pending scheduler work throws "window is not defined" once this test
+  // file's jsdom env tears down
+  // (https://github.com/reearth/reearth-cms/actions/runs/29556580184,
+  // https://github.com/reearth/reearth-cms/actions/runs/29558591266).
+  // Gated on destroyFns (antd's own pending-instance list, popped synchronously
+  // by destroyAll()) so declarative `<Modal open>` usages elsewhere - which never
+  // populate destroyFns and stay mounted until cleanup() - aren't blocked on.
+  const hadOpenConfirmModal = destroyFns.length > 0;
   Modal.destroyAll();
+  if (hadOpenConfirmModal) {
+    await vi.waitFor(() => {
+      if (document.querySelector(".ant-modal-root")) throw new Error("modal still mounted");
+    });
+  }
+  // React's Node/jsdom scheduler shim defers commits via setImmediate (see the
+  // "Immediate.performWorkUntilDeadline"/"processImmediate" frames in the errors
+  // linked above) - flush one tick so any commit still queued from this test's
+  // interactions runs now, not after this file's window/document are gone.
+  await new Promise(resolve => setImmediate(resolve));
+  _animationObserver?.disconnect();
   cleanup();
   document.body.innerHTML = "";
 });

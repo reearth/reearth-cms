@@ -1,6 +1,6 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
@@ -68,15 +68,6 @@ vi.mock("./useJobState", () => ({
 }));
 
 describe("Uploader", () => {
-  beforeEach(() => {
-    document.body.innerHTML = "";
-  });
-
-  afterEach(() => {
-    cleanup();
-    document.body.innerHTML = "";
-  });
-
   describe("Test Uploader component", () => {
     test("Shows uploading title and queue item", () => {
       renderWithUploaderProvider({
