@@ -66,6 +66,7 @@ export default defineConfig({
         "src/**/*.stories.tsx",
         "src/gql/graphql-client-api.tsx",
         "src/test/**/*",
+        "src/auth/CognitoAuth.ts",
       ],
       reporter: ["text", "json", "lcov"],
     },
