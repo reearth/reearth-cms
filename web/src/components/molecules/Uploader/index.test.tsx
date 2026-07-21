@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -164,10 +164,9 @@ describe("Uploader", () => {
         const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
         fireEvent.click(closeIcon);
 
-        const dialog = await screen.findByRole("dialog");
-        expect(within(dialog).getAllByText(t("Cancel upload?")).length).toBeGreaterThan(0);
+        expect(await screen.findByText(t("Cancel upload?"))).toBeInTheDocument();
         expect(
-          within(dialog).getByText(
+          screen.getByText(
             t("Your file hasn't finished uploading yet. Are you sure you want to cancel upload?"),
           ),
         ).toBeInTheDocument();

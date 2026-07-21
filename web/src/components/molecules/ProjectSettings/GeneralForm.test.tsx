@@ -116,7 +116,7 @@ describe("General form", () => {
     await user.type(screen.getByLabelText("Description"), "new");
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
-    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
+    expect(screen.getByLabelText("loading")).toBeVisible();
     expect(saveButton).toBeDisabled();
     expect(onProjectUpdateMock).toHaveBeenCalledWith(
       `${name}new`,

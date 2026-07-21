@@ -44,7 +44,7 @@ describe("Member add modal", () => {
 
     await user.type(searchInput, "st");
     await expect.poll(() => onUserSearchMock).toHaveBeenCalledWith("test");
-    await expect.poll(() => screen.getByText(member.email)).toBeVisible();
+    expect(screen.getByText(member.email)).toBeVisible();
 
     await user.click(screen.getByText(member.name));
     expect(screen.getByText(member.name)).toBeVisible();

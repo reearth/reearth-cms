@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import "@ant-design/v5-patch-for-react-19";
-
 import { type EmotionMatchers, matchers as emotionMatchers } from "@emotion/jest";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";

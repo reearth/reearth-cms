@@ -65,7 +65,7 @@ describe("Webhook card", () => {
     );
 
     await user.click(screen.getByRole("switch"));
-    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
+    expect(screen.getByLabelText("loading")).toBeVisible();
     webhook.active = true;
     expect(onWebhookUpdateMock).toHaveBeenCalledWith(webhook);
 
@@ -109,7 +109,7 @@ describe("Webhook card", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "delete" }));
-    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
+    expect(screen.getByLabelText("loading")).toBeVisible();
     expect(onWebhookDeleteMock).toHaveBeenCalledWith(id);
     await expect.poll(() => screen.queryByLabelText("loading")).not.toBeInTheDocument();
   });

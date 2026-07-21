@@ -1,17 +1,14 @@
 import styled from "@emotion/styled";
-import { ReactNode } from "react";
+import { Viewer as CesiumViewer } from "cesium";
+import { ReactNode, RefObject } from "react";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
-import {
-  Asset,
-  AssetItem,
-  CesiumViewerRef,
-  ViewerType,
-} from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -22,7 +19,7 @@ type Props = {
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: CesiumViewerRef;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;
