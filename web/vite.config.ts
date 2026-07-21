@@ -67,6 +67,8 @@ export default defineConfig({
         "src/gql/graphql-client-api.tsx",
         "src/test/**/*",
         "src/auth/CognitoAuth.ts",
+        // Bootstrap/wiring only (router, providers); requires mocking the entire app shell to test.
+        "src/App.tsx",
       ],
       reporter: ["text", "json", "lcov"],
     },

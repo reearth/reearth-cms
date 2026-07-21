@@ -30,7 +30,7 @@ const colors = [
 
 type TagColor = (typeof colors)[number];
 
-type Props = {
+export type Props = {
   value?: { id?: string; name: string; color: TagColor }[];
   onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
   errorIndexes: Set<number>;
