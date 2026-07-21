@@ -2,7 +2,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import {
   keyAutoFill,
   keyReplace,
@@ -259,7 +259,13 @@ export default (
         form
           .validateFields()
           .then(() => setButtonDisabled(changedKeys.current.size === 0))
-          .catch(() => setButtonDisabled(true));
+          .catch((e: ValidateErrorEntity) => {
+            if (e.errorFields.length === 0) {
+              setButtonDisabled(changedKeys.current.size === 0);
+            } else {
+              setButtonDisabled(true);
+            }
+          });
       }
     } else {
       setButtonDisabled(true);
