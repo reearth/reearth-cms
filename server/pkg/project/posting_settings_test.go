@@ -116,6 +116,18 @@ func TestNewPostingSettings(t *testing.T) {
 			allowedOrigins: []string{"*"},
 			wantErr:        true,
 		},
+		{
+			name:           "trailing slash is stripped before validation and storage",
+			enabled:        true,
+			allowedOrigins: []string{"https://example.com/"},
+			wantOrigins:    []string{"https://example.com"},
+		},
+		{
+			name:           "trailing slash stripped alongside untouched origins",
+			enabled:        true,
+			allowedOrigins: []string{"https://a.com/", "https://b.com"},
+			wantOrigins:    []string{"https://a.com", "https://b.com"},
+		},
 	}
 
 	for _, tt := range tests {

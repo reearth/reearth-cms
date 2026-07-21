@@ -39,6 +39,18 @@ describe("AllowedOrigins", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  test("strips a trailing slash before adding the origin", async () => {
+    const { onChange } = renderComponent({ origins: [] });
+    await user.type(screen.getByRole("combobox"), "https://example.com/,");
+    expect(onChange).toHaveBeenCalledWith(["https://example.com"]);
+  });
+
+  test("does not add a duplicate when the normalized origin already exists", async () => {
+    const { onChange } = renderComponent({ origins: ["https://example.com"] });
+    await user.type(screen.getByRole("combobox"), "https://example.com/,");
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test("clears all origins, and the clear button is disabled when empty", async () => {
     const { onChange, rerender } = renderComponent({ origins: ["a.com"] });
     await user.click(screen.getByRole("button", { name: t("Clear all") }));
