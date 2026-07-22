@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -721,7 +722,8 @@ func TestCollection_BulkUpdateRef(t *testing.T) {
 			c := col.Client().Client()
 
 			if len(tt.setupDocs) > 0 {
-				_, _ = c.InsertMany(ctx, tt.setupDocs)
+				_, err := c.InsertMany(ctx, tt.setupDocs)
+				require.NoError(t, err)
 			}
 
 			assert.NoError(t, col.BulkUpdateRef(ctx, tt.ids, tt.ref, tt.dest))

@@ -976,17 +976,12 @@ func (i Item) batchReferencedItems(ctx context.Context, items item.VersionedList
 	}
 
 	byID := refs.ToMap()
-
-	result := make(map[id.ItemID]item.VersionedList, len(list))
-	for _, itm := range list {
-		var refList item.VersionedList
-		for _, rid := range itm.RefItemsIDs(sp) {
-			if r, ok := byID[rid]; ok {
-				refList = append(refList, r)
-			}
-		}
-		result[itm.ID()] = refList
-	}
+	result := lo.SliceToMap(list, func(itm *item.Item) (id.ItemID, item.VersionedList) {
+		return itm.ID(), lo.FilterMap(itm.RefItemsIDs(sp), func(rid id.ItemID, _ int) (item.Versioned, bool) {
+			r, ok := byID[rid]
+			return r, ok
+		})
+	})
 	return result, nil
 }
 
