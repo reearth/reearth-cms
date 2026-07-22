@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	repotest "github.com/reearth/reearth-cms/server/internal/usecase/repo/test"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -19,9 +20,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// The interface-level tests for the item repository live in the shared suite
-// (internal/usecase/repo/test) and run through TestItemRepo in
-// repo_suite_test.go. This file only contains memory-specific tests.
+// Entry points running the shared repository interface test suites
+// (internal/usecase/repo/test) against the in-memory implementations.
+func TestItemRepo(t *testing.T) {
+	repotest.TestItemRepo(t, func(*testing.T) repo.Item {
+		return NewItem()
+	})
+}
 
 // TestItem_MemorySpecific_RemoveSemantics tests the error values the memory
 // implementation returns when removing missing or non-writable items.
