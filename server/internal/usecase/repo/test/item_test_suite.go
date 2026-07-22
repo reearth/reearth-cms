@@ -6,6 +6,7 @@ package test
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -28,8 +29,7 @@ import (
 type itemFactory = func(t *testing.T) repo.Item
 
 // TestItemRepo runs the interface contract tests for repo.Item against the
-// implementation produced by newRepo. Each interface method has its own
-// test function below.
+// implementation produced by newRepo.
 func TestItemRepo(t *testing.T, newRepo itemFactory) {
 	t.Run("FindByID", func(t *testing.T) { testItemFindByID(t, newRepo) })
 	t.Run("FindByIDs", func(t *testing.T) { testItemFindByIDs(t, newRepo) })
@@ -45,17 +45,12 @@ func TestItemRepo(t *testing.T, newRepo itemFactory) {
 	t.Run("UpdateRef", func(t *testing.T) { testItemUpdateRef(t, newRepo) })
 	t.Run("FindByAssets", func(t *testing.T) { testItemFindByAssets(t, newRepo) })
 	t.Run("CountByModel", func(t *testing.T) { testItemCountByModel(t, newRepo) })
+	t.Run("FindByModel", func(t *testing.T) { testItemFindByModel(t, newRepo) })
+	t.Run("LastModifiedByModel", func(t *testing.T) { testItemLastModifiedByModel(t, newRepo) })
+	t.Run("FindVersionByID", func(t *testing.T) { testItemFindVersionByID(t, newRepo) })
+	t.Run("RemoveByModel", func(t *testing.T) { testItemRemoveByModel(t, newRepo) })
 }
 
-// seedItems saves the given items into r, failing the test on any error. It is
-// the shared seeder for the table-driven cases across every method below.
-func seedItems(t *testing.T, r repo.Item, seeds item.List) {
-	t.Helper()
-	require.NoError(t, r.SaveAll(context.Background(), seeds))
-}
-
-// newItem builds an item whose timestamp survives a persistence round-trip
-// unchanged (millisecond-truncated UTC), so it can be compared by deep equality.
 func newItem(pid id.ProjectID, sid id.SchemaID, mid id.ModelID, fields ...*item.Field) *item.Item {
 	ts := time.Now().Truncate(time.Millisecond).UTC()
 	return item.New().NewID().Fields(fields).Schema(sid).Model(mid).
@@ -66,6 +61,23 @@ func boolField() *item.Field {
 	return item.NewField(schema.NewFieldID(), value.TypeBool.Value(true).AsMultiple(), nil)
 }
 
+func rwFilter(pids ...id.ProjectID) *repo.ProjectFilter {
+	if pids == nil {
+		pids = []id.ProjectID{}
+	}
+	return &repo.ProjectFilter{Readable: pids, Writable: pids}
+}
+
+var mockNowMu sync.Mutex
+
+func saveAt(t *testing.T, r repo.Item, it *item.Item, now time.Time) {
+	t.Helper()
+	mockNowMu.Lock()
+	defer mockNowMu.Unlock()
+	defer util.MockNow(now)()
+	require.NoError(t, r.Save(context.Background(), it))
+}
+
 func testItemFindByID(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	i1 := newItem(id.NewProjectID(), id.NewSchemaID(), id.NewModelID(), boolField())
@@ -73,20 +85,21 @@ func testItemFindByID(t *testing.T, newRepo itemFactory) {
 	tests := []struct {
 		name    string
 		seeds   item.List
-		arg     id.ItemID
+		filter  *repo.ProjectFilter
+		args    id.ItemID
 		want    *item.Item
 		wantErr error
 	}{
 		{
 			name:  "must find a item",
 			seeds: item.List{i1},
-			arg:   i1.ID(),
+			args:  i1.ID(),
 			want:  i1,
 		},
 		{
 			name:    "must not find any item",
 			seeds:   item.List{i1},
-			arg:     id.NewItemID(),
+			args:    id.NewItemID(),
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -96,16 +109,20 @@ func testItemFindByID(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, err := r.FindByID(ctx, tc.arg, nil)
+			got, err := r.FindByID(ctx, tc.args, nil)
 			if tc.wantErr != nil {
 				assert.Nil(t, got)
 				assert.Equal(t, tc.wantErr, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.want, got.Value())
+				return
 			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got.Value())
 		})
 	}
 }
@@ -118,27 +135,29 @@ func testItemFindByIDs(t *testing.T, newRepo itemFactory) {
 	seeds := item.List{i1, i2}
 
 	tests := []struct {
-		name  string
-		seeds item.List
-		arg   id.ItemIDList
-		want  item.List
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.ItemIDList
+		want    item.List
+		wantErr error
 	}{
 		{
 			name:  "must find two items",
 			seeds: seeds,
-			arg:   id.ItemIDList{i1.ID(), i2.ID()},
+			args:  id.ItemIDList{i1.ID(), i2.ID()},
 			want:  item.List{i1, i2},
 		},
 		{
 			name:  "must find one of two items",
 			seeds: seeds,
-			arg:   id.ItemIDList{i1.ID()},
+			args:  id.ItemIDList{i1.ID()},
 			want:  item.List{i1},
 		},
 		{
 			name:  "must not find any item",
 			seeds: seeds,
-			arg:   id.ItemIDList{id.NewItemID()},
+			args:  id.ItemIDList{id.NewItemID()},
 			want:  item.List{},
 		},
 	}
@@ -148,9 +167,18 @@ func testItemFindByIDs(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, err := r.FindByIDs(ctx, tc.arg, nil)
+			got, err := r.FindByIDs(ctx, tc.args, nil)
+			if tc.wantErr != nil {
+				assert.Nil(t, got)
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			assert.NoError(t, err)
 			assert.ElementsMatch(t, tc.want, got.Unwrap())
 		})
@@ -161,6 +189,7 @@ func testItemFindAllVersionsByID(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	now1 := time.Date(2022, time.April, 1, 0, 0, 0, 0, time.UTC)
 	now2 := time.Date(2022, time.April, 2, 0, 0, 0, 0, time.UTC)
+	nows := []time.Time{now1, now2}
 	ts1 := now1.Truncate(time.Millisecond)
 	ts2 := ts1.Add(time.Second)
 
@@ -169,41 +198,79 @@ func testItemFindAllVersionsByID(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(ts1).MustBuild()
 	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
 
-	r := newRepo(t)
-	// safe: no parallel subtests here, and sibling groups' parallel cases
-	// have already finished (t.Run waits for them)
-	defer util.MockNow(now1)()
-	require.NoError(t, r.Save(ctx, i1))
+	// want takes the query result because version IDs are generated at save
+	// time and cannot be precomputed in the table.
+	tests := []struct {
+		name    string
+		seeds   item.List // saved one at a time as consecutive versions, at nows[i]
+		filter  *repo.ProjectFilter
+		args    id.ItemID
+		want    func(t *testing.T, got item.VersionedList)
+		wantErr error
+	}{
+		{
+			name:  "must find one version tagged latest",
+			seeds: item.List{i1},
+			args:  iid,
+			want: func(t *testing.T, got item.VersionedList) {
+				require.Len(t, got, 1)
+				assert.Equal(t, item.VersionedList{
+					version.NewValue(got[0].Version(), nil, version.NewRefs(version.Latest), now1, i1),
+				}, got)
+			},
+		},
+		{
+			name:  "must find two versions chained by parent with latest moved",
+			seeds: item.List{i1, i2},
+			args:  iid,
+			want: func(t *testing.T, got item.VersionedList) {
+				require.Len(t, got, 2)
+				assert.Equal(t, item.VersionedList{
+					version.NewValue(got[0].Version(), nil, nil, now1, i1),
+					version.NewValue(got[1].Version(), version.NewVersions(got[0].Version()), version.NewRefs(version.Latest), now2, i2),
+				}, got)
+			},
+		},
+		{
+			name:   "must not find versions of unreadable projects",
+			seeds:  item.List{i1, i2},
+			filter: rwFilter(id.NewProjectID()),
+			args:   iid,
+			want: func(t *testing.T, got item.VersionedList) {
+				assert.Empty(t, got)
+			},
+		},
+	}
 
-	got1, err := r.FindAllVersionsByID(ctx, iid)
-	assert.NoError(t, err)
-	assert.Equal(t, item.VersionedList{
-		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), now1, i1),
-	}, got1)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	defer util.MockNow(now2)()
-	require.NoError(t, r.Save(ctx, i2))
+			r := newRepo(t)
+			for i, s := range tc.seeds {
+				saveAt(t, r, s, nows[i])
+			}
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-	got2, err := r.FindAllVersionsByID(ctx, iid)
-	assert.NoError(t, err)
-	assert.Equal(t, item.VersionedList{
-		version.NewValue(got2[0].Version(), nil, nil, now1, i1),
-		version.NewValue(got2[1].Version(), version.NewVersions(got2[0].Version()), version.NewRefs(version.Latest), now2, i2),
-	}, got2)
+			got, err := r.FindAllVersionsByID(ctx, tc.args)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
 
-	r = r.Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{id.NewProjectID()},
-		Writable: []id.ProjectID{id.NewProjectID()},
-	})
-	got3, err := r.FindAllVersionsByID(ctx, iid)
-	assert.NoError(t, err)
-	assert.Empty(t, got3)
+			assert.NoError(t, err)
+			tc.want(t, got)
+		})
+	}
 }
 
 func testItemFindAllVersionsByIDs(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	now1 := time.Date(2022, time.April, 1, 0, 0, 0, 0, time.UTC)
 	now2 := time.Date(2022, time.April, 2, 0, 0, 0, 0, time.UTC)
+	nows := []time.Time{now1, now2}
 	ts1 := now1.Truncate(time.Millisecond)
 	ts2 := ts1.Add(time.Second)
 
@@ -214,35 +281,72 @@ func testItemFindAllVersionsByIDs(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().ID(iid1).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts1).MustBuild()
 	i2 := item.New().ID(iid2).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
 
-	r := newRepo(t)
-	// safe: no parallel subtests here, and sibling groups' parallel cases
-	// have already finished (t.Run waits for them)
-	defer util.MockNow(now1)()
-	require.NoError(t, r.Save(ctx, i1))
+	// want takes the query result because version IDs are generated at save
+	// time and cannot be precomputed in the table.
+	tests := []struct {
+		name    string
+		seeds   item.List // saved one at a time, at nows[i]
+		filter  *repo.ProjectFilter
+		args    id.ItemIDList
+		want    func(t *testing.T, got item.VersionedList)
+		wantErr error
+	}{
+		{
+			name:  "must find all versions of one item",
+			seeds: item.List{i1},
+			args:  id.ItemIDList{iid1},
+			want: func(t *testing.T, got item.VersionedList) {
+				require.Len(t, got, 1)
+				assert.Equal(t, item.VersionedList{
+					version.NewValue(got[0].Version(), nil, version.NewRefs(version.Latest), now1, i1),
+				}, got)
+			},
+		},
+		{
+			name:  "must find all versions of two items",
+			seeds: item.List{i1, i2},
+			args:  id.ItemIDList{iid1, iid2},
+			want: func(t *testing.T, got item.VersionedList) {
+				require.Len(t, got, 2)
+				assert.Equal(t, item.VersionedList{
+					version.NewValue(got[0].Version(), nil, version.NewRefs(version.Latest), now1, i1),
+					version.NewValue(got[1].Version(), nil, version.NewRefs(version.Latest), now2, i2),
+				}, got)
+			},
+		},
+		{
+			name:   "must not find versions of unreadable projects",
+			seeds:  item.List{i1, i2},
+			filter: rwFilter(id.NewProjectID()),
+			args:   id.ItemIDList{iid1, iid2},
+			want: func(t *testing.T, got item.VersionedList) {
+				assert.Empty(t, got)
+			},
+		},
+	}
 
-	got1, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1})
-	assert.NoError(t, err)
-	assert.Equal(t, item.VersionedList{
-		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), now1, i1),
-	}, got1)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	defer util.MockNow(now2)()
-	require.NoError(t, r.Save(ctx, i2))
+			r := newRepo(t)
+			for i, s := range tc.seeds {
+				saveAt(t, r, s, nows[i])
+			}
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-	got2, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
-	assert.NoError(t, err)
-	assert.Equal(t, item.VersionedList{
-		version.NewValue(got2[0].Version(), nil, version.NewRefs(version.Latest), now1, i1),
-		version.NewValue(got2[1].Version(), nil, version.NewRefs(version.Latest), now2, i2),
-	}, got2)
+			got, err := r.FindAllVersionsByIDs(ctx, tc.args)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
 
-	r = r.Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{id.NewProjectID()},
-		Writable: []id.ProjectID{id.NewProjectID()},
-	})
-	got3, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
-	assert.NoError(t, err)
-	assert.Empty(t, got3)
+			assert.NoError(t, err)
+			tc.want(t, got)
+		})
+	}
 }
 
 func testItemFindBySchema(t *testing.T, newRepo itemFactory) {
@@ -255,21 +359,25 @@ func testItemFindBySchema(t *testing.T, newRepo itemFactory) {
 	i4 := newItem(pid, id.NewSchemaID(), id.NewModelID(), boolField())
 
 	tests := []struct {
-		name  string
-		seeds item.List
-		arg   id.SchemaID
-		want  item.List
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.SchemaID
+		want    item.List
+		wantErr error
 	}{
 		{
-			name:  "must find two items (first 10)",
-			seeds: item.List{i1, i2, i3},
-			arg:   sid,
-			want:  item.List{i1, i2},
+			name:   "must find two items (first 10)",
+			seeds:  item.List{i1, i2, i3},
+			filter: rwFilter(pid),
+			args:   sid,
+			want:   item.List{i1, i2},
 		},
 		{
-			name:  "must not find any item",
-			seeds: item.List{i4},
-			arg:   sid,
+			name:   "must not find any item",
+			seeds:  item.List{i4},
+			filter: rwFilter(pid),
+			args:   sid,
 		},
 	}
 
@@ -278,13 +386,17 @@ func testItemFindBySchema(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
-			r = r.Filtered(repo.ProjectFilter{
-				Readable: []id.ProjectID{pid},
-				Writable: []id.ProjectID{pid},
-			})
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, _, err := r.FindBySchema(ctx, tc.arg, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.args, nil, nil, usecasex.CursorPagination{First: new(int64(10))}.Wrap())
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			assert.NoError(t, err)
 			assert.ElementsMatch(t, tc.want, got.Unwrap())
 		})
@@ -294,19 +406,56 @@ func testItemFindBySchema(t *testing.T, newRepo itemFactory) {
 func testItemSave(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	i1 := newItem(id.NewProjectID(), id.NewSchemaID(), id.NewModelID())
-	i2 := newItem(id.NewProjectID(), id.NewSchemaID(), id.NewModelID())
 
-	r := newRepo(t).Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{i1.Project()},
-		Writable: []id.ProjectID{i1.Project()},
-	})
+	tests := []struct {
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    *item.Item
+		want    *item.Item
+		wantErr error
+	}{
+		{
+			name:   "must save an item in a writable project",
+			filter: rwFilter(i1.Project()),
+			args:   i1,
+			want:   i1,
+		},
+		{
+			name:    "must not save an item outside writable projects",
+			filter:  rwFilter(id.NewProjectID()),
+			args:    i1,
+			wantErr: repo.ErrOperationDenied,
+		},
+	}
 
-	require.NoError(t, r.Save(ctx, i1))
-	got, err := r.FindByID(ctx, i1.ID(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, i1, got.Value())
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	assert.Equal(t, repo.ErrOperationDenied, r.Save(ctx, i2))
+			base := newRepo(t)
+			require.NoError(t, base.SaveAll(ctx, tc.seeds))
+			r := base
+			if tc.filter != nil {
+				r = base.Filtered(*tc.filter)
+			}
+
+			err := r.Save(ctx, tc.args)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				// the denied item must not be persisted
+				got, err := base.FindByID(ctx, tc.args.ID(), nil)
+				assert.Nil(t, got)
+				assert.Equal(t, rerror.ErrNotFound, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			got, err := r.FindByID(ctx, tc.args.ID(), nil)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got.Value())
+		})
+	}
 }
 
 func testItemRemove(t *testing.T, newRepo itemFactory) {
@@ -315,68 +464,220 @@ func testItemRemove(t *testing.T, newRepo itemFactory) {
 	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	seeds := item.List{i1, i2, i3}
 
-	base := newRepo(t)
-	seedItems(t, base, item.List{i1, i2, i3})
-	r := base.Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	})
+	tests := []struct {
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.ItemID
+		want    id.ItemIDList // items that must remain after the call
+		wantErr error
+		// a denied removal's return value is backend-defined
+		// (memory: ErrOperationDenied, mongo: no-op), so the error is
+		// not asserted when this is true
+		errBackendDefined bool
+	}{
+		{
+			name:   "must remove an item in a writable project",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   i1.ID(),
+			want:   id.ItemIDList{i2.ID(), i3.ID()},
+		},
+		{
+			name:              "must not remove an item outside writable projects",
+			seeds:             seeds,
+			filter:            rwFilter(pid),
+			args:              i3.ID(),
+			want:              id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
+			errBackendDefined: true,
+		},
+	}
 
-	assert.NoError(t, r.Remove(ctx, i1.ID()))
-	got, err := r.FindByID(ctx, i1.ID(), nil)
-	assert.Nil(t, got)
-	assert.Equal(t, rerror.ErrNotFound, err)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	got2, err := r.FindByID(ctx, i2.ID(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, i2.ID(), got2.Value().ID())
+			base := newRepo(t)
+			require.NoError(t, base.SaveAll(ctx, tc.seeds))
+			r := base
+			if tc.filter != nil {
+				r = base.Filtered(*tc.filter)
+			}
 
-	// removing an item outside the writable projects must not remove it;
-	// the call result is backend-defined (memory: ErrOperationDenied, mongo: no-op)
-	_ = r.Remove(ctx, i3.ID())
-	got3, err := base.FindByID(ctx, i3.ID(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, i3.ID(), got3.Value().ID())
+			err := r.Remove(ctx, tc.args)
+			if !tc.errBackendDefined {
+				if tc.wantErr != nil {
+					assert.Equal(t, tc.wantErr, err)
+					return
+				}
+				assert.NoError(t, err)
+			}
+
+			// remaining items are checked unfiltered to prove they truly
+			// survived (and were not just hidden by the filter)
+			for _, keptID := range tc.want {
+				got, err := base.FindByID(ctx, keptID, nil)
+				assert.NoError(t, err)
+				assert.Equal(t, keptID, got.Value().ID())
+			}
+			if !tc.want.Has(tc.args) {
+				got, err := base.FindByID(ctx, tc.args, nil)
+				assert.Nil(t, got)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
+		})
+	}
 }
 
 func testItemBatchRemove(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
-	pid := id.NewProjectID()
+	pid, pid2 := id.NewProjectID(), id.NewProjectID()
 	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	seeds := item.List{i1, i2, i3}
+	i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	seeds := item.List{i1, i2, i3, i4}
+
+	tests := []struct {
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.ItemIDList
+		want    id.ItemIDList // items that must remain after the call
+		wantErr error
+		// a denied removal's return value is backend-defined
+		// (memory: ErrOperationDenied, mongo: no-op), so the error is
+		// not asserted when this is true
+		errBackendDefined bool
+	}{
+		{
+			name:   "must remove multiple items",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   id.ItemIDList{i1.ID(), i2.ID()},
+			want:   id.ItemIDList{i3.ID(), i4.ID()},
+		},
+		{
+			name:   "must remove all items in writable projects",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
+			want:   id.ItemIDList{i4.ID()},
+		},
+		{
+			name:   "must remove nothing for an empty list",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   id.ItemIDList{},
+			want:   id.ItemIDList{i1.ID(), i2.ID(), i3.ID(), i4.ID()},
+		},
+		{
+			name:   "must remove nothing for non-existent items",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   id.ItemIDList{id.NewItemID()},
+			want:   id.ItemIDList{i1.ID(), i2.ID(), i3.ID(), i4.ID()},
+		},
+		{
+			name:              "must not remove items outside writable projects",
+			seeds:             seeds,
+			filter:            rwFilter(pid),
+			args:              id.ItemIDList{i4.ID()},
+			want:              id.ItemIDList{i1.ID(), i2.ID(), i3.ID(), i4.ID()},
+			errBackendDefined: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			base := newRepo(t)
+			require.NoError(t, base.SaveAll(ctx, tc.seeds))
+			r := base
+			if tc.filter != nil {
+				r = base.Filtered(*tc.filter)
+			}
+
+			err := r.BatchRemove(ctx, tc.args)
+			if !tc.errBackendDefined {
+				if tc.wantErr != nil {
+					assert.Equal(t, tc.wantErr, err)
+					return
+				}
+				assert.NoError(t, err)
+			}
+
+			// remaining items are checked unfiltered to prove they truly
+			// survived (and were not just hidden by the filter)
+			for _, keptID := range tc.want {
+				got, err := base.FindByID(ctx, keptID, nil)
+				assert.NoError(t, err)
+				assert.Equal(t, keptID, got.Value().ID())
+			}
+			for _, removedID := range tc.args {
+				if !tc.want.Has(removedID) {
+					got, err := base.FindByID(ctx, removedID, nil)
+					assert.Nil(t, got)
+					assert.Equal(t, rerror.ErrNotFound, err)
+				}
+			}
+		})
+	}
+}
+
+func testItemArchive(t *testing.T, newRepo itemFactory) {
+	ctx := context.Background()
+	pid, pid2 := id.NewProjectID(), id.NewProjectID()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	type args struct {
+		project  id.ProjectID
+		archived bool
+	}
 
 	tests := []struct {
 		name     string
 		seeds    item.List
-		toRemove id.ItemIDList
-		want     id.ItemIDList
+		archived bool // archived state set before the call
+		filter   *repo.ProjectFilter
+		args     args
+		want     bool // archived state after the call
+		wantErr  error
 	}{
 		{
-			name:     "remove multiple items",
-			seeds:    seeds,
-			toRemove: id.ItemIDList{i1.ID(), i2.ID()},
-			want:     id.ItemIDList{i3.ID()},
+			name:   "must archive an item",
+			seeds:  item.List{i1},
+			filter: rwFilter(pid),
+			args:   args{project: pid, archived: true},
+			want:   true,
 		},
 		{
-			name:     "remove all items",
-			seeds:    seeds,
-			toRemove: id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
-			want:     id.ItemIDList{},
+			name:    "must not archive with an unwritable project",
+			seeds:   item.List{i1},
+			filter:  rwFilter(pid),
+			args:    args{project: pid2, archived: true},
+			want:    false,
+			wantErr: repo.ErrOperationDenied,
 		},
 		{
-			name:     "remove empty list",
-			seeds:    seeds,
-			toRemove: id.ItemIDList{},
-			want:     id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
+			name:     "must unarchive an item",
+			seeds:    item.List{i1},
+			archived: true,
+			filter:   rwFilter(pid),
+			args:     args{project: pid, archived: false},
+			want:     false,
 		},
 		{
-			name:     "remove non-existent items",
-			seeds:    seeds,
-			toRemove: id.ItemIDList{id.NewItemID()},
-			want:     id.ItemIDList{i1.ID(), i2.ID(), i3.ID()},
+			name:     "must not unarchive with an unwritable project",
+			seeds:    item.List{i1},
+			archived: true,
+			filter:   rwFilter(pid),
+			args:     args{project: pid2, archived: false},
+			want:     true,
+			wantErr:  repo.ErrOperationDenied,
 		},
 	}
 
@@ -385,97 +686,32 @@ func testItemBatchRemove(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
-			r = r.Filtered(repo.ProjectFilter{
-				Readable: []id.ProjectID{pid},
-				Writable: []id.ProjectID{pid},
-			})
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			assert.NoError(t, r.BatchRemove(ctx, tc.toRemove))
+			if tc.archived {
+				require.NoError(t, r.Archive(ctx, i1.ID(), pid, true))
+			}
 
-			for _, wantID := range tc.want {
-				got, err := r.FindByID(ctx, wantID, nil)
+			// a fresh item is not archived; a pre-archived one is
+			res, err := r.IsArchived(ctx, i1.ID())
+			assert.NoError(t, err)
+			assert.Equal(t, tc.archived, res)
+
+			err = r.Archive(ctx, i1.ID(), tc.args.project, tc.args.archived)
+			if tc.wantErr != nil {
+				assert.Same(t, tc.wantErr, err)
+			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, wantID, got.Value().ID())
 			}
-			for _, removedID := range tc.toRemove {
-				if !tc.want.Has(removedID) {
-					got, err := r.FindByID(ctx, removedID, nil)
-					assert.Nil(t, got)
-					assert.Equal(t, rerror.ErrNotFound, err)
-				}
-			}
+
+			res, err = r.IsArchived(ctx, i1.ID())
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, res)
 		})
 	}
-
-	t.Run("permission denied", func(t *testing.T) {
-		t.Parallel()
-
-		pid2 := id.NewProjectID()
-		i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
-
-		base := newRepo(t)
-		seedItems(t, base, item.List{i1, i4})
-		r := base.Filtered(repo.ProjectFilter{
-			Readable: []id.ProjectID{pid},
-			Writable: []id.ProjectID{pid},
-		})
-
-		// removing an item outside the writable projects must not remove it;
-		// the call result is backend-defined (memory: ErrOperationDenied, mongo: no-op)
-		_ = r.BatchRemove(ctx, id.ItemIDList{i4.ID()})
-		got, err := base.FindByID(ctx, i4.ID(), nil)
-		assert.NoError(t, err)
-		assert.Equal(t, i4.ID(), got.Value().ID())
-	})
-}
-
-func testItemArchive(t *testing.T, newRepo itemFactory) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	pid2 := id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-
-	base := newRepo(t)
-	seedItems(t, base, item.List{i1})
-	r := base.Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	})
-
-	res, err := r.IsArchived(ctx, i1.ID())
-	assert.NoError(t, err)
-	assert.False(t, res)
-
-	// failed to archive
-	err = r.Archive(ctx, i1.ID(), pid2, true)
-	assert.Same(t, repo.ErrOperationDenied, err)
-
-	res, err = r.IsArchived(ctx, i1.ID())
-	assert.NoError(t, err)
-	assert.False(t, res)
-
-	// successfully archive
-	assert.NoError(t, r.Archive(ctx, i1.ID(), pid, true))
-
-	res, err = r.IsArchived(ctx, i1.ID())
-	assert.NoError(t, err)
-	assert.True(t, res)
-
-	// failed to unarchive
-	err = r.Archive(ctx, i1.ID(), pid2, false)
-	assert.Same(t, repo.ErrOperationDenied, err)
-
-	res, err = r.IsArchived(ctx, i1.ID())
-	assert.NoError(t, err)
-	assert.True(t, res)
-
-	// successfully unarchived
-	assert.NoError(t, r.Archive(ctx, i1.ID(), pid, false))
-
-	res, err = r.IsArchived(ctx, i1.ID())
-	assert.NoError(t, err)
-	assert.False(t, res)
 }
 
 func testItemSearch(t *testing.T, newRepo itemFactory) {
@@ -495,27 +731,29 @@ func testItemSearch(t *testing.T, newRepo itemFactory) {
 	sp := schema.NewPackage(s1, nil, nil, nil)
 
 	tests := []struct {
-		name  string
-		seeds item.List
-		arg   *item.Query
-		want  int
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    *item.Query
+		want    int
+		wantErr error
 	}{
 		{
 			name:  "must find two items (first 10)",
 			seeds: item.List{i1, i2, i3},
-			arg:   item.NewQuery(pid, mid, nil, "foo", nil),
+			args:  item.NewQuery(pid, mid, nil, "foo", nil),
 			want:  2,
 		},
 		{
 			name:  "must find all items",
 			seeds: item.List{i1, i2, i3},
-			arg:   item.NewQuery(pid, mid, nil, "", nil),
+			args:  item.NewQuery(pid, mid, nil, "", nil),
 			want:  3,
 		},
 		{
 			name:  "must find one item",
 			seeds: item.List{i1, i2, i3, i4},
-			arg:   item.NewQuery(pid, mid, s2.ID().Ref(), "foo", nil),
+			args:  item.NewQuery(pid, mid, s2.ID().Ref(), "foo", nil),
 			want:  1,
 		},
 	}
@@ -525,9 +763,17 @@ func testItemSearch(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, _, err := r.Search(ctx, *sp, tc.arg, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.Search(ctx, *sp, tc.args, usecasex.CursorPagination{First: new(int64(10))}.Wrap())
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -548,22 +794,24 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 	seeds := item.List{i1, i2}
 
 	tests := []struct {
-		name   string
-		seeds  item.List
-		fields []repo.FieldAndValue
-		want   int
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    []repo.FieldAndValue
+		want    int
+		wantErr error
 	}{
 		{
-			name:   "must not find any item",
-			seeds:  seeds,
-			fields: []repo.FieldAndValue{{Field: f2.FieldID(), Value: f2.Value()}},
-			want:   0,
+			name:  "must not find any item",
+			seeds: seeds,
+			args:  []repo.FieldAndValue{{Field: f2.FieldID(), Value: f2.Value()}},
+			want:  0,
 		},
 		{
-			name:   "must find one item",
-			seeds:  seeds,
-			fields: []repo.FieldAndValue{{Field: f1.FieldID(), Value: f1.Value()}},
-			want:   1,
+			name:  "must find one item",
+			seeds: seeds,
+			args:  []repo.FieldAndValue{{Field: f1.FieldID(), Value: f1.Value()}},
+			want:  1,
 		},
 	}
 
@@ -572,9 +820,17 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, err := r.FindByModelAndValue(ctx, mid, tc.fields, nil)
+			got, err := r.FindByModelAndValue(ctx, mid, tc.args, nil)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -586,16 +842,47 @@ func testItemUpdateRef(t *testing.T, newRepo itemFactory) {
 	vx := version.Ref("xxx")
 	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
-	r := newRepo(t)
-	require.NoError(t, r.Save(ctx, i1))
-	v, err := r.FindByID(ctx, i1.ID(), nil)
-	require.NoError(t, err)
+	tests := []struct {
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    version.Ref // attached to the latest saved version
+		want    version.Refs
+		wantErr error
+	}{
+		{
+			name:  "must attach the ref to the latest version",
+			seeds: item.List{i1},
+			args:  vx,
+			want:  version.NewRefs(vx, version.Latest),
+		},
+	}
 
-	assert.NoError(t, r.UpdateRef(ctx, i1.ID(), vx, v.Version().OrRef().Ref()))
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	v2, err := r.FindByID(ctx, i1.ID(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, version.NewRefs(vx, version.Latest), v2.Refs())
+			r := newRepo(t)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			v, err := r.FindByID(ctx, i1.ID(), nil)
+			require.NoError(t, err)
+
+			err = r.UpdateRef(ctx, i1.ID(), tc.args, v.Version().OrRef().Ref())
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			v2, err := r.FindByID(ctx, i1.ID(), nil)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, v2.Refs())
+		})
+	}
 }
 
 func testItemFindByAssets(t *testing.T, newRepo itemFactory) {
@@ -615,27 +902,29 @@ func testItemFindByAssets(t *testing.T, newRepo itemFactory) {
 	seeds := item.List{i1, i2, i3}
 
 	tests := []struct {
-		name  string
-		seeds item.List
-		arg   id.AssetIDList
-		want  int
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.AssetIDList
+		want    int
+		wantErr error
 	}{
 		{
 			name:  "must find two items",
 			seeds: seeds,
-			arg:   id.AssetIDList{aid1, aid2},
+			args:  id.AssetIDList{aid1, aid2},
 			want:  2,
 		},
 		{
 			name:  "must find one item",
 			seeds: seeds,
-			arg:   id.AssetIDList{aid2},
+			args:  id.AssetIDList{aid2},
 			want:  1,
 		},
 		{
 			name:  "must not find any item",
 			seeds: seeds,
-			arg:   id.AssetIDList{},
+			args:  id.AssetIDList{},
 			want:  0,
 		},
 	}
@@ -645,9 +934,17 @@ func testItemFindByAssets(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, err := r.FindByAssets(ctx, tc.arg, nil)
+			got, err := r.FindByAssets(ctx, tc.args, nil)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -668,49 +965,48 @@ func testItemCountByModel(t *testing.T, newRepo itemFactory) {
 	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
 	i4 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
 
-	rwPid1 := repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}}
-
 	tests := []struct {
 		name    string
 		seeds   item.List
-		modelID id.ModelID
-		filter  repo.ProjectFilter
+		filter  *repo.ProjectFilter
+		args    id.ModelID
 		want    int
+		wantErr error
 	}{
 		{
-			name:    "count items for model with 2 items",
-			seeds:   item.List{i1, i2, i3},
-			modelID: mid1,
-			filter:  rwPid1,
-			want:    2,
+			name:   "count items for model with 2 items",
+			seeds:  item.List{i1, i2, i3},
+			filter: rwFilter(pid1),
+			args:   mid1,
+			want:   2,
 		},
 		{
-			name:    "count items for model with 1 item",
-			seeds:   item.List{i1, i2, i3},
-			modelID: mid2,
-			filter:  rwPid1,
-			want:    1,
+			name:   "count items for model with 1 item",
+			seeds:  item.List{i1, i2, i3},
+			filter: rwFilter(pid1),
+			args:   mid2,
+			want:   1,
 		},
 		{
-			name:    "count items for model with no items",
-			seeds:   item.List{i1, i2, i3},
-			modelID: id.NewModelID(),
-			filter:  rwPid1,
-			want:    0,
+			name:   "count items for model with no items",
+			seeds:  item.List{i1, i2, i3},
+			filter: rwFilter(pid1),
+			args:   id.NewModelID(),
+			want:   0,
 		},
 		{
-			name:    "count items with cross-project permission filtering",
-			seeds:   item.List{i1, i2, i4},
-			modelID: mid1,
-			filter:  rwPid1,
-			want:    2,
+			name:   "count items with cross-project permission filtering",
+			seeds:  item.List{i1, i2, i4},
+			filter: rwFilter(pid1),
+			args:   mid1,
+			want:   2,
 		},
 		{
-			name:    "count items with no accessible projects",
-			seeds:   item.List{i1, i2},
-			modelID: mid1,
-			filter:  repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
-			want:    0,
+			name:   "count items with no accessible projects",
+			seeds:  item.List{i1, i2},
+			filter: rwFilter(),
+			args:   mid1,
+			want:   0,
 		},
 	}
 
@@ -719,11 +1015,278 @@ func testItemCountByModel(t *testing.T, newRepo itemFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			seedItems(t, r, tc.seeds)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
 
-			got, err := r.Filtered(tc.filter).CountByModel(ctx, tc.modelID)
+			got, err := r.CountByModel(ctx, tc.args)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func testItemFindByModel(t *testing.T, newRepo itemFactory) {
+	ctx := context.Background()
+	mid := id.NewModelID()
+	pid := id.NewProjectID()
+	i1 := newItem(pid, id.NewSchemaID(), mid, boolField())
+	i2 := newItem(pid, id.NewSchemaID(), mid, boolField())
+	i3 := newItem(id.NewProjectID(), id.NewSchemaID(), mid, boolField())
+	i4 := newItem(pid, id.NewSchemaID(), id.NewModelID(), boolField())
+
+	tests := []struct {
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.ModelID
+		want    item.List
+		wantErr error
+	}{
+		{
+			name:   "must find two items (first 10)",
+			seeds:  item.List{i1, i2, i3},
+			filter: rwFilter(pid),
+			args:   mid,
+			want:   item.List{i1, i2},
+		},
+		{
+			name:   "must not find any item",
+			seeds:  item.List{i4},
+			filter: rwFilter(pid),
+			args:   mid,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newRepo(t)
+			require.NoError(t, r.SaveAll(ctx, tc.seeds))
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, _, err := r.FindByModel(ctx, tc.args, nil, nil, usecasex.CursorPagination{First: new(int64(10))}.Wrap())
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.ElementsMatch(t, tc.want, got.Unwrap())
+		})
+	}
+}
+
+func testItemLastModifiedByModel(t *testing.T, newRepo itemFactory) {
+	ctx := context.Background()
+	now1 := time.Date(2022, time.April, 1, 0, 0, 0, 0, time.UTC)
+	now2 := time.Date(2022, time.April, 2, 0, 0, 0, 0, time.UTC)
+	nows := []time.Time{now1, now2}
+	mid := id.NewModelID()
+	pid := id.NewProjectID()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(now1.Truncate(time.Millisecond)).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(now2.Truncate(time.Millisecond)).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   item.List // saved one at a time, at nows[i]
+		filter  *repo.ProjectFilter
+		args    id.ModelID
+		want    time.Time
+		wantErr error
+	}{
+		{
+			name:  "must find the timestamp of the last modified item",
+			seeds: item.List{i1, i2},
+			args:  mid,
+			want:  now2,
+		},
+		{
+			name:    "must not find any item for a different model",
+			seeds:   item.List{i1},
+			args:    id.NewModelID(),
+			wantErr: rerror.ErrNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newRepo(t)
+			for i, s := range tc.seeds {
+				saveAt(t, r, s, nows[i])
+			}
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, err := r.LastModifiedByModel(ctx, tc.args)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.True(t, tc.want.Equal(got), "want %v, got %v", tc.want, got)
+		})
+	}
+}
+
+func testItemFindVersionByID(t *testing.T, newRepo itemFactory) {
+	ctx := context.Background()
+	now1 := time.Date(2022, time.April, 1, 0, 0, 0, 0, time.UTC)
+	now2 := time.Date(2022, time.April, 2, 0, 0, 0, 0, time.UTC)
+	nows := []time.Time{now1, now2}
+
+	iid := id.NewItemID()
+	fs := []*item.Field{boolField()}
+	ts1 := now1.Truncate(time.Millisecond)
+	ts2 := ts1.Add(time.Second)
+	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(ts1).MustBuild()
+	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(i1.Model()).Project(i1.Project()).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
+
+	// args resolves the version to request once the seeds are saved and
+	// their (unpredictable) generated version IDs are read back, since they
+	// cannot be precomputed in the table; versions are returned oldest-first.
+	tests := []struct {
+		name    string
+		seeds   item.List // saved one at a time, at nows[i]
+		filter  *repo.ProjectFilter
+		args    func(all item.VersionedList) version.VersionOrRef
+		want    *item.Item
+		wantErr error
+	}{
+		{
+			name:  "must find the first version",
+			seeds: item.List{i1, i2},
+			args:  func(all item.VersionedList) version.VersionOrRef { return all[0].Version().OrRef() },
+			want:  i1,
+		},
+		{
+			name:  "must find the latest version",
+			seeds: item.List{i1, i2},
+			args:  func(all item.VersionedList) version.VersionOrRef { return all[1].Version().OrRef() },
+			want:  i2,
+		},
+		{
+			name:  "must find the latest ref",
+			seeds: item.List{i1, i2},
+			args:  func(item.VersionedList) version.VersionOrRef { return version.Latest.OrVersion() },
+			want:  i2,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newRepo(t)
+			for i, s := range tc.seeds {
+				saveAt(t, r, s, nows[i])
+			}
+			all, err := r.FindAllVersionsByID(ctx, iid)
+			require.NoError(t, err)
+			require.Len(t, all, len(tc.seeds))
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, err := r.FindVersionByID(ctx, iid, tc.args(all))
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got.Value())
+		})
+	}
+}
+
+func testItemRemoveByModel(t *testing.T, newRepo itemFactory) {
+	ctx := context.Background()
+	pid, pid2 := id.NewProjectID(), id.NewProjectID()
+	mid, mid2 := id.NewModelID(), id.NewModelID()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid2).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	seeds := item.List{i1, i2, i3, i4}
+
+	tests := []struct {
+		name    string
+		seeds   item.List
+		filter  *repo.ProjectFilter
+		args    id.ModelID
+		want    id.ItemIDList // items that must remain after the call
+		wantErr error
+	}{
+		{
+			name:   "must remove all items of a model in writable projects",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   mid,
+			want:   id.ItemIDList{i3.ID(), i4.ID()},
+		},
+		{
+			name:   "must remove nothing for a model with no items",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   id.NewModelID(),
+			want:   id.ItemIDList{i1.ID(), i2.ID(), i3.ID(), i4.ID()},
+		},
+		{
+			name:   "must not remove items outside writable projects",
+			seeds:  seeds,
+			filter: rwFilter(pid),
+			args:   mid,
+			want:   id.ItemIDList{i3.ID(), i4.ID()},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			base := newRepo(t)
+			require.NoError(t, base.SaveAll(ctx, tc.seeds))
+			r := base
+			if tc.filter != nil {
+				r = base.Filtered(*tc.filter)
+			}
+
+			err := r.RemoveByModel(ctx, tc.args)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			require.NoError(t, err)
+
+			// remaining items are checked unfiltered to prove they truly
+			// survived (and were not just hidden by the filter)
+			for _, keptID := range tc.want {
+				got, err := base.FindByID(ctx, keptID, nil)
+				assert.NoError(t, err)
+				assert.Equal(t, keptID, got.Value().ID())
+			}
+			for _, s := range tc.seeds {
+				got, err := base.FindByID(ctx, s.ID(), nil)
+				if !tc.want.Has(s.ID()) {
+					assert.Nil(t, got)
+					assert.Equal(t, rerror.ErrNotFound, err)
+				}
+			}
 		})
 	}
 }

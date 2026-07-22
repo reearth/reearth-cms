@@ -94,7 +94,7 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
-		if it.Model() == modelID {
+		if it.Model() == modelID && r.f.CanRead(it.Project()) {
 			res = append(res, itv)
 		}
 		return true
@@ -152,16 +152,26 @@ func (r *Item) LastModifiedByModel(_ context.Context, modelID id.ModelID) (time.
 		return time.Time{}, r.err
 	}
 
-	res := r.data.Find(func(k item.ID, v *version.Values[*item.Item]) bool {
+	var found bool
+	var latest time.Time
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(version.Latest.OrVersion())
 		it := itv.Value()
-		return it.Model() == modelID
+		if it.Model() != modelID {
+			return true
+		}
+		t := v.Latest().Time()
+		if !found || t.After(latest) {
+			found = true
+			latest = t
+		}
+		return true
 	})
 
-	if res == nil {
+	if !found {
 		return time.Time{}, rerror.ErrNotFound
 	}
-	return res.Latest().Time(), nil
+	return latest, nil
 }
 
 func (r *Item) Save(_ context.Context, t *item.Item) error {
@@ -232,7 +242,7 @@ func (r *Item) RemoveByModel(_ context.Context, modelID id.ModelID) error {
 
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(version.Latest.OrVersion())
-		if itv != nil && itv.Value().Model() == modelID {
+		if itv != nil && itv.Value().Model() == modelID && r.f.CanWrite(itv.Value().Project()) {
 			r.data.Delete(k)
 		}
 		return true
