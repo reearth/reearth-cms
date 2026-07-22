@@ -80,7 +80,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 	if !operator.IsWritableWorkspace(s.Workspace()) {
 		return res.Into(), interfaces.ErrOperationDenied
 	}
-	if err := i.checkPermissions(ctx, rbac.ActionImport, id.ProjectIDList{s.Project()}); err != nil {
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionImport, s.Workspace()); err != nil {
 		return res.Into(), err
 	}
 
@@ -254,7 +254,7 @@ func (i Item) ImportAsync(ctx context.Context, param interfaces.ImportItemsAsync
 	if !operator.IsWritableWorkspace(s.Workspace()) {
 		return id.JobID{}, interfaces.ErrOperationDenied
 	}
-	if err := i.checkPermissions(ctx, rbac.ActionImport, id.ProjectIDList{s.Project()}); err != nil {
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionImport, s.Workspace()); err != nil {
 		return id.JobID{}, err
 	}
 

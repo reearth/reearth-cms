@@ -30,8 +30,10 @@ func defaultBatchConfig() *BatchConfig {
 }
 
 func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w io.Writer, op *usecase.Operator) error {
-	if err := i.checkPermissions(ctx, rbac.ActionExport, id.ProjectIDList{params.SchemaPackage.Schema().Project()}); err != nil {
-		return err
+	if s := params.SchemaPackage.Schema(); s != nil {
+		if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionExport, s.Workspace()); err != nil {
+			return err
+		}
 	}
 
 	// Create the exporter based on format
