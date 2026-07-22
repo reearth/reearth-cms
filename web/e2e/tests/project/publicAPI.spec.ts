@@ -12,7 +12,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Update settings on Accessibility page has succeeded", async ({ projectPage }) => {
+test("@smoke Update settings on Public API page has succeeded", async ({ projectPage }) => {
   await projectPage.publicApiMenuItem.click();
   await expect(projectPage.publicApiHeadingFirst).toBeVisible();
   await expect(projectPage.apiKeyText).toBeVisible();
