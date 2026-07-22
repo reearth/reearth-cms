@@ -260,7 +260,7 @@ export default (
           .validateFields()
           .then(() => setButtonDisabled(changedKeys.current.size === 0))
           .catch((e: ValidateErrorEntity) => {
-            if (e.errorFields.length === 0) {
+            if (e.errorFields?.length === 0) {
               setButtonDisabled(changedKeys.current.size === 0);
             } else {
               setButtonDisabled(true);

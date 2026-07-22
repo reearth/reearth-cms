@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
+import MonacoEditor, { Monaco, OnMount, BeforeMount } from "@monaco-editor/react";
 import Ajv from "ajv";
 import axios from "axios";
-import { editor, Range } from "monaco-editor";
+import type { editor } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import { defaults as defaultControls, Attribution } from "ol/control";
@@ -78,6 +78,7 @@ const GeometryItem: React.FC<Props> = ({
   const { confirm } = useModal();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<Monaco | null>(null);
 
   const [sketchType, setSketchType] = useState<DrawType>();
   const drawRef = useRef<Draw | null>(null);
@@ -162,8 +163,9 @@ const GeometryItem: React.FC<Props> = ({
     });
   }, []);
 
-  const handleEditorDidMount: OnMount = useCallback(editor => {
+  const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
   }, []);
 
   const [hasError, setHasError] = useState(false);
@@ -188,10 +190,10 @@ const GeometryItem: React.FC<Props> = ({
   }, []);
 
   const errorShow = useCallback((startLine: number, endLine: number) => {
-    if (!editorRef.current) return;
+    if (!editorRef.current || !monacoRef.current) return;
     editorRef.current.createDecorationsCollection([
       {
-        range: new Range(startLine, 1, endLine, 1),
+        range: new monacoRef.current.Range(startLine, 1, endLine, 1),
         options: {
           glyphMarginClassName: "glyphMargin",
         },
