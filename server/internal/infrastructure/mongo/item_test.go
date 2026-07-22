@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	repotest "github.com/reearth/reearth-cms/server/internal/usecase/repo/test"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -17,9 +18,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// The interface-level tests for the item repository live in the shared suite
-// (internal/usecase/repo/test) and run through TestItemRepo in
-// repo_suite_test.go. This file only contains Mongo-specific tests.
+// Entry points running the shared repository interface test suites
+// (internal/usecase/repo/test) against the Mongo implementations.
+func TestItemRepo(t *testing.T) {
+	init := mongotest.Connect(t)
+	repotest.TestItemRepo(t, func(t *testing.T) repo.Item {
+		return NewItem(mongox.NewClientWithDatabase(init(t)))
+	})
+}
 
 // TestItem_MongoSpecific_Archive tests the persistence format of the archived
 // flag and its upsert semantics; the interface-level Archive behavior is
