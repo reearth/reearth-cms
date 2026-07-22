@@ -36,16 +36,10 @@ func ToResourceList(resource *workspacesettings.ResourceList) *ResourceList {
 
 func ToTileType(tt workspacesettings.TileType) TileType {
 	switch tt {
-	case workspacesettings.TileTypeDefault:
-		return TileTypeDefault
-	case workspacesettings.TileTypeLabelled:
-		return TileTypeLabelled
 	case workspacesettings.TileTypeRoadMap:
 		return TileTypeRoadMap
 	case workspacesettings.TileTypeOpenStreetMap:
 		return TileTypeOpenStreetMap
-	case workspacesettings.TileTypeESRITopography:
-		return TileTypeEsriTopography
 	case workspacesettings.TileTypeEarthAtNight:
 		return TileTypeEarthAtNight
 	case workspacesettings.TileTypeJapanGSIStandardMap:
@@ -59,14 +53,12 @@ func ToTileType(tt workspacesettings.TileType) TileType {
 
 func ToTerrainType(tt workspacesettings.TerrainType) TerrainType {
 	switch tt {
-	case workspacesettings.TerrainTypeCesiumWorldTerrain:
-		return TerrainTypeCesiumWorldTerrain
-	case workspacesettings.TerrainTypeArcGISTerrain:
-		return TerrainTypeArcGisTerrain
+	case workspacesettings.TerrainTypeReearthTerrain:
+		return TerrainTypeReearthTerrain
 	case workspacesettings.TerrainTypeCesiumIon:
 		return TerrainTypeCesiumIon
 	default:
-		return TerrainTypeCesiumWorldTerrain
+		return TerrainTypeReearthTerrain
 	}
 }
 
@@ -151,14 +143,10 @@ func FromResource(r *ResourceInput) *workspacesettings.Resource {
 
 func FromTerrainType(tt TerrainType) workspacesettings.TerrainType {
 	switch tt {
-	case TerrainTypeCesiumWorldTerrain:
-		return workspacesettings.TerrainTypeCesiumWorldTerrain
-	case TerrainTypeArcGisTerrain:
-		return workspacesettings.TerrainTypeArcGISTerrain
 	case TerrainTypeCesiumIon:
 		return workspacesettings.TerrainTypeCesiumIon
 	default:
-		return workspacesettings.TerrainTypeCesiumWorldTerrain
+		return workspacesettings.TerrainTypeReearthTerrain
 	}
 }
 
@@ -166,14 +154,10 @@ func FromTileType(tt TileType) workspacesettings.TileType {
 	switch tt {
 	case TileTypeDefault:
 		return workspacesettings.TileTypeDefault
-	case TileTypeLabelled:
-		return workspacesettings.TileTypeLabelled
 	case TileTypeRoadMap:
 		return workspacesettings.TileTypeRoadMap
 	case TileTypeOpenStreetMap:
 		return workspacesettings.TileTypeOpenStreetMap
-	case TileTypeEsriTopography:
-		return workspacesettings.TileTypeESRITopography
 	case TileTypeEarthAtNight:
 		return workspacesettings.TileTypeEarthAtNight
 	case TileTypeJapanGsiStandardMap:

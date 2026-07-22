@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { Link } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -38,7 +38,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
     onJobErrorCallback: error => onJobError && void onJobError(queue.jobId, error.message),
   });
 
-  const renderStatusIcons = useMemo<JSX.Element | null>(() => {
+  const renderStatusIcons = useMemo<ReactNode>(() => {
     switch (queue.jobState.status) {
       case JobStatus.InProgress:
         return (
@@ -86,7 +86,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
     }
   }, [onCancel, onRetry, queue.jobId, queue.jobState.status, t]);
 
-  const renderMessage = useMemo<JSX.Element | null>(() => {
+  const renderMessage = useMemo<ReactNode>(() => {
     if (queue.jobState.status === JobStatus.Failed && queue.jobState.error) {
       return (
         <ErrorMessage title={queue.jobState.error}>

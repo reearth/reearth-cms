@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { ReactElement, useMemo } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -19,7 +19,7 @@ import { ImportFieldInput } from "../types";
 
 export type Props = {
   fields: ImportFieldInput[];
-  fieldTypeOptions: { value: string; label: JSX.Element }[];
+  fieldTypeOptions: { value: string; label: ReactElement }[];
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   onToggleFieldHide: (id: string) => void;
   onToggleAllFieldsHide: () => void;

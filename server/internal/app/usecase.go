@@ -19,7 +19,7 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.
 		var ar2 *accountrepo.Container
 		if op := adapter.Operator(ctx); op != nil && r != nil {
 			// apply filters to repos
-			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op))
+			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op), repo.ProjectFilterFromOperator(op, false))
 			ar2 = ar.Filtered(accountrepo.WorkspaceFilterFromOperator(op.AcOperator))
 
 		} else {

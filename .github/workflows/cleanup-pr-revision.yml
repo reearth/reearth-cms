@@ -11,9 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >+
       - name: Print event information
         run: |
           echo "Event name: ${{ github.event_name }}"
@@ -40,11 +41,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            dl.google.com:443
+            github.com:443
+            iamcredentials.googleapis.com:443
+            raw.githubusercontent.com:443
+            sts.googleapis.com:443
+            us-central1-run.googleapis.com:443
       - name: Remove Cloud Run Tag
-        uses: reearth/actions/remove-cloud-run-tag@ee8a23fc9256524828d4074e0e607904cfd8dffc # main
+        uses: reearth/actions/remove-cloud-run-tag@a75bb60a59c8192805a55c3e0854c8298d8a2bcc # main
         with:
           region: ${{ secrets.GC_REGION }}
           service: reearth-scaffold-web

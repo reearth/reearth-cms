@@ -20,5 +20,6 @@ type Project interface {
 	CountByWorkspace(context.Context, accountdomain.WorkspaceID) (int, error)
 	FindByPublicAPIKey(context.Context, string) (*project.Project, error)
 	Save(context.Context, *project.Project) error
+	Star(context.Context, id.ProjectID, accountdomain.UserID) (*project.Project, error)
 	Remove(context.Context, id.ProjectID) error
 }

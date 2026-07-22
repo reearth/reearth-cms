@@ -26,6 +26,20 @@ func (l List) Projects() id.ProjectIDList {
 		return m.Project(), true
 	}))
 }
+
+func (l List) SameProject() bool {
+	if len(l) == 0 {
+		return true
+	}
+	projectID := l[0].Project()
+	for _, m := range l[1:] {
+		if m.Project() != projectID {
+			return false
+		}
+	}
+	return true
+}
+
 func (l List) Clone() List {
 	return util.Map(l, func(m *Model) *Model { return m.Clone() })
 }

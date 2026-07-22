@@ -1,6 +1,9 @@
 name: ci-web
 on:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: false
 jobs:
   validate-nginx-config:
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@4a7719ea2bfbcf3841b58eaedb01e91d3520227a
@@ -17,11 +20,11 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
@@ -48,11 +51,11 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
@@ -79,11 +82,11 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
@@ -102,9 +105,10 @@ jobs:
       - name: Test
         run: yarn run coverage
       - name: Send coverage report
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           flags: web
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: build
@@ -115,11 +119,11 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
         uses: actions/setup-node@v6
