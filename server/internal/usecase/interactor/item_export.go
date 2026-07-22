@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
@@ -29,6 +30,10 @@ func defaultBatchConfig() *BatchConfig {
 }
 
 func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w io.Writer, op *usecase.Operator) error {
+	if err := i.checkPermissions(ctx, rbac.ActionExport, id.ProjectIDList{params.SchemaPackage.Schema().Project()}); err != nil {
+		return err
+	}
+
 	// Create the exporter based on format
 	var exporter exporters.Exporter
 	switch params.Format {
