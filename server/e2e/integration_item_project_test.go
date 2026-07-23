@@ -141,8 +141,8 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 
 	r := iAPIItemCreate(e, wId0, palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    fId1.String(),
 					"value": "test value",
@@ -168,8 +168,8 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 
 	iAPIItemCreate(e, wId0, palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"key":   sfKey1.String(),
 					"value": "test value 2",

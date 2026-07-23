@@ -88,7 +88,6 @@ func TestFieldFrom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := fieldFrom(tt.key, tt.value)
@@ -131,7 +130,6 @@ func TestIsAssignable(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := isAssignable(tt.valueType, tt.fieldType)
@@ -285,7 +283,6 @@ func TestSchema_GuessSchemaFieldFromJson(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

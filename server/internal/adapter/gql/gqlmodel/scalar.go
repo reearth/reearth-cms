@@ -20,7 +20,7 @@ func MarshalURL(t url.URL) graphql.Marshaler {
 	})
 }
 
-func UnmarshalURL(v interface{}) (url.URL, error) {
+func UnmarshalURL(v any) (url.URL, error) {
 	if tmpStr, ok := v.(string); ok {
 		u, err := url.Parse(tmpStr)
 		if u != nil {
@@ -37,7 +37,7 @@ func MarshalLang(t language.Tag) graphql.Marshaler {
 	})
 }
 
-func UnmarshalLang(v interface{}) (language.Tag, error) {
+func UnmarshalLang(v any) (language.Tag, error) {
 	if tmpStr, ok := v.(string); ok {
 		if tmpStr == "" {
 			return language.Tag{}, nil
@@ -57,7 +57,7 @@ func MarshalCursor(t usecasex.Cursor) graphql.Marshaler {
 	})
 }
 
-func UnmarshalCursor(v interface{}) (usecasex.Cursor, error) {
+func UnmarshalCursor(v any) (usecasex.Cursor, error) {
 	if tmpStr, ok := v.(string); ok {
 		return usecasex.Cursor(tmpStr), nil
 	}
@@ -70,7 +70,7 @@ func MarshalMap(val map[string]string) graphql.Marshaler {
 	})
 }
 
-func UnmarshalMap(v interface{}) (map[string]string, error) {
+func UnmarshalMap(v any) (map[string]string, error) {
 	if m, ok := v.(map[string]string); ok {
 		return m, nil
 	}

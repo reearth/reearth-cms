@@ -73,11 +73,11 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 func DetectPreviewType(f *file.File) *PreviewType {
 	pt := PreviewTypeFromContentType(f.ContentType)
 	if pt != PreviewTypeUnknown {
-		return lo.ToPtr(pt)
+		return new(pt)
 	}
 	ext := filepath.Ext(f.Name)
 	pt = PreviewTypeFromExtension(ext)
-	return lo.ToPtr(pt)
+	return new(pt)
 }
 
 func PreviewTypeFromContentType(c string) PreviewType {

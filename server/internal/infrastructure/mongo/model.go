@@ -230,10 +230,10 @@ func normalize(ms *usecasex.Sort) *usecasex.Sort {
 	return res
 }
 
-func (r *Model) readFilter(filter interface{}) interface{} {
+func (r *Model) readFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Readable)
 }
 
-func (r *Model) writeFilter(filter interface{}) interface{} {
+func (r *Model) writeFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Writable)
 }

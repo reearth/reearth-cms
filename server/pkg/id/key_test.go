@@ -35,7 +35,7 @@ func TestKey_IsURLCompatible(t *testing.T) {
 }
 
 func TestKey_Ref(t *testing.T) {
-	assert.Equal(t, lo.ToPtr(Key{key: "aaa"}), Key{key: "aaa"}.Ref())
+	assert.Equal(t, new(Key{key: "aaa"}), Key{key: "aaa"}.Ref())
 }
 
 func TestKey_String(t *testing.T) {
@@ -44,8 +44,8 @@ func TestKey_String(t *testing.T) {
 }
 
 func TestKey_StringRef(t *testing.T) {
-	assert.Equal(t, lo.ToPtr("aaaaaa"), (&Key{key: "aaaaaa"}).StringRef())
-	assert.Equal(t, lo.ToPtr("aaa"), (&Key{key: "aaa"}).StringRef())
+	assert.Equal(t, new("aaaaaa"), (&Key{key: "aaaaaa"}).StringRef())
+	assert.Equal(t, new("aaa"), (&Key{key: "aaa"}).StringRef())
 	assert.Nil(t, (*Key)(nil).StringRef())
 }
 

@@ -3,7 +3,6 @@ package value
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,70 +12,70 @@ func Test_propertyJson_ToValue(t *testing.T) {
 	invalidJson := `{invalid json}`
 
 	tests := []struct {
-		name  string
-		args  any
+		name string
+		args any
 		want any
 		ok   bool
 	}{
 		{
-			name:  "valid json object string",
-			args:  validJsonObj,
+			name: "valid json object string",
+			args: validJsonObj,
 			want: validJsonObj,
-			ok: true,
+			ok:   true,
 		},
 		{
-			name:  "valid json array string",
-			args:  validJsonArr,
+			name: "valid json array string",
+			args: validJsonArr,
 			want: validJsonArr,
-			ok: true,
+			ok:   true,
 		},
 		{
-			name:  "pointer to valid json string",
-			args:  lo.ToPtr(validJsonObj),
+			name: "pointer to valid json string",
+			args: new(validJsonObj),
 			want: validJsonObj,
-			ok: true,
+			ok:   true,
 		},
 		{
-			name:  "invalid json string",
-			args:  invalidJson,
+			name: "invalid json string",
+			args: invalidJson,
 			want: nil,
-			ok: false,
+			ok:   false,
 		},
 		{
-			name:  "pointer to invalid json string",
-			args:  lo.ToPtr(invalidJson),
+			name: "pointer to invalid json string",
+			args: new(invalidJson),
 			want: nil,
-			ok: false,
+			ok:   false,
 		},
 		{
-			name:  "empty string",
-			args:  "",
+			name: "empty string",
+			args: "",
 			want: nil,
-			ok: false,
+			ok:   false,
 		},
 		{
-			name:  "map object",
-			args:  map[string]any{"key": "value"},
+			name: "map object",
+			args: map[string]any{"key": "value"},
 			want: `{"key":"value"}`,
-			ok: true,
+			ok:   true,
 		},
 		{
-			name:  "slice array",
-			args:  []string{"item1", "item2"},
+			name: "slice array",
+			args: []string{"item1", "item2"},
 			want: `["item1","item2"]`,
-			ok: true,
+			ok:   true,
 		},
 		{
-			name:  "nil pointer",
-			args:  (*string)(nil),
+			name: "nil pointer",
+			args: (*string)(nil),
 			want: nil,
-			ok: false,
+			ok:   false,
 		},
 		{
-			name:  "nil value",
-			args:  nil,
+			name: "nil value",
+			args: nil,
 			want: nil,
-			ok: false,
+			ok:   false,
 		},
 	}
 

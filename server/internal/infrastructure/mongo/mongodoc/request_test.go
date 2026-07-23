@@ -21,7 +21,7 @@ func TestNewRequest(t *testing.T) {
 	ver := version.New().String()
 	now := time.Now()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), lo.ToPtr(ver))
+	itm, _ := request.NewItem(item.NewID(), new(ver))
 	tests := []struct {
 		name   string
 		r      *request.Request
@@ -41,7 +41,7 @@ func TestNewRequest(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(ver),
+					Version: new(ver),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -57,7 +57,6 @@ func TestNewRequest(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, rDocId := NewRequest(tt.r)
@@ -76,7 +75,7 @@ func TestNewRequests(t *testing.T) {
 	now := time.Now()
 	ver := version.New().String()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), lo.ToPtr(ver))
+	itm, _ := request.NewItem(item.NewID(), new(ver))
 	tests := []struct {
 		name     string
 		requests request.List
@@ -99,7 +98,7 @@ func TestNewRequests(t *testing.T) {
 					Project:   pId.String(),
 					Items: []RequestItem{{
 						Item:    itm.Item().String(),
-						Version: lo.ToPtr(ver),
+						Version: new(ver),
 					}},
 					Title:       "ab",
 					Description: "abc",
@@ -116,7 +115,6 @@ func TestNewRequests(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, rDocsIds := NewRequests(tt.requests)
@@ -130,7 +128,7 @@ func TestRequestDocument_Model(t *testing.T) {
 	now := time.Now()
 	ver := version.New().String()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), lo.ToPtr(ver))
+	itm, _ := request.NewItem(item.NewID(), new(ver))
 	uuId := uuid.New()
 	tests := []struct {
 		name    string
@@ -146,7 +144,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(ver),
+					Version: new(ver),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -173,7 +171,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(uuId.String()),
+					Version: new(uuId.String()),
 					Ref:     nil,
 				}},
 				Title:       "ab",
@@ -201,7 +199,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
+					Version: new(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -224,7 +222,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
+					Version: new(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -247,7 +245,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   "abc",
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
+					Version: new(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -270,7 +268,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
+					Version: new(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -293,7 +291,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
+					Version: new(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -316,7 +314,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    "abc",
-					Version: lo.ToPtr(version.New().String()),
+					Version: new(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -339,7 +337,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: lo.ToPtr("abc"),
+					Version: new("abc"),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -356,7 +354,6 @@ func TestRequestDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.rDoc.Model()

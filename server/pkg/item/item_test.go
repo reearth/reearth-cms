@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -166,7 +165,6 @@ func TestItem_Filtered(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -343,7 +341,6 @@ func TestItem_AssetIDsBySchema(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -696,7 +693,7 @@ func TestItem_GetTitle(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple(), nil)
 	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple(), nil)

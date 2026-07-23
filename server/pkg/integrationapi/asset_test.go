@@ -19,22 +19,22 @@ func TestToAssetFile(t *testing.T) {
 
 	a := ToAssetFile(f1, true)
 	e := &File{
-		Name:        lo.ToPtr(""),
-		Path:        lo.ToPtr("/"),
-		Size:        lo.ToPtr(float32(11)),
-		ContentType: lo.ToPtr(""),
-		Children: lo.ToPtr([]File{
+		Name:        new(""),
+		Path:        new("/"),
+		Size:        new(float32(11)),
+		ContentType: new(""),
+		Children: new([]File{
 			{
-				Name:        lo.ToPtr("a"),
-				Path:        lo.ToPtr("/a"),
-				Size:        lo.ToPtr(float32(10)),
-				ContentType: lo.ToPtr(""),
-				Children: lo.ToPtr([]File{
+				Name:        new("a"),
+				Path:        new("/a"),
+				Size:        new(float32(10)),
+				ContentType: new(""),
+				Children: new([]File{
 					{
-						Name:        lo.ToPtr("aaa"),
-						Path:        lo.ToPtr("/a/aaa"),
-						Size:        lo.ToPtr(float32(0)),
-						ContentType: lo.ToPtr(""),
+						Name:        new("aaa"),
+						Path:        new("/a/aaa"),
+						Size:        new(float32(0)),
+						ContentType: new(""),
 					},
 				}),
 			},
@@ -44,10 +44,10 @@ func TestToAssetFile(t *testing.T) {
 
 	a = ToAssetFile(f1, false)
 	e = &File{
-		Name:        lo.ToPtr(""),
-		Path:        lo.ToPtr("/"),
-		Size:        lo.ToPtr(float32(11)),
-		ContentType: lo.ToPtr(""),
+		Name:        new(""),
+		Path:        new("/"),
+		Size:        new(float32(11)),
+		ContentType: new(""),
 	}
 	assert.Equal(t, e, a)
 
@@ -85,19 +85,19 @@ func Test_NewAsset(t *testing.T) {
 			f:    f1,
 			all:  true,
 			want: &Asset{
-				Name:      lo.ToPtr("aaa"),
+				Name:      new("aaa"),
 				Id:        a.ID(),
 				Url:       "www.",
 				CreatedAt: timeNow,
 				File: &File{
-					Name:        lo.ToPtr("aaa"),
-					Path:        lo.ToPtr("/a/aaa"),
-					ContentType: lo.ToPtr("s"),
-					Size:        lo.ToPtr(float32(10)),
+					Name:        new("aaa"),
+					Path:        new("/a/aaa"),
+					ContentType: new("s"),
+					Size:        new(float32(10)),
 				},
-				ContentType: lo.ToPtr("s"),
-				TotalSize:   lo.ToPtr(float32(100)),
-				PreviewType: lo.ToPtr(Unknown),
+				ContentType: new("s"),
+				TotalSize:   new(float32(100)),
+				PreviewType: new(Unknown),
 				ProjectId:   pid,
 				Public:      false,
 			},
@@ -135,22 +135,22 @@ func TestToAssetArchiveExtractionStatus(t *testing.T) {
 		{
 			name:     "Status done",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusDone),
-			expected: lo.ToPtr(Done),
+			expected: new(Done),
 		},
 		{
 			name:     "Status failed",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusFailed),
-			expected: lo.ToPtr(Failed),
+			expected: new(Failed),
 		},
 		{
 			name:     "Status in progress",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusInProgress),
-			expected: lo.ToPtr(InProgress),
+			expected: new(InProgress),
 		},
 		{
 			name:     "Status pending",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusPending),
-			expected: lo.ToPtr(Pending),
+			expected: new(Pending),
 		},
 		{
 			name:     "Unknown status",
@@ -177,52 +177,52 @@ func TestToPreviewType(t *testing.T) {
 		{
 			name:     "Nil input",
 			input:    nil,
-			expected: lo.ToPtr(Unknown),
+			expected: new(Unknown),
 		},
 		{
 			name:     "PreviewTypeGeo",
 			input:    lo.ToPtr(asset.PreviewTypeGeo),
-			expected: lo.ToPtr(Geo),
+			expected: new(Geo),
 		},
 		{
 			name:     "PreviewTypeGeo3dTiles",
 			input:    lo.ToPtr(asset.PreviewTypeGeo3dTiles),
-			expected: lo.ToPtr(Geo3dTiles),
+			expected: new(Geo3dTiles),
 		},
 		{
 			name:     "PreviewTypeGeoMvt",
 			input:    lo.ToPtr(asset.PreviewTypeGeoMvt),
-			expected: lo.ToPtr(GeoMvt),
+			expected: new(GeoMvt),
 		},
 		{
 			name:     "PreviewTypeModel3d",
 			input:    lo.ToPtr(asset.PreviewTypeModel3d),
-			expected: lo.ToPtr(Model3d),
+			expected: new(Model3d),
 		},
 		{
 			name:     "PreviewTypeImage",
 			input:    lo.ToPtr(asset.PreviewTypeImage),
-			expected: lo.ToPtr(Image),
+			expected: new(Image),
 		},
 		{
 			name:     "PreviewTypeImageSvg",
 			input:    lo.ToPtr(asset.PreviewTypeImageSvg),
-			expected: lo.ToPtr(ImageSvg),
+			expected: new(ImageSvg),
 		},
 		{
 			name:     "PreviewTypeCSV",
 			input:    lo.ToPtr(asset.PreviewTypeCSV),
-			expected: lo.ToPtr(Csv),
+			expected: new(Csv),
 		},
 		{
 			name:     "PreviewTypeUnknown",
 			input:    lo.ToPtr(asset.PreviewTypeUnknown),
-			expected: lo.ToPtr(Unknown),
+			expected: new(Unknown),
 		},
 		{
 			name:     "Unrecognized PreviewType",
 			input:    lo.ToPtr(asset.PreviewType("unrecognized")),
-			expected: lo.ToPtr(Unknown),
+			expected: new(Unknown),
 		},
 	}
 

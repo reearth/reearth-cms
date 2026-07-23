@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +19,7 @@ func TestBuildCSVHeaders(t *testing.T) {
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
 	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).MustBuild()
-	sf3 := schema.NewField(schema.MustNewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100))).TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).MustBuild()
+	sf3 := schema.NewField(schema.MustNewInteger(new(int64(1)), new(int64(100))).TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("isMarried").Key(id.NewKey("isMarried")).MustBuild()
 	s1 := schema.New().NewID().Fields([]*schema.Field{sf1, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).MustBuild()
 	s2 := schema.New().NewID().Fields([]*schema.Field{sf1, sf2, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).MustBuild()
@@ -46,7 +45,7 @@ func TestRowFromItem(t *testing.T) {
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
 	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).MustBuild()
-	sf3 := schema.NewField(schema.MustNewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100))).TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).MustBuild()
+	sf3 := schema.NewField(schema.MustNewInteger(new(int64(1)), new(int64(100))).TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("isMarried").Key(id.NewKey("isMarried")).MustBuild()
 	s := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
 	sp := schema.NewPackage(s, nil, nil, nil)
@@ -99,7 +98,7 @@ func TestRowFromItem(t *testing.T) {
 }
 
 func TestToCSVProp(t *testing.T) {
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
 	s1 := toCSVProp(if1)
 	assert.Equal(t, "test", s1)
@@ -109,7 +108,7 @@ func TestToCSVProp(t *testing.T) {
 	assert.Empty(t, s2)
 
 	v3 := int64(30)
-	in3, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	in3, _ := schema.NewInteger(new(int64(1)), new(int64(100)))
 	tp3 := in3.TypeProperty()
 	sf3 := schema.NewField(tp3).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if3 := item.NewField(sf3.ID(), value.TypeInteger.Value(v3).AsMultiple(), nil)
@@ -133,12 +132,12 @@ func TestToCSVProp(t *testing.T) {
 }
 
 func TestToCSVValue(t *testing.T) {
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
 	s1 := toCSVValue(if1.Value().First())
 	assert.Equal(t, "test", s1)
 
-	sf2 := schema.NewField(schema.NewTextArea(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewTextArea(new(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if2 := item.NewField(sf2.ID(), value.TypeTextArea.Value("test").AsMultiple(), nil)
 	s2 := toCSVValue(if2.Value().First())
 	assert.Equal(t, "test", s2)
@@ -168,7 +167,7 @@ func TestToCSVValue(t *testing.T) {
 	assert.Empty(t, s6)
 
 	v7 := int64(30)
-	in7, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	in7, _ := schema.NewInteger(new(int64(1)), new(int64(100)))
 	tp7 := in7.TypeProperty()
 	sf7 := schema.NewField(tp7).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if7 := item.NewField(sf7.ID(), value.TypeInteger.Value(v7).AsMultiple(), nil)
@@ -176,7 +175,7 @@ func TestToCSVValue(t *testing.T) {
 	assert.Equal(t, "30", s7)
 
 	v8 := float64(30.123)
-	in8, _ := schema.NewNumber(lo.ToPtr(float64(1)), lo.ToPtr(float64(100)))
+	in8, _ := schema.NewNumber(new(float64(1)), new(float64(100)))
 	tp8 := in8.TypeProperty()
 	sf8 := schema.NewField(tp8).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if8 := item.NewField(sf8.ID(), value.TypeNumber.Value(v8).AsMultiple(), nil)

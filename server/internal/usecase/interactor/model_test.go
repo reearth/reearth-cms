@@ -26,14 +26,13 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestModel_FindByID(t *testing.T) {
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
+			User: new(user.NewID()),
 		},
 	}
 	opNoUser := &usecase.Operator{
@@ -117,7 +116,6 @@ func TestModel_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -152,7 +150,7 @@ func TestModel_FindByID(t *testing.T) {
 func TestModel_FindBySchema(t *testing.T) {
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
+			User: new(user.NewID()),
 		},
 	}
 	opNoUser := &usecase.Operator{
@@ -238,7 +236,6 @@ func TestModel_FindBySchema(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -357,7 +354,6 @@ func TestModel_CheckKey(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -403,7 +399,7 @@ func TestModel_Create(t *testing.T) {
 	op := &usecase.Operator{
 		OwningProjects: []id.ProjectID{pid1},
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 	}
 	// op := &usecase.Operator{
@@ -462,9 +458,9 @@ func TestModel_Create(t *testing.T) {
 			args: args{
 				param: interfaces.CreateModelParam{
 					ProjectId:   pid1,
-					Name:        lo.ToPtr("test-model"),
-					Description: lo.ToPtr("test description"),
-					Key:         lo.ToPtr("testkey"),
+					Name:        new("test-model"),
+					Description: new("test description"),
+					Key:         new("testkey"),
 				},
 				operator: op,
 			},
@@ -488,9 +484,9 @@ func TestModel_Create(t *testing.T) {
 			args: args{
 				param: interfaces.CreateModelParam{
 					ProjectId:   pid1,
-					Name:        lo.ToPtr("test-model"),
-					Description: lo.ToPtr("test description"),
-					Key:         lo.ToPtr("testkey"),
+					Name:        new("test-model"),
+					Description: new("test description"),
+					Key:         new("testkey"),
 				},
 				operator: op,
 			},
@@ -514,9 +510,9 @@ func TestModel_Create(t *testing.T) {
 			args: args{
 				param: interfaces.CreateModelParam{
 					ProjectId:   pid1,
-					Name:        lo.ToPtr("test-model"),
-					Description: lo.ToPtr("test description"),
-					Key:         lo.ToPtr("testkey"),
+					Name:        new("test-model"),
+					Description: new("test description"),
+					Key:         new("testkey"),
 				},
 				operator: op,
 			},
@@ -538,9 +534,9 @@ func TestModel_Create(t *testing.T) {
 			args: args{
 				param: interfaces.CreateModelParam{
 					ProjectId:   pid1,
-					Name:        lo.ToPtr("test-model"),
-					Description: lo.ToPtr("test description"),
-					Key:         lo.ToPtr("testkey"),
+					Name:        new("test-model"),
+					Description: new("test description"),
+					Key:         new("testkey"),
 				},
 				operator: op,
 			},
@@ -558,9 +554,9 @@ func TestModel_Create(t *testing.T) {
 			args: args{
 				param: interfaces.CreateModelParam{
 					ProjectId:   pid1,
-					Name:        lo.ToPtr("test-model"),
-					Description: lo.ToPtr("test description"),
-					Key:         lo.ToPtr("testkey"),
+					Name:        new("test-model"),
+					Description: new("test description"),
+					Key:         new("testkey"),
 				},
 				operator: op,
 			},
@@ -572,7 +568,6 @@ func TestModel_Create(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -819,14 +814,14 @@ func TestModel_Delete(t *testing.T) {
 		f1ID := id.NewFieldID()
 		f2ID := id.NewFieldID()
 
-		f1, err := schema.NewField(schema.NewReference(m2.ID(), s2.ID(), lo.ToPtr(f2ID), nil).TypeProperty()).
+		f1, err := schema.NewField(schema.NewReference(m2.ID(), s2.ID(), new(f2ID), nil).TypeProperty()).
 			ID(f1ID).
 			Key(id.RandomKey()).
 			Build()
 		assert.NoError(t, err)
 		s1.AddField(f1)
 
-		f2, err := schema.NewField(schema.NewReference(m1.ID(), s1.ID(), lo.ToPtr(f1ID), nil).TypeProperty()).
+		f2, err := schema.NewField(schema.NewReference(m1.ID(), s1.ID(), new(f1ID), nil).TypeProperty()).
 			ID(f2ID).
 			Key(id.RandomKey()).
 			Build()
@@ -860,7 +855,7 @@ func TestModel_Delete(t *testing.T) {
 func TestModel_FindByIDs(t *testing.T) {
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
+			User: new(user.NewID()),
 		},
 	}
 	opNoUser := &usecase.Operator{
@@ -945,7 +940,6 @@ func TestModel_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1062,7 +1056,7 @@ func TestModel_UpdateOrder(t *testing.T) {
 	op := &usecase.Operator{
 		WritableProjects: []id.ProjectID{pid},
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
+			User: new(user.NewID()),
 		},
 	}
 
@@ -1106,7 +1100,6 @@ func TestModel_UpdateOrder(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1150,7 +1143,6 @@ func TestNewModel(t *testing.T) {
 		// {},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1203,7 +1195,7 @@ func TestModel_Copy(t *testing.T) {
 			name: "successful copy",
 			param: interfaces.CopyModelParam{
 				ModelId: m.ID(),
-				Name:    lo.ToPtr("Copied Model"),
+				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {
 				mock.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(nil)
@@ -1219,7 +1211,7 @@ func TestModel_Copy(t *testing.T) {
 			name: "missing model ID",
 			param: interfaces.CopyModelParam{
 				ModelId: id.ModelID{},
-				Name:    lo.ToPtr("Copied Model"),
+				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			wantErr:   rerror.ErrNotFound,
@@ -1231,7 +1223,7 @@ func TestModel_Copy(t *testing.T) {
 			name: "task runner error",
 			param: interfaces.CopyModelParam{
 				ModelId: m.ID(),
-				Name:    lo.ToPtr("Copied Model"),
+				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {
 				mock.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(errors.New("task runner error"))
@@ -1245,7 +1237,7 @@ func TestModel_Copy(t *testing.T) {
 			name: "read permission denied - returns error",
 			param: interfaces.CopyModelParam{
 				ModelId: m.ID(),
-				Name:    lo.ToPtr("Copied Model"),
+				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
@@ -1260,7 +1252,7 @@ func TestModel_Copy(t *testing.T) {
 			name: "write permission denied - returns error",
 			param: interfaces.CopyModelParam{
 				ModelId: m.ID(),
-				Name:    lo.ToPtr("Copied Model"),
+				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
@@ -1276,7 +1268,7 @@ func TestModel_Copy(t *testing.T) {
 			name: "permission check error - returns error",
 			param: interfaces.CopyModelParam{
 				ModelId: m.ID(),
-				Name:    lo.ToPtr("Copied Model"),
+				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {},
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
@@ -1290,7 +1282,6 @@ func TestModel_Copy(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1323,7 +1314,7 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
+			User: new(user.NewID()),
 		},
 	}
 
@@ -1361,18 +1352,18 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 		},
 		{
 			name:    "model not found - returns error",
-			param:   interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(id.NewModelID())},
+			param:   interfaces.FindOrCreateSchemaParam{ModelID: new(id.NewModelID())},
 			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name:     "group not found - returns error",
-			param:    interfaces.FindOrCreateSchemaParam{GroupID: lo.ToPtr(id.NewGroupID())},
+			param:    interfaces.FindOrCreateSchemaParam{GroupID: new(id.NewGroupID())},
 			seedProj: gp,
 			wantErr:  rerror.ErrNotFound,
 		},
 		{
 			name:      "model path - without auth gateway",
-			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: new(m.ID())},
 			seedModel: m,
 			seedProj:  p,
 			seedSch:   s,
@@ -1380,7 +1371,7 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 		},
 		{
 			name:      "model path - permission allowed",
-			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: new(m.ID())},
 			seedModel: m,
 			seedProj:  p,
 			seedSch:   s,
@@ -1391,7 +1382,7 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 		},
 		{
 			name:      "model path - permission denied",
-			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: new(m.ID())},
 			seedModel: m,
 			seedProj:  p,
 			wantErr:   interfaces.ErrOperationDenied,
@@ -1401,7 +1392,7 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 		},
 		{
 			name:      "model path - permission check error",
-			param:     interfaces.FindOrCreateSchemaParam{ModelID: lo.ToPtr(m.ID())},
+			param:     interfaces.FindOrCreateSchemaParam{ModelID: new(m.ID())},
 			seedModel: m,
 			seedProj:  p,
 			wantErr:   errors.New("cerbos unavailable"),
@@ -1411,7 +1402,7 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 		},
 		{
 			name:      "group path - without auth gateway",
-			param:     interfaces.FindOrCreateSchemaParam{GroupID: lo.ToPtr(g.ID())},
+			param:     interfaces.FindOrCreateSchemaParam{GroupID: new(g.ID())},
 			seedGroup: g,
 			seedProj:  gp,
 			seedSch:   gs,
@@ -1419,7 +1410,7 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 		},
 		{
 			name:      "group path - permission allowed",
-			param:     interfaces.FindOrCreateSchemaParam{GroupID: lo.ToPtr(g.ID())},
+			param:     interfaces.FindOrCreateSchemaParam{GroupID: new(g.ID())},
 			seedGroup: g,
 			seedProj:  gp,
 			seedSch:   gs,
@@ -1431,7 +1422,6 @@ func TestModel_FindOrCreateSchema(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

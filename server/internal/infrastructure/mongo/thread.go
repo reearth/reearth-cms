@@ -89,7 +89,7 @@ func (r *ThreadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, e
 	return c.Result[0], nil
 }
 
-func (r *ThreadRepo) find(ctx context.Context, filter interface{}) ([]*thread.Thread, error) {
+func (r *ThreadRepo) find(ctx context.Context, filter any) ([]*thread.Thread, error) {
 	c := mongodoc.NewThreadConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, rerror.ErrInternalBy(err)

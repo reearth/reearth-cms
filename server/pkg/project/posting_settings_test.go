@@ -46,7 +46,6 @@ func TestValidateOrigins(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			err := ValidateOrigins(tt.origins)
@@ -131,7 +130,6 @@ func TestNewPostingSettings(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ps, err := NewPostingSettings(tt.enabled, tt.allowedOrigins)
@@ -162,7 +160,6 @@ func TestPostingSettings_Enabled(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.p.Enabled())
@@ -184,7 +181,6 @@ func TestPostingSettings_AllowedOrigins(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.p.AllowedOrigins())
@@ -235,7 +231,6 @@ func TestPostingSettings_Clone(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			c := tt.p.Clone()
@@ -306,7 +301,6 @@ func TestPostingSettings_CheckOrigin(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			var ps *PostingSettings

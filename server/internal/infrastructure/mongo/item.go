@@ -375,7 +375,7 @@ func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *stri
 		return nil, nil, err
 	}
 
-	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
+	return new(string(filter)), new(string(changes)), nil
 }
 
 func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {

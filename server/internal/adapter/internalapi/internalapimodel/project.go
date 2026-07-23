@@ -4,7 +4,6 @@ import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -17,9 +16,9 @@ func ToProject(p *project.Project) *pb.Project {
 		Id:          p.ID().String(),
 		Name:        p.Name(),
 		Alias:       p.Alias(),
-		Description: lo.ToPtr(p.Description()),
-		License:     lo.ToPtr(p.License()),
-		Readme:      lo.ToPtr(p.Readme()),
+		Description: new(p.Description()),
+		License:     new(p.License()),
+		Readme:      new(p.Readme()),
 		StarCount:   p.StarCount(),
 		StarredBy:   p.StarredBy(),
 		Topics:      p.Topics(),
@@ -45,7 +44,7 @@ func ProjectAccessibilityFromPB(v *pb.Visibility) *interfaces.AccessibilityParam
 		return nil
 	}
 	return &interfaces.AccessibilityParam{
-		Visibility:  lo.ToPtr(ProjectPublicationVisibilityFromPB(*v)),
+		Visibility:  new(ProjectPublicationVisibilityFromPB(*v)),
 		Publication: nil,
 	}
 }

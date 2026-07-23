@@ -72,7 +72,7 @@ func (s *Schema) guessFromOrderedMap(orderedMap *orderedmap.OrderedMap, isGeoJso
 		if !ok {
 			return nil, rerror.ErrInvalidParams
 		}
-		orderedMap = lo.ToPtr(properties.(orderedmap.OrderedMap))
+		orderedMap = new(properties.(orderedmap.OrderedMap))
 	}
 	for _, k := range orderedMap.Keys() {
 		v, _ := orderedMap.Get(k)

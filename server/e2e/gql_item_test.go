@@ -515,7 +515,7 @@ func TestBatchDeleteItems(t *testing.T) {
 	t.Run("success - large batch delete", func(t *testing.T) {
 		// Create 10 items
 		itemIDs := make([]string, 10)
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			iid, _ := createItem(e, mId, sId, nil, []map[string]any{
 				{"schemaFieldId": fids.textFId, "value": fmt.Sprintf("batch-item-%d", i), "type": "Text"},
 			})
@@ -623,9 +623,9 @@ func TestBatchDeleteItems(t *testing.T) {
 		_, mainRes1 := getItem(e, twoWayMainItem1)
 		// Find the reference field in main item by iterating through fields
 		mainFields := mainRes1.Path("$.data.node.fields").Array().Raw()
-		var mainRefField interface{}
+		var mainRefField any
 		for _, field := range mainFields {
-			fieldMap := field.(map[string]interface{})
+			fieldMap := field.(map[string]any)
 			if fieldMap["schemaFieldId"] == twoWayRefFieldId {
 				mainRefField = fieldMap["value"]
 				break
@@ -695,9 +695,9 @@ func TestBatchDeleteItems(t *testing.T) {
 
 		// Find the self-reference field value by iterating through fields
 		refFields1 := refRes1.Path("$.data.node.fields").Array().Raw()
-		var selfRefValue1 interface{}
+		var selfRefValue1 any
 		for _, field := range refFields1 {
-			fieldMap := field.(map[string]interface{})
+			fieldMap := field.(map[string]any)
 			if fieldMap["schemaFieldId"] == selfRefFieldId {
 				selfRefValue1 = fieldMap["value"]
 				break
@@ -707,9 +707,9 @@ func TestBatchDeleteItems(t *testing.T) {
 
 		_, refRes2 := getItem(e, referringItem2)
 		refFields2 := refRes2.Path("$.data.node.fields").Array().Raw()
-		var selfRefValue2 interface{}
+		var selfRefValue2 any
 		for _, field := range refFields2 {
-			fieldMap := field.(map[string]interface{})
+			fieldMap := field.(map[string]any)
 			if fieldMap["schemaFieldId"] == selfRefFieldId {
 				selfRefValue2 = fieldMap["value"]
 				break
@@ -730,9 +730,9 @@ func TestBatchDeleteItems(t *testing.T) {
 
 		// Check self-reference field - should be cleared to null when target is deleted
 		selfRefFields1After := referringRes1After.Path("$.data.node.fields").Array().Raw()
-		var selfRefValueAfter1 interface{}
+		var selfRefValueAfter1 any
 		for _, field := range selfRefFields1After {
-			fieldMap := field.(map[string]interface{})
+			fieldMap := field.(map[string]any)
 			if fieldMap["schemaFieldId"] == selfRefFieldId {
 				selfRefValueAfter1 = fieldMap["value"]
 				break
@@ -745,9 +745,9 @@ func TestBatchDeleteItems(t *testing.T) {
 		referringRes2After.Path("$.data.node.id").IsEqual(referringItem2)
 
 		selfRefFields2After := referringRes2After.Path("$.data.node.fields").Array().Raw()
-		var selfRefValueAfter2 interface{}
+		var selfRefValueAfter2 any
 		for _, field := range selfRefFields2After {
-			fieldMap := field.(map[string]interface{})
+			fieldMap := field.(map[string]any)
 			if fieldMap["schemaFieldId"] == selfRefFieldId {
 				selfRefValueAfter2 = fieldMap["value"]
 				break
@@ -788,16 +788,16 @@ func TestCreateItem(t *testing.T) {
 	_, res := getItem(e, iId)
 	fields := res.Path("$.data.node.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		"test", "test", 
-		"test", 
-		nil, 
-		true, 
-		"s1", 
-		float64(1), 
-		nil, 
-		"https://www.1s.com", 
-		nil, nil, nil, 
-		"{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", 
+		"test", "test",
+		"test",
+		nil,
+		true,
+		"s1",
+		float64(1),
+		nil,
+		"https://www.1s.com",
+		nil, nil, nil,
+		"{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 		"{\"coordinates\":[102,0.5],\"type\":\"Point\"}",
 	}, fields)
 

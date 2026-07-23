@@ -51,7 +51,6 @@ func TestOptionalFrom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, OptionalFrom(tt.args.v))
@@ -83,7 +82,6 @@ func TestOptional_Type(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.value.Type())
@@ -115,7 +113,6 @@ func TestOptional_Value(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			res := tt.value.Value()
@@ -155,7 +152,6 @@ func TestOptional_TypeAndValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ty, tv := tt.value.TypeAndValue()
@@ -223,7 +219,6 @@ func TestOptional_SetValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			var v *Value
@@ -267,7 +262,6 @@ func TestOptional_Clone(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			res := tt.target.Clone()
@@ -329,7 +323,6 @@ func TestOptional_Cast(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t))

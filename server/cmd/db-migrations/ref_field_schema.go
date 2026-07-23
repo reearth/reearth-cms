@@ -117,7 +117,7 @@ func RefFieldSchema(ctx context.Context, dbURL, dbName string, wetRun bool) erro
 					},
 				}).
 				SetArrayFilters(options.ArrayFilters{
-					Filters: []interface{}{bson.M{"f.id": f.ID}},
+					Filters: []any{bson.M{"f.id": f.ID}},
 				}), true
 		})
 	})

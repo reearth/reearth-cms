@@ -77,7 +77,7 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 	if err != nil {
 		return nil, err
 	}
-	s := sList.Schema(lo.ToPtr(m.Schema()))
+	s := sList.Schema(new(m.Schema()))
 	if s == nil {
 		return nil, nil
 	}
@@ -96,7 +96,7 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 		return nil, err
 	}
 	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
+		return g.ID(), sl.Schema(new(g.Schema()))
 	})
 	rs := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
 		return sl.Schema(&s)
@@ -154,7 +154,7 @@ func (i Schema) Export(ctx context.Context, param interfaces.ExportSchemaParam, 
 	if param.Target == interfaces.SchemaExportTargetMetadata {
 		target = exporters.JSONSchemaExportTargetMetadataSchema
 	}
-	return lo.ToPtr(exporters.NewJSONSchema(m, sp, target)), nil
+	return new(exporters.NewJSONSchema(m, sp, target)), nil
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Field, error) {

@@ -196,7 +196,7 @@ func createFieldParamsFrom(guessedFields []schema.GuessFieldData, sId id.SchemaI
 			SchemaID:    sId,
 			Type:        gf.Type,
 			Name:        gf.Name,
-			Description: lo.ToPtr("auto created by json/geoJson import"),
+			Description: new("auto created by json/geoJson import"),
 			Key:         gf.Key,
 			// type property is not supported in import
 			TypeProperty: nil,

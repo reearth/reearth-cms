@@ -133,7 +133,6 @@ func TestModelDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 
 			got, err := tt.mDoc.Model()
@@ -179,7 +178,6 @@ func TestNewModel(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, gotId := NewModel(tt.args)
 			assert.Equal(t, tt.want, got)

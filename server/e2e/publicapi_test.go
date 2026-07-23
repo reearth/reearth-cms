@@ -1450,7 +1450,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	})
 	t.Run("geo exceeding 10KB returns MAX_SIZE_EXCEEDED", func(t *testing.T) {
 		coords := make([][]float64, 0, 1400)
-		for i := 0; i < 1400; i++ {
+		for range 1400 {
 			coords = append(coords, []float64{1.234567, 2.345678})
 		}
 		big, _ := json.Marshal(map[string]any{"type": "LineString", "coordinates": coords})
@@ -1647,7 +1647,7 @@ func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 	}
 
 	t.Run("requests within the burst pass through", func(t *testing.T) {
-		for i := 0; i < burst; i++ {
+		for range burst {
 			post().Status(http.StatusAccepted)
 		}
 	})
@@ -1659,7 +1659,7 @@ func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
 	})
 
 	t.Run("read-only GET endpoints are not rate limited", func(t *testing.T) {
-		for i := 0; i < burst+2; i++ {
+		for range burst + 2 {
 			e.GET("/api/p/{workspace}/{project}", wId.String(), pId).
 				Expect().
 				Status(http.StatusOK)
@@ -1692,7 +1692,7 @@ func TestPublicAPI_PostItem_RateLimit_BadRequests(t *testing.T) {
 
 	t.Run("malformed JSON requests count against the rate limit", func(t *testing.T) {
 		// Exhaust the burst with bad JSON requests; they should each consume a token.
-		for i := 0; i < burst; i++ {
+		for range burst {
 			postBadJSON().Status(http.StatusBadRequest)
 		}
 		// The next request — even a well-formed one — must be rate limited.

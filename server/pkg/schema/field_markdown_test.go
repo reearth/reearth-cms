@@ -4,12 +4,11 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewMarkdown(t *testing.T) {
-	assert.Equal(t, &FieldMarkdown{s: &FieldString{t: value.TypeMarkdown, maxLength: lo.ToPtr(1)}}, NewMarkdown(lo.ToPtr(1)))
+	assert.Equal(t, &FieldMarkdown{s: &FieldString{t: value.TypeMarkdown, maxLength: new(1)}}, NewMarkdown(new(1)))
 }
 
 func TestFieldMarkdown_Type(t *testing.T) {

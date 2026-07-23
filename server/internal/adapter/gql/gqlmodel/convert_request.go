@@ -18,13 +18,13 @@ func ToRequest(req *request.Request) *Request {
 			func(v version.Version) *RequestItem {
 				return &RequestItem{
 					ItemID:  iid,
-					Version: lo.ToPtr(v.String()),
+					Version: new(v.String()),
 				}
 			},
 			func(r version.Ref) *RequestItem {
 				return &RequestItem{
 					ItemID: iid,
-					Ref:    lo.ToPtr(r.String()),
+					Ref:    new(r.String()),
 				}
 			},
 		)
@@ -34,7 +34,7 @@ func ToRequest(req *request.Request) *Request {
 		ID:          IDFrom(req.ID()),
 		Items:       items,
 		Title:       req.Title(),
-		Description: lo.ToPtr(req.Description()),
+		Description: new(req.Description()),
 		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
