@@ -555,6 +555,10 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 		return nil, interfaces.ErrOperationDenied
 	}
 
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceProject, rbac.ActionRead, workspaceID); err != nil {
+		return nil, err
+	}
+
 	result := &interfaces.ProjectLimitsResult{
 		PublicProjectsAllowed:  true,
 		PrivateProjectsAllowed: true,

@@ -76,7 +76,7 @@ jobs:
         with:
           repository: reearth/reearth-cms
           ref: ${{ inputs.branch || github.ref }}
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: yarn
@@ -88,7 +88,7 @@ jobs:
         run: echo "version=$( node -e "console.log(require('@playwright/test/package.json').version)" )" >> $GITHUB_OUTPUT
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: "${{ runner.os }}-${{ runner.arch }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
