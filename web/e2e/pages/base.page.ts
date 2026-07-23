@@ -154,4 +154,12 @@ export abstract class BasePage {
   async keypress(key: string, delay?: number): Promise<void> {
     await this.page.keyboard.press(key, { delay });
   }
+
+  async fillMonacoEditor(viewLines: Locator, text: string): Promise<void> {
+    await viewLines.click();
+    const isMac = process.platform === "darwin";
+    await this.page.keyboard.press(isMac ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press("Backspace");
+    await this.page.keyboard.insertText(text);
+  }
 }
