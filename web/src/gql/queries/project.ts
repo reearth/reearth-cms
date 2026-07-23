@@ -26,6 +26,9 @@ export const GET_PROJECT = gql`
               publicAssets
             }
           }
+          posting {
+            allowedOrigins
+          }
         }
         requestRoles
       }

@@ -42,10 +42,11 @@ type FindOrCreateSchemaParam struct {
 }
 
 type UpdateModelParam struct {
-	ModelID     id.ModelID
-	Name        *string
-	Description *string
-	Key         *string
+	ModelID        id.ModelID
+	Name           *string
+	Description    *string
+	Key            *string
+	PostingEnabled *bool
 }
 
 type PublishModelParam struct {

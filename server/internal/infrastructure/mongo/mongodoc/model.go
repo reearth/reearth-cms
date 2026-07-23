@@ -10,29 +10,31 @@ import (
 )
 
 type ModelDocument struct {
-	ID          string
-	Name        string
-	Description string
-	Key         string
-	Project     string
-	Schema      string
-	Metadata    *string
-	UpdatedAt   time.Time
-	Order       int
+	ID             string
+	Name           string
+	Description    string
+	Key            string
+	Project        string
+	Schema         string
+	Metadata       *string
+	UpdatedAt      time.Time
+	Order          int
+	PostingEnabled bool
 }
 
 func NewModel(model *model.Model) (*ModelDocument, string) {
 	mId := model.ID().String()
 	return &ModelDocument{
-		ID:          mId,
-		Name:        model.Name(),
-		Description: model.Description(),
-		Key:         model.Key().String(),
-		Metadata:    model.Metadata().StringRef(),
-		Project:     model.Project().String(),
-		Schema:      model.Schema().String(),
-		UpdatedAt:   model.UpdatedAt(),
-		Order:       model.Order(),
+		ID:             mId,
+		Name:           model.Name(),
+		Description:    model.Description(),
+		Key:            model.Key().String(),
+		Metadata:       model.Metadata().StringRef(),
+		Project:        model.Project().String(),
+		Schema:         model.Schema().String(),
+		UpdatedAt:      model.UpdatedAt(),
+		Order:          model.Order(),
+		PostingEnabled: model.PostingEnabled(),
 	}, mId
 }
 
@@ -74,6 +76,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Metadata(id.SchemaIDFromRef(d.Metadata)).
 		Schema(sId).
 		Order(d.Order).
+		PostingEnabled(d.PostingEnabled).
 		Build()
 }
 

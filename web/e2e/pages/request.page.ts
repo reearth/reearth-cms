@@ -66,7 +66,7 @@ export class RequestPage extends BasePage {
     return this.getByRole("columnheader", { name: "State filter" }).getByRole("button");
   }
   waitingMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "WAITING" }).getByLabel("");
+    return this.getByRole("menuitem", { name: "Waiting" }).getByLabel("");
   }
   get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });

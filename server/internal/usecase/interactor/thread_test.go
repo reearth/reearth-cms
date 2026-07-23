@@ -211,7 +211,7 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 	wid2 := accountdomain.WorkspaceID{}
 	pid := id.NewProjectID()
 	uid := accountdomain.NewUserID()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Anonymous(true).MustBuild()
 	rt := interfaces.ResourceTypeItem
 	content := "content"
 	op := &usecase.Operator{

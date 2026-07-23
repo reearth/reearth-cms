@@ -3,11 +3,14 @@ package publicapi
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/rerror"
@@ -26,6 +29,9 @@ var controllerCK = contextKey("controller")
 const defaultLimit = 50
 const maxLimit = 100
 
+// maxPayloadBytes caps the raw posting request body before parsing (256 KB).
+const maxPayloadBytes = 256 * 1024
+
 func AttachController(ctx context.Context, c *Controller) context.Context {
 	return context.WithValue(ctx, controllerCK, c)
 }
@@ -34,7 +40,13 @@ func GetController(ctx context.Context) *Controller {
 	return ctx.Value(controllerCK).(*Controller)
 }
 
-func Echo(e *echo.Group) {
+type RateLimitConfig struct {
+	Rate      float64
+	Burst     int
+	ExpiresIn time.Duration
+}
+
+func Echo(e *echo.Group, rl RateLimitConfig) {
 
 	// --- Public API routing ---
 	// ws: workspace (id or alias)
@@ -54,6 +66,8 @@ func Echo(e *echo.Group) {
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 	e.GET("/:workspace/:project", OpenAPISchema())
+	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl))
+	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
 
 // parseSubRoute splits a sub-route segment into a model key and extension.
@@ -241,6 +255,85 @@ func intParams(c *echo.Context, params ...string) (int64, bool) {
 		}
 	}
 	return 0, false
+}
+
+type postItemRequest struct {
+	Fields map[string]any `json:"fields"`
+}
+
+// isBrowserRequest reports whether the request carries an Origin header.
+// Browsers always attach Origin to cross-origin requests, while non-browser
+// clients (curl, SDKs, server-to-server) do not and are exempt from CORS.
+func isBrowserRequest(origin string) bool {
+	return origin != ""
+}
+
+// PostItem handles POST /:workspace/:project/:model/items to create a new item.
+func PostItem() echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
+		origin := c.Request().Header.Get("Origin")
+
+		wpm, err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin)
+		if err != nil {
+			return postingAccessErrorResponse(c, err)
+		}
+
+		r := c.Request()
+		r.Body = http.MaxBytesReader(c.Response(), r.Body, maxPayloadBytes)
+
+		var req postItemRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil && !errors.Is(err, io.EOF) {
+			var maxBytesErr *http.MaxBytesError
+			if errors.As(err, &maxBytesErr) {
+				return c.JSON(http.StatusRequestEntityTooLarge, newAPIError(codePayloadTooLarge, msgPayloadTooLarge, nil))
+			}
+			return c.JSON(http.StatusBadRequest, newAPIError(codeInvalidJSON, msgInvalidJSON, nil))
+		}
+		if req.Fields == nil {
+			req.Fields = map[string]any{}
+		}
+		result := ctrl.PostItem(ctx, wpm, req.Fields)
+		if result.Err != nil {
+			return postItemErrorResponse(c, result.Err)
+		}
+
+		if len(result.FieldErrors) > 0 {
+			return c.JSON(http.StatusBadRequest, newAPIError(codeValidationError, msgValidationError, result.FieldErrors))
+		}
+
+		if isBrowserRequest(origin) {
+			c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+		}
+
+		return c.JSON(http.StatusAccepted, result.Item)
+	}
+}
+
+// PreflightItem handles OPTIONS /:workspace/:project/:model/items for CORS preflight.
+func PreflightItem() echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p, m := c.Param("workspace"), c.Param("project"), c.Param("model")
+		origin := c.Request().Header.Get("Origin")
+
+		if _, err := ctrl.ValidatePostingAccess(ctx, ws, p, m, origin); err != nil {
+			return postingAccessErrorResponse(c, err)
+		}
+
+		// Non-browser requests are not real preflights — pass through without CORS headers.
+		if isBrowserRequest(origin) {
+			c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+			c.Response().Header().Set("Access-Control-Allow-Methods", "POST")
+			c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		}
+		return c.NoContent(http.StatusNoContent)
+	}
 }
 
 func OpenAPISchema() echo.HandlerFunc {

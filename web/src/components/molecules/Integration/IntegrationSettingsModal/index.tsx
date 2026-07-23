@@ -110,11 +110,11 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
-            <Option value="READER">{t("Reader")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
-            <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="OWNER">{t("Owner")}</Option>
+          <StyledSelect placeholder={t("Select role")} onSelect={handleSelect}>
+            <Option value="READER">{t("READER")}</Option>
+            <Option value="WRITER">{t("WRITER")}</Option>
+            <Option value="MAINTAINER">{t("MAINTAINER")}</Option>
+            <Option value="OWNER">{t("OWNER")}</Option>
           </StyledSelect>
         </Form.Item>
       </StyledForm>

@@ -189,14 +189,11 @@ export class ProjectPage extends BasePage {
   }
 
   // Accessibility page locators
-  get accessibilityMenuItem(): Locator {
-    return this.getByText("Accessibility");
+  get publicApiMenuItem(): Locator {
+    return this.getByText("Public API");
   }
-  get accessibilityHeadingFirst(): Locator {
-    return this.getByText("Accessibility").first();
-  }
-  get accessApiText(): Locator {
-    return this.getByText("Access API").first();
+  get publicApiHeadingFirst(): Locator {
+    return this.getByText("Public API").first();
   }
   get apiKeyText(): Locator {
     return this.getByText("API Key").first();

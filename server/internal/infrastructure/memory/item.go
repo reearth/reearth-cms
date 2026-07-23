@@ -177,6 +177,14 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 	return nil
 }
 
+func (r *Item) SaveDraft(_ context.Context, t *item.Item) error {
+	if r.err != nil {
+		return r.err
+	}
+	r.data.SaveOne(t.ID(), t, nil)
+	return nil
+}
+
 func (r *Item) SaveAll(_ context.Context, il item.List) error {
 	if r.err != nil {
 		return r.err

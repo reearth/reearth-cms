@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -163,4 +164,86 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	}
 
 	return vi
+}
+
+type PostItemResponse struct {
+	ID        string         `json:"id"`
+	CreatedAt time.Time      `json:"$createdAt"`
+	Fields    map[string]any `json:"fields"`
+}
+
+type PostItemResult struct {
+	Item        *PostItemResponse
+	FieldErrors []schema.FieldValidationError
+	Err         error
+}
+
+func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
+	params := make([]interfaces.ItemFieldParam, 0, len(body))
+	for _, f := range s.Fields() {
+		key := f.Key()
+		v, ok := body[key.String()]
+		if !ok {
+			continue
+		}
+		params = append(params, interfaces.ItemFieldParam{
+			Field: f.ID().Ref(),
+			Key:   key.Ref(),
+			Value: v,
+		})
+	}
+	return params
+}
+
+// PostItem creates a Draft item from the pre-validated WPM context and body.
+// Posting access must be verified by the caller (ValidatePostingAccess) before calling this.
+func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[string]any) PostItemResult {
+	if wpm.SchemaPackage == nil {
+		return PostItemResult{Err: rerror.ErrNotFound}
+	}
+
+	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
+		return PostItemResult{
+			FieldErrors: fieldErrs,
+		}
+	}
+
+	op := getOperator(ctx)
+	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: wpm.SchemaPackage.Schema().ID(),
+		ModelID:  wpm.Model.ID(),
+		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
+	}, op)
+	if err != nil {
+		return PostItemResult{Err: err}
+	}
+
+	itv := it.Value()
+	fields := NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil)
+	return PostItemResult{Item: &PostItemResponse{
+		ID:        itv.ID().String(),
+		CreatedAt: itv.ID().Timestamp(),
+		Fields:    map[string]any(fields),
+	}}
+}
+
+// ValidatePostingAccess checks that posting is enabled for the project and
+// model to post, and that the request origin is allowed by the project's
+// posting settings. Requests without an Origin header come from non-browser
+// clients and skip the origin check entirely.
+func (c *Controller) ValidatePostingAccess(ctx context.Context, wsAlias, pAlias, mKey, origin string) (*WPMContext, error) {
+	wpm, err := c.loadWPMContextForWrite(ctx, wsAlias, pAlias, mKey)
+	if err != nil {
+		return nil, err
+	}
+	if !wpm.Project.Accessibility().PostingEnabled() {
+		return nil, ErrProjectPostingDisabled
+	}
+	if !wpm.Model.PostingEnabled() {
+		return nil, ErrModelPostingDisabled
+	}
+	if !isBrowserRequest(origin) {
+		return wpm, nil
+	}
+	return wpm, wpm.Project.Accessibility().Posting().CheckOrigin(origin)
 }

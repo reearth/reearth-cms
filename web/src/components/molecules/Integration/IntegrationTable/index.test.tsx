@@ -156,9 +156,9 @@ describe("Integration table", () => {
 
     expect(screen.getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Role" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Creator" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Created By" })).toBeInTheDocument();
     expect(screen.getByText(name)).toBeVisible();
-    expect(screen.getByText(role)).toBeVisible();
+    expect(screen.getByText("Reader")).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
   });
 

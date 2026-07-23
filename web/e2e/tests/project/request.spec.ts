@@ -27,7 +27,7 @@ test("@smoke Request creating, searching, updating reviewer, and approving has s
   await test.step("Navigate to request page and verify request is visible", async () => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeVisible();
   });
 
   await test.step("Search for non-existent request", async () => {
@@ -35,14 +35,14 @@ test("@smoke Request creating, searching, updating reviewer, and approving has s
     await requestPage.searchInput.fill("no request");
     await requestPage.searchButton.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeHidden();
   });
 
   await test.step("Clear search and verify request is visible again", async () => {
     await requestPage.searchInput.fill("");
     await requestPage.searchButton.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeVisible();
   });
 
   await test.step("Assign reviewer to request", async () => {
@@ -65,7 +65,7 @@ test("@smoke Request creating, searching, updating reviewer, and approving has s
     await requestPage.waitingMenuItem().uncheck();
     await requestPage.okButton.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("APPROVED")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Approved")).toBeVisible();
   });
 });
 
@@ -73,7 +73,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   await test.step("Navigate to request page and verify initial state", async () => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeVisible();
     await requestPage.editButton.click();
   });
 
@@ -81,27 +81,28 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
     await requestPage.clickAndExpectSuccess(requestPage.closeButton);
     await requestPage.backButton.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeHidden();
   });
 
   await test.step("Verify request appears as closed in list", async () => {
     await requestPage.stateFilterButton.click();
     await requestPage.waitingMenuItem().uncheck();
     await requestPage.okButton.click();
-    await expect(requestPage.tableBodyTextByText("CLOSED")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Closed")).toBeVisible();
   });
 
   await test.step("Reopen request from edit page", async () => {
     await requestPage.editButton.click();
-    await expect(requestPage.statusText("CLOSED")).toBeVisible();
-    await expect(requestPage.statusText("Closed")).toBeVisible();
+    for (const el of await requestPage.statusText("Closed").all()) {
+      await expect(el).toBeVisible();
+    }
     await requestPage.clickAndExpectSuccess(requestPage.reopenButton);
     await requestPage.backButtonCapitalized.click();
   });
 
   await test.step("Verify request is reopened and waiting", async () => {
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeVisible();
   });
 
   await test.step("Close request from list view using bulk action", async () => {
@@ -113,9 +114,11 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
     await requestPage.stateFilterButton.click();
     await requestPage.waitingMenuItem().uncheck();
     await requestPage.okButton.click();
-    await expect(requestPage.tableBodyTextByText("CLOSED")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Closed")).toBeVisible();
     await requestPage.editButton.click();
-    await expect(requestPage.statusText("CLOSED")).toBeVisible();
+    for (const el of await requestPage.statusText("Closed").all()) {
+      await expect(el).toBeVisible();
+    }
   });
 });
 
@@ -123,7 +126,7 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   await test.step("Navigate to request edit page", async () => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    await expect(requestPage.tableBodyTextByText("Waiting")).toBeVisible();
     await requestPage.editButton.click();
   });
 

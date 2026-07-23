@@ -68,6 +68,7 @@ invalid value: 無効な値です。
 invalid values: 無効な値です。
 item field required: このフィールドは必須項目です。
 item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
+item must have a user, integration, or be anonymous: "アイテムにはユーザー、インテグレーション、または匿名のいずれかが必要です。"
 items are required for export: ""
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
@@ -91,6 +92,8 @@ only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
 partial not found: 部分が見つかりませんでした。
 policy check failed: ポリシーチェックに失敗しました。
+posting is disabled for this model: このモデルは投稿できません。
+posting is disabled for this project: このプロジェクトは投稿できません。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
 project creation limit exceeded: プロジェクト作成数の上限に達しました。
 projectID is required: プロジェクトIDは必須です。

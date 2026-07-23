@@ -78,6 +78,79 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 		return nil, err
 	}
 
+	// Add security schemes for API keys
+	spec.Components.SecuritySchemes["apiKey"] = map[string]interface{}{
+		"type": "apiKey",
+		"in":   "header",
+		"name": "Authorization",
+	}
+
+	// Add the shared error schema. code enumerates every machine-readable error
+	// code the posting endpoint can return (see PostingErrorCodes in error.go).
+	spec.Components.Schemas["Error"] = map[string]interface{}{
+		"type":     "object",
+		"required": []string{"error", "code", "message"},
+		"properties": map[string]interface{}{
+			"error": map[string]interface{}{
+				"type":        "string",
+				"description": "Machine-readable error code (mirrors code).",
+			},
+			"code": map[string]interface{}{
+				"type":        "string",
+				"description": "Machine-readable error code.",
+				"enum":        PostingErrorCodes,
+			},
+			"message": map[string]interface{}{
+				"type":        "string",
+				"description": "Human-readable description of the error.",
+			},
+			"details": map[string]interface{}{
+				"type":        "array",
+				"description": "Field-level validation errors, present only for validation_error.",
+				"items": map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"field":   map[string]interface{}{"type": "string"},
+						"code":    map[string]interface{}{"type": "string"},
+						"message": map[string]interface{}{"type": "string"},
+					},
+				},
+			},
+		},
+	}
+
+	// errorContent references the shared Error schema for error responses.
+	errorContent := map[string]interface{}{
+		"application/json": map[string]interface{}{
+			"schema": map[string]interface{}{
+				"$ref": "#/components/schemas/Error",
+			},
+		},
+	}
+
+	postingEnabled := wpm.Project.Accessibility().PostingEnabled()
+
+	// PostItemResponse schema — returned by POST /:model/items
+	spec.Components.Schemas["PostItemResponse"] = map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"id": map[string]interface{}{
+				"type":        "string",
+				"description": "Unique ID of the created item",
+			},
+			"$createdAt": map[string]interface{}{
+				"type":        "string",
+				"format":      "date-time",
+				"description": "Timestamp when the item was created",
+			},
+			"fields": map[string]interface{}{
+				"type":        "object",
+				"description": "Field values keyed by field key",
+			},
+		},
+		"required": []string{"id", "$createdAt", "fields"},
+	}
+
 	// Generate paths for each model accessible to the caller
 	for _, m := range models {
 		if !a11y.IsModelPublic(m.ID(), keyId) {
@@ -86,8 +159,8 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 
 		modelKey := m.Key().String()
 
-		// Add path for getting all items
-		spec.Paths[fmt.Sprintf("/%s", modelKey)] = map[string]interface{}{
+		// Add path for getting all items (and optionally posting)
+		itemsPath := map[string]interface{}{
 			"get": map[string]interface{}{
 				"summary":     fmt.Sprintf("Get all %s items", m.Name()),
 				"description": fmt.Sprintf("Retrieve all items from the %s model", m.Name()),
@@ -126,8 +199,74 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 						"description": "Model not found",
 					},
 				},
+				"security": []map[string][]string{
+					{
+						"apiKey": {},
+					},
+				},
 			},
 		}
+		if postingEnabled && m.PostingEnabled() {
+			itemsPath["post"] = map[string]interface{}{
+				"summary":     fmt.Sprintf("Create a new %s item", m.Name()),
+				"description": fmt.Sprintf("Submit a new item to the %s model. The created item is unpublished and will not appear in the public read API until it is published.", m.Name()),
+				"requestBody": map[string]interface{}{
+					"required": true,
+					"content": map[string]interface{}{
+						"application/json": map[string]interface{}{
+							"schema": map[string]interface{}{
+								"type": "object",
+								"properties": map[string]interface{}{
+									"fields": map[string]interface{}{
+										"type":        "object",
+										"description": "Field values keyed by field key",
+									},
+								},
+							},
+						},
+					},
+				},
+				"responses": map[string]interface{}{
+					"202": map[string]interface{}{
+						"description": "Item accepted and created as unpublished",
+						"content": map[string]interface{}{
+							"application/json": map[string]interface{}{
+								"schema": map[string]interface{}{
+									"$ref": "#/components/schemas/PostItemResponse",
+								},
+							},
+						},
+					},
+					"400": map[string]interface{}{
+						"description": "Validation error",
+						"content":     errorContent,
+					},
+					"403": map[string]interface{}{
+						"description": "Posting disabled or origin not allowed",
+						"content":     errorContent,
+					},
+					"404": map[string]interface{}{
+						"description": "Not found",
+						"content":     errorContent,
+					},
+					"413": map[string]interface{}{
+						"description": "Request body exceeds the allowed size limit",
+						"content":     errorContent,
+					},
+					"429": map[string]interface{}{
+						"description": "Too many requests; retry after the period indicated by the Retry-After header",
+						"headers": map[string]interface{}{
+							"Retry-After": map[string]interface{}{
+								"description": "Number of seconds to wait before retrying",
+								"schema":      map[string]interface{}{"type": "integer"},
+							},
+						},
+						"content": errorContent,
+					},
+				},
+			}
+		}
+		spec.Paths[fmt.Sprintf("/%s/items", modelKey)] = itemsPath
 
 		// Add path for getting a single item
 		spec.Paths[fmt.Sprintf("/%s/{itemId}", modelKey)] = map[string]interface{}{

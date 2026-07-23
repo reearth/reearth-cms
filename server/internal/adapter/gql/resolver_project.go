@@ -57,6 +57,7 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		pub = &interfaces.AccessibilityParam{
 			Visibility:  gqlmodel.FromProjectVisibility(input.Accessibility.Visibility),
 			Publication: gqlmodel.FromPublicationSettings(input.Accessibility.Publication),
+			Posting:     gqlmodel.FromPostingSettings(input.Accessibility.Posting),
 		}
 	}
 

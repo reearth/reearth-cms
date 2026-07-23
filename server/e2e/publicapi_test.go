@@ -2,8 +2,10 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -399,7 +401,7 @@ func TestPublicAPI_Assets(t *testing.T) {
 	})
 
 	t.Run("export assets should fail for private project (publication nil)", func(t *testing.T) {
-		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil))
 		lo.Must0(r.Project.Save(ctx, prj))
 
 		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
@@ -516,10 +518,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts,
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts,
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -640,10 +642,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -720,10 +722,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -746,10 +748,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 				},
 				"totalCount": 4,
@@ -781,10 +783,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -865,7 +867,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	})
 
 	t.Run("export as json should fail for private project (publication nil)", func(t *testing.T) {
-		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil, nil))
 		lo.Must0(r.Project.Save(ctx, prj))
 
 		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
@@ -920,10 +922,10 @@ func TestPublicAPI_Model(t *testing.T) {
 					{
 						"id":          pApiP1M1I2Id.String(),
 						pApiP1S1F1Key: "bbb",
-						"$createdAt":   pApiP1M1I2Id.Timestamp(),
-						"$createdBy":   pApiUid.String(),
-						"$updatedAt":   pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
-						"$updatedBy":   pApiUid.String(),
+						"$createdAt":  pApiP1M1I2Id.Timestamp(),
+						"$createdBy":  pApiUid.String(),
+						"$updatedAt":  pApiP1M1I2Ts.UTC().Truncate(time.Millisecond),
+						"$updatedBy":  pApiUid.String(),
 					},
 					{
 						"id":          pApiP1M1I3Id.String(),
@@ -1151,6 +1153,556 @@ func TestPublicAPI_Model_Schema(t *testing.T) {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type":    "object",
 			})
+	})
+}
+
+func TestPublicAPI_PostItem(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "posting-api-test", "posting-api-test", "posting-api-test")
+	mId, mRes := createModel(e, pId, "post-model", "post-model", "post-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+
+	t.Run("unknown workspace returns 404", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", "nonexistent-workspace", pId, mKey).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().Object().Value("code").IsEqual("not_found")
+	})
+
+	t.Run("unknown project returns 404", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), "nonexistent-project", mKey).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().Object().Value("code").IsEqual("not_found")
+	})
+
+	t.Run("unknown model returns 404", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, "nonexistent-model").
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().Object().Value("code").IsEqual("not_found")
+	})
+
+	// Model that belongs to a different project in the same workspace must return 404.
+	pIdOther, _ := createProject(e, wId.String(), "posting-other-project", "posting-other-project", "posting-other-project")
+	_, mResOther := createModel(e, pIdOther, "other-model", "other-model", "other-model")
+	mKeyOther := mResOther.Path("$.data.createModel.model.key").Raw().(string)
+
+	t.Run("model from a different project returns 404", func(t *testing.T) {
+		// pId is used as the project path, but mKeyOther belongs to pIdOther.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKeyOther).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().Object().Value("code").IsEqual("not_found")
+	})
+
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+
+	t.Run("model posting disabled returns 403", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("model_posting_disabled")
+	})
+
+	updateModelPostingEnabled(e, mId, true)
+
+	t.Run("posting enabled returns 202 with item id", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			Expect().
+			Status(http.StatusAccepted).
+			JSON().Object().ContainsKey("id").ContainsKey("$createdAt")
+	})
+
+	// --- schema-based validation ---
+
+	// Add a required text field and an integer field with constraints to the model.
+	pIdV, _ := createProject(e, wId.String(), "posting-validation-test", "posting-validation-test", "posting-validation-test")
+	updateProjectPosting(e, pIdV, []string{"https://example.com"})
+	mIdV, mResV := createModel(e, pIdV, "validation-model", "validation-model", "validation-model")
+	mKeyV := mResV.Path("$.data.createModel.model.key").Raw().(string)
+	updateModelPostingEnabled(e, mIdV, true)
+
+	// All in-scope field types with their constraints.
+	createField(e, mIdV, "title", "", "title", false, false, false, true, "Text", map[string]any{"text": map[string]any{}})
+	createField(e, mIdV, "bio", "", "bio", false, false, false, false, "Text", map[string]any{"text": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "summary", "", "summary", false, false, false, false, "TextArea", map[string]any{"textArea": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "content", "", "content", false, false, false, false, "RichText", map[string]any{"richText": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "notes", "", "notes", false, false, false, false, "MarkdownText", map[string]any{"markdownText": map[string]any{"maxLength": 10}})
+	createField(e, mIdV, "count", "", "count", false, false, false, false, "Integer", map[string]any{"integer": map[string]any{"min": 1, "max": 100}})
+	createField(e, mIdV, "score", "", "score", false, false, false, false, "Number", map[string]any{"number": map[string]any{"min": 0.0, "max": 1.0}})
+	createField(e, mIdV, "status", "", "status", false, false, false, false, "Select", map[string]any{"select": map[string]any{"values": []string{"open", "closed"}}})
+	createField(e, mIdV, "active", "", "active", false, false, false, false, "Bool", map[string]any{"bool": map[string]any{}})
+	createField(e, mIdV, "agreed", "", "agreed", false, false, false, false, "Checkbox", map[string]any{"checkbox": map[string]any{}})
+	createField(e, mIdV, "publishedAt", "", "publishedAt", false, false, false, false, "Date", map[string]any{"date": map[string]any{}})
+	createField(e, mIdV, "website", "", "website", false, false, false, false, "URL", map[string]any{"url": map[string]any{}})
+	createField(e, mIdV, "location", "", "location", false, false, false, false, "GeometryObject", map[string]any{"geometryObject": map[string]any{"defaultValue": nil, "supportedTypes": []string{"POINT", "LINESTRING"}}})
+
+	postV := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusBadRequest).
+			JSON().Object()
+	}
+	postVOK := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusAccepted).
+			JSON().Object()
+	}
+	assertFieldError := func(obj *httpexpect.Object, field, code string) {
+		obj.Value("code").IsEqual("validation_error")
+		details := obj.Value("details").Array()
+		details.Length().IsEqual(1)
+		details.Value(0).Object().Value("field").IsEqual(field)
+		details.Value(0).Object().Value("code").IsEqual(code)
+	}
+
+	// --- gate / edge cases ---
+	t.Run("valid payload returns 201", func(t *testing.T) {
+		postVOK(map[string]any{
+			"title": "hello", "count": 50, "score": 0.5, "status": "open",
+			"active": true, "agreed": false, "publishedAt": "2024-01-15T10:00:00Z",
+			"website": "https://example.com",
+		})
+	})
+
+	t.Run("response fields reflect submitted values", func(t *testing.T) {
+		obj := postVOK(map[string]any{
+			"title": "world", "count": 42, "score": 0.75, "status": "closed",
+			"active": true, "agreed": true, "publishedAt": "2025-03-01T00:00:00Z",
+			"website": "https://reearth.io",
+		})
+		obj.ContainsKey("id")
+		obj.ContainsKey("$createdAt")
+		fields := obj.Value("fields").Object()
+		fields.Value("title").IsEqual("world")
+		fields.Value("count").IsEqual(float64(42))
+		fields.Value("score").IsEqual(0.75)
+		fields.Value("status").IsEqual("closed")
+		fields.Value("active").IsEqual(true)
+		fields.Value("agreed").IsEqual(true)
+		fields.Value("website").IsEqual("https://reearth.io")
+	})
+
+	t.Run("created item is not publicly accessible (draft only)", func(t *testing.T) {
+		obj := postVOK(map[string]any{"title": "draft-check"})
+		itemID := obj.Value("id").String().Raw()
+		// A freshly posted item is a draft — it must not appear via the public GET endpoint.
+		e.GET("/api/p/{workspace}/{project}/{model}/{item}", wId.String(), pIdV, mKeyV, itemID).
+			Expect().
+			Status(http.StatusNotFound)
+	})
+
+	t.Run("unknown keys are silently ignored", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "unknown_field": "ignored"})
+	})
+
+	t.Run("field submitted by UUID key is silently ignored", func(t *testing.T) {
+		// UUIDs are not valid field keys in posting — they must be ignored so the
+		// submission does not fail with an unknown-field error.
+		postVOK(map[string]any{"title": "hello", id.NewFieldID().String(): "should-be-ignored"})
+	})
+
+	t.Run("missing required field returns FIELD_REQUIRED", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"count": 5}), "title", "FIELD_REQUIRED")
+	})
+
+	t.Run("empty string in required field returns FIELD_REQUIRED", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": ""}), "title", "FIELD_REQUIRED")
+	})
+
+	t.Run("multiple field errors returned together", func(t *testing.T) {
+		obj := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": map[string]any{"count": 999}}).
+			Expect().
+			Status(http.StatusBadRequest).
+			JSON().Object()
+		obj.Value("code").IsEqual("validation_error")
+		obj.Value("details").Array().Length().IsEqual(2)
+	})
+
+	// --- Text (maxLength) ---
+	t.Run("text exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "bio": "this is way too long"}), "bio", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("text within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "bio": "short"})
+	})
+
+	// --- TextArea (maxLength) ---
+	t.Run("textarea exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "summary": "this is way too long"}), "summary", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("textarea within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "summary": "short"})
+	})
+
+	// --- RichText (maxLength) ---
+	t.Run("richtext exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "content": "this is way too long"}), "content", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("richtext within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "content": "short"})
+	})
+
+	// --- MarkdownText (maxLength) ---
+	t.Run("markdown exceeding maxLength returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "notes": "this is way too long"}), "notes", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("markdown within maxLength returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "notes": "short"})
+	})
+
+	// --- Integer (min/max) ---
+	t.Run("integer above max returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "count": 999}), "count", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("integer below min returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "count": 0}), "count", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("integer within range returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "count": 50})
+	})
+	t.Run("integer type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "count": map[string]any{"bad": "value"}}), "count", "TYPE_MISMATCH")
+	})
+
+	// --- Number (min/max) ---
+	t.Run("number above max returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "score": 1.5}), "score", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("number below min returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "score": -0.1}), "score", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("number within range returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "score": 0.5})
+	})
+	t.Run("number type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "score": map[string]any{"bad": "value"}}), "score", "TYPE_MISMATCH")
+	})
+
+	// --- Select (allowed values) ---
+	t.Run("select invalid value returns CONSTRAINT_VIOLATION", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "status": "pending"}), "status", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("select valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "status": "open"})
+	})
+
+	// --- Bool ---
+	t.Run("bool type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "active": map[string]any{"bad": "value"}}), "active", "TYPE_MISMATCH")
+	})
+	t.Run("bool valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "active": true})
+	})
+
+	// --- Checkbox ---
+	t.Run("checkbox type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "agreed": map[string]any{"bad": "value"}}), "agreed", "TYPE_MISMATCH")
+	})
+	t.Run("checkbox valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "agreed": true})
+	})
+
+	// --- Date ---
+	t.Run("date type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "publishedAt": map[string]any{"bad": "value"}}), "publishedAt", "TYPE_MISMATCH")
+	})
+	t.Run("badly formatted date string returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "publishedAt": "not-a-date"}), "publishedAt", "TYPE_MISMATCH")
+	})
+	t.Run("date valid RFC3339 returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "publishedAt": "2024-01-15T10:00:00Z"})
+	})
+
+	// --- URL ---
+	t.Run("url type mismatch returns TYPE_MISMATCH", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "website": map[string]any{"bad": "value"}}), "website", "TYPE_MISMATCH")
+	})
+	t.Run("url valid value returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "website": "https://example.com"})
+	})
+
+	// --- URL hard limit (2,048 chars) ---
+	t.Run("url at exactly 2048 chars returns 201", func(t *testing.T) {
+		u := "https://e.com/"
+		postVOK(map[string]any{"title": "hello", "website": u + strings.Repeat("a", 2048-len(u))})
+	})
+	t.Run("url exceeding 2048 chars returns MAX_LENGTH_EXCEEDED", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "website": "https://e.com/" + strings.Repeat("a", 2049)}), "website", "MAX_LENGTH_EXCEEDED")
+	})
+
+	// --- Geo hard limits (structure + size) ---
+	t.Run("geo valid structure returns 201", func(t *testing.T) {
+		postVOK(map[string]any{"title": "hello", "location": `{"type":"Point","coordinates":[1,2]}`})
+	})
+	t.Run("geo invalid structure returns INVALID_GEO_STRUCTURE", func(t *testing.T) {
+		assertFieldError(postV(map[string]any{"title": "hello", "location": `{"type":"Point"}`}), "location", "INVALID_GEO_STRUCTURE")
+	})
+	t.Run("geo exceeding 10KB returns MAX_SIZE_EXCEEDED", func(t *testing.T) {
+		coords := make([][]float64, 0, 1400)
+		for i := 0; i < 1400; i++ {
+			coords = append(coords, []float64{1.234567, 2.345678})
+		}
+		big, _ := json.Marshal(map[string]any{"type": "LineString", "coordinates": coords})
+		assertFieldError(postV(map[string]any{"title": "hello", "location": string(big)}), "location", "MAX_SIZE_EXCEEDED")
+	})
+
+	// --- payload size limit (256 KB) ---
+	t.Run("payload exceeding 256KB returns 413 before parsing", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": map[string]any{"title": strings.Repeat("a", 270000)}}).
+			Expect().
+			Status(http.StatusRequestEntityTooLarge).
+			JSON().Object().
+			Value("code").IsEqual("payload_too_large")
+	})
+
+	// --- single vs multiple ---
+
+	// Create a separate model with single and multiple text fields.
+	pIdM, _ := createProject(e, wId.String(), "posting-multiple-test", "posting-multiple-test", "posting-multiple-test")
+	updateProjectPosting(e, pIdM, []string{"https://example.com"})
+	mIdM, mResM := createModel(e, pIdM, "multi-model", "multi-model", "multi-model")
+	mKeyM := mResM.Path("$.data.createModel.model.key").Raw().(string)
+	updateModelPostingEnabled(e, mIdM, true)
+
+	// single=false (default), multiple=false
+	createField(e, mIdM, "tag", "", "tag", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	// multiple=true
+	createField(e, mIdM, "tags", "", "tags", true, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	// multiple integer with constraints
+	createField(e, mIdM, "counts", "", "counts", true, false, false, false, "Integer", map[string]any{"integer": map[string]any{"min": 1, "max": 10}})
+
+	postM := func(fields map[string]any) *httpexpect.Object {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusBadRequest).
+			JSON().Object()
+	}
+	postMOK := func(fields map[string]any) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdM, mKeyM).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": fields}).
+			Expect().
+			Status(http.StatusAccepted)
+	}
+
+	t.Run("single field accepts scalar", func(t *testing.T) {
+		postMOK(map[string]any{"tag": "one"})
+	})
+	t.Run("single field rejects array with multiple values", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"tag": []any{"one", "two"}}), "tag", "TYPE_MISMATCH")
+	})
+	t.Run("multiple field accepts array of values", func(t *testing.T) {
+		postMOK(map[string]any{"tags": []any{"one", "two", "three"}})
+	})
+	t.Run("multiple field rejects scalar", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"tags": "one"}), "tags", "TYPE_MISMATCH")
+	})
+	t.Run("multiple field reports type mismatch on invalid item in array", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"counts": []any{float64(1), map[string]any{"bad": "value"}}}), "counts", "TYPE_MISMATCH")
+	})
+	t.Run("multiple field reports constraint violation on item out of range", func(t *testing.T) {
+		assertFieldError(postM(map[string]any{"counts": []any{float64(5), float64(999)}}), "counts", "CONSTRAINT_VIOLATION")
+	})
+	t.Run("multiple field accepts all valid items", func(t *testing.T) {
+		postMOK(map[string]any{"counts": []any{float64(1), float64(5), float64(10)}})
+	})
+
+	// --- unsupported field types (Asset, Reference) are silently skipped ---
+
+	pIdU, _ := createProject(e, wId.String(), "posting-unsupported-test", "posting-unsupported-test", "posting-unsupported-test")
+	updateProjectPosting(e, pIdU, []string{"https://example.com"})
+	mIdU, mResU := createModel(e, pIdU, "unsupported-model", "unsupported-model", "unsupported-model")
+	mKeyU := mResU.Path("$.data.createModel.model.key").Raw().(string)
+	updateModelPostingEnabled(e, mIdU, true)
+	createField(e, mIdU, "name", "", "name", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	createField(e, mIdU, "attachment", "", "attachment", false, false, false, false, "Asset", map[string]any{"asset": map[string]any{}})
+
+	t.Run("Asset field value in body is silently ignored and item is created", func(t *testing.T) {
+		// Asset and Reference fields are excluded from posting validation and creation.
+		// Submitting values for them must not cause an error.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdU, mKeyU).
+			WithHeader("Origin", "https://example.com").
+			WithJSON(map[string]any{"fields": map[string]any{
+				"name":       "test",
+				"attachment": id.NewAssetID().String(),
+			}}).
+			Expect().
+			Status(http.StatusAccepted).
+			JSON().Object().ContainsKey("id")
+	})
+}
+
+func TestPublicAPI_PostingCORS(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "cors-test", "cors-test", "cors-test")
+	mCorId, mRes := createModel(e, pId, "cors-model", "cors-model", "cors-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+
+	// one allowed origin configured
+	updateProjectPosting(e, pId, []string{"https://example.com"})
+	updateModelPostingEnabled(e, mCorId, true)
+
+	t.Run("no origins configured returns 403", func(t *testing.T) {
+		updateProjectPosting(e, pId, []string{})
+		defer updateProjectPosting(e, pId, []string{"https://example.com"})
+
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://example.com").
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("absent origin passes through (non-browser client)", func(t *testing.T) {
+		posting := getProjectPosting(e, pId)
+		t.Logf("DEBUG posting state: %+v", posting.Raw())
+		res := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			Expect()
+		t.Logf("DEBUG response body: %s", res.Body().Raw())
+		res.Status(http.StatusAccepted)
+		res.Header("Access-Control-Allow-Origin").IsEmpty()
+	})
+
+	t.Run("wrong origin returns 403", func(t *testing.T) {
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://evil.com").
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("http origin rejected when allowed origin is https", func(t *testing.T) {
+		// http://example.com must not match the configured https://example.com origin.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "http://example.com").
+			Expect().
+			Status(http.StatusForbidden).
+			JSON().Object().Value("error").IsEqual("origin_not_allowed")
+	})
+
+	t.Run("matching origin returns 202 with ACAO header", func(t *testing.T) {
+		res := e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://example.com").
+			Expect().
+			Status(http.StatusAccepted)
+		res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+	})
+
+	t.Run("OPTIONS preflight approved returns 204 with CORS headers", func(t *testing.T) {
+		res := e.OPTIONS("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Access-Control-Request-Method", "POST").
+			Expect().
+			Status(http.StatusNoContent)
+		res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+		res.Header("Access-Control-Allow-Methods").IsEqual("POST")
+		res.Header("Access-Control-Allow-Headers").IsEqual("Content-Type")
+	})
+
+	t.Run("OPTIONS preflight rejected returns 403", func(t *testing.T) {
+		res := e.OPTIONS("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://evil.com").
+			WithHeader("Access-Control-Request-Method", "POST").
+			Expect().
+			Status(http.StatusForbidden)
+		res.Header("Access-Control-Allow-Origin").IsEmpty()
+	})
+}
+
+func TestPublicAPI_PostItem_RateLimit(t *testing.T) {
+	const burst = 3
+	e := StartServer(t, &app.Config{
+		Public_RateLimit: app.RateLimitConfig{
+			RatePerMinute: 1,
+			Burst:         burst,
+		},
+	}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "ratelimit-test", "ratelimit-test", "ratelimit-test")
+	mId, mRes := createModel(e, pId, "ratelimit-model", "ratelimit-model", "ratelimit-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+	updateModelPostingEnabled(e, mId, true)
+
+	post := func() *httpexpect.Response {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			Expect()
+	}
+
+	t.Run("requests within the burst pass through", func(t *testing.T) {
+		for i := 0; i < burst; i++ {
+			post().Status(http.StatusAccepted)
+		}
+	})
+
+	t.Run("request exceeding the burst returns 429 with Retry-After", func(t *testing.T) {
+		res := post().Status(http.StatusTooManyRequests)
+		res.Header("Retry-After").NotEmpty()
+		res.JSON().Object().Value("code").IsEqual("rate_limited")
+	})
+
+	t.Run("read-only GET endpoints are not rate limited", func(t *testing.T) {
+		for i := 0; i < burst+2; i++ {
+			e.GET("/api/p/{workspace}/{project}", wId.String(), pId).
+				Expect().
+				Status(http.StatusOK)
+		}
+	})
+}
+
+func TestPublicAPI_PostItem_RateLimit_BadRequests(t *testing.T) {
+	const burst = 3
+	e := StartServer(t, &app.Config{
+		Public_RateLimit: app.RateLimitConfig{
+			RatePerMinute: 1,
+			Burst:         burst,
+		},
+	}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "ratelimit-bad-test", "ratelimit-bad-test", "ratelimit-bad-test")
+	mId, mRes := createModel(e, pId, "ratelimit-bad-model", "ratelimit-bad-model", "ratelimit-bad-model")
+	mKey := mRes.Path("$.data.createModel.model.key").Raw().(string)
+	updateProjectPosting(e, pId, []string{"https://allowed.com"})
+	updateModelPostingEnabled(e, mId, true)
+
+	postBadJSON := func() *httpexpect.Response {
+		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte(`{bad json`)).
+			Expect()
+	}
+
+	t.Run("malformed JSON requests count against the rate limit", func(t *testing.T) {
+		// Exhaust the burst with bad JSON requests; they should each consume a token.
+		for i := 0; i < burst; i++ {
+			postBadJSON().Status(http.StatusBadRequest)
+		}
+		// The next request — even a well-formed one — must be rate limited.
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte(`{"fields":{}}`)).
+			Expect().
+			Status(http.StatusTooManyRequests).
+			JSON().Object().Value("code").IsEqual("rate_limited")
 	})
 }
 

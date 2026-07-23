@@ -453,6 +453,7 @@ type ComplexityRoot struct {
 		MetadataSchemaID func(childComplexity int) int
 		Name             func(childComplexity int) int
 		Order            func(childComplexity int) int
+		PostingSettings  func(childComplexity int) int
 		Project          func(childComplexity int) int
 		ProjectID        func(childComplexity int) int
 		Schema           func(childComplexity int) int
@@ -474,6 +475,10 @@ type ComplexityRoot struct {
 
 	ModelPayload struct {
 		Model func(childComplexity int) int
+	}
+
+	ModelPostingSettings struct {
+		Enabled func(childComplexity int) int
 	}
 
 	ModelsPayload struct {
@@ -582,6 +587,10 @@ type ComplexityRoot struct {
 		StartCursor     func(childComplexity int) int
 	}
 
+	PostingSettings struct {
+		AllowedOrigins func(childComplexity int) int
+	}
+
 	Project struct {
 		Accessibility func(childComplexity int) int
 		Alias         func(childComplexity int) int
@@ -607,6 +616,7 @@ type ComplexityRoot struct {
 
 	ProjectAccessibility struct {
 		APIKeys     func(childComplexity int) int
+		Posting     func(childComplexity int) int
 		Publication func(childComplexity int) int
 		Visibility  func(childComplexity int) int
 	}
@@ -2541,6 +2551,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Model.Order(childComplexity), true
+	case "Model.postingSettings":
+		if e.ComplexityRoot.Model.PostingSettings == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Model.PostingSettings(childComplexity), true
 	case "Model.project":
 		if e.ComplexityRoot.Model.Project == nil {
 			break
@@ -2616,6 +2632,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ModelPayload.Model(childComplexity), true
+
+	case "ModelPostingSettings.enabled":
+		if e.ComplexityRoot.ModelPostingSettings.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ModelPostingSettings.Enabled(childComplexity), true
 
 	case "ModelsPayload.models":
 		if e.ComplexityRoot.ModelsPayload.Models == nil {
@@ -3489,6 +3512,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PageInfo.StartCursor(childComplexity), true
 
+	case "PostingSettings.allowedOrigins":
+		if e.ComplexityRoot.PostingSettings.AllowedOrigins == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostingSettings.AllowedOrigins(childComplexity), true
+
 	case "Project.accessibility":
 		if e.ComplexityRoot.Project.Accessibility == nil {
 			break
@@ -3599,6 +3629,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ProjectAccessibility.APIKeys(childComplexity), true
+	case "ProjectAccessibility.posting":
+		if e.ComplexityRoot.ProjectAccessibility.Posting == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ProjectAccessibility.Posting(childComplexity), true
 	case "ProjectAccessibility.publication":
 		if e.ComplexityRoot.ProjectAccessibility.Publication == nil {
 			break
@@ -5173,7 +5209,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateItemInput,
 		ec.unmarshalInputUpdateMeInput,
 		ec.unmarshalInputUpdateModelInput,
+		ec.unmarshalInputUpdateModelPostingSettingsInput,
 		ec.unmarshalInputUpdateModelsOrderInput,
+		ec.unmarshalInputUpdatePostingSettingsInput,
 		ec.unmarshalInputUpdateProjectAccessibilityInput,
 		ec.unmarshalInputUpdateProjectInput,
 		ec.unmarshalInputUpdatePublicationSettingsInput,
@@ -6731,6 +6769,7 @@ extend type Subscription {
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Int
+  postingSettings: ModelPostingSettings!
 }
 
 enum ExportFormat{
@@ -6747,11 +6786,20 @@ input CreateModelInput {
   key: String
 }
 
+type ModelPostingSettings {
+  enabled: Boolean!
+}
+
+input UpdateModelPostingSettingsInput {
+  enabled: Boolean!
+}
+
 input UpdateModelInput {
   modelId: ID!
   name: String
   description: String
   key: String
+  postingSettings: UpdateModelPostingSettingsInput
 }
 
 input UpdateModelsOrderInput {
@@ -6840,6 +6888,10 @@ type PublicationSettings {
   publicAssets: Boolean!
 }
 
+type PostingSettings {
+  allowedOrigins: [String!]!
+}
+
 type ProjectAPIKey {
   id: ID!
   name: String!
@@ -6852,6 +6904,7 @@ type ProjectAccessibility {
   visibility: ProjectVisibility!
   publication: PublicationSettings
   apiKeys: [ProjectAPIKey!]
+  posting: PostingSettings!
 }
 
 type Project implements Node {
@@ -6886,9 +6939,14 @@ input UpdatePublicationSettingsInput{
   publicAssets: Boolean!
 }
 
+input UpdatePostingSettingsInput {
+  allowedOrigins: [String!]!
+}
+
 input UpdateProjectAccessibilityInput {
   visibility: ProjectVisibility
   publication: UpdatePublicationSettingsInput
+  posting: UpdatePostingSettingsInput
 }
 
 input UpdateProjectInput {
@@ -8243,6 +8301,8 @@ func (ec *executionContext) childFields_Model(ctx context.Context, field graphql
 		return ec.fieldContext_Model_updatedAt(ctx, field)
 	case "order":
 		return ec.fieldContext_Model_order(ctx, field)
+	case "postingSettings":
+		return ec.fieldContext_Model_postingSettings(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 }
@@ -8279,6 +8339,14 @@ func (ec *executionContext) childFields_ModelPayload(ctx context.Context, field 
 	return nil, fmt.Errorf("no field named %q was found under type ModelPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_ModelPostingSettings(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "enabled":
+		return ec.fieldContext_ModelPostingSettings_enabled(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ModelPostingSettings", field.Name)
+}
+
 func (ec *executionContext) childFields_ModelsPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "models":
@@ -8299,6 +8367,14 @@ func (ec *executionContext) childFields_PageInfo(ctx context.Context, field grap
 		return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+}
+
+func (ec *executionContext) childFields_PostingSettings(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "allowedOrigins":
+		return ec.fieldContext_PostingSettings_allowedOrigins(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostingSettings", field.Name)
 }
 
 func (ec *executionContext) childFields_Project(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -8355,6 +8431,8 @@ func (ec *executionContext) childFields_ProjectAccessibility(ctx context.Context
 		return ec.fieldContext_ProjectAccessibility_publication(ctx, field)
 	case "apiKeys":
 		return ec.fieldContext_ProjectAccessibility_apiKeys(ctx, field)
+	case "posting":
+		return ec.fieldContext_ProjectAccessibility_posting(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ProjectAccessibility", field.Name)
 }
@@ -15991,6 +16069,38 @@ func (ec *executionContext) fieldContext_Model_order(_ context.Context, field gr
 	return graphql.NewScalarFieldContext("Model", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _Model_postingSettings(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Model_postingSettings(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PostingSettings, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *gqlmodel.ModelPostingSettings) graphql.Marshaler {
+			return ec.marshalNModelPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPostingSettings(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Model_postingSettings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ModelPostingSettings(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ModelConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -16195,6 +16305,29 @@ func (ec *executionContext) fieldContext_ModelPayload_model(_ context.Context, f
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _ModelPostingSettings_enabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelPostingSettings) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ModelPostingSettings_enabled(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ModelPostingSettings_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ModelPostingSettings", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _ModelsPayload_models(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelsPayload) (ret graphql.Marshaler) {
@@ -19679,6 +19812,29 @@ func (ec *executionContext) fieldContext_PageInfo_hasPreviousPage(_ context.Cont
 	return graphql.NewScalarFieldContext("PageInfo", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
+func (ec *executionContext) _PostingSettings_allowedOrigins(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PostingSettings) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostingSettings_allowedOrigins(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.AllowedOrigins, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostingSettings_allowedOrigins(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostingSettings", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _Project_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -20179,6 +20335,38 @@ func (ec *executionContext) fieldContext_ProjectAccessibility_apiKeys(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_ProjectAPIKey(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAccessibility_posting(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAccessibility) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ProjectAccessibility_posting(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Posting, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *gqlmodel.PostingSettings) graphql.Marshaler {
+			return ec.marshalNPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPostingSettings(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ProjectAccessibility_posting(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAccessibility",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostingSettings(ctx, field)
 		},
 	}
 	return fc, nil
@@ -31955,7 +32143,7 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "name", "description", "key"}
+	fieldsInOrder := [...]string{"modelId", "name", "description", "key", "postingSettings"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -31990,6 +32178,43 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 				return it, err
 			}
 			it.Key = data
+		case "postingSettings":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postingSettings"))
+			data, err := ec.unmarshalOUpdateModelPostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelPostingSettingsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PostingSettings = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateModelPostingSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdateModelPostingSettingsInput, error) {
+	var it gqlmodel.UpdateModelPostingSettingsInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"enabled"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = data
 		}
 	}
 	return it, nil
@@ -32025,6 +32250,36 @@ func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdatePostingSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdatePostingSettingsInput, error) {
+	var it gqlmodel.UpdatePostingSettingsInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"allowedOrigins"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "allowedOrigins":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowedOrigins"))
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AllowedOrigins = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProjectAccessibilityInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectAccessibilityInput, error) {
 	var it gqlmodel.UpdateProjectAccessibilityInput
 	if obj == nil {
@@ -32036,7 +32291,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectAccessibilityInput(ctx co
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"visibility", "publication"}
+	fieldsInOrder := [...]string{"visibility", "publication", "posting"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -32057,6 +32312,13 @@ func (ec *executionContext) unmarshalInputUpdateProjectAccessibilityInput(ctx co
 				return it, err
 			}
 			it.Publication = data
+		case "posting":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("posting"))
+			data, err := ec.unmarshalOUpdatePostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePostingSettingsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Posting = data
 		}
 	}
 	return it, nil
@@ -37023,6 +37285,11 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.RequiredNull {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "postingSettings":
+			out.Values[i] = ec._Model_postingSettings(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -37157,6 +37424,45 @@ func (ec *executionContext) _ModelPayload(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("ModelPayload")
 		case "model":
 			out.Values[i] = ec._ModelPayload_model(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var modelPostingSettingsImplementors = []string{"ModelPostingSettings"}
+
+func (ec *executionContext) _ModelPostingSettings(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ModelPostingSettings) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, modelPostingSettingsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ModelPostingSettings")
+		case "enabled":
+			out.Values[i] = ec._ModelPostingSettings_enabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -37996,6 +38302,45 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var postingSettingsImplementors = []string{"PostingSettings"}
+
+func (ec *executionContext) _PostingSettings(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PostingSettings) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postingSettingsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostingSettings")
+		case "allowedOrigins":
+			out.Values[i] = ec._PostingSettings_allowedOrigins(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var projectImplementors = []string{"Project", "Node"}
 
 func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Project) graphql.Marshaler {
@@ -38204,6 +38549,11 @@ func (ec *executionContext) _ProjectAccessibility(ctx context.Context, sel ast.S
 		case "apiKeys":
 			out.Values[i] = ec._ProjectAccessibility_apiKeys(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "posting":
+			out.Values[i] = ec._ProjectAccessibility_posting(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		default:
@@ -43857,6 +44207,16 @@ func (ec *executionContext) marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._ModelEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNModelPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPostingSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ModelPostingSettings) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ModelPostingSettings(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNMultipleOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleOperator(ctx context.Context, v any) (gqlmodel.MultipleOperator, error) {
 	var res gqlmodel.MultipleOperator
 	err := res.UnmarshalGQL(v)
@@ -43935,6 +44295,16 @@ func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋreearthᚋreearth
 		return graphql.Null
 	}
 	return ec._PageInfo(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPostingSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPostingSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PostingSettings) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostingSettings(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProject2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Project) graphql.Marshaler {
@@ -46518,6 +46888,22 @@ func (ec *executionContext) marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗc
 		return graphql.Null
 	}
 	return ec._UpdateMemberOfWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateModelPostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelPostingSettingsInput(ctx context.Context, v any) (*gqlmodel.UpdateModelPostingSettingsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateModelPostingSettingsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOUpdatePostingSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePostingSettingsInput(ctx context.Context, v any) (*gqlmodel.UpdatePostingSettingsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdatePostingSettingsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUpdateProjectAccessibilityInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectAccessibilityInput(ctx context.Context, v any) (*gqlmodel.UpdateProjectAccessibilityInput, error) {
