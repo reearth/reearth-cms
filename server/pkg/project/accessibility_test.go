@@ -7,7 +7,178 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewAccessibility_WithPosting(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		posting *PostingSettings
+		wantNil bool
+	}{
+		{
+			name:    "nil posting stays nil",
+			posting: nil,
+			wantNil: true,
+		},
+		{
+			name:    "posting settings are stored",
+			posting: mustNewPS(t, nil),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			a := NewAccessibility(VisibilityPublic, nil, tt.posting, nil)
+			if tt.wantNil {
+				assert.Nil(t, a.Posting())
+			} else {
+				assert.NotNil(t, a.Posting())
+			}
+		})
+	}
+}
+
+func TestAccessibility_Posting(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		a           *Accessibility
+		wantNil     bool
+		wantOrigins []string
+	}{
+		{name: "nil receiver", a: nil, wantNil: true},
+		{name: "nil posting", a: &Accessibility{}, wantNil: true},
+		{name: "posting without origins", a: &Accessibility{posting: &PostingSettings{}}, wantNil: false, wantOrigins: []string{}},
+		{name: "posting with origins", a: &Accessibility{posting: &PostingSettings{allowedOrigins: []string{"https://a.com"}}}, wantNil: false, wantOrigins: []string{"https://a.com"}},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := tt.a.Posting()
+			if tt.wantNil {
+				assert.Nil(t, got)
+			} else {
+				assert.NotNil(t, got)
+				assert.Equal(t, tt.wantOrigins, got.AllowedOrigins())
+			}
+		})
+	}
+}
+
+func TestAccessibility_PostingEnabled(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		a    *Accessibility
+		want bool
+	}{
+		{name: "nil receiver defaults to true", a: nil, want: true},
+		{name: "nil posting defaults to true", a: &Accessibility{}, want: true},
+		{name: "posting disabled", a: &Accessibility{posting: &PostingSettings{enabled: false}}, want: false},
+		{name: "posting enabled", a: &Accessibility{posting: &PostingSettings{enabled: true}}, want: true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.a.PostingEnabled())
+		})
+	}
+}
+
+func TestAccessibility_SetPosting(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		initial    *Accessibility
+		input      *PostingSettings
+		wantNil    bool
+		wantCloned bool
+	}{
+		{
+			name:    "nil receiver is a no-op",
+			initial: nil,
+			input:   mustNewPS(t, nil),
+		},
+		{
+			name:    "set nil clears posting",
+			initial: &Accessibility{posting: mustNewPS(t, nil)},
+			input:   nil,
+			wantNil: true,
+		},
+		{
+			name:       "set non-nil stores a clone",
+			initial:    &Accessibility{},
+			input:      mustNewPS(t, nil),
+			wantCloned: true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.NotPanics(t, func() { tt.initial.SetPosting(tt.input) })
+			if tt.initial == nil {
+				return
+			}
+			if tt.wantNil {
+				assert.Nil(t, tt.initial.posting)
+				return
+			}
+			assert.NotNil(t, tt.initial.posting)
+			if tt.wantCloned {
+				assert.NotSame(t, tt.input, tt.initial.posting)
+			}
+		})
+	}
+}
+
+func TestAccessibility_Clone_IncludesPosting(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		a       *Accessibility
+		wantNil bool
+	}{
+		{
+			name: "clone preserves posting and produces a distinct pointer",
+			a:    &Accessibility{posting: mustNewPS(t, []string{"https://a.com"})},
+		},
+		{
+			name:    "clone with nil posting produces nil posting",
+			a:       &Accessibility{},
+			wantNil: true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := tt.a.Clone()
+			if tt.wantNil {
+				assert.Nil(t, c.Posting())
+				return
+			}
+			assert.Equal(t, tt.a.posting.AllowedOrigins(), c.Posting().AllowedOrigins())
+			assert.NotSame(t, tt.a.posting, c.posting)
+		})
+	}
+}
+
 func TestAccessibility_IsAssetsPublic(t *testing.T) {
+	t.Parallel()
+
 	apiKey1 := NewAPIKeyBuilder().
 		NewID().
 		GenerateKey().
@@ -83,6 +254,7 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -97,6 +269,8 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 }
 
 func TestAccessibility_IsModelPublic(t *testing.T) {
+	t.Parallel()
+
 	modelID := id.NewModelID()
 	pubWithModel := NewPublicationSettings(ModelIDList{modelID}, false)
 	pubWithoutModel := NewPublicationSettings(ModelIDList{}, false)
@@ -179,6 +353,7 @@ func TestAccessibility_IsModelPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

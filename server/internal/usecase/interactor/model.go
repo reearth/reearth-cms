@@ -280,6 +280,12 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 					return nil, err
 				}
 			}
+			if param.PostingEnabled != nil {
+				if !operator.IsMaintainingProject(m.Project()) {
+					return nil, interfaces.ErrOperationDenied
+				}
+				m.SetPostingEnabled(*param.PostingEnabled)
+			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {
 				return nil, err

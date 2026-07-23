@@ -218,11 +218,11 @@ const AssetMolecule: React.FC<Props> = ({
               <ID>{asset.id}</ID>
             </InfoRow>
             <InfoRow>
-              <InfoKey>{t("Created at")}</InfoKey>
+              <InfoKey>{t("Created At")}</InfoKey>
               <InfoValue>{dateTimeFormat(asset.createdAt)}</InfoValue>
             </InfoRow>
             <InfoRow>
-              <InfoKey>{t("Created by")}</InfoKey>
+              <InfoKey>{t("Created By")}</InfoKey>
               <InfoValue>{asset.createdBy?.name}</InfoValue>
             </InfoRow>
             <InfoRow>

@@ -74,19 +74,19 @@ const RequestOptions: React.FC<Props> = ({
   const dataSource: RequestOptionsData[] = useMemo(
     () => [
       {
-        role: t("Owner"),
+        role: t("OWNER"),
         needRequest: "OWNER",
       },
       {
-        role: t("Maintainer"),
+        role: t("MAINTAINER"),
         needRequest: "MAINTAINER",
       },
       {
-        role: t("Writer"),
+        role: t("WRITER"),
         needRequest: "WRITER",
       },
       {
-        role: t("Reader"),
+        role: t("READER"),
         needRequest: "READER",
       },
     ],
@@ -114,7 +114,7 @@ const RequestOptions: React.FC<Props> = ({
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
       <StyledButton type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
-        {t("Save changes")}
+        {t("Save Changes")}
       </StyledButton>
     </>
   );

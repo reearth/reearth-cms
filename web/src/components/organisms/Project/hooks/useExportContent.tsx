@@ -113,7 +113,7 @@ export const useExportContent = () => {
                     Notification.destroy(key);
                     await handleExportContent(modelId, format);
                   }}>
-                  {t("Export CSV")}
+                  {t("Export as CSV")}
                 </Button>
               </Space>
             ),

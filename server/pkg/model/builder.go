@@ -93,3 +93,8 @@ func (b *Builder) Order(o int) *Builder {
 	b.model.order = o
 	return b
 }
+
+func (b *Builder) PostingEnabled(enabled bool) *Builder {
+	b.model.postingEnabled = enabled
+	return b
+}

@@ -74,9 +74,9 @@ func TestList_ItemsByField(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple(), nil)
 	f3 := NewField(id.NewFieldID(), value.TypeBool.Value(true).AsMultiple(), nil)
-	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	type args struct {
 		fid   id.FieldID
 		value any
@@ -176,6 +176,39 @@ func TestList_Projects(t *testing.T) {
 			assert.Equal(t, tt.expected, tt.list.Projects())
 		})
 	}
+}
+
+func TestToMap(t *testing.T) {
+	now := time.Now()
+	fId1 := id.NewFieldID()
+	iId1 := id.NewItemID()
+	i1 := New().ID(iId1).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId1, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
+		MustBuild()
+	vi1 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i1)
+	fId2 := id.NewFieldID()
+	iId2 := id.NewItemID()
+	i2 := New().ID(iId2).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*Field{NewField(fId2, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
+		MustBuild()
+	vi2 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i2)
+	vl := VersionedList{vi1, vi2}
+	m := vl.ToMap()
+
+	assert.Equal(t, 2, len(m))
+	assert.Equal(t, vi1, m[iId1])
+	assert.Equal(t, vi2, m[iId2])
+	assert.Nil(t, m[id.NewItemID()])
 }
 
 func TestList_Clone(t *testing.T) {
@@ -575,7 +608,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 		},
 		{
 			name:     "empty models list",
-			list:     List{New().NewID().Schema(sid).Model(mid).Project(pid).MustBuild()},
+			list:     List{New().NewID().Schema(sid).Model(mid).Project(pid).Anonymous(true).MustBuild()},
 			models:   id.ModelIDList{},
 			expected: nil,
 		},
@@ -585,7 +618,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
 					NewField(otherRefFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 			},
 			models:   id.ModelIDList{allowedModelID},
 			expected: IDList{refID1},
@@ -595,7 +628,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 			list: List{
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(otherRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 			},
 			models:   id.ModelIDList{allowedModelID},
 			expected: IDList{},
@@ -605,13 +638,13 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 			list: List{
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(allowedRefFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 			},
 			models:   id.ModelIDList{allowedModelID},
 			expected: IDList{refID1, refID2},
@@ -622,7 +655,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
 					NewField(otherRefFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 			},
 			models:   id.ModelIDList{allowedModelID, otherModelID},
 			expected: IDList{refID1, refID2},
@@ -633,7 +666,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
 					NewField(allowedRefFieldID, value.NewMultiple(value.TypeReference, []any{refID1, refID2}), nil),
 					NewField(otherRefFieldID, value.TypeReference.Value(refID3).AsMultiple(), nil),
-				}).MustBuild(),
+				}).Anonymous(true).MustBuild(),
 			},
 			models:   id.ModelIDList{allowedModelID},
 			expected: IDList{refID1, refID2},
@@ -679,6 +712,7 @@ func TestVersionedList_AssetIDs(t *testing.T) {
 		return New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).
 			Thread(id.NewThreadID().Ref()).
 			Fields([]*Field{NewField(assetFieldID, value.NewMultiple(value.TypeAsset, vals), nil)}).
+			Anonymous(true).
 			MustBuild()
 	}
 
@@ -758,7 +792,7 @@ func TestVersionedList_Projects(t *testing.T) {
 
 	newVersioned := func(pid id.ProjectID) Versioned {
 		i := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).
-			Thread(id.NewThreadID().Ref()).MustBuild()
+			Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 		return version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i)
 	}
 
@@ -802,6 +836,7 @@ func TestVersionedList_FilterFields(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	vl := VersionedList{
 		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
@@ -820,6 +855,7 @@ func TestVersionedList_Item(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	v := version.New()
 	vl := VersionedList{
@@ -839,6 +875,7 @@ func TestVersionedList_Unwrap(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	v := version.New()
 	vl := VersionedList{
@@ -858,6 +895,7 @@ func TestVersionedList_ToMap(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId1, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	vi1 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i1)
 	fId2 := id.NewFieldID()
@@ -868,6 +906,7 @@ func TestVersionedList_ToMap(t *testing.T) {
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId2, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		Anonymous(true).
 		MustBuild()
 	vi2 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i2)
 	vl := VersionedList{vi1, vi2}

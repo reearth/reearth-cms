@@ -367,7 +367,7 @@ func TestRequest_Approve(t *testing.T) {
 	prj := project.New().NewID().MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
-	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	ctx := context.Background()

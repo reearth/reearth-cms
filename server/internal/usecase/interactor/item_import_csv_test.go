@@ -66,7 +66,7 @@ func TestParseCSVValue(t *testing.T) {
 
 		// DateTime
 		{"datetime rfc3339", "2024-01-15T10:30:00Z", value.TypeDateTime, time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)},
-		{"datetime rfc3339 with timezone", "2024-01-15T10:30:00+09:00", value.TypeDateTime, time.Date(2024, 1, 15, 10, 30, 0, 0, time.FixedZone("", 9*60*60))},
+		{"datetime rfc3339 with timezone", "2024-01-15T10:30:00+09:00", value.TypeDateTime, func() time.Time { t, _ := time.Parse(time.RFC3339, "2024-01-15T10:30:00+09:00"); return t }()},
 		{"datetime invalid returns nil", "not-a-date", value.TypeDateTime, nil},
 		{"datetime incomplete returns nil", "2024-01-15", value.TypeDateTime, nil},
 

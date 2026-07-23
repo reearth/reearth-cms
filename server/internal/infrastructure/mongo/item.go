@@ -212,6 +212,11 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	return r.client.SaveOne(ctx, id, doc, nil)
 }
 
+func (r *Item) SaveDraft(ctx context.Context, item *item.Item) error {
+	doc, id := mongodoc.NewItem(item)
+	return r.client.SaveOne(ctx, id, doc, nil)
+}
+
 func (r *Item) SaveAll(ctx context.Context, items item.List) error {
 	if len(items) == 0 {
 		return nil

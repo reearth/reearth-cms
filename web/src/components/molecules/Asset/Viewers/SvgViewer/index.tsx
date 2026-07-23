@@ -40,7 +40,7 @@ const SvgViewer: React.FC<Props> = ({
         const objectUrl = URL.createObjectURL(blob);
         setBlobUrl(objectUrl);
       } catch (err) {
-        setSvgText(t("Could not display svg"));
+        setSvgText(t("Could not display SVG"));
         setLoaded(true);
         console.error(err);
       }

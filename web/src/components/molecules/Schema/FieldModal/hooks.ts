@@ -19,7 +19,7 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 
 export default (
   selectedSchemaType: SelectedSchemaType,
@@ -340,7 +340,7 @@ export default (
     (value: string) => {
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (validateKey(value) && handleFieldKeyUnique(value)) {
+      } else if (RegexUtils.validateKey(value) && handleFieldKeyUnique(value)) {
         prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {
