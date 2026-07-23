@@ -13,6 +13,7 @@ import "./index.css";
 
 loader.config({ monaco });
 self.MonacoEnvironment = {
+  ...self.MonacoEnvironment,
   getWorker(_moduleId: string, label: string) {
     if (label === "json") return new JsonWorker();
     return new EditorWorker();
