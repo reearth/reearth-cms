@@ -40,7 +40,7 @@ func (v *Value) AsMultiple() *Multiple {
 	return MultipleFrom(v.t, []*Value{v})
 }
 
-func (v *Value) Value() interface{} {
+func (v *Value) Value() any {
 	if v == nil {
 		return nil
 	}

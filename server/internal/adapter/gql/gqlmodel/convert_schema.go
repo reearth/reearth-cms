@@ -38,8 +38,8 @@ func ToSchemaField(sf *schema.Field, titleField *id.FieldID) *SchemaField {
 		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty(), sf.DefaultValue(), sf.Multiple()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
-		Order:        lo.ToPtr(sf.Order()),
-		Description:  lo.ToPtr(sf.Description()),
+		Order:        new(sf.Order()),
+		Description:  new(sf.Description()),
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
 		Required:     sf.Required(),
@@ -545,10 +545,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 		var min, max *int64
 		if x.Min != nil {
-			min = lo.ToPtr(int64(*x.Min))
+			min = new(int64(*x.Min))
 		}
 		if x.Max != nil {
-			max = lo.ToPtr(int64(*x.Max))
+			max = new(int64(*x.Max))
 		}
 		tpi, err2 := schema.NewInteger(min, max)
 		if err2 != nil {
@@ -567,10 +567,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 		var min, max *float64
 		if x.Min != nil {
-			min = lo.ToPtr(float64(*x.Min))
+			min = new(float64(*x.Min))
 		}
 		if x.Max != nil {
-			max = lo.ToPtr(float64(*x.Max))
+			max = new(float64(*x.Max))
 		}
 		tpi, err2 := schema.NewNumber(min, max)
 		if err2 != nil {
@@ -677,5 +677,5 @@ func intPtr(v *int64) *int {
 	if v == nil {
 		return nil
 	}
-	return lo.ToPtr((int)(*v))
+	return new((int)(*v))
 }

@@ -39,13 +39,13 @@ func NewProject(p *project.Project) Project {
 func ToRequestRole(r workspace.Role) *ProjectRequestRole {
 	switch r {
 	case workspace.RoleOwner:
-		return lo.ToPtr(OWNER)
+		return new(OWNER)
 	case workspace.RoleMaintainer:
-		return lo.ToPtr(MAINTAINER)
+		return new(MAINTAINER)
 	case workspace.RoleWriter:
-		return lo.ToPtr(WRITER)
+		return new(WRITER)
 	case workspace.RoleReader:
-		return lo.ToPtr(READER)
+		return new(READER)
 	default:
 		return nil
 	}
@@ -80,7 +80,7 @@ func ToAPIKey(a *project.APIKey) *ApiKey {
 		Id:          a.ID(),
 		Key:         a.Key(),
 		Name:        a.Name(),
-		Description: lo.ToPtr(a.Description()),
+		Description: new(a.Description()),
 		Publication: *ToProjectPublicationSettings(a.Publication()),
 	}
 }

@@ -82,7 +82,6 @@ func TestUpdateWorkspaceSettings_AllTileTypes(t *testing.T) {
 	}
 
 	for _, tileType := range validTileTypes {
-		tileType := tileType
 		t.Run(tileType, func(t *testing.T) {
 			e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
 
@@ -192,7 +191,6 @@ func TestUpdateWorkspaceSettings_InvalidTileTypeRejected(t *testing.T) {
 	invalidTileTypes := []string{"LABELLED", "ESRI_TOPOGRAPHY"}
 
 	for _, tileType := range invalidTileTypes {
-		tileType := tileType
 		t.Run(tileType, func(t *testing.T) {
 			e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
 
@@ -229,7 +227,6 @@ func TestUpdateWorkspaceSettings_InvalidTerrainTypeRejected(t *testing.T) {
 	invalidTerrainTypes := []string{"CESIUM_WORLD_TERRAIN", "ARC_GIS_TERRAIN"}
 
 	for _, terrainType := range invalidTerrainTypes {
-		terrainType := terrainType
 		t.Run(terrainType, func(t *testing.T) {
 			e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
 

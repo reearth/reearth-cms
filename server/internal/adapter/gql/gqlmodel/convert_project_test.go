@@ -176,7 +176,6 @@ func TestToPostingSettings(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, &tt.want, ToPostingSettings(tt.p))
@@ -221,7 +220,6 @@ func TestToProjectVisibility(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(string(tt.in), func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, ToProjectVisibility(tt.in))
@@ -316,7 +314,6 @@ func TestFromPostingSettings(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, FromPostingSettings(tt.p))

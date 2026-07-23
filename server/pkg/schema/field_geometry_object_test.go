@@ -33,7 +33,6 @@ func TestGeometryObjectSupportedTypeList_First(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.expected, tt.list.First())
@@ -72,7 +71,6 @@ func TestGeometryObjectSupportedTypeList_Strings(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.expected, tt.list.Strings())

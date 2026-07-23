@@ -9,17 +9,17 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-func iAPIFieldCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, schemaId interface{}) *httpexpect.Request {
+func iAPIFieldCreate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, schemaId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, schemaId)
 }
 
-func iAPIFieldUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, schemaId interface{}, fieldIdOrKey interface{}) *httpexpect.Request {
+func iAPIFieldUpdate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, schemaId any, fieldIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey}"
 	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, schemaId, fieldIdOrKey)
 }
 
-func iAPIFieldDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, schemaId interface{}, fieldIdOrKey interface{}) *httpexpect.Request {
+func iAPIFieldDelete(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, schemaId any, fieldIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, schemaId, fieldIdOrKey)
 }
@@ -289,7 +289,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	// region text
 	res := iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "テスト",
 			"type":     "text",
 			"multiple": false,
@@ -334,7 +334,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	//region bool
 	res = iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey1",
 			"type":     "bool",
 			"multiple": false,
@@ -377,7 +377,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	//region number
 	res = iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey2",
 			"type":     "number",
 			"multiple": false,
@@ -420,7 +420,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	// region GeoObject
 	res = iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey3",
 			"type":     "geometryObject",
 			"multiple": false,
@@ -459,7 +459,7 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 
 	obj := iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey1",
 			"type":     "bool",
 			"multiple": false,
@@ -501,7 +501,7 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 
 	iAPIFieldUpdate(e, wId0, pid, sid1, fId).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey1Updated",
 			"type":     "bool",
 			"multiple": true,
@@ -519,7 +519,7 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 
 	iAPIFieldUpdate(e, wId0, pid, sid1, "fKey1Updated").
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey1Updated1",
 			"type":     "bool",
 			"multiple": true,
@@ -559,7 +559,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 
 	obj := iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey1",
 			"type":     "bool",
 			"multiple": false,
@@ -609,7 +609,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 
 	obj = iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"key":      "fKey1",
 			"type":     "bool",
 			"multiple": false,

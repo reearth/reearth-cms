@@ -47,8 +47,8 @@ func TestToSchema(t *testing.T) {
 				Fields: []*SchemaField{{
 					ID:          IDFrom(fId),
 					Type:        "Text",
-					Description: lo.ToPtr(""),
-					Order:       lo.ToPtr(0),
+					Description: new(""),
+					Order:       new(0),
 					TypeProperty: &SchemaFieldText{
 						DefaultValue: nil,
 						MaxLength:    nil,
@@ -61,7 +61,6 @@ func TestToSchema(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -103,10 +102,10 @@ func TestToSchemaField(t *testing.T) {
 				TypeProperty: &SchemaFieldText{},
 				Key:          "K123456",
 				Title:        "N1",
-				Description:  lo.ToPtr("D1"),
+				Description:  new("D1"),
 				Multiple:     true,
 				Unique:       true,
-				Order:        lo.ToPtr(0),
+				Order:        new(0),
 				Required:     true,
 				IsTitle:      true,
 				CreatedAt:    fid.Timestamp(),
@@ -115,7 +114,6 @@ func TestToSchemaField(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -220,7 +218,6 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -369,7 +366,6 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -452,7 +448,6 @@ func TestToGeometryObjectSupportedType(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			assert.Equal(tt, tc.want, ToGeometryObjectSupportedType(tc.arg))
@@ -509,7 +504,6 @@ func TestFromGeometryObjectSupportedType(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			assert.Equal(tt, tc.want, FromGeometryObjectSupportedType(tc.arg))
@@ -550,7 +544,6 @@ func TestToGeometryEditorSupportedType(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			assert.Equal(tt, tc.want, ToGeometryEditorSupportedType(tc.arg))
@@ -592,7 +585,6 @@ func TestFromGeometryEditorSupportedType(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			assert.Equal(tt, tc.want, FromGeometryEditorSupportedType(tc.arg))

@@ -54,8 +54,8 @@ func TestNewModel(t *testing.T) {
 				Schema:           util.ToPtrIfNotEmpty(NewSchema(schemaPackage1.Schema())),
 				MetadataSchemaId: model1.Metadata().Ref(),
 				MetadataSchema:   util.ToPtrIfNotEmpty(NewSchema(schemaPackage1.MetaSchema())),
-				CreatedAt:        lo.ToPtr(model1.ID().Timestamp()),
-				UpdatedAt:        lo.ToPtr(model1.UpdatedAt()),
+				CreatedAt:        new(model1.ID().Timestamp()),
+				UpdatedAt:        new(model1.UpdatedAt()),
 				LastModified:     util.ToPtrIfNotEmpty(mockTime),
 			},
 		},
@@ -76,8 +76,8 @@ func TestNewModel(t *testing.T) {
 				Schema:           util.ToPtrIfNotEmpty(NewSchema(schemaPackage2.Schema())),
 				MetadataSchemaId: model2.Metadata().Ref(),
 				MetadataSchema:   util.ToPtrIfNotEmpty(NewSchema(schemaPackage2.MetaSchema())),
-				CreatedAt:        lo.ToPtr(model2.ID().Timestamp()),
-				UpdatedAt:        lo.ToPtr(model2.UpdatedAt()),
+				CreatedAt:        new(model2.ID().Timestamp()),
+				UpdatedAt:        new(model2.UpdatedAt()),
 				LastModified:     util.ToPtrIfNotEmpty(mockTime),
 			},
 		},
@@ -187,7 +187,6 @@ func TestNewSchemaField(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()

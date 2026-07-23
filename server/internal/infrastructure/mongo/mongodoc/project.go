@@ -96,7 +96,7 @@ func NewProjectPostingSettings(p *project.PostingSettings) *PostingSettingsDocum
 		return nil
 	}
 	return &PostingSettingsDocument{
-		Enabled:        lo.ToPtr(p.Enabled()),
+		Enabled:        new(p.Enabled()),
 		AllowedOrigins: p.AllowedOrigins(),
 	}
 }

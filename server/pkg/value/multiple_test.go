@@ -19,7 +19,7 @@ func TestNewMultiple(t *testing.T) {
 	assert.NotNil(t, m)
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)
-	for i := 0; i < len(v); i++ {
+	for i := range v {
 		assert.Equal(t, v[i], m.v[i])
 		assert.NotSame(t, v[i], m.v[i])
 	}
@@ -37,7 +37,7 @@ func TestMultipleFrom(t *testing.T) {
 	assert.NotNil(t, m)
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)
-	for i := 0; i < len(v); i++ {
+	for i := range v {
 		assert.Equal(t, v[i], m.v[i])
 		assert.NotSame(t, v[i], m.v[i])
 	}

@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 )
 
 var (
@@ -119,9 +118,9 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 		Description:  nil,
 		Key:          request.Body.Key,
 		Multiple:     request.Body.Multiple,
-		Unique:       lo.ToPtr(false),
+		Unique:       new(false),
 		Required:     request.Body.Required,
-		IsTitle:      lo.ToPtr(false),
+		IsTitle:      new(false),
 		TypeProperty: nil,
 		DefaultValue: nil,
 	}

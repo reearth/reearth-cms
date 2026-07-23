@@ -46,7 +46,7 @@ func TestItem_FindByID(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 	}
 
@@ -90,7 +90,6 @@ func TestItem_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -146,7 +145,6 @@ func TestItem_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -260,7 +258,6 @@ func TestItem_FindBySchema(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
 
@@ -305,7 +302,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		}}
 	ctx := context.Background()
 
@@ -366,7 +363,7 @@ func TestItem_Search(t *testing.T) {
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 	}
 
@@ -437,7 +434,6 @@ func TestItem_Search(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -559,7 +555,7 @@ func TestItem_IsItemReferenced(t *testing.T) {
 func TestItem_Create(t *testing.T) {
 	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 	prj := project.New().NewID().RequestRoles(r).MustBuild()
-	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
+	sf := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
 
@@ -721,7 +717,7 @@ func TestItem_Create(t *testing.T) {
 func TestItem_Update(t *testing.T) {
 	uId := accountdomain.NewUserID().Ref()
 	prj := project.New().NewID().MustBuild()
-	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
+	sf := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
 	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
@@ -757,7 +753,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-		Version: lo.ToPtr(vi.Version()),
+		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -793,7 +789,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "yyy",
 			},
 		},
-		Version: lo.ToPtr(vi.Version()),
+		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -815,7 +811,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "abcabcabcabc", // too long
 			},
 		},
-		Version: lo.ToPtr(vi.Version()),
+		Version: new(vi.Version()),
 	}, op)
 	assert.ErrorContains(t, err, "it sholud be shorter than 10")
 	assert.Nil(t, item)
@@ -831,7 +827,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx", // duplicated
 			},
 		},
-		Version: lo.ToPtr(vi.Version()),
+		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -848,7 +844,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-		Version: lo.ToPtr(vi3.Version()),
+		Version: new(vi3.Version()),
 	}, op)
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
 	vi2, _ := itemUC.FindByID(ctx, i2.ID(), op)
@@ -863,7 +859,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx", // duplicated
 			},
 		},
-		Version: lo.ToPtr(vi2.Version()),
+		Version: new(vi2.Version()),
 	}, op)
 	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
 	assert.Nil(t, item)
@@ -892,7 +888,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "",
 			},
 		},
-		Version: lo.ToPtr(vi.Version()),
+		Version: new(vi.Version()),
 	}, op)
 	assert.ErrorIs(t, err, schema.ErrValueRequired)
 	assert.Nil(t, item)
@@ -910,7 +906,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "a",
 			},
 		},
-		Version: lo.ToPtr(vi.Version()),
+		Version: new(vi.Version()),
 	}, op)
 	assert.Equal(t, wantErr, err)
 	assert.Nil(t, item)
@@ -932,7 +928,7 @@ func TestItem_Delete(t *testing.T) {
 
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 		WritableProjects: id.ProjectIDList{i1.Project()},
 	}
@@ -962,7 +958,7 @@ func TestItem_Delete(t *testing.T) {
 	// operation denied
 	err = itemUC.Delete(ctx, i3.ID(), *sp1, &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 	})
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
@@ -970,7 +966,7 @@ func TestItem_Delete(t *testing.T) {
 	// not found
 	err = itemUC.Delete(ctx, id.NewItemID(), *sp1, &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 	})
 	assert.Equal(t, rerror.ErrNotFound, err)
@@ -1003,7 +999,7 @@ func TestItem_BatchDelete(t *testing.T) {
 
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 		WritableProjects: id.ProjectIDList{pid},
 	}
@@ -1162,12 +1158,12 @@ func TestItem_BatchDelete(t *testing.T) {
 				ref2FieldID := id.NewFieldID()
 
 				// Create two schemas with reference fields to each other
-				refField1 := schema.NewField(schema.NewReference(id.NewModelID(), s2.ID(), lo.ToPtr(ref2FieldID), nil).TypeProperty()).
+				refField1 := schema.NewField(schema.NewReference(id.NewModelID(), s2.ID(), new(ref2FieldID), nil).TypeProperty()).
 					NewID().Name("reference1").Key(id.RandomKey()).ID(ref1FieldID).MustBuild()
 				s1WithRef := s1.Clone()
 				s1WithRef.AddField(refField1)
 
-				refField2 := schema.NewField(schema.NewReference(id.NewModelID(), s1.ID(), lo.ToPtr(ref1FieldID), nil).TypeProperty()).
+				refField2 := schema.NewField(schema.NewReference(id.NewModelID(), s1.ID(), new(ref1FieldID), nil).TypeProperty()).
 					NewID().Name("reference2").Key(id.RandomKey()).ID(ref2FieldID).MustBuild()
 				s2WithRef := s2.Clone()
 				s2WithRef.AddField(refField2)
@@ -1216,12 +1212,12 @@ func TestItem_BatchDelete(t *testing.T) {
 				ref2FieldID := id.NewFieldID()
 
 				// Create two schemas with reference fields to each other
-				refField1 := schema.NewField(schema.NewReference(id.NewModelID(), s2.ID(), lo.ToPtr(ref2FieldID), nil).TypeProperty()).
+				refField1 := schema.NewField(schema.NewReference(id.NewModelID(), s2.ID(), new(ref2FieldID), nil).TypeProperty()).
 					NewID().Name("reference1").Key(id.RandomKey()).ID(ref1FieldID).MustBuild()
 				s1WithRef := s1.Clone()
 				s1WithRef.AddField(refField1)
 
-				refField2 := schema.NewField(schema.NewReference(id.NewModelID(), s1.ID(), lo.ToPtr(ref1FieldID), nil).TypeProperty()).
+				refField2 := schema.NewField(schema.NewReference(id.NewModelID(), s1.ID(), new(ref1FieldID), nil).TypeProperty()).
 					NewID().Name("reference2").Key(id.RandomKey()).ID(ref2FieldID).MustBuild()
 				s2WithRef := s2.Clone()
 				s2WithRef.AddField(refField2)
@@ -1295,7 +1291,6 @@ func TestItem_BatchDelete(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1370,13 +1365,13 @@ func TestItem_BatchDelete_TwoWayReference(t *testing.T) {
 	// Schema 1: has two-way reference to Schema 2
 	refField1ID := id.NewFieldID()
 	refField2ID := id.NewFieldID()
-	refField1 := schema.NewField(schema.NewReference(mid2, sid2, lo.ToPtr(refField2ID), nil).TypeProperty()).
+	refField1 := schema.NewField(schema.NewReference(mid2, sid2, new(refField2ID), nil).TypeProperty()).
 		NewID().Name("reference1").Key(id.RandomKey()).ID(refField1ID).MustBuild()
 	s1 := schema.New().ID(sid1).Workspace(wid).Project(pid).Fields([]*schema.Field{refField1}).MustBuild()
 	sp1 := schema.NewPackage(s1, nil, nil, nil)
 
 	// Schema 2: has corresponding two-way reference to Schema 1
-	refField2 := schema.NewField(schema.NewReference(mid1, sid1, lo.ToPtr(refField1ID), nil).TypeProperty()).
+	refField2 := schema.NewField(schema.NewReference(mid1, sid1, new(refField1ID), nil).TypeProperty()).
 		NewID().Name("reference2").Key(id.RandomKey()).ID(refField2ID).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(wid).Project(pid).Fields([]*schema.Field{refField2}).MustBuild()
 	//sp2 := schema.NewPackage(s2, nil, nil, nil)
@@ -1410,7 +1405,7 @@ func TestItem_BatchDelete_TwoWayReference(t *testing.T) {
 	// Create operator
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			OwningWorkspaces:   id.WorkspaceIDList{wid},
 			ReadableWorkspaces: id.WorkspaceIDList{wid},
 			WritableWorkspaces: id.WorkspaceIDList{wid},
@@ -1499,7 +1494,7 @@ func TestWorkFlow(t *testing.T) {
 
 	vi, err := db.Item.FindByID(ctx, i.ID(), nil)
 	assert.NoError(t, err)
-	ri, _ := request.NewItem(i.ID(), lo.ToPtr(vi.Version().String()))
+	ri, _ := request.NewItem(i.ID(), new(vi.Version().String()))
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
@@ -1512,7 +1507,7 @@ func TestWorkFlow(t *testing.T) {
 		MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:             lo.ToPtr(u.ID()),
+			User:             new(u.ID()),
 			OwningWorkspaces: id.WorkspaceIDList{wid},
 		},
 	}
@@ -1540,7 +1535,7 @@ func TestWorkFlow(t *testing.T) {
 
 	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: id.WorkspaceIDList{wid},
 		},
 	})
@@ -1559,7 +1554,7 @@ func TestWorkFlow(t *testing.T) {
 	// Publish Item
 	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: id.WorkspaceIDList{wid},
 		},
 	})

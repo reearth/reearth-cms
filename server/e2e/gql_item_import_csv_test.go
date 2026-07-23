@@ -118,7 +118,7 @@ func TestGQLImportItemsAsyncCSV(t *testing.T) {
 			fileContent: func() string {
 				var sb strings.Builder
 				sb.WriteString("name\n")
-				for i := 0; i < 1050; i++ {
+				for range 1050 {
 					sb.WriteString("test\n")
 				}
 				return sb.String()
@@ -136,7 +136,7 @@ func TestGQLImportItemsAsyncCSV(t *testing.T) {
 			fileContent: func() string {
 				var sb strings.Builder
 				sb.WriteString("name\n")
-				for i := 0; i < 2001; i++ {
+				for range 2001 {
 					sb.WriteString("test\n")
 				}
 				return sb.String()

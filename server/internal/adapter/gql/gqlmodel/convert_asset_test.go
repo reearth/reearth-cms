@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,7 +36,7 @@ func TestToAsset(t *testing.T) {
 		UUID:          uuid,
 		URL:           "xxx",
 		FileName:      "aaa.jpg",
-		ThreadID:      lo.ToPtr(ID(thid.String())),
+		ThreadID:      new(ID(thid.String())),
 		Size:          1000,
 		Public:        false,
 	}
@@ -63,7 +62,6 @@ func TestToAsset(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -221,7 +219,7 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 	want1 := AssetFile{
 		Name:        "aaa.jpg",
 		Size:        int64(1000),
-		ContentType: lo.ToPtr("image/jpg"),
+		ContentType: new("image/jpg"),
 		Path:        "/",
 		FilePaths:   f1.FilePaths(),
 	}
@@ -247,7 +245,6 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -267,7 +264,7 @@ func TestAssetSort_Into(t *testing.T) {
 			name: "success",
 			sort: &AssetSort{
 				SortBy:    "NAME",
-				Direction: lo.ToPtr(SortDirectionAsc),
+				Direction: new(SortDirectionAsc),
 			},
 			want: &usecasex.Sort{
 				Key:      "filename",
@@ -289,7 +286,7 @@ func TestAssetSort_Into(t *testing.T) {
 			name: "success",
 			sort: &AssetSort{
 				SortBy:    "NAME",
-				Direction: lo.ToPtr(SortDirectionDesc),
+				Direction: new(SortDirectionDesc),
 			},
 			want: &usecasex.Sort{
 				Key:      "filename",
@@ -354,37 +351,37 @@ func TestConvertAsset_detectContentTypeByFilename(t *testing.T) {
 		{
 			name:     "json file",
 			filename: "data.json",
-			want:     lo.ToPtr("application/json"),
+			want:     new("application/json"),
 		},
 		{
 			name:     "geojson file",
 			filename: "map.geojson",
-			want:     lo.ToPtr("application/geo+json"),
+			want:     new("application/geo+json"),
 		},
 		{
 			name:     "csv file",
 			filename: "sheet.csv",
-			want:     lo.ToPtr("text/csv"),
+			want:     new("text/csv"),
 		},
 		{
 			name:     "html file",
 			filename: "index.html",
-			want:     lo.ToPtr("text/html"),
+			want:     new("text/html"),
 		},
 		{
 			name:     "htm file",
 			filename: "legacy.htm",
-			want:     lo.ToPtr("text/html"),
+			want:     new("text/html"),
 		},
 		{
 			name:     "pdf file",
 			filename: "report.pdf",
-			want:     lo.ToPtr("application/pdf"),
+			want:     new("application/pdf"),
 		},
 		{
 			name:     "txt file",
 			filename: "readme.txt",
-			want:     lo.ToPtr("text/plain"),
+			want:     new("text/plain"),
 		},
 		{
 			name:     "unsupported extension",
@@ -399,7 +396,6 @@ func TestConvertAsset_detectContentTypeByFilename(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc // capture range variable
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -108,7 +108,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
+	return r.data.LoadAll(list, new(ref.OrLatest().OrVersion())), nil
 }
 
 func (r *Item) FindVersionByID(_ context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
@@ -460,5 +460,5 @@ func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *stri
 		return nil, nil, err
 	}
 
-	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
+	return new(string(filter)), new(string(changes)), nil
 }

@@ -19,7 +19,7 @@ func Test_propertyURL_ToValue(t *testing.T) {
 	}{
 		{
 			name:  "string",
-			args:  []any{"https://example.com", lo.ToPtr("https://example.com")},
+			args:  []any{"https://example.com", new("https://example.com")},
 			want1: u,
 			want2: true,
 		},
@@ -44,7 +44,6 @@ func Test_propertyURL_ToValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p := &propertyURL{}

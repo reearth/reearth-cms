@@ -3,7 +3,6 @@ package asset
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,31 +50,31 @@ func TestStatus_StatusFromRef(t *testing.T) {
 	d := ArchiveExtractionStatusDone
 	f := ArchiveExtractionStatusFailed
 
-	s := lo.ToPtr("skipped")
+	s := new("skipped")
 	res := ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &sk, res)
 
-	s = lo.ToPtr("pending")
+	s = new("pending")
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &p, res)
 
-	s = lo.ToPtr("PENDING")
+	s = new("PENDING")
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &p, res)
 
-	s = lo.ToPtr("in_progress")
+	s = new("in_progress")
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &ip, res)
 
-	s = lo.ToPtr("done")
+	s = new("done")
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &d, res)
 
-	s = lo.ToPtr("failed")
+	s = new("failed")
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &f, res)
 
-	s = lo.ToPtr("test")
+	s = new("test")
 	res = ArchiveExtractionStatusFromRef(s)
 	assert.Nil(t, res)
 
@@ -94,7 +93,7 @@ func TestStatus_StringRef(t *testing.T) {
 	var st1 *ArchiveExtractionStatus
 	assert.Nil(t, st1.StringRef())
 
-	st2 := lo.ToPtr(ArchiveExtractionStatusPending)
-	s := lo.ToPtr("pending")
+	st2 := new(ArchiveExtractionStatusPending)
+	s := new("pending")
 	assert.Equal(t, s, st2.StringRef())
 }

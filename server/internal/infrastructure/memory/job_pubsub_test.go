@@ -153,7 +153,7 @@ func TestJobPubSub_ChannelBuffer(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Publish more than buffer size (10) without reading
-	for i := 0; i < 15; i++ {
+	for i := range 15 {
 		progress := job.NewProgress(i, 100)
 		state := job.NewState(job.StatusInProgress, &progress, "")
 		err = pubsub.Publish(ctx, jobID, state)
@@ -273,7 +273,6 @@ func TestNewJobPubSubWithCacheSize(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			pubsub := NewJobPubSubWithCacheSize(tt.cacheSize)

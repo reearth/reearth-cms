@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 )
 
 var (
@@ -223,10 +222,10 @@ func operatorProjects(ctx context.Context, appCtx *ApplicationContext, w workspa
 	var cur *usecasex.Cursor
 	for {
 		projects, pi, err := appCtx.Repos.Project.Search(ctx, interfaces.ProjectFilter{
-			WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList(w.IDs())),
+			WorkspaceIds: new(accountdomain.WorkspaceIDList(w.IDs())),
 			Pagination: usecasex.CursorPagination{
 				After: cur,
-				First: lo.ToPtr(int64(100)),
+				First: new(int64(100)),
 			}.Wrap(),
 		})
 		if err != nil {

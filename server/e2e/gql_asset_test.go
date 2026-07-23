@@ -88,7 +88,7 @@ func TestSearchAsset(t *testing.T) {
 }
 
 // Helper function to search assets
-func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, contentTypes []string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) *httpexpect.Value {
+func searchAsset(e *httpexpect.Expect, projectId string, keyword any, contentTypes []string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) *httpexpect.Value {
 	// Convert keyword to string if it's an asset ID
 	var keywordStr *string
 	if keyword != nil {
@@ -101,29 +101,29 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 	}
 
 	// Build the query variables
-	variables := map[string]interface{}{
-		"query": map[string]interface{}{
+	variables := map[string]any{
+		"query": map[string]any{
 			"project": projectId,
 		},
 	}
 
 	if keywordStr != nil {
-		variables["query"].(map[string]interface{})["keyword"] = *keywordStr
+		variables["query"].(map[string]any)["keyword"] = *keywordStr
 	}
 
 	if len(contentTypes) > 0 {
-		variables["query"].(map[string]interface{})["contentTypes"] = contentTypes
+		variables["query"].(map[string]any)["contentTypes"] = contentTypes
 	}
 
 	if sort != nil {
-		variables["sort"] = map[string]interface{}{
+		variables["sort"] = map[string]any{
 			"sortBy":    sort.SortBy,
 			"direction": sort.Direction,
 		}
 	}
 
 	if pagination != nil {
-		paginationMap := map[string]interface{}{}
+		paginationMap := map[string]any{}
 		if pagination.First != nil {
 			paginationMap["first"] = *pagination.First
 		}
@@ -203,7 +203,7 @@ func createAsset(
 	}`
 
 	// Build base input
-	inputMap := map[string]interface{}{
+	inputMap := map[string]any{
 		"projectId": projectId,
 	}
 
@@ -230,7 +230,7 @@ func createAsset(
 		return "", nil
 	}
 
-	variables := map[string]interface{}{
+	variables := map[string]any{
 		"input": inputMap,
 	}
 

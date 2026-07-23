@@ -42,7 +42,6 @@ func TestAssetDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.aDoc.Model()
@@ -87,7 +86,6 @@ func TestNewAsset(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, aDocId := NewAsset(tt.a)
 			assert.Equal(t, tt.want, got)
@@ -120,7 +118,6 @@ func TestAssetFileDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := tt.afDoc.Model()
@@ -148,7 +145,6 @@ func TestNewFile(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewFile(tt.f)
 			assert.Equal(t, tt.want, got)

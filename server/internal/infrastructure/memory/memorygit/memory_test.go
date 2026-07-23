@@ -110,7 +110,6 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got, ok := tc.m.Load(tc.input.key, tc.input.vor)
@@ -189,7 +188,6 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got := tc.m.LoadAll(tc.input.keys, &tc.input.vor)
@@ -245,7 +243,6 @@ func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got := tc.m.LoadAllVersions(tc.input.key)
@@ -314,7 +311,6 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			tt.target.UpdateRef(tt.args.key, tt.args.ref, tt.args.vr)

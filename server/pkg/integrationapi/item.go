@@ -22,7 +22,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 
 	var metaFields *[]Field
 	if mi != nil && ms != nil {
-		metaFields = lo.ToPtr(fieldsFrom(mi.Value().Fields(), ms.Fields(), assets))
+		metaFields = new(fieldsFrom(mi.Value().Fields(), ms.Fields(), assets))
 	}
 
 	return VersionedItem{
@@ -30,14 +30,14 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 		ModelId:         i.Model().Ref().StringRef(),
 		MetadataItemId:  i.MetadataItem(),
 		OriginalItemId:  i.OriginalItem(),
-		IsMetadata:      lo.ToPtr(i.IsMetadata()),
+		IsMetadata:      new(i.IsMetadata()),
 		Fields:          &itemFields,
 		MetadataFields:  metaFields,
 		ReferencedItems: f,
-		CreatedAt:       lo.ToPtr(i.ID().Timestamp()),
-		UpdatedAt:       lo.ToPtr(i.Timestamp()),
+		CreatedAt:       new(i.ID().Timestamp()),
+		UpdatedAt:       new(i.Timestamp()),
 
-		Version: lo.ToPtr(types.UUID(ver.Version())),
+		Version: new(types.UUID(ver.Version())),
 		Parents: &ps,
 		Refs:    &rs,
 	}
@@ -51,12 +51,12 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 		ModelId:         i.Model().Ref().StringRef(),
 		MetadataItemId:  i.MetadataItem(),
 		OriginalItemId:  i.OriginalItem(),
-		IsMetadata:      lo.ToPtr(i.IsMetadata()),
+		IsMetadata:      new(i.IsMetadata()),
 		Fields:          &itemFields,
 		MetadataFields:  nil,
 		ReferencedItems: nil,
-		CreatedAt:       lo.ToPtr(i.ID().Timestamp()),
-		UpdatedAt:       lo.ToPtr(i.Timestamp()),
+		CreatedAt:       new(i.ID().Timestamp()),
+		UpdatedAt:       new(i.Timestamp()),
 	}
 }
 
@@ -69,8 +69,8 @@ func fieldsFrom(iFields item.Fields, sFields schema.FieldList, assets *AssetCont
 
 		return Field{
 			Id:    f.FieldID().Ref(),
-			Type:  lo.ToPtr(ToValueType(f.Type())),
-			Value: lo.ToPtr(ToValues(f.Value(), sf, assets)),
+			Type:  new(ToValueType(f.Type())),
+			Value: new(ToValues(f.Value(), sf, assets)),
 			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
 			Group: f.ItemGroup(),
 		}, true

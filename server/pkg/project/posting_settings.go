@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 )
 
@@ -64,10 +65,8 @@ func (p *PostingSettings) CheckOrigin(origin string) error {
 	if origin == "" {
 		return ErrOriginNotAllowed
 	}
-	for _, allowed := range p.allowedOrigins {
-		if allowed == origin {
-			return nil
-		}
+	if slices.Contains(p.allowedOrigins, origin) {
+		return nil
 	}
 	return ErrOriginNotAllowed
 }
