@@ -3,7 +3,6 @@ package value
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,8 +17,8 @@ func Test_propertyBool_ToValue(t *testing.T) {
 			name: "true",
 			args: []any{
 				true, "true", "TRUE", "True", "T", "t", "1", 1,
-				lo.ToPtr(true), lo.ToPtr("true"), lo.ToPtr("TRUE"), lo.ToPtr("True"),
-				lo.ToPtr("T"), lo.ToPtr("t"), lo.ToPtr("1"), lo.ToPtr(1),
+				new(true), new("true"), new("TRUE"), new("True"),
+				new("T"), new("t"), new("1"), new(1),
 			},
 			want1: true,
 			want2: true,
@@ -28,8 +27,8 @@ func Test_propertyBool_ToValue(t *testing.T) {
 			name: "false",
 			args: []any{
 				false, "false", "FALSE", "False", "F", "f", "0", 0,
-				lo.ToPtr(false), lo.ToPtr("false"), lo.ToPtr("FALSE"), lo.ToPtr("False"),
-				lo.ToPtr("F"), lo.ToPtr("f"), lo.ToPtr("0"), lo.ToPtr(0),
+				new(false), new("false"), new("FALSE"), new("False"),
+				new("F"), new("f"), new("0"), new(0),
 			},
 			want1: false,
 			want2: true,
@@ -43,7 +42,6 @@ func Test_propertyBool_ToValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

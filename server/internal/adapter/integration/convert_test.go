@@ -25,14 +25,14 @@ func TestFromPagination(t *testing.T) {
 			Offset: 0,
 			Limit:  100,
 		},
-	}, fromPagination(lo.ToPtr(1), lo.ToPtr(100)))
+	}, fromPagination(new(1), new(100)))
 
 	assert.Equal(t, &usecasex.Pagination{
 		Offset: &usecasex.OffsetPagination{
 			Offset: 100,
 			Limit:  100,
 		},
-	}, fromPagination(lo.ToPtr(2), lo.ToPtr(200)))
+	}, fromPagination(new(2), new(200)))
 }
 
 func TestToModelSort(t *testing.T) {
@@ -217,7 +217,7 @@ func Test_fromRequestRole(t *testing.T) {
 	t.Run("owner", func(t *testing.T) {
 		input := integrationapi.OWNER
 		actual, ok := fromRequestRole(input)
-		expected := lo.ToPtr(workspace.RoleOwner)
+		expected := new(workspace.RoleOwner)
 		assert.True(t, ok)
 		assert.Equal(t, expected, actual)
 	})
@@ -225,7 +225,7 @@ func Test_fromRequestRole(t *testing.T) {
 	t.Run("maintainer", func(t *testing.T) {
 		input := integrationapi.MAINTAINER
 		actual, ok := fromRequestRole(input)
-		expected := lo.ToPtr(workspace.RoleMaintainer)
+		expected := new(workspace.RoleMaintainer)
 		assert.True(t, ok)
 		assert.Equal(t, expected, actual)
 	})
@@ -233,7 +233,7 @@ func Test_fromRequestRole(t *testing.T) {
 	t.Run("writer", func(t *testing.T) {
 		input := integrationapi.WRITER
 		actual, ok := fromRequestRole(input)
-		expected := lo.ToPtr(workspace.RoleWriter)
+		expected := new(workspace.RoleWriter)
 		assert.True(t, ok)
 		assert.Equal(t, expected, actual)
 	})
@@ -241,7 +241,7 @@ func Test_fromRequestRole(t *testing.T) {
 	t.Run("reader", func(t *testing.T) {
 		input := integrationapi.READER
 		actual, ok := fromRequestRole(input)
-		expected := lo.ToPtr(workspace.RoleReader)
+		expected := new(workspace.RoleReader)
 		assert.True(t, ok)
 		assert.Equal(t, expected, actual)
 	})

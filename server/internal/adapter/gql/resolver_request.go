@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 // CreateRequest is the resolver for the createRequest field.
@@ -43,7 +42,7 @@ func (r *mutationResolver) CreateRequest(ctx context.Context, input gqlmodel.Cre
 		ProjectID:   pid,
 		Title:       input.Title,
 		Description: input.Description,
-		State:       lo.ToPtr(request.StateFrom(input.State.String())),
+		State:       new(request.StateFrom(input.State.String())),
 		Reviewers:   reviewers,
 		Items:       items,
 	}
@@ -84,7 +83,7 @@ func (r *mutationResolver) UpdateRequest(ctx context.Context, input gqlmodel.Upd
 		RequestID:   rid,
 		Title:       input.Title,
 		Description: input.Description,
-		State:       lo.ToPtr(request.StateFrom(input.State.String())),
+		State:       new(request.StateFrom(input.State.String())),
 		Reviewers:   reviewers,
 		Items:       items,
 	}

@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type Asset struct {
@@ -94,8 +93,8 @@ func (r *Asset) Search(_ context.Context, id id.ProjectID, filter repo.AssetFilt
 
 	var startCursor, endCursor *usecasex.Cursor
 	if len(result) > 0 {
-		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
-		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
+		startCursor = new(usecasex.Cursor(result[0].ID().String()))
+		endCursor = new(usecasex.Cursor(result[len(result)-1].ID().String()))
 	}
 
 	return result, usecasex.NewPageInfo(

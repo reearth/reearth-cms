@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -249,7 +248,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				id: pid,
 				filter: repo.RequestFilter{
-					Keyword: lo.ToPtr("foo"),
+					Keyword: new("foo"),
 				},
 			},
 			want: 1,

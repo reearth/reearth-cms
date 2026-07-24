@@ -211,10 +211,10 @@ func filterRequests(ids id.RequestIDList, rows request.List) request.List {
 	return res
 }
 
-func (r *Request) readFilter(filter any) interface{} {
+func (r *Request) readFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Readable)
 }
 
-func (r *Request) writeFilter(filter any) interface{} {
+func (r *Request) writeFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Writable)
 }

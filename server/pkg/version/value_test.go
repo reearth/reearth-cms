@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,7 +56,7 @@ func TestValue_Refs(t *testing.T) {
 }
 
 func TestValue_Value(t *testing.T) {
-	v := &Value[*string]{value: lo.ToPtr("x")}
+	v := &Value[*string]{value: new("x")}
 	assert.Same(t, v.value, v.Value())
 }
 

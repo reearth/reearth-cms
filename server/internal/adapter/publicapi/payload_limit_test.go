@@ -39,10 +39,7 @@ func TestHandler_PostItem_PayloadLimit(t *testing.T) {
 	bodyOfSize := func(size int) []byte {
 		base, err := json.Marshal(postItemRequest{Fields: map[string]any{"pad": ""}})
 		require.NoError(t, err)
-		pad := size - len(base)
-		if pad < 0 {
-			pad = 0
-		}
+		pad := max(size-len(base), 0)
 		b, err := json.Marshal(postItemRequest{Fields: map[string]any{"pad": strings.Repeat("a", pad)}})
 		require.NoError(t, err)
 		return b
@@ -108,7 +105,6 @@ func TestHandler_PostItem_PayloadLimit(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

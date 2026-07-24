@@ -112,7 +112,6 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -182,7 +181,6 @@ func Test_projectRepo_Filtered(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -280,7 +278,6 @@ func Test_projectRepo_FindByID(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -422,7 +419,6 @@ func Test_projectRepo_FindByIDOrAlias(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -549,7 +545,6 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -703,7 +698,6 @@ func Test_projectRepo_IsAliasAvailable(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -772,7 +766,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -784,7 +778,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -797,7 +791,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(2))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -810,7 +804,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -823,7 +817,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p2},
 			wantErr: nil,
@@ -835,7 +829,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  &repo.WorkspaceFilter{Readable: accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()}, Writable: accountdomain.WorkspaceIDList{}},
 			want:    nil,
 			wantErr: nil,
@@ -845,7 +839,6 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -950,7 +943,6 @@ func Test_projectRepo_Remove(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1036,7 +1028,6 @@ func Test_projectRepo_Save(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
 
@@ -1125,7 +1116,6 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1214,7 +1204,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    nil,
@@ -1226,7 +1216,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2, p4},
@@ -1238,7 +1228,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1, tid2},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2, p3, p4},
@@ -1250,7 +1240,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Visibility: lo.ToPtr(project.VisibilityPublic),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p3, p4},
@@ -1262,7 +1252,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Visibility: lo.ToPtr(project.VisibilityPrivate),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p2},
@@ -1273,8 +1263,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr("Alpha"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new("Alpha"),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p4},
@@ -1285,8 +1275,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr("beta"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new("beta"),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p2},
@@ -1297,8 +1287,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr("searching"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new("searching"),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1},
@@ -1309,8 +1299,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr(p1.ID().String()),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new(p1.ID().String()),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1},
@@ -1321,8 +1311,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr("GAMMA"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new("GAMMA"),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p3},
@@ -1333,8 +1323,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr("nonexistent"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new("nonexistent"),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    nil,
@@ -1347,7 +1337,7 @@ func Test_projectRepo_Search(t *testing.T) {
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
 					Visibility:   lo.ToPtr(project.VisibilityPublic),
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p4},
@@ -1359,8 +1349,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Keyword:      lo.ToPtr("project"),
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:      new("project"),
+					Pagination:   usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2},
@@ -1372,7 +1362,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{First: new(int64(2))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2},
@@ -1384,7 +1374,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Pagination:   usecasex.CursorPagination{Last: lo.ToPtr(int64(2))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{Last: new(int64(2))}.Wrap(),
 				},
 			},
 			want:    project.List{p2, p4},
@@ -1395,7 +1385,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			wsFilter: &repo.WorkspaceFilter{
@@ -1410,7 +1400,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			wsFilter: &repo.WorkspaceFilter{
@@ -1425,8 +1415,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Keyword:    lo.ToPtr(""),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new(""),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2, p3, p4},
@@ -1442,7 +1432,7 @@ func Test_projectRepo_Search(t *testing.T) {
 						Key:      "updatedAt",
 						Reverted: true,
 					},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p4, p2, p1},
@@ -1454,7 +1444,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"topic1"},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p4},
@@ -1466,7 +1456,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"topic1", "topic2"},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p4},
@@ -1478,7 +1468,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"Topic1"},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p4},
@@ -1491,7 +1481,7 @@ func Test_projectRepo_Search(t *testing.T) {
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
 					Topics:       []string{"abc"},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1},
@@ -1503,8 +1493,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"topic1"},
-					Keyword:    lo.ToPtr("test"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword:    new("test"),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1},
@@ -1516,7 +1506,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"topic1", "abc"},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1},
@@ -1528,7 +1518,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"topic1", "nonexistent"},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    nil,
@@ -1540,7 +1530,7 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					Topics:     []string{"topic1", "topic2", "xyz"},
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p4},
@@ -1551,7 +1541,6 @@ func Test_projectRepo_Search(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1712,7 +1701,6 @@ func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
 		initDB := mongotest.Connect(t)
 
 		for _, tc := range tests {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -1805,7 +1793,6 @@ func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
 		initDB := mongotest.Connect(t)
 
 		for _, tc := range tests {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -1901,7 +1888,6 @@ func Test_projectRepo_ProjectFilter_Visibility(t *testing.T) {
 		initDB := mongotest.Connect(t)
 
 		for _, tc := range tests {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 

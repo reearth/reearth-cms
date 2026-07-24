@@ -965,7 +965,7 @@ func (i Item) handleRelatedReferenceFields(ctx context.Context, itemIDs id.ItemI
 		return nil
 	}
 
-	p := usecasex.CursorPagination{First: lo.ToPtr(int64(100))}.Wrap()
+	p := usecasex.CursorPagination{First: new(int64(100))}.Wrap()
 	for {
 		models, pageInfo, err := i.repos.Model.FindByProject(ctx, sp.Schema().Project(), p)
 		if err != nil {
@@ -1001,7 +1001,7 @@ func (i Item) handleRelatedReferenceFields(ctx context.Context, itemIDs id.ItemI
 		if !pageInfo.HasNextPage {
 			break
 		}
-		p = usecasex.CursorPagination{First: lo.ToPtr(int64(100)), After: pageInfo.EndCursor}.Wrap()
+		p = usecasex.CursorPagination{First: new(int64(100)), After: pageInfo.EndCursor}.Wrap()
 	}
 
 	return nil
@@ -1015,10 +1015,7 @@ func (i Item) clearRelatedReferenceFields(ctx context.Context, modelID id.ModelI
 	// loop through itemIDs in batches to avoid large queries
 	batchSize := 100
 	for start := 0; start < len(itemIDs); start += batchSize {
-		end := start + batchSize
-		if end > len(itemIDs) {
-			end = len(itemIDs)
-		}
+		end := min(start+batchSize, len(itemIDs))
 		batchIDs := itemIDs[start:end]
 
 		filter := lo.FlatMap(batchIDs, func(id id.ItemID, _ int) []repo.FieldAndValue {

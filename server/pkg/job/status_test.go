@@ -3,7 +3,6 @@ package job
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -94,12 +93,12 @@ func TestStatusFromRef(t *testing.T) {
 		},
 		{
 			name:  "valid status",
-			input: lo.ToPtr("pending"),
-			want:  lo.ToPtr(StatusPending),
+			input: new("pending"),
+			want:  new(StatusPending),
 		},
 		{
 			name:  "invalid status",
-			input: lo.ToPtr("unknown"),
+			input: new("unknown"),
 			want:  nil,
 		},
 	}

@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -99,7 +98,7 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		{
 			name:         "with keyword (topics)",
 			userId:       uId.String(),
-			request:      &pb.ListProjectsRequest{Keyword: lo.ToPtr("topic1")},
+			request:      &pb.ListProjectsRequest{Keyword: new("topic1")},
 			wantTotal:    1,
 			wantProjects: project.IDList{pid},
 		},
@@ -365,12 +364,12 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 			request: &pb.CreateProjectRequest{
 				Name:        "New Project",
 				Alias:       "new_project",
-				Description: lo.ToPtr("This is a new project"),
+				Description: new("This is a new project"),
 				WorkspaceId: wId0.String(),
 			},
 			wantName:  "New Project",
 			wantAlias: "new_project",
-			wantDesc:  lo.ToPtr("This is a new project"),
+			wantDesc:  new("This is a new project"),
 		},
 		{
 			name: "project with topics deduplicates and removes empty values",
@@ -378,13 +377,13 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 			request: &pb.CreateProjectRequest{
 				Name:        "Project With Topics",
 				Alias:       "project_with_topics",
-				Description: lo.ToPtr("Project with topics"),
+				Description: new("Project with topics"),
 				Topics:      &pb.Topics{Values: []string{"topic1", "topic2", "", "topic1", "topic3", "", "topic2"}},
 				WorkspaceId: wId0.String(),
 			},
 			wantName:   "Project With Topics",
 			wantAlias:  "project_with_topics",
-			wantDesc:   lo.ToPtr("Project with topics"),
+			wantDesc:   new("Project with topics"),
 			wantTopics: []string{"topic1", "topic2", "topic3"},
 		},
 		{
@@ -393,7 +392,7 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 			request: &pb.CreateProjectRequest{
 				Name:        "Project 1",
 				Alias:       "project_1",
-				Description: lo.ToPtr("Project"),
+				Description: new("Project"),
 				WorkspaceId: wId0.String(),
 			},
 			wantError: status.Error(codes.PermissionDenied, "no permission to create project in this workspace"),
@@ -404,7 +403,7 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 			request: &pb.CreateProjectRequest{
 				Name:        "Project 1",
 				Alias:       "project_1",
-				Description: lo.ToPtr("Project"),
+				Description: new("Project"),
 				WorkspaceId: wId0.String(),
 			},
 			wantError: status.Error(codes.PermissionDenied, "no permission to create project in this workspace"),
@@ -482,14 +481,14 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 			user: uId.String(),
 			request: &pb.UpdateProjectRequest{
 				ProjectId:   pid.String(),
-				Name:        lo.ToPtr("Updated Project Name"),
-				Description: lo.ToPtr("Updated project description"),
-				Alias:       lo.ToPtr("updated_alias"),
+				Name:        new("Updated Project Name"),
+				Description: new("Updated project description"),
+				Alias:       new("updated_alias"),
 			},
 			lookupAlias: "updated_alias",
 			wantName:    "Updated Project Name",
 			wantAlias:   "updated_alias",
-			wantDesc:    lo.ToPtr("Updated project description"),
+			wantDesc:    new("Updated project description"),
 			wantId:      pid.String(),
 			wantTopics:  []string{"topic1", "", "topic3"},
 		},

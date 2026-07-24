@@ -20,7 +20,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
@@ -86,7 +85,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 						ModelID:      &mId1,
 						Type:         value.TypeBool,
 						Name:         "test",
-						Description:  lo.ToPtr("test description"),
+						Description:  new("test description"),
 						Key:          "field1",
 						Multiple:     false,
 						Unique:       false,
@@ -143,7 +142,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 						ModelID:      &mId1,
 						Type:         value.TypeBool,
 						Name:         "test",
-						Description:  lo.ToPtr("test description"),
+						Description:  new("test description"),
 						Key:          "field1",
 						Multiple:     false,
 						Unique:       false,
@@ -171,7 +170,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 						ModelID:      &mId1,
 						Type:         value.TypeBool,
 						Name:         "test",
-						Description:  lo.ToPtr("test description"),
+						Description:  new("test description"),
 						Key:          "field1",
 						Multiple:     false,
 						Unique:       false,
@@ -188,7 +187,6 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()

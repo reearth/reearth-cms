@@ -32,7 +32,7 @@ func (c *AssetItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*[]gq
 	}
 
 	return lo.Map(aIDs, func(id asset.ID, _ int) *[]gqlmodel.AssetItem {
-		return lo.ToPtr(lo.Map(itemsMap[id], func(itm item.Versioned, _ int) gqlmodel.AssetItem {
+		return new(lo.Map(itemsMap[id], func(itm item.Versioned, _ int) gqlmodel.AssetItem {
 			return gqlmodel.AssetItem{
 				ItemID:  gqlmodel.IDFrom(itm.Value().ID()),
 				ModelID: gqlmodel.IDFrom(itm.Value().Model()),

@@ -121,10 +121,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		UpdatedAt(d.UpdatedAt).
 		FileName(d.FileName).
 		Size(d.Size).
-		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
+		Type(asset.PreviewTypeFromRef(new(d.PreviewType))).
 		UUID(d.UUID).
 		Thread(id.ThreadIDFromRef(d.Thread)).
-		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus))).
+		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(new(d.ArchiveExtractionStatus))).
 		FlatFiles(d.FlatFiles).
 		Public(d.Public)
 
@@ -239,7 +239,7 @@ const assetFilesPageSize = 1000
 func NewFiles(assetID id.AssetID, fs []*asset.File) AssetFilesDocument {
 	pageCount := (len(fs) + assetFilesPageSize - 1) / assetFilesPageSize
 	pages := make([]*AssetFilesPageDocument, 0, pageCount)
-	for i := 0; i < pageCount; i++ {
+	for i := range pageCount {
 		offset := i * assetFilesPageSize
 		chunk := fs[offset:]
 		if len(chunk) > assetFilesPageSize {

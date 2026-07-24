@@ -1526,8 +1526,8 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 
 	r := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    fId1.String(),
 					"value": "test value",
@@ -1554,14 +1554,14 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 
 	obj := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"key":   sfKey1.String(),
 					"value": "test value 2",
 				},
 			},
-			"metadataFields": []interface{}{
+			"metadataFields": []any{
 				map[string]string{
 					"key":   sfKey4.String(),
 					"value": "true",
@@ -1594,8 +1594,8 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		})
 	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"key":   sfKey3.String(),
 					"type":  "reference",
@@ -1626,8 +1626,8 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 
 	obj2 := iAPIItemCreate(e, wId0, pid, mId4).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"key":   sfKey7.String(),
 					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
@@ -1666,8 +1666,8 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 
 	r := iAPIItemCreate(e, wId0, pid, dvmId).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    dvsfId.String(),
 					"value": "test value",
@@ -1710,8 +1710,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	r := iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    fId1.String(),
 					"value": "test value",
@@ -1724,7 +1724,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 	r.Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").IsEqual([]interface{}{
+	r.Value("fields").IsEqual([]any{
 		map[string]string{
 			"id":    fId2.String(),
 			"key":   "asset",
@@ -1743,8 +1743,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    fId2.String(),
 					"key":   "asset",
@@ -1779,8 +1779,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	r2 := iAPIItemUpdate(e, wId0, pid, mId2, itmId2).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"key":   sfKey3.String(),
 					"type":  "reference",
@@ -1810,8 +1810,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]any{
 					"group": igId1.String(),
 					"id":    fId5.String(),
@@ -1859,8 +1859,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]any{
 					"group": igId3.String(),
 					"id":    fId5.String(),
@@ -1915,8 +1915,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]any{
 					"id":    fId6.String(),
 					"type":  "group",
@@ -1942,8 +1942,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	iAPIItemUpdate(e, wId0, pid, mId4, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    fId7.String(),
 					"key":   sfKey7.String(),
@@ -2012,8 +2012,8 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 
 	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"key":   sfKey3.String(),
 					"type":  "reference",
@@ -2281,10 +2281,10 @@ func TestIntegrationItemFilterPostAPI(t *testing.T) {
 	// Not found test
 	iAPIItemFilterPost(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"filter": map[string]interface{}{
-				"string": map[string]interface{}{
-					"fieldId": map[string]interface{}{
+		WithJSON(map[string]any{
+			"filter": map[string]any{
+				"string": map[string]any{
+					"fieldId": map[string]any{
 						"type":    "field",
 						"fieldId": fId1.String(),
 					},
@@ -2305,10 +2305,10 @@ func TestIntegrationItemFilterPostAPI(t *testing.T) {
 		WithQuery("dir", "desc").
 		WithQuery("ref", "latest").
 		WithQuery("asset", "all").
-		WithJSON(map[string]interface{}{
-			"filter": map[string]interface{}{
-				"string": map[string]interface{}{
-					"fieldId": map[string]interface{}{
+		WithJSON(map[string]any{
+			"filter": map[string]any{
+				"string": map[string]any{
+					"fieldId": map[string]any{
 						"type":    "field",
 						"fieldId": fId1.String(),
 					},
@@ -2333,12 +2333,12 @@ func TestIntegrationItemFilterPostAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
-		WithJSON(map[string]interface{}{
-			"filter": map[string]interface{}{
-				"and": []interface{}{
-					map[string]interface{}{
-						"string": map[string]interface{}{
-							"fieldId": map[string]interface{}{
+		WithJSON(map[string]any{
+			"filter": map[string]any{
+				"and": []any{
+					map[string]any{
+						"string": map[string]any{
+							"fieldId": map[string]any{
 								"type":    "field",
 								"fieldId": fId1.String(),
 							},
@@ -2346,9 +2346,9 @@ func TestIntegrationItemFilterPostAPI(t *testing.T) {
 							"value":    "test",
 						},
 					},
-					map[string]interface{}{
-						"nullable": map[string]interface{}{
-							"fieldId": map[string]interface{}{
+					map[string]any{
+						"nullable": map[string]any{
+							"fieldId": map[string]any{
 								"type":    "field",
 								"fieldId": fId1.String(),
 							},

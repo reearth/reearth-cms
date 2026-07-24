@@ -4,18 +4,17 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewInteger(t *testing.T) {
-	got, err := NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(2)))
+	got, err := NewInteger(new(int64(1)), new(int64(2)))
 	assert.Equal(t, &FieldInteger{
-		min: lo.ToPtr(int64(1)),
-		max: lo.ToPtr(int64(2)),
+		min: new(int64(1)),
+		max: new(int64(2)),
 	}, got)
 	assert.NoError(t, err)
-	got, err = NewInteger(lo.ToPtr(int64(3)), lo.ToPtr(int64(2)))
+	got, err = NewInteger(new(int64(3)), new(int64(2)))
 	assert.Nil(t, got)
 	assert.Equal(t, ErrInvalidMinMax, err)
 }
@@ -35,11 +34,11 @@ func TestFieldInteger_TypeProperty(t *testing.T) {
 func TestFieldInteger_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldInteger)(nil).Clone())
 	assert.Equal(t, &FieldInteger{
-		min: lo.ToPtr(int64(1)),
-		max: lo.ToPtr(int64(2)),
+		min: new(int64(1)),
+		max: new(int64(2)),
 	}, (&FieldInteger{
-		min: lo.ToPtr(int64(1)),
-		max: lo.ToPtr(int64(2)),
+		min: new(int64(1)),
+		max: new(int64(2)),
 	}).Clone())
 }
 

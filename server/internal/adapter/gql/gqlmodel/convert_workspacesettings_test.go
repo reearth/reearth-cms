@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +12,7 @@ func Test_ToWorkspaceSettings(t *testing.T) {
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
 	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
-	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
+	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), new(true))
 	ws := workspacesettings.New().NewID().Tiles(tiles).MustBuild()
 
 	ws2 := ToWorkspaceSettings(ws)
@@ -30,10 +29,10 @@ func Test_ToResourceList(t *testing.T) {
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
 	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
-	rl := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
+	rl := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), new(true))
 	assert.Equal(t, rl.Resources(), []*workspacesettings.Resource{r})
 	assert.Equal(t, rl.SelectedResource(), rid.Ref())
-	assert.Equal(t, rl.Enabled(), lo.ToPtr(true))
+	assert.Equal(t, rl.Enabled(), new(true))
 
 	rl2 := ToResourceList(nil)
 	assert.Nil(t, rl2)
@@ -75,7 +74,7 @@ func Test_FromResourceList(t *testing.T) {
 	pp := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeCesiumIon, pp)
 	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt)
-	rl := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
+	rl := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), new(true))
 
 	tid := IDFrom(r.Terrain().ID())
 	ri := &ResourceInput{
@@ -97,7 +96,7 @@ func Test_FromResourceList(t *testing.T) {
 			ri,
 		},
 		SelectedResource: IDFromRef(rl.SelectedResource()),
-		Enabled:          lo.ToPtr(true),
+		Enabled:          new(true),
 	}
 
 	assert.Equal(t, rl, FromResourceList(expected))

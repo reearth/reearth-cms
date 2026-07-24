@@ -91,7 +91,7 @@ func TestAuth0(t *testing.T) {
 	a.current = func() time.Time { return current2 }
 }
 
-func res(i interface{}) io.ReadCloser {
+func res(i any) io.ReadCloser {
 	b, _ := json.Marshal(i)
 	return io.NopCloser(bytes.NewBuffer(b))
 }
@@ -114,7 +114,7 @@ func client(t *testing.T) *http.Client {
 				assert.Equal(t, clientSecret, body["client_secret"])
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body: res(map[string]interface{}{
+					Body: res(map[string]any{
 						"access_token": token,
 						"scope":        "read:users update:users",
 						"expires_in":   expiresIn,
@@ -128,7 +128,7 @@ func client(t *testing.T) *http.Client {
 				if token != tok {
 					return &http.Response{
 						StatusCode: http.StatusUnauthorized,
-						Body: res(map[string]interface{}{
+						Body: res(map[string]any{
 							"message": "Unauthorized",
 						}),
 						Header: make(http.Header),
@@ -137,7 +137,7 @@ func client(t *testing.T) *http.Client {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body: res(map[string]interface{}{
+					Body: res(map[string]any{
 						"user_id":        userID,
 						"username":       userName,
 						"email":          userEmail,
@@ -152,7 +152,7 @@ func client(t *testing.T) *http.Client {
 				if token != tok {
 					return &http.Response{
 						StatusCode: http.StatusUnauthorized,
-						Body: res(map[string]interface{}{
+						Body: res(map[string]any{
 							"message": "Unauthorized",
 						}),
 						Header: make(http.Header),
@@ -169,7 +169,7 @@ func client(t *testing.T) *http.Client {
 				}
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body: res(map[string]interface{}{
+					Body: res(map[string]any{
 						"user_id":        userID,
 						"username":       username,
 						"email":          email,
@@ -181,7 +181,7 @@ func client(t *testing.T) *http.Client {
 
 			return &http.Response{
 				StatusCode: http.StatusNotFound,
-				Body: res(map[string]interface{}{
+				Body: res(map[string]any{
 					"message": "Not found",
 				}),
 				Header: make(http.Header),
