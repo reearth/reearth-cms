@@ -1,9 +1,5 @@
 package version
 
-import (
-	"github.com/samber/lo"
-)
-
 type Query struct {
 	all bool
 	eq  *VersionOrRef
@@ -14,7 +10,7 @@ func All() Query {
 }
 
 func Eq(vr VersionOrRef) Query {
-	return Query{eq: lo.ToPtr(vr)}
+	return Query{eq: new(vr)}
 }
 
 type QueryMatch struct {

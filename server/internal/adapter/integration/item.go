@@ -80,9 +80,9 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}
 	return ItemFilter200JSONResponse{
 		Items:      &res,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		Page:       new(Page(*p.Offset)),
+		PerPage:    new(int(p.Offset.Limit)),
+		TotalCount: new(int(pi.TotalCount)),
 	}, nil
 }
 
@@ -151,9 +151,9 @@ func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostReque
 	}
 	return ItemFilterPost200JSONResponse{
 		Items:      &res,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		Page:       new(Page(*p.Offset)),
+		PerPage:    new(int(p.Offset.Limit)),
+		TotalCount: new(int(pi.TotalCount)),
 	}, nil
 }
 
@@ -545,7 +545,7 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 	}
 	ac := assetContext(ctx, assets, lo.ToPtr(integrationapi.All))
 
-	return lo.ToPtr(integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
+	return new(integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {

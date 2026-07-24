@@ -172,10 +172,8 @@ func (i *Item) cleanGroups() {
 			if !ok {
 				continue
 			}
-			for _, ig := range igs {
-				if *f.ItemGroup() == ig {
-					return true
-				}
+			if slices.Contains(igs, *f.ItemGroup()) {
+				return true
 			}
 		}
 		return false

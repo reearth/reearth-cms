@@ -141,10 +141,8 @@ func (p *Project) Star(uId accountdomain.UserID) {
 		return
 	}
 	uIdStr := uId.String()
-	for _, id := range p.starredBy {
-		if id == uIdStr {
-			return // already starred
-		}
+	if slices.Contains(p.starredBy, uIdStr) {
+		return // already starred
 	}
 	p.starCount++
 	p.starredBy = append(p.starredBy, uIdStr)

@@ -98,7 +98,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			build := func() *Thread {

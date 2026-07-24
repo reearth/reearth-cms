@@ -12,22 +12,22 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-func iAPIAssetFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIAssetFilter(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIAssetCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIAssetCreate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIAssetUploadCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIAssetUploadCreate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIAssetBatchDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIAssetBatchDelete(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }

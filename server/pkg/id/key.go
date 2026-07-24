@@ -29,7 +29,7 @@ func NewKey(key string) Key {
 }
 
 func NewKeyFromPtr(key *string) *Key {
-	return lo.ToPtr(NewKey(lo.FromPtr(key)))
+	return new(NewKey(lo.FromPtr(key)))
 }
 
 func RandomKey() Key {
@@ -57,5 +57,5 @@ func (k *Key) StringRef() *string {
 	if k == nil {
 		return nil
 	}
-	return lo.ToPtr(k.key)
+	return new(k.key)
 }

@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,13 +20,13 @@ func Test_propertyString_ToValue(t *testing.T) {
 	}{
 		{
 			name:  "string",
-			args:  []any{"foobar", lo.ToPtr("foobar")},
+			args:  []any{"foobar", new("foobar")},
 			want1: "foobar",
 			want2: true,
 		},
 		{
 			name:  "number",
-			args:  []any{1.12, lo.ToPtr(1.12)},
+			args:  []any{1.12, new(1.12)},
 			want1: "1.12",
 			want2: true,
 		},
@@ -52,7 +51,6 @@ func Test_propertyString_ToValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p := &propertyString{}

@@ -303,13 +303,13 @@ func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Ro
 func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool) {
 	switch r {
 	case integrationapi.OWNER:
-		return lo.ToPtr(workspace.RoleOwner), true
+		return new(workspace.RoleOwner), true
 	case integrationapi.MAINTAINER:
-		return lo.ToPtr(workspace.RoleMaintainer), true
+		return new(workspace.RoleMaintainer), true
 	case integrationapi.WRITER:
-		return lo.ToPtr(workspace.RoleWriter), true
+		return new(workspace.RoleWriter), true
 	case integrationapi.READER:
-		return lo.ToPtr(workspace.RoleReader), true
+		return new(workspace.RoleReader), true
 	default:
 		return nil, false
 	}

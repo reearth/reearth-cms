@@ -10,22 +10,22 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 )
 
-func iAPIItemCommentList(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+func iAPIItemCommentList(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any, itemId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemCommentCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+func iAPIItemCommentCreate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any, itemId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemCommentUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}, commentId interface{}) *httpexpect.Request {
+func iAPIItemCommentUpdate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any, itemId any, commentId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}"
 	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, commentId)
 }
 
-func iAPIItemCommentDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}, commentId interface{}) *httpexpect.Request {
+func iAPIItemCommentDelete(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any, itemId any, commentId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, commentId)
 }
@@ -96,7 +96,7 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 
 	c := iAPIItemCommentCreate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"content": "test",
 		}).
 		Expect().
@@ -112,7 +112,7 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 	// item with no thread
 	iAPIItemCommentCreate(e, wId0, pid, mId1, itmId7).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"content": "test2",
 		}).
 		Expect().
@@ -146,7 +146,7 @@ func TestIntegrationUpdateItemCommentAPI(t *testing.T) {
 
 	r := iAPIItemCommentUpdate(e, wId0, pid, mId1, itmId1, icId).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"content": "updated content",
 		}).
 		Expect().

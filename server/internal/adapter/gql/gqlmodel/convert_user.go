@@ -61,7 +61,7 @@ func ToMe(u *user.User) *Me {
 		Theme:             Theme(theme),
 		MyWorkspaceID:     IDFrom(u.Workspace()),
 		Auths:             util.Map(u.Auths(), func(a user.Auth) string { return a.Provider }),
-		ProfilePictureURL: lo.ToPtr(photoURL),
+		ProfilePictureURL: new(photoURL),
 	}
 }
 
@@ -90,7 +90,7 @@ func ToMeFromAPI(u *apiuser.User) *Me {
 		Theme:             Theme(theme),
 		MyWorkspaceID:     IDFrom(u.Workspace()),
 		Auths:             util.Map((u.Auths()), func(a apiuser.Auth) string { return a.Provider }),
-		ProfilePictureURL: lo.ToPtr(photoURL),
+		ProfilePictureURL: new(photoURL),
 	}
 }
 
@@ -138,7 +138,7 @@ func ToWorkspace(t *workspace.Workspace) *Workspace {
 	return &Workspace{
 		ID:       IDFrom(t.ID()),
 		Name:     t.Name(),
-		Alias:    lo.ToPtr(t.Alias()),
+		Alias:    new(t.Alias()),
 		Personal: t.IsPersonal(),
 		Members:  members,
 	}

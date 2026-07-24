@@ -142,7 +142,7 @@ func (c *Collection) SaveMany(ctx context.Context, ids []string, docs []any) err
 
 	newDocs := make([]any, len(ids))
 
-	for i := 0; i < len(ids); i++ {
+	for i := range ids {
 		id, doc := ids[i], docs[i]
 
 		newMeta := Meta{
@@ -181,7 +181,7 @@ func (c *Collection) SaveAll(ctx context.Context, ids []string, docs []any, pare
 	if len(ids) == 0 {
 		return nil
 	}
-	for i := 0; i < len(ids); i++ {
+	for i := range ids {
 		var parent *version.VersionOrRef = nil
 		if parents != nil {
 			parent = parents[i]

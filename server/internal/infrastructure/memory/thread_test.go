@@ -62,7 +62,6 @@ func TestThreadRepo_Save(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			r := NewThread()
 			ctx := context.Background()
@@ -188,7 +187,6 @@ func TestThreadRepo_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -288,7 +286,6 @@ func TestThreadRepo_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

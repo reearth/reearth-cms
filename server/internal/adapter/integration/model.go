@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 )
 
 func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error) {
@@ -49,9 +48,9 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 
 	return ModelFilter200JSONResponse{
 		Models:     &models,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		Page:       new(Page(*p.Offset)),
+		PerPage:    new(int(p.Offset.Limit)),
+		TotalCount: new(int(pi.TotalCount)),
 	}, nil
 }
 

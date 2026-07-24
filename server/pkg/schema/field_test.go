@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,7 +54,6 @@ func TestField_UpdatedAt(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -142,7 +140,7 @@ func TestField_SetKey(t *testing.T) {
 }
 
 func TestField_SetTypeProperty(t *testing.T) {
-	tp := NewText(lo.ToPtr(1)).TypeProperty()
+	tp := NewText(new(1)).TypeProperty()
 	f := &Field{}
 	assert.NoError(t, f.SetTypeProperty(tp))
 	assert.Equal(t, &Field{typeProperty: tp}, f)
@@ -156,7 +154,7 @@ func TestField_SetTypeProperty(t *testing.T) {
 }
 
 func TestField_SetDefaultValue(t *testing.T) {
-	f := &Field{typeProperty: NewText(lo.ToPtr(1)).TypeProperty()}
+	f := &Field{typeProperty: NewText(new(1)).TypeProperty()}
 	assert.NoError(t, f.SetDefaultValue(value.TypeText.Value("a").AsMultiple()))
 	assert.Equal(t, value.TypeText.Value("a").AsMultiple(), f.defaultValue)
 	assert.Equal(t, value.TypeText.Value("a").AsMultiple(), f.DefaultValue())
@@ -171,7 +169,7 @@ func TestField_SetDefaultValue(t *testing.T) {
 }
 
 func TestField_Validate(t *testing.T) {
-	f := &Field{typeProperty: NewText(lo.ToPtr(1)).TypeProperty()}
+	f := &Field{typeProperty: NewText(new(1)).TypeProperty()}
 	assert.NoError(t, f.Validate(value.TypeText.Value("a").AsMultiple()))
 	assert.NoError(t, f.Validate(nil))
 
