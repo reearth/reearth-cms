@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
 import svgToMiniDataURI from "mini-svg-data-uri";
-import React, { ComponentProps, CSSProperties, memo, useMemo } from "react";
+import type { ComponentProps, CSSProperties } from "react";
+import React, { memo, useMemo } from "react";
 import { ReactSVG } from "react-svg";
 
-import Icons, { type IconName } from "./icons";
+import Icons from "./icons";
+import type { IconName } from "./icons";
 
 export type IconProp = IconName | `<svg ${string}`;
 

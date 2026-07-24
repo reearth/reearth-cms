@@ -9,7 +9,7 @@ import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import type { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";

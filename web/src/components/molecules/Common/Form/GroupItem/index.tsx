@@ -1,16 +1,17 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, MouseEvent, useState, useEffect } from "react";
+import type { MouseEvent } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import type { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import {
   AssetField,
   ReferenceField,
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
-import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { Field, Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
+import type { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import type { Field, Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
 
 const { Panel } = Collapse;
 

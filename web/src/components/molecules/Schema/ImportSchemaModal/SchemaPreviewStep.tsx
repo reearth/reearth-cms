@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { ReactElement, useMemo } from "react";
+import type { ReactElement } from "react";
+import { useMemo } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -15,7 +16,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { ImportFieldInput } from "../types";
+import type { ImportFieldInput } from "../types";
 
 export type Props = {
   fields: ImportFieldInput[];

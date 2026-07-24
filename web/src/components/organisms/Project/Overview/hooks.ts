@@ -3,12 +3,13 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
-import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
-import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
+import type { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import type { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
-import {
+import type {
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,

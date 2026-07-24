@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
-import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import type { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";

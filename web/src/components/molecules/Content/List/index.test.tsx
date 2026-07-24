@@ -2,7 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vitest";
 
-import ContentListMolecule, { type Props as ContentListMoleculeProps } from ".";
+import ContentListMolecule from ".";
+import type { Props as ContentListMoleculeProps } from ".";
 
 const DEFAULT_PROPS: ContentListMoleculeProps = {
   commentsPanel: <div />,

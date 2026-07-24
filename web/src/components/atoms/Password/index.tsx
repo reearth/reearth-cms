@@ -1,3 +1,3 @@
-import Password from "antd/lib/input/Password";
+import Password from "antd/es/input/Password";
 
 export default Password;

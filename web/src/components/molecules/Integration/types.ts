@@ -1,5 +1,5 @@
-import { Role, User } from "@reearth-cms/components/molecules/Member/types";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { Role, User } from "@reearth-cms/components/molecules/Member/types";
+import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 export type WorkspaceIntegration = {
   id?: string;

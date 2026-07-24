@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import fileDownload from "js-file-download";
-import z from "zod";
+import type z from "zod";
 
 import { t } from "@reearth-cms/i18n";
 

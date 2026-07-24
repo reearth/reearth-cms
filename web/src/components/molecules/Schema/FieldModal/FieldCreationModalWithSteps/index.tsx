@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState, useRef, RefObject } from "react";
+import type { RefObject } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -14,9 +16,9 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import {
+import type {
   Field,
   FieldModalTabs,
   FormValues,

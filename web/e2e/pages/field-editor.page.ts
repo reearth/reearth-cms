@@ -1,6 +1,6 @@
 // e2e/pages/field-editor.page.ts
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import type { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -366,7 +366,7 @@ export class FieldEditorPage extends BasePage {
 
   // Title selection helpers
   titleDiv(date: string): Locator {
-    return this.getByTitle(date).locator("div");
+    return this.locator(`td[title="${date}"] div`);
   }
 
   // Field type list item helper
@@ -387,10 +387,6 @@ export class FieldEditorPage extends BasePage {
   // Code editor elements
   get viewLinesEditor(): Locator {
     return this.locator(".view-lines");
-  }
-
-  get editorContent(): Locator {
-    return this.locator("textarea.inputarea, div.native-edit-context");
   }
 
   // Delete field button

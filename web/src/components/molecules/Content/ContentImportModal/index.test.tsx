@@ -2,10 +2,10 @@ import { useState } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { type AlertProps } from "@reearth-cms/components/atoms/Alert";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { ImportValidationResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import type { ImportValidationResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
   DATA_TEST_ID,
   fireEvent,

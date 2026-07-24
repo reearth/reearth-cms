@@ -1,13 +1,29 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type CreateWebhookMutationVariables = Types.Exact<{
-  integrationId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  url: Types.Scalars["URL"]["input"];
-  active: Types.Scalars["Boolean"]["input"];
+export type WebhookTriggerInput = {
+  onAssetDecompress?: boolean | null | undefined;
+  onAssetDelete?: boolean | null | undefined;
+  onAssetUpload?: boolean | null | undefined;
+  onItemCreate?: boolean | null | undefined;
+  onItemDelete?: boolean | null | undefined;
+  onItemPublish?: boolean | null | undefined;
+  onItemUnPublish?: boolean | null | undefined;
+  onItemUpdate?: boolean | null | undefined;
+};
+
+export type CreateWebhookMutationVariables = Exact<{
+  integrationId: string;
+  name: string;
+  url: string;
+  active: boolean;
   trigger: Types.WebhookTriggerInput;
-  secret: Types.Scalars["String"]["input"];
+  secret: string;
 }>;
 
 export type CreateWebhookMutation = {
@@ -37,14 +53,14 @@ export type CreateWebhookMutation = {
   } | null;
 };
 
-export type UpdateWebhookMutationVariables = Types.Exact<{
-  integrationId: Types.Scalars["ID"]["input"];
-  webhookId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  url: Types.Scalars["URL"]["input"];
-  active: Types.Scalars["Boolean"]["input"];
+export type UpdateWebhookMutationVariables = Exact<{
+  integrationId: string;
+  webhookId: string;
+  name: string;
+  url: string;
+  active: boolean;
   trigger: Types.WebhookTriggerInput;
-  secret?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+  secret?: string | null | undefined;
 }>;
 
 export type UpdateWebhookMutation = {
@@ -74,9 +90,9 @@ export type UpdateWebhookMutation = {
   } | null;
 };
 
-export type DeleteWebhookMutationVariables = Types.Exact<{
-  integrationId: Types.Scalars["ID"]["input"];
-  webhookId: Types.Scalars["ID"]["input"];
+export type DeleteWebhookMutationVariables = Exact<{
+  integrationId: string;
+  webhookId: string;
 }>;
 
 export type DeleteWebhookMutation = {

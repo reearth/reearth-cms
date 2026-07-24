@@ -1,14 +1,15 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
-import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
+import type { Key } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { renderTitle } from "@reearth-cms/components/molecules/Content/RenderTitle";
-import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
-import {
+import type { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
+import type {
   ContentTableField,
   Item,
   ItemStatus,
@@ -16,11 +17,11 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
-import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
-import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
-import {
+import type { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
+import type {
   ConditionInput,
   ItemSort,
   View,
@@ -37,15 +38,15 @@ import {
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import { useExportContent } from "@reearth-cms/components/organisms/Project/hooks/useExportContent";
-import {
+import type {
   Item as GQLItem,
   Comment as GQLComment,
   Asset as GQLAsset,
   SchemaFieldType,
   View as GQLView,
   ItemFieldInput,
-  JobStatus,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CreateItemDocument,
   DeleteItemsDocument,
@@ -56,7 +57,7 @@ import {
 import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
-import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
 import { fileName } from "./utils";
 
@@ -477,7 +478,7 @@ export default () => {
       title: field.title,
       dataIndex: ["fields", field.id],
       fieldType: "FIELD" as const,
-      key: field.id,
+      key: ["fields", field.id].toString(),
       ellipsis: true,
       type: field.type,
       typeProperty: field.typeProperty,
@@ -487,6 +488,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      defaultSortOrder: sortOrderGet(field.id),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
@@ -496,7 +498,7 @@ export default () => {
         title: renderTitle(field),
         dataIndex: ["metadata", field.id],
         fieldType: "META_FIELD" as const,
-        key: field.id,
+        key: ["metadata", field.id].toString(),
         ellipsis: true,
         type: field.type,
         typeProperty: field.typeProperty,
@@ -506,6 +508,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        defaultSortOrder: sortOrderGet(field.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)

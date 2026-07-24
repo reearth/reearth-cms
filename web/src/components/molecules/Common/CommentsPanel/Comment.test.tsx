@@ -5,7 +5,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import { expect, test, describe, vi } from "vitest";
 
-import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import type { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import Comment from "./Comment";

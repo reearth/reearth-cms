@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import {
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type {
   APIKey,
   FormType,
   PostingFormType,

@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
-import React, { MouseEventHandler } from "react";
+import type { MouseEventHandler } from "react";
+import React from "react";
 
-import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import type { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";

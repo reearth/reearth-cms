@@ -1,4 +1,4 @@
-import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import type { Page, Locator } from "@reearth-cms/e2e/fixtures/test";
 import {
   clickAndExpectSuccess,
   closeNotification,
@@ -155,11 +155,11 @@ export abstract class BasePage {
     await this.page.keyboard.press(key, { delay });
   }
 
-  async fillMonacoEditor(viewLines: Locator, text: string): Promise<void> {
-    await viewLines.click();
-    const isMac = process.platform === "darwin";
-    await this.page.keyboard.press(isMac ? "Meta+A" : "Control+A");
-    await this.page.keyboard.press("Backspace");
-    await this.page.keyboard.insertText(text);
+  async typeInMonacoEditor(editor: Locator, content: string): Promise<void> {
+    await editor.click();
+    await this.page.locator(".monaco-editor.focused").waitFor({ state: "visible" });
+    await this.page.keyboard.press("ControlOrMeta+a");
+    await this.page.keyboard.type(content);
+    await this.page.locator(".suggest-widget.visible").waitFor({ state: "hidden" });
   }
 }

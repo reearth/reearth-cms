@@ -1,15 +1,15 @@
-import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
-import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
-import {
+import type { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
+import type { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import type {
   Item,
   ItemField,
   ItemAsset,
   VersionedItem,
 } from "@reearth-cms/components/molecules/Content/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { Schema } from "@reearth-cms/components/molecules/Schema/types";
+import type { Request } from "@reearth-cms/components/molecules/Request/types";
+import type { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import { initialValuesGet } from "@reearth-cms/components/organisms/Project/Request/RequestDetails/utils";
-import {
+import type {
   Asset as GQLAsset,
   Item as GQLItem,
   Comment as GQLComment,

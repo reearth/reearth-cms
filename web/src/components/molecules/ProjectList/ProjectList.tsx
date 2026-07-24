@@ -2,10 +2,10 @@ import styled from "@emotion/styled";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Pagination from "@reearth-cms/components/atoms/Pagination";
-import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import type { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
-import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
+import type { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
-import { getAuth, onAuthStateChanged, User, EmailAuthProvider } from "firebase/auth";
+import type { User } from "firebase/auth";
+import { getAuth, onAuthStateChanged, EmailAuthProvider } from "firebase/auth";
 import * as firebaseui from "firebaseui";
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import "firebaseui/dist/firebaseui.css";

@@ -5,11 +5,12 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
-import {
+import type {
   WebhookTrigger,
   TriggerKey,
   WebhookValues,

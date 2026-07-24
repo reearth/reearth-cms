@@ -1,20 +1,18 @@
 import { ApolloClient } from "@apollo/client";
 import { useLazyQuery, useMutation } from "@apollo/client/react";
-import { createContext, ReactNode, useCallback, useMemo } from "react";
+import type { ReactNode } from "react";
+import { createContext, useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { RcFile } from "@reearth-cms/components/atoms/Upload";
+import type { RcFile } from "@reearth-cms/components/atoms/Upload";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportItemsAsyncDocument } from "@reearth-cms/gql/__generated__/item.generated";
-import {
-  CancelJobDocument,
-  CancelJobMutation,
-  JobDocument,
-} from "@reearth-cms/gql/__generated__/job.generated";
+import type { CancelJobMutation } from "@reearth-cms/gql/__generated__/job.generated";
+import { CancelJobDocument, JobDocument } from "@reearth-cms/gql/__generated__/job.generated";
 import { useUploader } from "@reearth-cms/state";
 import { Constant } from "@reearth-cms/utils/constant";
 
-import { UploaderQueueItem, UploaderState } from "./types";
+import type { UploaderQueueItem, UploaderState } from "./types";
 
 import MutateResult = ApolloClient.MutateResult;
 

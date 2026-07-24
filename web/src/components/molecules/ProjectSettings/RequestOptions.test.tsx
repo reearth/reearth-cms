@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 
 import RequestOptions from "./RequestOptions";
 

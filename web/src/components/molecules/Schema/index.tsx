@@ -1,23 +1,26 @@
 import styled from "@emotion/styled";
-import { Dispatch, ReactNode, SetStateAction, useCallback, useMemo, useState } from "react";
+import type { Dispatch, SetStateAction, ReactNode } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
+import type { TabsProps } from "@reearth-cms/components/atoms/Tabs";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import type { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import {
+import type {
   Field,
   SchemaFieldType,
   Group,
@@ -30,11 +33,11 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ExportSchemaUtils } from "@reearth-cms/utils/exportSchema";
-import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { ItemAsset } from "../Content/types";
+import type { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
 

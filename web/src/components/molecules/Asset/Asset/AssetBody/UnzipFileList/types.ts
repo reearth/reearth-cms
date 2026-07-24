@@ -1,4 +1,4 @@
-import { DataNode } from "@reearth-cms/components/atoms/Tree";
+import type { DataNode } from "@reearth-cms/components/atoms/Tree";
 
 export type FileNode = DataNode & {
   name: string;

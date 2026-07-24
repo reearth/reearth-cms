@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
-import { Key, ReactNode } from "react";
+import type { Key, ReactNode } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
+import type { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import type { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";
 

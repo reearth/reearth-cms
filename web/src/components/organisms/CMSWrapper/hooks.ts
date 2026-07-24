@@ -2,15 +2,15 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
-import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import type { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import {
   fromGraphQLMember,
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
-import {
+import type {
   WorkspaceMember,
   Workspace as GQLWorkspace,
   Project as GQLProject,

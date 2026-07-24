@@ -1,4 +1,4 @@
-import { FormInstance } from "@reearth-cms/components/atoms/Form";
+import type { FormInstance } from "@reearth-cms/components/atoms/Form";
 import { RegexUtils } from "@reearth-cms/utils/regex";
 
 export const keyAutoFill = (

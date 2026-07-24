@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import type { Key } from "react";
+import { useMemo, useCallback } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import {
+import type {
   ListToolBarProps,
   StretchColumn,
   OptionConfig,
@@ -15,7 +16,7 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import type { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";

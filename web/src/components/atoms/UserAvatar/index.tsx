@@ -3,7 +3,8 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AntdColor, CustomColor } from "@reearth-cms/utils/style";
 
-import Avatar, { AvatarProps } from "../Avatar";
+import type { AvatarProps } from "../Avatar";
+import Avatar from "../Avatar";
 
 type Props = {
   username?: string;
@@ -22,7 +23,9 @@ const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...p
   );
 };
 
-const UserAvatarWrapper = styled(Avatar)<{ shadow?: boolean; anonymous?: boolean }>`
+const UserAvatarWrapper = styled(Avatar, {
+  shouldForwardProp: prop => prop !== "shadow" && prop !== "anonymous",
+})<{ shadow?: boolean; anonymous?: boolean }>`
   color: ${AntdColor.GREY.GREY_8};
   background-color: ${({ anonymous }) =>
     anonymous ? AntdColor.GREY.GREY_0 /* originally #BFBFBF */ : CustomColor.AVATAR_BG};

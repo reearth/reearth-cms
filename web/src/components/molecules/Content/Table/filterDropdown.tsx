@@ -1,16 +1,17 @@
 import styled from "@emotion/styled";
-import { useState, useCallback, Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useState, useCallback } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
-import {
+import type {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
+import type { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import DropdownRender from "./DropdownRender";
@@ -57,7 +58,7 @@ const FilterDropdown: React.FC<Props> = ({
   return (
     <Dropdown
       key={filter.title}
-      dropdownRender={() => (
+      popupRender={() => (
         <DropdownRender
           filter={filter}
           index={index}

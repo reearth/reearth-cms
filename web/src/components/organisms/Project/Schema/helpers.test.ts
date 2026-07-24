@@ -1,7 +1,7 @@
 import { expect, test, describe } from "vitest";
 
 import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
+import type { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
 
 import { SchemaHelpers } from "./helpers";
 

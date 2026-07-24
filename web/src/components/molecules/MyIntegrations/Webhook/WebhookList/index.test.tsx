@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 import WebhookList from ".";
 

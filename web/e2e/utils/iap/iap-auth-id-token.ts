@@ -1,6 +1,6 @@
 import path from "path";
 
-import { Browser, BrowserContext } from "@playwright/test";
+import type { Browser, BrowserContext } from "@playwright/test";
 
 import { DEFAULT_USER_AGENT } from "./iap-auth-common";
 

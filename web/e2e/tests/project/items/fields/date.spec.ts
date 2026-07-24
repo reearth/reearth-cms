@@ -45,7 +45,12 @@ test("@smoke Date field creating and updating has succeeded", async ({
   await expect(contentPage.tableBody).not.toContainText("2024-01-01");
 });
 
-test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Date field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");
@@ -80,8 +85,8 @@ test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, 
   await fieldEditorPage.uniqueFieldCheckbox.check();
   await fieldEditorPage.defaultValueTab.click();
   await expect(fieldEditorPage.selectDatePlaceholder).toHaveValue("2024-01-01");
-  await fieldEditorPage.textboxByIndex(0).click();
-  await fieldEditorPage.titleDiv("2024-01-02").click();
+  await fieldEditorPage.selectDatePlaceholder.fill("2024-01-02");
+  await page.locator('td[title="2024-01-02"]').click();
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.textboxByIndex(1).click();
   await fieldEditorPage.textboxByIndex(1).fill("2024-01-03");

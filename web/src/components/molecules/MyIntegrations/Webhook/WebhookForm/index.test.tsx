@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 import WebhookForm from ".";
 

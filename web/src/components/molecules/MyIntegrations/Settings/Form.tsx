@@ -5,7 +5,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Divider from "@reearth-cms/components/atoms/Divider";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
@@ -13,7 +14,7 @@ import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import {
+import type {
   Integration,
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";

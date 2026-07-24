@@ -2,7 +2,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
-import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import type { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 
 import FieldTitle from "../../FieldTitle";
 

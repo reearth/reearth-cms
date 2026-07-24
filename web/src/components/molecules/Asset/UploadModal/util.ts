@@ -1,4 +1,4 @@
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadFile } from "@reearth-cms/components/atoms/Upload";
 
 const isImageFileType = (type: string): boolean => type.indexOf("image/") === 0;
 

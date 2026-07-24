@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, describe } from "vitest";
 
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
 import ProjectList from "./ProjectList";
 

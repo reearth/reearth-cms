@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import Flex from "@reearth-cms/components/atoms/Flex";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";

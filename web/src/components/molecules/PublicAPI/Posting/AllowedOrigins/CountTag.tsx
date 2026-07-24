@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
 
-import Icon, { IconName } from "@reearth-cms/components/atoms/Icon";
+import type { IconName } from "@reearth-cms/components/atoms/Icon";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

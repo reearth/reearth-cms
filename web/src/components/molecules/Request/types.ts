@@ -1,7 +1,7 @@
-import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
-import { User } from "@reearth-cms/components/molecules/Member/types";
-import { Schema } from "@reearth-cms/components/molecules/Schema/types";
+import type { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import type { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import type { User } from "@reearth-cms/components/molecules/Member/types";
+import type { Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 

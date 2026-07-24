@@ -2,11 +2,13 @@ import styled from "@emotion/styled";
 import { useMemo } from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
-import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { Children, ReactNode, useCallback, useMemo } from "react";
+import type { ReactNode } from "react";
+import { Children, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -97,7 +98,9 @@ const Layout: React.FC<LayoutProps> = ({
   );
 };
 
-const PaddedContent = styled(Content)<{ isFullHeight: boolean }>`
+const PaddedContent = styled(Content, {
+  shouldForwardProp: prop => prop !== "isFullHeight",
+})<{ isFullHeight: boolean }>`
   display: flex;
   flex-direction: column;
   padding: ${AntdToken.SPACING.BASE}px;

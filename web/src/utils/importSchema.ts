@@ -1,29 +1,31 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { GeoJSONPoint } from "ol/format/GeoJSON";
+import type { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
-import {
+import type {
   GeoJSONGeometryCollection,
-  GeoJSONGeometryCollectionSchema,
   GeoJSONLineString,
-  GeoJSONLineStringSchema,
   GeoJSONMultiLineString,
-  GeoJSONMultiLineStringSchema,
   GeoJSONMultiPoint,
-  GeoJSONMultiPointSchema,
   GeoJSONMultiPolygon,
+  GeoJSONPolygon,
+} from "zod-geojson";
+import {
+  GeoJSONGeometryCollectionSchema,
+  GeoJSONLineStringSchema,
+  GeoJSONMultiLineStringSchema,
+  GeoJSONMultiPointSchema,
   GeoJSONMultiPolygonSchema,
   GeoJSONPointSchema,
-  GeoJSONPolygon,
   GeoJSONPolygonSchema,
 } from "zod-geojson";
 
-import { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
-import {
+import type { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
+import type {
   ObjectSupportedType,
   EditorSupportedType,
-  ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { t } from "@reearth-cms/i18n";
 
 import { PerformanceTimer } from "./performance";
@@ -251,10 +253,7 @@ interface FieldGeoEditorAnyMulti extends FieldGeoEditorBaseMulti {
 
 // geo editor single
 export type FieldGeoEditor =
-  | FieldGeoEditorPoint
-  | FieldGeoEditorLineString
-  | FieldGeoEditorPolygon
-  | FieldGeoEditorAny;
+  FieldGeoEditorPoint | FieldGeoEditorLineString | FieldGeoEditorPolygon | FieldGeoEditorAny;
 
 // geo editor multiple
 export type FieldGeoEditorMulti =

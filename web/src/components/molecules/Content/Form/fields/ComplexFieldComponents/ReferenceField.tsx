@@ -1,10 +1,9 @@
 import Form from "@reearth-cms/components/atoms/Form";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
-import ReferenceFormItem, {
-  ReferenceProps,
-} from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import type { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import type { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 type ReferenceFieldProps = FieldProps & ReferenceProps;

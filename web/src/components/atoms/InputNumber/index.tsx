@@ -1,4 +1,5 @@
-import { InputNumber as AntDInputNumber, InputNumberProps } from "antd";
+import type { InputNumberProps } from "antd";
+import { InputNumber as AntDInputNumber } from "antd";
 import { useMemo } from "react";
 
 const InputNumber: <T extends string | number>(

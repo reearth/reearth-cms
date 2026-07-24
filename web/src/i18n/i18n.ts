@@ -37,7 +37,6 @@ i18n.use(LanguageDetector).use(initReactI18next).init({
   nsSeparator: false,
   keySeparator: false,
   returnEmptyString: false,
-  showSupportNotice: false,
 });
 
 syncZodLocale(i18n.language || "en");

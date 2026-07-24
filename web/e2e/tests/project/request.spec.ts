@@ -116,9 +116,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
     await requestPage.okButton.click();
     await expect(requestPage.tableBodyTextByText("Closed")).toBeVisible();
     await requestPage.editButton.click();
-    for (const el of await requestPage.statusText("Closed").all()) {
-      await expect(el).toBeVisible();
-    }
+    await expect(requestPage.badgeStatusText("CLOSED")).toBeVisible();
   });
 });
 

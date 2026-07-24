@@ -1,13 +1,15 @@
 import styled from "@emotion/styled";
-import MonacoEditor, { Monaco, OnMount, BeforeMount } from "@monaco-editor/react";
+import type { OnMount, BeforeMount, Monaco } from "@monaco-editor/react";
+import MonacoEditor from "@monaco-editor/react";
 import Ajv from "ajv";
 import axios from "axios";
+import { json } from "monaco-editor";
 import type { editor } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import { defaults as defaultControls, Attribution } from "ol/control";
 import { GeoJSON } from "ol/format";
-import { Circle, LineString, Point, Polygon } from "ol/geom";
+import type { Circle, LineString, Point, Polygon } from "ol/geom";
 import { fromCircle } from "ol/geom/Polygon";
 import { defaults, Draw } from "ol/interaction";
 import { createBox } from "ol/interaction/Draw";
@@ -16,7 +18,8 @@ import { fromLonLat } from "ol/proj";
 import { Vector as VectorSource, OSM } from "ol/source";
 import { Icon as IconStyle, Fill, Stroke, Style } from "ol/style";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { Resizable, ResizeCallbackData } from "react-resizable";
+import type { ResizeCallbackData } from "react-resizable";
+import { Resizable } from "react-resizable";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -26,7 +29,7 @@ import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Search from "@reearth-cms/components/atoms/Search";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import {
+import type {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
@@ -150,8 +153,8 @@ const GeometryItem: React.FC<Props> = ({
     [disabled, isEditor, t],
   );
 
-  const handleEditorWillMount: BeforeMount = useCallback(monaco => {
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+  const handleEditorWillMount: BeforeMount = useCallback(() => {
+    json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
       schemas: [
         {

@@ -1,14 +1,60 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetRequestsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  key?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  state?: Types.InputMaybe<Array<Types.RequestState> | Types.RequestState>;
-  pagination?: Types.InputMaybe<Types.Pagination>;
-  createdBy?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  reviewer?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  sort?: Types.InputMaybe<Types.Sort>;
+export type ItemStatus = "DRAFT" | "PUBLIC" | "PUBLIC_DRAFT" | "PUBLIC_REVIEW" | "REVIEW";
+
+export type Pagination = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
+  offset?: number | null | undefined;
+};
+
+export type RequestItemInput = {
+  itemId: string;
+  version?: string | null | undefined;
+};
+
+export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
+
+export type SchemaFieldType =
+  | "Asset"
+  | "Bool"
+  | "Checkbox"
+  | "Date"
+  | "GeometryEditor"
+  | "GeometryObject"
+  | "Group"
+  | "Integer"
+  | "MarkdownText"
+  | "Number"
+  | "Reference"
+  | "RichText"
+  | "Select"
+  | "Tag"
+  | "Text"
+  | "TextArea"
+  | "URL";
+
+export type Sort = {
+  key: string;
+  reverted?: boolean | null | undefined;
+};
+
+export type GetRequestsQueryVariables = Exact<{
+  projectId: string;
+  key?: string | null | undefined;
+  state?: Array<Types.RequestState> | Types.RequestState | null | undefined;
+  pagination?: Types.Pagination | null | undefined;
+  createdBy?: string | null | undefined;
+  reviewer?: string | null | undefined;
+  sort?: Types.Sort | null | undefined;
 }>;
 
 export type GetRequestsQuery = {
@@ -51,14 +97,14 @@ export type GetRequestsQuery = {
   };
 };
 
-export type GetModalRequestsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  key?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  state?: Types.InputMaybe<Array<Types.RequestState> | Types.RequestState>;
-  pagination?: Types.InputMaybe<Types.Pagination>;
-  createdBy?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  reviewer?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  sort?: Types.InputMaybe<Types.Sort>;
+export type GetModalRequestsQueryVariables = Exact<{
+  projectId: string;
+  key?: string | null | undefined;
+  state?: Array<Types.RequestState> | Types.RequestState | null | undefined;
+  pagination?: Types.Pagination | null | undefined;
+  createdBy?: string | null | undefined;
+  reviewer?: string | null | undefined;
+  sort?: Types.Sort | null | undefined;
 }>;
 
 export type GetModalRequestsQuery = {
@@ -79,8 +125,8 @@ export type GetModalRequestsQuery = {
   };
 };
 
-export type GetRequestQueryVariables = Types.Exact<{
-  requestId: Types.Scalars["ID"]["input"];
+export type GetRequestQueryVariables = Exact<{
+  requestId: string;
 }>;
 
 export type GetRequestQuery = {
@@ -127,7 +173,7 @@ export type GetRequestQuery = {
                 __typename: "ItemField";
                 schemaFieldId: string;
                 type: Types.SchemaFieldType;
-                value: unknown | null;
+                value: unknown;
                 itemGroupId: string | null;
               }>;
               referencedItems: Array<{
@@ -159,8 +205,8 @@ export type GetRequestQuery = {
                   isTitle: boolean;
                   multiple: boolean;
                   typeProperty:
-                    | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-                    | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+                    | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+                    | { __typename: "SchemaFieldBool"; defaultValue: unknown }
                     | { __typename: "SchemaFieldCheckbox" }
                     | { __typename: "SchemaFieldDate" }
                     | { __typename: "SchemaFieldGeometryEditor" }
@@ -170,11 +216,11 @@ export type GetRequestQuery = {
                         __typename: "SchemaFieldInteger";
                         min: number | null;
                         max: number | null;
-                        integerDefaultValue: unknown | null;
+                        integerDefaultValue: unknown;
                       }
                     | {
                         __typename: "SchemaFieldMarkdown";
-                        defaultValue: unknown | null;
+                        defaultValue: unknown;
                         maxLength: number | null;
                       }
                     | { __typename: "SchemaFieldNumber" }
@@ -183,20 +229,20 @@ export type GetRequestQuery = {
                     | {
                         __typename: "SchemaFieldSelect";
                         values: Array<string>;
-                        selectDefaultValue: unknown | null;
+                        selectDefaultValue: unknown;
                       }
                     | { __typename: "SchemaFieldTag" }
                     | {
                         __typename: "SchemaFieldText";
-                        defaultValue: unknown | null;
+                        defaultValue: unknown;
                         maxLength: number | null;
                       }
                     | {
                         __typename: "SchemaFieldTextArea";
-                        defaultValue: unknown | null;
+                        defaultValue: unknown;
                         maxLength: number | null;
                       }
-                    | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+                    | { __typename: "SchemaFieldURL"; defaultValue: unknown }
                     | null;
                 }>;
               };
@@ -237,14 +283,12 @@ export type GetRequestQuery = {
     | null;
 };
 
-export type CreateRequestMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  title: Types.Scalars["String"]["input"];
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  state?: Types.InputMaybe<Types.RequestState>;
-  reviewersId?: Types.InputMaybe<
-    Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"]
-  >;
+export type CreateRequestMutationVariables = Exact<{
+  projectId: string;
+  title: string;
+  description?: string | null | undefined;
+  state?: Types.RequestState | null | undefined;
+  reviewersId?: Array<string> | string | null | undefined;
   items: Array<Types.RequestItemInput> | Types.RequestItemInput;
 }>;
 
@@ -286,7 +330,7 @@ export type CreateRequestMutation = {
               __typename: "ItemField";
               schemaFieldId: string;
               type: Types.SchemaFieldType;
-              value: unknown | null;
+              value: unknown;
               itemGroupId: string | null;
             }>;
             referencedItems: Array<{
@@ -318,8 +362,8 @@ export type CreateRequestMutation = {
                 isTitle: boolean;
                 multiple: boolean;
                 typeProperty:
-                  | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-                  | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+                  | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+                  | { __typename: "SchemaFieldBool"; defaultValue: unknown }
                   | { __typename: "SchemaFieldCheckbox" }
                   | { __typename: "SchemaFieldDate" }
                   | { __typename: "SchemaFieldGeometryEditor" }
@@ -329,11 +373,11 @@ export type CreateRequestMutation = {
                       __typename: "SchemaFieldInteger";
                       min: number | null;
                       max: number | null;
-                      integerDefaultValue: unknown | null;
+                      integerDefaultValue: unknown;
                     }
                   | {
                       __typename: "SchemaFieldMarkdown";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
                   | { __typename: "SchemaFieldNumber" }
@@ -342,20 +386,20 @@ export type CreateRequestMutation = {
                   | {
                       __typename: "SchemaFieldSelect";
                       values: Array<string>;
-                      selectDefaultValue: unknown | null;
+                      selectDefaultValue: unknown;
                     }
                   | { __typename: "SchemaFieldTag" }
                   | {
                       __typename: "SchemaFieldText";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
                   | {
                       __typename: "SchemaFieldTextArea";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
-                  | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+                  | { __typename: "SchemaFieldURL"; defaultValue: unknown }
                   | null;
               }>;
             };
@@ -391,15 +435,13 @@ export type CreateRequestMutation = {
   } | null;
 };
 
-export type UpdateRequestMutationVariables = Types.Exact<{
-  requestId: Types.Scalars["ID"]["input"];
-  title?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  state?: Types.InputMaybe<Types.RequestState>;
-  reviewersId?: Types.InputMaybe<
-    Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"]
-  >;
-  items?: Types.InputMaybe<Array<Types.RequestItemInput> | Types.RequestItemInput>;
+export type UpdateRequestMutationVariables = Exact<{
+  requestId: string;
+  title?: string | null | undefined;
+  description?: string | null | undefined;
+  state?: Types.RequestState | null | undefined;
+  reviewersId?: Array<string> | string | null | undefined;
+  items?: Array<Types.RequestItemInput> | Types.RequestItemInput | null | undefined;
 }>;
 
 export type UpdateRequestMutation = {
@@ -440,7 +482,7 @@ export type UpdateRequestMutation = {
               __typename: "ItemField";
               schemaFieldId: string;
               type: Types.SchemaFieldType;
-              value: unknown | null;
+              value: unknown;
               itemGroupId: string | null;
             }>;
             referencedItems: Array<{
@@ -472,8 +514,8 @@ export type UpdateRequestMutation = {
                 isTitle: boolean;
                 multiple: boolean;
                 typeProperty:
-                  | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-                  | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+                  | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+                  | { __typename: "SchemaFieldBool"; defaultValue: unknown }
                   | { __typename: "SchemaFieldCheckbox" }
                   | { __typename: "SchemaFieldDate" }
                   | { __typename: "SchemaFieldGeometryEditor" }
@@ -483,11 +525,11 @@ export type UpdateRequestMutation = {
                       __typename: "SchemaFieldInteger";
                       min: number | null;
                       max: number | null;
-                      integerDefaultValue: unknown | null;
+                      integerDefaultValue: unknown;
                     }
                   | {
                       __typename: "SchemaFieldMarkdown";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
                   | { __typename: "SchemaFieldNumber" }
@@ -496,20 +538,20 @@ export type UpdateRequestMutation = {
                   | {
                       __typename: "SchemaFieldSelect";
                       values: Array<string>;
-                      selectDefaultValue: unknown | null;
+                      selectDefaultValue: unknown;
                     }
                   | { __typename: "SchemaFieldTag" }
                   | {
                       __typename: "SchemaFieldText";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
                   | {
                       __typename: "SchemaFieldTextArea";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
-                  | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+                  | { __typename: "SchemaFieldURL"; defaultValue: unknown }
                   | null;
               }>;
             };
@@ -545,8 +587,8 @@ export type UpdateRequestMutation = {
   } | null;
 };
 
-export type ApproveRequestMutationVariables = Types.Exact<{
-  requestId: Types.Scalars["ID"]["input"];
+export type ApproveRequestMutationVariables = Exact<{
+  requestId: string;
 }>;
 
 export type ApproveRequestMutation = {
@@ -587,7 +629,7 @@ export type ApproveRequestMutation = {
               __typename: "ItemField";
               schemaFieldId: string;
               type: Types.SchemaFieldType;
-              value: unknown | null;
+              value: unknown;
               itemGroupId: string | null;
             }>;
             referencedItems: Array<{
@@ -619,8 +661,8 @@ export type ApproveRequestMutation = {
                 isTitle: boolean;
                 multiple: boolean;
                 typeProperty:
-                  | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-                  | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+                  | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+                  | { __typename: "SchemaFieldBool"; defaultValue: unknown }
                   | { __typename: "SchemaFieldCheckbox" }
                   | { __typename: "SchemaFieldDate" }
                   | { __typename: "SchemaFieldGeometryEditor" }
@@ -630,11 +672,11 @@ export type ApproveRequestMutation = {
                       __typename: "SchemaFieldInteger";
                       min: number | null;
                       max: number | null;
-                      integerDefaultValue: unknown | null;
+                      integerDefaultValue: unknown;
                     }
                   | {
                       __typename: "SchemaFieldMarkdown";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
                   | { __typename: "SchemaFieldNumber" }
@@ -643,20 +685,20 @@ export type ApproveRequestMutation = {
                   | {
                       __typename: "SchemaFieldSelect";
                       values: Array<string>;
-                      selectDefaultValue: unknown | null;
+                      selectDefaultValue: unknown;
                     }
                   | { __typename: "SchemaFieldTag" }
                   | {
                       __typename: "SchemaFieldText";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
                   | {
                       __typename: "SchemaFieldTextArea";
-                      defaultValue: unknown | null;
+                      defaultValue: unknown;
                       maxLength: number | null;
                     }
-                  | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+                  | { __typename: "SchemaFieldURL"; defaultValue: unknown }
                   | null;
               }>;
             };
@@ -692,9 +734,9 @@ export type ApproveRequestMutation = {
   } | null;
 };
 
-export type DeleteRequestMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  requestsId: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type DeleteRequestMutationVariables = Exact<{
+  projectId: string;
+  requestsId: Array<string> | string;
 }>;
 
 export type DeleteRequestMutation = {

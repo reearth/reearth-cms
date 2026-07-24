@@ -4,19 +4,19 @@ import { useRef, useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import {
+import type {
   StretchColumn,
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import type { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
+import type { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
+import type { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { AntdToken, CustomToken } from "@reearth-cms/utils/style";

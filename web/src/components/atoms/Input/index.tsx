@@ -1,8 +1,9 @@
-import { Input as AntDInput, InputProps, InputRef } from "antd";
+import type { InputProps, InputRef } from "antd";
+import { Input as AntDInput } from "antd";
 import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
 
-export type { SearchProps } from "antd/lib/input";
+export type { SearchProps } from "antd/es/input";
 
 type Props = {
   isError?: boolean;

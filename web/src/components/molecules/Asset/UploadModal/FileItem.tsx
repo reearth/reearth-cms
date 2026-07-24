@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
 import { isImageUrl } from "./util";

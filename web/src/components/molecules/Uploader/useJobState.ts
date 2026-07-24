@@ -1,27 +1,27 @@
 import { useSubscription } from "@apollo/client/react";
 
-import { Exact, Scalars } from "@reearth-cms/gql/__generated__/graphql.generated";
-import {
-  JobStateDocument,
+import type {
   JobStateSubscription,
+  JobStateSubscriptionVariables,
 } from "@reearth-cms/gql/__generated__/job.generated";
+import { JobStateDocument } from "@reearth-cms/gql/__generated__/job.generated";
 
-import { UploaderQueueItem } from "./types";
+import type { UploaderQueueItem } from "./types";
 
 type Params = {
   jobId: UploaderQueueItem["jobId"];
   shouldSubscribe?: boolean;
   onJobUpdateCallback: useSubscription.Base.Options<
     JobStateSubscription,
-    Exact<{ jobId: Scalars["ID"]["input"] }>
+    JobStateSubscriptionVariables
   >["onData"];
   onJobCompleteCallback?: useSubscription.Base.Options<
     JobStateSubscription,
-    Exact<{ jobId: Scalars["ID"]["input"] }>
+    JobStateSubscriptionVariables
   >["onComplete"];
   onJobErrorCallback?: useSubscription.Base.Options<
     JobStateSubscription,
-    Exact<{ jobId: Scalars["ID"]["input"] }>
+    JobStateSubscriptionVariables
   >["onError"];
 };
 

@@ -4,7 +4,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { t } from "@reearth-cms/i18n";
 
-import { APIKey, KeyFormType } from "../types";
+import type { APIKey, KeyFormType } from "../types";
 
 import APIKeyDetails from ".";
 

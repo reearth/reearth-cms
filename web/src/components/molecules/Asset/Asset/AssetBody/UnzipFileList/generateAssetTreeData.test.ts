@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
+import type { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 

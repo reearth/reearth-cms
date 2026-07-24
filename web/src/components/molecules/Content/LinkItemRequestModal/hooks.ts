@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 
 export default (
   items: RequestItem[],

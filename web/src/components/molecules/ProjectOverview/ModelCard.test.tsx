@@ -6,7 +6,8 @@ import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import ModelCard, { Props } from "./ModelCard";
+import type { Props } from "./ModelCard";
+import ModelCard from "./ModelCard";
 
 const user = userEvent.setup();
 

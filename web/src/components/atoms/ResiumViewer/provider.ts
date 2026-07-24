@@ -9,7 +9,7 @@ import {
   buildModuleUrl,
 } from "cesium";
 
-import {
+import type {
   TileResource,
   TerrainResource,
   UrlResourceProps,

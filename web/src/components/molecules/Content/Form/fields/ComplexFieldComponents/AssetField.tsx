@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
 
 import Form from "@reearth-cms/components/atoms/Form";
-import AssetItem, { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import type { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
-import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import type { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import { requiredValidator } from "../utils";

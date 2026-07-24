@@ -1,8 +1,45 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetProjectQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
+export type Pagination = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
+  offset?: number | null | undefined;
+};
+
+export type ProjectVisibility = "PRIVATE" | "PUBLIC";
+
+export type Role = "MAINTAINER" | "OWNER" | "READER" | "WRITER";
+
+export type Sort = {
+  key: string;
+  reverted?: boolean | null | undefined;
+};
+
+export type UpdatePostingSettingsInput = {
+  allowedOrigins: Array<string>;
+};
+
+export type UpdateProjectAccessibilityInput = {
+  posting?: UpdatePostingSettingsInput | null | undefined;
+  publication?: UpdatePublicationSettingsInput | null | undefined;
+  visibility?: ProjectVisibility | null | undefined;
+};
+
+export type UpdatePublicationSettingsInput = {
+  publicAssets: boolean;
+  publicModels: Array<string>;
+};
+
+export type GetProjectQueryVariables = Exact<{
+  projectId: string;
 }>;
 
 export type GetProjectQuery = {
@@ -54,11 +91,11 @@ export type GetProjectQuery = {
     | null;
 };
 
-export type GetProjectsQueryVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  keyword?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  sort?: Types.InputMaybe<Types.Sort>;
-  pagination?: Types.InputMaybe<Types.Pagination>;
+export type GetProjectsQueryVariables = Exact<{
+  workspaceId: string;
+  keyword?: string | null | undefined;
+  sort?: Types.Sort | null | undefined;
+  pagination?: Types.Pagination | null | undefined;
 }>;
 
 export type GetProjectsQuery = {
@@ -101,17 +138,17 @@ export type GetProjectsQuery = {
   };
 };
 
-export type CheckProjectAliasQueryVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  alias: Types.Scalars["String"]["input"];
+export type CheckProjectAliasQueryVariables = Exact<{
+  workspaceId: string;
+  alias: string;
 }>;
 
 export type CheckProjectAliasQuery = {
   checkProjectAlias: { __typename: "ProjectAliasAvailability"; alias: string; available: boolean };
 };
 
-export type CheckProjectLimitsQueryVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
+export type CheckProjectLimitsQueryVariables = Exact<{
+  workspaceId: string;
 }>;
 
 export type CheckProjectLimitsQuery = {
@@ -122,14 +159,14 @@ export type CheckProjectLimitsQuery = {
   };
 };
 
-export type CreateProjectMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  description: Types.Scalars["String"]["input"];
-  alias: Types.Scalars["String"]["input"];
-  license?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  visibility?: Types.InputMaybe<Types.ProjectVisibility>;
-  requestRoles?: Types.InputMaybe<Array<Types.Role> | Types.Role>;
+export type CreateProjectMutationVariables = Exact<{
+  workspaceId: string;
+  name: string;
+  description: string;
+  alias: string;
+  license?: string | null | undefined;
+  visibility?: Types.ProjectVisibility | null | undefined;
+  requestRoles?: Array<Types.Role> | Types.Role | null | undefined;
 }>;
 
 export type CreateProjectMutation = {
@@ -168,23 +205,23 @@ export type CreateProjectMutation = {
   } | null;
 };
 
-export type DeleteProjectMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
+export type DeleteProjectMutationVariables = Exact<{
+  projectId: string;
 }>;
 
 export type DeleteProjectMutation = {
   deleteProject: { __typename: "DeleteProjectPayload"; projectId: string } | null;
 };
 
-export type UpdateProjectMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  name?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  alias?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  license?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  readme?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  accessibility?: Types.InputMaybe<Types.UpdateProjectAccessibilityInput>;
-  requestRoles?: Types.InputMaybe<Array<Types.Role> | Types.Role>;
+export type UpdateProjectMutationVariables = Exact<{
+  projectId: string;
+  name?: string | null | undefined;
+  description?: string | null | undefined;
+  alias?: string | null | undefined;
+  license?: string | null | undefined;
+  readme?: string | null | undefined;
+  accessibility?: Types.UpdateProjectAccessibilityInput | null | undefined;
+  requestRoles?: Array<Types.Role> | Types.Role | null | undefined;
 }>;
 
 export type UpdateProjectMutation = {
@@ -224,10 +261,10 @@ export type UpdateProjectMutation = {
   } | null;
 };
 
-export type CreateApiKeyMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  description: Types.Scalars["String"]["input"];
+export type CreateApiKeyMutationVariables = Exact<{
+  projectId: string;
+  name: string;
+  description: string;
   publication: Types.UpdatePublicationSettingsInput;
 }>;
 
@@ -249,12 +286,12 @@ export type CreateApiKeyMutation = {
   } | null;
 };
 
-export type UpdateApiKeyMutationVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
-  projectId: Types.Scalars["ID"]["input"];
-  name?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  publication?: Types.InputMaybe<Types.UpdatePublicationSettingsInput>;
+export type UpdateApiKeyMutationVariables = Exact<{
+  id: string;
+  projectId: string;
+  name?: string | null | undefined;
+  description?: string | null | undefined;
+  publication?: Types.UpdatePublicationSettingsInput | null | undefined;
 }>;
 
 export type UpdateApiKeyMutation = {
@@ -275,18 +312,18 @@ export type UpdateApiKeyMutation = {
   } | null;
 };
 
-export type DeleteApiKeyMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  id: Types.Scalars["ID"]["input"];
+export type DeleteApiKeyMutationVariables = Exact<{
+  projectId: string;
+  id: string;
 }>;
 
 export type DeleteApiKeyMutation = {
   deleteAPIKey: { __typename: "DeleteAPIKeyPayload"; apiKeyId: string } | null;
 };
 
-export type RegenerateApiKeyMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  id: Types.Scalars["ID"]["input"];
+export type RegenerateApiKeyMutationVariables = Exact<{
+  projectId: string;
+  id: string;
 }>;
 
 export type RegenerateApiKeyMutation = {

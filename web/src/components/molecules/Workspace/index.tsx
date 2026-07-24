@@ -2,13 +2,13 @@ import styled from "@emotion/styled";
 
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import type { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import type { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
-import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 import { AntdToken } from "@reearth-cms/utils/style";
 

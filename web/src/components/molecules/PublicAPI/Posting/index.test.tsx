@@ -4,7 +4,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { t } from "@reearth-cms/i18n";
 
-import { PostingFormType } from "../types";
+import type { PostingFormType } from "../types";
 
 import PostingTab from ".";
 

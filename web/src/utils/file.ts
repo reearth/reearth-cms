@@ -1,4 +1,4 @@
-import { RcFile } from "@reearth-cms/components/atoms/Upload";
+import type { RcFile } from "@reearth-cms/components/atoms/Upload";
 
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 export abstract class FileUtils {

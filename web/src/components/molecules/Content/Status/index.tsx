@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
-import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ItemStatus } from "@reearth-cms/components/molecules/Content/types";
+import type { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import type { ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";

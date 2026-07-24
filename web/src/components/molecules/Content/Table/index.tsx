@@ -1,23 +1,16 @@
 import styled from "@emotion/styled";
-import React, {
-  Key,
-  useMemo,
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import type { Key, Dispatch, SetStateAction } from "react";
+import React, { useMemo, useState, useRef, useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import {
+import type {
   TableRowSelection,
   ListToolBarProps,
   ColumnsState,
@@ -28,20 +21,19 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import Status from "@reearth-cms/components/molecules/Content/Status";
-import {
+import type {
   DefaultFilterValueType,
   DropdownFilterType,
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import {
+import type { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type {
   ItemSort,
   FieldType,
   Column,
   ConditionInput,
   CurrentView,
-  metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -218,7 +210,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Created At"),
         dataIndex: "createdAt",
         fieldType: "CREATION_DATE",
-        key: "CREATION_DATE",
+        key: "createdAt",
         sortOrder: sortOrderGet("CREATION_DATE"),
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
@@ -232,7 +224,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         fieldType: "CREATION_USER",
-        key: "CREATION_USER",
+        key: "createdBy",
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => item.createdBy.name,
         sorter: true,
@@ -246,7 +238,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Updated At"),
         dataIndex: "updatedAt",
         fieldType: "MODIFICATION_DATE",
-        key: "MODIFICATION_DATE",
+        key: "updatedAt",
         sortOrder: sortOrderGet("MODIFICATION_DATE"),
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
@@ -260,7 +252,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Updated By"),
         dataIndex: "updatedBy",
         fieldType: "MODIFICATION_USER",
-        key: "MODIFICATION_USER",
+        key: "updatedBy",
         sortOrder: sortOrderGet("MODIFICATION_USER"),
         render: (_, item) => (item.updatedBy ? item.updatedBy : "-"),
         sorter: true,
@@ -398,16 +390,19 @@ const ContentTable: React.FC<Props> = ({
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
             : actionsColumns;
-        const column = columns.find(c => c.key === fieldId.id);
+        const column = columns.find(c => {
+          const colKey = c.key as string;
+          const colId = colKey?.includes(",") ? colKey.split(",")[1] : colKey;
+          return colId === fieldId.id;
+        });
         if (column) {
-          const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+          const { dataIndex, title, type, typeProperty, required, multiple } = column;
           const members = currentWorkspace?.members;
           if (
             dataIndex &&
             title &&
             type &&
             typeProperty &&
-            key &&
             required !== undefined &&
             multiple !== undefined &&
             members
@@ -418,7 +413,7 @@ const ContentTable: React.FC<Props> = ({
               type,
               typeProperty,
               members,
-              id: key as string,
+              id: fieldId.id ?? "",
               required,
               multiple,
             });
@@ -475,13 +470,16 @@ const ContentTable: React.FC<Props> = ({
           multiple !== undefined &&
           members
         ) {
+          const filterId = Array.isArray(dataIndex)
+            ? String((dataIndex as string[])[1])
+            : (key as string);
           const filter: DropdownFilterType = {
             dataIndex: dataIndex as string | string[],
             title: title as string,
             type,
             typeProperty,
             members,
-            id: key as string,
+            id: filterId,
             required,
             multiple,
           };
@@ -560,7 +558,7 @@ const ContentTable: React.FC<Props> = ({
   const sharedProps = useMemo(
     () => ({
       menu: { items },
-      dropdownRender: (menu: React.ReactNode) => (
+      popupRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
@@ -684,7 +682,7 @@ const ContentTable: React.FC<Props> = ({
         onOpenChange={handleOptionsOpenChange}
         key="control">
         <Dropdown
-          dropdownRender={() =>
+          popupRender={() =>
             selectedFilter && (
               <DropdownRender
                 filter={selectedFilter}
@@ -742,13 +740,20 @@ const ContentTable: React.FC<Props> = ({
   const settingOptions = useMemo(() => {
     const cols: Record<string, ColumnsState> = {};
     currentView.columns?.forEach((col, index) => {
-      const colKey = (metaColumn as readonly string[]).includes(col.field.type)
-        ? col.field.type
-        : (col.field.id ?? "");
+      let colKey: string;
+      if (col.field.type === "FIELD") {
+        colKey = `fields,${col.field.id ?? ""}`;
+      } else if (col.field.type === "META_FIELD") {
+        colKey = `metadata,${col.field.id ?? ""}`;
+      } else {
+        colKey =
+          (systemMetaDataColumns.find(c => c.fieldType === col.field.type)?.key as string) ??
+          col.field.type;
+      }
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
-  }, [currentView.columns]);
+  }, [currentView.columns, systemMetaDataColumns]);
 
   const setSettingOptions = useCallback(
     (options: Record<string, ColumnsState>) => {
@@ -765,14 +770,14 @@ const ContentTable: React.FC<Props> = ({
           return {
             field: {
               type: colFieldType,
-              id: colFieldType === "FIELD" || colFieldType === "META_FIELD" ? colKey : undefined,
+              id:
+                colFieldType === "FIELD" || colFieldType === "META_FIELD"
+                  ? colKey.split(",")[1]
+                  : undefined,
             },
             visible: options[colKey]?.show ?? true,
             order: options[colKey]?.order ?? index,
-            fixed:
-              colFieldType === "FIELD" || colFieldType === "META_FIELD"
-                ? options[colKey]?.fixed
-                : options[colFieldType]?.fixed,
+            fixed: options[colKey]?.fixed,
           };
         })
         .sort((a, b) => a.order - b.order)
@@ -802,6 +807,7 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          key={currentView.id}
           showSorterTooltip={false}
           options={options}
           loading={loading}
@@ -822,16 +828,15 @@ const ContentTable: React.FC<Props> = ({
               pagination.pageSize ?? 10,
               Array.isArray(sorter)
                 ? undefined
-                : sorter.order &&
-                    sorter.column &&
-                    "fieldType" in sorter.column &&
-                    typeof sorter.columnKey === "string"
+                : sorter.order && sorter.column && "fieldType" in sorter.column
                   ? {
                       field: {
                         id:
                           sorter.column.fieldType === "FIELD" ||
                           sorter.column.fieldType === "META_FIELD"
-                            ? sorter.columnKey
+                            ? Array.isArray(sorter.field)
+                              ? (sorter.field[1] as string)
+                              : undefined
                             : undefined,
                         type: sorter.column.fieldType as FieldType,
                       },

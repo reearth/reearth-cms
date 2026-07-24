@@ -2,9 +2,9 @@ import { Resource } from "cesium";
 import { useEffect, useMemo } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
-import { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
+import type { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
 import { compressedFileFormats } from "@reearth-cms/components/molecules/Common/Asset";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useAuthHeader } from "@reearth-cms/gql";
 import { FileUtils } from "@reearth-cms/utils/file";
 

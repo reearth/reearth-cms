@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Typography } from "antd";
-import type { CopyConfig } from "antd/lib/typography/Base";
-import { RefAttributes } from "react";
+import type { CopyConfig } from "antd/es/typography/Base";
+import type { RefAttributes } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";

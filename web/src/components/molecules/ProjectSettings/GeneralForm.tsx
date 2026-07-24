@@ -2,14 +2,15 @@ import styled from "@emotion/styled";
 import { useCallback, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
-import { Project } from "../Workspace/types";
+import type { Project } from "../Workspace/types";
 
 import useHook from "./hook";
 
