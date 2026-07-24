@@ -20,5 +20,3 @@ Most of `web/`'s outdated packages have been upgraded. What remains:
 
 - ~100 React Compiler lint findings (`react-hooks/*` rules pulled in by `eslint-config-reearth@0.4.0`) across ~30 component files were downgraded to `warn` rather than fixed — needs a dedicated cleanup pass.
 - `graphiql` has zero runtime usage anywhere in `web/src` (the API docs page uses `@scalar/api-reference-react` instead) — kept per user decision, worth revisiting.
-
-test
