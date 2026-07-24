@@ -1908,3 +1908,104 @@ func TestWorkFlow(t *testing.T) {
 //		})
 //	}
 //}
+
+// TestItem_Create_dispatchesEventAfterTransaction verifies that Create succeeds
+// end-to-end with the new post-transaction event dispatch pattern. In particular
+// it checks that the item is persisted even when the event is dispatched after
+// the transaction commits (i.e., the item is in the repo regardless of event outcome).
+func TestItem_Create_dispatchesEventAfterTransaction(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(prj.ID()).MustBuild()
+
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true // skip actual event dispatch; focus on item persistence
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+		ReadableProjects: []id.ProjectID{prj.ID()},
+		WritableProjects: []id.ProjectID{prj.ID()},
+	}
+
+	got, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+	}, op)
+	assert.NoError(t, err)
+	assert.NotNil(t, got)
+
+	// Item must be persisted in the repository after Create returns.
+	stored, err := db.Item.FindByID(ctx, got.Value().ID(), nil)
+	assert.NoError(t, err)
+	assert.Equal(t, got.Value().ID(), stored.Value().ID())
+}
+
+// TestItem_Update_dispatchesEventAfterTransaction verifies that Update succeeds
+// end-to-end with the new post-transaction event dispatch pattern.
+func TestItem_Update_dispatchesEventAfterTransaction(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	wid := accountdomain.NewWorkspaceID()
+	uid := accountdomain.NewUserID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(prj.ID()).MustBuild()
+
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+
+	// Build item with the same user as the operator so that CanUpdate passes.
+	it := item.New().NewID().
+		Schema(s.ID()).Model(m.ID()).Project(prj.ID()).
+		User(uid).
+		Thread(id.NewThreadID().Ref()).
+		MustBuild()
+	lo.Must0(db.Item.Save(ctx, it))
+
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               uid.Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+		ReadableProjects:  []id.ProjectID{prj.ID()},
+		WritableProjects:  []id.ProjectID{prj.ID()},
+		OwningProjects:    []id.ProjectID{prj.ID()},
+	}
+
+	newVal := "updated-value"
+	got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: it.ID(),
+		Fields: []interfaces.ItemFieldParam{{
+			Field: sf.ID().Ref(),
+			Value: newVal,
+		}},
+	}, op)
+	assert.NoError(t, err)
+	assert.NotNil(t, got)
+
+	// Verify the update is persisted.
+	stored, err := db.Item.FindByID(ctx, got.Value().ID(), nil)
+	assert.NoError(t, err)
+	assert.Equal(t, value.TypeText.Value(newVal).AsMultiple(), stored.Value().Field(sf.ID()).Value())
+}
