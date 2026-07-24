@@ -33,6 +33,7 @@ export default [
     ignores: ["coverage/*", "src/gql/__generated__/*", "amplify/*", "storybook-static/**"],
   },
   {
+    files: ["**/*.{jsx,tsx,ts,js}"],
     rules: {
       "react-refresh/only-export-components": "off",
       // Newly enabled by eslint-config-reearth@0.4.0's React Compiler rules; downgraded to
@@ -49,6 +50,14 @@ export default [
     files: ["**/*.test.{js,ts,cjs,mjs,jsx,tsx}"],
     rules: {
       "vitest/no-conditional-expect": "warn",
+    },
+  },
+  {
+    files: ["scripts/**"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
 ];

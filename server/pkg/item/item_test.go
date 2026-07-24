@@ -176,10 +176,28 @@ func TestItem_Filtered(t *testing.T) {
 	}
 }
 
+func TestItem_IsAnonymous(t *testing.T) {
+	t.Parallel()
+
+	base := func() *Builder {
+		return New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref())
+	}
+
+	// anonymous flag is reflected by the getter and survives Clone
+	anon := base().Anonymous(true).MustBuild()
+	assert.True(t, anon.IsAnonymous())
+	assert.True(t, anon.Clone().IsAnonymous())
+
+	// user-originated items are not anonymous, and the flag defaults to false
+	user := base().User(accountdomain.NewUserID()).MustBuild()
+	assert.False(t, user.IsAnonymous())
+	assert.False(t, user.Clone().IsAnonymous())
+}
+
 func TestItem_HasField(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple(), nil)
-	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	type args struct {
 		fid   id.FieldID
@@ -682,7 +700,7 @@ func TestItem_GetTitle(t *testing.T) {
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple(), nil)
 	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple(), nil)
-	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	// schema is nil
 	title := i1.GetTitle(nil)
 	assert.Nil(t, title)

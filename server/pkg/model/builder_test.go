@@ -701,3 +701,27 @@ func TestBuilder_Metadata(t *testing.T) {
 	b := New().Metadata(msId)
 	assert.Equal(t, msId, b.model.metadata)
 }
+
+func TestBuilder_PostingEnabled(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		enabled bool
+		want    bool
+	}{
+		{name: "set true", enabled: true, want: true},
+		{name: "set false", enabled: false, want: false},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			b := &Builder{model: &Model{}, k: id.Key{}}
+			got := b.PostingEnabled(tt.enabled)
+			assert.Equal(t, &Builder{model: &Model{postingEnabled: tt.enabled}, k: id.Key{}}, got)
+			assert.Equal(t, tt.want, got.model.postingEnabled)
+		})
+	}
+}

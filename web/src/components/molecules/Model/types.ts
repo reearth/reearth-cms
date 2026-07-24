@@ -9,6 +9,7 @@ export type Model = {
   schema: Schema;
   metadataSchema: MetaDataSchema;
   order?: number;
+  postingEnabled?: boolean;
 };
 
 export enum ExportFormat {

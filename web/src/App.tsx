@@ -16,15 +16,15 @@ import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import { UploaderProvider } from "@reearth-cms/components/molecules/Uploader/provider";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
-import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
-import AccessibilityDocs from "@reearth-cms/components/organisms/Project/Accessibility/AccessibilityDocs";
-import APIKeyDetails from "@reearth-cms/components/organisms/Project/Accessibility/APIKeyDetails";
 import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
 import License from "@reearth-cms/components/organisms/Project/License";
 import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";
+import APIKeyDetails from "@reearth-cms/components/organisms/Project/PublicAPI/APIKeyDetails";
+import PublicAPI from "@reearth-cms/components/organisms/Project/PublicAPI/PublicAPI";
+import PublicAPIDocs from "@reearth-cms/components/organisms/Project/PublicAPI/PublicAPIDocs";
 import Readme from "@reearth-cms/components/organisms/Project/Readme";
 import RequestDetails from "@reearth-cms/components/organisms/Project/Request/RequestDetails";
 import RequestList from "@reearth-cms/components/organisms/Project/Request/RequestList";
@@ -70,15 +70,12 @@ const router = createBrowserRouter(
         <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
         <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
         <Route path=":workspaceId/project/:projectId/schema/:modelId" element={<Schema />} />
-        <Route path=":workspaceId/project/:projectId/accessibility" element={<Accessibility />} />
+        <Route path=":workspaceId/project/:projectId/publicApi" element={<PublicAPI />} />
         <Route
-          path=":workspaceId/project/:projectId/accessibility/:keyId"
+          path=":workspaceId/project/:projectId/publicApi/:keyId"
           element={<APIKeyDetails />}
         />
-        <Route
-          path=":workspaceId/project/:projectId/accessibility/docs"
-          element={<AccessibilityDocs />}
-        />
+        <Route path=":workspaceId/project/:projectId/publicApi/docs" element={<PublicAPIDocs />} />
         <Route path=":workspaceId/project/:projectId/readme" element={<Readme />} />
         <Route path=":workspaceId/project/:projectId/license" element={<License />} />
         <Route path=":workspaceId/project/:projectId/settings" element={<ProjectSettings />} />

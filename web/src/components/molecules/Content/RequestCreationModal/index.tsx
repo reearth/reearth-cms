@@ -163,7 +163,7 @@ const RequestCreationModal: React.FC<Props> = ({
         {unpublishedItems?.length !== 0 && (
           <WarningText
             text={t(
-              "We found some referenced items that not published yet. Please select to add the items to the same request.",
+              "We found some referenced items that have not been published yet. Please select to add the items to the same request.",
             )}
           />
         )}

@@ -902,6 +902,7 @@ export type Model = Node & {
   metadataSchemaId?: Maybe<Scalars["ID"]["output"]>;
   name: Scalars["String"]["output"];
   order?: Maybe<Scalars["Int"]["output"]>;
+  postingSettings: ModelPostingSettings;
   project: Project;
   projectId: Scalars["ID"]["output"];
   schema: Schema;
@@ -926,6 +927,11 @@ export type ModelEdge = {
 export type ModelPayload = {
   __typename?: "ModelPayload";
   model: Model;
+};
+
+export type ModelPostingSettings = {
+  __typename?: "ModelPostingSettings";
+  enabled: Scalars["Boolean"]["output"];
 };
 
 export type ModelsPayload = {
@@ -1408,6 +1414,11 @@ export type Pagination = {
   offset?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
+export type PostingSettings = {
+  __typename?: "PostingSettings";
+  allowedOrigins: Array<Scalars["String"]["output"]>;
+};
+
 export enum PreviewType {
   Csv = "CSV",
   Geo = "GEO",
@@ -1447,6 +1458,7 @@ export type ProjectApiKey = {
 export type ProjectAccessibility = {
   __typename?: "ProjectAccessibility";
   apiKeys?: Maybe<Array<ProjectApiKey>>;
+  posting: PostingSettings;
   publication?: Maybe<PublicationSettings>;
   visibility: ProjectVisibility;
 };
@@ -2310,13 +2322,23 @@ export type UpdateModelInput = {
   key?: InputMaybe<Scalars["String"]["input"]>;
   modelId: Scalars["ID"]["input"];
   name?: InputMaybe<Scalars["String"]["input"]>;
+  postingSettings?: InputMaybe<UpdateModelPostingSettingsInput>;
+};
+
+export type UpdateModelPostingSettingsInput = {
+  enabled: Scalars["Boolean"]["input"];
 };
 
 export type UpdateModelsOrderInput = {
   modelIds: Array<Scalars["ID"]["input"]>;
 };
 
+export type UpdatePostingSettingsInput = {
+  allowedOrigins: Array<Scalars["String"]["input"]>;
+};
+
 export type UpdateProjectAccessibilityInput = {
+  posting?: InputMaybe<UpdatePostingSettingsInput>;
   publication?: InputMaybe<UpdatePublicationSettingsInput>;
   visibility?: InputMaybe<ProjectVisibility>;
 };

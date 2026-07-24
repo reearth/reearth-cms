@@ -50,7 +50,7 @@ describe("Webhook form", () => {
     );
 
     const nameInput = screen.getByLabelText("Name");
-    const urlInput = screen.getByLabelText("Url");
+    const urlInput = screen.getByLabelText("URL");
     const secretInput = screen.getByLabelText("Secret");
 
     expect(nameInput).toHaveValue(name);
@@ -147,7 +147,7 @@ describe("Webhook form", () => {
     );
 
     const nameInput = screen.getByLabelText("Name");
-    const urlInput = screen.getByLabelText("Url");
+    const urlInput = screen.getByLabelText("URL");
     const secretInput = screen.getByLabelText("Secret");
     const saveButton = screen.getByRole("button", { name: "Save" });
     expect(saveButton).toBeDisabled();
@@ -217,7 +217,7 @@ describe("Webhook form", () => {
     );
 
     const nameInput = screen.getByLabelText("Name");
-    const urlInput = screen.getByLabelText("Url");
+    const urlInput = screen.getByLabelText("URL");
     const secretInput = screen.getByLabelText("Secret");
     const saveButton = screen.getByRole("button", { name: "Save" });
     await user.click(screen.getByRole("checkbox", { name: "Create" }));

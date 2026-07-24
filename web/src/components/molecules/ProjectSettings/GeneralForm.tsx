@@ -121,7 +121,7 @@ const GeneralForm: React.FC<Props> = ({
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
-          {t("Save changes")}
+          {t("Save Changes")}
         </Button>
       </Form.Item>
     </StyledForm>

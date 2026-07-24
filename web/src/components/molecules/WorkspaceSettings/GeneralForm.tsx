@@ -83,7 +83,7 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
         type="primary"
         loading={updateWorkspaceLoading}
         disabled={isDisabled}>
-        {t("Save changes")}
+        {t("Save Changes")}
       </Button>
     </StyledForm>
   );

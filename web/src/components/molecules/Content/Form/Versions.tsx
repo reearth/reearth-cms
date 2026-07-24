@@ -51,7 +51,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
             )}
           </HistoryTitle>
           <HistoryInfo>
-            <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
+            <User>{`${index === versions.length - 1 ? t("Created By") : t("Updated By")} ${version.creator.name}`}</User>
             {version.status === "REVIEW" && (
               <Requests>
                 {version.requests?.map(request => (

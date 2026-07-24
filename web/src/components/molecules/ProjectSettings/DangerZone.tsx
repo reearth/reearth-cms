@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import type { ProjectVisibility } from "../Accessibility/types";
+import type { ProjectVisibility } from "../PublicAPI/types";
 
 type Props = {
   projectName: string;
@@ -55,7 +55,7 @@ const DangerZone: React.FC<Props> = ({
   const publicScopeList = useMemo(
     () => [
       { name: t("Private"), value: "PRIVATE" },
-      { name: t("Public"), value: "PUBLIC" },
+      { name: t("PUBLIC"), value: "PUBLIC" },
     ],
     [t],
   );

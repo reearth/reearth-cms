@@ -73,7 +73,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
         onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"
-          label={t("Workspace name")}
+          label={t("Workspace Name")}
           rules={[
             {
               required: true,

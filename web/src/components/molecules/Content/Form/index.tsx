@@ -739,7 +739,7 @@ const ContentForm: React.FC<Props> = ({
           />
           {versionedItem && (
             <VersionHeader
-              title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
+              title={`${t("Version History")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
               onBack={versionedItemClose}
               extra={
                 <Button onClick={handleRestore} type="link">

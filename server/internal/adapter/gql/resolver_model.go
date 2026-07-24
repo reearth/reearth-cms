@@ -73,11 +73,17 @@ func (r *mutationResolver) UpdateModel(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
+	var postingEnabled *bool
+	if input.PostingSettings != nil {
+		postingEnabled = &input.PostingSettings.Enabled
+	}
+
 	res, err := usecases(ctx).Model.Update(ctx, interfaces.UpdateModelParam{
-		ModelID:     mId,
-		Name:        input.Name,
-		Description: input.Description,
-		Key:         input.Key,
+		ModelID:        mId,
+		Name:           input.Name,
+		Description:    input.Description,
+		Key:            input.Key,
+		PostingEnabled: postingEnabled,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

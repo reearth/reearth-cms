@@ -44,6 +44,52 @@ func TestModelDocument_Model(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "missing postingEnabled field reads as false",
+			mDoc: &ModelDocument{
+				ID:          mId.String(),
+				Name:        "abc",
+				Description: "xyz",
+				Key:         "mmm123",
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				UpdatedAt:   now,
+				// PostingEnabled not set — zero value must be false
+			},
+			want: model.New().ID(mId).
+				Name("abc").
+				Description("xyz").
+				Key(id.NewKey("mmm123")).
+				Project(pId).
+				Schema(sId).
+				UpdatedAt(now).
+				PostingEnabled(false).
+				MustBuild(),
+			wantErr: false,
+		},
+		{
+			name: "postingEnabled true is persisted and read back",
+			mDoc: &ModelDocument{
+				ID:             mId.String(),
+				Name:           "abc",
+				Description:    "xyz",
+				Key:            "mmm123",
+				Project:        pId.String(),
+				Schema:         sId.String(),
+				UpdatedAt:      now,
+				PostingEnabled: true,
+			},
+			want: model.New().ID(mId).
+				Name("abc").
+				Description("xyz").
+				Key(id.NewKey("mmm123")).
+				Project(pId).
+				Schema(sId).
+				UpdatedAt(now).
+				PostingEnabled(true).
+				MustBuild(),
+			wantErr: false,
+		},
+		{
 			name: "Invalid id 1",
 			mDoc: &ModelDocument{
 				ID:          "abc",

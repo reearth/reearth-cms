@@ -48,7 +48,7 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
             </ItemInfo>
           </div>
           <div>
-            <CardTitle>{t("Publish State")}</CardTitle>
+            <CardTitle>{t("Publish Status")}</CardTitle>
             <CardValue>
               <DataTitle>
                 <Status status={item.status} />

@@ -348,7 +348,7 @@ export default () => {
         setFieldModalShown(false);
         return;
       }
-      Notification.success({ message: t("Successfully created field!") });
+      Notification.success({ message: t("Successfully created fields!") });
       setFieldModalShown(false);
     },
     [schemaId, selectedSchemaType, createNewField, t],

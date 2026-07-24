@@ -10,7 +10,7 @@ import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import type { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 
 type Props = {
   data?: Model | Group;
@@ -165,7 +165,11 @@ const FormModal: React.FC<Props> = ({
     async (value: string) => {
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (value.length >= 3 && validateKey(value) && (await onKeyCheck(value, data?.key))) {
+      } else if (
+        value.length >= 3 &&
+        RegexUtils.validateKey(value) &&
+        (await onKeyCheck(value, data?.key))
+      ) {
         prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {

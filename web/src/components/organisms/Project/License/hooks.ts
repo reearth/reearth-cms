@@ -40,10 +40,10 @@ export default () => {
         },
       });
       if (Project.error || !Project.data?.updateProject) {
-        Notification.error({ message: t("Failed to update Project.") });
+        Notification.error({ message: t("Failed to update project.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated Project!") });
+      Notification.success({ message: t("Successfully updated project!") });
     },
     [updateProjectMutation, t],
   );

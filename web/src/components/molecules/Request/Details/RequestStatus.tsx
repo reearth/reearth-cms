@@ -19,7 +19,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
       {requestState === "APPROVED" && (
         <Step
           icon={<StyledIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} size={28} />}
-          title={<StatusTitle>{t("Approved")}</StatusTitle>}
+          title={<StatusTitle>{t("APPROVED")}</StatusTitle>}
         />
       )}
       {requestState === "CLOSED" && (
@@ -31,7 +31,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
               size={28}
             />
           }
-          title={<StatusTitle>{t("Closed")}</StatusTitle>}
+          title={<StatusTitle>{t("CLOSED")}</StatusTitle>}
         />
       )}
     </StyledSteps>

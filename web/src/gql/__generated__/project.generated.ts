@@ -23,7 +23,12 @@ export type Sort = {
   reverted?: boolean | null | undefined;
 };
 
+export type UpdatePostingSettingsInput = {
+  allowedOrigins: Array<string>;
+};
+
 export type UpdateProjectAccessibilityInput = {
+  posting?: UpdatePostingSettingsInput | null | undefined;
   publication?: UpdatePublicationSettingsInput | null | undefined;
   visibility?: ProjectVisibility | null | undefined;
 };
@@ -74,6 +79,7 @@ export type GetProjectQuery = {
               publicAssets: boolean;
             };
           }> | null;
+          posting: { __typename: "PostingSettings"; allowedOrigins: Array<string> };
         };
       }
     | { __typename: "Request"; id: string }
@@ -432,6 +438,19 @@ export const GetProjectDocument = {
                                         },
                                       ],
                                     },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "posting" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "allowedOrigins" },
                                   },
                                 ],
                               },

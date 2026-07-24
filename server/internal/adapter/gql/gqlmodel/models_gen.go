@@ -775,19 +775,20 @@ type MemberInput struct {
 }
 
 type Model struct {
-	ID               ID        `json:"id"`
-	ProjectID        ID        `json:"projectId"`
-	SchemaID         ID        `json:"schemaId"`
-	MetadataSchemaID *ID       `json:"metadataSchemaId,omitempty"`
-	Name             string    `json:"name"`
-	Description      string    `json:"description"`
-	Key              string    `json:"key"`
-	Project          *Project  `json:"project"`
-	Schema           *Schema   `json:"schema"`
-	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
-	CreatedAt        time.Time `json:"createdAt"`
-	UpdatedAt        time.Time `json:"updatedAt"`
-	Order            *int      `json:"order,omitempty"`
+	ID               ID                    `json:"id"`
+	ProjectID        ID                    `json:"projectId"`
+	SchemaID         ID                    `json:"schemaId"`
+	MetadataSchemaID *ID                   `json:"metadataSchemaId,omitempty"`
+	Name             string                `json:"name"`
+	Description      string                `json:"description"`
+	Key              string                `json:"key"`
+	Project          *Project              `json:"project"`
+	Schema           *Schema               `json:"schema"`
+	MetadataSchema   *Schema               `json:"metadataSchema,omitempty"`
+	CreatedAt        time.Time             `json:"createdAt"`
+	UpdatedAt        time.Time             `json:"updatedAt"`
+	Order            *int                  `json:"order,omitempty"`
+	PostingSettings  *ModelPostingSettings `json:"postingSettings"`
 }
 
 func (Model) IsNode()        {}
@@ -807,6 +808,10 @@ type ModelEdge struct {
 
 type ModelPayload struct {
 	Model *Model `json:"model"`
+}
+
+type ModelPostingSettings struct {
+	Enabled bool `json:"enabled"`
 }
 
 type ModelsPayload struct {
@@ -890,6 +895,10 @@ type Pagination struct {
 	Before *usecasex.Cursor `json:"before,omitempty"`
 }
 
+type PostingSettings struct {
+	AllowedOrigins []string `json:"allowedOrigins"`
+}
+
 type Project struct {
 	ID            ID                    `json:"id"`
 	Name          string                `json:"name"`
@@ -920,6 +929,7 @@ type ProjectAccessibility struct {
 	Visibility  ProjectVisibility    `json:"visibility"`
 	Publication *PublicationSettings `json:"publication,omitempty"`
 	APIKeys     []*ProjectAPIKey     `json:"apiKeys,omitempty"`
+	Posting     *PostingSettings     `json:"posting"`
 }
 
 type ProjectAliasAvailability struct {
@@ -1518,19 +1528,29 @@ type UpdateMemberOfWorkspacePayload struct {
 }
 
 type UpdateModelInput struct {
-	ModelID     ID      `json:"modelId"`
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Key         *string `json:"key,omitempty"`
+	ModelID         ID                               `json:"modelId"`
+	Name            *string                          `json:"name,omitempty"`
+	Description     *string                          `json:"description,omitempty"`
+	Key             *string                          `json:"key,omitempty"`
+	PostingSettings *UpdateModelPostingSettingsInput `json:"postingSettings,omitempty"`
+}
+
+type UpdateModelPostingSettingsInput struct {
+	Enabled bool `json:"enabled"`
 }
 
 type UpdateModelsOrderInput struct {
 	ModelIds []ID `json:"modelIds"`
 }
 
+type UpdatePostingSettingsInput struct {
+	AllowedOrigins []string `json:"allowedOrigins"`
+}
+
 type UpdateProjectAccessibilityInput struct {
 	Visibility  *ProjectVisibility              `json:"visibility,omitempty"`
 	Publication *UpdatePublicationSettingsInput `json:"publication,omitempty"`
+	Posting     *UpdatePostingSettingsInput     `json:"posting,omitempty"`
 }
 
 type UpdateProjectInput struct {

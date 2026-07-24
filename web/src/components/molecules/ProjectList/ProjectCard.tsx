@@ -32,7 +32,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
                     : "default"
                 }>
                 {project.accessibility?.visibility === ProjectVisibility.Public
-                  ? t("Public")
+                  ? t("PUBLIC")
                   : t("Private")}
               </StyledTag>
             </TitleContainer>

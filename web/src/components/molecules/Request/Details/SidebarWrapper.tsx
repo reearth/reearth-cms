@@ -134,7 +134,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           </ViewReviewers>
         )}
       </SidebarCard>
-      <SidebarCard title={t("Created Time")}>{formattedCreatedAt}</SidebarCard>
+      <SidebarCard title={t("Created At")}>{formattedCreatedAt}</SidebarCard>
     </SideBarWrapper>
   );
 };

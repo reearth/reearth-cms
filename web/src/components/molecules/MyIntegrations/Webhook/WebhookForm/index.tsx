@@ -18,7 +18,7 @@ import type {
   Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
-import { validateURL } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -155,14 +155,14 @@ const WebhookForm: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="url"
-              label={t("Url")}
+              label={t("URL")}
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {
                   required: true,
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
-                    return validateURL(value) ? Promise.resolve() : Promise.reject();
+                    return RegexUtils.validateURL(value) ? Promise.resolve() : Promise.reject();
                   },
                 },
               ]}>

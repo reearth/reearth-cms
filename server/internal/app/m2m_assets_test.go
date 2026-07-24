@@ -44,6 +44,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 		Accessibility(project.NewAccessibility(
 			project.VisibilityPrivate,
 			nil,
+			nil,
 			nil)).
 		MustBuild()
 
@@ -52,6 +53,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 		Name("Public Project").
 		Accessibility(project.NewAccessibility(
 			project.VisibilityPublic,
+			nil,
 			nil,
 			nil)).
 		MustBuild()
