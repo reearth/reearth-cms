@@ -467,58 +467,70 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return res.Into(), fmt.Errorf("expected array start, got %v", t)
 	}
 
-	// First pass: decode all items to get total count
-	allItems := make([]map[string]any, 0)
-	for decoder.More() {
-		var obj map[string]any
-		if err := decoder.Decode(&obj); err != nil {
-			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
-		}
-		allItems = append(allItems, obj)
-	}
-	totalCount := len(allItems)
-
-	// Second pass: process items in chunks
+	// Stream items in chunks directly from the decoder without a first pass that
+	// would materialize all items into memory. Progress is reported as processed
+	// count; the total is unknown until the stream ends, so Total is set to 0
+	// during streaming and updated in the final progress publish.
 	processed := 0
-	for start := 0; start < totalCount; start += chunkSize {
-		// Check if job was cancelled
+	chunk := make([]map[string]any, 0, chunkSize)
+
+	flushChunk := func() error {
+		if len(chunk) == 0 {
+			return nil
+		}
+
+		// Check if job was cancelled before processing each chunk.
 		currentJob, _ := i.repos.Job.FindByID(ctx, j.ID())
 		if currentJob != nil && currentJob.IsCancelled() {
-			return res.Into(), fmt.Errorf("job cancelled")
+			return fmt.Errorf("job cancelled")
 		}
 
-		end := min(start+chunkSize, totalCount)
-		jsonChunk := allItems[start:end]
-		chunkLen := len(jsonChunk)
-
-		items, err := itemsParamsFrom(jsonChunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
+		items, err := itemsParamsFrom(chunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
 		if err != nil {
-			return res.Into(), err
+			return err
 		}
-		err = i.saveChunk(ctx, prj, m, s, param, items, &res, operator)
-		if err != nil {
-			return res.Into(), err
+		if err := i.saveChunk(ctx, prj, m, s, param, items, &res, operator); err != nil {
+			return err
 		}
 
-		processed += chunkLen
+		processed += len(chunk)
+		chunk = chunk[:0] // reset slice, keep backing array
 
-		// Publish progress
-		progress := job.NewProgress(processed, totalCount)
+		// Report progress with unknown total (0) during streaming.
+		progress := job.NewProgress(processed, 0)
 		state := job.NewState(job.StatusInProgress, &progress, "")
 		if i.gateways.JobPubSub != nil {
 			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
 				log.Warnf("item: failed to publish job %s progress: %v", j.ID(), err)
 			}
 		}
-
-		// Update job progress
 		j.SetProgress(progress)
 		if err := i.repos.Job.Save(ctx, j); err != nil {
 			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
 		}
 
-		log.Printf("chunk with %d items saved.", chunkLen)
+		log.Printf("chunk with %d items saved.", len(items))
+		return nil
 	}
+
+	for decoder.More() {
+		var obj map[string]any
+		if err := decoder.Decode(&obj); err != nil {
+			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+		chunk = append(chunk, obj)
+
+		if len(chunk) >= chunkSize {
+			if err := flushChunk(); err != nil {
+				return res.Into(), err
+			}
+		}
+	}
+	// Flush any remaining items in the last (possibly partial) chunk.
+	if err := flushChunk(); err != nil {
+		return res.Into(), err
+	}
+
 	return res.Into(), nil
 }
 
