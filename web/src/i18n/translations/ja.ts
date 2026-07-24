@@ -500,7 +500,7 @@ export default {
   "Project description": "プロジェクト概要",
   "Project license": "プロジェクトのライセンス",
   "Project name": "プロジェクト名",
-  "Project Settings": "プロジェクト設定", 
+  "Project Settings": "プロジェクト設定",
   "Project visibility": "プロジェクトの配信範囲",
   "PUBLIC": "公開",
   "Public API": "パブリックAPI",
