@@ -1908,3 +1908,90 @@ func TestWorkFlow(t *testing.T) {
 //		})
 //	}
 //}
+
+// TestItem_checkUnique_skipsDBWhenNoUniqueFields verifies that checkUnique returns
+// nil immediately without issuing a FindByModelAndValue DB call when the schema
+// has no unique fields (the SCA-03 N+1 guard).
+func TestItem_checkUnique_skipsDBWhenNoUniqueFields(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+
+	// Build a schema with NO unique fields.
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).
+		NewID().
+		Key(id.NewKey("title")).
+		MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).
+		Fields(schema.FieldList{sf}).
+		MustBuild()
+	mid := id.NewModelID()
+
+	db := memory.New()
+	// Wrap the item repo to detect any FindByModelAndValue calls.
+	countingRepo := &countingItemRepo{Item: db.Item}
+	db.Item = countingRepo
+
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	fields := []*item.Field{
+		item.NewField(sf.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
+	}
+
+	err := itemUC.checkUnique(ctx, fields, s, mid, nil)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, countingRepo.findByModelAndValueCalls,
+		"FindByModelAndValue must not be called when schema has no unique fields")
+}
+
+// TestItem_checkUnique_hitsDBWhenUniqueFieldPresent verifies the opposite: when a
+// unique field exists FindByModelAndValue IS called.
+func TestItem_checkUnique_hitsDBWhenUniqueFieldPresent(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+
+	// Build a schema with a UNIQUE field.
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).
+		NewID().
+		Key(id.NewKey("title")).
+		Unique(true).
+		MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).
+		Fields(schema.FieldList{sf}).
+		MustBuild()
+	mid := id.NewModelID()
+
+	db := memory.New()
+	countingRepo := &countingItemRepo{Item: db.Item}
+	db.Item = countingRepo
+
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	fields := []*item.Field{
+		item.NewField(sf.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
+	}
+
+	// No duplicate — expect no error but DB must have been queried.
+	err := itemUC.checkUnique(ctx, fields, s, mid, nil)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, countingRepo.findByModelAndValueCalls,
+		"FindByModelAndValue must be called exactly once when schema has a unique field")
+}
+
+// countingItemRepo wraps repo.Item and counts FindByModelAndValue invocations.
+type countingItemRepo struct {
+	repo.Item
+	findByModelAndValueCalls int
+}
+
+func (r *countingItemRepo) FindByModelAndValue(ctx context.Context, mid id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
+	r.findByModelAndValueCalls++
+	return r.Item.FindByModelAndValue(ctx, mid, fields, ref)
+}
