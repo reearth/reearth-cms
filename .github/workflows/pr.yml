@@ -23,7 +23,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
-      - uses: actions/labeler@v6
+      - uses: actions/labeler@v7
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
   title_check:
