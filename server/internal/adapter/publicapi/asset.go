@@ -34,6 +34,11 @@ func (c *Controller) GetAsset(ctx context.Context, wsAlias, pAlias, i string) (A
 		return Asset{}, err
 	}
 
+	// Verify the asset belongs to the project from the URL — prevents cross-tenant access.
+	if a.Project() != wpm.Project.ID() {
+		return Asset{}, rerror.ErrNotFound
+	}
+
 	f, err := c.usecases.Asset.FindFileByID(ctx, iid, nil)
 	if err != nil {
 		return Asset{}, err
