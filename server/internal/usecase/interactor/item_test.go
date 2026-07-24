@@ -1571,6 +1571,125 @@ func TestWorkFlow(t *testing.T) {
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }
 
+func TestItem_PublishUnpublishBatch(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		n    int // number of items published/unpublished in a single request
+	}{
+		{name: "single item", n: 1},
+		{name: "batch of items", n: 5},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Arrange: fresh workspace/project/model and N items
+			wid := accountdomain.NewWorkspaceID()
+			prj := project.New().NewID().Workspace(wid).MustBuild()
+			s := schema.New().NewID().Workspace(wid).Project(prj.ID()).MustBuild()
+			m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
+			u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Project.Save(ctx, prj))
+			assert.NoError(t, db.Schema.Save(ctx, s))
+			assert.NoError(t, db.Model.Save(ctx, m))
+
+			ids := make(id.ItemIDList, 0, tt.n)
+			for j := 0; j < tt.n; j++ {
+				it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+				assert.NoError(t, db.Item.Save(ctx, it))
+				ids = append(ids, it.ID())
+			}
+
+			op := &usecase.Operator{
+				AcOperator: &accountusecase.Operator{
+					User:             lo.ToPtr(u.ID()),
+					OwningWorkspaces: id.WorkspaceIDList{wid},
+				},
+			}
+
+			itemUC := NewItem(db, nil)
+
+			// Act + Assert: batch publish makes all N items public
+			published, err := itemUC.Publish(ctx, ids, op)
+			assert.NoError(t, err)
+			assert.Len(t, published, tt.n)
+
+			status, err := itemUC.ItemStatus(ctx, ids, op)
+			assert.NoError(t, err)
+			for _, iid := range ids {
+				assert.Equal(t, item.StatusPublic, status[iid])
+			}
+
+			// Act + Assert: batch unpublish returns all N items to draft
+			unpublished, err := itemUC.Unpublish(ctx, ids, op)
+			assert.NoError(t, err)
+			assert.Len(t, unpublished, tt.n)
+
+			status, err = itemUC.ItemStatus(ctx, ids, op)
+			assert.NoError(t, err)
+			for _, iid := range ids {
+				assert.Equal(t, item.StatusDraft, status[iid])
+			}
+		})
+	}
+}
+
+func TestItem_PublishUnpublishEmpty(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		publish bool
+		itemIDs id.ItemIDList
+		wantErr error
+	}{
+		{name: "unpublish empty list", publish: false, itemIDs: id.ItemIDList{}, wantErr: interfaces.ErrItemMissing},
+		{name: "unpublish nil list", publish: false, itemIDs: nil, wantErr: interfaces.ErrItemMissing},
+		{name: "publish empty list", publish: true, itemIDs: id.ItemIDList{}, wantErr: interfaces.ErrItemMissing},
+		{name: "publish nil list", publish: true, itemIDs: nil, wantErr: interfaces.ErrItemMissing},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			wid := accountdomain.NewWorkspaceID()
+			u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+			ctx := context.Background()
+			db := memory.New()
+			itemUC := NewItem(db, nil)
+
+			op := &usecase.Operator{
+				AcOperator: &accountusecase.Operator{
+					User:             lo.ToPtr(u.ID()),
+					OwningWorkspaces: id.WorkspaceIDList{wid},
+				},
+			}
+
+			// an empty list must be rejected, not panic on items[0]
+			var res item.VersionedList
+			var err error
+			if tt.publish {
+				res, err = itemUC.Publish(ctx, tt.itemIDs, op)
+			} else {
+				res, err = itemUC.Unpublish(ctx, tt.itemIDs, op)
+			}
+
+			assert.Nil(t, res)
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
+
 //func TestItem_ItemsAsCSV(t *testing.T) {
 //	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 //	w := accountdomain.NewWorkspaceID()

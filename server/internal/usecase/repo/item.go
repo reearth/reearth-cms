@@ -45,6 +45,7 @@ type Item interface {
 	SaveDraft(context.Context, *item.Item) error
 	SaveAll(context.Context, item.List) error
 	UpdateRef(context.Context, id.ItemID, version.Ref, *version.VersionOrRef) error
+	BulkUpdateRef(context.Context, id.ItemIDList, version.Ref, *version.VersionOrRef) error
 	Remove(context.Context, id.ItemID) error
 	BatchRemove(context.Context, id.ItemIDList) error
 	RemoveByModel(context.Context, id.ModelID) error
