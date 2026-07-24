@@ -6,8 +6,8 @@ import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { PostingFormType } from "@reearth-cms/components/molecules/PublicAPI/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { PostingFormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 
 import AllowedOrigins from "./AllowedOrigins";
