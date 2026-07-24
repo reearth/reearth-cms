@@ -117,7 +117,7 @@
     "antd": "5.29.3",
     "apollo-upload-client": "19.0.0",
     "aws-amplify": "5.3.29",
-    "cesium": "1.134.1",
+    "cesium": "1.143.0",
     "cesium-mvt-imagery-provider": "1.4.2",
     "dayjs": "1.11.13",
     "firebase": "10.14.1",
