@@ -16,9 +16,7 @@ type Config struct {
 	ServerHost  string
 	Dev         bool
 	GCS         GCSConfig
-	S3          S3Config
 	PubSub      PubSubConfig
-	SNS         SNSConfig
 	GCP         GCPConfig `envconfig:"GCP"`
 	DB          string
 	HealthCheck HealthCheckConfig
@@ -35,22 +33,12 @@ type GCSConfig struct {
 	PublicationCacheControl string
 }
 
-type S3Config struct {
-	BucketName              string `envconfig:"S3_BUCKET_NAME"`
-	AssetBaseURL            string `envconfig:"S3_ASSET_BASE_URL"`
-	PublicationCacheControl string
-}
-
 type GCPConfig struct {
 	Project string
 }
 
 type PubSubConfig struct {
 	Topic string `default:"decompress"`
-}
-
-type SNSConfig struct {
-	TopicARN string
 }
 
 func ReadConfig(debug bool) (*Config, error) {
