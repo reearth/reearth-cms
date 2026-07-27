@@ -38,7 +38,7 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 	return ItemModelSchema{
 		Item: NewItem(i.Item, append(i.GroupSchemas, i.Schema), assets),
 		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
-			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil, nil, nil, nil))
+			return new(NewVersionedItem(itm, nil, nil, nil, nil, nil, nil))
 		}),
 		Model:   NewModel(i.Model, nil, time.Time{}),
 		Schema:  NewSchema(i.Schema),
@@ -61,8 +61,8 @@ func NewModel(m *model.Model, sp *schema.Package, lastModified time.Time) Model 
 		Schema:           util.ToPtrIfNotEmpty(NewSchema(sp.Schema())),
 		MetadataSchemaId: metadata,
 		MetadataSchema:   util.ToPtrIfNotEmpty(NewSchema(sp.MetaSchema())),
-		CreatedAt:        lo.ToPtr(m.ID().Timestamp()),
-		UpdatedAt:        lo.ToPtr(m.UpdatedAt()),
+		CreatedAt:        new(m.ID().Timestamp()),
+		UpdatedAt:        new(m.UpdatedAt()),
 		LastModified:     util.ToPtrIfNotEmpty(lastModified),
 	}
 }
@@ -84,7 +84,7 @@ func NewSchema(i *schema.Schema) Schema {
 		ProjectId:  i.Project().Ref(),
 		Fields:     &fs,
 		TitleField: tf,
-		CreatedAt:  lo.ToPtr(i.ID().Timestamp()),
+		CreatedAt:  new(i.ID().Timestamp()),
 	}
 }
 

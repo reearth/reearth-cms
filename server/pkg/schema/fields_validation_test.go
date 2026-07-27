@@ -45,15 +45,15 @@ func buildTestSchema(fields ...*Field) *Schema {
 func TestSchema_ValidateFields(t *testing.T) {
 	t.Parallel()
 
-	intField, _ := NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
-	numField, _ := NewNumber(lo.ToPtr(0.0), lo.ToPtr(1.0))
+	intField, _ := NewInteger(new(int64(1)), new(int64(100)))
+	numField, _ := NewNumber(new(0.0), new(1.0))
 
 	s := buildTestSchema(
 		buildTestField("title", NewText(nil).TypeProperty(), true),
-		buildTestField("bio", NewText(lo.ToPtr(10)).TypeProperty(), false),
-		buildTestField("summary", NewTextArea(lo.ToPtr(10)).TypeProperty(), false),
-		buildTestField("content", NewRichText(lo.ToPtr(10)).TypeProperty(), false),
-		buildTestField("notes", NewMarkdown(lo.ToPtr(10)).TypeProperty(), false),
+		buildTestField("bio", NewText(new(10)).TypeProperty(), false),
+		buildTestField("summary", NewTextArea(new(10)).TypeProperty(), false),
+		buildTestField("content", NewRichText(new(10)).TypeProperty(), false),
+		buildTestField("notes", NewMarkdown(new(10)).TypeProperty(), false),
 		buildTestField("count", intField.TypeProperty(), false),
 		buildTestField("score", numField.TypeProperty(), false),
 		buildTestField("status", NewSelect([]string{"open", "closed"}).TypeProperty(), false),
@@ -282,7 +282,6 @@ func TestSchema_ValidateFields(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

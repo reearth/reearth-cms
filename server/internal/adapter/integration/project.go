@@ -46,9 +46,9 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	if len(res) == 0 {
 		return ProjectFilter200JSONResponse{
 			Projects:   nil,
-			Page:       lo.ToPtr(Page(*p.Offset)),
-			PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-			TotalCount: lo.ToPtr(0),
+			Page:       new(Page(*p.Offset)),
+			PerPage:    new(int(p.Offset.Limit)),
+			TotalCount: new(0),
 		}, nil
 	}
 
@@ -58,9 +58,9 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 
 	return ProjectFilter200JSONResponse{
 		Projects:   &projects,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		Page:       new(Page(*p.Offset)),
+		PerPage:    new(int(p.Offset.Limit)),
+		TotalCount: new(int(pi.TotalCount)),
 	}, nil
 }
 

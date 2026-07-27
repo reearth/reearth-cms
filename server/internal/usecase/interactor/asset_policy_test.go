@@ -34,7 +34,7 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
 
 	acop := &accountusecase.Operator{
-		User:               lo.ToPtr(u.ID()),
+		User:               new(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
@@ -115,7 +115,7 @@ func TestAsset_Create_WithPermissivePolicyChecker(t *testing.T) {
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
 
 	acop := &accountusecase.Operator{
-		User:               lo.ToPtr(u.ID()),
+		User:               new(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
@@ -185,7 +185,7 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
 
 	acop := &accountusecase.Operator{
-		User:               lo.ToPtr(u.ID()),
+		User:               new(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{

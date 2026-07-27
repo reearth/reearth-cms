@@ -31,6 +31,6 @@ func (c *ItemStatusLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gql
 	}
 
 	return lo.Map(iIDs, func(id item.ID, _ int) *gqlmodel.ItemStatus {
-		return lo.ToPtr(gqlmodel.ToItemStatus(statusMap[id]))
+		return new(gqlmodel.ToItemStatus(statusMap[id]))
 	}), nil
 }

@@ -166,7 +166,7 @@ func (r *Asset) paginate(ctx context.Context, filter any, sort *usecasex.Sort, p
 	return c.Result, pageInfo, nil
 }
 
-func (r *Asset) find(ctx context.Context, filter interface{}) ([]*asset.Asset, error) {
+func (r *Asset) find(ctx context.Context, filter any) ([]*asset.Asset, error) {
 	c := mongodoc.NewAssetConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c, options.Find().SetProjection(bson.M{"file": 0})); err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -174,7 +174,7 @@ func (r *Asset) find(ctx context.Context, filter interface{}) ([]*asset.Asset, e
 	return c.Result, nil
 }
 
-func (r *Asset) findOne(ctx context.Context, filter interface{}) (*asset.Asset, error) {
+func (r *Asset) findOne(ctx context.Context, filter any) (*asset.Asset, error) {
 	c := mongodoc.NewAssetConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), c, options.FindOne().SetProjection(bson.M{"file": 0})); err != nil {
 		return nil, err
@@ -197,10 +197,10 @@ func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
 	return res
 }
 
-func (r *Asset) readFilter(filter interface{}) interface{} {
+func (r *Asset) readFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Readable)
 }
 
-func (r *Asset) writeFilter(filter interface{}) interface{} {
+func (r *Asset) writeFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Writable)
 }

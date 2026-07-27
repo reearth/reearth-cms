@@ -4,12 +4,11 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewText(t *testing.T) {
-	assert.Equal(t, &FieldText{s: &FieldString{t: value.TypeText, maxLength: lo.ToPtr(1)}}, NewText(lo.ToPtr(1)))
+	assert.Equal(t, &FieldText{s: &FieldString{t: value.TypeText, maxLength: new(1)}}, NewText(new(1)))
 }
 
 func TestFieldText_Type(t *testing.T) {

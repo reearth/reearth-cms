@@ -22,7 +22,7 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 			name: "zero",
 			args: []any{
 				0, 0.0, "0", json.Number("0"), json.Number("-0"),
-				lo.ToPtr(0), lo.ToPtr(0.0), lo.ToPtr("0"), lo.ToPtr(json.Number("0")), lo.ToPtr(json.Number("-0")),
+				new(0), new(0.0), new("0"), lo.ToPtr(json.Number("0")), lo.ToPtr(json.Number("-0")),
 			},
 			want1: 0.0,
 			want2: true,
@@ -30,9 +30,9 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 		{
 			name: "int",
 			args: []any{
-				int8(5), int32(5), int16(5), int64(5), "5", json.Number("5"), lo.ToPtr(int8(5)),
-				lo.ToPtr(int8(5)), lo.ToPtr(int32(5)), lo.ToPtr(int16(5)), lo.ToPtr(int64(5)), lo.ToPtr("5"),
-				uint8(5), uint(5), uint32(5), uint16(5), uint64(5), lo.ToPtr(uint8(5)), uintptr(5), lo.ToPtr(uint32(5)), lo.ToPtr(uint16(5)), lo.ToPtr(uint64(5)), lo.ToPtr(uint(5)), lo.ToPtr(uintptr(5)),
+				int8(5), int32(5), int16(5), int64(5), "5", json.Number("5"), new(int8(5)),
+				new(int8(5)), new(int32(5)), new(int16(5)), new(int64(5)), new("5"),
+				uint8(5), uint(5), uint32(5), uint16(5), uint64(5), new(uint8(5)), uintptr(5), new(uint32(5)), new(uint16(5)), new(uint64(5)), new(uint(5)), new(uintptr(5)),
 			},
 			want1: 5.0,
 			want2: true,
@@ -40,7 +40,7 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 		{
 			name: "bool false",
 			args: []any{
-				false, lo.ToPtr(false),
+				false, new(false),
 			},
 			want1: 0.0,
 			want2: true,
@@ -48,20 +48,20 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 		{
 			name: "bool true",
 			args: []any{
-				true, lo.ToPtr(true),
+				true, new(true),
 			},
 			want1: 1.0,
 			want2: true,
 		},
 		{
 			name:  "positive",
-			args:  []any{1.12, "1.12", json.Number("1.12"), lo.ToPtr(1.12), lo.ToPtr("1.12"), lo.ToPtr(json.Number("1.12"))},
+			args:  []any{1.12, "1.12", json.Number("1.12"), new(1.12), new("1.12"), lo.ToPtr(json.Number("1.12"))},
 			want1: 1.12,
 			want2: true,
 		},
 		{
 			name:  "negative",
-			args:  []any{-0.11, "-0.11", json.Number("-0.11"), lo.ToPtr(-0.11), lo.ToPtr("-0.11"), lo.ToPtr(json.Number("-0.11"))},
+			args:  []any{-0.11, "-0.11", json.Number("-0.11"), new(-0.11), new("-0.11"), lo.ToPtr(json.Number("-0.11"))},
 			want1: -0.11,
 			want2: true,
 		},
@@ -85,7 +85,7 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 		},
 		{
 			name:  "time",
-			args:  []any{now, lo.ToPtr(now)},
+			args:  []any{now, new(now)},
 			want1: float64(now.Unix()),
 			want2: true,
 		},
@@ -104,7 +104,6 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

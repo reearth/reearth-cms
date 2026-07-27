@@ -12,10 +12,10 @@ func NewAsset(a *asset.Asset, f *asset.File, all bool) *Asset {
 
 	var ct, n *string
 	if fct := f.ContentType(); fct != "" {
-		ct = lo.ToPtr(fct)
+		ct = new(fct)
 	}
 	if fn := f.Name(); fn != "" {
-		n = lo.ToPtr(fn)
+		n = new(fn)
 	}
 
 	ai := a.AccessInfo()
@@ -27,7 +27,7 @@ func NewAsset(a *asset.Asset, f *asset.File, all bool) *Asset {
 		Name:                    n,
 		PreviewType:             ToPreviewType(a.PreviewType()),
 		ProjectId:               a.Project(),
-		TotalSize:               lo.ToPtr(float32(a.Size())),
+		TotalSize:               new(float32(a.Size())),
 		Url:                     ai.Url,
 		File:                    ToAssetFile(f, all),
 		ArchiveExtractionStatus: ToAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
@@ -52,7 +52,7 @@ func ToAssetArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *AssetArch
 	default:
 		return nil
 	}
-	return lo.ToPtr(AssetArchiveExtractionStatus(ss))
+	return new(AssetArchiveExtractionStatus(ss))
 }
 
 func ToAssetFile(f *asset.File, all bool) *File {
@@ -62,7 +62,7 @@ func ToAssetFile(f *asset.File, all bool) *File {
 
 	var children *[]File
 	if all {
-		children = lo.ToPtr(lo.FilterMap(f.Files(), func(c *asset.File, _ int) (File, bool) {
+		children = new(lo.FilterMap(f.Files(), func(c *asset.File, _ int) (File, bool) {
 			f := ToAssetFile(c, true)
 			if f == nil {
 				return File{}, false
@@ -75,36 +75,36 @@ func ToAssetFile(f *asset.File, all bool) *File {
 	}
 
 	return &File{
-		Name:        lo.ToPtr(f.Name()),
-		ContentType: lo.ToPtr(f.ContentType()),
-		Size:        lo.ToPtr(float32(f.Size())),
-		Path:        lo.ToPtr(f.Path()),
+		Name:        new(f.Name()),
+		ContentType: new(f.ContentType()),
+		Size:        new(float32(f.Size())),
+		Path:        new(f.Path()),
 		Children:    children,
 	}
 }
 
 func ToPreviewType(pt *asset.PreviewType) *AssetPreviewType {
 	if pt == nil {
-		return lo.ToPtr(Unknown)
+		return new(Unknown)
 	}
 	switch *pt {
 	case asset.PreviewTypeGeo:
-		return lo.ToPtr(Geo)
+		return new(Geo)
 	case asset.PreviewTypeGeo3dTiles:
-		return lo.ToPtr(Geo3dTiles)
+		return new(Geo3dTiles)
 	case asset.PreviewTypeGeoMvt:
-		return lo.ToPtr(GeoMvt)
+		return new(GeoMvt)
 	case asset.PreviewTypeModel3d:
-		return lo.ToPtr(Model3d)
+		return new(Model3d)
 	case asset.PreviewTypeImage:
-		return lo.ToPtr(Image)
+		return new(Image)
 	case asset.PreviewTypeImageSvg:
-		return lo.ToPtr(ImageSvg)
+		return new(ImageSvg)
 	case asset.PreviewTypeCSV:
-		return lo.ToPtr(Csv)
+		return new(Csv)
 	case asset.PreviewTypeUnknown:
-		return lo.ToPtr(Unknown)
+		return new(Unknown)
 	default:
-		return lo.ToPtr(Unknown)
+		return new(Unknown)
 	}
 }

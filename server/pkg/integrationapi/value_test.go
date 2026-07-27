@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,92 +20,91 @@ func TestFromValueType(t *testing.T) {
 		},
 		{
 			name:     "Valid ValueTypeText",
-			input:    lo.ToPtr(ValueTypeText),
+			input:    new(ValueTypeText),
 			expected: value.TypeText,
 		},
 		{
 			name:     "Valid ValueTypeMarkdown",
-			input:    lo.ToPtr(ValueTypeMarkdown),
+			input:    new(ValueTypeMarkdown),
 			expected: value.TypeMarkdown,
 		},
 		{
 			name:     "Valid ValueTypeTextArea",
-			input:    lo.ToPtr(ValueTypeTextArea),
+			input:    new(ValueTypeTextArea),
 			expected: value.TypeTextArea,
 		},
 		{
 			name:     "Valid ValueTypeRichText",
-			input:    lo.ToPtr(ValueTypeRichText),
+			input:    new(ValueTypeRichText),
 			expected: value.TypeRichText,
 		},
 		{
 			name:     "Valid ValueTypeAsset",
-			input:    lo.ToPtr(ValueTypeAsset),
+			input:    new(ValueTypeAsset),
 			expected: value.TypeAsset,
 		},
 		{
 			name:     "Valid ValueTypeDate",
-			input:    lo.ToPtr(ValueTypeDate),
+			input:    new(ValueTypeDate),
 			expected: value.TypeDateTime,
 		},
 		{
 			name:     "Valid ValueTypeBool",
-			input:    lo.ToPtr(ValueTypeBool),
+			input:    new(ValueTypeBool),
 			expected: value.TypeBool,
 		},
 		{
 			name:     "Valid ValueTypeSelect",
-			input:    lo.ToPtr(ValueTypeSelect),
+			input:    new(ValueTypeSelect),
 			expected: value.TypeSelect,
 		},
 		{
 			name:     "Valid ValueTypeInteger",
-			input:    lo.ToPtr(ValueTypeInteger),
+			input:    new(ValueTypeInteger),
 			expected: value.TypeInteger,
 		},
 		{
 			name:     "Valid ValueTypeNumber",
-			input:    lo.ToPtr(ValueTypeNumber),
+			input:    new(ValueTypeNumber),
 			expected: value.TypeNumber,
 		},
 		{
 			name:     "Valid ValueTypeReference",
-			input:    lo.ToPtr(ValueTypeReference),
+			input:    new(ValueTypeReference),
 			expected: value.TypeReference,
 		},
 		{
 			name:     "Valid ValueTypeUrl",
-			input:    lo.ToPtr(ValueTypeUrl),
+			input:    new(ValueTypeUrl),
 			expected: value.TypeURL,
 		},
 		{
 			name:     "Valid ValueTypeTag",
-			input:    lo.ToPtr(ValueTypeTag),
+			input:    new(ValueTypeTag),
 			expected: value.TypeTag,
 		},
 		{
 			name:     "Valid ValueTypeGroup",
-			input:    lo.ToPtr(ValueTypeGroup),
+			input:    new(ValueTypeGroup),
 			expected: value.TypeGroup,
 		},
 		{
 			name:     "Valid ValueTypeGeometryObject",
-			input:    lo.ToPtr(ValueTypeGeometryObject),
+			input:    new(ValueTypeGeometryObject),
 			expected: value.TypeGeometryObject,
 		},
 		{
 			name:     "Valid ValueTypeGeometryEditor",
-			input:    lo.ToPtr(ValueTypeGeometryEditor),
+			input:    new(ValueTypeGeometryEditor),
 			expected: value.TypeGeometryEditor,
 		},
 		{
 			name:     "Unknown ValueType",
-			input:    lo.ToPtr(ValueType("Unknown")),
+			input:    new(ValueType("Unknown")),
 			expected: value.TypeUnknown,
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.expected, FromValueType(tt.input))
@@ -213,7 +211,6 @@ func TestToValueType(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.expected, ToValueType(tt.input))

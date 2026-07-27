@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -110,7 +109,6 @@ func TestModelRepo_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			//t.Parallel()
 
@@ -228,7 +226,6 @@ func TestModelRepo_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -299,7 +296,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 			seeds: model.List{
 				m1,
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -310,7 +307,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -322,7 +319,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, usecasex.CursorPagination{First: new(int64(2))}.Wrap()},
 			want:    model.List{m1, m2},
 			wantErr: nil,
 		},
@@ -333,7 +330,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    model.List{m1},
 			wantErr: nil,
@@ -345,7 +342,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
 			want:    nil,
 			wantErr: nil,
@@ -353,7 +350,6 @@ func TestModelRepo_FindByProject(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -443,7 +439,6 @@ func TestModel_CountByProject(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

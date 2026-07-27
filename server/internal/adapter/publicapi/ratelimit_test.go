@@ -39,7 +39,7 @@ func TestRateLimitMiddleware(t *testing.T) {
 		t.Parallel()
 		h := RateLimitMiddleware(cfg(0.01, 3))(okHandler)
 
-		for i := 0; i < 3; i++ {
+		for i := range 3 {
 			c, rec := newReq("9.9.9.9")
 			require.NoError(t, h(c))
 			assert.Equal(t, http.StatusAccepted, rec.Code, "request %d should pass", i)
@@ -92,7 +92,7 @@ func TestRateLimitMiddleware(t *testing.T) {
 		const burst = 5
 		h := RateLimitMiddleware(cfg(0.01, burst))(okHandler)
 
-		for i := 0; i < burst; i++ {
+		for i := range burst {
 			c, rec := newReq("3.3.3.3")
 			require.NoError(t, h(c))
 			require.Equal(t, http.StatusAccepted, rec.Code, "request %d should pass", i)

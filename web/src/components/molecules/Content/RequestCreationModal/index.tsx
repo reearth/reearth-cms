@@ -2,19 +2,21 @@ import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Row from "@reearth-cms/components/atoms/Row";
-import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
+import type { SelectProps } from "@reearth-cms/components/atoms/Select";
+import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
-import { RequestItem, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { RequestItem, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-import { FormItem } from "../types";
+import type { FormItem } from "../types";
 
 type FormValues = {
   title: string;

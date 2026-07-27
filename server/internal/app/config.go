@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -344,7 +345,7 @@ func (c CognitoConfig) Configs() AuthConfigs {
 			ISS:      fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID),
 			AUD:      []string{c.ClientID},
 			ClientID: &c.ClientID,
-			JWKSURI:  lo.ToPtr(fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)),
+			JWKSURI:  new(fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)),
 		},
 	}
 }
@@ -358,7 +359,7 @@ func (c FirebaseConfig) AuthConfig() *AuthConfig {
 		ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
 		AUD:      []string{c.ProjectID},
 		ClientID: &c.ClientID,
-		JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
+		JWKSURI:  new("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
 	}
 }
 
@@ -464,9 +465,7 @@ func (c *Config) WebConfig() map[string]any {
 		config[k] = v
 	}
 	if m := c.Web_Config.Object(); m != nil {
-		for k, v := range m {
-			config[k] = v
-		}
+		maps.Copy(config, m)
 	}
 
 	return config
@@ -489,9 +488,7 @@ func (j *JSON) Object() map[string]any {
 	}
 	if m, ok := j.Data.(map[string]any); ok {
 		w := make(map[string]any)
-		for k, v := range m {
-			w[k] = v
-		}
+		maps.Copy(w, m)
 		return w
 	}
 	return nil

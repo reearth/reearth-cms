@@ -59,9 +59,9 @@ func ToFieldType(fieldType view.FieldType) FieldType {
 func ToDirection(direction view.Direction) *SortDirection {
 	switch direction {
 	case view.DirectionAsc:
-		return lo.ToPtr(SortDirectionAsc)
+		return new(SortDirectionAsc)
 	case view.DirectionDesc:
-		return lo.ToPtr(SortDirectionDesc)
+		return new(SortDirectionDesc)
 	default:
 		return nil
 	}

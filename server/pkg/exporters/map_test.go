@@ -66,7 +66,6 @@ func TestMapFromItem_GroupWithoutIdField(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -194,7 +193,6 @@ func TestMapFromItem_MultipleGroupsWithoutIdField(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -350,7 +348,7 @@ func TestDropEmptyFields_NilPointer(t *testing.T) {
 			name: "nil interface should be dropped",
 			input: ItemMap{
 				"text":         "value",
-				"nilInterface": (interface{})(nil),
+				"nilInterface": (any)(nil),
 			},
 			expectedKeys: []string{"text"},
 			droppedKeys:  []string{"nilInterface"},
@@ -376,7 +374,6 @@ func TestDropEmptyFields_NilPointer(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -433,7 +430,6 @@ func TestMapFromItem_GroupWithAssets(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

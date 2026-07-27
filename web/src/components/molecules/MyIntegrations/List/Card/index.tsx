@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {

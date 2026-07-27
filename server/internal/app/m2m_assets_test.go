@@ -105,14 +105,14 @@ func TestM2MEndpointIntegration(t *testing.T) {
 			uuid:            privAsset.UUID(),
 			token:           token,
 			expectedStatus:  http.StatusOK,
-			expectedPrivate: lo.ToPtr(true),
+			expectedPrivate: new(true),
 		},
 		{
 			name:            "Public asset with valid token",
 			uuid:            pubAsset.UUID(),
 			token:           token,
 			expectedStatus:  http.StatusOK,
-			expectedPrivate: lo.ToPtr(false),
+			expectedPrivate: new(false),
 		},
 		{
 			name:            "Non-existent asset with valid token",
@@ -155,7 +155,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, rec.Code)
 
 			if tt.expectedStatus == http.StatusOK && tt.expectedPrivate != nil {
-				var resp map[string]interface{}
+				var resp map[string]any
 				assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
 				assert.Equal(t, *tt.expectedPrivate, resp["isPrivate"])
 			}

@@ -15,7 +15,6 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 )
 
 type contextKey string
@@ -221,7 +220,7 @@ func paginationFrom(c *echo.Context) *usecasex.Pagination {
 
 	if startCursor := c.QueryParam("start_cursor"); startCursor != "" {
 		return usecasex.CursorPagination{
-			First: lo.ToPtr(limit),
+			First: new(limit),
 			After: (*usecasex.Cursor)(&startCursor),
 		}.Wrap()
 	}

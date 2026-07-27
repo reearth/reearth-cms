@@ -9,7 +9,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,7 +50,6 @@ func TestConvert_FromFile(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -76,13 +74,13 @@ func TestToPageInfo(t *testing.T) {
 			name: "success",
 			args: &usecasex.PageInfo{
 				TotalCount:      0,
-				StartCursor:     usecasex.CursorFromRef(lo.ToPtr("c1")),
+				StartCursor:     usecasex.CursorFromRef(new("c1")),
 				EndCursor:       nil,
 				HasNextPage:     true,
 				HasPreviousPage: false,
 			},
 			want: &PageInfo{
-				StartCursor:     usecasex.CursorFromRef(lo.ToPtr("c1")),
+				StartCursor:     usecasex.CursorFromRef(new("c1")),
 				EndCursor:       nil,
 				HasNextPage:     true,
 				HasPreviousPage: false,
@@ -90,7 +88,6 @@ func TestToPageInfo(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -128,23 +125,23 @@ func TestPagination_Into(t *testing.T) {
 		{
 			name: "success 2",
 			args: &Pagination{
-				First:  lo.ToPtr(10),
+				First:  new(10),
 				Last:   nil,
-				After:  usecasex.CursorFromRef(lo.ToPtr("c1")),
+				After:  usecasex.CursorFromRef(new("c1")),
 				Before: nil,
 			},
 			want: usecasex.CursorPagination{
 				Before: nil,
-				After:  usecasex.CursorFromRef(lo.ToPtr("c1")),
-				First:  lo.ToPtr(int64(10)),
+				After:  usecasex.CursorFromRef(new("c1")),
+				First:  new(int64(10)),
 				Last:   nil,
 			}.Wrap(),
 		},
 		{
 			name: "success offset",
 			args: &Pagination{
-				First:  lo.ToPtr(10),
-				Offset: lo.ToPtr(50),
+				First:  new(10),
+				Offset: new(50),
 			},
 			want: usecasex.OffsetPagination{
 				Limit:  10,
@@ -155,7 +152,7 @@ func TestPagination_Into(t *testing.T) {
 			name: "success offset",
 			args: &Pagination{
 				First:  nil,
-				Offset: lo.ToPtr(50),
+				Offset: new(50),
 			},
 			want: usecasex.OffsetPagination{
 				Limit:  50,
@@ -164,7 +161,6 @@ func TestPagination_Into(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

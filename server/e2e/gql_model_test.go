@@ -6,7 +6,6 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -338,7 +337,7 @@ func TestUpdateModel(t *testing.T) {
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 
 	mId, _ := createModel(e, pId, "test", "test", "test-2")
-	res := updateModel(e, mId, lo.ToPtr("updated name"), lo.ToPtr("updated desc"), lo.ToPtr("updated_key"))
+	res := updateModel(e, mId, new("updated name"), new("updated desc"), new("updated_key"))
 	res.Object().
 		Value("data").Object().
 		Value("updateModel").Object().

@@ -1,12 +1,12 @@
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import {
+import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type {
   WorkspaceSettings,
   Member,
   Workspace,
   TileType,
   TerrainType,
 } from "@reearth-cms/components/molecules/Workspace/types";
-import {
+import type {
   WorkspaceSettings as GQLWorkspaceSettings,
   UrlResourceProps,
   CesiumResourceProps,

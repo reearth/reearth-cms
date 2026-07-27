@@ -2,7 +2,6 @@ package rbac
 
 import (
 	"github.com/reearth/reearthx/cerbos/generator"
-	"github.com/samber/lo"
 )
 
 type (
@@ -93,7 +92,7 @@ var (
 // jwtRequired is a shared condition that requires a JWT token to be present in the request.
 var jwtRequired = &generator.Condition{
 	Match: generator.Match{
-		Expr: lo.ToPtr("has(request.auxData.jwt)"),
+		Expr: new("has(request.auxData.jwt)"),
 	},
 }
 

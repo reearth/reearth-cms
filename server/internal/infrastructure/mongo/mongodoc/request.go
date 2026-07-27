@@ -49,13 +49,13 @@ func NewRequest(r *request.Request) (*RequestDocument, string) {
 			func(v version.Version) RequestItem {
 				return RequestItem{
 					Item:    i.Item().String(),
-					Version: lo.ToPtr(v.String()),
+					Version: new(v.String()),
 				}
 			},
 			func(r version.Ref) RequestItem {
 				return RequestItem{
 					Item: i.Item().String(),
-					Ref:  lo.ToPtr(r.String()),
+					Ref:  new(r.String()),
 				}
 			},
 		)

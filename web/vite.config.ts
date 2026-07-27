@@ -8,7 +8,8 @@ import { resolve } from "path";
 import yaml from "@rollup/plugin-yaml";
 import react from "@vitejs/plugin-react";
 import { readEnv } from "read-env";
-import { defineConfig, loadEnv, type Plugin } from "vite";
+import { defineConfig, loadEnv } from "vite";
+import type { Plugin } from "vite";
 import cesium from "vite-plugin-cesium";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { configDefaults } from "vitest/config";
@@ -65,6 +66,9 @@ export default defineConfig({
         "src/**/*.stories.tsx",
         "src/gql/graphql-client-api.tsx",
         "src/test/**/*",
+        "src/auth/CognitoAuth.ts",
+        // Bootstrap/wiring only (router, providers); requires mocking the entire app shell to test.
+        "src/App.tsx",
       ],
       reporter: ["text", "json", "lcov"],
     },

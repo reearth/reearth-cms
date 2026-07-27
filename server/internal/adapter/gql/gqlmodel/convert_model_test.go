@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,7 +43,7 @@ func TestToModel(t *testing.T) {
 				Schema:          nil,
 				CreatedAt:       mId.Timestamp(),
 				UpdatedAt:       mId.Timestamp(),
-				Order:           lo.ToPtr(1),
+				Order:           new(1),
 				PostingSettings: &ModelPostingSettings{Enabled: false},
 			},
 		},
@@ -63,13 +62,12 @@ func TestToModel(t *testing.T) {
 				Schema:          nil,
 				CreatedAt:       mId.Timestamp(),
 				UpdatedAt:       mId.Timestamp(),
-				Order:           lo.ToPtr(1),
+				Order:           new(1),
 				PostingSettings: &ModelPostingSettings{Enabled: true},
 			},
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -93,7 +91,6 @@ func TestToExportFormat(t *testing.T) {
 		{name: "unknown defaults to JSON", input: ExportFormat("UNKNOWN"), want: exporters.FormatJSON},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -103,7 +102,6 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -177,7 +175,6 @@ func TestProjectRepo_Filtered(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -281,7 +278,6 @@ func TestProjectRepo_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -412,7 +408,6 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -568,7 +563,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -638,7 +632,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -650,7 +644,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -663,7 +657,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(2))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -676,7 +670,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -689,7 +683,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: new(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -701,7 +695,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
 			want:    nil,
 			wantErr: nil,
@@ -714,7 +708,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -824,7 +817,6 @@ func TestProjectRepo_Remove(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -916,7 +908,6 @@ func TestProjectRepo_Save(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1006,7 +997,6 @@ func TestProject_FindByAPIKey(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1105,7 +1095,6 @@ func TestProjectRepo_ProjectFilter_Visibility(t *testing.T) {
 		}
 
 		for _, tc := range tests {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -1163,7 +1152,6 @@ func TestProjectRepo_ProjectFilter_Visibility(t *testing.T) {
 		}
 
 		for _, tc := range tests {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -1220,7 +1208,6 @@ func TestProjectRepo_ProjectFilter_Visibility(t *testing.T) {
 		}
 
 		for _, tc := range tests {
-			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 

@@ -2,11 +2,14 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
-import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type {
+  Request,
+  RequestUpdatePayload,
+} from "@reearth-cms/components/molecules/Request/types";
+import type { Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

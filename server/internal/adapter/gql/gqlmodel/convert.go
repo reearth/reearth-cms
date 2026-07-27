@@ -6,7 +6,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 )
 
 func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
@@ -71,5 +70,5 @@ func pint2pint64(i *int) *int64 {
 	if i == nil {
 		return nil
 	}
-	return lo.ToPtr(int64(*i))
+	return new(int64(*i))
 }

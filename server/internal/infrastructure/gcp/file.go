@@ -622,7 +622,7 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 		}
 	}
 
-	for i := 0; i < numWorkers; i++ {
+	for range numWorkers {
 		wg.Add(1)
 		go worker()
 	}
@@ -766,7 +766,7 @@ func hasAcceptEncoding(accept, encoding string) bool {
 	if accept == "" {
 		return false
 	}
-	for _, e := range strings.Split(accept, ",") {
+	for e := range strings.SplitSeq(accept, ",") {
 		if strings.TrimSpace(e) == encoding {
 			return true
 		}

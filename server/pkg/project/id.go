@@ -3,7 +3,6 @@ package project
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/samber/lo"
 )
 
 type ID = id.ProjectID
@@ -35,12 +34,12 @@ var ErrInvalidID = id.ErrInvalidID
 type IDOrAlias string
 
 func (i IDOrAlias) ID() *ID {
-	return IDFromRef(lo.ToPtr(string(i)))
+	return IDFromRef(new(string(i)))
 }
 
 func (i IDOrAlias) Alias() *string {
 	if string(i) != "" && i.ID() == nil {
-		return lo.ToPtr(string(i))
+		return new(string(i))
 	}
 	return nil
 }

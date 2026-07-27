@@ -1,4 +1,4 @@
-import { availableLanguages } from "./i18n";
+import type { availableLanguages } from "./i18n";
 
 export const localesWithLabel: Record<(typeof availableLanguages)[number], string> = {
   en: "English",

@@ -26,7 +26,7 @@ func NewJSONSchema(m *model.Model, sp *schema.Package, t JSONSchemaExportTarget)
 		Id:          targetId(sp, t),
 		Title:       lo.EmptyableToPtr(m.Name()),
 		Description: lo.EmptyableToPtr(m.Description()),
-		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
+		Schema:      new(defaultJSONSchemaVersion),
 		Type:        "object",
 		Properties:  buildPropertiesMap(targetFields(sp, t), buildGroupSchemaMap(sp)),
 	}
@@ -64,13 +64,13 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 			Multiple:  field.Multiple(),
 		}
 		if field.Name() != "" {
-			fieldSchema.Title = lo.ToPtr(field.Name())
+			fieldSchema.Title = new(field.Name())
 		}
 		if field.Description() != "" {
-			fieldSchema.Description = lo.ToPtr(field.Description())
+			fieldSchema.Description = new(field.Description())
 		}
 		if format != "" {
-			fieldSchema.Format = lo.ToPtr(format)
+			fieldSchema.Format = new(format)
 		}
 		if field.Multiple() {
 			if dv := field.DefaultValue(); dv != nil && !dv.IsEmpty() {
@@ -104,7 +104,7 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 				}
 			},
 			Select: func(f *schema.FieldSelect) {
-				fieldSchema.Options = lo.ToPtr(f.Values())
+				fieldSchema.Options = new(f.Values())
 			},
 			Integer: func(f *schema.FieldInteger) {
 				if min := f.Min(); min != nil {
@@ -132,12 +132,12 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 			},
 			GeometryEditor: func(f *schema.FieldGeometryEditor) {
 				if st := f.SupportedTypes(); len(st) > 0 {
-					fieldSchema.GeoSupportedType = lo.ToPtr(st.First().String())
+					fieldSchema.GeoSupportedType = new(st.First().String())
 				}
 			},
 			GeometryObject: func(f *schema.FieldGeometryObject) {
 				if st := f.SupportedTypes(); len(st) > 0 {
-					fieldSchema.GeoSupportedTypes = lo.ToPtr(st.Strings())
+					fieldSchema.GeoSupportedTypes = new(st.Strings())
 				}
 			},
 		})
@@ -158,7 +158,7 @@ func int64ToFloat64(input *int64) *float64 {
 	if input == nil {
 		return nil
 	}
-	return lo.ToPtr(float64(*input))
+	return new(float64(*input))
 }
 
 func determineFTypeAndTypeAndFormat(t value.Type) (string, string, string) {

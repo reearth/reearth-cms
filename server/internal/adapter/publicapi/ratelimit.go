@@ -21,10 +21,7 @@ func RateLimitMiddleware(rl RateLimitConfig) echo.MiddlewareFunc {
 	// Clamp to at least 1 so clients don't interpret Retry-After: 0 as "retry immediately".
 	ra := 1
 	if rl.Rate > 0 {
-		ra = int(math.Ceil(float64(rl.Burst) / rl.Rate))
-		if ra < 1 {
-			ra = 1
-		}
+		ra = max(int(math.Ceil(float64(rl.Burst)/rl.Rate)), 1)
 	}
 	retryAfter := strconv.Itoa(ra)
 

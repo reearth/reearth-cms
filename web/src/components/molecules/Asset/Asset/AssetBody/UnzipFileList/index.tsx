@@ -1,17 +1,21 @@
 import styled from "@emotion/styled";
-import { Key } from "rc-table/lib/interface";
+import type { Key } from "rc-table/lib/interface";
 import { useCallback, useEffect, useState } from "react";
 
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
-import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
-import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
+import type { TreeProps } from "@reearth-cms/components/atoms/Tree";
+import Tree from "@reearth-cms/components/atoms/Tree";
+import type {
+  ArchiveExtractionStatus,
+  AssetFile,
+} from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
-import { FileNode } from "./types";
+import type { FileNode } from "./types";
 
 type Props = {
   file: AssetFile;

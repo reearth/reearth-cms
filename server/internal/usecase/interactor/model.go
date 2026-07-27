@@ -225,7 +225,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	} else {
 		mb = mb.Key(id.RandomKey())
 	}
-	models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+	models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: new(int64(1000))}.Wrap())
 	if err != nil {
 		return nil, err
 	}
@@ -361,7 +361,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 			}
 
 			// delete the model and reorder siblings
-			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: new(int64(1000))}.Wrap())
 			if err != nil {
 				return err
 			}
@@ -375,7 +375,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 
 func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
 	var models model.List
-	p := usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap()
+	p := usecasex.CursorPagination{First: new(int64(1000))}.Wrap()
 	for {
 		page, pageInfo, err := i.repos.Model.FindByProject(ctx, m.Project(), p)
 		if err != nil {
@@ -389,7 +389,7 @@ func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *mod
 		if pageInfo == nil || !pageInfo.HasNextPage {
 			break
 		}
-		p = usecasex.CursorPagination{First: lo.ToPtr(int64(1000)), After: pageInfo.EndCursor}.Wrap()
+		p = usecasex.CursorPagination{First: new(int64(1000)), After: pageInfo.EndCursor}.Wrap()
 	}
 
 	schemaIDs := models.SchemaIDs()
@@ -625,7 +625,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			name := lo.ToPtr(srcModel.Name() + " Copy")
+			name := new(srcModel.Name() + " Copy")
 			if params.Name != nil {
 				name = params.Name
 			}
@@ -637,7 +637,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			newModel, err := i.create(ctx, interfaces.CreateModelParam{
 				ProjectId:   srcModel.Project(),
 				Name:        name,
-				Description: lo.ToPtr(srcModel.Description()),
+				Description: new(srcModel.Description()),
 				Key:         key,
 			})
 			if err != nil {

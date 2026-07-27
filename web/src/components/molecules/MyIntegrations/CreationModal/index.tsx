@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {

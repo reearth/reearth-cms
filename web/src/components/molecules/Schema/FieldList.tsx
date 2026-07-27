@@ -8,7 +8,7 @@ import { Test } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
-import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
+import type { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
 
 type Props = {
   currentTab: Tab;

@@ -4,9 +4,10 @@ import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import type { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import Menu from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 

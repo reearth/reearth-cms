@@ -27,7 +27,6 @@ func TestCheckAliasPattern(t *testing.T) {
 	}
 
 	for _, tt := range testCase {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.expexted, CheckAliasPattern(tt.alias))
@@ -63,7 +62,6 @@ func TestProject_SetImageURL(t *testing.T) {
 	}
 
 	for _, tt := range testCase {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			tt.p.SetImageURL(tt.image)
@@ -144,7 +142,6 @@ func TestProject_SetTopics(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p := &Project{}
@@ -180,7 +177,6 @@ func TestProject_UpdateAlias(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p := &Project{}

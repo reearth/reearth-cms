@@ -124,7 +124,6 @@ func TestAsset_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -200,7 +199,7 @@ func TestAsset_DecompressByID(t *testing.T) {
 				id: a1.ID(),
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
-						User:               lo.ToPtr(u1.ID()),
+						User:               new(u1.ID()),
 						ReadableWorkspaces: []accountdomain.WorkspaceID{ws1.ID()},
 					},
 				},
@@ -215,7 +214,7 @@ func TestAsset_DecompressByID(t *testing.T) {
 				id: asset.NewID(),
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
-						User:             lo.ToPtr(u1.ID()),
+						User:             new(u1.ID()),
 						OwningWorkspaces: []accountdomain.WorkspaceID{ws1.ID()},
 					},
 					OwningProjects: []id.ProjectID{pid1},
@@ -227,7 +226,6 @@ func TestAsset_DecompressByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -318,7 +316,6 @@ func TestAsset_FindFileByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -436,7 +433,6 @@ func TestAsset_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -527,7 +523,7 @@ func TestAsset_Search(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(1))}.Wrap(),
 				},
 				operator: op,
 			},
@@ -546,7 +542,7 @@ func TestAsset_Search(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(1))}.Wrap(),
 				},
 				operator: op,
 			},
@@ -566,7 +562,7 @@ func TestAsset_Search(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+					Pagination: usecasex.CursorPagination{First: new(int64(2))}.Wrap(),
 				},
 				operator: op,
 			},
@@ -583,7 +579,7 @@ func TestAsset_Search(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					Pagination:   usecasex.CursorPagination{First: new(int64(1))}.Wrap(),
 					ContentTypes: []string{"image/jpeg", "image/png"},
 				},
 				operator: op,
@@ -599,8 +595,8 @@ func TestAsset_Search(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
-					Keyword:    lo.ToPtr("a"),
+					Pagination: usecasex.CursorPagination{First: new(int64(1))}.Wrap(),
+					Keyword:    new("a"),
 				},
 				operator: op,
 			},
@@ -610,7 +606,6 @@ func TestAsset_Search(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -645,7 +640,7 @@ func TestAsset_Create(t *testing.T) {
 
 	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(ws.ID()).MustBuild()
 	acop := &accountusecase.Operator{
-		User:               lo.ToPtr(u.ID()),
+		User:               new(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
@@ -884,7 +879,7 @@ func TestAsset_Create(t *testing.T) {
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
-						User:               lo.ToPtr(u.ID()),
+						User:               new(u.ID()),
 						WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 					},
 				},
@@ -907,7 +902,7 @@ func TestAsset_Create(t *testing.T) {
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
-						User:               lo.ToPtr(u.ID()),
+						User:               new(u.ID()),
 						WritableWorkspaces: []accountdomain.WorkspaceID{ws2.ID()},
 					},
 				},
@@ -919,7 +914,6 @@ func TestAsset_Create(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1086,7 +1080,6 @@ func TestAsset_Update(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
 
@@ -1279,7 +1272,6 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
 
@@ -1426,7 +1418,6 @@ func TestAsset_Delete(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

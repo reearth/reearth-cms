@@ -1,24 +1,26 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useMemo } from "react";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
+import type { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import type { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
+import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { AntdToken, CustomToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "../fieldTypes";
-import { CreateFieldInput, ImportFieldInput } from "../types";
+import type { CreateFieldInput, ImportFieldInput } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";

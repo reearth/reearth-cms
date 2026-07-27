@@ -56,7 +56,6 @@ func TestItem_FindByID(t *testing.T) {
 	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -199,7 +198,6 @@ func TestItem_FindByIDs(t *testing.T) {
 	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -254,7 +252,6 @@ func TestItem_FindBySchema(t *testing.T) {
 	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			client := mongox.NewClientWithDatabase(init(t))
 			r := NewItem(client)
@@ -269,7 +266,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.Input, nil, nil, usecasex.CursorPagination{First: new(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -350,7 +347,6 @@ func TestItem_BatchRemove(t *testing.T) {
 	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -498,7 +494,6 @@ func TestItem_Search(t *testing.T) {
 	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			// tt.Parallel()
 
@@ -511,7 +506,7 @@ func TestItem_Search(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, _, _ := repo.Search(ctx, *sp, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := repo.Search(ctx, *sp, tc.Input, usecasex.CursorPagination{First: new(int64(10))}.Wrap())
 			assert.Equal(t, tc.Expected, len(got))
 		})
 	}
@@ -571,7 +566,6 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -639,7 +633,6 @@ func TestItem_FindByAssets(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -684,7 +677,7 @@ func TestItem_Copy(t *testing.T) {
 
 	wantFilter, err := json.Marshal(bson.M{"schema": params.OldSchema.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	assert.NoError(t, err)
-	assert.Equal(t, filter, lo.ToPtr(string(wantFilter)))
+	assert.Equal(t, filter, new(string(wantFilter)))
 
 	wantChanges, err := json.Marshal(task.Changes{
 		"id":                   {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
@@ -702,7 +695,7 @@ func TestItem_Copy(t *testing.T) {
 		"user":                 {Type: task.ChangeTypeSet, Value: *params.User},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
+	assert.Equal(t, changes, new(string(wantChanges)))
 }
 
 func TestItem_CountByModel(t *testing.T) {
@@ -784,7 +777,6 @@ func TestItem_CountByModel(t *testing.T) {
 	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 

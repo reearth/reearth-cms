@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,7 +37,7 @@ func TestToWorkspace(t *testing.T) {
 			want: &Workspace{
 				ID:    IDFrom(w.ID()),
 				Name:  "workspace",
-				Alias: lo.ToPtr(""),
+				Alias: new(""),
 				Members: []WorkspaceMember{
 					&WorkspaceUserMember{
 						UserID: IDFrom(uid),
@@ -62,7 +61,6 @@ func TestToWorkspace(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -99,7 +97,6 @@ func TestToRole(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			tt := tt
 			t.Parallel()
@@ -142,7 +139,6 @@ func TestFromRole(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			tt := tt
 			t.Parallel()

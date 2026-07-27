@@ -1,11 +1,13 @@
 import styled from "@emotion/styled";
-import dayjs, { Dayjs } from "dayjs";
-import { ChangeEvent, useCallback, useEffect } from "react";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import type { ChangeEvent } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { InputProps } from "@reearth-cms/components/atoms/Input";
-import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import type { InputProps } from "@reearth-cms/components/atoms/Input";
+import type { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";

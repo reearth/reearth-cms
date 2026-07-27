@@ -8,7 +8,6 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
-	"github.com/samber/lo"
 )
 
 // importItems executes the importItems GraphQL mutation with file upload
@@ -140,7 +139,7 @@ func TestGQLImportItems(t *testing.T) {
 			fileName: "many.json",
 			fileContent: func() string {
 				var items []string
-				for i := 0; i < 50_001; i++ {
+				for range 50_001 {
 					items = append(items, `{"name": "test"}`)
 				}
 				return "[" + strings.Join(items, ",") + "]"
@@ -203,7 +202,7 @@ func TestGQLImportItems(t *testing.T) {
 			fileName: "batches.json",
 			fileContent: func() string {
 				var items []string
-				for i := 0; i < 1050; i++ {
+				for range 1050 {
 					items = append(items, `{"name": "test"}`)
 				}
 				return "[" + strings.Join(items, ",") + "]"
@@ -277,7 +276,7 @@ func TestGQLImportItems(t *testing.T) {
 					]
 				}`
 			},
-			geoField:       lo.ToPtr("location"),
+			geoField:       new("location"),
 			expectError:    false,
 			expectedTotal:  2,
 			expectedInsert: 2,

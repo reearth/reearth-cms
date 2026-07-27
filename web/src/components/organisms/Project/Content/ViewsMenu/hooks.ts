@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client/react";
 import { useCallback, useState, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { CurrentView } from "@reearth-cms/components/molecules/View/types";
+import type { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import {
   toGraphColumnSelectionInput,
   toGraphItemSort,

@@ -5,7 +5,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 func ToIntegration(i *integration.Integration, uId *accountdomain.UserID) *Integration {
@@ -23,7 +22,7 @@ func ToIntegration(i *integration.Integration, uId *accountdomain.UserID) *Integ
 	return &Integration{
 		ID:          IDFrom(i.ID()),
 		Name:        i.Name(),
-		Description: lo.ToPtr(i.Description()),
+		Description: new(i.Description()),
 		LogoURL:     *i.LogoUrl(),
 		IType:       ToIntegrationType(i.Type()),
 		DeveloperID: IDFrom(i.Developer()),
@@ -55,14 +54,14 @@ func ToWebhook(w *integration.Webhook) *Webhook {
 		URL:    *w.URL(),
 		Active: w.Active(),
 		Trigger: &WebhookTrigger{
-			OnItemCreate:      lo.ToPtr(w.Trigger()[event.ItemCreate]),
-			OnItemUpdate:      lo.ToPtr(w.Trigger()[event.ItemUpdate]),
-			OnItemDelete:      lo.ToPtr(w.Trigger()[event.ItemDelete]),
-			OnItemPublish:     lo.ToPtr(w.Trigger()[event.ItemPublish]),
-			OnItemUnPublish:   lo.ToPtr(w.Trigger()[event.ItemUnpublish]),
-			OnAssetUpload:     lo.ToPtr(w.Trigger()[event.AssetCreate]),
-			OnAssetDecompress: lo.ToPtr(w.Trigger()[event.AssetDecompress]),
-			OnAssetDelete:     lo.ToPtr(w.Trigger()[event.AssetDelete]),
+			OnItemCreate:      new(w.Trigger()[event.ItemCreate]),
+			OnItemUpdate:      new(w.Trigger()[event.ItemUpdate]),
+			OnItemDelete:      new(w.Trigger()[event.ItemDelete]),
+			OnItemPublish:     new(w.Trigger()[event.ItemPublish]),
+			OnItemUnPublish:   new(w.Trigger()[event.ItemUnpublish]),
+			OnAssetUpload:     new(w.Trigger()[event.AssetCreate]),
+			OnAssetDecompress: new(w.Trigger()[event.AssetDecompress]),
+			OnAssetDelete:     new(w.Trigger()[event.AssetDelete]),
 		},
 		Secret:    w.Secret(),
 		CreatedAt: w.CreatedAt(),

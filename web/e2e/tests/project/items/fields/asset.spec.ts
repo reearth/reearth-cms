@@ -42,7 +42,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("asset1");
+    await expect(contentPage.labelElement()).toContainText("asset1");
     await expect(contentPage.mainRole).toContainText("asset1 description");
     await page.waitForLoadState("networkidle");
   });
@@ -66,7 +66,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
   await test.step("Save item and verify asset appears in list", async () => {
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
+    await expect(contentPage.cellByText(uploadFileName_1)).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 
@@ -89,7 +89,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
     await expect(page.locator(".ant-notification-notice")).toHaveCount(0, { timeout: 5_000 });
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
+    await expect(contentPage.cellByText(uploadFileName_2)).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 });
@@ -114,7 +114,7 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
   await test.step("Navigate to new item and verify field", async () => {
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("asset1");
+    await expect(contentPage.labelElement()).toContainText("asset1");
     await expect(contentPage.mainRole).toContainText("asset1 description");
   });
 
@@ -209,7 +209,7 @@ test("Asset field editing has succeeded", async ({
 
   await test.step("Verify item saved with default asset", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
+    await expect(contentPage.cellByText(uploadFileName_1)).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 
@@ -263,7 +263,7 @@ test("Asset field editing has succeeded", async ({
     await contentPage.contentText.click();
     await expect(contentPage.tableHead).toContainText("new asset1");
     await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("new asset1(unique)");
+    await expect(contentPage.labelElement()).toContainText("new asset1(unique)");
     await expect(contentPage.mainRole).toContainText("new asset1 description");
     await expect(contentPage.cssAssetByIndex(0)).toContainText(uploadFileName_2);
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);

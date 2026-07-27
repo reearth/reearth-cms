@@ -30,7 +30,6 @@ func TestComment_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.cDoc.Model())
@@ -58,7 +57,6 @@ func TestThreadDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.tDoc.Model()
@@ -93,7 +91,6 @@ func TestNewComment(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, NewComment(tt.comment))
@@ -121,7 +118,6 @@ func TestNewThread(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, got1 := NewThread(tt.th)

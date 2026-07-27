@@ -169,7 +169,7 @@ func (a *Auth0) updateToken(ctx context.Context) error {
 	return nil
 }
 
-func (a *Auth0) exec(ctx context.Context, method, path, token string, b interface{}) (r response, err error) {
+func (a *Auth0) exec(ctx context.Context, method, path, token string, b any) (r response, err error) {
 	if a == nil || a.domain == "" {
 		err = rerror.NewE(i18n.T("auth0: domain is not set"))
 		return

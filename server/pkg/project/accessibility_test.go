@@ -27,7 +27,6 @@ func TestNewAccessibility_WithPosting(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			a := NewAccessibility(VisibilityPublic, nil, tt.posting, nil)
@@ -56,7 +55,6 @@ func TestAccessibility_Posting(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := tt.a.Posting()
@@ -85,7 +83,6 @@ func TestAccessibility_PostingEnabled(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.a.PostingEnabled())
@@ -123,7 +120,6 @@ func TestAccessibility_SetPosting(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.NotPanics(t, func() { tt.initial.SetPosting(tt.input) })
@@ -162,7 +158,6 @@ func TestAccessibility_Clone_IncludesPosting(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			c := tt.a.Clone()
@@ -254,7 +249,6 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -353,7 +347,6 @@ func TestAccessibility_IsModelPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

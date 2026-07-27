@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/samber/lo"
 )
 
 func createRequest(e *httpexpect.Expect, projectId, title string, description, state *string, reviewersId []string, items []any) *httpexpect.Value {
@@ -198,7 +197,7 @@ func TestCreateRequest(t *testing.T) {
 	})
 	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
 
-	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
+	res := createRequest(e, pId, "test", new("test"), new("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
 	req := res.Path("$.data.createRequest.request").Object()
 
 	req.Value("title").IsEqual("test")
@@ -224,13 +223,13 @@ func TestUpdateRequest(t *testing.T) {
 	})
 	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
 
-	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
+	res := createRequest(e, pId, "test", new("test"), new("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
 	req := res.Path("$.data.createRequest.request").Object()
 	rid := req.Value("id").String().Raw()
 
 	iid2 := item.NewID().String()
 	ver2 := uuid.New().String()
-	res2 := updateRequest(e, rid, "test2", lo.ToPtr("test2"), lo.ToPtr("WAITING"), []string{uId1.String(), uId4.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}, map[string]any{"itemId": iid2, "version": ver2}})
+	res2 := updateRequest(e, rid, "test2", new("test2"), new("WAITING"), []string{uId1.String(), uId4.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}, map[string]any{"itemId": iid2, "version": ver2}})
 	req2 := res2.Path("$.data.updateRequest.request").Object()
 
 	req2.Value("title").IsEqual("test2")
@@ -257,7 +256,7 @@ func TestApproveRequest(t *testing.T) {
 	})
 	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
 
-	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
+	res := createRequest(e, pId, "test", new("test"), new("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
 	req := res.Path("$.data.createRequest.request").Object()
 	rid := req.Value("id").String().Raw()
 
@@ -287,7 +286,7 @@ func TestCloseRequest(t *testing.T) {
 	})
 	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
 
-	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
+	res := createRequest(e, pId, "test", new("test"), new("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
 	req := res.Path("$.data.createRequest.request").Object()
 	rid := req.Value("id").String().Raw()
 
@@ -307,7 +306,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// 2- create public model
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"))
+	updateModel(e, mId, new("test"), new("test"), new("test-1"))
 
 	fid, _ := createField(e, mId, "text", "text", "text",
 		false, false, false, false, "Text",
@@ -344,7 +343,7 @@ func TestRequestFlow(t *testing.T) {
 	})
 
 	// 5- create request with version 2
-	res = createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver2}})
+	res = createRequest(e, pId, "test", new("test"), new("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver2}})
 	req := res.Path("$.data.createRequest.request").Object()
 	rid := req.Value("id").String().Raw()
 
@@ -395,7 +394,7 @@ func TestRequestFlow(t *testing.T) {
 	})
 
 	// 8- create request with version 3
-	res = createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver3}})
+	res = createRequest(e, pId, "test", new("test"), new("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver3}})
 	req = res.Path("$.data.createRequest.request").Object()
 	rid = req.Value("id").String().Raw()
 

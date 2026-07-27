@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -119,7 +118,6 @@ func TestItem_BatchRemove(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -420,7 +418,7 @@ func TestItem_Copy(t *testing.T) {
 
 	wantFilter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
 	assert.NoError(t, err)
-	assert.Equal(t, filter, lo.ToPtr(string(wantFilter)))
+	assert.Equal(t, filter, new(string(wantFilter)))
 
 	wantChanges, err := json.Marshal(task.Changes{
 		"id":                   {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
@@ -438,7 +436,7 @@ func TestItem_Copy(t *testing.T) {
 		"user":                 {Type: task.ChangeTypeSet, Value: *params.User},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
+	assert.Equal(t, changes, new(string(wantChanges)))
 }
 
 func TestItem_CountByModel(t *testing.T) {
@@ -517,7 +515,6 @@ func TestItem_CountByModel(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 

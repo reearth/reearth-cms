@@ -6,7 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -332,7 +331,7 @@ func TestConditionMultipleOperator_Into(t *testing.T) {
 func TestFieldSelector_Into(t *testing.T) {
 	fieldType := FieldSelector{
 		FieldId: id.NewFieldID().Ref(),
-		Type:    lo.ToPtr(FieldSelectorTypeId),
+		Type:    new(FieldSelectorTypeId),
 	}
 	tests := []struct {
 		name     string
@@ -380,7 +379,7 @@ func TestConditionInto(t *testing.T) {
 				}{
 					FieldId: FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
 					Operator: ConditionBoolOperatorEquals,
 					Value:    true,
@@ -408,7 +407,7 @@ func TestConditionInto(t *testing.T) {
 				}{
 					FieldId: FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
 					Operator: Contains,
 					Value:    "CONTAINS",
@@ -436,7 +435,7 @@ func TestConditionInto(t *testing.T) {
 				}{
 					FieldId: FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
 					Operator: GreaterThanOrEqualTo,
 					Value:    float32(2),
@@ -460,13 +459,13 @@ func TestConditionInto(t *testing.T) {
 				Basic: &struct {
 					FieldId  *FieldSelector          "json:\"fieldId,omitempty\""
 					Operator *ConditionBasicOperator "json:\"operator,omitempty\""
-					Value    interface{}             "json:\"value,omitempty\""
+					Value    any                     "json:\"value,omitempty\""
 				}{
 					FieldId: &FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
-					Operator: lo.ToPtr(ConditionBasicOperatorEquals),
+					Operator: new(ConditionBasicOperatorEquals),
 					Value:    "test",
 				},
 			},
@@ -492,7 +491,7 @@ func TestConditionInto(t *testing.T) {
 				}{
 					FieldId: FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
 					Operator: After,
 					Value:    timeNow,
@@ -519,9 +518,9 @@ func TestConditionInto(t *testing.T) {
 				}{
 					FieldId: &FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
-					Operator: lo.ToPtr(Empty),
+					Operator: new(Empty),
 				},
 			},
 			want: &view.Condition{
@@ -541,11 +540,11 @@ func TestConditionInto(t *testing.T) {
 				Multiple: &struct {
 					FieldId  FieldSelector             "json:\"fieldId\""
 					Operator ConditionMultipleOperator "json:\"operator\""
-					Value    []interface{}             "json:\"value\""
+					Value    []any                     "json:\"value\""
 				}{
 					FieldId: FieldSelector{
 						FieldId: fieldID,
-						Type:    lo.ToPtr(FieldSelectorTypeId),
+						Type:    new(FieldSelectorTypeId),
 					},
 					Operator: IncludesAll,
 					Value: []any{
@@ -579,7 +578,7 @@ func TestConditionInto(t *testing.T) {
 						}{
 							FieldId: FieldSelector{
 								FieldId: fieldID,
-								Type:    lo.ToPtr(FieldSelectorTypeId),
+								Type:    new(FieldSelectorTypeId),
 							},
 							Operator: ConditionBoolOperatorEquals,
 							Value:    true,
@@ -593,7 +592,7 @@ func TestConditionInto(t *testing.T) {
 						}{
 							FieldId: FieldSelector{
 								FieldId: fieldID,
-								Type:    lo.ToPtr(FieldSelectorTypeId),
+								Type:    new(FieldSelectorTypeId),
 							},
 							Operator: ConditionBoolOperatorEquals,
 							Value:    true,
@@ -643,7 +642,7 @@ func TestConditionInto(t *testing.T) {
 						}{
 							FieldId: FieldSelector{
 								FieldId: fieldID,
-								Type:    lo.ToPtr(FieldSelectorTypeId),
+								Type:    new(FieldSelectorTypeId),
 							},
 							Operator: ConditionBoolOperatorEquals,
 							Value:    true,
@@ -657,7 +656,7 @@ func TestConditionInto(t *testing.T) {
 						}{
 							FieldId: FieldSelector{
 								FieldId: fieldID,
-								Type:    lo.ToPtr(FieldSelectorTypeId),
+								Type:    new(FieldSelectorTypeId),
 							},
 							Operator: ConditionBoolOperatorEquals,
 							Value:    true,
@@ -707,7 +706,6 @@ func TestConditionInto(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, tc.condition.Into())

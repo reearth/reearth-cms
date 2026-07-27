@@ -315,8 +315,8 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 
 	r := iAPIItemCreate(e, wId, pId, mId).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    f.textFId,
 					"value": "test value",
@@ -380,8 +380,8 @@ func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
 
 	r := iAPIItemCreate(e, wId, pId, mId).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
+		WithJSON(map[string]any{
+			"fields": []any{
 				map[string]string{
 					"id":    f.textFId,
 					"value": "test value",

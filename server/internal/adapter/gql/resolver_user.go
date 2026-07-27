@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
-	"github.com/samber/lo"
 )
 
 // Workspaces is the resolver for the workspaces field.
@@ -36,7 +35,7 @@ func (r *meResolver) Integrations(ctx context.Context, obj *gqlmodel.Me) ([]*gql
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {
 	var theme *user.Theme
 	if input.Theme != nil {
-		theme = lo.ToPtr(user.ThemeFrom(input.Theme.String()))
+		theme = new(user.ThemeFrom(input.Theme.String()))
 	}
 	res, err := usecases(ctx).User.UpdateMe(ctx, accountinterfaces.UpdateMeParam{
 		Name:                 input.Name,

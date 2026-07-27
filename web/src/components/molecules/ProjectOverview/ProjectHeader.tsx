@@ -6,7 +6,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { SortBy, SortOption } from "../Workspace/types";
+import type { SortBy, SortOption } from "../Workspace/types";
 
 type Props = {
   onModelSearch: (value: string) => void;

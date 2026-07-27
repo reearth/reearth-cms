@@ -3,7 +3,7 @@ import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {
+import type {
   IntegrationInfo,
   Webhook,
   NewWebhook,

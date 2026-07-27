@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -77,7 +76,7 @@ func Test_updateProject(t *testing.T) {
 				Publication: &ProjectPublicationDocument{
 					Scope:       "limited",
 					AssetPublic: true,
-					Token:       lo.ToPtr("secret_123"),
+					Token:       new("secret_123"),
 				},
 			},
 			want: ProjectDocument{

@@ -24,7 +24,6 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -158,7 +157,6 @@ func TestController_PostItem(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, nil, []string{allowedOrigin}, nil, tt.schemaFields...)
@@ -219,14 +217,14 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 		},
 		{
 			name:                  "project posting disabled returns ErrProjectPostingDisabled",
-			projectPostingEnabled: lo.ToPtr(false),
+			projectPostingEnabled: new(false),
 			allowedOrigins:        []string{allowedOrigin},
 			origin:                allowedOrigin,
 			wantErr:               ErrProjectPostingDisabled,
 		},
 		{
 			name:                "model posting disabled returns ErrModelPostingDisabled",
-			modelPostingEnabled: lo.ToPtr(false),
+			modelPostingEnabled: new(false),
 			allowedOrigins:      []string{allowedOrigin},
 			origin:              allowedOrigin,
 			wantErr:             ErrModelPostingDisabled,
@@ -264,7 +262,6 @@ func TestController_ValidatePostingAccess(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctrl, wAlias, pAlias, mKey, ctx := setupPostingTest(t, tt.projectPostingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
@@ -297,7 +294,7 @@ func TestHandler_PostItem(t *testing.T) {
 	}{
 		{
 			name:                  "project posting disabled returns 403",
-			projectPostingEnabled: lo.ToPtr(false),
+			projectPostingEnabled: new(false),
 			allowedOrigins:        []string{allowedOrigin},
 			origin:                allowedOrigin,
 			wantStatus:            http.StatusForbidden,
@@ -306,7 +303,7 @@ func TestHandler_PostItem(t *testing.T) {
 		},
 		{
 			name:                "model posting disabled returns 403",
-			modelPostingEnabled: lo.ToPtr(false),
+			modelPostingEnabled: new(false),
 			allowedOrigins:      []string{allowedOrigin},
 			origin:              allowedOrigin,
 			wantStatus:          http.StatusForbidden,
@@ -351,7 +348,6 @@ func TestHandler_PostItem(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, tt.projectPostingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
@@ -414,7 +410,7 @@ func TestHandler_PreflightItem(t *testing.T) {
 		},
 		{
 			name:                  "project posting disabled returns 403",
-			projectPostingEnabled: lo.ToPtr(false),
+			projectPostingEnabled: new(false),
 			allowedOrigins:        []string{allowedOrigin},
 			origin:                allowedOrigin,
 			wantStatus:            http.StatusForbidden,
@@ -423,7 +419,7 @@ func TestHandler_PreflightItem(t *testing.T) {
 		},
 		{
 			name:                "model posting disabled returns 403",
-			modelPostingEnabled: lo.ToPtr(false),
+			modelPostingEnabled: new(false),
 			allowedOrigins:      []string{allowedOrigin},
 			origin:              allowedOrigin,
 			wantStatus:          http.StatusForbidden,
@@ -463,7 +459,6 @@ func TestHandler_PreflightItem(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctrl, wAlias, pAlias, mKey, baseCtx := setupPostingTest(t, tt.projectPostingEnabled, tt.allowedOrigins, tt.modelPostingEnabled)
@@ -556,7 +551,6 @@ func TestFieldsFromBody(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

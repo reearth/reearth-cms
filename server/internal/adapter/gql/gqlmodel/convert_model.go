@@ -3,7 +3,6 @@ package gqlmodel
 import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/samber/lo"
 )
 
 func ToModel(m *model.Model) *Model {
@@ -21,7 +20,7 @@ func ToModel(m *model.Model) *Model {
 		MetadataSchemaID: IDFromRef(m.Metadata()),
 		CreatedAt:        m.ID().Timestamp(),
 		UpdatedAt:        m.UpdatedAt(),
-		Order:            lo.ToPtr(m.Order()),
+		Order:            new(m.Order()),
 		PostingSettings:  &ModelPostingSettings{Enabled: m.PostingEnabled()},
 	}
 }

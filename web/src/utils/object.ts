@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
+import type { HintIssue } from "@placemarkio/check-geojson";
+import { check, getIssues } from "@placemarkio/check-geojson";
 import type { GeoJSON } from "geojson";
 
 import { PerformanceTimer } from "@reearth-cms/utils/performance";

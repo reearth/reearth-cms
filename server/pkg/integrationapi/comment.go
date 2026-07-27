@@ -2,7 +2,6 @@ package integrationapi
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/samber/lo"
 )
 
 func NewComment(c *thread.Comment) *Comment {
@@ -24,7 +23,7 @@ func NewComment(c *thread.Comment) *Comment {
 		Id:         c.ID().Ref(),
 		AuthorId:   &authorID,
 		AuthorType: &authorType,
-		Content:    lo.ToPtr(c.Content()),
-		CreatedAt:  lo.ToPtr(c.CreatedAt()),
+		Content:    new(c.Content()),
+		CreatedAt:  new(c.CreatedAt()),
 	}
 }

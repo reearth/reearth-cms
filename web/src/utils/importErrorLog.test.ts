@@ -1,7 +1,8 @@
 import { expect, test, describe, vi } from "vitest";
 import z from "zod";
 
-import { ImportErrorLogUtils, ErrorLogMeta } from "./importErrorLog";
+import type { ErrorLogMeta } from "./importErrorLog";
+import { ImportErrorLogUtils } from "./importErrorLog";
 
 vi.mock("js-file-download", () => ({
   default: vi.fn(),

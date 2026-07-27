@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/account/accountdomain/user"
-	"github.com/samber/lo"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -33,7 +32,6 @@ func TestNewSchema(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, sDocId := NewSchema(tt.s)
@@ -83,7 +81,7 @@ func TestSchemaDocument_Model(t *testing.T) {
 	sId, wId, PId := schema.NewID(), user.NewWorkspaceID(), project.NewID()
 	fid := schema.NewFieldID()
 	key := id.NewKey("test")
-	max := lo.ToPtr(10)
+	max := new(10)
 	fd := FieldDocument{
 		ID:           fid.String(),
 		Name:         "test",
@@ -123,7 +121,6 @@ func TestSchemaDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.sDoc.Model()

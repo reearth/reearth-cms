@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
@@ -314,7 +313,7 @@ func TestCollection_Paginate(t *testing.T) {
 		bson.M{},
 		version.Eq(version.Latest.OrVersion()),
 		nil,
-		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+		usecasex.CursorPagination{First: new(int64(2))}.Wrap(),
 		consumer,
 	)
 	assert.NoError(t, err)
@@ -372,7 +371,7 @@ func TestCollection_PaginateAggregation(t *testing.T) {
 		[]any{},
 		version.Eq(version.Latest.OrVersion()),
 		nil,
-		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+		usecasex.CursorPagination{First: new(int64(2))}.Wrap(),
 		consumer,
 	)
 	assert.NoError(t, err)

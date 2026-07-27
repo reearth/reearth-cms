@@ -10,22 +10,22 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 )
 
-func iAPIAssetCommentList(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+func iAPIAssetCommentList(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
 }
 
-func iAPIAssetCommentCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+func iAPIAssetCommentCreate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
 }
 
-func iAPIAssetCommentUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}, commentId interface{}) *httpexpect.Request {
+func iAPIAssetCommentUpdate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any, commentId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId}"
 	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId, commentId)
 }
 
-func iAPIAssetCommentDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}, commentId interface{}) *httpexpect.Request {
+func iAPIAssetCommentDelete(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any, commentId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId, commentId)
 }
@@ -92,7 +92,7 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 
 	c := iAPIAssetCommentCreate(e, wId0, pid, aid1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"content": "test",
 		}).
 		Expect().
@@ -107,7 +107,7 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 	// asset with no thread
 	iAPIAssetCommentCreate(e, wId0, pid, aid3).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"content": "test2",
 		}).
 		Expect().
@@ -141,7 +141,7 @@ func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
 
 	r := iAPIAssetCommentUpdate(e, wId0, pid, aid1, icId).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"content": "updated content",
 		}).
 		Expect().

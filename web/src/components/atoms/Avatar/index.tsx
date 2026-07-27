@@ -1,5 +1,5 @@
 import { Avatar } from "antd";
 
-export type { AvatarProps } from "antd/lib/skeleton/Avatar";
+export type { AvatarProps } from "antd/es/skeleton/Avatar";
 
 export default Avatar;

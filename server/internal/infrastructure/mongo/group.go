@@ -159,11 +159,11 @@ func (r *Group) find(ctx context.Context, filter any) (group.List, error) {
 	return c.Result, nil
 }
 
-func (r *Group) readFilter(filter interface{}) interface{} {
+func (r *Group) readFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Readable)
 }
 
-func (r *Group) writeFilter(filter interface{}) interface{} {
+func (r *Group) writeFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Writable)
 }
 

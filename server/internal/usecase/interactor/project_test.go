@@ -81,7 +81,7 @@ func TestProject_Fetch(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 		},
 	}
@@ -148,7 +148,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids: []id.ProjectID{pid1},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
-						User: lo.ToPtr(u.ID()),
+						User: new(u.ID()),
 					},
 				},
 			},
@@ -223,7 +223,6 @@ func TestProject_Fetch(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -274,7 +273,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 		},
 	}
@@ -343,7 +342,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				workspace: wid1,
-				filter:    &interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid2})},
+				filter:    &interfaces.ProjectFilter{WorkspaceIds: new(accountdomain.WorkspaceIDList{wid2})},
 				operator:  op,
 			},
 			want: project.List{p1, p2},
@@ -373,7 +372,6 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -426,7 +424,7 @@ func TestProject_Search(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 		},
 	}
@@ -443,7 +441,7 @@ func TestProject_Search(t *testing.T) {
 		{
 			name:     "empty workspace IDs returns only public projects, no permission check",
 			seeds:    project.List{p1, p2, p3},
-			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{})},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: new(accountdomain.WorkspaceIDList{})},
 			operator: op,
 			wantLen:  1, // only p3 is public
 		},
@@ -457,7 +455,7 @@ func TestProject_Search(t *testing.T) {
 		{
 			name:     "workspace IDs with permission allowed checks all result workspaces",
 			seeds:    project.List{p1, p2},
-			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: new(accountdomain.WorkspaceIDList{wid1, wid2})},
 			operator: op,
 			wantLen:  2,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
@@ -467,7 +465,7 @@ func TestProject_Search(t *testing.T) {
 		{
 			name:     "permission denied for one result workspace returns error",
 			seeds:    project.List{p1, p2},
-			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1, wid2})},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: new(accountdomain.WorkspaceIDList{wid1, wid2})},
 			operator: op,
 			wantErr:  interfaces.ErrOperationDenied,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
@@ -477,7 +475,7 @@ func TestProject_Search(t *testing.T) {
 		{
 			name:     "no results skips permission check entirely",
 			seeds:    project.List{},
-			filter:   interfaces.ProjectFilter{WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList{wid1})},
+			filter:   interfaces.ProjectFilter{WorkspaceIds: new(accountdomain.WorkspaceIDList{wid1})},
 			operator: op,
 			wantLen:  0,
 			setupAuth: func(mock *gatewaymock.MockAuthorization) {
@@ -487,7 +485,6 @@ func TestProject_Search(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -523,7 +520,7 @@ func TestProject_Create(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: nil,
 			WritableWorkspaces: nil,
 			OwningWorkspaces:   []accountdomain.WorkspaceID{wid},
@@ -549,9 +546,9 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P001"),
-					Description:  lo.ToPtr("D001"),
-					Alias:        lo.ToPtr("Test001"),
+					Name:         new("P001"),
+					Description:  new("D001"),
+					Alias:        new("Test001"),
 					RequestRoles: r,
 				},
 				operator: op,
@@ -572,14 +569,14 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P002"),
-					Description:  lo.ToPtr("D002"),
-					Alias:        lo.ToPtr("Test002"),
+					Name:         new("P002"),
+					Description:  new("D002"),
+					Alias:        new("Test002"),
 					RequestRoles: r,
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
-						User: lo.ToPtr(u.ID()),
+						User: new(u.ID()),
 					},
 				},
 			},
@@ -592,9 +589,9 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P003"),
-					Description:  lo.ToPtr("D003"),
-					Alias:        lo.ToPtr("Test003"),
+					Name:         new("P003"),
+					Description:  new("D003"),
+					Alias:        new("Test003"),
 					RequestRoles: r,
 				},
 				operator: op,
@@ -613,9 +610,9 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P004"),
-					Description:  lo.ToPtr("D004"),
-					Alias:        lo.ToPtr("Test004"),
+					Name:         new("P004"),
+					Description:  new("D004"),
+					Alias:        new("Test004"),
 					RequestRoles: r,
 				},
 				operator: op,
@@ -635,9 +632,9 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P005"),
-					Description:  lo.ToPtr("D005"),
-					Alias:        lo.ToPtr("Test005"),
+					Name:         new("P005"),
+					Description:  new("D005"),
+					Alias:        new("Test005"),
 					RequestRoles: r,
 				},
 				operator: op,
@@ -664,9 +661,9 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P006"),
-					Description:  lo.ToPtr("D006"),
-					Alias:        lo.ToPtr("Test006"),
+					Name:         new("P006"),
+					Description:  new("D006"),
+					Alias:        new("Test006"),
 					RequestRoles: r,
 				},
 				operator: op,
@@ -682,9 +679,9 @@ func TestProject_Create(t *testing.T) {
 			args: args{
 				cpp: interfaces.CreateProjectParam{
 					WorkspaceID:  wid,
-					Name:         lo.ToPtr("P007"),
-					Description:  lo.ToPtr("D007"),
-					Alias:        lo.ToPtr("Test007"),
+					Name:         new("P007"),
+					Description:  new("D007"),
+					Alias:        new("Test007"),
 					RequestRoles: r,
 				},
 				operator: op,
@@ -697,7 +694,6 @@ func TestProject_Create(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -774,7 +770,7 @@ func TestProject_Update(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2, wid3},
 			OwningWorkspaces:   []accountdomain.WorkspaceID{wid1, wid2},
 		},
@@ -800,9 +796,9 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:           p1.ID(),
-					Name:         lo.ToPtr("test123"),
-					Description:  lo.ToPtr("desc321"),
-					Alias:        lo.ToPtr("alias"),
+					Name:         new("test123"),
+					Description:  new("desc321"),
+					Alias:        new("alias"),
 					RequestRoles: r1,
 				},
 				operator: op,
@@ -824,9 +820,9 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:          p4.ID(),
-					Name:        lo.ToPtr("test123"),
-					Description: lo.ToPtr("desc321"),
-					Alias:       lo.ToPtr("alias"),
+					Name:        new("test123"),
+					Description: new("desc321"),
+					Alias:       new("alias"),
 				},
 				operator: op,
 			},
@@ -839,7 +835,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:    p3.ID(),
-					Alias: lo.ToPtr("testAlias"),
+					Alias: new("testAlias"),
 				},
 				operator: op,
 			},
@@ -854,7 +850,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:    p1.ID(),
-					Alias: lo.ToPtr("testAlias"),
+					Alias: new("testAlias"),
 					Accessibility: &interfaces.AccessibilityParam{
 						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
@@ -961,7 +957,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:     p1.ID(),
-					Readme: lo.ToPtr("new readme"),
+					Readme: new("new readme"),
 				},
 				operator: op,
 			},
@@ -980,7 +976,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:     p1.ID(),
-					Readme: lo.ToPtr("new readme"),
+					Readme: new("new readme"),
 				},
 				operator: op,
 			},
@@ -1004,7 +1000,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:   p1.ID(),
-					Name: lo.ToPtr("Updated Name"),
+					Name: new("Updated Name"),
 				},
 				operator: op,
 			},
@@ -1022,7 +1018,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:   p1.ID(),
-					Name: lo.ToPtr("Updated Name"),
+					Name: new("Updated Name"),
 				},
 				operator: op,
 			},
@@ -1037,7 +1033,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:   p1.ID(),
-					Name: lo.ToPtr("Updated Name"),
+					Name: new("Updated Name"),
 				},
 				operator: op,
 			},
@@ -1049,7 +1045,6 @@ func TestProject_Update(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1106,7 +1101,7 @@ func TestProject_UpdatePostingSettings_RoleEnforcement(t *testing.T) {
 	makeOp := func(readable, writable, maintainable, owning []accountdomain.WorkspaceID) *usecase.Operator {
 		return &usecase.Operator{
 			AcOperator: &accountusecase.Operator{
-				User:                   lo.ToPtr(uid),
+				User:                   new(uid),
 				ReadableWorkspaces:     readable,
 				WritableWorkspaces:     writable,
 				MaintainableWorkspaces: maintainable,
@@ -1151,7 +1146,6 @@ func TestProject_UpdatePostingSettings_RoleEnforcement(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1187,7 +1181,7 @@ func TestProject_CheckAlias(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 		},
 	}
@@ -1239,7 +1233,6 @@ func TestProject_CheckAlias(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1275,7 +1268,7 @@ func TestProject_Delete(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 			WritableWorkspaces: []accountdomain.WorkspaceID{wid1},
 		},
@@ -1283,7 +1276,7 @@ func TestProject_Delete(t *testing.T) {
 
 	opOwner := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 			WritableWorkspaces: []accountdomain.WorkspaceID{wid1},
 			OwningWorkspaces:   []accountdomain.WorkspaceID{wid1},
@@ -1389,7 +1382,6 @@ func TestProject_Delete(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1475,7 +1467,7 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 	// Valid operator with access to wid1
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1},
 		},
 	}
@@ -1488,7 +1480,7 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 	// Operator without workspace access
 	noAccessOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid2}, // different workspace
 		},
 	}
@@ -1617,7 +1609,6 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -1671,7 +1662,7 @@ func TestProject_StarProject(t *testing.T) {
 
 	u1Op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u1ID),
+			User:               new(u1ID),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1},
 			WritableWorkspaces: []accountdomain.WorkspaceID{wid1},
 		},
@@ -1679,7 +1670,7 @@ func TestProject_StarProject(t *testing.T) {
 
 	u2Op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u2ID),
+			User:               new(u2ID),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid2},
 			WritableWorkspaces: []accountdomain.WorkspaceID{wid2},
 		},
@@ -1855,7 +1846,6 @@ func TestProject_StarProject(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Removed t.Parallel() to fix user ID consistency issue in unstar test
 

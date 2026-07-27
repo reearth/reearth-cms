@@ -66,7 +66,7 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 			if f.WorkspaceIds == nil {
 				f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 			}
-			f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
+			f.WorkspaceIds = new(append(*f.WorkspaceIds, wid))
 			return i.repos.Project.Search(ctx, *f)
 		})
 }
@@ -602,7 +602,7 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 		resultCh <- policyResult{isPublic: false, allowed: privateResp.Allowed}
 	}()
 
-	for n := 0; n < 2; n++ {
+	for range 2 {
 		res := <-resultCh
 		if res.err != nil {
 			return nil, res.err

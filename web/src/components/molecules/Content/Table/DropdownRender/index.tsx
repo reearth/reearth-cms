@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -10,11 +10,11 @@ import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import {
+import type {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
+import type { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";
 

@@ -1,6 +1,6 @@
 import path from "path";
 
-import { Browser, BrowserContext } from "@playwright/test";
+import type { Browser, BrowserContext } from "@playwright/test";
 
 export const DEFAULT_USER_AGENT = "Playwright-E2E-Tests";
 
@@ -162,7 +162,9 @@ export async function createIAPBrowserContext(
           const refreshedToken = await provider.getIdToken();
 
           if (!refreshedToken || refreshedToken.trim() === "") {
-            throw new Error("Invalid IAP credentials: empty token received after refresh");
+            throw new Error("Invalid IAP credentials: empty token received after refresh", {
+              cause: error,
+            });
           }
 
           headers["Proxy-Authorization"] = `Bearer ${refreshedToken}`;

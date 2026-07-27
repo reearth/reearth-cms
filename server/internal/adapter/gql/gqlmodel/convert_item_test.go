@@ -24,7 +24,7 @@ func TestToItem(t *testing.T) {
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	sf := []*schema.Field{sf1}
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
 	i := item.New().
@@ -66,7 +66,7 @@ func TestToItem(t *testing.T) {
 					},
 				},
 				Version: v.String(),
-				Title:   lo.ToPtr("test"),
+				Title:   new("test"),
 			},
 		},
 		{
@@ -75,7 +75,6 @@ func TestToItem(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			got := ToItem(tc.input, s, nil)
@@ -95,7 +94,7 @@ func TestToItem_GroupFields(t *testing.T) {
 	// group schema with two fields: "data" (asset) and "key" (text)
 	gsid := id.NewSchemaID()
 	sfData := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-	sfKey := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	sfKey := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	gs := schema.New().ID(gsid).Fields([]*schema.Field{sfData, sfKey}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
 
 	// main schema with a group field
@@ -192,7 +191,6 @@ func TestToItemParam(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got := ToItemParam(tc.input)
@@ -273,7 +271,6 @@ func TestToItemQuery(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			tc := tc
 			t.Parallel()

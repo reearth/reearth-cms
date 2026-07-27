@@ -4,14 +4,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 export type PreviewType =
-  | "GEO"
-  | "GEO_3D_TILES"
-  | "GEO_MVT"
-  | "IMAGE"
-  | "IMAGE_SVG"
-  | "MODEL_3D"
-  | "CSV"
-  | "UNKNOWN";
+  "GEO" | "GEO_3D_TILES" | "GEO_MVT" | "IMAGE" | "IMAGE_SVG" | "MODEL_3D" | "CSV" | "UNKNOWN";
 
 type Props = {
   onTypeChange: (value: PreviewType) => void;

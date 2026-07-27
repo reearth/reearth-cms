@@ -6,7 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,19 +45,19 @@ func Test_NewProject(t *testing.T) {
 
 func Test_ToRequestRole(t *testing.T) {
 	t.Run("owner", func(t *testing.T) {
-		assert.Equal(t, lo.ToPtr(OWNER), ToRequestRole(workspace.RoleOwner))
+		assert.Equal(t, new(OWNER), ToRequestRole(workspace.RoleOwner))
 	})
 
 	t.Run("maintainer", func(t *testing.T) {
-		assert.Equal(t, lo.ToPtr(MAINTAINER), ToRequestRole(workspace.RoleMaintainer))
+		assert.Equal(t, new(MAINTAINER), ToRequestRole(workspace.RoleMaintainer))
 	})
 
 	t.Run("writer", func(t *testing.T) {
-		assert.Equal(t, lo.ToPtr(WRITER), ToRequestRole(workspace.RoleWriter))
+		assert.Equal(t, new(WRITER), ToRequestRole(workspace.RoleWriter))
 	})
 
 	t.Run("reader", func(t *testing.T) {
-		assert.Equal(t, lo.ToPtr(READER), ToRequestRole(workspace.RoleReader))
+		assert.Equal(t, new(READER), ToRequestRole(workspace.RoleReader))
 	})
 
 	t.Run("unknown role", func(t *testing.T) {

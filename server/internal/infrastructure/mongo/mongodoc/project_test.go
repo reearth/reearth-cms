@@ -53,7 +53,6 @@ func TestNewProject(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, docId := NewProject(tt.args)
@@ -95,7 +94,6 @@ func TestNewProjectPublication(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, NewProjectAccessibility(tt.args))
 		})
@@ -206,7 +204,6 @@ func TestProjectDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.pDoc.Model()
 			if tt.wantErr {
@@ -239,7 +236,6 @@ func TestProjectPublicationDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.ppDoc.Model()
 			require.NoError(t, err)
@@ -274,17 +270,16 @@ func TestPostingSettingsDocument_Model(t *testing.T) {
 		},
 		{
 			name: "stored enabled=false is respected",
-			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(false)},
+			doc:  &PostingSettingsDocument{Enabled: new(false)},
 			want: mustPS(false, []string{}),
 		},
 		{
 			name: "stored enabled=true is respected",
-			doc:  &PostingSettingsDocument{Enabled: lo.ToPtr(true)},
+			doc:  &PostingSettingsDocument{Enabled: new(true)},
 			want: mustPS(true, []string{}),
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.doc.Model()

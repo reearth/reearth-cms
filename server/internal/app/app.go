@@ -169,7 +169,7 @@ func allowedPublicOrigins(appCtx *ApplicationContext) []string {
 	return lo.Uniq(origins)
 }
 
-func errorMessage(err error, log func(string, ...interface{})) (int, string) {
+func errorMessage(err error, log func(string, ...any)) (int, string) {
 	if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok {
 		if httpErr.Unwrap() != nil {
 			log("echo internal err: %+v", httpErr)
@@ -211,7 +211,7 @@ func errorHandler(next echo.HTTPErrorHandler) echo.HTTPErrorHandler {
 			return
 		}
 
-		code, msg := errorMessage(err, func(f string, args ...interface{}) {
+		code, msg := errorMessage(err, func(f string, args ...any) {
 			c.Logger().Error(fmt.Sprintf(f, args...))
 		})
 		if err := c.JSON(code, map[string]string{

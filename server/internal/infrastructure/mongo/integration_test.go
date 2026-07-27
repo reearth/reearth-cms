@@ -73,7 +73,6 @@ func TestIntegrationRepo_FindByID(t *testing.T) {
 	}
 	initDB := mongotest.Connect(t)
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -146,7 +145,6 @@ func TestIntegrationRepo_FindByIDs(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -203,7 +201,6 @@ func TestIntegrationRepo_FindByUser(t *testing.T) {
 	}
 	initDB := mongotest.Connect(t)
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -254,7 +251,6 @@ func TestIntegrationRepo_Save(t *testing.T) {
 	}
 	initDB := mongotest.Connect(t)
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -310,7 +306,6 @@ func TestIntegrationRepo_Remove(t *testing.T) {
 	}
 	initDB := mongotest.Connect(t)
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -369,7 +364,6 @@ func TestIntegrationRepo_RemoveMany(t *testing.T) {
 	}
 	initDB := mongotest.Connect(t)
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

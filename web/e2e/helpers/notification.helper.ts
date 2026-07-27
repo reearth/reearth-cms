@@ -1,4 +1,5 @@
-import { type Locator, type Page, expect } from "@reearth-cms/e2e/fixtures/test";
+import { expect } from "@reearth-cms/e2e/fixtures/test";
+import type { Locator, Page } from "@reearth-cms/e2e/fixtures/test";
 
 import { waitForGraphQL } from "./graphql.helper";
 

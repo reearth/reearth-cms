@@ -10,22 +10,22 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-func iAPIAssetGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+func iAPIAssetGet(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
 }
 
-func iAPIAssetDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+func iAPIAssetDelete(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
 }
 
-func iAPIAssetPublish(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+func iAPIAssetPublish(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
 }
 
-func iAPIAssetUnpublish(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, assetId interface{}) *httpexpect.Request {
+func iAPIAssetUnpublish(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, assetId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, assetId)
 }

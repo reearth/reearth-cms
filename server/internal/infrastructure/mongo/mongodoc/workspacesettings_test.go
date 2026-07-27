@@ -15,7 +15,7 @@ func Test_NewWorkspaceSettings(t *testing.T) {
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
 	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
-	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
+	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), new(true))
 	ws := workspacesettings.New().NewID().Tiles(tiles).MustBuild()
 
 	wsid := ws.ID().String()
@@ -39,25 +39,25 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 	tilePP := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tileResource := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, tilePP)
 	tileEntry := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tileResource, nil)
-	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{tileEntry}, rid.Ref(), lo.ToPtr(true))
+	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{tileEntry}, rid.Ref(), new(true))
 
 	terrainPP := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	terrainResource := workspacesettings.NewTerrainResource(rid2, workspacesettings.TerrainTypeCesiumIon, terrainPP)
 	terrainEntry := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrainResource)
-	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{terrainEntry}, rid2.Ref(), lo.ToPtr(true))
+	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{terrainEntry}, rid2.Ref(), new(true))
 
 	ws := workspacesettings.New().NewID().Tiles(tiles).Terrains(terrains).MustBuild()
 
 	tests := []struct {
-		name              string
-		doc               func() *WorkspaceSettingsDocument
-		wantErr           error
-		wantModel         *workspacesettings.WorkspaceSettings
-		wantTileCount     *int
-		wantTerrainCount  *int
-		wantTerrainType   *workspacesettings.TerrainType
-		wantNilTiles      bool
-		wantNilTerrains   bool
+		name             string
+		doc              func() *WorkspaceSettingsDocument
+		wantErr          error
+		wantModel        *workspacesettings.WorkspaceSettings
+		wantTileCount    *int
+		wantTerrainCount *int
+		wantTerrainType  *workspacesettings.TerrainType
+		wantNilTiles     bool
+		wantNilTerrains  bool
 	}{
 		{
 			name: "valid document with tiles and terrains",
@@ -101,7 +101,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantTileCount: lo.ToPtr(0),
+			wantTileCount: new(0),
 		},
 		{
 			name: "legacy tile type ESRI_TOPOGRAPHY is filtered out",
@@ -115,7 +115,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantTileCount: lo.ToPtr(0),
+			wantTileCount: new(0),
 		},
 		{
 			name: "legacy terrain type CESIUM_WORLD_TERRAIN is filtered out",
@@ -129,7 +129,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantTerrainCount: lo.ToPtr(0),
+			wantTerrainCount: new(0),
 		},
 		{
 			name: "legacy terrain type ARC_GIS_TERRAIN is filtered out",
@@ -143,7 +143,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantTerrainCount: lo.ToPtr(0),
+			wantTerrainCount: new(0),
 		},
 		{
 			name: "REEARTH_TERRAIN is accepted",
@@ -157,7 +157,7 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantTerrainCount: lo.ToPtr(1),
+			wantTerrainCount: new(1),
 			wantTerrainType:  lo.ToPtr(workspacesettings.TerrainTypeReearthTerrain),
 		},
 		{
@@ -172,13 +172,12 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 					},
 				}
 			},
-			wantTerrainCount: lo.ToPtr(1),
+			wantTerrainCount: new(1),
 			wantTerrainType:  lo.ToPtr(workspacesettings.TerrainTypeCesiumIon),
 		},
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -2,9 +2,9 @@ import { useLazyQuery, useMutation } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
-import {
+import type {
   RequestState as GQLRequestState,
   Request as GQLRequest,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
