@@ -1602,7 +1602,7 @@ func TestItem_PublishUnpublishBatch(t *testing.T) {
 
 			ids := make(id.ItemIDList, 0, tt.n)
 			for j := 0; j < tt.n; j++ {
-				it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+				it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 				assert.NoError(t, db.Item.Save(ctx, it))
 				ids = append(ids, it.ID())
 			}
