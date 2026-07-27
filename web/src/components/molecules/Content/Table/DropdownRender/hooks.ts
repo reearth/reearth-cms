@@ -414,7 +414,7 @@ export default (
   }, []);
 
   const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Dayjs | null, dateString: string | string[]) => {
+    (_date: Dayjs | Dayjs[] | null, dateString: string | string[] | null) => {
       if (typeof dateString === "string") filterValue.current = dateString;
     },
     [],

@@ -12,30 +12,28 @@ type Props = {
 
 const RequestStatus: React.FC<Props> = ({ requestState }) => {
   const t = useT();
-  const { Step } = Steps;
 
-  return (
-    <StyledSteps direction="vertical" current={1}>
-      {requestState === "APPROVED" && (
-        <Step
-          icon={<StyledIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} size={28} />}
-          title={<StatusTitle>{t("APPROVED")}</StatusTitle>}
+  const items = [];
+  if (requestState === "APPROVED") {
+    items.push({
+      icon: <StyledIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} size={28} />,
+      title: <StatusTitle>{t("APPROVED")}</StatusTitle>,
+    });
+  }
+  if (requestState === "CLOSED") {
+    items.push({
+      icon: (
+        <StyledIcon
+          icon="closeCircle"
+          color={AntdColor.GREY.GREY_0 /* originally #BFBFBF */}
+          size={28}
         />
-      )}
-      {requestState === "CLOSED" && (
-        <Step
-          icon={
-            <StyledIcon
-              icon="closeCircle"
-              color={AntdColor.GREY.GREY_0 /* originally #BFBFBF */}
-              size={28}
-            />
-          }
-          title={<StatusTitle>{t("CLOSED")}</StatusTitle>}
-        />
-      )}
-    </StyledSteps>
-  );
+      ),
+      title: <StatusTitle>{t("CLOSED")}</StatusTitle>,
+    });
+  }
+
+  return <StyledSteps orientation="vertical" current={1} items={items} />;
 };
 
 const StyledSteps = styled(Steps)`

@@ -44,8 +44,6 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
 
-const { TabPane } = Tabs;
-
 type Props = {
   title: string;
   item?: Item;
@@ -827,34 +825,48 @@ const ContentForm: React.FC<Props> = ({
         </FormWrapper>
       </Wrapper>
       {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
-        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-          <TabPane tab={t("Meta Data")} key="meta">
-            <Form
-              form={metaForm}
-              layout="vertical"
-              initialValues={initialMetaFormValues}
-              onValuesChange={handleMetaValuesChange}>
-              <TabContent>
-                <Metadata
-                  item={item}
-                  fields={model?.metadataSchema.fields ?? []}
-                  disabled={fieldDisabled}
-                />
-              </TabContent>
-            </Form>
-          </TabPane>
-          {versions.length && (
-            <TabPane tab={t("Version History")} key="history">
-              <TabContent>
-                <Versions
-                  versions={versions}
-                  versionClick={versionClick}
-                  onNavigateToRequest={onNavigateToRequest}
-                />
-              </TabContent>
-            </TabPane>
-          )}
-        </StyledTabs>
+        <StyledTabs
+          activeKey={activeKey}
+          onTabClick={key => setActiveKey(key)}
+          items={[
+            {
+              key: "meta",
+              label: t("Meta Data"),
+              children: (
+                <Form
+                  form={metaForm}
+                  layout="vertical"
+                  initialValues={initialMetaFormValues}
+                  onValuesChange={handleMetaValuesChange}>
+                  <TabContent>
+                    <Metadata
+                      item={item}
+                      fields={model?.metadataSchema.fields ?? []}
+                      disabled={fieldDisabled}
+                    />
+                  </TabContent>
+                </Form>
+              ),
+            },
+            ...(versions.length
+              ? [
+                  {
+                    key: "history",
+                    label: t("Version History"),
+                    children: (
+                      <TabContent>
+                        <Versions
+                          versions={versions}
+                          versionClick={versionClick}
+                          onNavigateToRequest={onNavigateToRequest}
+                        />
+                      </TabContent>
+                    ),
+                  },
+                ]
+              : []),
+          ]}
+        />
       )}
       {itemId && (
         <>

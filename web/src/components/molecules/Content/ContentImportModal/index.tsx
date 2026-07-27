@@ -81,7 +81,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("The uploaded file is empty or invalid"),
+        title: t("The uploaded file is empty or invalid"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -92,7 +92,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseSingleFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("Only one file can be uploaded at a time"),
+        title: t("Only one file can be uploaded at a time"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -103,7 +103,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseIllegalFileFormatAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File format is not supported"),
+        title: t("File format is not supported"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -114,7 +114,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseWrongFileTypeAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("This file appears to be a schema file, not a content file"),
+        title: t("This file appears to be a schema file, not a content file"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -125,7 +125,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseTooLargeFileSizeAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File size exceeds the {{maxSizeInMB}} MB limit.", {
+        title: t("File size exceeds the {{maxSizeInMB}} MB limit.", {
           maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
         }),
         type: "error",
@@ -138,7 +138,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseExceedRecordLimitAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File content contains over {{maxRecord}} records.", {
+        title: t("File content contains over {{maxRecord}} records.", {
           maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
         }),
         type: "error",
@@ -328,7 +328,7 @@ const ContentImportModal: React.FC<Props> = ({
         ) {
           setAlertList([
             {
-              message: t(
+              title: t(
                 "An unexpected error occurred while processing the file. Please try again.",
               ),
               type: "error",
@@ -462,7 +462,7 @@ const ContentImportModal: React.FC<Props> = ({
               {alertList.map((alert, index) => (
                 <Alert
                   {...alert}
-                  key={alert?.message?.toString() || index}
+                  key={alert?.title?.toString() || index}
                   onClick={e => e.stopPropagation()}
                 />
               ))}

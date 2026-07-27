@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import "@ant-design/v5-patch-for-react-19";
-
 import { type EmotionMatchers, matchers as emotionMatchers } from "@emotion/jest";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
@@ -31,6 +29,17 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => false,
   }),
 });
+
+if (!("ResizeObserver" in window)) {
+  class MockResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+
+  Object.defineProperty(window, "ResizeObserver", { value: MockResizeObserver });
+  Object.defineProperty(global, "ResizeObserver", { value: MockResizeObserver });
+}
 
 if (!("PointerEvent" in window)) {
   class MockPointerEvent extends MouseEvent {

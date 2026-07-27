@@ -1,23 +1,16 @@
 import styled from "@emotion/styled";
-import React, {
-  Key,
-  useMemo,
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import type { Key, Dispatch, SetStateAction } from "react";
+import React, { useMemo, useState, useRef, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import {
+import type {
   TableRowSelection,
   ListToolBarProps,
   ColumnsState,
@@ -28,21 +21,21 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import Status from "@reearth-cms/components/molecules/Content/Status";
-import {
+import type {
   DefaultFilterValueType,
   DropdownFilterType,
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import {
+import type { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type {
   ItemSort,
   FieldType,
   Column,
   ConditionInput,
   CurrentView,
-  metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
+import { metaColumn } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -156,7 +149,7 @@ const ContentTable: React.FC<Props> = ({
           ? "ascend"
           : "descend"
         : null,
-    [currentView?.sort?.direction, currentView.sort?.field.type],
+    [currentView.sort],
   );
 
   const actionsColumns: ExtendedColumns[] = useMemo(
@@ -365,7 +358,8 @@ const ContentTable: React.FC<Props> = ({
     ],
   );
 
-  const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
+  const [defaultFilterValues, setDefaultFilterValues] = useState<DefaultFilterValueType[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [filters, setFilters] = useState<DropdownFilterType[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<DropdownFilterType>();
@@ -375,7 +369,11 @@ const ContentTable: React.FC<Props> = ({
         prev.splice(index, 1);
         return prev;
       });
-      defaultFilterValues.current.splice(index, 1);
+      setDefaultFilterValues(prev => {
+        const next = [...prev];
+        next.splice(index, 1);
+        return next;
+      });
       const currentFilters =
         currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
       currentFilters.splice(index, 1);
@@ -384,10 +382,21 @@ const ContentTable: React.FC<Props> = ({
     [currentView.filter, onFilterChange],
   );
 
-  useEffect(() => {
+  const filterSyncKey = useMemo(
+    () => ({
+      filter: currentView.filter,
+      contentTableColumns,
+      members: currentWorkspace?.members,
+    }),
+    [currentView.filter, contentTableColumns, currentWorkspace?.members],
+  );
+  const [prevSyncedFilterKey, setPrevSyncedFilterKey] = useState(filterSyncKey);
+  if (prevSyncedFilterKey !== filterSyncKey) {
+    setPrevSyncedFilterKey(filterSyncKey);
+
+    const newFilters: DropdownFilterType[] = [];
+    const newDefaultValues: DefaultFilterValueType[] = [];
     if (currentView.filter && currentView.filter.and && contentTableColumns) {
-      const newFilters: DropdownFilterType[] = [];
-      const newDefaultValues: DefaultFilterValueType[] = [];
       for (const c of currentView.filter.and.conditions) {
         const condition = Object.values(c)[0];
         if (!condition || !("operator" in condition)) break;
@@ -426,14 +435,11 @@ const ContentTable: React.FC<Props> = ({
           }
         }
       }
-      setFilters(newFilters);
-      defaultFilterValues.current = newDefaultValues;
-    } else {
-      setFilters([]);
-      defaultFilterValues.current = [];
     }
-    isFilterOpen.current = false;
-  }, [currentView.filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
+    setFilters(newFilters);
+    setDefaultFilterValues(newDefaultValues);
+    setIsFilterOpen(false);
+  }
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
@@ -492,9 +498,9 @@ const ContentTable: React.FC<Props> = ({
           handleOptionsOpenChange(false);
           if (isFromMenu) {
             setConditionMenuOpen(true);
-            isFilterOpen.current = false;
+            setIsFilterOpen(false);
           } else {
-            isFilterOpen.current = true;
+            setIsFilterOpen(true);
           }
         }
       };
@@ -527,6 +533,16 @@ const ContentTable: React.FC<Props> = ({
     [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
   );
 
+  const defaultItems = useMemo(() => getOptions(false), [getOptions]);
+  const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
+  const [inputValue, setInputValue] = useState("");
+
+  const [syncedDefaultItems, setSyncedDefaultItems] = useState(defaultItems);
+  if (syncedDefaultItems !== defaultItems) {
+    setSyncedDefaultItems(defaultItems);
+    setItems(defaultItems);
+  }
+
   const toolBarItemClick = useCallback(
     ({ key }: { key: string }) => {
       setInputValue("");
@@ -552,15 +568,10 @@ const ContentTable: React.FC<Props> = ({
     [getOptions, optionsOpen],
   );
 
-  const isFilterOpen = useRef(false);
-  const defaultItems = getOptions(false);
-  const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
-  const [inputValue, setInputValue] = useState("");
-
   const sharedProps = useMemo(
     () => ({
       menu: { items },
-      dropdownRender: (menu: React.ReactNode) => (
+      popupRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
@@ -581,7 +592,7 @@ const ContentTable: React.FC<Props> = ({
     () => ({
       search: (
         <StyledSearchContainer>
-          <Search
+          <StyledSearch
             allowClear
             placeholder={t("input search text")}
             onSearch={(value: string) => {
@@ -596,10 +607,10 @@ const ContentTable: React.FC<Props> = ({
                 <FilterDropdown
                   key={index}
                   filter={filter}
-                  defaultValue={defaultFilterValues.current[index]}
+                  defaultValue={defaultFilterValues[index]}
                   index={index}
                   filterRemove={filterRemove}
-                  isFilterOpen={isFilterOpen.current}
+                  isFilterOpen={isFilterOpen}
                   currentView={currentView}
                   setCurrentView={setCurrentView}
                   onFilterChange={onFilterChange}
@@ -623,19 +634,7 @@ const ContentTable: React.FC<Props> = ({
         </StyledSearchContainer>
       ),
     }),
-    [
-      currentView,
-      defaultItems,
-      filterRemove,
-      filters,
-      modelKey,
-      onFilterChange,
-      onSearchTerm,
-      searchTerm,
-      setCurrentView,
-      sharedProps,
-      t,
-    ],
+    [currentView, defaultFilterValues, defaultItems, filterRemove, filters, isFilterOpen, modelKey, onFilterChange, onSearchTerm, searchTerm, setCurrentView, sharedProps, t],
   );
 
   const pagination = useMemo(
@@ -684,7 +683,7 @@ const ContentTable: React.FC<Props> = ({
         onOpenChange={handleOptionsOpenChange}
         key="control">
         <Dropdown
-          dropdownRender={() =>
+          popupRender={() =>
             selectedFilter && (
               <DropdownRender
                 filter={selectedFilter}
@@ -888,6 +887,11 @@ const StyledButton = styled(Button)`
 const StyledSearchContainer = styled.div`
   display: flex;
   gap: 10px;
+`;
+
+const StyledSearch = styled(Search)`
+  width: 264px;
+  flex: none;
 `;
 
 const StyledFilterSpace = styled(Space)`

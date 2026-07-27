@@ -44,7 +44,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
             {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
             {index === 0 && (
               <span>
-                <Tag bordered={false} color="processing">
+                <Tag variant="outlined" color="processing">
                   {t("current")}
                 </Tag>
               </span>

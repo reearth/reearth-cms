@@ -67,7 +67,7 @@ describe("Integration creation modal", () => {
     expect(createButton).toBeEnabled();
 
     await user.clear(nameInput);
-    expect(createButton).toBeDisabled();
+    await expect.poll(() => createButton).toBeDisabled();
   });
 
   test("Loading is displayed and cancel button is disabled successfully", async () => {

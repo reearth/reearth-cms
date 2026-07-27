@@ -441,7 +441,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("The uploaded file is empty or invalid"),
+        title: t("The uploaded file is empty or invalid"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -452,7 +452,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseSingleFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("Only one file can be uploaded at a time"),
+        title: t("Only one file can be uploaded at a time"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -463,7 +463,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseIllegalFileFormatAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File format is not supported"),
+        title: t("File format is not supported"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -474,7 +474,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseWrongFileTypeAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("This file appears to be a content file, not a schema file"),
+        title: t("This file appears to be a content file, not a schema file"),
         type: "error",
         closable: true,
         showIcon: true,

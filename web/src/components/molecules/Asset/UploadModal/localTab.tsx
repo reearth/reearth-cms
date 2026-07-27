@@ -38,7 +38,7 @@ const LocalTab: React.FC<Props> = ({ uploadProps, alertList = [] }) => {
         {alertList.map((alert, index) => (
           <Alert
             {...alert}
-            key={alert?.message?.toString() || index}
+            key={alert?.title?.toString() || index}
             onClick={e => e.stopPropagation()}
           />
         ))}

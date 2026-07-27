@@ -9,7 +9,6 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import "@ant-design/v5-patch-for-react-19";
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import { UploaderProvider } from "@reearth-cms/components/molecules/Uploader/provider";

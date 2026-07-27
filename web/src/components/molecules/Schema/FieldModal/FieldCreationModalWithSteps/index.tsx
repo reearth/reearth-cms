@@ -27,9 +27,6 @@ import { Constant } from "@reearth-cms/utils/constant";
 import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-const { Step } = Steps;
-const { TabPane } = Tabs;
-
 type Props = {
   models?: Model[];
   selectedType: "Reference";
@@ -392,11 +389,16 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           )}
         </>
       }>
-      <StyledSteps progressDot current={currentStep} numSteps={numSteps}>
-        <Step title={t("Reference setting")} />
-        <Step title={t("Field")} />
-        {numSteps === 2 && <Step title={t("Corresponding field")} />}
-      </StyledSteps>
+      <StyledSteps
+        progressDot
+        current={currentStep}
+        numSteps={numSteps}
+        items={[
+          { title: t("Reference setting") },
+          { title: t("Field") },
+          ...(numSteps === 2 ? [{ title: t("Corresponding field") }] : []),
+        ]}
+      />
       {currentStep === 0 && (
         <Form
           form={modelForm}
@@ -420,7 +422,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               onChange={e => setNumSteps(e.target.value)}
               value={numSteps}
               defaultValue={1}>
-              <Space direction="vertical" size={0}>
+              <Space orientation="vertical" size={0}>
                 <Radio value={1} disabled={isUpdate}>
                   {t("One-way reference")}
                 </Radio>
@@ -445,75 +447,97 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           initialValues={initialValues}
           requiredMark={requiredMark}
           onValuesChange={changedValues => {
-            handleValuesChange(changedValues, defaultFieldValues);
+            handleValuesChange(changedValues as Field, defaultFieldValues);
           }}>
-          <Tabs activeKey={activeTab} onChange={handleTabChange}>
-            <TabPane tab={t("Settings")} key="settings" forceRender>
-              <Form.Item
-                name="title"
-                label={t("Display name")}
-                rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-                <Input
-                  onChange={e => {
-                    handleNameChange(e, field1Form);
-                  }}
-                />
-              </Form.Item>
-              <Form.Item
-                name="key"
-                label={t("Field Key")}
-                extra={t(
-                  "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
-                )}
-                rules={[
-                  {
-                    message: t("Key is not valid"),
-                    required: true,
-                    validator: async (_, value) => {
-                      await keyValidate(value, prevFieldKey, handleFieldKeyUnique);
-                    },
-                  },
-                ]}>
-                <Input
-                  onChange={e => {
-                    handleKeyChange(e, field1Form);
-                  }}
-                  showCount
-                  maxLength={Constant.KEY.MAX_LENGTH}
-                />
-              </Form.Item>
-              <Form.Item name="description" label={t("Description")}>
-                <TextArea rows={3} showCount maxLength={1000} />
-              </Form.Item>
-              <Form.Item
-                name="multiple"
-                valuePropName="checked"
-                extra={t("Stores a list of values instead of a single value")}>
-                <Checkbox disabled>{t("Support multiple values")}</Checkbox>
-              </Form.Item>
-              <Form.Item
-                hidden
-                name="isTitle"
-                valuePropName="checked"
-                extra={t("Only one field can be used as the title")}>
-                <Checkbox>{t("Use as title")}</Checkbox>
-              </Form.Item>
-            </TabPane>
-            <TabPane tab={t("Validation")} key="validation" forceRender>
-              <Form.Item
-                name="required"
-                valuePropName="checked"
-                extra={t("Prevents saving an entry if this field is empty")}>
-                <Checkbox>{t("Make field required")}</Checkbox>
-              </Form.Item>
-              <Form.Item
-                name="unique"
-                valuePropName="checked"
-                extra={t("Ensures that multiple entries can't have the same value for this field")}>
-                <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
-              </Form.Item>
-            </TabPane>
-          </Tabs>
+          <Tabs
+            activeKey={activeTab}
+            onChange={handleTabChange}
+            items={[
+              {
+                key: "settings",
+                label: t("Settings"),
+                forceRender: true,
+                children: (
+                  <>
+                    <Form.Item
+                      name="title"
+                      label={t("Display name")}
+                      rules={[
+                        { required: true, message: t("Please input the display name of field!") },
+                      ]}>
+                      <Input
+                        onChange={e => {
+                          handleNameChange(e, field1Form);
+                        }}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="key"
+                      label={t("Field Key")}
+                      extra={t(
+                        "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+                      )}
+                      rules={[
+                        {
+                          message: t("Key is not valid"),
+                          required: true,
+                          validator: async (_, value) => {
+                            await keyValidate(value, prevFieldKey, handleFieldKeyUnique);
+                          },
+                        },
+                      ]}>
+                      <Input
+                        onChange={e => {
+                          handleKeyChange(e, field1Form);
+                        }}
+                        showCount
+                        maxLength={Constant.KEY.MAX_LENGTH}
+                      />
+                    </Form.Item>
+                    <Form.Item name="description" label={t("Description")}>
+                      <TextArea rows={3} showCount maxLength={1000} />
+                    </Form.Item>
+                    <Form.Item
+                      name="multiple"
+                      valuePropName="checked"
+                      extra={t("Stores a list of values instead of a single value")}>
+                      <Checkbox disabled>{t("Support multiple values")}</Checkbox>
+                    </Form.Item>
+                    <Form.Item
+                      hidden
+                      name="isTitle"
+                      valuePropName="checked"
+                      extra={t("Only one field can be used as the title")}>
+                      <Checkbox>{t("Use as title")}</Checkbox>
+                    </Form.Item>
+                  </>
+                ),
+              },
+              {
+                key: "validation",
+                label: t("Validation"),
+                forceRender: true,
+                children: (
+                  <>
+                    <Form.Item
+                      name="required"
+                      valuePropName="checked"
+                      extra={t("Prevents saving an entry if this field is empty")}>
+                      <Checkbox>{t("Make field required")}</Checkbox>
+                    </Form.Item>
+                    <Form.Item
+                      name="unique"
+                      valuePropName="checked"
+                      extra={t(
+                        "Ensures that multiple entries can't have the same value for this field",
+                      )}>
+                      <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
+                    </Form.Item>
+                  </>
+                ),
+              },
+            ]}
+          />
         </Form>
       )}
       {currentStep === 2 && (
@@ -523,60 +547,78 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           initialValues={initialValues}
           requiredMark={requiredMark}
           onValuesChange={changedValues => {
-            handleValuesChange(changedValues, defaultCorrespondingValues);
+            handleValuesChange(changedValues as CorrespondingField, defaultCorrespondingValues);
           }}>
-          <Tabs activeKey={activeTab} onChange={handleTabChange}>
-            <TabPane tab={t("Settings")} key="settings" forceRender>
-              <Form.Item
-                name="title"
-                label={t("Display name")}
-                rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-                <Input
-                  onChange={e => {
-                    handleNameChange(e, field2Form);
-                  }}
-                />
-              </Form.Item>
-              <Form.Item
-                name="key"
-                label={t("Field Key")}
-                extra={t(
-                  "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
-                )}
-                rules={[
-                  {
-                    message: t("Key is not valid"),
-                    required: true,
-                    validator: async (_, value) => {
-                      await keyValidate(
-                        value,
-                        prevCorrespondingKey,
-                        handleCorrespondingFieldKeyUnique,
-                      );
-                    },
-                  },
-                ]}>
-                <Input
-                  onChange={e => {
-                    handleKeyChange(e, field2Form);
-                  }}
-                  showCount
-                  maxLength={Constant.KEY.MAX_LENGTH}
-                />
-              </Form.Item>
-              <Form.Item name="description" label={t("Description")}>
-                <TextArea rows={3} showCount maxLength={1000} />
-              </Form.Item>
-            </TabPane>
-            <TabPane tab={t("Validation")} key="validation" forceRender>
-              <Form.Item
-                name="required"
-                valuePropName="checked"
-                extra={t("Prevents saving an entry if this field is empty")}>
-                <Checkbox>{t("Make field required")}</Checkbox>
-              </Form.Item>
-            </TabPane>
-          </Tabs>
+          <Tabs
+            activeKey={activeTab}
+            onChange={handleTabChange}
+            items={[
+              {
+                key: "settings",
+                label: t("Settings"),
+                forceRender: true,
+                children: (
+                  <>
+                    <Form.Item
+                      name="title"
+                      label={t("Display name")}
+                      rules={[
+                        { required: true, message: t("Please input the display name of field!") },
+                      ]}>
+                      <Input
+                        onChange={e => {
+                          handleNameChange(e, field2Form);
+                        }}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="key"
+                      label={t("Field Key")}
+                      extra={t(
+                        "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+                      )}
+                      rules={[
+                        {
+                          message: t("Key is not valid"),
+                          required: true,
+                          validator: async (_, value) => {
+                            await keyValidate(
+                              value,
+                              prevCorrespondingKey,
+                              handleCorrespondingFieldKeyUnique,
+                            );
+                          },
+                        },
+                      ]}>
+                      <Input
+                        onChange={e => {
+                          handleKeyChange(e, field2Form);
+                        }}
+                        showCount
+                        maxLength={Constant.KEY.MAX_LENGTH}
+                      />
+                    </Form.Item>
+                    <Form.Item name="description" label={t("Description")}>
+                      <TextArea rows={3} showCount maxLength={1000} />
+                    </Form.Item>
+                  </>
+                ),
+              },
+              {
+                key: "validation",
+                label: t("Validation"),
+                forceRender: true,
+                children: (
+                  <Form.Item
+                    name="required"
+                    valuePropName="checked"
+                    extra={t("Prevents saving an entry if this field is empty")}>
+                    <Checkbox>{t("Make field required")}</Checkbox>
+                  </Form.Item>
+                ),
+              },
+            ]}
+          />
         </Form>
       )}
     </StyledModal>

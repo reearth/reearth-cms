@@ -11,7 +11,7 @@ describe("FileSelectionStep", () => {
         fileList={[]}
         alertList={[
           {
-            message: "This file appears to be a content file, not a schema file",
+            title: "This file appears to be a content file, not a schema file",
             type: "error",
             closable: true,
             showIcon: true,

@@ -25,7 +25,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
             <TitleContainer>
               <ProjectName>{project.name}</ProjectName>
               <StyledTag
-                bordered
+                variant="filled"
                 color={
                   project.accessibility?.visibility === ProjectVisibility.Public
                     ? "blue"

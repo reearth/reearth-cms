@@ -63,7 +63,7 @@ const ImportErrorLogView: React.FC<Props> = ({ errorLogMeta, source, ...rest }) 
           pagination={false}
           scroll={{ y: `calc(${CustomToken.MODAL.HEIGHT_LG} - 200px)` }}
           size="small"
-          rowKey={(_, index) => index ?? 0}
+          rowKey={entry => `${entry.path.join(".")}:${entry.detail}`}
         />
       )}
     </ErrorLogWrapper>

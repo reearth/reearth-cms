@@ -82,8 +82,6 @@ const initialValues: FormValues = {
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
-const { TabPane } = Tabs;
-
 const FieldModal: React.FC<Props> = ({
   groups,
   open,
@@ -200,192 +198,225 @@ const FieldModal: React.FC<Props> = ({
         initialValues={initialValues}
         requiredMark={requiredMark}
         onValuesChange={handleValuesChange}>
-        <Tabs activeKey={activeTab} onChange={handleTabChange}>
-          <TabPane tab={t("Settings")} key="settings" forceRender>
-            <Form.Item
-              name="title"
-              label={t("Display name")}
-              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input onChange={handleNameChange} />
-            </Form.Item>
-            <Form.Item
-              name="key"
-              label={t("Field Key")}
-              extra={t(
-                "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
-              )}
-              rules={[
-                {
-                  message: t("Key is not valid"),
-                  required: true,
-                  validator: async (_, value) => {
-                    await keyValidate(value);
-                  },
-                },
-              ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
-            </Form.Item>
-            <Form.Item name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={1000} />
-            </Form.Item>
-            {selectedType === "Select" && (
-              <Form.Item
-                name="values"
-                label={t("Set Options")}
-                validateStatus={"success"}
-                rules={[
-                  {
-                    required: true,
-                    message: t("At least 1 option"),
-                  },
-                  {
-                    validator: async (_, values?: string[]) => emptyValidator(values),
-                    message: t("Empty values are not allowed"),
-                  },
-                  {
-                    validator: async (_, values?: string[]) => duplicatedValidator(values),
-                    message: t("Option must be unique"),
-                  },
-                ]}>
-                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
-              </Form.Item>
-            )}
-            {selectedType === "Tag" && (
-              <Form.Item
-                name="tags"
-                label={t("Set Tags")}
-                validateStatus={"success"}
-                rules={[
-                  {
-                    required: true,
-                    message: t("At least 1 tag"),
-                  },
-                  {
-                    validator: async (_, values?: Tag[]) => {
-                      const names = values?.map(value => value.name);
-                      return emptyValidator(names);
-                    },
-                    message: t("Empty values are not allowed"),
-                  },
-                  {
-                    validator: async (_, values?: Tag[]) => {
-                      const names = values?.map(value => value.name);
-                      return duplicatedValidator(names);
-                    },
-                    message: t("Labels must be unique"),
-                  },
-                ]}>
-                <MultiValueColoredTag errorIndexes={errorIndexes} />
-              </Form.Item>
-            )}
-            {selectedType === "Group" && (
-              <Form.Item
-                name="group"
-                label={t("Select Group")}
-                rules={[{ required: true, message: t("Please select the group!") }]}>
-                <Select>
-                  {groups?.map(group => (
-                    <Select.Option key={group.id} value={group.id}>
-                      {group.name}{" "}
-                      <StyledGroupKey className="ant-form-item-extra">#{group.key}</StyledGroupKey>
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            )}
-            {selectedType === "GeometryObject" && (
-              <Form.Item
-                name="supportedTypes"
-                label={t("Supported types")}
-                extra={t("Please select what type of Geometry this field will support")}
-                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
-                <StyledCheckboxGroup>
-                  {ObjectSupportType.map(item => (
-                    <Checkbox value={item.value}>{item.label}</Checkbox>
-                  ))}
-                </StyledCheckboxGroup>
-              </Form.Item>
-            )}
-            {selectedType === "GeometryEditor" && (
-              <Form.Item
-                name="supportedTypes"
-                label={t("Supported type")}
-                extra={t("Please select what type of Geometry this field will support")}
-                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
-                <Radio.Group>
-                  {EditorSupportType.map(item => (
-                    <Radio value={item.value}>{item.label}</Radio>
-                  ))}
-                </Radio.Group>
-              </Form.Item>
-            )}
-            <OptionTitle>{t("Options")}</OptionTitle>
-            <Form.Item
-              name="multiple"
-              valuePropName="checked"
-              extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
-                {t("Support multiple values")}
-              </Checkbox>
-            </Form.Item>
-            <Form.Item
-              name="isTitle"
-              hidden={isTitleDisabled}
-              valuePropName="checked"
-              extra={t("Only one field can be used as the title")}>
-              <Checkbox>{t("Use as title")}</Checkbox>
-            </Form.Item>
-          </TabPane>
-          <TabPane tab={t("Validation")} key="validation" forceRender>
-            <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
-            <Form.Item
-              name="required"
-              valuePropName="checked"
-              extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
-            </Form.Item>
-            <Form.Item
-              name="unique"
-              valuePropName="checked"
-              extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
-            </Form.Item>
-          </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-            <FieldDefaultInputs
-              multiple={multipleValue}
-              selectedValues={selectedValues}
-              selectedTags={selectedTags}
-              selectedSupportedTypes={selectedSupportedTypes}
-              maxLength={maxLength}
-              min={min}
-              max={max}
-              selectedType={selectedType}
-              assetList={assetList}
-              fileList={fileList}
-              loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onAssetTableChange={onAssetTableChange}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onAssetSearchTerm={onAssetSearchTerm}
-              onAssetsGet={onAssetsGet}
-              onAssetsReload={onAssetsReload}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
-              onGetAsset={onGetAsset}
-            />
-          </TabPane>
-        </Tabs>
+        <Tabs
+          activeKey={activeTab}
+          onChange={handleTabChange}
+          items={[
+            {
+              key: "settings",
+              label: t("Settings"),
+              forceRender: true,
+              children: (
+                <>
+                  <Form.Item
+                    name="title"
+                    label={t("Display name")}
+                    rules={[
+                      { required: true, message: t("Please input the display name of field!") },
+                    ]}>
+                    <Input onChange={handleNameChange} />
+                  </Form.Item>
+                  <Form.Item
+                    name="key"
+                    label={t("Field Key")}
+                    extra={t(
+                      "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+                    )}
+                    rules={[
+                      {
+                        message: t("Key is not valid"),
+                        required: true,
+                        validator: async (_, value) => {
+                          await keyValidate(value);
+                        },
+                      },
+                    ]}>
+                    <Input
+                      onChange={handleKeyChange}
+                      showCount
+                      maxLength={Constant.KEY.MAX_LENGTH}
+                    />
+                  </Form.Item>
+                  <Form.Item name="description" label={t("Description")}>
+                    <TextArea rows={3} showCount maxLength={1000} />
+                  </Form.Item>
+                  {selectedType === "Select" && (
+                    <Form.Item
+                      name="values"
+                      label={t("Set Options")}
+                      validateStatus={"success"}
+                      rules={[
+                        {
+                          required: true,
+                          message: t("At least 1 option"),
+                        },
+                        {
+                          validator: async (_, values?: string[]) => emptyValidator(values),
+                          message: t("Empty values are not allowed"),
+                        },
+                        {
+                          validator: async (_, values?: string[]) => duplicatedValidator(values),
+                          message: t("Option must be unique"),
+                        },
+                      ]}>
+                      <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
+                    </Form.Item>
+                  )}
+                  {selectedType === "Tag" && (
+                    <Form.Item
+                      name="tags"
+                      label={t("Set Tags")}
+                      validateStatus={"success"}
+                      rules={[
+                        {
+                          required: true,
+                          message: t("At least 1 tag"),
+                        },
+                        {
+                          validator: async (_, values?: Tag[]) => {
+                            const names = values?.map(value => value.name);
+                            return emptyValidator(names);
+                          },
+                          message: t("Empty values are not allowed"),
+                        },
+                        {
+                          validator: async (_, values?: Tag[]) => {
+                            const names = values?.map(value => value.name);
+                            return duplicatedValidator(names);
+                          },
+                          message: t("Labels must be unique"),
+                        },
+                      ]}>
+                      <MultiValueColoredTag errorIndexes={errorIndexes} />
+                    </Form.Item>
+                  )}
+                  {selectedType === "Group" && (
+                    <Form.Item
+                      name="group"
+                      label={t("Select Group")}
+                      rules={[{ required: true, message: t("Please select the group!") }]}>
+                      <Select>
+                        {groups?.map(group => (
+                          <Select.Option key={group.id} value={group.id}>
+                            {group.name}{" "}
+                            <StyledGroupKey className="ant-form-item-extra">
+                              #{group.key}
+                            </StyledGroupKey>
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  )}
+                  {selectedType === "GeometryObject" && (
+                    <Form.Item
+                      name="supportedTypes"
+                      label={t("Supported types")}
+                      extra={t("Please select what type of Geometry this field will support")}
+                      rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                      <StyledCheckboxGroup>
+                        {ObjectSupportType.map(item => (
+                          <Checkbox value={item.value}>{item.label}</Checkbox>
+                        ))}
+                      </StyledCheckboxGroup>
+                    </Form.Item>
+                  )}
+                  {selectedType === "GeometryEditor" && (
+                    <Form.Item
+                      name="supportedTypes"
+                      label={t("Supported type")}
+                      extra={t("Please select what type of Geometry this field will support")}
+                      rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                      <Radio.Group>
+                        {EditorSupportType.map(item => (
+                          <Radio value={item.value}>{item.label}</Radio>
+                        ))}
+                      </Radio.Group>
+                    </Form.Item>
+                  )}
+                  <OptionTitle>{t("Options")}</OptionTitle>
+                  <Form.Item
+                    name="multiple"
+                    valuePropName="checked"
+                    extra={t("Stores a list of values instead of a single value")}>
+                    <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+                      {t("Support multiple values")}
+                    </Checkbox>
+                  </Form.Item>
+                  <Form.Item
+                    name="isTitle"
+                    hidden={isTitleDisabled}
+                    valuePropName="checked"
+                    extra={t("Only one field can be used as the title")}>
+                    <Checkbox>{t("Use as title")}</Checkbox>
+                  </Form.Item>
+                </>
+              ),
+            },
+            {
+              key: "validation",
+              label: t("Validation"),
+              forceRender: true,
+              children: (
+                <>
+                  <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
+                  <Form.Item
+                    name="required"
+                    valuePropName="checked"
+                    extra={t("Prevents saving an entry if this field is empty")}>
+                    <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
+                  </Form.Item>
+                  <Form.Item
+                    name="unique"
+                    valuePropName="checked"
+                    extra={t(
+                      "Ensures that multiple entries can't have the same value for this field",
+                    )}>
+                    <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
+                  </Form.Item>
+                </>
+              ),
+            },
+            {
+              key: "defaultValue",
+              label: t("Default value"),
+              forceRender: true,
+              children: (
+                <FieldDefaultInputs
+                  multiple={multipleValue}
+                  selectedValues={selectedValues}
+                  selectedTags={selectedTags}
+                  selectedSupportedTypes={selectedSupportedTypes}
+                  maxLength={maxLength}
+                  min={min}
+                  max={max}
+                  selectedType={selectedType}
+                  assetList={assetList}
+                  fileList={fileList}
+                  loadingAssets={loadingAssets}
+                  uploading={uploading}
+                  uploadModalVisibility={uploadModalVisibility}
+                  uploadUrl={uploadUrl}
+                  uploadType={uploadType}
+                  totalCount={totalCount}
+                  page={page}
+                  pageSize={pageSize}
+                  onAssetTableChange={onAssetTableChange}
+                  onUploadModalCancel={onUploadModalCancel}
+                  setUploadUrl={setUploadUrl}
+                  setUploadType={setUploadType}
+                  onAssetsCreate={onAssetsCreate}
+                  onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetSearchTerm={onAssetSearchTerm}
+                  onAssetsGet={onAssetsGet}
+                  onAssetsReload={onAssetsReload}
+                  setFileList={setFileList}
+                  setUploadModalVisibility={setUploadModalVisibility}
+                  onGetAsset={onGetAsset}
+                />
+              ),
+            },
+          ]}
+        />
       </Form>
     </Modal>
   );
