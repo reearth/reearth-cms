@@ -21,8 +21,8 @@ test("Workspace creation modal works successfully", async () => {
   expect(input).toBeValid();
 
   await user.type(input, "test");
-  expect(saveButton).not.toHaveAttribute("disabled");
+  await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
   await user.clear(input);
-  expect(saveButton).toHaveAttribute("disabled");
+  await expect.poll(() => saveButton).toHaveAttribute("disabled");
   await expect.poll(() => input).toBeInvalid();
 });

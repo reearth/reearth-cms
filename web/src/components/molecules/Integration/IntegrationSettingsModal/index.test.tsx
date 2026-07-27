@@ -76,7 +76,7 @@ describe("Integration settings modal", () => {
     await user.click(screen.getByLabelText("Role"));
     await user.click(screen.getByText("Writer"));
 
-    expect(saveButton).toBeEnabled();
+    await expect.poll(() => saveButton).toBeEnabled();
 
     rerender(
       <IntegrationSettingsModal
