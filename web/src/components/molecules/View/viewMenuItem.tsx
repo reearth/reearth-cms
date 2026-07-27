@@ -4,7 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import type { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";
 

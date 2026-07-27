@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 
-import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 
 import WorkspaceWrapper from ".";
 

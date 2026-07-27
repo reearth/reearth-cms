@@ -2,13 +2,13 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {
+import type {
   WorkspaceSettings,
   TileInput,
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
-import {
+import type {
   ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
 } from "@reearth-cms/gql/__generated__/graphql.generated";

@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from "@apollo/client/react";
-import { Key, useCallback, useMemo, useState } from "react";
+import type { Key } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import type { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
+import type { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
-import {
+import type {
   Comment as GQLComment,
   RequestState as GQLRequestState,
 } from "@reearth-cms/gql/__generated__/graphql.generated";

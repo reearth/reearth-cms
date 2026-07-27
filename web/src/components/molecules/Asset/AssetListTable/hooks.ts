@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/types";
+import type { ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";
 

@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 
 import AntDComment from "@reearth-cms/components/atoms/Comment";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { Request } from "@reearth-cms/components/molecules/Request/types";
+import type { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestEditor from "./Editor";

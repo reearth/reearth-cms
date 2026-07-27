@@ -62,8 +62,9 @@ test("Text metadata creating and updating has succeeded", async ({
   await test.step("Update metadata from table view", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.textBoxes).toHaveValue("text1");
-    await contentPage.textBoxes.fill("new text1");
-    await contentPage.clickAndExpectSuccess(contentPage.antTableBody);
+    await contentPage.textBoxes.click({ clickCount: 3 });
+    await contentPage.textBoxes.pressSequentially("new text1", { delay: 50 });
+    await contentPage.clickAndExpectSuccess(contentPage.tableBodyElement);
     await expect(contentPage.textBoxes).toHaveValue("new text1");
     await page.waitForLoadState("networkidle");
   });

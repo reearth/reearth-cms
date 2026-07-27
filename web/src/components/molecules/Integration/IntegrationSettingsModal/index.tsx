@@ -6,8 +6,8 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 

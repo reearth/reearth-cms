@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
 import { Cesium3DTileFeature, JulianDate, Entity } from "cesium";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
+import type { CesiumMovementEvent, RootEventTarget } from "resium";
+import { Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
-import { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
-import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import type { CesiumViewerRef } from "@reearth-cms/components/molecules/Asset/types";
+import type { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
+import type { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import { imageryGet, terrainGet } from "./provider";

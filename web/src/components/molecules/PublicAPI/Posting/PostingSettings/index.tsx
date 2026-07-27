@@ -1,7 +1,7 @@
 import { Alert } from "antd";
 
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
 import PostingTable from "./PostingTable";

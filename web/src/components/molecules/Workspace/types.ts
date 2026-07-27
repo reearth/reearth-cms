@@ -1,6 +1,7 @@
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
-import { ProjectAccessibility } from "@reearth-cms/components/molecules/PublicAPI/types";
+import type { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import type { User, Role } from "@reearth-cms/components/molecules/Member/types";
+
+import type { ProjectAccessibility } from "../PublicAPI/types";
 
 export type Project = {
   id: string;
@@ -83,12 +84,7 @@ export type TerrainInput = {
 };
 
 export type TileType =
-  | "DEFAULT"
-  | "ROAD_MAP"
-  | "OPEN_STREET_MAP"
-  | "EARTH_AT_NIGHT"
-  | "JAPAN_GSI_STANDARD_MAP"
-  | "URL";
+  "DEFAULT" | "ROAD_MAP" | "OPEN_STREET_MAP" | "EARTH_AT_NIGHT" | "JAPAN_GSI_STANDARD_MAP" | "URL";
 
 export type TerrainType = "REEARTH_TERRAIN" | "CESIUM_ION";
 

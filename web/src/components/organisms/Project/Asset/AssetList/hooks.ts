@@ -1,18 +1,19 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
-import { useState, useCallback, Key, useMemo } from "react";
+import type { Key } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import {
+import type { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
+import type {
   UploadFile as RawUploadFile,
   RcFile,
   UploadProps,
 } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
+import type { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import type { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { SchemaHelpers } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
@@ -24,7 +25,7 @@ import {
   GetAssetsDocument,
   GetAssetsItemsDocument,
 } from "@reearth-cms/gql/__generated__/assets.generated";
-import {
+import type {
   AssetSortType,
   ContentTypesEnum,
   SortDirection,
@@ -33,8 +34,10 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 import { FileUtils } from "@reearth-cms/utils/file";
-import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
-import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
+import type { ImportSchema } from "@reearth-cms/utils/importSchema";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";

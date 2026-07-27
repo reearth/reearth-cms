@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
 import { CustomToken } from "@reearth-cms/utils/style";
 

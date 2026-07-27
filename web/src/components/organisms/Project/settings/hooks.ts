@@ -3,12 +3,10 @@ import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 import useHooks from "@reearth-cms/components/organisms/Workspace/hooks";
-import {
-  Role as GQLRole,
-  ProjectVisibility,
-} from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { Role as GQLRole } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CheckProjectAliasDocument,
   DeleteProjectDocument,

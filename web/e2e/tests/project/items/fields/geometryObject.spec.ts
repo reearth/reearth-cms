@@ -42,7 +42,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   });
 
   await test.step("Add Point geometry with coordinates [0, 0]", async () => {
-    await contentPage.fillMonacoEditor(
+    await contentPage.typeInMonacoEditor(
       contentPage.viewLinesEditor,
       '{\n"type": "Point",\n"coordinates": [0, 0]',
     );
@@ -53,6 +53,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
+    await expect(contentPage.tooltip).toBeVisible();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
     await page.waitForLoadState("networkidle");
   });
@@ -60,7 +61,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await test.step("Edit item and update geometry to [1, 0]", async () => {
     await contentPage.editButton.click();
     await contentPage.antRowButton(1).click();
-    await contentPage.fillMonacoEditor(
+    await contentPage.typeInMonacoEditor(
       contentPage.viewLinesEditor,
       '{\n"type": "Point",\n"coordinates": [1, 0]',
     );
@@ -71,6 +72,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
+    await expect(contentPage.tooltip).toBeVisible();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
     await page.waitForLoadState("networkidle");
   });
@@ -90,7 +92,7 @@ test("GeometryObject field editing has succeeded", async ({
     await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
     await fieldEditorPage.pointCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.fillMonacoEditor(
+    await fieldEditorPage.typeInMonacoEditor(
       fieldEditorPage.viewLinesEditor,
       '{\n"type": "Point",\n"coordinates": [0, 0]',
     );
@@ -112,6 +114,7 @@ test("GeometryObject field editing has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
+    await expect(contentPage.tooltip).toBeVisible();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
     await page.waitForLoadState("networkidle");
   });
@@ -138,7 +141,7 @@ test("GeometryObject field editing has succeeded", async ({
 
   await test.step("Add second default geometry and reorder", async () => {
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.fillMonacoEditor(
+    await fieldEditorPage.typeInMonacoEditor(
       fieldEditorPage.viewLinesEditor.nth(1),
       '{\n"type": "Point",\n"coordinates": [1, 0]',
     );
@@ -164,6 +167,7 @@ test("GeometryObject field editing has succeeded", async ({
     await contentPage.contentText.click();
     await expect(contentPage.tableHead).toContainText("new geometryObject1");
     await contentPage.nthTableColumnButton(5).click();
+    await expect(contentPage.tooltip).toBeVisible();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
     await page.waitForLoadState("networkidle");
   });
@@ -177,7 +181,7 @@ test("GeometryObject field editing has succeeded", async ({
       '{  "type": "Point",  "coordinates": [0, 0]}',
     );
     await fieldEditorPage.plusNewButton.click();
-    await contentPage.fillMonacoEditor(
+    await contentPage.typeInMonacoEditor(
       contentPage.viewLinesEditor.nth(2),
       '{\n"type": "Point",\n"coordinates": [2, 0]',
     );
@@ -188,6 +192,8 @@ test("GeometryObject field editing has succeeded", async ({
   await test.step("Verify multiple geometries displayed in list view tooltip", async () => {
     await contentPage.backButton.click();
     await contentPage.x3Button.click();
+    await expect(contentPage.tooltip).toBeVisible();
+    await expect(contentPage.tooltipParagraphs).toHaveCount(3);
     await expect(contentPage.tooltipParagraphByIndex(0)).toContainText(
       '{ "type": "Point", "coordinates": [1, 0] }',
     );

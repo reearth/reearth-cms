@@ -2,7 +2,7 @@ import { render, renderHook, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe } from "vitest";
 
-import { TileInput, TerrainInput } from "@reearth-cms/components/molecules/Workspace/types";
+import type { TileInput, TerrainInput } from "@reearth-cms/components/molecules/Workspace/types";
 
 import FormModal from "./FormModal";
 import useSettings from "./useSettings";

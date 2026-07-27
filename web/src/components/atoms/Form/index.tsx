@@ -1,8 +1,9 @@
-import { Form, FormInstance } from "antd";
-import { Rule, RuleObject } from "antd/lib/form";
-import { FormItemProps } from "antd/lib/form/FormItem";
-import { FormItemLabelProps } from "antd/lib/form/FormItemLabel";
-import { FieldError, ValidateErrorEntity } from "rc-field-form/lib/interface";
+import type { FormInstance } from "antd";
+import { Form } from "antd";
+import type { Rule, RuleObject } from "antd/es/form";
+import type { FormItemProps } from "antd/es/form/FormItem";
+import type { FormItemLabelProps } from "antd/es/form/FormItemLabel";
+import type { FieldError, ValidateErrorEntity } from "rc-field-form/lib/interface";
 
 export default Form;
 

@@ -3,14 +3,14 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
-import {
-  Role as GQLRole,
+import type {
   Workspace as GQLWorkspace,
   MemberInput as GQLMemberInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { Role as GQLRole } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetMeDocument, GetUsersDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import {
   AddUsersToWorkspaceDocument,

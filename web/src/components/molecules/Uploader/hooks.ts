@@ -1,6 +1,7 @@
 import { useContext } from "react";
 
-import { UploaderHookState, UploaderHookStateContext } from "./provider";
+import type { UploaderHookState } from "./provider";
+import { UploaderHookStateContext } from "./provider";
 
 export default function useUploaderHook(): UploaderHookState {
   const uploaderContext = useContext(UploaderHookStateContext);

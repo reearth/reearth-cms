@@ -1,8 +1,10 @@
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 
-import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
+import Alert from "@reearth-cms/components/atoms/Alert";
+import type { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Upload, { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import type { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import Upload from "@reearth-cms/components/atoms/Upload";
 import FileItem from "@reearth-cms/components/molecules/Asset/UploadModal/FileItem";
 import { useT } from "@reearth-cms/i18n";
 

@@ -1,5 +1,7 @@
-import { GeoJsonDataSource, Resource } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState } from "react";
+import type { GeoJsonDataSource } from "cesium";
+import { Resource } from "cesium";
+import type { ComponentProps } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";

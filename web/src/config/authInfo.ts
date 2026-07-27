@@ -1,5 +1,5 @@
-import { type CognitoParams } from "./aws";
-import { type FirebaseParams } from "./firebase";
+import type { CognitoParams } from "./aws";
+import type { FirebaseParams } from "./firebase";
 
 import { config } from ".";
 

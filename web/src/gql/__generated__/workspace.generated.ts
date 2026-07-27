@@ -1,6 +1,62 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+export type CesiumResourcePropsInput = {
+  cesiumIonAccessToken: string;
+  cesiumIonAssetId: string;
+  image: string;
+  name: string;
+  url: string;
+};
+
+export type IntegrationType = "Private" | "Public";
+
+export type MemberInput = {
+  role: Role;
+  userId: string;
+};
+
+export type ResourceInput = {
+  terrain?: TerrainResourceInput | null | undefined;
+  tile?: TileResourceInput | null | undefined;
+};
+
+export type ResourcesListInput = {
+  enabled?: boolean | null | undefined;
+  resources: Array<ResourceInput>;
+  selectedResource?: string | null | undefined;
+};
+
+export type Role = "MAINTAINER" | "OWNER" | "READER" | "WRITER";
+
+export type TerrainResourceInput = {
+  id: string;
+  props?: CesiumResourcePropsInput | null | undefined;
+  type: TerrainType;
+};
+
+export type TerrainType = "CESIUM_ION" | "REEARTH_TERRAIN";
+
+export type TileResourceInput = {
+  id: string;
+  props?: UrlResourcePropsInput | null | undefined;
+  type: TileType;
+};
+
+export type TileType =
+  "DEFAULT" | "EARTH_AT_NIGHT" | "JAPAN_GSI_STANDARD_MAP" | "OPEN_STREET_MAP" | "ROAD_MAP" | "URL";
+
+export type UrlResourcePropsInput = {
+  image: string;
+  name: string;
+  url: string;
+};
+
 export type WorkspaceFragmentFragment = {
   __typename: "Workspace";
   id: string;
@@ -62,7 +118,7 @@ export type WorkspaceFragmentFragment = {
   >;
 };
 
-export type GetWorkspacesQueryVariables = Types.Exact<{ [key: string]: never }>;
+export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetWorkspacesQuery = {
   me: {
@@ -192,8 +248,8 @@ export type GetWorkspacesQuery = {
   } | null;
 };
 
-export type GetWorkspaceQueryVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
+export type GetWorkspaceQueryVariables = Exact<{
+  id: string;
 }>;
 
 export type GetWorkspaceQuery = {
@@ -273,9 +329,9 @@ export type GetWorkspaceQuery = {
     | null;
 };
 
-export type UpdateWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
+export type UpdateWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
+  name: string;
 }>;
 
 export type UpdateWorkspaceMutation = {
@@ -344,16 +400,16 @@ export type UpdateWorkspaceMutation = {
   } | null;
 };
 
-export type DeleteWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
+export type DeleteWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
 }>;
 
 export type DeleteWorkspaceMutation = {
   deleteWorkspace: { __typename: "DeleteWorkspacePayload"; workspaceId: string } | null;
 };
 
-export type AddUsersToWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
+export type AddUsersToWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
   users: Array<Types.MemberInput> | Types.MemberInput;
 }>;
 
@@ -423,9 +479,9 @@ export type AddUsersToWorkspaceMutation = {
   } | null;
 };
 
-export type UpdateMemberOfWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  userId: Types.Scalars["ID"]["input"];
+export type UpdateMemberOfWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
+  userId: string;
   role: Types.Role;
 }>;
 
@@ -495,9 +551,9 @@ export type UpdateMemberOfWorkspaceMutation = {
   } | null;
 };
 
-export type RemoveMultipleMembersFromWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  userIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type RemoveMultipleMembersFromWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
+  userIds: Array<string> | string;
 }>;
 
 export type RemoveMultipleMembersFromWorkspaceMutation = {
@@ -566,9 +622,9 @@ export type RemoveMultipleMembersFromWorkspaceMutation = {
   } | null;
 };
 
-export type AddIntegrationToWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  integrationId: Types.Scalars["ID"]["input"];
+export type AddIntegrationToWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
+  integrationId: string;
   role: Types.Role;
 }>;
 
@@ -638,9 +694,9 @@ export type AddIntegrationToWorkspaceMutation = {
   } | null;
 };
 
-export type UpdateIntegrationOfWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  integrationId: Types.Scalars["ID"]["input"];
+export type UpdateIntegrationOfWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
+  integrationId: string;
   role: Types.Role;
 }>;
 
@@ -710,9 +766,9 @@ export type UpdateIntegrationOfWorkspaceMutation = {
   } | null;
 };
 
-export type RemoveIntegrationFromWorkspaceMutationVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
-  integrationId: Types.Scalars["ID"]["input"];
+export type RemoveIntegrationFromWorkspaceMutationVariables = Exact<{
+  workspaceId: string;
+  integrationId: string;
 }>;
 
 export type RemoveIntegrationFromWorkspaceMutation = {
@@ -781,8 +837,8 @@ export type RemoveIntegrationFromWorkspaceMutation = {
   } | null;
 };
 
-export type CreateWorkspaceMutationVariables = Types.Exact<{
-  name: Types.Scalars["String"]["input"];
+export type CreateWorkspaceMutationVariables = Exact<{
+  name: string;
 }>;
 
 export type CreateWorkspaceMutation = {
@@ -851,8 +907,8 @@ export type CreateWorkspaceMutation = {
   } | null;
 };
 
-export type GetWorkspaceSettingsQueryVariables = Types.Exact<{
-  workspaceId: Types.Scalars["ID"]["input"];
+export type GetWorkspaceSettingsQueryVariables = Exact<{
+  workspaceId: string;
 }>;
 
 export type GetWorkspaceSettingsQuery = {
@@ -916,10 +972,10 @@ export type GetWorkspaceSettingsQuery = {
     | null;
 };
 
-export type UpdateWorkspaceSettingsMutationVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
-  tiles?: Types.InputMaybe<Types.ResourcesListInput>;
-  terrains?: Types.InputMaybe<Types.ResourcesListInput>;
+export type UpdateWorkspaceSettingsMutationVariables = Exact<{
+  id: string;
+  tiles?: Types.ResourcesListInput | null | undefined;
+  terrains?: Types.ResourcesListInput | null | undefined;
 }>;
 
 export type UpdateWorkspaceSettingsMutation = {

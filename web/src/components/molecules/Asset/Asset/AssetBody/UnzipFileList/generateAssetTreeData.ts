@@ -1,6 +1,6 @@
-import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
+import type { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 
-import { FileNode } from "./types";
+import type { FileNode } from "./types";
 
 export const generateAssetTreeData = (file: AssetFile): FileNode[] => {
   if (!file.filePaths) return [];

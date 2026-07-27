@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
 
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import type { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default (

@@ -1,16 +1,16 @@
+import type { User } from "firebase/auth";
 import {
   getAuth,
   onAuthStateChanged,
   signInWithRedirect,
   signOut,
   EmailAuthProvider,
-  User,
 } from "firebase/auth";
 import { useState, useEffect } from "react";
 
 import { logOutFromTenant } from "@reearth-cms/config";
 
-import AuthHook from "./AuthHook";
+import type AuthHook from "./AuthHook";
 
 export const useFirebaseAuth = (): AuthHook => {
   const [user, setUser] = useState<User | null>(null);

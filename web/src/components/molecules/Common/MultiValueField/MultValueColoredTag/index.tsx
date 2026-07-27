@@ -1,12 +1,14 @@
 import styled from "@emotion/styled";
-import { ChangeEvent, useCallback, useEffect, useState, useRef } from "react";
+import type { ChangeEvent } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input, { InputProps } from "@reearth-cms/components/atoms/Input";
+import type { InputProps } from "@reearth-cms/components/atoms/Input";
+import Input from "@reearth-cms/components/atoms/Input";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import type { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -28,7 +30,7 @@ const colors = [
 
 type TagColor = (typeof colors)[number];
 
-type Props = {
+export type Props = {
   value?: { id?: string; name: string; color: TagColor }[];
   onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
   errorIndexes: Set<number>;

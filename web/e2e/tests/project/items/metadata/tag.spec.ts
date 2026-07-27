@@ -175,7 +175,8 @@ test("Tag metadata editing has succeeded", async ({
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag3)).toBeVisible();
     await fieldEditorPage.antSelectSelector.click();
     await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeHidden();
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.defaultValueTab.click();
+    await expect(fieldEditorPage.okButton).toBeEnabled();
     await contentPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
     await page.waitForLoadState("networkidle");
@@ -205,8 +206,8 @@ test("Tag metadata editing has succeeded", async ({
 
   await test.step("Verify tag removal and required field validation", async () => {
     await contentPage.editButton.first().click();
-    await expect(fieldEditorPage.tagOptionText(tag2)).toBeHidden();
-    await expect(fieldEditorPage.tagOptionText(tag3)).toBeVisible();
+    await expect(contentPage.tabPanel.getByText(tag2)).toBeHidden();
+    await expect(contentPage.tabPanel.getByText(tag3)).toBeVisible();
     await contentPage.closeCircleLabel.locator("svg").hover();
     await contentPage.closeCircleLabel.locator("svg").click();
     await expect(contentPage.pleaseInputFieldText).toBeVisible();
@@ -217,7 +218,7 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.antSelectSelector.click();
     await contentPage.clickAndExpectSuccess(fieldEditorPage.tagOptionText(tag2));
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(tag2)).toBeVisible();
+    await expect(contentPage.cellByTagNames(tag2)).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 });

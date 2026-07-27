@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
