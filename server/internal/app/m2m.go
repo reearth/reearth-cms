@@ -3,8 +3,6 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"io"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
@@ -15,24 +13,13 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
-	sns "github.com/robbiet480/go.sns"
 	"github.com/samber/lo"
 )
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
-		var input rhttp.NotifyInput
-		var err error
-
-		if isAWS(c.Request()) {
-			input, err = parseSNSMessage(c.Request().Body)
-		} else if isGCP(c.Request()) {
-			input, err = parsePubSubMessage(c)
-		} else {
-			err = errors.New("unsupported request source")
-		}
-
+		input, err := parsePubSubMessage(c)
 		if err != nil {
 			log.Errorfc(ctx, "failed to parse request body: %s", err.Error())
 			return err
@@ -51,55 +38,6 @@ func NotifyHandler() echo.HandlerFunc {
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 		return c.JSON(http.StatusOK, "OK")
 	}
-}
-
-func handleSubscriptionConfirmation(c *echo.Context) error {
-	var payload sns.Payload
-	if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
-		log.Errorf("failed to decode request body: %s", err.Error())
-		return err
-	}
-
-	_, err := payload.Subscribe()
-	if err != nil {
-		log.Errorf("failed to subscribe confirmation: %s", err.Error())
-		return err
-	}
-
-	return c.JSON(http.StatusOK, "OK")
-}
-
-func isAWSSNSSubscriptionConfirmation(request *http.Request) bool {
-	return request.Header.Get("X-Amz-Sns-Message-Type") == "SubscriptionConfirmation"
-}
-
-func isAWS(r *http.Request) bool {
-	return r.Header.Get("X-Amz-Sns-Message-Type") == "Notification"
-}
-
-func isGCP(_ *http.Request) bool {
-	// TODO: need to find a way to detect GCP requests
-	return true
-}
-
-func parseSNSMessage(body io.Reader) (rhttp.NotifyInput, error) {
-	var payload sns.Payload
-	var input rhttp.NotifyInput
-
-	if err := json.NewDecoder(body).Decode(&payload); err != nil {
-		return input, err
-	}
-
-	if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
-		return input, err
-	}
-
-	// Validates payload's signature
-	if err := payload.VerifyPayload(); err != nil {
-		return input, err
-	}
-
-	return input, nil
 }
 
 func parsePubSubMessage(c *echo.Context) (rhttp.NotifyInput, error) {
@@ -149,37 +87,12 @@ func (b pubsubBody) Data() ([]byte, error) {
 }
 
 func M2MAuthMiddleware(cfg *Config) echo.MiddlewareFunc {
-	var m2mAuthMiddleware echo.MiddlewareFunc
-	if cfg.AWSTask.NotifyToken != "" {
-		m2mAuthMiddleware = awsM2MAuthTokenMiddleware(cfg.AWSTask.NotifyToken)
-	} else {
-		m2mAuthMiddleware = echo.WrapMiddleware(lo.Must(
-			appx.AuthMiddleware(cfg.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false), // it shoud not be optional
-		))
-	}
+	m2mAuthMiddleware := echo.WrapMiddleware(lo.Must(
+		appx.AuthMiddleware(cfg.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false), // it shoud not be optional
+	))
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return m2MGenerateOperatorMiddleware(cfg.AuthM2M.Email)(m2mAuthMiddleware(next))
-	}
-}
-
-func awsM2MAuthTokenMiddleware(token string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c *echo.Context) error {
-			t := c.QueryParam("token")
-			if t != token {
-				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
-			}
-
-			if isAWSSNSSubscriptionConfirmation(c.Request()) {
-				// Handle AWS SNS subscription confirmation
-				// This is used to handle requests for AWS SNS subscription confirmation and is only executed during initial setup
-				// https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.prepare.html
-				return handleSubscriptionConfirmation(c)
-			}
-
-			return next(c)
-		}
 	}
 }
 
