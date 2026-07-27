@@ -11,7 +11,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp/v3"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
@@ -41,9 +40,7 @@ type Config struct {
 	SendGrid            SendGridConfig    `pp:",omitempty"`
 	SignupSecret        string            `pp:",omitempty"`
 	GCS                 GCSConfig         `pp:",omitempty"`
-	S3                  S3Config          `pp:",omitempty"`
 	Task                gcp.TaskConfig    `pp:",omitempty"`
-	AWSTask             aws.TaskConfig    `pp:",omitempty"`
 	Web                 map[string]string `pp:",omitempty"`
 	Web_Config          JSON              `pp:",omitempty"`
 	Web_Disabled        bool              `pp:",omitempty"`
@@ -188,11 +185,6 @@ type SMTPConfig struct {
 }
 
 type GCSConfig struct {
-	BucketName              string `pp:",omitempty"`
-	PublicationCacheControl string `pp:",omitempty"`
-}
-
-type S3Config struct {
 	BucketName              string `pp:",omitempty"`
 	PublicationCacheControl string `pp:",omitempty"`
 }
