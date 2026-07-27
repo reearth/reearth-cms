@@ -88,7 +88,7 @@ func (b pubsubBody) Data() ([]byte, error) {
 
 func M2MAuthMiddleware(cfg *Config) echo.MiddlewareFunc {
 	m2mAuthMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false), // it shoud not be optional
+		appx.AuthMiddleware(cfg.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false), // it should not be optional
 	))
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
