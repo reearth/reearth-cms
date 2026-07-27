@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -419,24 +418,37 @@ func (f *fileRepo) Read(ctx context.Context, filename string, headers map[string
 	return resp.Body, resheaders, nil
 }
 
+// s3UploadAPI is the minimal subset of *s3.Client used by Upload.
+// Keeping it narrow lets tests inject a fake without the full AWS SDK mock.
+type s3UploadAPI interface {
+	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
+	HeadObject(context.Context, *s3.HeadObjectInput, ...func(*s3.Options)) (*s3.HeadObjectOutput, error)
+}
+
 func (f *fileRepo) Upload(ctx context.Context, file *file.File, filename string) (int64, error) {
+	return f.uploadWithClient(ctx, f.s3Client, file, filename)
+}
+
+// uploadWithClient is the testable core of Upload; it accepts the s3UploadAPI
+// interface so tests can inject a fake S3 client.
+func (f *fileRepo) uploadWithClient(ctx context.Context, client s3UploadAPI, file *file.File, filename string) (int64, error) {
 	if filename == "" {
 		return 0, gateway.ErrInvalidFile
 	}
 
-	ba, err := io.ReadAll(file.Content)
-	if err != nil {
-		return 0, rerror.ErrInternalBy(err)
-	}
-	body := bytes.NewReader(ba)
-
+	// Stream the body directly to S3 instead of buffering the entire file in
+	// memory with io.ReadAll. When the file size is known, pass ContentLength
+	// so S3 can validate the upload without a second request.
 	input := &s3.PutObjectInput{
 		Bucket:          aws.String(f.bucketName),
 		CacheControl:    aws.String(f.cacheControl),
 		ContentEncoding: lo.EmptyableToPtr(file.ContentEncoding),
 		ContentType:     aws.String(file.ContentType),
 		Key:             aws.String(filename),
-		Body:            body,
+		Body:            file.Content,
+	}
+	if file.Size > 0 {
+		input.ContentLength = aws.Int64(file.Size)
 	}
 
 	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
@@ -445,12 +457,12 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, filename string)
 		}
 	}
 
-	_, err = f.s3Client.PutObject(ctx, input)
+	_, err := client.PutObject(ctx, input)
 	if err != nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	result, err := f.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
+	result, err := client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(filename),
 	})
