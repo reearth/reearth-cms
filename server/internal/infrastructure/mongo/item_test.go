@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -92,7 +91,7 @@ func TestItem_MongoSpecific_Copy(t *testing.T) {
 
 	wantFilter, err := json.Marshal(bson.M{"schema": params.OldSchema.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	assert.NoError(t, err)
-	assert.Equal(t, filter, lo.ToPtr(string(wantFilter)))
+	assert.Equal(t, filter, new(string(wantFilter)))
 
 	wantChanges, err := json.Marshal(task.Changes{
 		"id":                   {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
@@ -110,5 +109,5 @@ func TestItem_MongoSpecific_Copy(t *testing.T) {
 		"user":                 {Type: task.ChangeTypeSet, Value: *params.User},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
+	assert.Equal(t, changes, new(string(wantChanges)))
 }

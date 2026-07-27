@@ -54,7 +54,7 @@ func TestItemRepo(t *testing.T, newRepo itemFactory) {
 func newItem(pid id.ProjectID, sid id.SchemaID, mid id.ModelID, fields ...*item.Field) *item.Item {
 	ts := time.Now().Truncate(time.Millisecond).UTC()
 	return item.New().NewID().Fields(fields).Schema(sid).Model(mid).
-		Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts).MustBuild()
+		Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts).Anonymous(true).MustBuild()
 }
 
 func boolField() *item.Field {
@@ -195,8 +195,8 @@ func testItemFindAllVersionsByID(t *testing.T, newRepo itemFactory) {
 
 	iid := id.NewItemID()
 	fs := []*item.Field{boolField()}
-	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(ts1).MustBuild()
-	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
+	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(ts1).Anonymous(true).MustBuild()
+	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID().Ref()).Timestamp(ts2).Anonymous(true).MustBuild()
 
 	// want takes the query result because version IDs are generated at save
 	// time and cannot be precomputed in the table.
@@ -278,8 +278,8 @@ func testItemFindAllVersionsByIDs(t *testing.T, newRepo itemFactory) {
 	iid2 := id.NewItemID()
 	pid := id.NewProjectID()
 	fs := []*item.Field{boolField()}
-	i1 := item.New().ID(iid1).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts1).MustBuild()
-	i2 := item.New().ID(iid2).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
+	i1 := item.New().ID(iid1).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts1).Anonymous(true).MustBuild()
+	i2 := item.New().ID(iid2).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(ts2).Anonymous(true).MustBuild()
 
 	// want takes the query result because version IDs are generated at save
 	// time and cannot be precomputed in the table.
@@ -461,9 +461,9 @@ func testItemSave(t *testing.T, newRepo itemFactory) {
 func testItemRemove(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	seeds := item.List{i1, i2, i3}
 
 	tests := []struct {
@@ -534,10 +534,10 @@ func testItemRemove(t *testing.T, newRepo itemFactory) {
 func testItemBatchRemove(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	seeds := item.List{i1, i2, i3, i4}
 
 	tests := []struct {
@@ -631,7 +631,7 @@ func testItemBatchRemove(t *testing.T, newRepo itemFactory) {
 func testItemArchive(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	type args struct {
 		project  id.ProjectID
@@ -724,10 +724,10 @@ func testItemSearch(t *testing.T, newRepo itemFactory) {
 	s2 := schema.New().NewID().Project(pid).Workspace(accountdomain.NewWorkspaceID()).Fields([]*schema.Field{sf1, sf2}).MustBuild()
 	f1 := item.NewField(sf1.ID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	f2 := item.NewField(sf2.ID(), value.TypeInteger.Value(2).AsMultiple(), nil)
-	i1 := item.New().NewID().Schema(s1.ID()).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(s1.ID()).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := item.New().NewID().Schema(s1.ID()).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i4 := item.New().NewID().Schema(s2.ID()).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(s1.ID()).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := item.New().NewID().Schema(s1.ID()).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i4 := item.New().NewID().Schema(s2.ID()).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	sp := schema.NewPackage(s1, nil, nil, nil)
 
 	tests := []struct {
@@ -789,8 +789,8 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
-	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	seeds := item.List{i1, i2}
 
 	tests := []struct {
@@ -840,7 +840,7 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 func testItemUpdateRef(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	vx := version.Ref("xxx")
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -896,9 +896,9 @@ func testItemFindByAssets(t *testing.T, newRepo itemFactory) {
 	f1 := item.NewField(sf1, value.TypeAsset.Value(aid1).AsMultiple(), nil)
 	f2 := item.NewField(sf2, value.TypeAsset.Value(aid2).AsMultiple(), nil)
 	f3 := item.NewField(sf2, value.TypeText.Value("xxx").AsMultiple(), nil)
-	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	seeds := item.List{i1, i2, i3}
 
 	tests := []struct {
@@ -960,10 +960,10 @@ func testItemCountByModel(t *testing.T, newRepo itemFactory) {
 	sid := id.NewSchemaID()
 	fs := []*item.Field{boolField()}
 
-	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
-	i4 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i4 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid2).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -1093,8 +1093,8 @@ func testItemLastModifiedByModel(t *testing.T, newRepo itemFactory) {
 	nows := []time.Time{now1, now2}
 	mid := id.NewModelID()
 	pid := id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(now1.Truncate(time.Millisecond)).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(now2.Truncate(time.Millisecond)).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(now1.Truncate(time.Millisecond)).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Timestamp(now2.Truncate(time.Millisecond)).Anonymous(true).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -1152,8 +1152,8 @@ func testItemFindVersionByID(t *testing.T, newRepo itemFactory) {
 	fs := []*item.Field{boolField()}
 	ts1 := now1.Truncate(time.Millisecond)
 	ts2 := ts1.Add(time.Second)
-	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(ts1).MustBuild()
-	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(i1.Model()).Project(i1.Project()).Thread(id.NewThreadID().Ref()).Timestamp(ts2).MustBuild()
+	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(ts1).Anonymous(true).MustBuild()
+	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(i1.Model()).Project(i1.Project()).Thread(id.NewThreadID().Ref()).Timestamp(ts2).Anonymous(true).MustBuild()
 
 	// args resolves the version to request once the seeds are saved and
 	// their (unpredictable) generated version IDs are read back, since they
@@ -1218,10 +1218,10 @@ func testItemRemoveByModel(t *testing.T, newRepo itemFactory) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
 	mid, mid2 := id.NewModelID(), id.NewModelID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid2).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid2).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i4 := item.New().NewID().Schema(id.NewSchemaID()).Model(mid).Project(pid2).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	seeds := item.List{i1, i2, i3, i4}
 
 	tests := []struct {

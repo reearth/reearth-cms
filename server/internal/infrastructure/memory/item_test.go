@@ -16,7 +16,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,8 +32,8 @@ func TestItemRepo(t *testing.T) {
 func TestItem_MemorySpecific_RemoveSemantics(t *testing.T) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i1)
@@ -55,7 +54,7 @@ func TestItem_MemorySpecific_RemoveSemantics(t *testing.T) {
 func TestItem_MemorySpecific_ArchiveScope(t *testing.T) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	base := NewItem()
 	_ = base.Save(ctx, i1)
@@ -78,7 +77,7 @@ func TestItem_MemorySpecific_ArchiveScope(t *testing.T) {
 func TestItem_MemorySpecific_Errors(t *testing.T) {
 	ctx := context.Background()
 	wantErr := errors.New("test")
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
@@ -126,7 +125,7 @@ func TestItem_MemorySpecific_Copy(t *testing.T) {
 
 	wantFilter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
 	assert.NoError(t, err)
-	assert.Equal(t, filter, lo.ToPtr(string(wantFilter)))
+	assert.Equal(t, filter, new(string(wantFilter)))
 
 	wantChanges, err := json.Marshal(task.Changes{
 		"id":                   {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
@@ -144,5 +143,5 @@ func TestItem_MemorySpecific_Copy(t *testing.T) {
 		"user":                 {Type: task.ChangeTypeSet, Value: *params.User},
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
+	assert.Equal(t, changes, new(string(wantChanges)))
 }
