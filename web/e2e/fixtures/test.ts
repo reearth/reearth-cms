@@ -1,6 +1,8 @@
-import { test as base, type Page } from "@playwright/test";
+import { test as base } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
-import { config, getAccessToken, type Config } from "../config/config";
+import { config, getAccessToken } from "../config/config";
+import type { Config } from "../config/config";
 import { AssetsPage } from "../pages/assets.page";
 import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";

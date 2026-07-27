@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
-import { Workspace as GQLWorkspace } from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { Workspace as GQLWorkspace } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   DeleteWorkspaceDocument,
   UpdateWorkspaceDocument,

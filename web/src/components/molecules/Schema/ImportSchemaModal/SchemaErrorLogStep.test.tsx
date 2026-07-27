@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { t } from "@reearth-cms/i18n";
-import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
 import SchemaErrorLogStep from "./SchemaErrorLogStep";
 

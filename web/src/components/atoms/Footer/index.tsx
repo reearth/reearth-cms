@@ -1,3 +1,3 @@
-import { Footer } from "antd/lib/layout/layout";
+import { Footer } from "antd/es/layout/layout";
 
 export default Footer;

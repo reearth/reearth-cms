@@ -7,7 +7,7 @@ import { describe, expect, test, vi } from "vitest";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
-import { type UploaderQueueItem } from "../types";
+import type { UploaderQueueItem } from "../types";
 
 import QueueItem from ".";
 

@@ -1,4 +1,4 @@
-import { FullConfig } from "@playwright/test";
+import type { FullConfig } from "@playwright/test";
 
 async function globalSetup(_config: FullConfig) {
   console.log("Running global setup...");

@@ -1,9 +1,16 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type AddCommentMutationVariables = Types.Exact<{
-  threadId: Types.Scalars["ID"]["input"];
-  content: Types.Scalars["String"]["input"];
+export type OperatorType = "Integration" | "User";
+
+export type AddCommentMutationVariables = Exact<{
+  threadId: string;
+  content: string;
 }>;
 
 export type AddCommentMutation = {
@@ -24,10 +31,10 @@ export type AddCommentMutation = {
   } | null;
 };
 
-export type UpdateCommentMutationVariables = Types.Exact<{
-  commentId: Types.Scalars["ID"]["input"];
-  threadId: Types.Scalars["ID"]["input"];
-  content: Types.Scalars["String"]["input"];
+export type UpdateCommentMutationVariables = Exact<{
+  commentId: string;
+  threadId: string;
+  content: string;
 }>;
 
 export type UpdateCommentMutation = {
@@ -48,9 +55,9 @@ export type UpdateCommentMutation = {
   } | null;
 };
 
-export type DeleteCommentMutationVariables = Types.Exact<{
-  commentId: Types.Scalars["ID"]["input"];
-  threadId: Types.Scalars["ID"]["input"];
+export type DeleteCommentMutationVariables = Exact<{
+  commentId: string;
+  threadId: string;
 }>;
 
 export type DeleteCommentMutation = {

@@ -1,4 +1,4 @@
-import { Browser, BrowserContext } from "@playwright/test";
+import type { Browser, BrowserContext } from "@playwright/test";
 
 import { createADCIAPContext, getADCIAPToken, makeADCIAPRequest } from "./iap-auth-adc";
 import { createIdTokenIAPContext } from "./iap-auth-id-token";

@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
-import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import type { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import DropdownAtom from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -28,7 +29,7 @@ const Dropdown: React.FC<Props> = ({
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
-      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
+      popupRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
       <a onClick={e => e.preventDefault()}>
         <Space>

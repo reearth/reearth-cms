@@ -1,5 +1,5 @@
 import CommentsPanelWrapper from "@reearth-cms/components/molecules/Common/CommentsPanel";
-import {
+import type {
   Comment,
   RefetchQueries,
   ResourceType,

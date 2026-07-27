@@ -1,14 +1,18 @@
 import styled from "@emotion/styled";
-import { FocusEventHandler, useCallback, useState, useMemo } from "react";
+import type { FocusEventHandler } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
-import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import type {
+  Request,
+  RequestUpdatePayload,
+} from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";

@@ -3,9 +3,9 @@ import { useCallback, useState } from "react";
 import IntegrationConnectModal from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal";
 import IntegrationSettingsModal from "@reearth-cms/components/molecules/Integration/IntegrationSettingsModal";
 import IntegrationTable from "@reearth-cms/components/molecules/Integration/IntegrationTable";
-import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   loading: boolean;

@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

@@ -3,7 +3,7 @@ import { useCallback, useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
   DeleteMeDocument,
   GetMeDocument,

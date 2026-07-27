@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
-import { FormType } from "../../types";
+import type { FormType } from "../../types";
 
 import ReadingSettings from ".";
 

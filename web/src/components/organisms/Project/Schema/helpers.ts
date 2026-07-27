@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import {
+import type {
   EditorSupportedType,
   SchemaFieldType,
   ObjectSupportedType,
   TypeProperty,
   ImportFieldInput,
-  ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import {
+import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import type {
   GeometryEditorSupportedType,
   GeometryObjectSupportedType,
   SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { Constant } from "@reearth-cms/utils/constant";
-import { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
+import type { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
 
 export abstract class SchemaHelpers {
   public static convertSchemaFieldType(s: string): SchemaFieldType {

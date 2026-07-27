@@ -1,10 +1,13 @@
 import Loading from "@reearth-cms/components/atoms/Loading";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestMolecule from "@reearth-cms/components/molecules/Request/Details/Request";
-import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type {
+  Request,
+  RequestUpdatePayload,
+} from "@reearth-cms/components/molecules/Request/types";
+import type { Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
   me?: User;

@@ -5,7 +5,11 @@ import ReactDragListView from "react-drag-listview";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import useSettings from "@reearth-cms/components/molecules/Settings/useSettings.ts";
-import { Resource, TerrainType, TileType } from "@reearth-cms/components/molecules/Workspace/types";
+import type {
+  Resource,
+  TerrainType,
+  TileType,
+} from "@reearth-cms/components/molecules/Workspace/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 export type Props = {

@@ -1,5 +1,5 @@
 // e2e/pages/login.page.ts
-import { type Locator, type Page } from "@reearth-cms/e2e/fixtures/test";
+import type { Locator, Page } from "@reearth-cms/e2e/fixtures/test";
 
 export class LoginPage {
   // Custom login form elements

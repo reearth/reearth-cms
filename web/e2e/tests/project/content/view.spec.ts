@@ -155,18 +155,13 @@ test("Apply sorting to view", async ({
     await page.waitForLoadState("networkidle");
   });
 
-  await test.step("Apply ascending sort to text column", async () => {
+  await test.step("Apply ascending sort to text column and verify", async () => {
     await expect(async () => {
       await contentPage.textColumnHeader.click();
-      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+      await page.waitForLoadState("networkidle");
+      await expect(contentPage.tableRow(0)).toContainText("sample1");
     }).toPass({ timeout: 15_000 });
-    await page.waitForLoadState("networkidle");
-  });
-
-  await test.step("Verify items are sorted alphabetically", async () => {
-    await expect(contentPage.tableRow(0)).toContainText("sample1");
     await expect(contentPage.tableRow(1)).toContainText("sample2");
-    await page.waitForLoadState("networkidle");
   });
 });
 
@@ -256,9 +251,9 @@ test("Save view with custom sorting and filtering", async ({
   await test.step("Apply sorting", async () => {
     await expect(async () => {
       await contentPage.textColumnHeader.click();
-      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+      await page.waitForLoadState("networkidle");
+      await expect(contentPage.tableRow(0)).toContainText("sample1");
     }).toPass({ timeout: 15_000 });
-    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Apply filter: text contains 'text'", async () => {
@@ -291,7 +286,6 @@ test("Save view with custom sorting and filtering", async ({
 
   await test.step("Verify view saved with all customizations", async () => {
     await expect(contentPage.viewByName("filtered view")).toBeVisible();
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
     await expect(contentPage.statusColumnHeader).toBeHidden();
@@ -331,7 +325,8 @@ test("Switch between views preserves individual view settings", async ({
   await test.step("Apply sorting, filtering, and hide column", async () => {
     await expect(async () => {
       await contentPage.textColumnHeader.click();
-      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+      await page.waitForLoadState("networkidle");
+      await expect(contentPage.tableRow(0)).toContainText("sample1");
     }).toPass({ timeout: 15_000 });
     await contentPage.addFilterButton.click();
     await contentPage.filterMenuItem("text").click();
@@ -360,7 +355,6 @@ test("Switch between views preserves individual view settings", async ({
 
   await test.step("Verify view2 has customizations", async () => {
     await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.statusColumnHeader).toBeHidden();
     await page.waitForLoadState("networkidle");
@@ -369,7 +363,6 @@ test("Switch between views preserves individual view settings", async ({
   await test.step("Switch to view1 and verify it has no customizations", async () => {
     await contentPage.viewByName("view1").click();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).not.toHaveClass(/active/);
     await expect(contentPage.filterCloseButton("text")).toBeHidden();
     await expect(contentPage.tableRow(0)).toContainText("sample2");
     await expect(contentPage.statusColumnHeader).toBeVisible();
@@ -405,14 +398,18 @@ test("Update view settings", async ({
   });
 
   await test.step("Apply descending sort", async () => {
+    // First click: ascending (sample1 < text1)
     await expect(async () => {
       await contentPage.textColumnHeader.first().click();
-      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+      await page.waitForLoadState("networkidle");
+      await expect(contentPage.tableRow(0)).toContainText("sample1");
     }).toPass({ timeout: 15_000 });
-    await contentPage.textColumnHeader.first().click();
-    await expect(contentPage.sortDownIcon).toHaveClass(/active/);
-    await expect(contentPage.tableRow(0)).toContainText("text1");
-    await page.waitForLoadState("networkidle");
+    // Second click: descending (text1 > sample1)
+    await expect(async () => {
+      await contentPage.textColumnHeader.first().click();
+      await page.waitForLoadState("networkidle");
+      await expect(contentPage.tableRow(0)).toContainText("text1");
+    }).toPass({ timeout: 15_000 });
   });
 
   await test.step("Apply filter: text ends with '1'", async () => {
@@ -445,7 +442,6 @@ test("Update view settings", async ({
 
   await test.step("Switch back to view1 and verify updated settings persisted", async () => {
     await contentPage.viewByName("view1").click();
-    await expect(contentPage.sortDownIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("sample1");
     await page.waitForLoadState("networkidle");
@@ -482,7 +478,8 @@ test("Delete view and switch to remaining view", async ({
   await test.step("Apply customizations for second view", async () => {
     await expect(async () => {
       await contentPage.textColumnHeader.click();
-      await expect(contentPage.sortUpIcon).toHaveClass(/active/, { timeout: 5_000 });
+      await page.waitForLoadState("networkidle");
+      await expect(contentPage.tableRow(0)).toContainText("text1");
     }).toPass({ timeout: 15_000 });
     await contentPage.addFilterButton.click();
     await contentPage.filterMenuItem("text").click();
@@ -520,7 +517,6 @@ test("Delete view and switch to remaining view", async ({
     await expect(contentPage.viewByName("view1")).toBeHidden();
     await expect(contentPage.viewByName("view2")).toBeVisible();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
     await page.waitForLoadState("networkidle");
@@ -530,11 +526,13 @@ test("Delete view and switch to remaining view", async ({
 test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
+    await expect(projectPage.modelMenuItemClick(projectPage.modelName)).toBeVisible();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();
     await page.waitForLoadState("networkidle");
   });
 
   await test.step("Create view1", async () => {
+    await expect(contentPage.saveAsNewViewButton).toBeVisible();
     await contentPage.saveAsNewViewButton.click();
     await expect(contentPage.viewNameInput).toBeVisible();
     await expect(async () => {

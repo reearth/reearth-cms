@@ -79,7 +79,7 @@ describe("Constant", () => {
         try {
           readFileSync(filePath, "utf-8");
         } catch (err) {
-          throw Error(String(err));
+          throw Error(String(err), { cause: err });
         }
       });
     });

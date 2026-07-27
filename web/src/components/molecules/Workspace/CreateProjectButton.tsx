@@ -2,9 +2,8 @@ import { useState, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProjectCreationModal, {
-  FormValues,
-} from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import type { FormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {

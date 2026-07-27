@@ -1,9 +1,8 @@
 import { useState, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import WorkspaceCreationModal, {
-  FormValues as WorkspaceFormValues,
-} from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import type { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {

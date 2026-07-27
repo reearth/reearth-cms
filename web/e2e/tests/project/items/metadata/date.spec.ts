@@ -64,7 +64,8 @@ test("Date metadata creating and updating has succeeded", async ({
   await test.step("Update date value inline in list view", async () => {
     await contentPage.backButtonRole.click();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-01");
-    await contentPage.textBoxes.fill("2024-01-02");
+    await contentPage.textBoxes.click({ clickCount: 3 });
+    await contentPage.textBoxes.pressSequentially("2024-01-02");
     await contentPage.textBoxes.press("Enter");
     await contentPage.closeNotification();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-02");

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { render } from "@testing-library/react";
-import {
+import type {
   GeoJSONGeometryCollection,
   GeoJSONLineString,
   GeoJSONMultiPoint,
@@ -9,7 +9,7 @@ import {
   GeoJSONPolygon,
 } from "zod-geojson";
 
-import { RcFile } from "@reearth-cms/components/atoms/Upload";
+import type { RcFile } from "@reearth-cms/components/atoms/Upload";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 // override render export

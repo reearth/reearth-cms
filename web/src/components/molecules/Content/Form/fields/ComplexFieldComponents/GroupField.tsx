@@ -1,11 +1,12 @@
-import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
-import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import type { FormInstance } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
+import type { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import GroupItem from "@reearth-cms/components/molecules/Common/Form/GroupItem";
 import MultiValueGroup from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGroup";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
-import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { FieldProps, Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import type { FieldProps, Group } from "@reearth-cms/components/molecules/Schema/types";
 
 type GroupFieldProps = FieldProps & {
   form?: FormInstance<unknown>;

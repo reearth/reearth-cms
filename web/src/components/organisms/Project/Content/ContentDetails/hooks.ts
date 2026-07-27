@@ -1,11 +1,11 @@
-import { ApolloClient } from "@apollo/client";
+import type { ApolloClient } from "@apollo/client";
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import {
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type {
   FormValues,
   FormValue,
   FormGroupValue,
@@ -14,14 +14,14 @@ import {
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import {
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type {
   RequestState,
   RequestItem,
   Request,
 } from "@reearth-cms/components/molecules/Request/types";
-import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   fromGraphQLItem,
   fromGraphQLversionsByItem,
@@ -29,14 +29,16 @@ import {
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
-import {
+import type {
   Item as GQLItem,
   Model as GQLModel,
   Group as GQLGroup,
   VersionedItem as GQLVersionedItem,
   RequestState as GQLRequestState,
-  FieldType as GQLFieldType,
   ItemFieldInput,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  FieldType as GQLFieldType,
   StringOperator,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetGroupDocument } from "@reearth-cms/gql/__generated__/group.generated";

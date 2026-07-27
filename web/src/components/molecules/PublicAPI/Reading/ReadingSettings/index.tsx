@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { FormType } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 
 import ReadingTable from "./ReadingTable";

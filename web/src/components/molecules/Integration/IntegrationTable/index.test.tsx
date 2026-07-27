@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import type { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 
 import IntegrationTable from ".";
 

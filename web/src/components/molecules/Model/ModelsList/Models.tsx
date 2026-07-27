@@ -1,7 +1,7 @@
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
-import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import type { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
 type Props = {
   title: string;

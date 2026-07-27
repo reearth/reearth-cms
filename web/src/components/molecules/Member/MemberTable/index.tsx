@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { Key, useCallback, useMemo, useState } from "react";
+import type { Key } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
@@ -7,11 +8,11 @@ import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { ListToolBarProps, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
+import type { ListToolBarProps, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { User } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { User } from "@reearth-cms/components/molecules/Member/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

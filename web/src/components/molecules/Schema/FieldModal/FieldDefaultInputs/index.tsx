@@ -1,12 +1,12 @@
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import {
+import type { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import type {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 
-import { SchemaFieldType } from "../../types";
+import type { SchemaFieldType } from "../../types";
 
 import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";

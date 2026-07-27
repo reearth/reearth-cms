@@ -1,6 +1,6 @@
 import { useCallback, useState, useMemo } from "react";
 
-import {
+import type {
   Integration,
   Webhook as WebhookType,
   NewWebhook,

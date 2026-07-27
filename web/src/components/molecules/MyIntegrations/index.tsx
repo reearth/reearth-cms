@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
 import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
 import MyIntegrationList from "@reearth-cms/components/molecules/MyIntegrations/List";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   integrations: Integration[];

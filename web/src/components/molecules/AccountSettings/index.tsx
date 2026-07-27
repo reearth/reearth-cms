@@ -4,7 +4,7 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import DangerZone from "@reearth-cms/components/molecules/AccountSettings/DangerZone";
 import GeneralForm from "@reearth-cms/components/molecules/AccountSettings/GeneralForm";
 import ServiceForm from "@reearth-cms/components/molecules/AccountSettings/ServiceForm";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
