@@ -6,7 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
@@ -95,16 +94,6 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
-	} else if conf.S3.BucketName != "" {
-		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
-		if conf.Asset_Public {
-			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
-		} else {
-			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
-		}
-		if err != nil {
-			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
-		}
 	} else {
 		log.Infof("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
@@ -135,13 +124,6 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		}
 		gateways.TaskRunner = taskRunner
 		log.Infof("task runner: GCP is used")
-	} else if conf.AWSTask.TopicARN != "" || conf.AWSTask.WebhookARN != "" {
-		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
-		if err != nil {
-			log.Fatalf("task runner: aws init error: %+v", err)
-		}
-		gateways.TaskRunner = taskRunner
-		log.Infof("task runner: AWS is used")
 	} else {
 		log.Infof("task runner: not used")
 	}

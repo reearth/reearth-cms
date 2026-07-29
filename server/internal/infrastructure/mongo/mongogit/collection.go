@@ -224,6 +224,28 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	return nil
 }
 
+func (c *Collection) BulkUpdateRef(ctx context.Context, ids []string, ref version.Ref, dest *version.VersionOrRef) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	if err := c.DeleteRef(ctx, ids, ref); err != nil {
+		return err
+	}
+
+	if dest != nil {
+		if _, err := c.client.Client().UpdateMany(ctx, apply(version.Eq(*dest), bson.M{
+			"id": bson.M{"$in": ids},
+		}), bson.M{
+			"$push": bson.M{refsKey: ref},
+		}); err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+	}
+
+	return nil
+}
+
 func (c *Collection) IsArchived(ctx context.Context, filter any) (bool, error) {
 	cons := mongox.SliceConsumer[MetadataDocument]{}
 	q := mongox.And(filter, "", bson.M{
