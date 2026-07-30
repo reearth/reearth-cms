@@ -230,7 +230,7 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 		return PostItemResult{Err: ErrUnsupportedFieldType}
 	}
 
-	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
+	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body, unsupportedTypes); len(fieldErrs) > 0 {
 		return PostItemResult{
 			FieldErrors: fieldErrs,
 		}

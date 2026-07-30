@@ -309,7 +309,7 @@ func TestSchema_ValidateFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			errs := tt.schema.ValidateFields(tt.body)
+			errs := tt.schema.ValidateFields(tt.body, nil)
 
 			if tt.wantCodes == nil {
 				assert.Empty(t, errs)
@@ -341,7 +341,7 @@ func TestSchema_ValidateFields_GlobalLimits(t *testing.T) {
 		buildTestSchema(buildTestField("website", NewURL().TypeProperty(), false)),
 		buildTestSchema(buildTestField("website", NewURL().TypeProperty(), false)),
 	} {
-		errs := s.ValidateFields(map[string]any{"website": overURL})
+		errs := s.ValidateFields(map[string]any{"website": overURL}, nil)
 		require.Len(t, errs, 1, "schema %d", i)
 		assert.Equal(t, FieldValidationCodeMaxLengthExceeded, errs[0].Code, "schema %d", i)
 	}
@@ -350,7 +350,7 @@ func TestSchema_ValidateFields_GlobalLimits(t *testing.T) {
 		buildTestSchema(buildTestField("location", NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypeLineString}).TypeProperty(), false)),
 		buildTestSchema(buildTestField("location", NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypeLineString}).TypeProperty(), false)),
 	} {
-		errs := s.ValidateFields(map[string]any{"location": overGeo})
+		errs := s.ValidateFields(map[string]any{"location": overGeo}, nil)
 		require.Len(t, errs, 1, "schema %d", i)
 		assert.Equal(t, FieldValidationCodeMaxSizeExceeded, errs[0].Code, "schema %d", i)
 	}
