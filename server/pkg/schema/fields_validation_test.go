@@ -102,6 +102,9 @@ func TestSchema_ValidateFields(t *testing.T) {
 				"tag":         tagA.ID(),
 				"tags":        []any{tagA.ID(), tagB.ID()},
 				"counts":      []any{float64(1), float64(5)},
+				"attachment":  id.NewAssetID().String(),
+				"ref":         id.NewItemID().String(),
+				"location":    `{"type":"Point","coordinates":[1,2]}`,
 				"unknown":     "ignored",
 			},
 		},
@@ -179,12 +182,24 @@ func TestSchema_ValidateFields(t *testing.T) {
 			body:      map[string]any{"title": "hello", "score": float64(1.1)},
 			wantCodes: map[string]FieldValidationCode{"score": FieldValidationCodeConstraint},
 		},
-		// select
+		// select & tags
 		{
 			name:      "select invalid value",
 			schema:    s,
 			body:      map[string]any{"title": "hello", "status": "pending"},
 			wantCodes: map[string]FieldValidationCode{"status": FieldValidationCodeConstraint},
+		},
+		{
+			name:      "tag invalid value type",
+			schema:    s,
+			body:      map[string]any{"title": "hello", "tag": "c"},
+			wantCodes: map[string]FieldValidationCode{"tag": FieldValidationCodeConstraint},
+		},
+		{
+			name: "tag non existing value",
+			schema: s,
+			body: map[string]any{"title": "hello", "tag": id.NewTagID().String()},
+			wantCodes: map[string]FieldValidationCode{"tag": FieldValidationCodeConstraint},
 		},
 		// type mismatches
 		{
