@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -13,9 +14,19 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
+
+var unsupportedTypes = []value.Type{
+	value.TypeAsset,
+	value.TypeReference,
+	value.TypeTag,
+	value.TypeGroup,
+	value.TypeGeometryEditor,
+	value.TypeGeometryObject,
+}
 
 func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i string) (Item, error) {
 	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
@@ -178,9 +189,22 @@ type PostItemResult struct {
 	Err         error
 }
 
+func hasUnsupportedRequiredTypes(s *schema.Schema) bool {
+	for _, f := range s.Fields() {
+		if f.Required() && slices.Contains(unsupportedTypes, f.Type()) {
+			return true
+		}
+	}
+	return false
+}
+
 func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
 	params := make([]interfaces.ItemFieldParam, 0, len(body))
 	for _, f := range s.Fields() {
+		if slices.Contains(unsupportedTypes, f.Type()) {
+			continue
+		}
+
 		key := f.Key()
 		v, ok := body[key.String()]
 		if !ok {
@@ -202,7 +226,11 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 		return PostItemResult{Err: rerror.ErrNotFound}
 	}
 
-	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {
+	if hasUnsupportedRequiredTypes(wpm.SchemaPackage.Schema()) {
+		return PostItemResult{Err: ErrUnsupportedFieldType}
+	}
+
+	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body, unsupportedTypes); len(fieldErrs) > 0 {
 		return PostItemResult{
 			FieldErrors: fieldErrs,
 		}
@@ -219,11 +247,10 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 	}
 
 	itv := it.Value()
-	fields := NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil)
 	return PostItemResult{Item: &PostItemResponse{
 		ID:        itv.ID().String(),
 		CreatedAt: itv.ID().Timestamp(),
-		Fields:    map[string]any(fields),
+		Fields:    NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil),
 	}}
 }
 

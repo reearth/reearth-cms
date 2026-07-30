@@ -2,6 +2,7 @@ package schema
 
 import (
 	"encoding/json"
+	"slices"
 	"unicode/utf8"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -33,7 +34,7 @@ type FieldValidationError struct {
 }
 
 // ValidateFields validates a raw key→value map against the schema.
-func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
+func (s *Schema) ValidateFields(fields map[string]any, skip []value.Type) []FieldValidationError {
 	if s == nil {
 		return nil
 	}
@@ -41,7 +42,12 @@ func (s *Schema) ValidateFields(fields map[string]any) []FieldValidationError {
 	var errs []FieldValidationError
 
 	for _, f := range s.Fields() {
-		if f.Type() == value.TypeAsset || f.Type() == value.TypeReference || f.Type() == value.TypeTag || f.Type() == value.TypeGroup {
+		// TODO: Consider validating group fields recursively in the future.
+		// note that group fields need a schema package to validate their fields, which is not available in this context.
+		if f.Type() == value.TypeGroup {
+			continue
+		}
+		if skip != nil && slices.Contains(skip, f.Type()) {
 			continue
 		}
 
