@@ -36,6 +36,7 @@ const (
 	codePayloadTooLarge      = "payload_too_large"
 	codeRateLimited          = "rate_limited"
 	codeAccessDenied         = "access_denied"
+	codeUnsupportedField     = "unsupported_field_type"
 )
 
 // Human-readable messages paired with each error code.
@@ -50,6 +51,7 @@ const (
 	msgPayloadTooLarge      = "Request body exceeds the allowed limit."
 	msgRateLimited          = "Too many requests. Please retry later."
 	msgAccessDenied         = "You are not allowed to perform this action."
+	msgUnsupportedField     = "The schema requires a field type that is not supported for posting."
 )
 
 // PostingErrorCodes lists every machine-readable code the posting endpoint can
@@ -64,6 +66,7 @@ var PostingErrorCodes = []string{
 	codePayloadTooLarge,
 	codeRateLimited,
 	codeAccessDenied,
+	codeUnsupportedField,
 }
 
 // newAPIError builds a uniform error body with both code and message set.
@@ -95,6 +98,8 @@ func postItemErrorResponse(c *echo.Context, err error) error {
 		return c.JSON(http.StatusNotFound, newAPIError(codeNotFound, msgNotFound, nil))
 	case errors.Is(err, interfaces.ErrOperationDenied), errors.Is(err, interfaces.ErrInvalidOperator):
 		return c.JSON(http.StatusForbidden, newAPIError(codeAccessDenied, msgAccessDenied, nil))
+	case errors.Is(err, ErrUnsupportedFieldType):
+		return c.JSON(http.StatusUnprocessableEntity, newAPIError(codeUnsupportedField, msgUnsupportedField, nil))
 	default:
 		return err
 	}

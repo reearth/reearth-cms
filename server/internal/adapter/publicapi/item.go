@@ -201,10 +201,10 @@ func hasUnsupportedRequiredTypes(s *schema.Schema) bool {
 func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
 	params := make([]interfaces.ItemFieldParam, 0, len(body))
 	for _, f := range s.Fields() {
-		if slices.Contains(unsupportedTypes, f.Type()){
+		if slices.Contains(unsupportedTypes, f.Type()) {
 			continue
 		}
-		
+
 		key := f.Key()
 		v, ok := body[key.String()]
 		if !ok {
