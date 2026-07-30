@@ -47,6 +47,7 @@ func TestSchema_ValidateFields(t *testing.T) {
 
 	intField, _ := NewInteger(new(int64(1)), new(int64(100)))
 	numField, _ := NewNumber(new(0.0), new(1.0))
+	tagA, tagB := NewTag("a", TagColorBlue), NewTag("b", TagColorRed)
 
 	s := buildTestSchema(
 		buildTestField("title", NewText(nil).TypeProperty(), true),
@@ -64,12 +65,11 @@ func TestSchema_ValidateFields(t *testing.T) {
 		buildTestField("location", NewGeometryObject(GeometryObjectSupportedTypeList{
 			GeometryObjectSupportedTypePoint, GeometryObjectSupportedTypeLineString,
 		}).TypeProperty(), false),
-		buildTestField("tag", NewText(nil).TypeProperty(), false),
-		buildTestFieldMultiple("tags", NewText(nil).TypeProperty(), false),
+		buildTestField("tag", lo.Must(NewFieldTag(TagList{tagA, tagB})).TypeProperty(), false),
+		buildTestFieldMultiple("tags", lo.Must(NewFieldTag(TagList{tagA, tagB})).TypeProperty(), false),
 		buildTestFieldMultiple("counts", intField.TypeProperty(), false),
-		// out of scope — skipped even when required
-		buildTestField("attachment", NewAsset().TypeProperty(), true),
-		buildTestField("ref", NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty(), true),
+		buildTestField("attachment", NewAsset().TypeProperty(), false),
+		buildTestField("ref", NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty(), false),
 	)
 
 	tests := []struct {
@@ -87,13 +87,22 @@ func TestSchema_ValidateFields(t *testing.T) {
 			name:   "valid payload with all field types passes",
 			schema: s,
 			body: map[string]any{
-				"title": "hello", "bio": "short", "summary": "short",
-				"content": "short", "notes": "short",
-				"count": float64(50), "score": float64(0.5), "status": "open",
-				"active": true, "agreed": false,
-				"publishedAt": "2024-01-15T10:00:00Z", "website": "https://example.com",
-				"tag": "one", "tags": []any{"a", "b"}, "counts": []any{float64(1), float64(5)},
-				"unknown": "ignored",
+				"title":       "hello",
+				"bio":         "short",
+				"summary":     "short",
+				"content":     "short",
+				"notes":       "short",
+				"count":       float64(50),
+				"score":       float64(0.5),
+				"status":      "open",
+				"active":      true,
+				"agreed":      false,
+				"publishedAt": "2024-01-15T10:00:00Z",
+				"website":     "https://example.com",
+				"tag":         tagA.ID(),
+				"tags":        []any{tagA.ID(), tagB.ID()},
+				"counts":      []any{float64(1), float64(5)},
+				"unknown":     "ignored",
 			},
 		},
 		// required

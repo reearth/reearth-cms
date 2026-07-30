@@ -39,7 +39,6 @@ var (
 type ItemFieldParam struct {
 	Field *item.FieldID
 	Key   *id.Key
-	// Type  value.Type
 	Value any
 	Group *id.ItemGroupID
 }

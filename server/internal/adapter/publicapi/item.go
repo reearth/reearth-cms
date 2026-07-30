@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -181,6 +182,10 @@ type PostItemResult struct {
 func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
 	params := make([]interfaces.ItemFieldParam, 0, len(body))
 	for _, f := range s.Fields() {
+		if f.Type() == value.TypeAsset || f.Type() == value.TypeReference || f.Type() == value.TypeTag || f.Type() == value.TypeGroup || f.Type().IsGeometryFieldType() {
+			continue
+		}
+		
 		key := f.Key()
 		v, ok := body[key.String()]
 		if !ok {
@@ -219,11 +224,10 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 	}
 
 	itv := it.Value()
-	fields := NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil)
 	return PostItemResult{Item: &PostItemResponse{
 		ID:        itv.ID().String(),
 		CreatedAt: itv.ID().Timestamp(),
-		Fields:    map[string]any(fields),
+		Fields:    NewItemFields(itv.Fields(), wpm.SchemaPackage.Schema().Fields(), nil, nil, nil),
 	}}
 }
 
