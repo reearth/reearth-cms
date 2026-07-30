@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -17,6 +18,15 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
+
+var unsupportedTypes = []value.Type{
+	value.TypeAsset,
+	value.TypeReference,
+	value.TypeTag,
+	value.TypeGroup,
+	value.TypeGeometryEditor,
+	value.TypeGeometryObject,
+}
 
 func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i string) (Item, error) {
 	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
@@ -179,10 +189,19 @@ type PostItemResult struct {
 	Err         error
 }
 
+func hasUnsupportedRequiredTypes(s *schema.Schema) bool {
+	for _, f := range s.Fields() {
+		if f.Required() && slices.Contains(unsupportedTypes, f.Type()) {
+			return true
+		}
+	}
+	return false
+}
+
 func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
 	params := make([]interfaces.ItemFieldParam, 0, len(body))
 	for _, f := range s.Fields() {
-		if f.Type() == value.TypeAsset || f.Type() == value.TypeReference || f.Type() == value.TypeTag || f.Type() == value.TypeGroup || f.Type().IsGeometryFieldType() {
+		if slices.Contains(unsupportedTypes, f.Type()){
 			continue
 		}
 		
@@ -205,6 +224,10 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[string]any) PostItemResult {
 	if wpm.SchemaPackage == nil {
 		return PostItemResult{Err: rerror.ErrNotFound}
+	}
+
+	if hasUnsupportedRequiredTypes(wpm.SchemaPackage.Schema()) {
+		return PostItemResult{Err: ErrUnsupportedFieldType}
 	}
 
 	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body); len(fieldErrs) > 0 {

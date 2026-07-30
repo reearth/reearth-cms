@@ -14,6 +14,7 @@ import (
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
 var ErrProjectPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this project"))
 var ErrModelPostingDisabled = rerror.NewE(i18n.T("posting is disabled for this model"))
+var ErrUnsupportedFieldType = rerror.NewE(i18n.T("unsupported field type required in schema"))
 
 // apiErrorResponse is the uniform error body returned by the posting endpoint.
 type apiErrorResponse struct {
