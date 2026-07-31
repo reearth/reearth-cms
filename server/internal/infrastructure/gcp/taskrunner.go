@@ -117,7 +117,7 @@ func (t *TaskRunner) doHealthCheck(ctx context.Context) error {
 		return rerror.ErrInternalBy(fmt.Errorf("build service account is not configured"))
 	}
 
-	if err := CheckServiceAccountPermissions(ctx, t.conf.GCPProject, t.conf.BuildServiceAccount); err != nil {
+	if err := CheckServiceAccountPermissions(ctx, t.conf); err != nil {
 		return err
 	}
 
@@ -204,7 +204,11 @@ func (t *TaskRunner) decompressAsset(ctx context.Context, p task.Payload) error 
 	} else {
 		_, err = t.cbService.Projects.Builds.Create(project, build).Do()
 	}
-	return rerror.ErrInternalBy(err)
+	// Must guard on err: rerror.ErrInternalBy(nil) returns a non-nil typed nil.
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
 }
 
 func (t *TaskRunner) copyItems(ctx context.Context, p task.Payload) error {
@@ -319,8 +323,8 @@ func (t *TaskRunner) importItems(ctx context.Context, p task.Payload) error {
 				Args:      args,
 			},
 		},
-		ServiceAccount:   fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
-		Options:          buildOptions(conf),
+		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
+		Options:        buildOptions(conf),
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: availableSecrets,
 		},
