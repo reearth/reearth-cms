@@ -106,6 +106,7 @@ export default {
   "Control the visibility scope of the Content API": "コンテンツAPIの配信範囲を制御",
   "Copied": "コピーしました",
   "Copy": "コピー",
+  "Copy cURL": "cURLをコピー",
   "Copy URL": "URLをコピー",
   "Corresponding field": "対応フィールド",
   "Could not display SVG": "SVGを表示できませんでした。",
