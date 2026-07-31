@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -1445,17 +1444,18 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	t.Run("geo valid structure returns 201", func(t *testing.T) {
 		postVOK(map[string]any{"title": "hello", "location": `{"type":"Point","coordinates":[1,2]}`})
 	})
-	t.Run("geo invalid structure returns INVALID_GEO_STRUCTURE", func(t *testing.T) {
-		assertFieldError(postV(map[string]any{"title": "hello", "location": `{"type":"Point"}`}), "location", "INVALID_GEO_STRUCTURE")
-	})
-	t.Run("geo exceeding 10KB returns MAX_SIZE_EXCEEDED", func(t *testing.T) {
-		coords := make([][]float64, 0, 1400)
-		for range 1400 {
-			coords = append(coords, []float64{1.234567, 2.345678})
-		}
-		big, _ := json.Marshal(map[string]any{"type": "LineString", "coordinates": coords})
-		assertFieldError(postV(map[string]any{"title": "hello", "location": string(big)}), "location", "MAX_SIZE_EXCEEDED")
-	})
+	// Geo fields are skipped in posting api in stage 1.
+	// t.Run("geo invalid structure returns INVALID_GEO_STRUCTURE", func(t *testing.T) {
+	// 	assertFieldError(postV(map[string]any{"title": "hello", "location": `{"type":"Point"}`}), "location", "INVALID_GEO_STRUCTURE")
+	// })
+	// t.Run("geo exceeding 10KB returns MAX_SIZE_EXCEEDED", func(t *testing.T) {
+	// 	coords := make([][]float64, 0, 1400)
+	// 	for range 1400 {
+	// 		coords = append(coords, []float64{1.234567, 2.345678})
+	// 	}
+	// 	big, _ := json.Marshal(map[string]any{"type": "LineString", "coordinates": coords})
+	// 	assertFieldError(postV(map[string]any{"title": "hello", "location": string(big)}), "location", "MAX_SIZE_EXCEEDED")
+	// })
 
 	// --- payload size limit (256 KB) ---
 	t.Run("payload exceeding 256KB returns 413 before parsing", func(t *testing.T) {
@@ -1926,7 +1926,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	lo.Must0(r.Item.Save(ctx, p1m1i3))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.Save(ctx, p1m1i4))
-	//lo.Must0(r.Item.UpdateRef(ctx, p1m1i4.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	// lo.Must0(r.Item.UpdateRef(ctx, p1m1i4.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.Save(ctx, p1m1i5))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i5.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.Save(ctx, p1m2i1))
