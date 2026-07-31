@@ -26,6 +26,11 @@ describe("PostingTable", () => {
     expect(screen.queryByText(`${apiUrl}assets`)).not.toBeInTheDocument();
   });
 
+  test("renders a copy button for each endpoint", () => {
+    renderTable();
+    expect(screen.getByRole("button", { name: t("Copy") })).toBeVisible();
+  });
+
   test("disables the switches and greys out the table when disabled", () => {
     const { container } = renderTable({ disabled: true });
     screen.getAllByRole("switch").forEach(s => expect(s).toBeDisabled());

@@ -1,13 +1,16 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
 
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import Table from "@reearth-cms/components/atoms/Table";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import type { ModelDataType } from "../../types";
 
@@ -58,9 +61,22 @@ const PostingTable: React.FC<Props> = ({
         title: t("Endpoint"),
         dataIndex: "endpoint",
         render: url => (
-          <StyledAnchor target="_blank" href={url} rel="noreferrer">
-            {url}
-          </StyledAnchor>
+          <Flex align="center">
+            <Tag bordered={false} color="green">
+              POST
+            </Tag>
+            <span>{url}</span>
+          </Flex>
+        ),
+      },
+      {
+        key: "copy",
+        title: t("Copy cURL"),
+        dataIndex: "endpoint",
+        align: "center",
+        width: 120,
+        render: (endpoint: string) => (
+          <CopyButton copyable={{ text: endpoint }}>{t("Copy")}</CopyButton>
         ),
       },
     ],
@@ -93,11 +109,6 @@ const TableWrapper = styled.div<{ isDisabled?: boolean }>`
   margin: ${AntdToken.SPACING.LG}px 0;
   opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
   pointer-events: ${({ isDisabled }) => (isDisabled ? "none" : "auto")};
-`;
-
-const StyledAnchor = styled.a`
-  text-decoration: underline;
-  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledFormItem = styled(Form.Item)`
