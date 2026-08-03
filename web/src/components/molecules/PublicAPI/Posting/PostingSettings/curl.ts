@@ -61,9 +61,13 @@ export const buildPostItemCurl = (endpoint: string, fields: Field[]): string => 
       }, {}),
   };
 
+  const escapeForSingleQuotes = (s: string) => s.replace(/'/g, `'"'"'`);
+  const safeEndpoint = escapeForSingleQuotes(endpoint);
+  const payload = escapeForSingleQuotes(JSON.stringify(body, null, 2));
+
   return [
-    `curl -X POST '${endpoint}' \\`,
+    `curl -X POST '${safeEndpoint}' \\`,
     `  -H 'Content-Type: application/json' \\`,
-    `  -d '${JSON.stringify(body, null, 2)}'`,
+    `  -d '${payload}'`,
   ].join("\n");
 };
