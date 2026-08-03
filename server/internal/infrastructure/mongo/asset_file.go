@@ -140,10 +140,12 @@ func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) e
 	return nil
 }
 
-// assetFilesBulkWriteBatchSize caps how many page documents are sent per BulkWrite call,
-// so saving an asset with a very large number of extracted files doesn't build one
-// unbounded bulk operation (Mongo enforces its own per-bulk-write op count/size limits,
-// and a single huge call also blocks progress checkpointing).
+// assetFilesBulkWriteBatchSize caps how many page documents (each holding up to
+// assetFilesPageSize files) are sent per BulkWrite call, so saving an asset with a
+// very large number of extracted files doesn't build one unbounded bulk operation.
+// MongoDB's server-enforced maxWriteBatchSize defaults to 100,000 operations per write
+// command; 100 pages per batch stays comfortably under that while keeping the number
+// of round trips low even for assets with hundreds of thousands of files.
 const assetFilesBulkWriteBatchSize = 100
 
 func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
