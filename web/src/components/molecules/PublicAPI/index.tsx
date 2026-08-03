@@ -1,8 +1,6 @@
-import styled from "@emotion/styled";
 import { useMemo } from "react";
 
 import Flex from "@reearth-cms/components/atoms/Flex";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import type {
@@ -12,7 +10,7 @@ import type {
 } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import APIDocLinks from "../APIDocLinks";
 import ExperimentIcon from "../ExperimentIcon";
@@ -20,7 +18,6 @@ import ExperimentIcon from "../ExperimentIcon";
 import PostingTab from "./Posting";
 import APIKeyComponent from "./Reading/APIKey";
 import ReadingSettings from "./Reading/ReadingSettings";
-
 
 type Props = {
   apiKeys?: APIKey[];
