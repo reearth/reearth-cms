@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import type { Field, SchemaFieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
+import type {
+  Field,
+  SchemaFieldType,
+  TypeProperty,
+} from "@reearth-cms/components/molecules/Schema/types";
 
 import { buildFieldPlaceholder, buildPostItemCurl } from "./curl";
 
@@ -43,7 +47,9 @@ describe("buildFieldPlaceholder", () => {
 
   test("lists Select options", () => {
     expect(
-      buildFieldPlaceholder(field("Select", { required: true }, { values: ["news", "blog", "event"] })),
+      buildFieldPlaceholder(
+        field("Select", { required: true }, { values: ["news", "blog", "event"] }),
+      ),
     ).toBe("<Select, required, options: news | blog | event>");
   });
 
