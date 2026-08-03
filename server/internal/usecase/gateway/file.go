@@ -69,7 +69,10 @@ type Predicate func(FileEntry) bool
 
 type File interface {
 	ReadAsset(context.Context, string, string, map[string]string) (io.ReadCloser, map[string]string, error)
-	GetAssetFiles(context.Context, string) ([]FileEntry, error)
+	// GetAssetFiles streams the asset's files by invoking fn once per entry, rather than
+	// building the full list in memory, since assets can contain hundreds of thousands
+	// of extracted files. Returning an error from fn stops iteration and is propagated.
+	GetAssetFiles(ctx context.Context, uuid string, fn func(FileEntry) error) error
 	UploadAsset(context.Context, *file.File) (string, int64, error)
 	Read(context.Context, string, map[string]string) (io.ReadCloser, map[string]string, error)
 	Upload(context.Context, *file.File, string) (int64, error)

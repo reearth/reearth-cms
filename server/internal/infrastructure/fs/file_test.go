@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -63,12 +64,27 @@ func TestFile_GetAssetFiles(t *testing.T) {
 	fs := mockFs()
 	f, _ := NewFile(fs, "", false)
 
-	files, err := f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464")
+	var files []gateway.FileEntry
+	err := f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464", func(fe gateway.FileEntry) error {
+		files = append(files, fe)
+		return nil
+	})
 	assert.NoError(t, err)
 	assert.Equal(t, []gateway.FileEntry{
 		{Name: "xxx.txt", Size: 5},
 		{Name: path.Join("yyy", "hello.txt"), Size: 6},
 	}, files)
+
+	err = f.GetAssetFiles(context.Background(), "00000000-0000-0000-0000-000000000000", func(gateway.FileEntry) error {
+		return nil
+	})
+	assert.ErrorIs(t, err, gateway.ErrFileNotFound)
+
+	wantErr := errors.New("stop")
+	err = f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464", func(fe gateway.FileEntry) error {
+		return wantErr
+	})
+	assert.ErrorIs(t, err, wantErr)
 }
 
 func TestFile_UploadAsset(t *testing.T) {

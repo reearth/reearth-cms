@@ -73,13 +73,13 @@ func (f *fileRepo) ReadAsset(ctx context.Context, fileUUID string, fn string, h 
 	return f.Read(ctx, p, h)
 }
 
-func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string) ([]gateway.FileEntry, error) {
+func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string, fn func(gateway.FileEntry) error) error {
 	if fileUUID == "" {
-		return nil, rerror.ErrNotFound
+		return rerror.ErrNotFound
 	}
 
 	p := getFSObjectPath(fileUUID, "")
-	var fileEntries []gateway.FileEntry
+	count := 0
 	err := afero.Walk(f.fs, p, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -89,25 +89,25 @@ func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string) ([]gateway.
 			return nil
 		}
 
-		fileEntries = append(fileEntries, gateway.FileEntry{
+		count++
+		return fn(gateway.FileEntry{
 			Name: strings.ReplaceAll(lo.Must1(filepath.Rel(p, path)), "\\", "/"),
 			Size: info.Size(),
 		})
-		return nil
 	})
 	if err != nil {
 		if errors.Is(err, afero.ErrFileNotFound) {
-			return nil, gateway.ErrFileNotFound
+			return gateway.ErrFileNotFound
 		} else {
-			return nil, rerror.ErrInternalBy(err)
+			return rerror.ErrInternalBy(err)
 		}
 	}
 
-	if len(fileEntries) == 0 {
-		return nil, gateway.ErrFileNotFound
+	if count == 0 {
+		return gateway.ErrFileNotFound
 	}
 
-	return fileEntries, nil
+	return nil
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {

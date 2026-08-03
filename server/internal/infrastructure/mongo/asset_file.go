@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
@@ -139,6 +140,12 @@ func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) e
 	return nil
 }
 
+// assetFilesBulkWriteBatchSize caps how many page documents are sent per BulkWrite call,
+// so saving an asset with a very large number of extracted files doesn't build one
+// unbounded bulk operation (Mongo enforces its own per-bulk-write op count/size limits,
+// and a single huge call also blocks progress checkpointing).
+const assetFilesBulkWriteBatchSize = 100
+
 func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
 	doc := mongodoc.NewFile(parent)
 	_, err := r.client.Client().UpdateOne(ctx, bson.M{
@@ -163,12 +170,21 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 		return nil
 	}
 	filesDoc := mongodoc.NewFiles(id, files)
-	writeModels := make([]mongo.WriteModel, 0, len(filesDoc))
-	for _, pageDoc := range filesDoc {
-		writeModels = append(writeModels, mongo.NewInsertOneModel().SetDocument(pageDoc))
+	batchCount := (len(filesDoc) + assetFilesBulkWriteBatchSize - 1) / assetFilesBulkWriteBatchSize
+	log.Infofc(ctx, "mongo asset_file: bulk writing files: assetID=%s fileCount=%d pageCount=%d batchCount=%d",
+		id, len(files), len(filesDoc), batchCount)
+	for start := 0; start < len(filesDoc); start += assetFilesBulkWriteBatchSize {
+		end := min(start+assetFilesBulkWriteBatchSize, len(filesDoc))
+		batch := filesDoc[start:end]
+		writeModels := make([]mongo.WriteModel, 0, len(batch))
+		for _, pageDoc := range batch {
+			writeModels = append(writeModels, mongo.NewInsertOneModel().SetDocument(pageDoc))
+		}
+		if _, err := r.assetFilesClient.Client().BulkWrite(ctx, writeModels); err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+		log.Infofc(ctx, "mongo asset_file: bulk write batch done: assetID=%s batch=%d/%d", id, start/assetFilesBulkWriteBatchSize+1, batchCount)
 	}
-	if _, err := r.assetFilesClient.Client().BulkWrite(ctx, writeModels); err != nil {
-		return rerror.ErrInternalBy(err)
-	}
+	log.Infofc(ctx, "mongo asset_file: bulk write all batches done: assetID=%s fileCount=%d", id, len(files))
 	return nil
 }
