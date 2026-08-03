@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -172,12 +173,10 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 		return nil
 	}
 	filesDoc := mongodoc.NewFiles(id, files)
-	batchCount := (len(filesDoc) + assetFilesBulkWriteBatchSize - 1) / assetFilesBulkWriteBatchSize
+	batches := lo.Chunk(filesDoc, assetFilesBulkWriteBatchSize)
 	log.Infofc(ctx, "mongo asset_file: bulk writing files: assetID=%s fileCount=%d pageCount=%d batchCount=%d",
-		id, len(files), len(filesDoc), batchCount)
-	for start := 0; start < len(filesDoc); start += assetFilesBulkWriteBatchSize {
-		end := min(start+assetFilesBulkWriteBatchSize, len(filesDoc))
-		batch := filesDoc[start:end]
+		id, len(files), len(filesDoc), len(batches))
+	for i, batch := range batches {
 		writeModels := make([]mongo.WriteModel, 0, len(batch))
 		for _, pageDoc := range batch {
 			writeModels = append(writeModels, mongo.NewInsertOneModel().SetDocument(pageDoc))
@@ -185,8 +184,7 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 		if _, err := r.assetFilesClient.Client().BulkWrite(ctx, writeModels); err != nil {
 			return rerror.ErrInternalBy(err)
 		}
-		log.Infofc(ctx, "mongo asset_file: bulk write batch done: assetID=%s batch=%d/%d", id, start/assetFilesBulkWriteBatchSize+1, batchCount)
+		log.Infofc(ctx, "mongo asset_file: bulk write batch done: assetID=%s batch=%d/%d", id, i+1, len(batches))
 	}
-	log.Infofc(ctx, "mongo asset_file: bulk write all batches done: assetID=%s fileCount=%d", id, len(files))
 	return nil
 }

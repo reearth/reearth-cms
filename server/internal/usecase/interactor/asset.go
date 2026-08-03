@@ -911,12 +911,50 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	// external storage, so it's done once here, outside the transaction below —
 	// otherwise a transient DB failure would retry the whole listing (up to
 	// transactionRetry additional times) instead of just the DB write.
-	a, srcfile, previewType, assetFiles, err := i.prepareUpdateFiles(ctx, aid, s, op)
-	if err != nil || srcfile == nil {
-		// srcfile is nil only when checkUpdateFilesPreconditions decided the update
-		// should be skipped (status already matches/surpasses s); that's not an error.
-		return a, err
+	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
+	if err != nil {
+		return nil, err
 	}
+	if skip {
+		log.Infofc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
+		return a, nil
+	}
+
+	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find an asset file: %w", err)
+	}
+
+	log.Infofc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
+	srcPath := srcfile.Path()
+	var previewType *asset.PreviewType
+	assetFiles := make([]*asset.File, 0, 1024)
+	err = i.gateways.File.GetAssetFiles(ctx, a.UUID(), func(f gateway.FileEntry) error {
+		if previewType == nil {
+			previewType = detectPreviewType(f)
+		}
+
+		if srcPath == f.Name {
+			return nil
+		}
+
+		assetFiles = append(assetFiles, asset.NewFile().
+			Name(path.Base(f.Name)).
+			Path(f.Name).
+			Size(uint64(f.Size)).
+			ContentType(f.ContentType).
+			GuessContentTypeIfEmpty().
+			ContentEncoding(f.ContentEncoding).
+			Build())
+		return nil
+	})
+	if err != nil {
+		if err == gateway.ErrFileNotFound {
+			return nil, err
+		}
+		return nil, fmt.Errorf("failed to get asset files: %w", err)
+	}
+	log.Infofc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
 	return Run1(
 		ctx, op, i.repos,
@@ -927,7 +965,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 			if skip {
-				log.Infofc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 				return a, nil
 			}
 
@@ -944,7 +981,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
-			log.Infofc(ctx, "asset.UpdateFiles: asset saved: assetID=%s", aid)
 
 			log.Infofc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
@@ -961,7 +997,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}); err != nil {
 				return nil, fmt.Errorf("failed to create an event: %w", err)
 			}
-			log.Infofc(ctx, "asset.UpdateFiles: event published: assetID=%s", aid)
+			log.Infofc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
 			return a, nil
 		},
@@ -994,67 +1030,12 @@ func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetI
 	if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
 		return nil, false, err
 	}
-	log.Infofc(ctx, "asset.UpdateFiles: permission check passed: assetID=%s", aid)
 
 	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
 		return a, true, nil
 	}
 
 	return a, false, nil
-}
-
-// prepareUpdateFiles performs the read-only pre-checks and the (potentially slow)
-// asset file listing for UpdateFiles, ahead of and outside the retryable transaction.
-// It returns the found asset with a nil srcfile and no error when the update should
-// be skipped; callers must treat a nil srcfile as "nothing more to do", not as an error.
-func (i *Asset) prepareUpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, *asset.File, *asset.PreviewType, []*asset.File, error) {
-	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-	log.Infofc(ctx, "asset.UpdateFiles: found asset: assetID=%s uuid=%s", aid, a.UUID())
-	if skip {
-		log.Infofc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
-		return a, nil, nil, nil, nil
-	}
-
-	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to find an asset file: %w", err)
-	}
-
-	log.Infofc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
-	srcPath := srcfile.Path()
-	var previewType *asset.PreviewType
-	var assetFiles []*asset.File
-	err = i.gateways.File.GetAssetFiles(ctx, a.UUID(), func(f gateway.FileEntry) error {
-		if previewType == nil {
-			previewType = detectPreviewType(f)
-		}
-
-		if srcPath == f.Name {
-			return nil
-		}
-
-		assetFiles = append(assetFiles, asset.NewFile().
-			Name(path.Base(f.Name)).
-			Path(f.Name).
-			Size(uint64(f.Size)).
-			ContentType(f.ContentType).
-			GuessContentTypeIfEmpty().
-			ContentEncoding(f.ContentEncoding).
-			Build())
-		return nil
-	})
-	if err != nil {
-		if err == gateway.ErrFileNotFound {
-			return nil, nil, nil, nil, err
-		}
-		return nil, nil, nil, nil, fmt.Errorf("failed to get asset files: %w", err)
-	}
-	log.Infofc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
-
-	return a, srcfile, previewType, assetFiles, nil
 }
 
 func detectPreviewType(entry gateway.FileEntry) *asset.PreviewType {
