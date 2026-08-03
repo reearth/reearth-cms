@@ -14,10 +14,14 @@ import { AntdToken } from "@reearth-cms/utils/style";
 
 import type { ModelDataType } from "../../types";
 
+import { buildPostItemCurl } from "./curl";
+
+type PostingRow = ModelDataType & { curl: string };
+
 type Props = {
   apiUrl: string;
   hasPublishRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   publicModels?: string[];
   disabled?: boolean;
 };
@@ -32,7 +36,7 @@ const PostingTable: React.FC<Props> = ({
   const t = useT();
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
 
-  const columns: TableColumnsType<ModelDataType> = useMemo(
+  const columns: TableColumnsType<PostingRow> = useMemo(
     () => [
       {
         key: "enable",
@@ -72,11 +76,10 @@ const PostingTable: React.FC<Props> = ({
       {
         key: "copy",
         title: t("Copy cURL"),
-        dataIndex: "endpoint",
         align: "center",
         width: 120,
-        render: (endpoint: string) => (
-          <CopyButton copyable={{ text: endpoint }}>{t("Copy")}</CopyButton>
+        render: (_, record) => (
+          <CopyButton copyable={{ text: record.curl }}>{t("Copy")}</CopyButton>
         ),
       },
     ],
@@ -85,14 +88,18 @@ const PostingTable: React.FC<Props> = ({
 
   // TODO(public-api): asset posting UX pending team-lead confirmation; assets are
   // intentionally excluded from the Posting table for now.
-  const dataSource = useMemo<ModelDataType[]>(
+  const dataSource = useMemo<PostingRow[]>(
     () =>
-      models.map(model => ({
-        key: model.key,
-        name: model.name,
-        id: ["models", model.id],
-        endpoint: `${apiUrl}${model.key}`,
-      })),
+      models.map(model => {
+        const endpoint = `${apiUrl}${model.key}/items`;
+        return {
+          key: model.key,
+          name: model.name,
+          id: ["models", model.id],
+          endpoint,
+          curl: buildPostItemCurl(endpoint, model.schema.fields),
+        };
+      }),
     [models, apiUrl],
   );
 

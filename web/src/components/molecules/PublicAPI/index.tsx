@@ -22,7 +22,7 @@ type Props = {
   initialValues: FormType;
   postingInitialValues: PostingFormType;
   savedOrigins: string[];
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   hasPublishRight: boolean;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;

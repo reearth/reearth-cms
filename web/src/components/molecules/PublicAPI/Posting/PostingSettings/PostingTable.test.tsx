@@ -8,7 +8,14 @@ import PostingTable from "./PostingTable";
 
 describe("PostingTable", () => {
   const apiUrl = "https://test.com/api/";
-  const models = [{ id: "m1", name: "Model One", key: "model1" }];
+  const models = [
+    {
+      id: "m1",
+      name: "Model One",
+      key: "model1",
+      schema: { id: "s1", fields: [] },
+    },
+  ];
 
   const renderTable = (props?: Partial<React.ComponentProps<typeof PostingTable>>) =>
     render(
@@ -20,7 +27,7 @@ describe("PostingTable", () => {
   test("renders model rows with their endpoints (assets excluded)", () => {
     renderTable();
     expect(screen.getByText("Model One")).toBeVisible();
-    expect(screen.getByText(`${apiUrl}model1`)).toBeVisible();
+    expect(screen.getByText(`${apiUrl}model1/items`)).toBeVisible();
     // Assets are intentionally excluded from the Posting table (see PostingTable TODO).
     expect(screen.queryByText(t("Assets"))).not.toBeInTheDocument();
     expect(screen.queryByText(`${apiUrl}assets`)).not.toBeInTheDocument();

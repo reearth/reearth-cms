@@ -12,7 +12,7 @@ describe("PostingTab", () => {
   const user = userEvent.setup();
 
   const apiUrl = "https://test.com/api/";
-  const models = [{ id: "m1", name: "Model One", key: "model1" }];
+  const models = [{ id: "m1", name: "Model One", key: "model1", schema: { id: "s1", fields: [] } }];
   const initialValues: PostingFormType = { models: { m1: false } };
   const ORIGIN_WARNING = "Please add at least one origin to enable Post API";
 
