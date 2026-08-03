@@ -135,6 +135,45 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 		assert.Len(t, seen, total)
 	})
 
+	t.Run("saves files spanning multiple BulkWrite batches", func(t *testing.T) {
+		t.Parallel()
+
+		db := initDB(t)
+		ctx := context.Background()
+		client := mongox.NewClientWithDatabase(db)
+		r := NewAssetFile(client)
+
+		aid := id.NewAssetID()
+		_, err := db.Collection("asset").InsertOne(ctx, bson.M{"id": aid.String()})
+		assert.NoError(t, err)
+
+		parent := asset.NewFile().Name("root").Path("/").Build()
+		assert.NoError(t, r.Save(ctx, aid, parent))
+
+		// assetFilesBulkWriteBatchSize is 100 pages/batch and mongodoc.assetFilesPageSize
+		// is 1000 files/page, so one batch holds 100,000 files. Use enough files to spill
+		// into a second BulkWrite batch (100,001 files -> 101 pages -> 2 batches).
+		const total = assetFilesBulkWriteBatchSize*1000 + 1
+		files := make([]*asset.File, total)
+		for i := range total {
+			name := fmt.Sprintf("f%d.txt", i)
+			files[i] = asset.NewFile().Name(name).Path(name).Size(1).Build()
+		}
+
+		assert.NoError(t, r.SaveFlat(ctx, aid, parent, files))
+
+		got, err := r.FindByID(ctx, aid)
+		assert.NoError(t, err)
+		assert.Len(t, got.Files(), total)
+
+		seen := make(map[string]bool, total)
+		for _, f := range got.Files() {
+			assert.False(t, seen[f.Path()], "duplicate file: %s", f.Path())
+			seen[f.Path()] = true
+		}
+		assert.Len(t, seen, total)
+	})
+
 	t.Run("overwrites previously saved files", func(t *testing.T) {
 		t.Parallel()
 

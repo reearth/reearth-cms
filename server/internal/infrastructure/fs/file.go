@@ -80,6 +80,7 @@ func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string, fn func(gat
 
 	p := getFSObjectPath(fileUUID, "")
 	count := 0
+	var fnErr error
 	err := afero.Walk(f.fs, p, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -90,11 +91,21 @@ func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string, fn func(gat
 		}
 
 		count++
-		return fn(gateway.FileEntry{
+		if err := fn(gateway.FileEntry{
 			Name: strings.ReplaceAll(lo.Must1(filepath.Rel(p, path)), "\\", "/"),
 			Size: info.Size(),
-		})
+		}); err != nil {
+			// Stash the callback's own error so it can be returned as-is below,
+			// instead of being wrapped by the afero.Walk error handling, which is
+			// meant for filesystem walk failures, not caller-supplied errors.
+			fnErr = err
+			return err
+		}
+		return nil
 	})
+	if fnErr != nil {
+		return fnErr
+	}
 	if err != nil {
 		if errors.Is(err, afero.ErrFileNotFound) {
 			return gateway.ErrFileNotFound

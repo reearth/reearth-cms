@@ -980,7 +980,7 @@ func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetI
 		if err == rerror.ErrNotFound {
 			return nil, false, err
 		}
-		return nil, false, fmt.Errorf("failed to find an asset: %v", err)
+		return nil, false, fmt.Errorf("failed to find an asset: %w", err)
 	}
 
 	if a != nil {
@@ -1020,7 +1020,7 @@ func (i *Asset) prepareUpdateFiles(ctx context.Context, aid id.AssetID, s *asset
 
 	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to find an asset file: %v", err)
+		return nil, nil, nil, nil, fmt.Errorf("failed to find an asset file: %w", err)
 	}
 
 	log.Infofc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
@@ -1050,7 +1050,7 @@ func (i *Asset) prepareUpdateFiles(ctx context.Context, aid id.AssetID, s *asset
 		if err == gateway.ErrFileNotFound {
 			return nil, nil, nil, nil, err
 		}
-		return nil, nil, nil, nil, fmt.Errorf("failed to get asset files: %v", err)
+		return nil, nil, nil, nil, fmt.Errorf("failed to get asset files: %w", err)
 	}
 	log.Infofc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
