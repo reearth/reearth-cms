@@ -95,9 +95,6 @@ func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string, fn func(gat
 			Name: strings.ReplaceAll(lo.Must1(filepath.Rel(p, path)), "\\", "/"),
 			Size: info.Size(),
 		}); err != nil {
-			// Stash the callback's own error so it can be returned as-is below,
-			// instead of being wrapped by the afero.Walk error handling, which is
-			// meant for filesystem walk failures, not caller-supplied errors.
 			fnErr = err
 			return err
 		}

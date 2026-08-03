@@ -112,8 +112,6 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 		parent := asset.NewFile().Name("root").Path("/").Build()
 		assert.NoError(t, r.Save(ctx, aid, parent))
 
-		// assetFilesPageSize is 1000 and assetFilesBulkWriteBatchSize is 100 pages
-		// per BulkWrite; use enough files to span multiple pages within one batch.
 		const total = 2500
 		files := make([]*asset.File, total)
 		for i := range total {
@@ -150,9 +148,6 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 		parent := asset.NewFile().Name("root").Path("/").Build()
 		assert.NoError(t, r.Save(ctx, aid, parent))
 
-		// assetFilesBulkWriteBatchSize is 100 pages/batch and mongodoc.assetFilesPageSize
-		// is 1000 files/page, so one batch holds 100,000 files. Use enough files to spill
-		// into a second BulkWrite batch (100,001 files -> 101 pages -> 2 batches).
 		const total = assetFilesBulkWriteBatchSize*1000 + 1
 		files := make([]*asset.File, total)
 		for i := range total {

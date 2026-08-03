@@ -1322,8 +1322,6 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	}
 }
 
-// countingFileGateway wraps a gateway.File and counts GetAssetFiles invocations, to
-// verify UpdateFiles lists an asset's files at most once even when its transaction retries.
 type countingFileGateway struct {
 	gateway.File
 	getAssetFilesCalls int
@@ -1334,12 +1332,6 @@ func (g *countingFileGateway) GetAssetFiles(ctx context.Context, uuid string, fn
 	return g.File.GetAssetFiles(ctx, uuid, fn)
 }
 
-// flakyProjectRepo wraps a repo.Project and fails the first N calls to FindByID with a
-// transaction-conflict error, to force usecasex.DoTransaction to retry. UpdateFiles
-// looks up the project after its pre-checks but before mutating the asset or writing
-// anything, so failing here (rather than on a later write) avoids relying on the
-// in-memory Asset/AssetFile repos' rollback behavior on a failed attempt, which —
-// unlike a real DB transaction — don't undo an in-place mutation of a shared pointer.
 type flakyProjectRepo struct {
 	repo.Project
 	failFindByIDTimes int
@@ -1418,11 +1410,6 @@ func TestAsset_UpdateFiles_RetryDoesNotRelist(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, got)
 
-	// The project lookup inside the transaction failed once, before the asset was
-	// mutated or anything written, and was retried by the transaction (2 calls total,
-	// the 2nd succeeding). The file listing must have run only once, before the
-	// transaction was ever entered, and SaveFlat only once too since it's only
-	// reached on the successful attempt.
 	assert.Equal(t, 2, flakyProjects.findByIDCalls)
 	assert.Equal(t, 1, countingFiles.saveFlatCalls)
 	assert.Equal(t, 1, fileGw.getAssetFilesCalls)

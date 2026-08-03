@@ -79,9 +79,6 @@ func TestFile_GetAssetFiles(t *testing.T) {
 		return nil
 	})
 	assert.ErrorIs(t, err, gateway.ErrFileNotFound)
-
-	// The callback's own error must be returned as-is (not wrapped in rerror.ErrInternalBy),
-	// matching the GCS backend's behavior, so callers can reliably match sentinel errors.
 	wantErr := errors.New("stop")
 	err = f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464", func(fe gateway.FileEntry) error {
 		return wantErr

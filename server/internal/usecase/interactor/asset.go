@@ -906,11 +906,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 
 	log.Infofc(ctx, "asset.UpdateFiles: begin: assetID=%s status=%s", aid, s)
 
-	// Listing the asset's files from storage can take minutes for archives with
-	// hundreds of thousands of extracted files. It's a read-only operation against
-	// external storage, so it's done once here, outside the transaction below —
-	// otherwise a transient DB failure would retry the whole listing (up to
-	// transactionRetry additional times) instead of just the DB write.
 	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 	if err != nil {
 		return nil, err
@@ -1005,12 +1000,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	)
 }
 
-// checkUpdateFilesPreconditions finds the asset and validates it can be updated with
-// the given status, returning skip=true when the update should be a no-op (its archive
-// extraction status already matches/surpasses s). It is the single source of truth for
-// these checks: called once outside the transaction (to decide whether the possibly
-// slow file listing is even worth doing) and again inside it (for a consistent view at
-// write time), so a future change to these rules only needs to happen in one place.
 func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, bool, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
