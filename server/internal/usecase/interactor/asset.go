@@ -965,6 +965,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 			if skip {
+				log.Infofc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 				return a, nil
 			}
 
