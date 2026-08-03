@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -1319,6 +1320,112 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			}
 		})
 	}
+}
+
+// countingFileGateway wraps a gateway.File and counts GetAssetFiles invocations, to
+// verify UpdateFiles lists an asset's files at most once even when its transaction retries.
+type countingFileGateway struct {
+	gateway.File
+	getAssetFilesCalls int
+}
+
+func (g *countingFileGateway) GetAssetFiles(ctx context.Context, uuid string, fn func(gateway.FileEntry) error) error {
+	g.getAssetFilesCalls++
+	return g.File.GetAssetFiles(ctx, uuid, fn)
+}
+
+// flakyProjectRepo wraps a repo.Project and fails the first N calls to FindByID with a
+// transaction-conflict error, to force usecasex.DoTransaction to retry. UpdateFiles
+// looks up the project after its pre-checks but before mutating the asset or writing
+// anything, so failing here (rather than on a later write) avoids relying on the
+// in-memory Asset/AssetFile repos' rollback behavior on a failed attempt, which —
+// unlike a real DB transaction — don't undo an in-place mutation of a shared pointer.
+type flakyProjectRepo struct {
+	repo.Project
+	failFindByIDTimes int
+	findByIDCalls     int
+}
+
+func (r *flakyProjectRepo) FindByID(ctx context.Context, id id.ProjectID) (*project.Project, error) {
+	r.findByIDCalls++
+	if r.findByIDCalls <= r.failFindByIDTimes {
+		return nil, usecasex.ErrTransaction
+	}
+	return r.Project.FindByID(ctx, id)
+}
+
+// countingAssetFileRepo wraps a repo.AssetFile and counts SaveFlat invocations.
+type countingAssetFileRepo struct {
+	repo.AssetFile
+	saveFlatCalls int
+}
+
+func (r *countingAssetFileRepo) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
+	r.saveFlatCalls++
+	return r.AssetFile.SaveFlat(ctx, id, parent, files)
+}
+
+func TestAsset_UpdateFiles_RetryDoesNotRelist(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	assetID, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
+	ws := workspace.New().NewID().MustBuild()
+	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+
+	seedStatus := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	targetStatus := lo.ToPtr(asset.ArchiveExtractionStatusDone)
+	a := asset.New().
+		ID(assetID).
+		Project(proj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID(uuid1).
+		Thread(id.NewThreadID().Ref()).
+		ArchiveExtractionStatus(seedStatus).
+		MustBuild()
+	af := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()
+
+	acop := &accountusecase.Operator{
+		User:             &uid,
+		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+	}
+	op := &usecase.Operator{
+		AcOperator:     acop,
+		OwningProjects: []id.ProjectID{proj.ID()},
+	}
+
+	ctx := context.Background()
+	db := memory.New()
+	assert.NoError(t, db.Project.Save(ctx, proj))
+	assert.NoError(t, db.Asset.Save(ctx, a.Clone()))
+	assert.NoError(t, db.AssetFile.Save(ctx, assetID, af.Clone()))
+
+	fileGw := &countingFileGateway{File: lo.Must(fs.NewFile(mockFs(), "", false))}
+	flakyProjects := &flakyProjectRepo{Project: db.Project, failFindByIDTimes: 1}
+	countingFiles := &countingAssetFileRepo{AssetFile: db.AssetFile}
+	db.Project = flakyProjects
+	db.AssetFile = countingFiles
+	db.Transaction = &usecasex.NopTransaction{}
+
+	assetUC := Asset{
+		repos: db,
+		gateways: &gateway.Container{
+			File: fileGw,
+		},
+		ignoreEvent: true,
+	}
+
+	got, err := assetUC.UpdateFiles(ctx, assetID, targetStatus, op)
+	assert.NoError(t, err)
+	assert.NotNil(t, got)
+
+	// The project lookup inside the transaction failed once, before the asset was
+	// mutated or anything written, and was retried by the transaction (2 calls total,
+	// the 2nd succeeding). The file listing must have run only once, before the
+	// transaction was ever entered, and SaveFlat only once too since it's only
+	// reached on the successful attempt.
+	assert.Equal(t, 2, flakyProjects.findByIDCalls)
+	assert.Equal(t, 1, countingFiles.saveFlatCalls)
+	assert.Equal(t, 1, fileGw.getAssetFilesCalls)
 }
 
 func TestAsset_Delete(t *testing.T) {

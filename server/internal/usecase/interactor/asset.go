@@ -913,6 +913,8 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	// transactionRetry additional times) instead of just the DB write.
 	a, srcfile, previewType, assetFiles, err := i.prepareUpdateFiles(ctx, aid, s, op)
 	if err != nil || srcfile == nil {
+		// srcfile is nil only when checkUpdateFilesPreconditions decided the update
+		// should be skipped (status already matches/surpasses s); that's not an error.
 		return a, err
 	}
 
@@ -920,34 +922,18 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			a, err := i.repos.Asset.FindByID(ctx, aid)
+			a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 			if err != nil {
-				if err == rerror.ErrNotFound {
-					return nil, err
-				}
-				return nil, fmt.Errorf("failed to find an asset: %v", err)
-			}
-
-			if a != nil {
-				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
-			}
-
-			if !op.CanUpdate(a) {
-				return nil, interfaces.ErrOperationDenied
-			}
-
-			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
 				return nil, err
 			}
-
-			if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+			if skip {
 				log.Infofc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 				return a, nil
 			}
 
 			prj, err := i.repos.Project.FindByID(ctx, a.Project())
 			if err != nil {
-				return nil, fmt.Errorf("failed to find a project: %v", err)
+				return nil, fmt.Errorf("failed to find a project: %w", err)
 			}
 
 			a.UpdateArchiveExtractionStatus(s)
@@ -956,13 +942,13 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, fmt.Errorf("failed to save an asset: %v", err)
+				return nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
 			log.Infofc(ctx, "asset.UpdateFiles: asset saved: assetID=%s", aid)
 
 			log.Infofc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, fmt.Errorf("failed to save asset files: %v", err)
+				return nil, fmt.Errorf("failed to save asset files: %w", err)
 			}
 			log.Infofc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
@@ -973,7 +959,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				Object:    a,
 				Operator:  op.Operator(),
 			}); err != nil {
-				return nil, fmt.Errorf("failed to create an event: %v", err)
+				return nil, fmt.Errorf("failed to create an event: %w", err)
 			}
 			log.Infofc(ctx, "asset.UpdateFiles: event published: assetID=%s", aid)
 
@@ -982,35 +968,52 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	)
 }
 
-// prepareUpdateFiles performs the read-only pre-checks and the (potentially slow)
-// asset file listing for UpdateFiles, ahead of and outside the retryable transaction.
-// It returns the found asset with a nil srcfile and no error when the update should
-// be skipped (its archive extraction status already matches/surpasses s); callers
-// must treat a nil srcfile as "nothing more to do", not as an error.
-func (i *Asset) prepareUpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, *asset.File, *asset.PreviewType, []*asset.File, error) {
+// checkUpdateFilesPreconditions finds the asset and validates it can be updated with
+// the given status, returning skip=true when the update should be a no-op (its archive
+// extraction status already matches/surpasses s). It is the single source of truth for
+// these checks: called once outside the transaction (to decide whether the possibly
+// slow file listing is even worth doing) and again inside it (for a consistent view at
+// write time), so a future change to these rules only needs to happen in one place.
+func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, bool, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		if err == rerror.ErrNotFound {
-			return nil, nil, nil, nil, err
+			return nil, false, err
 		}
-		return nil, nil, nil, nil, fmt.Errorf("failed to find an asset: %v", err)
+		return nil, false, fmt.Errorf("failed to find an asset: %v", err)
 	}
-	log.Infofc(ctx, "asset.UpdateFiles: found asset: assetID=%s uuid=%s", aid, a.UUID())
 
 	if a != nil {
 		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 	}
 
 	if !op.CanUpdate(a) {
-		return nil, nil, nil, nil, interfaces.ErrOperationDenied
+		return nil, false, interfaces.ErrOperationDenied
 	}
 
 	if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
-		return nil, nil, nil, nil, err
+		return nil, false, err
 	}
 	log.Infofc(ctx, "asset.UpdateFiles: permission check passed: assetID=%s", aid)
 
 	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+		return a, true, nil
+	}
+
+	return a, false, nil
+}
+
+// prepareUpdateFiles performs the read-only pre-checks and the (potentially slow)
+// asset file listing for UpdateFiles, ahead of and outside the retryable transaction.
+// It returns the found asset with a nil srcfile and no error when the update should
+// be skipped; callers must treat a nil srcfile as "nothing more to do", not as an error.
+func (i *Asset) prepareUpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, *asset.File, *asset.PreviewType, []*asset.File, error) {
+	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+	log.Infofc(ctx, "asset.UpdateFiles: found asset: assetID=%s uuid=%s", aid, a.UUID())
+	if skip {
 		log.Infofc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 		return a, nil, nil, nil, nil
 	}
