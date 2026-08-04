@@ -1346,14 +1346,17 @@ func (r *flakyProjectRepo) FindByID(ctx context.Context, id id.ProjectID) (*proj
 	return r.Project.FindByID(ctx, id)
 }
 
-// countingAssetFileRepo wraps a repo.AssetFile and counts SaveFlat invocations.
+// countingAssetFileRepo wraps a repo.AssetFile, counts SaveFlat invocations, and
+// captures the files passed to its last call.
 type countingAssetFileRepo struct {
 	repo.AssetFile
 	saveFlatCalls int
+	lastFiles     []*asset.File
 }
 
 func (r *countingAssetFileRepo) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
 	r.saveFlatCalls++
+	r.lastFiles = files
 	return r.AssetFile.SaveFlat(ctx, id, parent, files)
 }
 
@@ -1413,6 +1416,59 @@ func TestAsset_UpdateFiles_RetryDoesNotRelist(t *testing.T) {
 	assert.Equal(t, 2, flakyProjects.findByIDCalls)
 	assert.Equal(t, 1, countingFiles.saveFlatCalls)
 	assert.Equal(t, 1, fileGw.getAssetFilesCalls)
+}
+
+func TestAsset_UpdateFiles_ExcludesSourceArchiveFromSavedFiles(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	assetID, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
+	ws := workspace.New().NewID().MustBuild()
+	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+
+	seedStatus := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	targetStatus := lo.ToPtr(asset.ArchiveExtractionStatusDone)
+	a := asset.New().
+		ID(assetID).
+		Project(proj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID(uuid1).
+		Thread(id.NewThreadID().Ref()).
+		ArchiveExtractionStatus(seedStatus).
+		MustBuild()
+	af := asset.NewFile().Name("xxx.zip").Path("xxx.zip").GuessContentType().Build()
+
+	acop := &accountusecase.Operator{
+		User:             &uid,
+		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+	}
+	op := &usecase.Operator{
+		AcOperator:     acop,
+		OwningProjects: []id.ProjectID{proj.ID()},
+	}
+
+	ctx := context.Background()
+	db := memory.New()
+	assert.NoError(t, db.Project.Save(ctx, proj))
+	assert.NoError(t, db.Asset.Save(ctx, a.Clone()))
+	assert.NoError(t, db.AssetFile.Save(ctx, assetID, af.Clone()))
+
+	countingFiles := &countingAssetFileRepo{AssetFile: db.AssetFile}
+	db.AssetFile = countingFiles
+
+	assetUC := Asset{
+		repos: db,
+		gateways: &gateway.Container{
+			File: lo.Must(fs.NewFile(mockFs(), "", false)),
+		},
+		ignoreEvent: true,
+	}
+
+	_, err := assetUC.UpdateFiles(ctx, assetID, targetStatus, op)
+	assert.NoError(t, err)
+
+	for _, f := range countingFiles.lastFiles {
+		assert.NotEqual(t, "xxx.zip", f.Name(), "the source archive itself must not be saved as an extracted file entry")
+	}
 }
 
 func TestAsset_Delete(t *testing.T) {

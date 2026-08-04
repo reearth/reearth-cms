@@ -921,7 +921,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	}
 
 	log.Infofc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
-	srcPath := srcfile.Path()
+	srcName := srcfile.Name()
 	var previewType *asset.PreviewType
 	assetFiles := make([]*asset.File, 0, 1024)
 	err = i.gateways.File.GetAssetFiles(ctx, a.UUID(), func(f gateway.FileEntry) error {
@@ -929,7 +929,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			previewType = detectPreviewType(f)
 		}
 
-		if srcPath == f.Name {
+		if srcName == f.Name {
 			return nil
 		}
 
