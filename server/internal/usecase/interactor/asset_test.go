@@ -1327,9 +1327,9 @@ type countingFileGateway struct {
 	getAssetFilesCalls int
 }
 
-func (g *countingFileGateway) GetAssetFiles(ctx context.Context, uuid string, fn func(gateway.FileEntry) error) error {
+func (g *countingFileGateway) GetAssetFiles(ctx context.Context, uuid string) ([]gateway.FileEntry, error) {
 	g.getAssetFilesCalls++
-	return g.File.GetAssetFiles(ctx, uuid, fn)
+	return g.File.GetAssetFiles(ctx, uuid)
 }
 
 type flakyProjectRepo struct {
@@ -1636,38 +1636,44 @@ func (r *mockRunner) Retry(context.Context, string) error {
 
 func Test_detectPreviewType(t *testing.T) {
 	tests := []struct {
-		name string
-		file gateway.FileEntry
-		want *asset.PreviewType
+		name  string
+		files []gateway.FileEntry
+		want  *asset.PreviewType
 	}{
 		{
 			name: "MVT",
-			file: gateway.FileEntry{
-				Name: "test/0/123.mvt",
-				Size: 123,
+			files: []gateway.FileEntry{
+				{
+					Name: "test/0/123.mvt",
+					Size: 123,
+				},
 			},
 			want: lo.ToPtr(asset.PreviewTypeGeoMvt),
 		},
 		{
 			name: "3d tiles",
-			file: gateway.FileEntry{
-				Name: "test/tileset.json",
-				Size: 123,
+			files: []gateway.FileEntry{
+				{
+					Name: "test/tileset.json",
+					Size: 123,
+				},
 			},
 			want: lo.ToPtr(asset.PreviewTypeGeo3dTiles),
 		},
 		{
 			name: "Unknown",
-			file: gateway.FileEntry{
-				Name: "test.jpg",
-				Size: 123,
+			files: []gateway.FileEntry{
+				{
+					Name: "test.jpg",
+					Size: 123,
+				},
 			},
 			want: nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, detectPreviewType(tt.file))
+			assert.Equal(t, tt.want, detectPreviewType(tt.files))
 		})
 	}
 }

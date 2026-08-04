@@ -921,34 +921,30 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	}
 
 	log.Infofc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
-	srcName := srcfile.Name()
-	var previewType *asset.PreviewType
-	assetFiles := make([]*asset.File, 0, 1024)
-	err = i.gateways.File.GetAssetFiles(ctx, a.UUID(), func(f gateway.FileEntry) error {
-		if previewType == nil {
-			previewType = detectPreviewType(f)
-		}
-
-		if srcName == f.Name {
-			return nil
-		}
-
-		assetFiles = append(assetFiles, asset.NewFile().
-			Name(path.Base(f.Name)).
-			Path(f.Name).
-			Size(uint64(f.Size)).
-			ContentType(f.ContentType).
-			GuessContentTypeIfEmpty().
-			ContentEncoding(f.ContentEncoding).
-			Build())
-		return nil
-	})
+	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
 	if err != nil {
 		if err == gateway.ErrFileNotFound {
 			return nil, err
 		}
 		return nil, fmt.Errorf("failed to get asset files: %w", err)
 	}
+
+	srcName := srcfile.Name()
+	previewType := detectPreviewType(files)
+
+	assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
+		if srcName == f.Name {
+			return nil, false
+		}
+		return asset.NewFile().
+			Name(path.Base(f.Name)).
+			Path(f.Name).
+			Size(uint64(f.Size)).
+			ContentType(f.ContentType).
+			GuessContentTypeIfEmpty().
+			ContentEncoding(f.ContentEncoding).
+			Build(), true
+	})
 	log.Infofc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
 	return Run1(
@@ -1028,12 +1024,14 @@ func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetI
 	return a, false, nil
 }
 
-func detectPreviewType(entry gateway.FileEntry) *asset.PreviewType {
-	if path.Base(entry.Name) == "tileset.json" {
-		return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
-	}
-	if path.Ext(entry.Name) == ".mvt" {
-		return lo.ToPtr(asset.PreviewTypeGeoMvt)
+func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
+	for _, entry := range files {
+		if path.Base(entry.Name) == "tileset.json" {
+			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
+		}
+		if path.Ext(entry.Name) == ".mvt" {
+			return lo.ToPtr(asset.PreviewTypeGeoMvt)
+		}
 	}
 	return nil
 }

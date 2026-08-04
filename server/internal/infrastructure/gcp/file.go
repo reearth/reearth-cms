@@ -93,18 +93,18 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[str
 	return f.Read(ctx, p, h)
 }
 
-func (f *fileRepo) GetAssetFiles(ctx context.Context, u string, fn func(gateway.FileEntry) error) error {
+func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
 	p := getGCSObjectPath(u, "")
 	b, err := f.bucket(ctx)
 	if err != nil {
-		return rerror.ErrInternalBy(err)
+		return nil, rerror.ErrInternalBy(err)
 	}
 
 	it := b.Objects(ctx, &storage.Query{
 		Prefix: p,
 	})
 
-	count := 0
+	var fileEntries []gateway.FileEntry
 	for {
 		attrs, err := it.Next()
 		if errors.Is(err, iterator.Done) {
@@ -112,7 +112,7 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string, fn func(gateway.
 		}
 
 		if err != nil {
-			return rerror.ErrInternalBy(err)
+			return nil, rerror.ErrInternalBy(err)
 		}
 
 		fe := gateway.FileEntry{
@@ -122,23 +122,14 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string, fn func(gateway.
 			ContentType:     attrs.ContentType,
 			ContentEncoding: attrs.ContentEncoding,
 		}
-		if err := fn(fe); err != nil {
-			return err
-		}
-		count++
-
-		if count%50000 == 0 {
-			log.Infofc(ctx, "gcp file: still listing asset files for %s: %d found so far", u, count)
-		}
+		fileEntries = append(fileEntries, fe)
 	}
 
-	if count == 0 {
-		return gateway.ErrFileNotFound
+	if len(fileEntries) == 0 {
+		return nil, gateway.ErrFileNotFound
 	}
 
-	log.Infofc(ctx, "gcp file: listed %d asset files for %s", count, u)
-
-	return nil
+	return fileEntries, nil
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
