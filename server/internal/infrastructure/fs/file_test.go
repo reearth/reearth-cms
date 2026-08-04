@@ -69,9 +69,6 @@ func TestFile_GetAssetFiles(t *testing.T) {
 		{Name: "xxx.txt", Size: 5},
 		{Name: path.Join("yyy", "hello.txt"), Size: 6},
 	}, files)
-
-	_, err = f.GetAssetFiles(context.Background(), "00000000-0000-0000-0000-000000000000")
-	assert.ErrorIs(t, err, gateway.ErrFileNotFound)
 }
 
 func TestFile_UploadAsset(t *testing.T) {

@@ -1346,8 +1346,6 @@ func (r *flakyProjectRepo) FindByID(ctx context.Context, id id.ProjectID) (*proj
 	return r.Project.FindByID(ctx, id)
 }
 
-// countingAssetFileRepo wraps a repo.AssetFile, counts SaveFlat invocations, and
-// captures the files passed to its last call.
 type countingAssetFileRepo struct {
 	repo.AssetFile
 	saveFlatCalls int
