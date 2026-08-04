@@ -168,7 +168,7 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 	}
 	filesDoc := mongodoc.NewFiles(id, files)
 	batches := lo.Chunk(filesDoc, assetFilesBulkWriteBatchSize)
-	log.Infofc(ctx, "mongo asset_file: bulk writing files: assetID=%s fileCount=%d pageCount=%d batchCount=%d",
+	log.Debugfc(ctx, "mongo asset_file: bulk writing files: assetID=%s fileCount=%d pageCount=%d batchCount=%d",
 		id, len(files), len(filesDoc), len(batches))
 	for i, batch := range batches {
 		writeModels := make([]mongo.WriteModel, 0, len(batch))
@@ -178,7 +178,7 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 		if _, err := r.assetFilesClient.Client().BulkWrite(ctx, writeModels); err != nil {
 			return rerror.ErrInternalBy(err)
 		}
-		log.Infofc(ctx, "mongo asset_file: bulk write batch done: assetID=%s batch=%d/%d", id, i+1, len(batches))
+		log.Debugfc(ctx, "mongo asset_file: bulk write batch done: assetID=%s batch=%d/%d", id, i+1, len(batches))
 	}
 	return nil
 }

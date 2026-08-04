@@ -904,14 +904,14 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	log.Infofc(ctx, "asset.UpdateFiles: begin: assetID=%s status=%s", aid, s)
+	log.Debugfc(ctx, "asset.UpdateFiles: begin: assetID=%s status=%s", aid, s)
 
 	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 	if err != nil {
 		return nil, err
 	}
 	if skip {
-		log.Infofc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
+		log.Debugfc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 		return a, nil
 	}
 
@@ -920,7 +920,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, fmt.Errorf("failed to find an asset file: %w", err)
 	}
 
-	log.Infofc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
 	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
 	if err != nil {
 		if err == gateway.ErrFileNotFound {
@@ -945,7 +945,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			ContentEncoding(f.ContentEncoding).
 			Build(), true
 	})
-	log.Infofc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
 	return Run1(
 		ctx, op, i.repos,
@@ -956,7 +956,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 			if skip {
-				log.Infofc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
+				log.Debugfc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 				return a, nil
 			}
 
@@ -974,11 +974,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
 
-			log.Infofc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
+			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, fmt.Errorf("failed to save asset files: %w", err)
 			}
-			log.Infofc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
+			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
 			if err := i.event(ctx, Event{
 				Project:   prj,
@@ -989,7 +989,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}); err != nil {
 				return nil, fmt.Errorf("failed to create an event: %w", err)
 			}
-			log.Infofc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
+			log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
 			return a, nil
 		},
