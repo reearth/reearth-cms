@@ -36,7 +36,7 @@ func testSuite() testData {
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:               lo.ToPtr(u.ID()),
+			User:               new(u.ID()),
 			ReadableWorkspaces: nil,
 			WritableWorkspaces: nil,
 			OwningWorkspaces:   []accountdomain.WorkspaceID{wid},
@@ -123,7 +123,6 @@ func TestIntegration_Create(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -180,8 +179,8 @@ func TestIntegration_Update(t *testing.T) {
 			args: args{
 				id: ts.IId1,
 				params: interfaces.UpdateIntegrationParam{
-					Name:        lo.ToPtr("updated name"),
-					Description: lo.ToPtr("updated desc"),
+					Name:        new("updated name"),
+					Description: new("updated desc"),
 					Logo:        lo.Must1(url.Parse("https://sub.hugo.com")),
 				},
 			},
@@ -203,8 +202,8 @@ func TestIntegration_Update(t *testing.T) {
 			args: args{
 				id: ts.IId1,
 				params: interfaces.UpdateIntegrationParam{
-					Name:        lo.ToPtr("updated name"),
-					Description: lo.ToPtr("updated desc"),
+					Name:        new("updated name"),
+					Description: new("updated desc"),
 					Logo:        lo.Must1(url.Parse("https://sub.hugo.com")),
 				},
 			},
@@ -215,7 +214,7 @@ func TestIntegration_Update(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -223,8 +222,8 @@ func TestIntegration_Update(t *testing.T) {
 			args: args{
 				id: ts.IId1,
 				params: interfaces.UpdateIntegrationParam{
-					Name:        lo.ToPtr("updated name"),
-					Description: lo.ToPtr("updated desc"),
+					Name:        new("updated name"),
+					Description: new("updated desc"),
 					Logo:        lo.Must1(url.Parse("https://sub.hugo.com")),
 				},
 			},
@@ -233,7 +232,6 @@ func TestIntegration_Update(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -310,7 +308,7 @@ func TestIntegration_RegenerateToken(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -323,7 +321,6 @@ func TestIntegration_RegenerateToken(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -387,7 +384,7 @@ func TestIntegration_Delete(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -397,7 +394,6 @@ func TestIntegration_Delete(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -473,7 +469,7 @@ func TestIntegration_DeleteMany(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -483,7 +479,6 @@ func TestIntegration_DeleteMany(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -541,7 +536,6 @@ func TestIntegration_FindByIDs(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -599,7 +593,6 @@ func TestIntegration_FindByMe(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -686,7 +679,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -705,7 +698,6 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -760,11 +752,11 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
-					Secret:  lo.ToPtr("secret_test"),
+					Secret:  new("secret_test"),
 				},
 			},
 			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Secret("secret_test").Url(ts.Uri).Active(true).Trigger(integration.WebhookTrigger{}).MustBuild(),
@@ -780,11 +772,11 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
-					Secret:  lo.ToPtr("secret_test"),
+					Secret:  new("secret_test"),
 				},
 			},
 			want:    nil,
@@ -794,7 +786,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -803,11 +795,11 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
-					Secret:  lo.ToPtr("secret_test"),
+					Secret:  new("secret_test"),
 				},
 			},
 			want:    nil,
@@ -820,9 +812,9 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -836,9 +828,9 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -847,7 +839,6 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -902,9 +893,9 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -921,9 +912,9 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -934,7 +925,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			name: "operation denied",
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
-					User:               lo.ToPtr(u.ID()),
+					User:               new(u.ID()),
 					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
 				},
 			},
@@ -943,9 +934,9 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -959,9 +950,9 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -975,9 +966,9 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
-					Name:    lo.ToPtr("w1"),
+					Name:    new("w1"),
 					URL:     ts.Uri,
-					Active:  lo.ToPtr(true),
+					Active:  new(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
@@ -986,7 +977,6 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 
 import Status from "@reearth-cms/components/molecules/Content/Status";
-import { Item } from "@reearth-cms/components/molecules/Content/types";
-import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
+import type { Item } from "@reearth-cms/components/molecules/Content/types";
+import type { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
@@ -48,7 +48,7 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
             </ItemInfo>
           </div>
           <div>
-            <CardTitle>{t("Publish State")}</CardTitle>
+            <CardTitle>{t("Publish Status")}</CardTitle>
             <CardValue>
               <DataTitle>
                 <Status status={item.status} />

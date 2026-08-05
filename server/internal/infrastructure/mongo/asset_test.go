@@ -61,7 +61,6 @@ func Test_AssetRepo_Filtered(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -127,7 +126,6 @@ func TestAssetRepo_FindByID(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -234,7 +232,6 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -308,7 +305,7 @@ func TestAssetRepo_Search(t *testing.T) {
 			seeds: asset.List{
 				a1,
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			want:    asset.List{a1},
 			wantErr: nil,
 		},
@@ -321,7 +318,7 @@ func TestAssetRepo_Search(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			want:    asset.List{a1},
 			wantErr: nil,
 		},
@@ -335,7 +332,7 @@ func TestAssetRepo_Search(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: new(int64(2))}.Wrap()},
 			want:    asset.List{a1, a2},
 			wantErr: nil,
 		},
@@ -349,7 +346,7 @@ func TestAssetRepo_Search(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			want:    asset.List{a1},
 			wantErr: nil,
 		},
@@ -363,7 +360,7 @@ func TestAssetRepo_Search(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{Last: new(int64(1))}.Wrap()},
 			want:    asset.List{a2},
 			wantErr: nil,
 		},
@@ -376,7 +373,7 @@ func TestAssetRepo_Search(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    asset.List{a1},
 			wantErr: nil,
@@ -390,7 +387,7 @@ func TestAssetRepo_Search(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
-			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: new(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
 			want:    nil,
 			wantErr: nil,
@@ -402,7 +399,7 @@ func TestAssetRepo_Search(t *testing.T) {
 			},
 			args: args{
 				tid:          pid1,
-				pInfo:        usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+				pInfo:        usecasex.CursorPagination{First: new(int64(1))}.Wrap(),
 				contentTypes: []string{"application/json"},
 			},
 			want:    nil, // currently asset file data is inside the file object in the mongodoc / not a part of main Asset data
@@ -413,7 +410,6 @@ func TestAssetRepo_Search(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -501,7 +497,6 @@ func TestAssetRepo_Delete(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -570,7 +565,6 @@ func TestAssetRepo_BatchDelete(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -626,7 +620,6 @@ func TestAssetRepo_Save(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
 

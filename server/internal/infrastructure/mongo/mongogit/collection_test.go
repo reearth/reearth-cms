@@ -11,8 +11,8 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -313,7 +313,7 @@ func TestCollection_Paginate(t *testing.T) {
 		bson.M{},
 		version.Eq(version.Latest.OrVersion()),
 		nil,
-		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+		usecasex.CursorPagination{First: new(int64(2))}.Wrap(),
 		consumer,
 	)
 	assert.NoError(t, err)
@@ -371,7 +371,7 @@ func TestCollection_PaginateAggregation(t *testing.T) {
 		[]any{},
 		version.Eq(version.Latest.OrVersion()),
 		nil,
-		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+		usecasex.CursorPagination{First: new(int64(2))}.Wrap(),
 		consumer,
 	)
 	assert.NoError(t, err)
@@ -656,6 +656,85 @@ func TestCollection_UpdateRef(t *testing.T) {
 	got = c.FindOne(ctx, bson.M{"id": "y", versionKey: v3})
 	assert.NoError(t, got.Decode(&meta))
 	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v3, Refs: []version.Ref{}}, meta)
+}
+
+func TestCollection_BulkUpdateRef(t *testing.T) {
+	tests := []struct {
+		name      string
+		setupDocs []any
+		ids       []string
+		ref       version.Ref
+		dest      *version.VersionOrRef
+		// expected refs per document id after the call
+		want map[string][]version.Ref
+	}{
+		{
+			name: "no-op on empty ids",
+			setupDocs: []any{
+				bson.M{"id": "x", versionKey: version.New(), refsKey: []string{"latest"}},
+			},
+			ids:  nil,
+			ref:  "foo",
+			dest: version.Latest.OrVersion().Ref(),
+			want: map[string][]version.Ref{"x": {"latest"}},
+		},
+		{
+			name: "attach ref to matching docs in one call",
+			setupDocs: []any{
+				bson.M{"id": "x", versionKey: version.New(), refsKey: []string{"latest"}},
+				bson.M{"id": "y", versionKey: version.New(), refsKey: []string{"latest"}},
+			},
+			ids:  []string{"x", "y"},
+			ref:  "foo",
+			dest: version.Latest.OrVersion().Ref(),
+			want: map[string][]version.Ref{"x": {"latest", "foo"}, "y": {"latest", "foo"}},
+		},
+		{
+			name: "remove ref from docs in one call",
+			setupDocs: []any{
+				bson.M{"id": "x", versionKey: version.New(), refsKey: []string{"latest", "foo"}},
+				bson.M{"id": "z", versionKey: version.New(), refsKey: []string{"foo"}},
+			},
+			ids:  []string{"x", "z"},
+			ref:  "foo",
+			dest: nil,
+			want: map[string][]version.Ref{"x": {"latest"}, "z": {}},
+		},
+		{
+			name: "attach skips docs not matching dest version",
+			setupDocs: []any{
+				bson.M{"id": "a", versionKey: version.New(), refsKey: []string{"foo"}},
+			},
+			ids:  []string{"a"},
+			ref:  "bar",
+			dest: version.Latest.OrVersion().Ref(),
+			want: map[string][]version.Ref{"a": {"foo"}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			col := initCollection(t)
+			c := col.Client().Client()
+
+			if len(tt.setupDocs) > 0 {
+				_, err := c.InsertMany(ctx, tt.setupDocs)
+				require.NoError(t, err)
+			}
+
+			assert.NoError(t, col.BulkUpdateRef(ctx, tt.ids, tt.ref, tt.dest))
+
+			for docID, wantRefs := range tt.want {
+				var meta Meta
+				got := c.FindOne(ctx, bson.M{"id": docID})
+				assert.NoError(t, got.Decode(&meta))
+				assert.Equal(t, wantRefs, meta.Refs)
+			}
+		})
+	}
 }
 
 func TestCollection_IsArchived(t *testing.T) {

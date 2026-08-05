@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/job"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/utils"
@@ -78,6 +79,9 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 	s := param.SP.Schema()
 	if !operator.IsWritableWorkspace(s.Workspace()) {
 		return res.Into(), interfaces.ErrOperationDenied
+	}
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionImport, s.Workspace()); err != nil {
+		return res.Into(), err
 	}
 
 	lr := &io.LimitedReader{R: param.Reader, N: interfaces.MaxImportFileSize + 1}
@@ -192,7 +196,7 @@ func createFieldParamsFrom(guessedFields []schema.GuessFieldData, sId id.SchemaI
 			SchemaID:    sId,
 			Type:        gf.Type,
 			Name:        gf.Name,
-			Description: lo.ToPtr("auto created by json/geoJson import"),
+			Description: new("auto created by json/geoJson import"),
 			Key:         gf.Key,
 			// type property is not supported in import
 			TypeProperty: nil,
@@ -203,6 +207,14 @@ func createFieldParamsFrom(guessedFields []schema.GuessFieldData, sId id.SchemaI
 func (i Item) TriggerImportJob(ctx context.Context, aId id.AssetID, mId id.ModelID, format, strategy, geoFieldKey string, mutateSchema bool, operator *usecase.Operator) error {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return interfaces.ErrInvalidOperator
+	}
+
+	m, err := i.repos.Model.FindByID(ctx, mId)
+	if err != nil {
+		return err
+	}
+	if err := i.checkPermissions(ctx, rbac.ActionImport, id.ProjectIDList{m.Project()}); err != nil {
+		return err
 	}
 
 	if i.gateways.TaskRunner == nil {
@@ -241,6 +253,9 @@ func (i Item) ImportAsync(ctx context.Context, param interfaces.ImportItemsAsync
 	s := param.SP.Schema()
 	if !operator.IsWritableWorkspace(s.Workspace()) {
 		return id.JobID{}, interfaces.ErrOperationDenied
+	}
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceItem, rbac.ActionImport, s.Workspace()); err != nil {
+		return id.JobID{}, err
 	}
 
 	// Buffer the file content before starting the goroutine.

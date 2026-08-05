@@ -1,5 +1,5 @@
 // e2e/pages/request.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
@@ -66,7 +66,7 @@ export class RequestPage extends BasePage {
     return this.getByRole("columnheader", { name: "State filter" }).getByRole("button");
   }
   waitingMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "WAITING" }).getByLabel("");
+    return this.getByRole("menuitem", { name: "Waiting" }).getByLabel("");
   }
   get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });
@@ -75,6 +75,10 @@ export class RequestPage extends BasePage {
   // Status text
   statusText(status: string): Locator {
     return this.getByText(status, { exact: true });
+  }
+
+  badgeStatusText(text: string): Locator {
+    return this.locator(".ant-badge-status-text").filter({ hasText: text });
   }
 
   // Comments

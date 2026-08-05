@@ -1,18 +1,213 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type CreateFieldMutationVariables = Types.Exact<{
-  modelId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  groupId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
+export type CorrespondingFieldInput = {
+  description: string;
+  fieldId?: string | null | undefined;
+  key: string;
+  required: boolean;
+  title: string;
+};
+
+export type CreateFieldInput = {
+  description?: string | null | undefined;
+  groupId?: string | null | undefined;
+  isTitle: boolean;
+  key: string;
+  metadata?: boolean | null | undefined;
+  modelId?: string | null | undefined;
+  multiple: boolean;
+  required: boolean;
+  title: string;
+  type: SchemaFieldType;
+  typeProperty: SchemaFieldTypePropertyInput;
+  unique: boolean;
+};
+
+export type GeometryEditorSupportedType = "ANY" | "LINESTRING" | "POINT" | "POLYGON";
+
+export type GeometryObjectSupportedType =
+  | "GEOMETRYCOLLECTION"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "MULTIPOINT"
+  | "MULTIPOLYGON"
+  | "POINT"
+  | "POLYGON";
+
+export type SchemaFieldAssetInput = {
+  defaultValue?: unknown;
+};
+
+export type SchemaFieldBoolInput = {
+  defaultValue?: unknown;
+};
+
+export type SchemaFieldCheckboxInput = {
+  defaultValue?: unknown;
+};
+
+export type SchemaFieldDateInput = {
+  defaultValue?: unknown;
+};
+
+export type SchemaFieldGeometryEditorInput = {
+  defaultValue?: unknown;
+  supportedTypes: Array<GeometryEditorSupportedType>;
+};
+
+export type SchemaFieldGeometryObjectInput = {
+  defaultValue?: unknown;
+  supportedTypes: Array<GeometryObjectSupportedType>;
+};
+
+export type SchemaFieldGroupInput = {
+  groupId: string;
+};
+
+export type SchemaFieldIntegerInput = {
+  defaultValue?: unknown;
+  max?: number | null | undefined;
+  min?: number | null | undefined;
+};
+
+export type SchemaFieldNumberInput = {
+  defaultValue?: unknown;
+  max?: number | null | undefined;
+  min?: number | null | undefined;
+};
+
+export type SchemaFieldReferenceInput = {
+  correspondingField?: CorrespondingFieldInput | null | undefined;
+  modelId: string;
+  schemaId: string;
+};
+
+export type SchemaFieldRichTextInput = {
+  defaultValue?: unknown;
+  maxLength?: number | null | undefined;
+};
+
+export type SchemaFieldSelectInput = {
+  defaultValue?: unknown;
+  values: Array<string>;
+};
+
+export type SchemaFieldTagColor =
+  | "BLUE"
+  | "CYAN"
+  | "GEEKBLUE"
+  | "GOLD"
+  | "GREEN"
+  | "LIME"
+  | "MAGENTA"
+  | "ORANGE"
+  | "PURPLE"
+  | "RED"
+  | "VOLCANO";
+
+export type SchemaFieldTagInput = {
+  defaultValue?: unknown;
+  tags: Array<SchemaFieldTagValueInput>;
+};
+
+export type SchemaFieldTagValueInput = {
+  color?: SchemaFieldTagColor | null | undefined;
+  id?: string | null | undefined;
+  name?: string | null | undefined;
+};
+
+export type SchemaFieldTextAreaInput = {
+  defaultValue?: unknown;
+  maxLength?: number | null | undefined;
+};
+
+export type SchemaFieldTextInput = {
+  defaultValue?: unknown;
+  maxLength?: number | null | undefined;
+};
+
+export type SchemaFieldType =
+  | "Asset"
+  | "Bool"
+  | "Checkbox"
+  | "Date"
+  | "GeometryEditor"
+  | "GeometryObject"
+  | "Group"
+  | "Integer"
+  | "MarkdownText"
+  | "Number"
+  | "Reference"
+  | "RichText"
+  | "Select"
+  | "Tag"
+  | "Text"
+  | "TextArea"
+  | "URL";
+
+export type SchemaFieldTypePropertyInput = {
+  asset?: SchemaFieldAssetInput | null | undefined;
+  bool?: SchemaFieldBoolInput | null | undefined;
+  checkbox?: SchemaFieldCheckboxInput | null | undefined;
+  date?: SchemaFieldDateInput | null | undefined;
+  geometryEditor?: SchemaFieldGeometryEditorInput | null | undefined;
+  geometryObject?: SchemaFieldGeometryObjectInput | null | undefined;
+  group?: SchemaFieldGroupInput | null | undefined;
+  integer?: SchemaFieldIntegerInput | null | undefined;
+  markdownText?: SchemaMarkdownTextInput | null | undefined;
+  number?: SchemaFieldNumberInput | null | undefined;
+  reference?: SchemaFieldReferenceInput | null | undefined;
+  richText?: SchemaFieldRichTextInput | null | undefined;
+  select?: SchemaFieldSelectInput | null | undefined;
+  tag?: SchemaFieldTagInput | null | undefined;
+  text?: SchemaFieldTextInput | null | undefined;
+  textArea?: SchemaFieldTextAreaInput | null | undefined;
+  url?: SchemaFieldUrlInput | null | undefined;
+};
+
+export type SchemaFieldUrlInput = {
+  defaultValue?: unknown;
+};
+
+export type SchemaMarkdownTextInput = {
+  defaultValue?: unknown;
+  maxLength?: number | null | undefined;
+};
+
+export type UpdateFieldInput = {
+  description?: string | null | undefined;
+  fieldId: string;
+  groupId?: string | null | undefined;
+  isTitle?: boolean | null | undefined;
+  key?: string | null | undefined;
+  metadata?: boolean | null | undefined;
+  modelId?: string | null | undefined;
+  multiple?: boolean | null | undefined;
+  order?: number | null | undefined;
+  required?: boolean | null | undefined;
+  title?: string | null | undefined;
+  typeProperty?: SchemaFieldTypePropertyInput | null | undefined;
+  unique?: boolean | null | undefined;
+};
+
+export type CreateFieldMutationVariables = Exact<{
+  modelId?: string | null | undefined;
+  groupId?: string | null | undefined;
   type: Types.SchemaFieldType;
-  title: Types.Scalars["String"]["input"];
-  metadata?: Types.InputMaybe<Types.Scalars["Boolean"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  key: Types.Scalars["String"]["input"];
-  multiple: Types.Scalars["Boolean"]["input"];
-  unique: Types.Scalars["Boolean"]["input"];
-  isTitle: Types.Scalars["Boolean"]["input"];
-  required: Types.Scalars["Boolean"]["input"];
+  title: string;
+  metadata?: boolean | null | undefined;
+  description?: string | null | undefined;
+  key: string;
+  multiple: boolean;
+  unique: boolean;
+  isTitle: boolean;
+  required: boolean;
   typeProperty: Types.SchemaFieldTypePropertyInput;
 }>;
 
@@ -23,7 +218,7 @@ export type CreateFieldMutation = {
   } | null;
 };
 
-export type CreateFieldsMutationVariables = Types.Exact<{
+export type CreateFieldsMutationVariables = Exact<{
   inputs: Array<Types.CreateFieldInput> | Types.CreateFieldInput;
 }>;
 
@@ -34,19 +229,19 @@ export type CreateFieldsMutation = {
   } | null;
 };
 
-export type UpdateFieldMutationVariables = Types.Exact<{
-  modelId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  groupId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  fieldId: Types.Scalars["ID"]["input"];
-  title: Types.Scalars["String"]["input"];
-  metadata?: Types.InputMaybe<Types.Scalars["Boolean"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  order?: Types.InputMaybe<Types.Scalars["Int"]["input"]>;
-  key: Types.Scalars["String"]["input"];
-  multiple: Types.Scalars["Boolean"]["input"];
-  unique: Types.Scalars["Boolean"]["input"];
-  isTitle: Types.Scalars["Boolean"]["input"];
-  required: Types.Scalars["Boolean"]["input"];
+export type UpdateFieldMutationVariables = Exact<{
+  modelId?: string | null | undefined;
+  groupId?: string | null | undefined;
+  fieldId: string;
+  title: string;
+  metadata?: boolean | null | undefined;
+  description?: string | null | undefined;
+  order?: number | null | undefined;
+  key: string;
+  multiple: boolean;
+  unique: boolean;
+  isTitle: boolean;
+  required: boolean;
   typeProperty: Types.SchemaFieldTypePropertyInput;
 }>;
 
@@ -57,7 +252,7 @@ export type UpdateFieldMutation = {
   } | null;
 };
 
-export type UpdateFieldsMutationVariables = Types.Exact<{
+export type UpdateFieldsMutationVariables = Exact<{
   updateFieldInput: Array<Types.UpdateFieldInput> | Types.UpdateFieldInput;
 }>;
 
@@ -68,11 +263,11 @@ export type UpdateFieldsMutation = {
   } | null;
 };
 
-export type DeleteFieldMutationVariables = Types.Exact<{
-  modelId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  groupId?: Types.InputMaybe<Types.Scalars["ID"]["input"]>;
-  fieldId: Types.Scalars["ID"]["input"];
-  metadata?: Types.InputMaybe<Types.Scalars["Boolean"]["input"]>;
+export type DeleteFieldMutationVariables = Exact<{
+  modelId?: string | null | undefined;
+  groupId?: string | null | undefined;
+  fieldId: string;
+  metadata?: boolean | null | undefined;
 }>;
 
 export type DeleteFieldMutation = {

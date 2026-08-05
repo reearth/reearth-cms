@@ -10,7 +10,9 @@ const ViewerNotSupported: React.FC = () => {
     <ViewerNotSupportedContainer>
       <ViewerNotSupportedWrapper>
         <StyledIcon icon="exclamationCircle" />
-        <ViewerNotSupportedText>{t("Not supported")}</ViewerNotSupportedText>
+        <ViewerNotSupportedText>
+          {t("File format not supported for preview")}
+        </ViewerNotSupportedText>
       </ViewerNotSupportedWrapper>
     </ViewerNotSupportedContainer>
   );

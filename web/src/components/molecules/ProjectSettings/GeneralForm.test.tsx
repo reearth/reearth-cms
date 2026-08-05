@@ -65,7 +65,7 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     const nameInput = screen.getByLabelText("Name");
     const aliasInput = screen.getByLabelText("Alias");
     const descriptionInput = screen.getByLabelText("Description");
@@ -109,7 +109,7 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
 
     await user.type(screen.getByLabelText("Name"), "new");
     await user.type(screen.getByLabelText("Alias"), "new");
@@ -145,7 +145,7 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     await user.type(screen.getByLabelText("Name"), "new");
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
@@ -163,7 +163,7 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     const nameInput = screen.getByLabelText("Name");
     const aliasInput = screen.getByLabelText("Alias");
 

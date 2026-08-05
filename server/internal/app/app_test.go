@@ -14,7 +14,7 @@ import (
 func TestErrorMessage(t *testing.T) {
 	t.Parallel()
 
-	nopLog := func(string, ...interface{}) {}
+	nopLog := func(string, ...any) {}
 
 	tests := []struct {
 		name     string

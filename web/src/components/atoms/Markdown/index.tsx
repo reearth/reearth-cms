@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
-import { useRef, useState, FocusEvent, useCallback, useMemo } from "react";
+import type { FocusEvent } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
-import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import type { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { XXS } = AntdToken.SPACING;

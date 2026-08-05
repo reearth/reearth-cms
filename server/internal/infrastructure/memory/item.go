@@ -94,7 +94,7 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
-		if it.Model() == modelID {
+		if it.Model() == modelID && r.f.CanRead(it.Project()) {
 			res = append(res, itv)
 		}
 		return true
@@ -108,7 +108,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
+	return r.data.LoadAll(list, new(ref.OrLatest().OrVersion())), nil
 }
 
 func (r *Item) FindVersionByID(_ context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
@@ -152,16 +152,26 @@ func (r *Item) LastModifiedByModel(_ context.Context, modelID id.ModelID) (time.
 		return time.Time{}, r.err
 	}
 
-	res := r.data.Find(func(k item.ID, v *version.Values[*item.Item]) bool {
+	var found bool
+	var latest time.Time
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(version.Latest.OrVersion())
 		it := itv.Value()
-		return it.Model() == modelID
+		if it.Model() != modelID {
+			return true
+		}
+		t := v.Latest().Time()
+		if !found || t.After(latest) {
+			found = true
+			latest = t
+		}
+		return true
 	})
 
-	if res == nil {
+	if !found {
 		return time.Time{}, rerror.ErrNotFound
 	}
-	return res.Latest().Time(), nil
+	return latest, nil
 }
 
 func (r *Item) Save(_ context.Context, t *item.Item) error {
@@ -173,6 +183,14 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 		return repo.ErrOperationDenied
 	}
 
+	r.data.SaveOne(t.ID(), t, nil)
+	return nil
+}
+
+func (r *Item) SaveDraft(_ context.Context, t *item.Item) error {
+	if r.err != nil {
+		return r.err
+	}
 	r.data.SaveOne(t.ID(), t, nil)
 	return nil
 }
@@ -200,6 +218,17 @@ func (r *Item) UpdateRef(_ context.Context, item id.ItemID, ref version.Ref, vr 
 	return nil
 }
 
+func (r *Item) BulkUpdateRef(_ context.Context, ids id.ItemIDList, ref version.Ref, vr *version.VersionOrRef) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, iid := range ids {
+		r.data.UpdateRef(iid, ref, vr)
+	}
+	return nil
+}
+
 func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 	if r.err != nil {
 		return r.err
@@ -224,7 +253,7 @@ func (r *Item) RemoveByModel(_ context.Context, modelID id.ModelID) error {
 
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(version.Latest.OrVersion())
-		if itv != nil && itv.Value().Model() == modelID {
+		if itv != nil && itv.Value().Model() == modelID && r.f.CanWrite(itv.Value().Project()) {
 			r.data.Delete(k)
 		}
 		return true
@@ -279,14 +308,13 @@ func (r *Item) Archive(_ context.Context, itemID id.ItemID, projectID id.Project
 		return r.err
 	}
 
-	iv, _ := r.data.Load(itemID, version.Latest.OrVersion())
-	if iv == nil {
-		return rerror.ErrNotFound
-	}
-	i := iv.Value()
-
-	if !r.f.CanWrite(i.Project()) {
+	if !r.f.CanWrite(projectID) {
 		return repo.ErrOperationDenied
+	}
+
+	iv, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	if iv == nil || iv.Value().Project() != projectID {
+		return rerror.ErrNotFound
 	}
 
 	r.data.Archive(itemID, archived)
@@ -319,16 +347,19 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
-		_, searchMatched := lo.Find(itv.Fields(), func(f *item.Field) bool {
-			return lo.SomeBy(f.Value().Values(), func(v *value.Value) bool {
-				if s, ok := v.ValueString(); ok {
-					if strings.Contains(s, qq) {
-						return true
+		searchMatched := qq == ""
+		if !searchMatched {
+			_, searchMatched = lo.Find(itv.Fields(), func(f *item.Field) bool {
+				return lo.SomeBy(f.Value().Values(), func(v *value.Value) bool {
+					if s, ok := v.ValueString(); ok {
+						if strings.Contains(s, qq) {
+							return true
+						}
 					}
-				}
-				return false
+					return false
+				})
 			})
-		})
+		}
 		schemaMatched := q.Schema() == nil || itv.Schema() == *q.Schema()
 		modelMatched := itv.Model() == q.Model()
 		if searchMatched && schemaMatched && modelMatched && r.f.CanRead(itv.Project()) {
@@ -452,5 +483,5 @@ func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *stri
 		return nil, nil, err
 	}
 
-	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
+	return new(string(filter)), new(string(changes)), nil
 }

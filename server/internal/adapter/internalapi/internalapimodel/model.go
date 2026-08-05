@@ -51,7 +51,7 @@ func ToSchemaField(f *schema.Field) *pb.SchemaField {
 		Name:        f.Name(),
 		Type:        ToSchemaFieldType(f.Type()),
 		Key:         f.Key().String(),
-		Description: lo.ToPtr(f.Description()),
+		Description: new(f.Description()),
 	}
 }
 

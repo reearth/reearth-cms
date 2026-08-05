@@ -20,20 +20,20 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
@@ -51,20 +51,20 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
@@ -73,6 +73,8 @@ jobs:
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
         run: yarn i18n --ci
+      - name: Check i18n duplicate keys
+        run: yarn i18n:check
 
   test:
     name: test
@@ -82,20 +84,20 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
@@ -119,26 +121,26 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
           restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Cache TypeScript
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: web/node_modules/.cache
           key: ${{ runner.os }}-typescript-${{ hashFiles('web/tsconfig.json', 'web/package.json', 'web/yarn.lock') }}

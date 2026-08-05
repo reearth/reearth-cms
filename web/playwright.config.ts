@@ -1,7 +1,8 @@
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
-import { devices, type PlaywrightTestConfig } from "@playwright/test";
+import { devices } from "@playwright/test";
+import type { PlaywrightTestConfig } from "@playwright/test";
 import * as dotenv from "dotenv";
 
 const __filename = fileURLToPath(import.meta.url);

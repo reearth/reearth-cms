@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Resource } from "@reearth-cms/components/molecules/Workspace/types";
 
 import Cards from "./Cards";
 

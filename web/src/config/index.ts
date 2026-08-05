@@ -1,4 +1,5 @@
-import { type AuthInfo, getAuthInfo } from "./authInfo";
+import { getAuthInfo } from "./authInfo";
+import type { AuthInfo } from "./authInfo";
 import { configureCognito } from "./aws";
 import { configureFirebase } from "./firebase";
 

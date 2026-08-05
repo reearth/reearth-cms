@@ -2,7 +2,6 @@ package version
 
 import (
 	"github.com/chrispappas/golang-generics-set/set"
-	"github.com/samber/lo"
 )
 
 const Latest = Ref("latest")
@@ -24,7 +23,7 @@ func (r Ref) OrVersion() VersionOrRef {
 
 func (r *Ref) OrLatest() *Ref {
 	if r == nil || *r == "" {
-		return lo.ToPtr(Latest)
+		return new(Latest)
 	}
 	return r
 }

@@ -66,7 +66,7 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 			if f.WorkspaceIds == nil {
 				f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 			}
-			f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
+			f.WorkspaceIds = new(append(*f.WorkspaceIds, wid))
 			return i.repos.Project.Search(ctx, *f)
 		})
 }
@@ -182,7 +182,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 			}
 
 			if param.Accessibility != nil && param.Accessibility.Visibility != nil {
-				accessibility := project.NewAccessibility(*param.Accessibility.Visibility, nil, nil)
+				accessibility := project.NewAccessibility(*param.Accessibility.Visibility, nil, nil, nil)
 				pb = pb.Accessibility(accessibility)
 			}
 
@@ -294,6 +294,13 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 				}
 				if param.Accessibility.Publication != nil && accessibility.Visibility() == project.VisibilityPrivate {
 					accessibility.SetPublication(project.NewPublicationSettings(param.Accessibility.Publication.PublicModels, param.Accessibility.Publication.PublicAssets))
+				}
+				if param.Accessibility.Posting != nil {
+					ps, err := project.NewPostingSettings(accessibility.PostingEnabled(), param.Accessibility.Posting.AllowedOrigins)
+					if err != nil {
+						return nil, err
+					}
+					accessibility.SetPosting(ps)
 				}
 				p.SetAccessibility(*accessibility)
 			}
@@ -548,6 +555,10 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 		return nil, interfaces.ErrOperationDenied
 	}
 
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceProject, rbac.ActionRead, workspaceID); err != nil {
+		return nil, err
+	}
+
 	result := &interfaces.ProjectLimitsResult{
 		PublicProjectsAllowed:  true,
 		PrivateProjectsAllowed: true,
@@ -591,7 +602,7 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 		resultCh <- policyResult{isPublic: false, allowed: privateResp.Allowed}
 	}()
 
-	for n := 0; n < 2; n++ {
+	for range 2 {
 		res := <-resultCh
 		if res.err != nil {
 			return nil, res.err

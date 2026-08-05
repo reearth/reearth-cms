@@ -1,6 +1,6 @@
-import { RcFile } from "antd/es/upload";
+import type { RcFile } from "antd/es/upload";
 
-import { JobState } from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { JobState } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export type UploaderQueueItem = {
   // file meta

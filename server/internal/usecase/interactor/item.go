@@ -249,7 +249,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil && !operator.Anonymous {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -271,7 +271,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			//	return nil, interfaces.ErrInvalidSchema
 			//}
 
-			if !operator.IsWritableWorkspace(s.Workspace()) {
+			if !operator.Anonymous && !operator.IsWritableWorkspace(s.Workspace()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -308,6 +308,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			if operator.Integration != nil {
 				ib = ib.Integration(*operator.Integration)
 			}
+			if operator.Anonymous {
+				ib = ib.Anonymous(true)
+			}
 
 			var mi item.Versioned
 			if param.MetadataID != nil {
@@ -330,13 +333,21 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				return nil, err
 			}
 
-			if err := i.repos.Item.Save(ctx, it); err != nil {
+			if operator.Anonymous {
+				if err := i.repos.Item.SaveDraft(ctx, it); err != nil {
+					return nil, err
+				}
+			} else if err := i.repos.Item.Save(ctx, it); err != nil {
 				return nil, err
 			}
 
 			if mi != nil {
 				mi.Value().SetOriginalItem(it.ID())
-				if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
+				if operator.Anonymous {
+					if err := i.repos.Item.SaveDraft(ctx, mi.Value()); err != nil {
+						return nil, err
+					}
+				} else if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
 					return nil, err
 				}
 			}
@@ -346,13 +357,17 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				return nil, err
 			}
 
-			refItems, err := i.getReferencedItems(ctx, fields)
+			if isMetadata {
+				return vi, nil
+			}
+
+			sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 			if err != nil {
 				return nil, err
 			}
-
-			if isMetadata {
-				return vi, nil
+			refItems, err := i.getReferencedItems(ctx, vi.Value(), *sp)
+			if err != nil {
+				return nil, err
 			}
 
 			prj, err := i.repos.Project.FindByID(ctx, s.Project())
@@ -487,7 +502,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 				return nil, err
 			}
-			refItems, err := i.getReferencedItems(ctx, fields)
+
+			sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
+			if err != nil {
+				return nil, err
+			}
+			refItems, err := i.getReferencedItems(ctx, itm.Value(), *sp)
 			if err != nil {
 				return nil, err
 			}
@@ -531,7 +551,12 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
+	if len(itemIDs) == 0 {
+		return nil, interfaces.ErrItemMissing
+	}
+
+	var events []Event
+	items, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
 		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
 		if err != nil {
 			return nil, err
@@ -573,19 +598,24 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, interfaces.ErrInvalidOperator
 		}
 
-		// remove public ref from the items
-		for _, itm := range items {
-			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, nil); err != nil {
-				return nil, err
-			}
+		// remove public ref from all items in a single write
+		if err := i.repos.Item.BulkUpdateRef(ctx, itemIDs, version.Public, nil); err != nil {
+			return nil, err
 		}
 
+		// resolve all referenced items across the whole batch in one query
+		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
+		if err != nil {
+			return nil, err
+		}
+		refItemsByID, err := i.batchReferencedItems(ctx, items, *sp)
+		if err != nil {
+			return nil, err
+		}
+
+		events = make([]Event, 0, len(items))
 		for _, itm := range items {
-			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
-			if err != nil {
-				return nil, err
-			}
-			if err := i.event(ctx, Event{
+			events = append(events, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
 				Type:      event.ItemUnpublish,
@@ -594,23 +624,35 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 					Item:            itm.Value(),
 					Model:           m,
 					Schema:          sch,
-					ReferencedItems: refItems,
+					ReferencedItems: refItemsByID[itm.Value().ID()],
 				},
 				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
+			})
 		}
 
 		return items, nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	// dispatch events/webhooks outside the transaction
+	if len(events) > 0 {
+		if err := i.events(ctx, events); err != nil {
+			return nil, err
+		}
+	}
+
+	return items, nil
 }
 
 func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
+
+	var events []Event
+	updated, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
 		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
 		if err != nil {
 			return nil, err
@@ -644,11 +686,9 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, interfaces.ErrInvalidOperator
 		}
 
-		// add public ref to the items
-		for _, itm := range items {
-			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
+		// add public ref to all items in a single write
+		if err := i.repos.Item.BulkUpdateRef(ctx, itemIDs, version.Public, version.Latest.OrVersion().Ref()); err != nil {
+			return nil, err
 		}
 
 		updated, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
@@ -656,13 +696,19 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, err
 		}
 
-		for _, itm := range updated {
-			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
-			if err != nil {
-				return nil, err
-			}
+		// resolve all referenced items across the whole batch in one query
+		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
+		if err != nil {
+			return nil, err
+		}
+		refItemsByID, err := i.batchReferencedItems(ctx, updated, *sp)
+		if err != nil {
+			return nil, err
+		}
 
-			if err := i.event(ctx, Event{
+		events = make([]Event, 0, len(updated))
+		for _, itm := range updated {
+			events = append(events, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
 				Type:      event.ItemPublish,
@@ -671,16 +717,24 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 					Item:            itm.Value(),
 					Model:           m,
 					Schema:          sch,
-					ReferencedItems: refItems,
+					ReferencedItems: refItemsByID[itm.Value().ID()],
 				},
 				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
+			})
 		}
 
 		return updated, nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	// dispatch events/webhooks outside the transaction
+	if len(events) > 0 {
+		_ = i.events(ctx, events)
+	}
+
+	return updated, nil
 }
 
 func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID, itm *item.Item) error {
@@ -917,21 +971,29 @@ func (i Item) events(ctx context.Context, e []Event) error {
 	return err
 }
 
-func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]item.Versioned, error) {
-	var ids id.ItemIDList
-	for _, f := range fields {
-		if f.Type() != value.TypeReference {
-			continue
-		}
-		for _, v := range f.Value().Values() {
-			iid, ok := v.Value().(id.ItemID)
-			if !ok {
-				continue
-			}
-			ids = ids.Add(iid)
-		}
+func (i Item) getReferencedItems(ctx context.Context, itm *item.Item, sp schema.Package) (item.VersionedList, error) {
+	return i.repos.Item.FindByIDs(ctx, itm.RefItemsIDs(sp), nil)
+}
+
+// batchReferencedItems resolves the referenced items for every item in the list
+// using a single FindByIDs call, and returns a map keyed by the owning item id
+// so each item only gets the items it actually references.
+func (i Item) batchReferencedItems(ctx context.Context, items item.VersionedList, sp schema.Package) (map[id.ItemID]item.VersionedList, error) {
+	list := items.Unwrap()
+
+	refs, err := i.repos.Item.FindByIDs(ctx, list.RefItemsIDs(sp), nil)
+	if err != nil {
+		return nil, err
 	}
-	return i.repos.Item.FindByIDs(ctx, ids, nil)
+
+	byID := refs.ToMap()
+	result := lo.SliceToMap(list, func(itm *item.Item) (id.ItemID, item.VersionedList) {
+		return itm.ID(), lo.FilterMap(itm.RefItemsIDs(sp), func(rid id.ItemID, _ int) (item.Versioned, bool) {
+			r, ok := byID[rid]
+			return r, ok
+		})
+	})
+	return result, nil
 }
 
 func refFields(s schema.Schema, refSchemaID schema.ID) item.FieldIDList {
@@ -954,7 +1016,7 @@ func (i Item) handleRelatedReferenceFields(ctx context.Context, itemIDs id.ItemI
 		return nil
 	}
 
-	p := usecasex.CursorPagination{First: lo.ToPtr(int64(100))}.Wrap()
+	p := usecasex.CursorPagination{First: new(int64(100))}.Wrap()
 	for {
 		models, pageInfo, err := i.repos.Model.FindByProject(ctx, sp.Schema().Project(), p)
 		if err != nil {
@@ -990,7 +1052,7 @@ func (i Item) handleRelatedReferenceFields(ctx context.Context, itemIDs id.ItemI
 		if !pageInfo.HasNextPage {
 			break
 		}
-		p = usecasex.CursorPagination{First: lo.ToPtr(int64(100)), After: pageInfo.EndCursor}.Wrap()
+		p = usecasex.CursorPagination{First: new(int64(100)), After: pageInfo.EndCursor}.Wrap()
 	}
 
 	return nil
@@ -1004,10 +1066,7 @@ func (i Item) clearRelatedReferenceFields(ctx context.Context, modelID id.ModelI
 	// loop through itemIDs in batches to avoid large queries
 	batchSize := 100
 	for start := 0; start < len(itemIDs); start += batchSize {
-		end := start + batchSize
-		if end > len(itemIDs) {
-			end = len(itemIDs)
-		}
+		end := min(start+batchSize, len(itemIDs))
 		batchIDs := itemIDs[start:end]
 
 		filter := lo.FlatMap(batchIDs, func(id id.ItemID, _ int) []repo.FieldAndValue {

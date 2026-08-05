@@ -50,7 +50,6 @@ func TestBuilder_Build(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -72,7 +71,7 @@ func TestBuilder_Fields(t *testing.T) {
 	f := FieldList{{name: "N1"}}
 	b.Fields(f)
 	assert.Equal(t, f, b.s.fields)
-	for i := 0; i < len(f); i++ {
+	for i := range f {
 		assert.Equal(t, f[i], b.s.fields[i])
 		assert.NotSame(t, f[i], b.s.fields[i])
 	}
@@ -127,7 +126,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -4,19 +4,22 @@ import { useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import type { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import type {
+  Request,
+  RequestUpdatePayload,
+} from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   AddCommentDocument,
   DeleteCommentDocument,
   UpdateCommentDocument,
 } from "@reearth-cms/gql/__generated__/comment.generated";
-import {
+import type {
   Request as GQLRequest,
   RequestState as GQLRequestState,
-  ResourceType as GQLResourceType,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   ApproveRequestDocument,
   DeleteRequestDocument,

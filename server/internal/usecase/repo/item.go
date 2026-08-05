@@ -42,8 +42,10 @@ type Item interface {
 	CountByModel(context.Context, id.ModelID) (int, error)
 	IsArchived(context.Context, id.ItemID) (bool, error)
 	Save(context.Context, *item.Item) error
+	SaveDraft(context.Context, *item.Item) error
 	SaveAll(context.Context, item.List) error
 	UpdateRef(context.Context, id.ItemID, version.Ref, *version.VersionOrRef) error
+	BulkUpdateRef(context.Context, id.ItemIDList, version.Ref, *version.VersionOrRef) error
 	Remove(context.Context, id.ItemID) error
 	BatchRemove(context.Context, id.ItemIDList) error
 	RemoveByModel(context.Context, id.ModelID) error

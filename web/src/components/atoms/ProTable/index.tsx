@@ -1,10 +1,12 @@
 import type { ParamsType } from "@ant-design/pro-provider";
-import ProTable, { ListToolBarProps, ProTableProps, ColumnsState } from "@ant-design/pro-table";
-import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
-import { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
-import { ConfigProvider, Empty, GetProp } from "antd";
-import enUSIntl from "antd/lib/locale/en_US";
-import jaJPIntl from "antd/lib/locale/ja_JP";
+import type { ListToolBarProps, ProTableProps, ColumnsState } from "@ant-design/pro-table";
+import ProTable from "@ant-design/pro-table";
+import type { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
+import type { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
+import type { GetProp } from "antd";
+import { ConfigProvider, Empty } from "antd";
+import enUSIntl from "antd/es/locale/en_US";
+import jaJPIntl from "antd/es/locale/ja_JP";
 
 import { useLang, useT } from "@reearth-cms/i18n";
 

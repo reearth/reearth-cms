@@ -162,7 +162,7 @@ const ProjectCreationModal: React.FC<Props> = ({
             { required: true, message: t("Please choose the visibility settings of the project!") },
           ]}>
           <StyledRadioGroup defaultValue={ProjectVisibility.Public}>
-            <Radio value={ProjectVisibility.Public}>{t("Public")}</Radio>
+            <Radio value={ProjectVisibility.Public}>{t("PUBLIC")}</Radio>
             <Radio value={ProjectVisibility.Private} disabled={!privateProjectsAllowed}>
               {t("Private")}
             </Radio>

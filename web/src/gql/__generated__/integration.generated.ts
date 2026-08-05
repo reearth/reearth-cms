@@ -1,6 +1,13 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+export type IntegrationType = "Private" | "Public";
+
 export type IntegrationFragmentFragment = {
   __typename: "Integration";
   id: string;
@@ -39,10 +46,10 @@ export type IntegrationFragmentFragment = {
   } | null;
 };
 
-export type CreateIntegrationMutationVariables = Types.Exact<{
-  name: Types.Scalars["String"]["input"];
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  logoUrl: Types.Scalars["URL"]["input"];
+export type CreateIntegrationMutationVariables = Exact<{
+  name: string;
+  description?: string | null | undefined;
+  logoUrl: string;
   type: Types.IntegrationType;
 }>;
 
@@ -60,11 +67,11 @@ export type CreateIntegrationMutation = {
   } | null;
 };
 
-export type UpdateIntegrationMutationVariables = Types.Exact<{
-  integrationId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  logoUrl: Types.Scalars["URL"]["input"];
+export type UpdateIntegrationMutationVariables = Exact<{
+  integrationId: string;
+  name: string;
+  description?: string | null | undefined;
+  logoUrl: string;
 }>;
 
 export type UpdateIntegrationMutation = {
@@ -81,16 +88,16 @@ export type UpdateIntegrationMutation = {
   } | null;
 };
 
-export type DeleteIntegrationMutationVariables = Types.Exact<{
-  integrationId: Types.Scalars["ID"]["input"];
+export type DeleteIntegrationMutationVariables = Exact<{
+  integrationId: string;
 }>;
 
 export type DeleteIntegrationMutation = {
   deleteIntegration: { __typename: "DeleteIntegrationPayload"; integrationId: string } | null;
 };
 
-export type RegenerateIntegrationTokenMutationVariables = Types.Exact<{
-  integrationId: Types.Scalars["ID"]["input"];
+export type RegenerateIntegrationTokenMutationVariables = Exact<{
+  integrationId: string;
 }>;
 
 export type RegenerateIntegrationTokenMutation = {

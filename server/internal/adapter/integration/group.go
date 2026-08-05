@@ -60,9 +60,9 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 
 	return GroupFilter200JSONResponse{
 		Groups:     &groups,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		Page:       new(Page(*p.Offset)),
+		PerPage:    new(int(p.Offset.Limit)),
+		TotalCount: new(int(pi.TotalCount)),
 	}, nil
 }
 

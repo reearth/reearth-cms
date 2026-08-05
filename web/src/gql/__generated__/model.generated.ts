@@ -1,11 +1,74 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetModelsQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  keyword?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  sort?: Types.InputMaybe<Types.Sort>;
-  pagination?: Types.InputMaybe<Types.Pagination>;
+export type ExportFormat = "CSV" | "GEOJSON" | "JSON";
+
+export type GeometryEditorSupportedType = "ANY" | "LINESTRING" | "POINT" | "POLYGON";
+
+export type GeometryObjectSupportedType =
+  | "GEOMETRYCOLLECTION"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "MULTIPOINT"
+  | "MULTIPOLYGON"
+  | "POINT"
+  | "POLYGON";
+
+export type Pagination = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
+  offset?: number | null | undefined;
+};
+
+export type SchemaFieldTagColor =
+  | "BLUE"
+  | "CYAN"
+  | "GEEKBLUE"
+  | "GOLD"
+  | "GREEN"
+  | "LIME"
+  | "MAGENTA"
+  | "ORANGE"
+  | "PURPLE"
+  | "RED"
+  | "VOLCANO";
+
+export type SchemaFieldType =
+  | "Asset"
+  | "Bool"
+  | "Checkbox"
+  | "Date"
+  | "GeometryEditor"
+  | "GeometryObject"
+  | "Group"
+  | "Integer"
+  | "MarkdownText"
+  | "Number"
+  | "Reference"
+  | "RichText"
+  | "Select"
+  | "Tag"
+  | "Text"
+  | "TextArea"
+  | "URL";
+
+export type Sort = {
+  key: string;
+  reverted?: boolean | null | undefined;
+};
+
+export type GetModelsQueryVariables = Exact<{
+  projectId: string;
+  keyword?: string | null | undefined;
+  sort?: Types.Sort | null | undefined;
+  pagination?: Types.Pagination | null | undefined;
 }>;
 
 export type GetModelsQuery = {
@@ -20,6 +83,7 @@ export type GetModelsQuery = {
       order: number | null;
       createdAt: Date;
       updatedAt: Date;
+      postingSettings: { __typename: "ModelPostingSettings"; enabled: boolean };
       schema: {
         __typename: "Schema";
         id: string;
@@ -29,8 +93,8 @@ export type GetModelsQuery = {
   };
 };
 
-export type GetModelQueryVariables = Types.Exact<{
-  id: Types.Scalars["ID"]["input"];
+export type GetModelQueryVariables = Exact<{
+  id: string;
 }>;
 
 export type GetModelQuery = {
@@ -64,9 +128,9 @@ export type GetModelQuery = {
             order: number | null;
             typeProperty:
               | { __typename: "SchemaFieldAsset" }
-              | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
-              | { __typename: "SchemaFieldCheckbox"; defaultValue: unknown | null }
-              | { __typename: "SchemaFieldDate"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldBool"; defaultValue: unknown }
+              | { __typename: "SchemaFieldCheckbox"; defaultValue: unknown }
+              | { __typename: "SchemaFieldDate"; defaultValue: unknown }
               | { __typename: "SchemaFieldGeometryEditor" }
               | { __typename: "SchemaFieldGeometryObject" }
               | { __typename: "SchemaFieldGroup" }
@@ -78,7 +142,7 @@ export type GetModelQuery = {
               | { __typename: "SchemaFieldSelect" }
               | {
                   __typename: "SchemaFieldTag";
-                  selectDefaultValue: unknown | null;
+                  selectDefaultValue: unknown;
                   tags: Array<{
                     __typename: "SchemaFieldTagValue";
                     id: string;
@@ -86,13 +150,9 @@ export type GetModelQuery = {
                     color: Types.SchemaFieldTagColor;
                   }>;
                 }
-              | {
-                  __typename: "SchemaFieldText";
-                  defaultValue: unknown | null;
-                  maxLength: number | null;
-                }
+              | { __typename: "SchemaFieldText"; defaultValue: unknown; maxLength: number | null }
               | { __typename: "SchemaFieldTextArea" }
-              | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldURL"; defaultValue: unknown }
               | null;
           }>;
         } | null;
@@ -112,18 +172,18 @@ export type GetModelQuery = {
             multiple: boolean;
             order: number | null;
             typeProperty:
-              | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown | null }
-              | { __typename: "SchemaFieldBool"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldAsset"; assetDefaultValue: unknown }
+              | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
-              | { __typename: "SchemaFieldDate"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldDate"; defaultValue: unknown }
               | {
                   __typename: "SchemaFieldGeometryEditor";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   editorSupportedTypes: Array<Types.GeometryEditorSupportedType>;
                 }
               | {
                   __typename: "SchemaFieldGeometryObject";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   objectSupportedTypes: Array<Types.GeometryObjectSupportedType>;
                 }
               | { __typename: "SchemaFieldGroup"; groupId: string }
@@ -131,16 +191,16 @@ export type GetModelQuery = {
                   __typename: "SchemaFieldInteger";
                   min: number | null;
                   max: number | null;
-                  integerDefaultValue: unknown | null;
+                  integerDefaultValue: unknown;
                 }
               | {
                   __typename: "SchemaFieldMarkdown";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   maxLength: number | null;
                 }
               | {
                   __typename: "SchemaFieldNumber";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   numberMin: number | null;
                   numberMax: number | null;
                 }
@@ -165,20 +225,16 @@ export type GetModelQuery = {
               | {
                   __typename: "SchemaFieldSelect";
                   values: Array<string>;
-                  selectDefaultValue: unknown | null;
+                  selectDefaultValue: unknown;
                 }
               | { __typename: "SchemaFieldTag" }
-              | {
-                  __typename: "SchemaFieldText";
-                  defaultValue: unknown | null;
-                  maxLength: number | null;
-                }
+              | { __typename: "SchemaFieldText"; defaultValue: unknown; maxLength: number | null }
               | {
                   __typename: "SchemaFieldTextArea";
-                  defaultValue: unknown | null;
+                  defaultValue: unknown;
                   maxLength: number | null;
                 }
-              | { __typename: "SchemaFieldURL"; defaultValue: unknown | null }
+              | { __typename: "SchemaFieldURL"; defaultValue: unknown }
               | null;
           }>;
         };
@@ -193,11 +249,11 @@ export type GetModelQuery = {
     | null;
 };
 
-export type CreateModelMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  name?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  key?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+export type CreateModelMutationVariables = Exact<{
+  projectId: string;
+  name?: string | null | undefined;
+  description?: string | null | undefined;
+  key?: string | null | undefined;
 }>;
 
 export type CreateModelMutation = {
@@ -207,19 +263,19 @@ export type CreateModelMutation = {
   } | null;
 };
 
-export type DeleteModelMutationVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
+export type DeleteModelMutationVariables = Exact<{
+  modelId: string;
 }>;
 
 export type DeleteModelMutation = {
   deleteModel: { __typename: "DeleteModelPayload"; modelId: string } | null;
 };
 
-export type UpdateModelMutationVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
-  name?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  description?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
-  key?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
+export type UpdateModelMutationVariables = Exact<{
+  modelId: string;
+  name?: string | null | undefined;
+  description?: string | null | undefined;
+  key?: string | null | undefined;
 }>;
 
 export type UpdateModelMutation = {
@@ -229,17 +285,17 @@ export type UpdateModelMutation = {
   } | null;
 };
 
-export type CheckModelKeyAvailabilityQueryVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  key: Types.Scalars["String"]["input"];
+export type CheckModelKeyAvailabilityQueryVariables = Exact<{
+  projectId: string;
+  key: string;
 }>;
 
 export type CheckModelKeyAvailabilityQuery = {
   checkModelKeyAvailability: { __typename: "KeyAvailability"; key: string; available: boolean };
 };
 
-export type UpdateModelsOrderMutationVariables = Types.Exact<{
-  modelIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type UpdateModelsOrderMutationVariables = Exact<{
+  modelIds: Array<string> | string;
 }>;
 
 export type UpdateModelsOrderMutation = {
@@ -249,8 +305,8 @@ export type UpdateModelsOrderMutation = {
   } | null;
 };
 
-export type ExportModelMutationVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
+export type ExportModelMutationVariables = Exact<{
+  modelId: string;
   format: Types.ExportFormat;
 }>;
 
@@ -258,8 +314,8 @@ export type ExportModelMutation = {
   exportModel: { __typename: "ExportModelPayload"; modelId: string; url: string } | null;
 };
 
-export type ExportModelSchemaMutationVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
+export type ExportModelSchemaMutationVariables = Exact<{
+  modelId: string;
 }>;
 
 export type ExportModelSchemaMutation = {
@@ -267,6 +323,22 @@ export type ExportModelSchemaMutation = {
     __typename: "ExportModelSchemaPayload";
     modelId: string;
     url: string;
+  } | null;
+};
+
+export type UpdateModelPostingEnabledMutationVariables = Exact<{
+  modelId: string;
+  enabled: boolean;
+}>;
+
+export type UpdateModelPostingEnabledMutation = {
+  updateModel: {
+    __typename: "ModelPayload";
+    model: {
+      __typename: "Model";
+      id: string;
+      postingSettings: { __typename: "ModelPostingSettings"; enabled: boolean };
+    };
   } | null;
 };
 
@@ -346,6 +418,14 @@ export const GetModelsDocument = {
                       { kind: "Field", name: { kind: "Name", value: "order" } },
                       { kind: "Field", name: { kind: "Name", value: "createdAt" } },
                       { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "postingSettings" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [{ kind: "Field", name: { kind: "Name", value: "enabled" } }],
+                        },
+                      },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "schema" },
@@ -1473,3 +1553,101 @@ export const ExportModelSchemaDocument = {
     },
   ],
 } as unknown as DocumentNode<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>;
+export const UpdateModelPostingEnabledDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateModelPostingEnabled" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "enabled" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateModel" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "modelId" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+                    },
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "postingSettings" },
+                      value: {
+                        kind: "ObjectValue",
+                        fields: [
+                          {
+                            kind: "ObjectField",
+                            name: { kind: "Name", value: "enabled" },
+                            value: { kind: "Variable", name: { kind: "Name", value: "enabled" } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "model" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "postingSettings" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "enabled" } },
+                            { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                          ],
+                        },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "__typename" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateModelPostingEnabledMutation,
+  UpdateModelPostingEnabledMutationVariables
+>;

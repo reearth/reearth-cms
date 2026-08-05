@@ -13,7 +13,7 @@ import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
-import { Field } from "./types";
+import type { Field } from "./types";
 
 type Props = {
   isMeta?: boolean;

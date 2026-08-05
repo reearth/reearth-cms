@@ -4,8 +4,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 const { Option } = Select;
@@ -84,11 +84,11 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
               message: t("Please input the appropriate role for this member!"),
             },
           ]}>
-          <Select placeholder={t("select role")} onSelect={handleSelect}>
-            <Option value="OWNER">{t("Owner")}</Option>
-            <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
-            <Option value="READER">{t("Reader")}</Option>
+          <Select placeholder={t("Select role")} onSelect={handleSelect}>
+            <Option value="OWNER">{t("OWNER")}</Option>
+            <Option value="MAINTAINER">{t("MAINTAINER")}</Option>
+            <Option value="WRITER">{t("WRITER")}</Option>
+            <Option value="READER">{t("READER")}</Option>
           </Select>
         </Form.Item>
       </Form>

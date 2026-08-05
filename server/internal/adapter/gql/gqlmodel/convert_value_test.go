@@ -6,7 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -93,7 +92,6 @@ func TestValueType(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -159,7 +157,7 @@ func TestToValue(t *testing.T) {
 		},
 		{
 			name: "TypeInteger",
-			v:    value.TypeInteger.Value(lo.ToPtr(100)),
+			v:    value.TypeInteger.Value(new(100)),
 			want: int64(100),
 		},
 		{
@@ -202,7 +200,6 @@ func TestToValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -274,7 +271,7 @@ func TestFromValue(t *testing.T) {
 			name: "TypeInteger",
 			t:    SchemaFieldTypeInteger,
 			v:    int64(100),
-			want: value.TypeInteger.Value(lo.ToPtr(100)),
+			want: value.TypeInteger.Value(new(100)),
 		},
 		{
 			name: "TypeReference",
@@ -321,7 +318,6 @@ func TestFromValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

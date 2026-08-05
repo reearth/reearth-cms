@@ -42,7 +42,7 @@ func TestToIntegration(t *testing.T) {
 			want: &Integration{
 				ID:          IDFrom(iId),
 				Name:        "N1",
-				Description: lo.ToPtr("D1"),
+				Description: new("D1"),
 				LogoURL:     *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				IType:       "Private",
 				DeveloperID: IDFrom(dId),
@@ -66,7 +66,7 @@ func TestToIntegration(t *testing.T) {
 			want: &Integration{
 				ID:          IDFrom(iId),
 				Name:        "N1",
-				Description: lo.ToPtr("D1"),
+				Description: new("D1"),
 				LogoURL:     *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				IType:       "Private",
 				DeveloperID: IDFrom(dId),
@@ -102,7 +102,6 @@ func TestToIntegrationType(t *testing.T) {
 		{name: "default2", args: "some value", want: ""},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -135,14 +134,14 @@ func TestToWebhook(t *testing.T) {
 				URL:    *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				Active: true,
 				Trigger: &WebhookTrigger{
-					OnItemCreate:      lo.ToPtr(false),
-					OnItemUpdate:      lo.ToPtr(false),
-					OnItemDelete:      lo.ToPtr(false),
-					OnItemPublish:     lo.ToPtr(false),
-					OnItemUnPublish:   lo.ToPtr(false),
-					OnAssetUpload:     lo.ToPtr(false),
-					OnAssetDecompress: lo.ToPtr(false),
-					OnAssetDelete:     lo.ToPtr(false),
+					OnItemCreate:      new(false),
+					OnItemUpdate:      new(false),
+					OnItemDelete:      new(false),
+					OnItemPublish:     new(false),
+					OnItemUnPublish:   new(false),
+					OnAssetUpload:     new(false),
+					OnAssetDecompress: new(false),
+					OnAssetDelete:     new(false),
 				},
 				CreatedAt: wId.Timestamp(),
 				UpdatedAt: now,
@@ -169,14 +168,14 @@ func TestToWebhook(t *testing.T) {
 				URL:    *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				Active: true,
 				Trigger: &WebhookTrigger{
-					OnItemCreate:      lo.ToPtr(true),
-					OnItemUpdate:      lo.ToPtr(true),
-					OnItemDelete:      lo.ToPtr(true),
-					OnItemPublish:     lo.ToPtr(true),
-					OnItemUnPublish:   lo.ToPtr(true),
-					OnAssetUpload:     lo.ToPtr(true),
-					OnAssetDecompress: lo.ToPtr(true),
-					OnAssetDelete:     lo.ToPtr(true),
+					OnItemCreate:      new(true),
+					OnItemUpdate:      new(true),
+					OnItemDelete:      new(true),
+					OnItemPublish:     new(true),
+					OnItemUnPublish:   new(true),
+					OnAssetUpload:     new(true),
+					OnAssetDecompress: new(true),
+					OnAssetDelete:     new(true),
 				},
 				CreatedAt: wId.Timestamp(),
 				UpdatedAt: now,
@@ -184,7 +183,6 @@ func TestToWebhook(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -238,14 +236,14 @@ func TestToWebhooks(t *testing.T) {
 					URL:    *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 					Active: true,
 					Trigger: &WebhookTrigger{
-						OnItemCreate:      lo.ToPtr(false),
-						OnItemUpdate:      lo.ToPtr(false),
-						OnItemDelete:      lo.ToPtr(false),
-						OnItemPublish:     lo.ToPtr(false),
-						OnItemUnPublish:   lo.ToPtr(false),
-						OnAssetUpload:     lo.ToPtr(false),
-						OnAssetDecompress: lo.ToPtr(false),
-						OnAssetDelete:     lo.ToPtr(false),
+						OnItemCreate:      new(false),
+						OnItemUpdate:      new(false),
+						OnItemDelete:      new(false),
+						OnItemPublish:     new(false),
+						OnItemUnPublish:   new(false),
+						OnAssetUpload:     new(false),
+						OnAssetDecompress: new(false),
+						OnAssetDelete:     new(false),
 					},
 					CreatedAt: wId.Timestamp(),
 					UpdatedAt: now,
@@ -256,14 +254,14 @@ func TestToWebhooks(t *testing.T) {
 					URL:    *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 					Active: true,
 					Trigger: &WebhookTrigger{
-						OnItemCreate:      lo.ToPtr(true),
-						OnItemUpdate:      lo.ToPtr(true),
-						OnItemDelete:      lo.ToPtr(true),
-						OnItemPublish:     lo.ToPtr(true),
-						OnItemUnPublish:   lo.ToPtr(true),
-						OnAssetUpload:     lo.ToPtr(true),
-						OnAssetDecompress: lo.ToPtr(true),
-						OnAssetDelete:     lo.ToPtr(true),
+						OnItemCreate:      new(true),
+						OnItemUpdate:      new(true),
+						OnItemDelete:      new(true),
+						OnItemPublish:     new(true),
+						OnItemUnPublish:   new(true),
+						OnAssetUpload:     new(true),
+						OnAssetDecompress: new(true),
+						OnAssetDelete:     new(true),
 					},
 					CreatedAt: wId.Timestamp(),
 					UpdatedAt: now,
@@ -272,7 +270,6 @@ func TestToWebhooks(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

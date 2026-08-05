@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/file"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -119,7 +118,6 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			res, ok := PreviewTypeFrom(tc.Name)
@@ -146,52 +144,52 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	}{
 		{
 			Name:     "image",
-			Input:    lo.ToPtr("image"),
+			Input:    new("image"),
 			Expected: &i,
 		},
 		{
 			Name:     "upper case image",
-			Input:    lo.ToPtr("IMAGE"),
+			Input:    new("IMAGE"),
 			Expected: &i,
 		},
 		{
 			Name:     "image_svg",
-			Input:    lo.ToPtr("image_svg"),
+			Input:    new("image_svg"),
 			Expected: &is,
 		},
 		{
 			Name:     "geo",
-			Input:    lo.ToPtr("geo"),
+			Input:    new("geo"),
 			Expected: &g,
 		},
 		{
 			Name:     "geo_3d_tiles",
-			Input:    lo.ToPtr("geo_3d_tiles"),
+			Input:    new("geo_3d_tiles"),
 			Expected: &g3d,
 		},
 		{
 			Name:     "geo_mvt",
-			Input:    lo.ToPtr("geo_mvt"),
+			Input:    new("geo_mvt"),
 			Expected: &mvt,
 		},
 		{
 			Name:     "model_3d",
-			Input:    lo.ToPtr("model_3d"),
+			Input:    new("model_3d"),
 			Expected: &m,
 		},
 		{
 			Name:     "csv",
-			Input:    lo.ToPtr("csv"),
+			Input:    new("csv"),
 			Expected: &c,
 		},
 		{
 			Name:     "unknown",
-			Input:    lo.ToPtr("unknown"),
+			Input:    new("unknown"),
 			Expected: &u,
 		},
 		{
 			Name:  "undefined",
-			Input: lo.ToPtr("undefined"),
+			Input: new("undefined"),
 		},
 		{
 			Name: "nil input",
@@ -199,7 +197,6 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			res := PreviewTypeFromRef(tc.Input)
@@ -292,7 +289,7 @@ func TestPreviewType_String(t *testing.T) {
 
 func TestPreviewType_StringRef(t *testing.T) {
 	var pt1 *PreviewType
-	var pt2 = lo.ToPtr(PreviewTypeImage)
+	var pt2 = new(PreviewTypeImage)
 	s := string(*pt2)
 
 	tests := []struct {
@@ -313,7 +310,6 @@ func TestPreviewType_StringRef(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.Expected, tc.Input)

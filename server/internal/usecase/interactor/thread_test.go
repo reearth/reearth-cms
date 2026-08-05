@@ -89,7 +89,6 @@ func TestThread_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -182,7 +181,6 @@ func TestThread_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -211,7 +209,7 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 	wid2 := accountdomain.WorkspaceID{}
 	pid := id.NewProjectID()
 	uid := accountdomain.NewUserID()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Anonymous(true).MustBuild()
 	rt := interfaces.ResourceTypeItem
 	content := "content"
 	op := &usecase.Operator{
@@ -264,7 +262,6 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
@@ -361,7 +358,6 @@ func TestThread_AddComment(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -473,7 +469,6 @@ func TestThread_UpdateComment(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -562,7 +557,6 @@ func TestThread_DeleteComment(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

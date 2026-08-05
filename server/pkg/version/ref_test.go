@@ -3,12 +3,11 @@ package version
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRef_Ref(t *testing.T) {
-	assert.Equal(t, lo.ToPtr(Ref("x")), Ref("x").Ref())
+	assert.Equal(t, new(Ref("x")), Ref("x").Ref())
 }
 
 func TestRef_String(t *testing.T) {
@@ -21,9 +20,9 @@ func TestRef_OrVersion(t *testing.T) {
 }
 
 func TestRef_OrLatest(t *testing.T) {
-	assert.Equal(t, lo.ToPtr(Latest), lo.ToPtr(Latest).OrLatest())
-	assert.Equal(t, lo.ToPtr(Latest), lo.ToPtr(Ref("")).OrLatest())
-	assert.Equal(t, lo.ToPtr(Ref("aaa")), lo.ToPtr(Ref("aaa")).OrLatest())
+	assert.Equal(t, new(Latest), new(Latest).OrLatest())
+	assert.Equal(t, new(Latest), new(Ref("")).OrLatest())
+	assert.Equal(t, new(Ref("aaa")), new(Ref("aaa")).OrLatest())
 }
 
 func TestRef_IsSpecial(t *testing.T) {

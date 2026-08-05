@@ -14,7 +14,7 @@ var ErrUnsupportedType = rerror.NewE(i18n.T("unsupported geometry type"))
 
 // isValidGeoJSON uses the go.geojson library to validate a GeoJSON string
 func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
-	var raw map[string]interface{}
+	var raw map[string]any
 	if err := json.Unmarshal([]byte(data), &raw); err != nil {
 		return "", false
 	}

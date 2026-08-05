@@ -1,6 +1,6 @@
 import GroupsList from "@reearth-cms/components/molecules/Model/ModelsList/GroupsList";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { Group } from "@reearth-cms/components/molecules/Schema/types";
 
 type Props = {
   title: string;

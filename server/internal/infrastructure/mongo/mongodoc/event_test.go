@@ -43,7 +43,7 @@ func TestEventDocument_Model(t *testing.T) {
 			eDoc: EventDocument{
 				ID:          eId.String(),
 				Timestamp:   now,
-				User:        lo.ToPtr(uId.String()),
+				User:        new(uId.String()),
 				Integration: nil,
 				Machine:     false,
 				Type:        "item.create",
@@ -63,7 +63,6 @@ func TestEventDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.eDoc.Model()
@@ -113,7 +112,7 @@ func TestNewEvent(t *testing.T) {
 			want: &EventDocument{
 				ID:          eId.String(),
 				Timestamp:   now,
-				User:        lo.ToPtr(uId.String()),
+				User:        new(uId.String()),
 				Integration: nil,
 				Machine:     false,
 				Type:        "item.create",
@@ -127,7 +126,6 @@ func TestNewEvent(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, eDocId, err := NewEvent(tt.e)

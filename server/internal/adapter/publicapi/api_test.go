@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,7 +53,7 @@ func TestPaginationFrom(t *testing.T) {
 		p := paginationFrom(e.NewContext(httptest.NewRequest("GET", "/?start_cursor=xxx&page_size=100", nil), nil))
 		assert.Equal(t, &usecasex.Pagination{
 			Cursor: &usecasex.CursorPagination{
-				First: lo.ToPtr(int64(100)),
+				First: new(int64(100)),
 				After: usecasex.Cursor("xxx").Ref(),
 			},
 		}, p)

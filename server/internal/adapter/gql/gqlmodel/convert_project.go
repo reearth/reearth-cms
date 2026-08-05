@@ -83,6 +83,13 @@ func ToAPIKeys(ps project.APIKeys) []*ProjectAPIKey {
 	})
 }
 
+func ToPostingSettings(p *project.PostingSettings) *PostingSettings {
+	if p == nil {
+		return &PostingSettings{AllowedOrigins: []string{}}
+	}
+	return &PostingSettings{AllowedOrigins: p.AllowedOrigins()}
+}
+
 func ToProjectAccessibility(p *project.Accessibility) *ProjectAccessibility {
 	if p == nil {
 		return nil
@@ -91,6 +98,7 @@ func ToProjectAccessibility(p *project.Accessibility) *ProjectAccessibility {
 	return &ProjectAccessibility{
 		Visibility:  ToProjectVisibility(p.Visibility()),
 		Publication: ToPublication(p.Publication()),
+		Posting:     ToPostingSettings(p.Posting()),
 		APIKeys:     ToAPIKeys(p.ApiKeys()),
 	}
 }
@@ -127,3 +135,15 @@ func FromPublicationSettings(p *UpdatePublicationSettingsInput) *interfaces.Publ
 		PublicAssets: p.PublicAssets,
 	}
 }
+
+func FromPostingSettings(p *UpdatePostingSettingsInput) *interfaces.PostingSettingsParam {
+	if p == nil {
+		return nil
+	}
+	origins := p.AllowedOrigins
+	if origins == nil {
+		origins = []string{}
+	}
+	return &interfaces.PostingSettingsParam{AllowedOrigins: origins}
+}
+

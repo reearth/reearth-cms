@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/iancoleman/orderedmap"
-	"github.com/samber/lo"
 )
 
 func TestGeometryCoordinates_AsPoint(t *testing.T) {
@@ -117,7 +116,7 @@ func TestFeatureCollection_MarshalUnmarshalJSON(t *testing.T) {
 		Type: &ftype,
 		Geometry: &Geometry{
 			Type:        &gtype,
-			Coordinates: lo.ToPtr(GeometryCoordinates([]byte(`[1.0,2.0]`))),
+			Coordinates: new(GeometryCoordinates([]byte(`[1.0,2.0]`))),
 		},
 		Properties: props,
 	}

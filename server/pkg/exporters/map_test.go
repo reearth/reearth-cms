@@ -66,7 +66,6 @@ func TestMapFromItem_GroupWithoutIdField(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -129,6 +128,7 @@ func TestMapFromItem_GroupWithoutIdField(t *testing.T) {
 					item.NewField(mainSchema.Fields()[1].ID(), value.New(value.TypeGroup, itemGroupID).AsMultiple(), nil),
 					item.NewField(groupSchema.Fields()[0].ID(), fieldValue, itemGroupID.Ref()),
 				}).
+				Anonymous(true).
 				MustBuild()
 
 			// Create schema package
@@ -193,7 +193,6 @@ func TestMapFromItem_MultipleGroupsWithoutIdField(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -264,6 +263,7 @@ func TestMapFromItem_MultipleGroupsWithoutIdField(t *testing.T) {
 				Model(id.NewModelID()).
 				Thread(id.NewThreadID().Ref()).
 				Fields(fields).
+				Anonymous(true).
 				MustBuild()
 
 			sp := schema.NewPackage(mainSchema, nil, map[id.GroupID]*schema.Schema{grp.ID(): groupSchema}, nil)
@@ -348,7 +348,7 @@ func TestDropEmptyFields_NilPointer(t *testing.T) {
 			name: "nil interface should be dropped",
 			input: ItemMap{
 				"text":         "value",
-				"nilInterface": (interface{})(nil),
+				"nilInterface": (any)(nil),
 			},
 			expectedKeys: []string{"text"},
 			droppedKeys:  []string{"nilInterface"},
@@ -374,7 +374,6 @@ func TestDropEmptyFields_NilPointer(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -431,7 +430,6 @@ func TestMapFromItem_GroupWithAssets(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -543,6 +541,7 @@ func TestMapFromItem_GroupWithAssets(t *testing.T) {
 				Model(id.NewModelID()).
 				Thread(id.NewThreadID().Ref()).
 				Fields(itemFields).
+				Anonymous(true).
 				MustBuild()
 
 			sp := schema.NewPackage(mainSchema, nil, map[id.GroupID]*schema.Schema{grp.ID(): groupSchema}, nil)

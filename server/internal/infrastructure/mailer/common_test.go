@@ -33,7 +33,6 @@ func Test_message_encodeContent(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			m := &message{
@@ -80,7 +79,6 @@ func Test_message_encodeMessage(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			m := &message{

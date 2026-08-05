@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Steps } from "antd";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import type { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -19,7 +19,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
       {requestState === "APPROVED" && (
         <Step
           icon={<StyledIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} size={28} />}
-          title={<StatusTitle>{t("Approved")}</StatusTitle>}
+          title={<StatusTitle>{t("APPROVED")}</StatusTitle>}
         />
       )}
       {requestState === "CLOSED" && (
@@ -31,7 +31,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
               size={28}
             />
           }
-          title={<StatusTitle>{t("Closed")}</StatusTitle>}
+          title={<StatusTitle>{t("CLOSED")}</StatusTitle>}
         />
       )}
     </StyledSteps>

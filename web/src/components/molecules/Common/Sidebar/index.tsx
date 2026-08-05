@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
-import Sider, { SiderProps } from "@reearth-cms/components/atoms/Sider";
+import type { SiderProps } from "@reearth-cms/components/atoms/Sider";
+import Sider from "@reearth-cms/components/atoms/Sider";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 const { MD } = AntdToken.SPACING;

@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/app"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -367,7 +366,7 @@ func TestGQLImportItemsAsync(t *testing.T) {
 					]
 				}`
 			},
-			geoField:       lo.ToPtr("location"),
+			geoField:       new("location"),
 			expectError:    false,
 			expectedTotal:  2,
 			expectedInsert: 2,
@@ -380,7 +379,7 @@ func TestGQLImportItemsAsync(t *testing.T) {
 			fileName: "batches.json",
 			fileContent: func() string {
 				var items []string
-				for i := 0; i < 1050; i++ {
+				for range 1050 {
 					items = append(items, `{"name": "test"}`)
 				}
 				return "[" + strings.Join(items, ",") + "]"
@@ -499,11 +498,11 @@ func TestGQLImportItemsAsyncJobQuery(t *testing.T) {
 	jobsRes.Path("$.data.jobs").Array().Length().Ge(1)
 
 	// Query jobs by project and type
-	jobsRes = queryJobs(e, pId, lo.ToPtr("IMPORT"), nil)
+	jobsRes = queryJobs(e, pId, new("IMPORT"), nil)
 	jobsRes.Path("$.data.jobs").Array().Length().Ge(1)
 
 	// Query jobs by project and status
-	jobsRes = queryJobs(e, pId, nil, lo.ToPtr("COMPLETED"))
+	jobsRes = queryJobs(e, pId, nil, new("COMPLETED"))
 	jobsRes.Path("$.data.jobs").Array().Length().Ge(1)
 }
 
@@ -518,7 +517,7 @@ func TestGQLImportItemsAsyncCancelJob(t *testing.T) {
 
 	// Create a large import that will take time
 	var items []string
-	for i := 0; i < 50000; i++ {
+	for range 50000 {
 		items = append(items, `{"name": "test"}`)
 	}
 	fileContent := "[" + strings.Join(items, ",") + "]"
@@ -546,7 +545,7 @@ func TestGQLImportItemsAsyncProgress(t *testing.T) {
 
 	// Create an import with enough items to see progress
 	var items []string
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		items = append(items, `{"name": "test"}`)
 	}
 	fileContent := "[" + strings.Join(items, ",") + "]"
@@ -602,7 +601,7 @@ func TestGQLJobStateSubscription(t *testing.T) {
 
 	// Create a larger import to give us time to receive state updates
 	var items []string
-	for i := 0; i < 5000; i++ {
+	for range 5000 {
 		items = append(items, `{"name": "test"}`)
 	}
 	fileContent := "[" + strings.Join(items, ",") + "]"

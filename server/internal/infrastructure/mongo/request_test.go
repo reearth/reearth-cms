@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -263,7 +262,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword: lo.ToPtr("foo"),
+					Keyword: new("foo"),
 				},
 			},
 			want: 1,
@@ -274,7 +273,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword: lo.ToPtr("o"),
+					Keyword: new("o"),
 				},
 			},
 			want: 2,
@@ -285,7 +284,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword: lo.ToPtr(req1.ID().String()),
+					Keyword: new(req1.ID().String()),
 				},
 			},
 			want: 1,
@@ -296,7 +295,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword: lo.ToPtr(item1.Item().String()),
+					Keyword: new(item1.Item().String()),
 				},
 			},
 			want: 1,
@@ -307,7 +306,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword: lo.ToPtr(item3.Item().String()),
+					Keyword: new(item3.Item().String()),
 				},
 			},
 			want: 2,
@@ -351,7 +350,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword: lo.ToPtr("foo"),
+					Keyword: new("foo"),
 					State:   []request.State{request.StateDraft},
 				},
 			},
@@ -371,7 +370,7 @@ func TestRequest_FindByProject(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, &usecasex.Sort{}, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, &usecasex.Sort{}, usecasex.CursorPagination{First: new(int64(10))}.Wrap())
 			assert.Equal(t, tc.want, len(got))
 		})
 	}

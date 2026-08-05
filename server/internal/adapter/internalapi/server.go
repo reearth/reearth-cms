@@ -219,7 +219,7 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 	}
 
 	if len(wIds) > 0 {
-		f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
+		f.WorkspaceIds = new(accountdomain.WorkspaceIDList(wIds))
 	}
 	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {

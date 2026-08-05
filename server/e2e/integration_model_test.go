@@ -9,47 +9,47 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-func iAPIModelFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIModelFilter(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIModelCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIModelCreate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIModelGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelGet(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIModelUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelUpdate(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
 	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIModelDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelDelete(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIModelSchemaExport(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelSchemaExport(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIModelMetadataSchemaExport(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelMetadataSchemaExport(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIModelImport(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelImport(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/import"
 	return e.PUT(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIModelCopy(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIModelCopy(e *httpexpect.Expect, workspaceIdOrAlias any, projectIdOrAlias any, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/copy"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
@@ -138,7 +138,7 @@ func TestIntegrationModelCopy(t *testing.T) {
 	newKey := id.RandomKey().Ref().StringRef()
 	newModel := iAPIModelCopy(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"name": newName,
 			"key":  newKey,
 		}).
@@ -211,7 +211,7 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 	// update empty model
 	obj := iAPIModelUpdate(e, wId0, pid, mId0).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"name":        "M0 updated",
 			"description": "M0 desc updated",
 			"key":         "M0KeyUpdated",
@@ -230,7 +230,7 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 
 	obj = iAPIModelUpdate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"name":        "newM1 updated",
 			"description": "newM1 desc updated",
 			"key":         "newM1KeyUpdated",
@@ -285,7 +285,7 @@ func TestIntegrationModelDeleteAPI(t *testing.T) {
 
 	iAPIModelDelete(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"name":        "newM1 updated",
 			"description": "newM1 desc updated",
 			"key":         "newM1KeyUpdated",
@@ -414,7 +414,7 @@ func TestIntegrationModelCreateAPI(t *testing.T) {
 
 	obj := iAPIModelCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"name":        "newM1",
 			"description": "newM1 desc",
 			"key":         "newM1Key",
@@ -457,7 +457,7 @@ func TestIntegrationModelDeleteCascadeAPI(t *testing.T) {
 	// create a model with an item
 	obj := iAPIModelCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
+		WithJSON(map[string]any{
 			"name":        "cascade-model",
 			"description": "cascade test",
 			"key":         "cascade-model-key",
@@ -471,8 +471,8 @@ func TestIntegrationModelDeleteCascadeAPI(t *testing.T) {
 
 	newItem := iAPIItemCreate(e, wId0, pid, newModelId).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []map[string]interface{}{},
+		WithJSON(map[string]any{
+			"fields": []map[string]any{},
 		}).
 		Expect().
 		Status(http.StatusOK).

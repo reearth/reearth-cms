@@ -1,5 +1,7 @@
-import { CzmlDataSource, Resource } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState } from "react";
+import type { CzmlDataSource } from "cesium";
+import { Resource } from "cesium";
+import type { ComponentProps } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CzmlDataSource as ResiumCzmlDataSource, useCesium } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";

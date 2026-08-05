@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import type { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 import WebhookForm from ".";
 
@@ -50,7 +50,7 @@ describe("Webhook form", () => {
     );
 
     const nameInput = screen.getByLabelText("Name");
-    const urlInput = screen.getByLabelText("Url");
+    const urlInput = screen.getByLabelText("URL");
     const secretInput = screen.getByLabelText("Secret");
 
     expect(nameInput).toHaveValue(name);
@@ -147,7 +147,7 @@ describe("Webhook form", () => {
     );
 
     const nameInput = screen.getByLabelText("Name");
-    const urlInput = screen.getByLabelText("Url");
+    const urlInput = screen.getByLabelText("URL");
     const secretInput = screen.getByLabelText("Secret");
     const saveButton = screen.getByRole("button", { name: "Save" });
     expect(saveButton).toBeDisabled();
@@ -217,7 +217,7 @@ describe("Webhook form", () => {
     );
 
     const nameInput = screen.getByLabelText("Name");
-    const urlInput = screen.getByLabelText("Url");
+    const urlInput = screen.getByLabelText("URL");
     const secretInput = screen.getByLabelText("Secret");
     const saveButton = screen.getByRole("button", { name: "Save" });
     await user.click(screen.getByRole("checkbox", { name: "Create" }));

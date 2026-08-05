@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp/v3"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
@@ -33,15 +33,14 @@ type Config struct {
 	Origins             []string          `pp:",omitempty"`
 	Integration_Origins []string          `pp:",omitempty"`
 	Public_Origins      []string          `pp:",omitempty"`
+	Public_RateLimit    RateLimitConfig   `pp:",omitempty"`
 	DB                  string            `default:"mongodb://localhost"`
 	Mailer              string            `pp:",omitempty"`
 	SMTP                SMTPConfig        `pp:",omitempty"`
 	SendGrid            SendGridConfig    `pp:",omitempty"`
 	SignupSecret        string            `pp:",omitempty"`
 	GCS                 GCSConfig         `pp:",omitempty"`
-	S3                  S3Config          `pp:",omitempty"`
 	Task                gcp.TaskConfig    `pp:",omitempty"`
-	AWSTask             aws.TaskConfig    `pp:",omitempty"`
 	Web                 map[string]string `pp:",omitempty"`
 	Web_Config          JSON              `pp:",omitempty"`
 	Web_Disabled        bool              `pp:",omitempty"`
@@ -83,6 +82,18 @@ type Config struct {
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+}
+
+const (
+	defaultPublicRateLimitPerMinute = 100
+	defaultPublicRateLimitBurst     = 100
+	defaultPublicRateLimitExpires   = 1 * time.Minute
+)
+
+type RateLimitConfig struct {
+	RatePerMinute int           `default:"100" pp:",omitempty"`
+	Burst         int           `default:"100" pp:",omitempty"`
+	ExpiresIn     time.Duration `default:"1m" pp:",omitempty"`
 }
 
 type OtelConfig struct {
@@ -174,11 +185,6 @@ type SMTPConfig struct {
 }
 
 type GCSConfig struct {
-	BucketName              string `pp:",omitempty"`
-	PublicationCacheControl string `pp:",omitempty"`
-}
-
-type S3Config struct {
 	BucketName              string `pp:",omitempty"`
 	PublicationCacheControl string `pp:",omitempty"`
 }
@@ -331,7 +337,7 @@ func (c CognitoConfig) Configs() AuthConfigs {
 			ISS:      fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID),
 			AUD:      []string{c.ClientID},
 			ClientID: &c.ClientID,
-			JWKSURI:  lo.ToPtr(fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)),
+			JWKSURI:  new(fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)),
 		},
 	}
 }
@@ -345,7 +351,7 @@ func (c FirebaseConfig) AuthConfig() *AuthConfig {
 		ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
 		AUD:      []string{c.ProjectID},
 		ClientID: &c.ClientID,
-		JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
+		JWKSURI:  new("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
 	}
 }
 
@@ -451,9 +457,7 @@ func (c *Config) WebConfig() map[string]any {
 		config[k] = v
 	}
 	if m := c.Web_Config.Object(); m != nil {
-		for k, v := range m {
-			config[k] = v
-		}
+		maps.Copy(config, m)
 	}
 
 	return config
@@ -476,9 +480,7 @@ func (j *JSON) Object() map[string]any {
 	}
 	if m, ok := j.Data.(map[string]any); ok {
 		w := make(map[string]any)
-		for k, v := range m {
-			w[k] = v
-		}
+		maps.Copy(w, m)
 		return w
 	}
 	return nil

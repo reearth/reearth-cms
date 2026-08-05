@@ -25,7 +25,11 @@ func (r *itemResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmo
 	if obj.UserID != nil {
 		return dataloaders(ctx).User.Load(*obj.UserID)
 	}
-	return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
+	if obj.IntegrationID != nil {
+		return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
+	}
+	// Items created anonymously via the Access API have no user or integration.
+	return nil, nil
 }
 
 // Schema is the resolver for the schema field.

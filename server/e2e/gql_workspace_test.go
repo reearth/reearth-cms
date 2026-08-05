@@ -18,7 +18,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
 )
@@ -113,13 +112,13 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Cont
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
 	r1 := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
-	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r1}, rid.Ref(), lo.ToPtr(false))
+	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r1}, rid.Ref(), new(false))
 
 	rid2 := workspacesettings.NewResourceID()
 	pp2 := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt2 := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(workspacesettings.TerrainTypeCesiumIon), pp2)
 	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt2)
-	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{r2}, rid2.Ref(), lo.ToPtr(true))
+	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{r2}, rid2.Ref(), new(true))
 
 	ws := workspacesettings.New().ID(wId).Tiles(tiles).Terrains(terrains).MustBuild()
 	if err := r.WorkspaceSettings.Save(ctx, ws); err != nil {

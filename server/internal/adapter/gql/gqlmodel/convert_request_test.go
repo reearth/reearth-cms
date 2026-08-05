@@ -8,13 +8,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToRequest(t *testing.T) {
 	ver := version.New().String()
-	itm, _ := request.NewItem(id.NewItemID(), lo.ToPtr(ver))
+	itm, _ := request.NewItem(id.NewItemID(), new(ver))
 	req := request.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -26,18 +25,18 @@ func TestToRequest(t *testing.T) {
 		Thread(id.NewThreadID().Ref()).
 		Reviewers(accountdomain.UserIDList{accountdomain.NewUserID()}).
 		CreatedBy(accountdomain.NewUserID()).
-		ClosedAt(lo.ToPtr(util.Now())).
-		ApprovedAt(lo.ToPtr(util.Now())).
+		ClosedAt(new(util.Now())).
+		ApprovedAt(new(util.Now())).
 		UpdatedAt(util.Now()).
 		MustBuild()
 	assert.Equal(t, &Request{
 		ID: IDFrom(req.ID()),
 		Items: []*RequestItem{{
 			ItemID:  IDFrom(itm.Item()),
-			Version: lo.ToPtr(ver),
+			Version: new(ver),
 		}},
 		Title:       "foo",
-		Description: lo.ToPtr("xxx"),
+		Description: new("xxx"),
 		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),

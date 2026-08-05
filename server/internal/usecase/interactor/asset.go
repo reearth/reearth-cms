@@ -924,6 +924,10 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+				return nil, err
+			}
+
 			if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
 				return a, nil
 			}

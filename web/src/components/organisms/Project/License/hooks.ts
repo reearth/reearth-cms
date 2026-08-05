@@ -1,10 +1,11 @@
 import { useMutation } from "@apollo/client/react";
-import { useCallback, useState, useMemo, useEffect, ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
-import {
+import type { UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
+import type {
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
@@ -39,10 +40,10 @@ export default () => {
         },
       });
       if (Project.error || !Project.data?.updateProject) {
-        Notification.error({ message: t("Failed to update Project.") });
+        Notification.error({ message: t("Failed to update project.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated Project!") });
+      Notification.success({ message: t("Successfully updated project!") });
     },
     [updateProjectMutation, t],
   );

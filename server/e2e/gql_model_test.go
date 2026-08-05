@@ -6,7 +6,6 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -338,7 +337,7 @@ func TestUpdateModel(t *testing.T) {
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 
 	mId, _ := createModel(e, pId, "test", "test", "test-2")
-	res := updateModel(e, mId, lo.ToPtr("updated name"), lo.ToPtr("updated desc"), lo.ToPtr("updated_key"))
+	res := updateModel(e, mId, new("updated name"), new("updated desc"), new("updated_key"))
 	res.Object().
 		Value("data").Object().
 		Value("updateModel").Object().
@@ -394,6 +393,99 @@ func TestDeleteModelCascade(t *testing.T) {
 	// View should no longer exist (views query returns empty list)
 	viewRes := getViews(e, mId)
 	viewRes.Path("$.data.view").Array().IsEmpty()
+}
+
+func updateModelPostingEnabled(e *httpexpect.Expect, mId string, enabled bool) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateModel($modelId: ID!, $enabled: Boolean!) {
+				  updateModel(input: {modelId: $modelId, postingSettings: {enabled: $enabled}}) {
+					model {
+					  id
+					  postingSettings { enabled __typename }
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId": mId,
+			"enabled": enabled,
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
+func getModelPostingEnabled(e *httpexpect.Expect, mID string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `query GetModel($modelId: ID!) {
+				  node(id: $modelId, type: Model) {
+					id
+					... on Model {
+					  postingSettings { enabled __typename }
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId": mID,
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
+func TestModel_PostingEnabled_DefaultsFalse(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "posting-default")
+	mId, _ := createModel(e, pId, "test", "test", "posting-default")
+
+	res := getModelPostingEnabled(e, mId)
+	res.Path("$.data.node.postingSettings.enabled").Boolean().IsFalse()
+}
+
+func TestModel_PostingEnabled_SetTrue(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "posting-true")
+	mId, _ := createModel(e, pId, "test", "test", "posting-true")
+
+	res := updateModelPostingEnabled(e, mId, true)
+	res.Path("$.data.updateModel.model.postingSettings.enabled").Boolean().IsTrue()
+
+	res2 := getModelPostingEnabled(e, mId)
+	res2.Path("$.data.node.postingSettings.enabled").Boolean().IsTrue()
+}
+
+func TestModel_PostingEnabled_SetFalseAfterTrue(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "posting-toggle")
+	mId, _ := createModel(e, pId, "test", "test", "posting-toggle")
+
+	updateModelPostingEnabled(e, mId, true)
+
+	res := updateModelPostingEnabled(e, mId, false)
+	res.Path("$.data.updateModel.model.postingSettings.enabled").Boolean().IsFalse()
+
+	res2 := getModelPostingEnabled(e, mId)
+	res2.Path("$.data.node.postingSettings.enabled").Boolean().IsFalse()
 }
 
 func TestUpdateModelsOrder(t *testing.T) {

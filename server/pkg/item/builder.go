@@ -5,9 +5,13 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
+
+var ErrOperatorRequired = rerror.NewE(i18n.T("item must have a user, integration, or be anonymous"))
 
 type Builder struct {
 	i *Item
@@ -32,6 +36,9 @@ func (b *Builder) Build() (*Item, error) {
 	}
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
+	}
+	if b.i.user == nil && b.i.integration == nil && !b.i.isAnonymous {
+		return nil, ErrOperatorRequired
 	}
 	return b.i, nil
 }
@@ -111,6 +118,11 @@ func (b *Builder) MetadataItem(id *ID) *Builder {
 
 func (b *Builder) IsMetadata(im bool) *Builder {
 	b.i.isMetadata = im
+	return b
+}
+
+func (b *Builder) Anonymous(v bool) *Builder {
+	b.i.isAnonymous = v
 	return b
 }
 

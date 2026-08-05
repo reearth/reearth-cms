@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 

@@ -1,13 +1,15 @@
 import styled from "@emotion/styled";
-import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
+import type { OnMount, BeforeMount, Monaco } from "@monaco-editor/react";
+import MonacoEditor from "@monaco-editor/react";
 import Ajv from "ajv";
 import axios from "axios";
-import { json, editor, Range } from "monaco-editor";
+import { json } from "monaco-editor";
+import type { editor } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import { defaults as defaultControls, Attribution } from "ol/control";
 import { GeoJSON } from "ol/format";
-import { Circle, LineString, Point, Polygon } from "ol/geom";
+import type { Circle, LineString, Point, Polygon } from "ol/geom";
 import { fromCircle } from "ol/geom/Polygon";
 import { defaults, Draw } from "ol/interaction";
 import { createBox } from "ol/interaction/Draw";
@@ -16,7 +18,8 @@ import { fromLonLat } from "ol/proj";
 import { Vector as VectorSource, OSM } from "ol/source";
 import { Icon as IconStyle, Fill, Stroke, Style } from "ol/style";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { Resizable, ResizeCallbackData } from "react-resizable";
+import type { ResizeCallbackData } from "react-resizable";
+import { Resizable } from "react-resizable";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -26,7 +29,7 @@ import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Search from "@reearth-cms/components/atoms/Search";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import {
+import type {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
@@ -78,6 +81,7 @@ const GeometryItem: React.FC<Props> = ({
   const { confirm } = useModal();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<Monaco | null>(null);
 
   const [sketchType, setSketchType] = useState<DrawType>();
   const drawRef = useRef<Draw | null>(null);
@@ -162,8 +166,9 @@ const GeometryItem: React.FC<Props> = ({
     });
   }, []);
 
-  const handleEditorDidMount: OnMount = useCallback(editor => {
+  const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
   }, []);
 
   const [hasError, setHasError] = useState(false);
@@ -188,10 +193,10 @@ const GeometryItem: React.FC<Props> = ({
   }, []);
 
   const errorShow = useCallback((startLine: number, endLine: number) => {
-    if (!editorRef.current) return;
+    if (!editorRef.current || !monacoRef.current) return;
     editorRef.current.createDecorationsCollection([
       {
-        range: new Range(startLine, 1, endLine, 1),
+        range: new monacoRef.current.Range(startLine, 1, endLine, 1),
         options: {
           glyphMarginClassName: "glyphMargin",
         },

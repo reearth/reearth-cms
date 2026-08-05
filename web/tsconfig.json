@@ -10,22 +10,26 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Node10",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
-      "@reearth-cms/e2e/*": ["e2e/*"],
-      "@reearth-cms/*": ["src/*"]
+      "@reearth-cms/e2e/*": ["./e2e/*"],
+      "@reearth-cms/*": ["./src/*"]
     },
     "types": ["@testing-library/jest-dom"],
     "maxNodeModuleJsDepth": 10,
     "allowImportingTsExtensions": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    // esModuleInterop=false and moduleResolution=node10 are deprecated in TS 6.0 (removed in 7.0).
+    // Migrating either surfaces real new errors (Cesium type interop, zod/v4 locale exports-map
+    // resolution under Bundler mode) that need dedicated investigation — deferred for now.
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src", "e2e", "codegen.ts"],
+  "exclude": ["src/**/*.stories.tsx"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

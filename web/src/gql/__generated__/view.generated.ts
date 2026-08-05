@@ -1,8 +1,125 @@
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> =
+  T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GetViewsQueryVariables = Types.Exact<{
-  modelId: Types.Scalars["ID"]["input"];
+export type AndConditionInput = {
+  conditions: Array<ConditionInput>;
+};
+
+export type BasicFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: BasicOperator;
+  value: unknown;
+};
+
+export type BasicOperator = "EQUALS" | "NOT_EQUALS";
+
+export type BoolFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: BoolOperator;
+  value: boolean;
+};
+
+export type BoolOperator = "EQUALS" | "NOT_EQUALS";
+
+export type ColumnSelectionInput = {
+  field: FieldSelectorInput;
+  visible: boolean;
+};
+
+export type ConditionInput = {
+  and?: AndConditionInput | null | undefined;
+  basic?: BasicFieldConditionInput | null | undefined;
+  bool?: BoolFieldConditionInput | null | undefined;
+  multiple?: MultipleFieldConditionInput | null | undefined;
+  nullable?: NullableFieldConditionInput | null | undefined;
+  number?: NumberFieldConditionInput | null | undefined;
+  or?: OrConditionInput | null | undefined;
+  string?: StringFieldConditionInput | null | undefined;
+  time?: TimeFieldConditionInput | null | undefined;
+};
+
+export type FieldSelectorInput = {
+  id?: string | null | undefined;
+  type: FieldType;
+};
+
+export type FieldType =
+  | "CREATION_DATE"
+  | "CREATION_USER"
+  | "FIELD"
+  | "ID"
+  | "META_FIELD"
+  | "MODIFICATION_DATE"
+  | "MODIFICATION_USER"
+  | "STATUS";
+
+export type ItemSortInput = {
+  direction?: SortDirection | null | undefined;
+  field: FieldSelectorInput;
+};
+
+export type MultipleFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: MultipleOperator;
+  value: Array<unknown>;
+};
+
+export type MultipleOperator =
+  "INCLUDES_ALL" | "INCLUDES_ANY" | "NOT_INCLUDES_ALL" | "NOT_INCLUDES_ANY";
+
+export type NullableFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: NullableOperator;
+};
+
+export type NullableOperator = "EMPTY" | "NOT_EMPTY";
+
+export type NumberFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: NumberOperator;
+  value: number;
+};
+
+export type NumberOperator =
+  "GREATER_THAN" | "GREATER_THAN_OR_EQUAL_TO" | "LESS_THAN" | "LESS_THAN_OR_EQUAL_TO";
+
+export type OrConditionInput = {
+  conditions: Array<ConditionInput>;
+};
+
+export type SortDirection = "ASC" | "DESC";
+
+export type StringFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: StringOperator;
+  value: string;
+};
+
+export type StringOperator =
+  "CONTAINS" | "ENDS_WITH" | "NOT_CONTAINS" | "NOT_ENDS_WITH" | "NOT_STARTS_WITH" | "STARTS_WITH";
+
+export type TimeFieldConditionInput = {
+  fieldId: FieldSelectorInput;
+  operator: TimeOperator;
+  value: Date;
+};
+
+export type TimeOperator =
+  | "AFTER"
+  | "AFTER_OR_ON"
+  | "BEFORE"
+  | "BEFORE_OR_ON"
+  | "OF_THIS_MONTH"
+  | "OF_THIS_WEEK"
+  | "OF_THIS_YEAR";
+
+export type GetViewsQueryVariables = Exact<{
+  modelId: string;
 }>;
 
 export type GetViewsQuery = {
@@ -85,13 +202,13 @@ export type GetViewsQuery = {
   }>;
 };
 
-export type CreateViewMutationVariables = Types.Exact<{
-  projectId: Types.Scalars["ID"]["input"];
-  modelId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  sort?: Types.InputMaybe<Types.ItemSortInput>;
-  filter?: Types.InputMaybe<Types.ConditionInput>;
-  columns?: Types.InputMaybe<Array<Types.ColumnSelectionInput> | Types.ColumnSelectionInput>;
+export type CreateViewMutationVariables = Exact<{
+  projectId: string;
+  modelId: string;
+  name: string;
+  sort?: Types.ItemSortInput | null | undefined;
+  filter?: Types.ConditionInput | null | undefined;
+  columns?: Array<Types.ColumnSelectionInput> | Types.ColumnSelectionInput | null | undefined;
 }>;
 
 export type CreateViewMutation = {
@@ -203,12 +320,12 @@ export type CreateViewMutation = {
   } | null;
 };
 
-export type UpdateViewMutationVariables = Types.Exact<{
-  viewId: Types.Scalars["ID"]["input"];
-  name: Types.Scalars["String"]["input"];
-  sort?: Types.InputMaybe<Types.ItemSortInput>;
-  filter?: Types.InputMaybe<Types.ConditionInput>;
-  columns?: Types.InputMaybe<Array<Types.ColumnSelectionInput> | Types.ColumnSelectionInput>;
+export type UpdateViewMutationVariables = Exact<{
+  viewId: string;
+  name: string;
+  sort?: Types.ItemSortInput | null | undefined;
+  filter?: Types.ConditionInput | null | undefined;
+  columns?: Array<Types.ColumnSelectionInput> | Types.ColumnSelectionInput | null | undefined;
 }>;
 
 export type UpdateViewMutation = {
@@ -320,16 +437,16 @@ export type UpdateViewMutation = {
   } | null;
 };
 
-export type DeleteViewMutationVariables = Types.Exact<{
-  viewId: Types.Scalars["ID"]["input"];
+export type DeleteViewMutationVariables = Exact<{
+  viewId: string;
 }>;
 
 export type DeleteViewMutation = {
   deleteView: { __typename: "DeleteViewPayload"; viewId: string } | null;
 };
 
-export type UpdateViewsOrderMutationVariables = Types.Exact<{
-  viewIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+export type UpdateViewsOrderMutationVariables = Exact<{
+  viewIds: Array<string> | string;
 }>;
 
 export type UpdateViewsOrderMutation = {

@@ -1,7 +1,7 @@
-import { FormInstance } from "@reearth-cms/components/atoms/Form";
-import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
-import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { Field as FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { FormInstance } from "@reearth-cms/components/atoms/Form";
+import type { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import type { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import type { Field as FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 
 import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";

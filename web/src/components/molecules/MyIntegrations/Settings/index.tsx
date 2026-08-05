@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Content from "@reearth-cms/components/atoms/Content";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
-import {
+import type {
   Integration,
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";

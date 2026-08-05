@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,12 +19,12 @@ func TestBuildProperties(t *testing.T) {
 	// text field
 	fId1 := id.NewFieldID()
 	sfKey1 := id.RandomKey()
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(100)).TypeProperty()).ID(fId1).Key(sfKey1).MustBuild()
+	sf1 := schema.NewField(schema.NewText(new(100)).TypeProperty()).ID(fId1).Key(sfKey1).MustBuild()
 
 	// number field
 	fId2 := id.NewFieldID()
 	sfKey2 := id.RandomKey()
-	intField, err := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	intField, err := schema.NewInteger(new(int64(1)), new(int64(100)))
 	assert.NoError(t, err)
 	sf2 := schema.NewField(intField.TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
 
@@ -69,13 +68,13 @@ func TestBuildProperties(t *testing.T) {
 		sfKey1.String(): {
 			Type:      "string",
 			FieldType: "text",
-			MaxLength: lo.ToPtr(100),
+			MaxLength: new(100),
 		},
 		sfKey2.String(): {
 			Type:      "integer",
 			FieldType: "integer",
-			Minimum:   lo.ToPtr(float64(1)),
-			Maximum:   lo.ToPtr(float64(100)),
+			Minimum:   new(float64(1)),
+			Maximum:   new(float64(100)),
 		},
 		sfKey3.String(): {
 			Type:      "array",
@@ -85,7 +84,7 @@ func TestBuildProperties(t *testing.T) {
 				Type: "object",
 				Properties: map[string]types.JSONSchema{
 					"asset-key": {
-						Format:    lo.ToPtr("binary"),
+						Format:    new("binary"),
 						Type:      "string",
 						FieldType: "asset",
 						Multiple:  true,
@@ -99,12 +98,12 @@ func TestBuildProperties(t *testing.T) {
 		sfKey5.String(): {
 			Type:      "string",
 			FieldType: "datetime",
-			Format:    lo.ToPtr("date-time"),
+			Format:    new("date-time"),
 		},
 		sfKey6.String(): {
 			Type:      "string",
 			FieldType: "url",
-			Format:    lo.ToPtr("uri"),
+			Format:    new("uri"),
 		},
 	}
 
@@ -154,7 +153,7 @@ func TestBuildGroupSchemaMap(t *testing.T) {
 
 	textFieldID := id.NewFieldID()
 	textFieldKey := id.RandomKey()
-	textField := schema.NewField(schema.NewText(lo.ToPtr(100)).TypeProperty()).ID(textFieldID).Key(textFieldKey).MustBuild()
+	textField := schema.NewField(schema.NewText(new(100)).TypeProperty()).ID(textFieldID).Key(textFieldKey).MustBuild()
 
 	assetField1 := schema.NewField(schema.NewAsset().TypeProperty()).ID(id.NewFieldID()).Key(id.NewKey("asset-key-1")).Multiple(true).MustBuild()
 	groupSchema1 := schema.New().ID(id.NewSchemaID()).Workspace(wid).Project(pid).Fields([]*schema.Field{assetField1}).MustBuild()
@@ -205,7 +204,7 @@ func TestBuildPropertiesExtended(t *testing.T) {
 			expected: types.JSONSchema{
 				Type:             "object",
 				FieldType:        "geometryEditor",
-				GeoSupportedType: lo.ToPtr("POINT"),
+				GeoSupportedType: new("POINT"),
 			},
 		},
 		{
@@ -226,7 +225,7 @@ func TestBuildPropertiesExtended(t *testing.T) {
 			expected: types.JSONSchema{
 				Type:              "object",
 				FieldType:         "geometryObject",
-				GeoSupportedTypes: lo.ToPtr([]string{"POINT", "POLYGON"}),
+				GeoSupportedTypes: new([]string{"POINT", "POLYGON"}),
 			},
 		},
 		{
@@ -245,7 +244,7 @@ func TestBuildPropertiesExtended(t *testing.T) {
 			expected: types.JSONSchema{
 				Type:      "string",
 				FieldType: "select",
-				Options:   lo.ToPtr([]string{"draft", "published", "archived"}),
+				Options:   new([]string{"draft", "published", "archived"}),
 			},
 		},
 		{
@@ -327,7 +326,6 @@ func TestBuildPropertiesExtended(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

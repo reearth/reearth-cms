@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewProject(t *testing.T) {
@@ -52,7 +53,6 @@ func TestNewProject(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, docId := NewProject(tt.args)
@@ -94,7 +94,6 @@ func TestNewProjectPublication(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, NewProjectAccessibility(tt.args))
 		})
@@ -205,7 +204,6 @@ func TestProjectDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.pDoc.Model()
 			if tt.wantErr {
@@ -238,9 +236,60 @@ func TestProjectPublicationDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.ppDoc.Model())
+			got, err := tt.ppDoc.Model()
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestPostingSettingsDocument_Model(t *testing.T) {
+
+	mustPS := func(enabled bool, origins []string) *project.PostingSettings {
+		ps, err := project.NewPostingSettings(enabled, origins)
+		require.NoError(t, err)
+		return ps
+	}
+
+	tests := []struct {
+		name    string
+		doc     *PostingSettingsDocument
+		wantErr error
+		want    *project.PostingSettings
+	}{
+		{
+			name: "nil document returns nil",
+			doc:  nil,
+			want: nil,
+		},
+		{
+			name: "missing enabled field defaults to true",
+			doc:  &PostingSettingsDocument{AllowedOrigins: []string{"https://a.com"}},
+			want: mustPS(true, []string{"https://a.com"}),
+		},
+		{
+			name: "stored enabled=false is respected",
+			doc:  &PostingSettingsDocument{Enabled: new(false)},
+			want: mustPS(false, []string{}),
+		},
+		{
+			name: "stored enabled=true is respected",
+			doc:  &PostingSettingsDocument{Enabled: new(true)},
+			want: mustPS(true, []string{}),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := tt.doc.Model()
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.Nil(t, got)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

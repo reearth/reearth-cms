@@ -2,7 +2,8 @@ import styled from "@emotion/styled";
 import { useCallback, useState, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
@@ -82,7 +83,7 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
         type="primary"
         loading={updateWorkspaceLoading}
         disabled={isDisabled}>
-        {t("Save changes")}
+        {t("Save Changes")}
       </Button>
     </StyledForm>
   );

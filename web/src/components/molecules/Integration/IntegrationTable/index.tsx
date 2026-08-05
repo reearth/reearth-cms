@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback, useState } from "react";
+import type { Key } from "react";
+import { useMemo, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import {
+import type {
   ListToolBarProps,
   TableRowSelection,
   StretchColumn,
@@ -13,7 +14,7 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import type { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -73,7 +74,7 @@ const IntegrationTable: React.FC<Props> = ({
         minWidth: 100,
       },
       {
-        title: t("Creator"),
+        title: t("Created By"),
         dataIndex: ["createdBy", "name"],
         key: "creator",
         width: 250,
@@ -189,7 +190,7 @@ const IntegrationTable: React.FC<Props> = ({
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
-            <Title>{t("No Integration yet")}</Title>
+            <Title>{t("No integration yet")}</Title>
             <Action>
               {t("Create a new")}
               <ConnectButton />

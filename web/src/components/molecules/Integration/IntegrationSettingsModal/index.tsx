@@ -6,8 +6,8 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
@@ -110,11 +110,11 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
-            <Option value="READER">{t("Reader")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
-            <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="OWNER">{t("Owner")}</Option>
+          <StyledSelect placeholder={t("Select role")} onSelect={handleSelect}>
+            <Option value="READER">{t("READER")}</Option>
+            <Option value="WRITER">{t("WRITER")}</Option>
+            <Option value="MAINTAINER">{t("MAINTAINER")}</Option>
+            <Option value="OWNER">{t("OWNER")}</Option>
           </StyledSelect>
         </Form.Item>
       </StyledForm>

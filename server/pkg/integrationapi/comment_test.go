@@ -5,7 +5,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,22 +31,22 @@ func TestNewComment(t *testing.T) {
 			name:  "User author",
 			input: c,
 			expected: &Comment{
-				Content:    lo.ToPtr("test"),
-				CreatedAt:  lo.ToPtr(c.CreatedAt()),
+				Content:    new("test"),
+				CreatedAt:  new(c.CreatedAt()),
 				Id:         c.ID().Ref(),
-				AuthorType: lo.ToPtr(User),
-				AuthorId:   lo.ToPtr(any(authorID)),
+				AuthorType: new(User),
+				AuthorId:   new(any(authorID)),
 			},
 		},
 		{
 			name:  "Integration author",
 			input: cIntegration,
 			expected: &Comment{
-				Content:    lo.ToPtr("test"),
-				CreatedAt:  lo.ToPtr(cIntegration.CreatedAt()),
+				Content:    new("test"),
+				CreatedAt:  new(cIntegration.CreatedAt()),
 				Id:         cIntegration.ID().Ref(),
-				AuthorType: lo.ToPtr(Integrtaion),
-				AuthorId:   lo.ToPtr(any(authorIntegrationID)),
+				AuthorType: new(Integrtaion),
+				AuthorId:   new(any(authorIntegrationID)),
 			},
 		},
 	}

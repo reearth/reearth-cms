@@ -40,7 +40,7 @@ test("@smoke Read versions successfully", async ({ contentPage }) => {
   const requestStatus = contentPage.requestStatusElement;
   await expect(contentPage.textByRegex(dateReg)).toBeVisible();
   await expect(contentPage.currentVersionText).toBeVisible();
-  await expect(contentPage.textByRegex(/Created by .*/)).toBeVisible();
+  await expect(contentPage.textByRegex(/Created By .*/)).toBeVisible();
   await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
   await requestStatus.hover();
   await expect(contentPage.tooltipByName("DRAFT")).toBeVisible();
@@ -65,7 +65,7 @@ test("@smoke Read versions successfully", async ({ contentPage }) => {
   await contentPage.clickAndExpectSuccess(contentPage.saveButton);
 
   await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
-  await expect(contentPage.textByRegex(/Updated by .*/)).toBeVisible();
+  await expect(contentPage.textByRegex(/Updated By .*/)).toBeVisible();
   await expect(requestStatus.first()).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
   await expect(requestStatus.last()).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
 });

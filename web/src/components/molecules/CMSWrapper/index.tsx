@@ -9,7 +9,7 @@ import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import ReloadModal from "../ReloadModal";
 import Uploader from "../Uploader";
-import { UploaderState } from "../Uploader/types";
+import type { UploaderState } from "../Uploader/types";
 
 const { MD } = AntdToken.SPACING;
 

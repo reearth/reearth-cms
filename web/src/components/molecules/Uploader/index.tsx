@@ -1,10 +1,13 @@
 import styled from "@emotion/styled";
-import { motion, useAnimationControls, useDragControls, Variants } from "motion/react";
-import { ComponentProps, RefObject, useCallback, useMemo, useRef, useState } from "react";
+import type { Variants } from "motion/react";
+import { motion, useAnimationControls, useDragControls } from "motion/react";
+import type { ComponentProps, RefObject } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal, { ModalFuncProps } from "@reearth-cms/components/atoms/Modal";
+import type { ModalFuncProps } from "@reearth-cms/components/atoms/Modal";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";

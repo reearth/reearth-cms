@@ -3,11 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
-import {
+import type {
   Model as GQLModel,
   Group as GQLGroup,
 } from "@reearth-cms/gql/__generated__/graphql.generated";

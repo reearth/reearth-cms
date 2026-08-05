@@ -1,9 +1,9 @@
 import { Upload } from "antd";
-import {
+import type {
   UploadChangeParam,
   UploadFile as ANTDFileUpload,
   UploadProps,
-} from "antd/lib/upload/interface";
+} from "antd/es/upload/interface";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UploadFile<T = any> = {

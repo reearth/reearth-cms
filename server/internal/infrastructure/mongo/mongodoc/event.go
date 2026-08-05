@@ -16,6 +16,7 @@ type EventDocument struct {
 	User        *string
 	Integration *string
 	Machine     bool
+	Anonymous   bool
 	Type        string
 	Object      Document
 }
@@ -32,6 +33,7 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 		User:        e.Operator().User().StringRef(),
 		Integration: e.Operator().Integration().StringRef(),
 		Machine:     e.Operator().Machine(),
+		Anonymous:   e.Operator().Anonymous(),
 		Type:        string(e.Type()),
 		Object:      objDoc,
 	}, eId, nil
@@ -76,6 +78,8 @@ func (d *EventDocument) Model() (*event.Event[any], error) {
 		}
 	} else if d.Machine {
 		o = operator.OperatorFromMachine()
+	} else if d.Anonymous {
+		o = operator.OperatorFromAnonymous()
 	}
 
 	e, err := event.New[any]().

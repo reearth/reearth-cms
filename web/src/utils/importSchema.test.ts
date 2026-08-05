@@ -7,7 +7,7 @@ import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/
 import { Test } from "@reearth-cms/test/utils";
 
 import { Constant } from "./constant";
-import {
+import type {
   FieldAsset,
   FieldAssetMulti,
   FieldBoolean,
@@ -34,8 +34,8 @@ import {
   FieldURLMulti,
   ImportSchema,
   ImportSchemaField,
-  ImportSchemaUtils,
 } from "./importSchema";
+import { ImportSchemaUtils } from "./importSchema";
 import { ObjectUtils } from "./object";
 
 async function readFromJSONFile<T>(

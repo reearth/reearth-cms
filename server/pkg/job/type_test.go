@@ -3,7 +3,6 @@ package job
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,12 +69,12 @@ func TestTypeFromRef(t *testing.T) {
 		},
 		{
 			name:  "valid type",
-			input: lo.ToPtr("import"),
-			want:  lo.ToPtr(TypeImport),
+			input: new("import"),
+			want:  new(TypeImport),
 		},
 		{
 			name:  "invalid type",
-			input: lo.ToPtr("unknown"),
+			input: new("unknown"),
 			want:  nil,
 		},
 	}

@@ -12,7 +12,7 @@ import (
 
 func NewDirective() DirectiveRoot {
 	return DirectiveRoot{
-		OnlyOne: func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+		OnlyOne: func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error) {
 			return next(ctx)
 
 			/* This can not be implemented because of this issue: https://github.com/99designs/gqlgen/issues/2281

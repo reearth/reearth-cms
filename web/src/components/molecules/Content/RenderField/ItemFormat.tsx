@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useCallback, useState, FocusEvent } from "react";
+import type { FocusEvent } from "react";
+import { useCallback, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -16,7 +17,7 @@ import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes"
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
-import { validateURL } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -51,7 +52,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
         setIsEditable(false);
         return;
       }
-      if (value && !validateURL(value)) {
+      if (value && !RegexUtils.validateURL(value)) {
         Notification.error({ message: t("Please input a valid URL") });
         return;
       }

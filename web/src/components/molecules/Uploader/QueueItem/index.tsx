@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { ReactNode, useMemo } from "react";
+import type { ReactNode } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -10,7 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { UploaderQueueItem } from "../types";
+import type { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
 
 type Props = {

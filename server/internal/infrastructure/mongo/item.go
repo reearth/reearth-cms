@@ -212,6 +212,11 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	return r.client.SaveOne(ctx, id, doc, nil)
 }
 
+func (r *Item) SaveDraft(ctx context.Context, item *item.Item) error {
+	doc, id := mongodoc.NewItem(item)
+	return r.client.SaveOne(ctx, id, doc, nil)
+}
+
 func (r *Item) SaveAll(ctx context.Context, items item.List) error {
 	if len(items) == 0 {
 		return nil
@@ -228,6 +233,13 @@ func (r *Item) SaveAll(ctx context.Context, items item.List) error {
 
 func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
 	return r.client.UpdateRef(ctx, item.String(), ref, vr)
+}
+
+func (r *Item) BulkUpdateRef(ctx context.Context, ids id.ItemIDList, ref version.Ref, vr *version.VersionOrRef) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.BulkUpdateRef(ctx, ids.Strings(), ref, vr)
 }
 
 func (r *Item) Remove(ctx context.Context, id id.ItemID) error {
@@ -370,7 +382,7 @@ func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *stri
 		return nil, nil, err
 	}
 
-	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
+	return new(string(filter)), new(string(changes)), nil
 }
 
 func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {

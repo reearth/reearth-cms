@@ -1,7 +1,7 @@
-import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
-import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
-import { SchemaFieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
-import {
+import type { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
+import type { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import type { SchemaFieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
+import type {
   BasicOperator,
   BoolOperator,
   NullableOperator,
@@ -11,13 +11,11 @@ import {
   MultipleOperator,
   FieldType as ColumnType,
 } from "@reearth-cms/components/molecules/View/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import { AntdColor } from "@reearth-cms/utils/style";
+import type { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import type { AntdColor } from "@reearth-cms/utils/style";
 
 export type ColorType =
-  | typeof AntdColor.GREY.GREY_0
-  | typeof AntdColor.GREEN.GREEN_5
-  | typeof AntdColor.ORANGE.ORANGE_5;
+  typeof AntdColor.GREY.GREY_0 | typeof AntdColor.GREEN.GREEN_5 | typeof AntdColor.ORANGE.ORANGE_5;
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 
 export type DefaultFilterValueType = {

@@ -60,6 +60,21 @@ func TestItemDocument_Model(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "anonymous",
+			iDoc: &ItemDocument{
+				ID:          iId.String(),
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				Thread:      tId.StringRef(),
+				ModelID:     mId.String(),
+				Fields:      nil,
+				Timestamp:   now,
+				IsAnonymous: true,
+			},
+			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId.Ref()).Model(mId).Timestamp(now).Anonymous(true).MustBuild(),
+			wantErr: false,
+		},
+		{
 			name: "invalid id 1",
 			iDoc: &ItemDocument{
 				ID:          "abc",
@@ -125,7 +140,6 @@ func TestItemDocument_Model(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, err := tt.iDoc.Model()
@@ -165,9 +179,24 @@ func TestNewItem(t *testing.T) {
 			},
 			iDocId: iId.String(),
 		},
+		{
+			name: "anonymous",
+			i:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId.Ref()).Model(mId).Timestamp(now).Anonymous(true).MustBuild(),
+			want: &ItemDocument{
+				ID:          iId.String(),
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				Thread:      tId.StringRef(),
+				ModelID:     mId.String(),
+				Fields:      []ItemFieldDocument{},
+				Timestamp:   now,
+				IsAnonymous: true,
+				Assets:      []string{},
+			},
+			iDocId: iId.String(),
+		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, iDocId := NewItem(tt.i)
@@ -216,7 +245,6 @@ func TestNewItems(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, iDocsIds := NewItems(tt.items)

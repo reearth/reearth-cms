@@ -6,12 +6,11 @@ import (
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/labstack/echo-opentelemetry"
+	echootel "github.com/labstack/echo-opentelemetry"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
-	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
@@ -27,10 +26,12 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 
 	e := echo.New()
 	e.HTTPErrorHandler = errorHandler(echo.DefaultHTTPErrorHandler(false))
+	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 
 	// basic middleware
 	logger := log.New()
 	e.Logger = log.NewSlogLogger(logger)
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(
 		log.AccessLoggerV5(logger),
 		middleware.Recover(),
@@ -98,19 +99,6 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 	}
 
 	api.POST("/signup", Signup(), usecaseMiddleware)
-}
-
-func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
-	publicOrigins := allowedPublicOrigins(appCtx)
-	if len(publicOrigins) > 0 {
-		publicAPIGroup.Use(middleware.CORS(publicOrigins...))
-
-		// register dummy OPTIONS route so CORS middleware works fine!
-		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
-	}
-
-	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
-	publicapi.Echo(publicAPIGroup)
 }
 
 func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
@@ -181,7 +169,7 @@ func allowedPublicOrigins(appCtx *ApplicationContext) []string {
 	return lo.Uniq(origins)
 }
 
-func errorMessage(err error, log func(string, ...interface{})) (int, string) {
+func errorMessage(err error, log func(string, ...any)) (int, string) {
 	if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok {
 		if httpErr.Unwrap() != nil {
 			log("echo internal err: %+v", httpErr)
@@ -223,7 +211,7 @@ func errorHandler(next echo.HTTPErrorHandler) echo.HTTPErrorHandler {
 			return
 		}
 
-		code, msg := errorMessage(err, func(f string, args ...interface{}) {
+		code, msg := errorMessage(err, func(f string, args ...any) {
 			c.Logger().Error(fmt.Sprintf(f, args...))
 		})
 		if err := c.JSON(code, map[string]string{

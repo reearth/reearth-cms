@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
@@ -47,7 +47,7 @@ describe("Comments panel", () => {
     await user.click(button);
     const loading = await screen.findByLabelText("loading");
     expect(button).toBeDisabled();
-    expect(loading).toBeVisible();
+    await waitFor(() => expect(loading).toBeVisible());
     expect(onCommentCreateMock).toHaveBeenCalledWith(content);
     expect(button).toBeDisabled();
     await expect.poll(() => loading).not.toBeVisible();

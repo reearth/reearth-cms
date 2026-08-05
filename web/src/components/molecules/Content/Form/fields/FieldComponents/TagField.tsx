@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import type { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";
 

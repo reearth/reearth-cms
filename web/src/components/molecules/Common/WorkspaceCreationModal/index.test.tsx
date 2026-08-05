@@ -14,7 +14,7 @@ test("Workspace creation modal works successfully", async () => {
 
   render(<WorkspaceCreationModal open onClose={onClose} onSubmit={onSubmit} />);
 
-  const input = screen.getByLabelText("Workspace name");
+  const input = screen.getByLabelText("Workspace Name");
   const saveButton = screen.getByRole("button", { name: "OK" });
 
   expect(saveButton).toHaveAttribute("disabled");

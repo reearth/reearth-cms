@@ -3,7 +3,6 @@ package workspacesettings
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +11,7 @@ func TestWorkspaceSettings_SetTiles(t *testing.T) {
 	pp := NewURLResourceProps("foo", "bar", "baz")
 	tt := NewTileResource(rid, TileTypeDefault, pp)
 	r := NewResource(ResourceTypeTile, tt, nil)
-	tiles := NewResourceList([]*Resource{r}, rid.Ref(), lo.ToPtr(true))
+	tiles := NewResourceList([]*Resource{r}, rid.Ref(), new(true))
 	ws := &WorkspaceSettings{}
 	ws.SetTiles(tiles)
 	assert.Equal(t, tiles, ws.Tiles())
@@ -25,7 +24,7 @@ func TestWorkspaceSettings_SetTerrains(t *testing.T) {
 	pp := NewURLResourceProps("foo", "bar", "baz")
 	tt := NewTileResource(rid, TileTypeDefault, pp)
 	r := NewResource(ResourceTypeTile, tt, nil)
-	terrains := NewResourceList([]*Resource{r}, rid.Ref(), lo.ToPtr(true))
+	terrains := NewResourceList([]*Resource{r}, rid.Ref(), new(true))
 	ws := &WorkspaceSettings{}
 	ws.SetTerrains(terrains)
 	assert.Equal(t, terrains, ws.Terrains())
@@ -53,7 +52,7 @@ func TestWorkspaceSettings_SetSelectedResource(t *testing.T) {
 
 func TestWorkspaceSettings_SetEnabled(t *testing.T) {
 	ws := &ResourceList{}
-	e := lo.ToPtr(true)
+	e := new(true)
 	ws.SetEnabled(e)
 	assert.Equal(t, e, ws.Enabled())
 }
@@ -67,8 +66,8 @@ func TestWorkspaceSettings_Clone(t *testing.T) {
 	pp2 := NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt2 := NewTerrainResource(rid, TerrainTypeCesiumIon, pp2)
 	r2 := NewResource(ResourceTypeTerrain, nil, tt2)
-	tiles := NewResourceList([]*Resource{r}, rid.Ref(), lo.ToPtr(true))
-	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), lo.ToPtr(true))
+	tiles := NewResourceList([]*Resource{r}, rid.Ref(), new(true))
+	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), new(true))
 	ws := New().NewID().Tiles(tiles).Terrains(terrains).MustBuild()
 	got := ws.Clone()
 	assert.Equal(t, ws, got)

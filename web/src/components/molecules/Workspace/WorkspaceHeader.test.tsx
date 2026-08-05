@@ -8,7 +8,7 @@ test("WorkspaceHeader renders with search input and sort select", () => {
     <WorkspaceHeader onProjectSearch={vi.fn()} onProjectSort={vi.fn()} projectSort="updatedat" />,
   );
 
-  expect(screen.getByPlaceholderText("search projects")).toBeVisible();
+  expect(screen.getByPlaceholderText("Search projects")).toBeVisible();
   expect(screen.getByText("Sort by")).toBeVisible();
   expect(screen.getByText("Last Modified")).toBeVisible();
 });

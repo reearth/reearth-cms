@@ -1,11 +1,11 @@
-import {
+import type {
   View,
   ItemSort,
   Column,
   ConditionInput,
 } from "@reearth-cms/components/molecules/View/types";
 import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
-import {
+import type {
   View as GQLView,
   FieldType as GQLFieldType,
   SortDirection as GQLSortDirection,

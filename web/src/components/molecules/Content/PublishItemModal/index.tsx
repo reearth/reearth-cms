@@ -10,7 +10,7 @@ import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceIt
 import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
 import { useT } from "@reearth-cms/i18n";
 
-import { FormItem } from "../types";
+import type { FormItem } from "../types";
 
 type FormValues = {
   items: string[];
@@ -93,7 +93,7 @@ const PublishItemModal: React.FC<Props> = ({
         {unpublishedItems?.length !== 0 && (
           <WarningText
             text={t(
-              "We found some referenced items that not been published yet. Please select to publish the items.",
+              "We found some referenced items that have not been published yet. Please select to publish the items.",
             )}
           />
         )}

@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
@@ -72,7 +73,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
         onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"
-          label={t("Workspace name")}
+          label={t("Workspace Name")}
           rules={[
             {
               required: true,

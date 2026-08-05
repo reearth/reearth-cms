@@ -6,7 +6,6 @@ import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -275,7 +274,7 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 		{
 			name: "model returns item after its request is approved",
 			setup: func() {
-				res := createRequest2(e, pid.String(), "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId1.String(), "version": "latest"}})
+				res := createRequest2(e, pid.String(), "test", new("test"), new("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId1.String(), "version": "latest"}})
 				approveRequest2(e, res.Path("$.data.createRequest.request.id").String().Raw())
 			},
 			user:        uId.String(),
@@ -314,7 +313,7 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 		{
 			name: "model with number and integer fields returns correct field values",
 			setup: func() {
-				res := createRequest2(e, pid.String(), "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId6.String(), "version": "latest"}})
+				res := createRequest2(e, pid.String(), "test", new("test"), new("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId6.String(), "version": "latest"}})
 				approveRequest2(e, res.Path("$.data.createRequest.request.id").String().Raw())
 			},
 			user:        uId.String(),

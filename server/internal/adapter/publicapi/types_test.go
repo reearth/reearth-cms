@@ -72,6 +72,7 @@ func TestNewItem(t *testing.T) {
 			item.NewField(s.Fields()[2].ID(), value.New(value.TypeGroup, ig).AsMultiple(), nil),
 			item.NewField(s2.Fields()[0].ID(), value.New(value.TypeText, "xxxx").AsMultiple(), ig.Ref()),
 		}).
+		Anonymous(true).
 		MustBuild()
 	resGroup := ItemFields{
 		"test1": "xxxx",
@@ -139,6 +140,7 @@ func TestNewItem_Multiple(t *testing.T) {
 			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple(), nil),
 			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple(), nil),
 		}).
+		Anonymous(true).
 		MustBuild()
 
 	assert.Equal(t, Item{
@@ -167,7 +169,7 @@ func TestNewItem_Multiple(t *testing.T) {
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
-	it := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).MustBuild()
+	it := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).Anonymous(true).MustBuild()
 	j := lo.Must(json.Marshal(Item{
 		ID:        "xxx",
 		CreatedAt: it.ID().Timestamp(),

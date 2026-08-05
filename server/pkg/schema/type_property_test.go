@@ -186,7 +186,6 @@ func TestMatchTypeProperty(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel() must not use parallel
 			tc.args.tp.Match(tc.args.m)
@@ -366,7 +365,6 @@ func TestMatchTypeProperty1(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, MatchTypeProperty1(tc.args.tp, tc.args.m))
@@ -524,7 +522,6 @@ func TestTypeProperty_Validate(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, tc.args.tp.Validate(tc.args.value))

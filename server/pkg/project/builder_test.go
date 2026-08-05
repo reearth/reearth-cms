@@ -65,7 +65,6 @@ func TestBuilder_ImageURL(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			tb := New().NewID()
@@ -135,7 +134,6 @@ func TestBuilder_Topics(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p := New().NewID().Topics(tt.topics).MustBuild()
@@ -234,7 +232,6 @@ func TestBuilder_Build(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			p, err := New().
@@ -334,7 +331,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

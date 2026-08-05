@@ -45,7 +45,6 @@ func TestGeometryEditorSupportedTypeFrom(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			assert.Equal(tt, tc.want, GeometryEditorSupportedTypeFrom(tc.arg))

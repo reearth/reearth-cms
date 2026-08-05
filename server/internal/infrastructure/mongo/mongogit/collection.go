@@ -142,7 +142,7 @@ func (c *Collection) SaveMany(ctx context.Context, ids []string, docs []any) err
 
 	newDocs := make([]any, len(ids))
 
-	for i := 0; i < len(ids); i++ {
+	for i := range ids {
 		id, doc := ids[i], docs[i]
 
 		newMeta := Meta{
@@ -181,7 +181,7 @@ func (c *Collection) SaveAll(ctx context.Context, ids []string, docs []any, pare
 	if len(ids) == 0 {
 		return nil
 	}
-	for i := 0; i < len(ids); i++ {
+	for i := range ids {
 		var parent *version.VersionOrRef = nil
 		if parents != nil {
 			parent = parents[i]
@@ -214,6 +214,28 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	if dest != nil {
 		if _, err := c.client.Client().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
 			"id": id,
+		}), bson.M{
+			"$push": bson.M{refsKey: ref},
+		}); err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+	}
+
+	return nil
+}
+
+func (c *Collection) BulkUpdateRef(ctx context.Context, ids []string, ref version.Ref, dest *version.VersionOrRef) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	if err := c.DeleteRef(ctx, ids, ref); err != nil {
+		return err
+	}
+
+	if dest != nil {
+		if _, err := c.client.Client().UpdateMany(ctx, apply(version.Eq(*dest), bson.M{
+			"id": bson.M{"$in": ids},
 		}), bson.M{
 			"$push": bson.M{refsKey: ref},
 		}); err != nil {

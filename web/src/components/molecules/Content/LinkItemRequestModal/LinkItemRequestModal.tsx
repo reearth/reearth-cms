@@ -3,11 +3,11 @@ import { useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
+import type { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";

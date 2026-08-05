@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 var (
@@ -118,9 +117,9 @@ func (r *Request) SetState(state State) {
 	r.state = state
 	switch state {
 	case StateClosed:
-		r.closedAt = lo.ToPtr(util.Now())
+		r.closedAt = new(util.Now())
 	case StateApproved:
-		r.approvedAt = lo.ToPtr(util.Now())
+		r.approvedAt = new(util.Now())
 	}
 }
 

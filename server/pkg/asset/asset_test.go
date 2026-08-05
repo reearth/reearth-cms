@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,7 +113,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	pt := lo.ToPtr(PreviewTypeImage)
+	pt := new(PreviewTypeImage)
 	got.UpdatePreviewType(pt)
 	assert.Equal(t, pt, got.PreviewType())
 }
@@ -136,7 +135,7 @@ func TestAsset_UpdateStatus(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	p := lo.ToPtr(ArchiveExtractionStatusPending)
+	p := new(ArchiveExtractionStatusPending)
 	got.UpdateArchiveExtractionStatus(p)
 	assert.Equal(t, p, got.ArchiveExtractionStatus())
 }

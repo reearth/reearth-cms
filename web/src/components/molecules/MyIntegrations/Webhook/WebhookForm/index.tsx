@@ -5,11 +5,12 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
-import {
+import type {
   WebhookTrigger,
   TriggerKey,
   WebhookValues,
@@ -17,7 +18,7 @@ import {
   Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
-import { validateURL } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -154,14 +155,14 @@ const WebhookForm: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="url"
-              label={t("Url")}
+              label={t("URL")}
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {
                   required: true,
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
-                    return validateURL(value) ? Promise.resolve() : Promise.reject();
+                    return RegexUtils.validateURL(value) ? Promise.resolve() : Promise.reject();
                   },
                 },
               ]}>

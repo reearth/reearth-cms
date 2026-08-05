@@ -1,6 +1,6 @@
 // e2e/pages/workspace.page.ts
-import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import type { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -25,7 +25,7 @@ export class WorkspacePage extends BasePage {
     return this.getByLabel("Workspace Name");
   }
   get saveChangesButton(): Locator {
-    return this.getByRole("button", { name: "Save changes" });
+    return this.getByRole("button", { name: "Save Changes" });
   }
   get removeWorkspaceButton(): Locator {
     return this.getByRole("button", { name: "Remove Workspace" });

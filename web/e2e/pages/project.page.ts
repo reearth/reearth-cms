@@ -1,5 +1,6 @@
 // e2e/pages/project.page.ts
-import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect } from "@reearth-cms/e2e/fixtures/test";
+import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -189,14 +190,11 @@ export class ProjectPage extends BasePage {
   }
 
   // Accessibility page locators
-  get accessibilityMenuItem(): Locator {
-    return this.getByText("Accessibility");
+  get publicApiMenuItem(): Locator {
+    return this.getByText("Public API");
   }
-  get accessibilityHeadingFirst(): Locator {
-    return this.getByText("Accessibility").first();
-  }
-  get accessApiText(): Locator {
-    return this.getByText("Access API").first();
+  get publicApiHeadingFirst(): Locator {
+    return this.getByText("Public API").first();
   }
   get apiKeyText(): Locator {
     return this.getByText("API Key").first();

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { Role } from "@reearth-cms/components/molecules/Member/types";
+import type { Role } from "@reearth-cms/components/molecules/Member/types";
 
 import RequestOptions from "./RequestOptions";
 
@@ -49,7 +49,7 @@ describe("Request options", () => {
     );
 
     const firstSwitch = screen.getAllByRole("switch")[0];
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     expect(saveButton).toBeDisabled();
     await user.click(firstSwitch);
     expect(saveButton).toBeEnabled();
@@ -69,7 +69,7 @@ describe("Request options", () => {
     );
 
     const secondSwitch = screen.getAllByRole("switch")[1];
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     await user.click(secondSwitch);
     await user.click(saveButton);
     await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
@@ -98,7 +98,7 @@ describe("Request options", () => {
     );
 
     const firstSwitch = screen.getAllByRole("switch")[0];
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByRole("button", { name: "Save Changes" });
     await user.click(firstSwitch);
     expect(saveButton).toBeEnabled();
     await user.click(saveButton);

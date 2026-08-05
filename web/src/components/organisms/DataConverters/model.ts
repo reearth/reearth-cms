@@ -1,6 +1,6 @@
-import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Field, MetadataField } from "@reearth-cms/components/molecules/Schema/types";
-import { Maybe, Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
+import type { Field, MetadataField } from "@reearth-cms/components/molecules/Schema/types";
+import type { Maybe, Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
   if (!model) return;
@@ -11,6 +11,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
     name: model.name,
     key: model.key,
     order: model.order ?? undefined,
+    postingEnabled: model.postingSettings?.enabled,
     schemaId: model.schemaId,
     schema: {
       id: model.schema?.id,

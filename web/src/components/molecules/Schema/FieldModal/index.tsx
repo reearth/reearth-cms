@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxChangeEvent } from "antd/es/checkbox";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -11,15 +11,15 @@ import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import type { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import type { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import {
+import type {
   Field,
   SchemaFieldType,
   Group,
@@ -296,7 +296,7 @@ const FieldModal: React.FC<Props> = ({
             {selectedType === "GeometryObject" && (
               <Form.Item
                 name="supportedTypes"
-                label={t("Support Type")}
+                label={t("Supported types")}
                 extra={t("Please select what type of Geometry this field will support")}
                 rules={[{ required: true, message: t("Please select the Support Type!") }]}>
                 <StyledCheckboxGroup>
@@ -309,7 +309,7 @@ const FieldModal: React.FC<Props> = ({
             {selectedType === "GeometryEditor" && (
               <Form.Item
                 name="supportedTypes"
-                label={t("Support Type")}
+                label={t("Supported type")}
                 extra={t("Please select what type of Geometry this field will support")}
                 rules={[{ required: true, message: t("Please select the Support Type!") }]}>
                 <Radio.Group>
@@ -319,7 +319,7 @@ const FieldModal: React.FC<Props> = ({
                 </Radio.Group>
               </Form.Item>
             )}
-            <OptionTitle>{t("options")}</OptionTitle>
+            <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"

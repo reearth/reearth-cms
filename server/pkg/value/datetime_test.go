@@ -53,15 +53,15 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 		},
 		{
 			name:  "bool",
-			args:  []any{true, false, lo.ToPtr(true), lo.ToPtr(false)},
+			args:  []any{true, false, new(true), new(false)},
 			want1: nil,
 			want2: false,
 		},
 		{
 			name: "pointers",
 			args: []any{
-				&now, lo.ToPtr(now.Format(time.RFC3339)), lo.ToPtr(now.Format(time.RFC3339Nano)),
-				lo.ToPtr(now.Unix()), lo.ToPtr(float64(now.Unix())), lo.ToPtr(json.Number(fmt.Sprintf("%d", now.Unix()))),
+				&now, new(now.Format(time.RFC3339)), new(now.Format(time.RFC3339Nano)),
+				new(now.Unix()), new(float64(now.Unix())), new(json.Number(fmt.Sprintf("%d", now.Unix()))),
 			},
 			want1: now,
 			want2: true,
@@ -69,7 +69,6 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

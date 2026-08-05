@@ -20,7 +20,6 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,7 +49,7 @@ func TestRequest_FindByID(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		},
 	}
 
@@ -94,7 +93,6 @@ func TestRequest_FindByID(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -155,7 +153,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		}}
 
 	tests := []struct {
@@ -201,7 +199,6 @@ func TestRequest_FindByIDs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -255,7 +252,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
+			User: new(u.ID()),
 		}}
 
 	tests := []struct {
@@ -293,7 +290,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			}{
 				pid: pid,
 				filter: interfaces.RequestFilter{
-					Keyword: lo.ToPtr("foo"),
+					Keyword: new("foo"),
 				},
 				operator: op,
 			},
@@ -331,7 +328,6 @@ func TestRequest_FindByProject(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -367,7 +363,7 @@ func TestRequest_Approve(t *testing.T) {
 	prj := project.New().NewID().MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
-	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	ctx := context.Background()
@@ -386,7 +382,7 @@ func TestRequest_Approve(t *testing.T) {
 
 	vi, err := db.Item.FindByID(ctx, i.ID(), nil)
 	assert.NoError(t, err)
-	ri, _ := request.NewItem(i.ID(), lo.ToPtr(vi.Version().String()))
+	ri, _ := request.NewItem(i.ID(), new(vi.Version().String()))
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
@@ -399,7 +395,7 @@ func TestRequest_Approve(t *testing.T) {
 		MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User:             lo.ToPtr(u.ID()),
+			User:             new(u.ID()),
 			OwningWorkspaces: accountdomain.WorkspaceIDList{wid},
 		},
 	}

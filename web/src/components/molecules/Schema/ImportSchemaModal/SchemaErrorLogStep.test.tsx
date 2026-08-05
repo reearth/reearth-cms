@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { t } from "@reearth-cms/i18n";
-import { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
+import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
 import SchemaErrorLogStep from "./SchemaErrorLogStep";
 
@@ -54,7 +54,7 @@ describe("SchemaErrorLogStep", () => {
 
     // formatSchemaPath converts ["properties", "age", "x-defaultValue"] → 'Field "age" > Default value'
     expect(screen.getByText(/Field "age" > Default value/)).toBeInTheDocument();
-    expect(screen.getByText(/Field "name" > Field type/)).toBeInTheDocument();
+    expect(screen.getByText(/Field "name" > Field Type/)).toBeInTheDocument();
     expect(screen.getByText(/Field "geo" > Supported types/)).toBeInTheDocument();
 
     expect(screen.getByText("Expected number, received string")).toBeInTheDocument();

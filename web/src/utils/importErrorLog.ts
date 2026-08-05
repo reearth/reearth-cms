@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import fileDownload from "js-file-download";
-import z from "zod";
+import type z from "zod";
 
 import { t } from "@reearth-cms/i18n";
 
@@ -24,7 +24,7 @@ export abstract class ImportErrorLogUtils {
 
   private static readonly SCHEMA_PATH_LABELS: Record<string, () => string> = {
     "x-defaultValue": () => t("Default value"),
-    "x-fieldType": () => t("Field type"),
+    "x-fieldType": () => t("Field Type"),
     "x-geoSupportedTypes": () => t("Supported types"),
     "x-geoSupportedType": () => t("Supported type"),
     "x-options": () => t("Options"),

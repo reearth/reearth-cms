@@ -1,14 +1,15 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
+import type { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Form from "@reearth-cms/components/atoms/Form";
 import {
   keyAutoFill,
   keyReplace,
   emptyConvert,
 } from "@reearth-cms/components/molecules/Common/Form/utils";
-import {
+import type {
   Field,
   FieldModalTabs,
   SchemaFieldType,
@@ -19,7 +20,7 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { RegexUtils } from "@reearth-cms/utils/regex";
 
 export default (
   selectedSchemaType: SelectedSchemaType,
@@ -256,10 +257,26 @@ export default (
       ) {
         setButtonDisabled(true);
       } else {
+        const origValues = defaultValueRef.current;
+        const hasChanges =
+          !origValues ||
+          (Object.keys(origValues) as (keyof FormTypes)[]).some(k => {
+            let curr: unknown = form.getFieldValue(k);
+            let orig: unknown = origValues[k];
+            if (k === "supportedTypes" && Array.isArray(curr) && Array.isArray(orig)) {
+              curr = [...curr].sort();
+              orig = [...orig].sort();
+            }
+            return JSON.stringify(emptyConvert(curr)) !== JSON.stringify(emptyConvert(orig));
+          });
+
         form
           .validateFields()
-          .then(() => setButtonDisabled(changedKeys.current.size === 0))
-          .catch(() => setButtonDisabled(true));
+          .then(() => setButtonDisabled(!hasChanges))
+          .catch((errorInfo: ValidateErrorEntity<FormTypes>) => {
+            if (errorInfo?.outOfDate) return;
+            setButtonDisabled(true);
+          });
       }
     } else {
       setButtonDisabled(true);
@@ -334,7 +351,7 @@ export default (
     (value: string) => {
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (validateKey(value) && handleFieldKeyUnique(value)) {
+      } else if (RegexUtils.validateKey(value) && handleFieldKeyUnique(value)) {
         prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {

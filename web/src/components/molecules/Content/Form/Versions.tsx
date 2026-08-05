@@ -6,8 +6,8 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
-import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
+import type { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import type { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -51,7 +51,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
             )}
           </HistoryTitle>
           <HistoryInfo>
-            <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
+            <User>{`${index === versions.length - 1 ? t("Created By") : t("Updated By")} ${version.creator.name}`}</User>
             {version.status === "REVIEW" && (
               <Requests>
                 {version.requests?.map(request => (

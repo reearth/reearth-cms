@@ -65,7 +65,6 @@ func TestThreadRepo_Save(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			client := mongox.NewClientWithDatabase(initDB(t))
 			r := NewThread(client)
@@ -189,7 +188,6 @@ func TestThreadRepo_FindByID(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -283,7 +281,6 @@ func TestThreadRepo_FindByIDs(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

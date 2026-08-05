@@ -47,7 +47,7 @@ web/e2e/
     │   ├── items/
     │   │   ├── fields/           # Field type tests (13 specs)
     │   │   └── metadata/         # Metadata tests (7 specs)
-    │   ├── accessibility.spec.ts
+    │   ├── publicAPI.spec.ts
     │   ├── overview.spec.ts
     │   ├── project.spec.ts
     │   ├── request.spec.ts
