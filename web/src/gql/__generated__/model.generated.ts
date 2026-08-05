@@ -87,7 +87,37 @@ export type GetModelsQuery = {
       schema: {
         __typename: "Schema";
         id: string;
-        fields: Array<{ __typename: "SchemaField"; id: string; type: Types.SchemaFieldType }>;
+        fields: Array<{
+          __typename: "SchemaField";
+          id: string;
+          type: Types.SchemaFieldType;
+          key: string;
+          required: boolean;
+          multiple: boolean;
+          typeProperty:
+            | { __typename: "SchemaFieldAsset" }
+            | { __typename: "SchemaFieldBool" }
+            | { __typename: "SchemaFieldCheckbox" }
+            | { __typename: "SchemaFieldDate" }
+            | { __typename: "SchemaFieldGeometryEditor" }
+            | { __typename: "SchemaFieldGeometryObject" }
+            | { __typename: "SchemaFieldGroup" }
+            | { __typename: "SchemaFieldInteger"; min: number | null; max: number | null }
+            | { __typename: "SchemaFieldMarkdown"; maxLength: number | null }
+            | {
+                __typename: "SchemaFieldNumber";
+                numberMin: number | null;
+                numberMax: number | null;
+              }
+            | { __typename: "SchemaFieldReference" }
+            | { __typename: "SchemaFieldRichText" }
+            | { __typename: "SchemaFieldSelect"; values: Array<string> }
+            | { __typename: "SchemaFieldTag" }
+            | { __typename: "SchemaFieldText"; maxLength: number | null }
+            | { __typename: "SchemaFieldTextArea"; maxLength: number | null }
+            | { __typename: "SchemaFieldURL" }
+            | null;
+        }>;
       };
     } | null>;
   };
@@ -441,6 +471,124 @@ export const GetModelsDocument = {
                                 selections: [
                                   { kind: "Field", name: { kind: "Name", value: "id" } },
                                   { kind: "Field", name: { kind: "Name", value: "type" } },
+                                  { kind: "Field", name: { kind: "Name", value: "key" } },
+                                  { kind: "Field", name: { kind: "Name", value: "required" } },
+                                  { kind: "Field", name: { kind: "Name", value: "multiple" } },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "typeProperty" },
+                                    selectionSet: {
+                                      kind: "SelectionSet",
+                                      selections: [
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldText" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "maxLength" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldTextArea" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "maxLength" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldMarkdown" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "maxLength" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldSelect" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "values" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldInteger" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "min" },
+                                              },
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "max" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldNumber" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                alias: { kind: "Name", value: "numberMin" },
+                                                name: { kind: "Name", value: "min" },
+                                              },
+                                              {
+                                                kind: "Field",
+                                                alias: { kind: "Name", value: "numberMax" },
+                                                name: { kind: "Name", value: "max" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
                                 ],
                               },
                             },
