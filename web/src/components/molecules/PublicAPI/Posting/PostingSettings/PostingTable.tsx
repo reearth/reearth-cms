@@ -75,9 +75,7 @@ const PostingTable: React.FC<Props> = ({
       },
       {
         key: "copy",
-        title: t("Copy cURL"),
         align: "center",
-        width: 120,
         render: (_, record) => (
           <CopyButton copyable={{ text: record.curl }}>{t("Copy")}</CopyButton>
         ),

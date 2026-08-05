@@ -52,9 +52,7 @@ const AllowedOrigins: React.FC<Props> = ({ origins, onChange }) => {
   return (
     <ContentSection
       title={t("Allowed Origins")}
-      description={t(
-        "Only requests from listed origins will be accepted. If no origins are configured, all submissions will be denied.",
-      )}
+      description={t("Browser requests will be accepted only from the listed origins.")}
       hasHorizontalRule={false}
       hasPadding={false}
       headerActions={<CountTag count={origins.length} />}>
