@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import Flex from "@reearth-cms/components/atoms/Flex";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import type {
@@ -9,8 +10,10 @@ import type {
 } from "@reearth-cms/components/molecules/PublicAPI/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import APIDocLinks from "../APIDocLinks";
+import ExperimentIcon from "../ExperimentIcon";
 
 import PostingTab from "./Posting";
 import APIKeyComponent from "./Reading/APIKey";
@@ -22,7 +25,7 @@ type Props = {
   initialValues: FormType;
   postingInitialValues: PostingFormType;
   savedOrigins: string[];
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   hasPublishRight: boolean;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
@@ -111,7 +114,12 @@ const PublicAPI: React.FC<Props> = ({
         },
         {
           key: "posting",
-          label: t("Posting"),
+          label: (
+            <Flex gap={AntdToken.SPACING.XS}>
+              <ExperimentIcon />
+              <span>{t("Posting")}</span>
+            </Flex>
+          ),
           children: (
             <PostingTab
               apiUrl={apiUrl}

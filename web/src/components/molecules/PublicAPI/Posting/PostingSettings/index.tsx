@@ -9,7 +9,7 @@ import PostingTable from "./PostingTable";
 type Props = {
   apiUrl: string;
   hasPublishRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   origins?: string[];
 };
 

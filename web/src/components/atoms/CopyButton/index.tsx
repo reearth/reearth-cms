@@ -10,6 +10,7 @@ const { Text } = Typography;
 
 type Props = {
   copyable: CopyConfig;
+  children?: React.ReactNode;
 } & RefAttributes<HTMLSpanElement>;
 
 const CopyButton: React.FC<Props> = ({ copyable, ...props }) => {

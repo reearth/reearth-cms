@@ -1,10 +1,12 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
 
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import Table from "@reearth-cms/components/atoms/Table";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
@@ -59,9 +61,14 @@ const ReadingTable: React.FC<Props> = ({
         title: t("Endpoint"),
         dataIndex: "endpoint",
         render: url => (
-          <StyledAnchor target="_blank" href={url} rel="noreferrer">
-            {url}
-          </StyledAnchor>
+          <Flex align="center">
+            <Tag bordered={false} color="blue">
+              GET
+            </Tag>
+            <StyledAnchor target="_blank" href={url} rel="noreferrer">
+              {url}
+            </StyledAnchor>
+          </Flex>
         ),
       },
     );
