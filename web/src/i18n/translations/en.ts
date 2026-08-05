@@ -109,6 +109,7 @@ export default {
   "Control the visibility scope of the Content API": "",
   "Copied": "",
   "Copy": "",
+  "Copy cURL": "Copy cURL",
   "Copy URL": "",
   "Corresponding field": "",
   "Could not display SVG": "",

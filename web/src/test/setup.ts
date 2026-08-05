@@ -104,9 +104,18 @@ afterEach(async () => {
   }
   // React's Node/jsdom scheduler shim defers commits via setImmediate (see the
   // "Immediate.performWorkUntilDeadline"/"processImmediate" frames in the errors
-  // linked above) - flush one tick so any commit still queued from this test's
-  // interactions runs now, not after this file's window/document are gone.
-  await new Promise(resolve => setImmediate(resolve));
+  // linked above). React 19 also schedules a *separate* NormalPriority task to
+  // flush passive effects after the modal-root unmount commit
+  // (react-dom-client:17920, whose first statement reads window.event). That
+  // task is time-sliced: on a loaded CI runner shouldYieldToHost() can yield and
+  // reschedule the remainder onto a later tick, so a single flush can miss it -
+  // it then throws "window is not defined" once the next file tears down jsdom
+  // (https://github.com/reearth/reearth-cms/actions/runs/30790140377). Drain
+  // several ticks so the rescheduled remainder runs while this file's
+  // window/document still exist.
+  for (let i = 0; i < 5; i++) {
+    await new Promise(resolve => setImmediate(resolve));
+  }
   _animationObserver?.disconnect();
   cleanup();
   document.body.innerHTML = "";

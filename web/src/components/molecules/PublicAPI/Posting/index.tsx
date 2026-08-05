@@ -19,7 +19,7 @@ type Props = {
   savedOrigins: string[];
   hasPublishRight: boolean;
   hasPostingRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   updateLoading: boolean;
   onPostingUpdate: (
     origins: string[],

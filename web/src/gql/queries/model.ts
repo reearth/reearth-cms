@@ -19,6 +19,31 @@ export const GET_MODELS = gql`
           fields {
             id
             type
+            key
+            required
+            multiple
+            typeProperty {
+              ... on SchemaFieldText {
+                maxLength
+              }
+              ... on SchemaFieldTextArea {
+                maxLength
+              }
+              ... on SchemaFieldMarkdown {
+                maxLength
+              }
+              ... on SchemaFieldSelect {
+                values
+              }
+              ... on SchemaFieldInteger {
+                min
+                max
+              }
+              ... on SchemaFieldNumber {
+                numberMin: min
+                numberMax: max
+              }
+            }
           }
         }
       }
