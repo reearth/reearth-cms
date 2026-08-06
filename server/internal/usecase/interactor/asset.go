@@ -948,13 +948,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	})
 	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
-	// SaveFlat below deliberately runs outside the transaction: for archives with
-	// hundreds of thousands of extracted files, inserting them all as part of one
-	// MongoDB transaction can exceed the storage engine's transaction-size limit
-	// (WiredTiger error -31800, "transaction is too large and will not fit in the
-	// storage engine cache"), aborting the whole write. SaveFlat already commits its
-	// bulk writes in independent batches; running it non-transactionally lets each
-	// batch commit on its own instead of accumulating in one uncommitted transaction.
 	a, prj, err := Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
@@ -989,15 +982,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, err
 	}
 	if prj == nil {
-		// checkUpdateFilesPreconditions decided to skip; a is the asset as-is.
 		return a, nil
 	}
 
 	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 	if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-		// The status-flipping transaction above already committed, so the asset would
-		// otherwise be left showing status s (e.g. "done") despite having no files.
-		// Best-effort mark it failed instead, so the UI doesn't show a misleading status.
 		i.markUpdateFilesFailed(ctx, aid)
 		return nil, fmt.Errorf("failed to save asset files: %w", err)
 	}
@@ -1018,10 +1007,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	return a, nil
 }
 
-// markUpdateFilesFailed best-effort marks aid's archive extraction status as failed,
-// after UpdateFiles' status-flipping transaction already committed but a later,
-// non-transactional step (saving asset files, publishing the event) failed. Errors
-// here are only logged: the original error from the caller is what gets returned.
 func (i *Asset) markUpdateFilesFailed(ctx context.Context, aid id.AssetID) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {

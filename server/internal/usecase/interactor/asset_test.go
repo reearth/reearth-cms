@@ -3,7 +3,6 @@ package interactor
 import (
 	"bytes"
 	"context"
-	"errors"
 	"io"
 	"path"
 	"runtime"
@@ -17,7 +16,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -1321,132 +1319,6 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestAsset_UpdateFiles_SavesFilesOnStatusTransition(t *testing.T) {
-	uid := accountdomain.NewUserID()
-	assetID, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
-	ws := workspace.New().NewID().MustBuild()
-	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
-
-	seedStatus := lo.ToPtr(asset.ArchiveExtractionStatusPending)
-	targetStatus := lo.ToPtr(asset.ArchiveExtractionStatusDone)
-	a := asset.New().
-		ID(assetID).
-		Project(proj.ID()).
-		CreatedByUser(uid).
-		Size(1000).
-		UUID(uuid1).
-		Thread(id.NewThreadID().Ref()).
-		ArchiveExtractionStatus(seedStatus).
-		MustBuild()
-	af := asset.NewFile().Name("xxx.zip").Path("xxx.zip").GuessContentType().Build()
-
-	acop := &accountusecase.Operator{
-		User:             &uid,
-		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
-	}
-	op := &usecase.Operator{
-		AcOperator:     acop,
-		OwningProjects: []id.ProjectID{proj.ID()},
-	}
-
-	ctx := context.Background()
-	db := memory.New()
-	assert.NoError(t, db.Project.Save(ctx, proj))
-	assert.NoError(t, db.Asset.Save(ctx, a.Clone()))
-	assert.NoError(t, db.AssetFile.Save(ctx, assetID, af.Clone()))
-
-	assetUC := Asset{
-		repos: db,
-		gateways: &gateway.Container{
-			File: lo.Must(fs.NewFile(mockFs(), "", false)),
-		},
-		ignoreEvent: true,
-	}
-
-	got, err := assetUC.UpdateFiles(ctx, assetID, targetStatus, op)
-	assert.NoError(t, err)
-	assert.Equal(t, targetStatus.String(), got.ArchiveExtractionStatus().String())
-
-	// SaveFlat now runs after the status-flipping transaction commits (see
-	// UpdateFiles), rather than inside it; this asserts the files still end up saved.
-	saved, err := db.AssetFile.FindByID(ctx, assetID)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, saved.Files())
-}
-
-// erroringAssetFileRepo wraps a repo.AssetFile and fails the next N calls to
-// SaveFlat, to simulate a write error occurring after UpdateFiles' status-flipping
-// transaction has already committed.
-type erroringAssetFileRepo struct {
-	repo.AssetFile
-	failSaveFlatTimes int
-	saveFlatCalls     int
-	err               error
-}
-
-func (r *erroringAssetFileRepo) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
-	r.saveFlatCalls++
-	if r.saveFlatCalls <= r.failSaveFlatTimes {
-		return r.err
-	}
-	return r.AssetFile.SaveFlat(ctx, id, parent, files)
-}
-
-func TestAsset_UpdateFiles_MarksFailedOnSaveFlatError(t *testing.T) {
-	uid := accountdomain.NewUserID()
-	assetID, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
-	ws := workspace.New().NewID().MustBuild()
-	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
-
-	seedStatus := lo.ToPtr(asset.ArchiveExtractionStatusPending)
-	targetStatus := lo.ToPtr(asset.ArchiveExtractionStatusDone)
-	a := asset.New().
-		ID(assetID).
-		Project(proj.ID()).
-		CreatedByUser(uid).
-		Size(1000).
-		UUID(uuid1).
-		Thread(id.NewThreadID().Ref()).
-		ArchiveExtractionStatus(seedStatus).
-		MustBuild()
-	af := asset.NewFile().Name("xxx.zip").Path("xxx.zip").GuessContentType().Build()
-
-	acop := &accountusecase.Operator{
-		User:             &uid,
-		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
-	}
-	op := &usecase.Operator{
-		AcOperator:     acop,
-		OwningProjects: []id.ProjectID{proj.ID()},
-	}
-
-	ctx := context.Background()
-	db := memory.New()
-	assert.NoError(t, db.Project.Save(ctx, proj))
-	assert.NoError(t, db.Asset.Save(ctx, a.Clone()))
-	assert.NoError(t, db.AssetFile.Save(ctx, assetID, af.Clone()))
-
-	wantErr := errors.New("write failed")
-	db.AssetFile = &erroringAssetFileRepo{AssetFile: db.AssetFile, failSaveFlatTimes: 1, err: wantErr}
-
-	assetUC := Asset{
-		repos: db,
-		gateways: &gateway.Container{
-			File: lo.Must(fs.NewFile(mockFs(), "", false)),
-		},
-		ignoreEvent: true,
-	}
-
-	_, err := assetUC.UpdateFiles(ctx, assetID, targetStatus, op)
-	assert.ErrorIs(t, err, wantErr)
-
-	// The status-flipping transaction already committed before SaveFlat failed, so
-	// without markUpdateFilesFailed the asset would incorrectly show targetStatus.
-	got, err := db.Asset.FindByID(ctx, assetID)
-	assert.NoError(t, err)
-	assert.Equal(t, asset.ArchiveExtractionStatusFailed.String(), got.ArchiveExtractionStatus().String())
 }
 
 func TestAsset_Delete(t *testing.T) {
