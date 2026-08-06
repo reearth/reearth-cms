@@ -98,6 +98,74 @@ components:
         Successful response. The structure varies per project and model.
         Field keys are defined by the model schema in Re:Earth CMS.
 
+    PostItemRequest:
+      type: object
+      properties:
+        fields:
+          type: object
+          description: |
+            Field values keyed by field key. Fields of type Asset, Reference, Tag, Group,
+            GeometryEditor, and GeometryObject are not supported for posting and are ignored;
+            if such a field is required by the model, posting is rejected entirely.
+
+    PostItemResponse:
+      type: object
+      required:
+        - id
+        - $createdAt
+        - fields
+      properties:
+        id:
+          type: string
+          description: Unique ID of the created item
+        $createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the item was created
+        fields:
+          type: object
+          description: Field values keyed by field key
+
+    Error:
+      type: object
+      required:
+        - error
+        - code
+        - message
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code (mirrors code).
+        code:
+          type: string
+          description: Machine-readable error code.
+          enum:
+            - invalid_json
+            - validation_error
+            - posting_disabled
+            - model_posting_disabled
+            - origin_not_allowed
+            - not_found
+            - payload_too_large
+            - rate_limited
+            - access_denied
+            - unsupported_field_type
+        message:
+          type: string
+          description: Human-readable description of the error.
+        details:
+          type: array
+          description: Field-level validation errors, present only for validation_error.
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+
   responses:
     UnauthorizedError:
       description: API key is invalid
@@ -251,6 +319,87 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Item not found
+
+  /{model}/items:
+    post:
+      summary: Create a new item
+      description: |
+        Submit a new item to the specified model. The created item is unpublished (Draft)
+        and will not appear in the public read API until it is published.
+        Only available when posting is enabled for both the project and the model.
+        Rate-limited per IP; when the limit is exceeded, a `Retry-After` header indicates
+        how many seconds to wait before retrying.
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostItemRequest'
+      responses:
+        '202':
+          description: Item accepted and created as unpublished
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostItemResponse'
+        '400':
+          description: Invalid JSON body or field validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Posting disabled for the project/model, or origin not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Model not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Request body exceeds the allowed size limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Model has a required field of an unsupported type for posting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests; retry after the period indicated by the `Retry-After` header
+          headers:
+            Retry-After:
+              description: Number of seconds to wait before retrying
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    options:
+      summary: CORS preflight for item posting
+      description: Handles the CORS preflight request for browser-based posting clients.
+      tags:
+        - Items
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      responses:
+        '204':
+          description: Preflight response
 
   # --- Schema ---
 
