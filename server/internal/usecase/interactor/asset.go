@@ -899,84 +899,87 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
+// TODO: add a test for this function
 func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
 	if op.AcOperator.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
+	log.Debugfc(ctx, "asset.UpdateFiles: begin: assetID=%s status=%s", aid, s)
+
+	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
+	if err != nil {
+		return nil, err
+	}
+	if skip {
+		log.Debugfc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
+		return a, nil
+	}
+
+	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find an asset file: %w", err)
+	}
+
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
+	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+	if err != nil {
+		if err == gateway.ErrFileNotFound {
+			return nil, err
+		}
+		return nil, fmt.Errorf("failed to get asset files: %w", err)
+	}
+
+	srcName := srcfile.Name()
+	previewType := detectPreviewType(files)
+
+	assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
+		if srcName == f.Name {
+			return nil, false
+		}
+		return asset.NewFile().
+			Name(path.Base(f.Name)).
+			Path(f.Name).
+			Size(uint64(f.Size)).
+			ContentType(f.ContentType).
+			GuessContentTypeIfEmpty().
+			ContentEncoding(f.ContentEncoding).
+			Build(), true
+	})
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
+
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			a, err := i.repos.Asset.FindByID(ctx, aid)
+			a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 			if err != nil {
-				if err == rerror.ErrNotFound {
-					return nil, err
-				}
-				return nil, fmt.Errorf("failed to find an asset: %v", err)
-			}
-
-			if a != nil {
-				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
-			}
-
-			if !op.CanUpdate(a) {
-				return nil, interfaces.ErrOperationDenied
-			}
-
-			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
 				return nil, err
 			}
-
-			if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+			if skip {
+				log.Debugfc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 				return a, nil
 			}
 
 			prj, err := i.repos.Project.FindByID(ctx, a.Project())
 			if err != nil {
-				return nil, fmt.Errorf("failed to find a project: %v", err)
-			}
-
-			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
-			if err != nil {
-				return nil, fmt.Errorf("failed to find an asset file: %v", err)
-			}
-
-			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
-			if err != nil {
-				if err == gateway.ErrFileNotFound {
-					return nil, err
-				}
-				return nil, fmt.Errorf("failed to get asset files: %v", err)
+				return nil, fmt.Errorf("failed to find a project: %w", err)
 			}
 
 			a.UpdateArchiveExtractionStatus(s)
-			if previewType := detectPreviewType(files); previewType != nil {
+			if previewType != nil {
 				a.UpdatePreviewType(previewType)
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, fmt.Errorf("failed to save an asset: %v", err)
+				return nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
 
-			srcPath := srcfile.Path()
-			assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
-				if srcPath == f.Name {
-					return nil, false
-				}
-				return asset.NewFile().
-					Name(path.Base(f.Name)).
-					Path(f.Name).
-					Size(uint64(f.Size)).
-					ContentType(f.ContentType).
-					GuessContentTypeIfEmpty().
-					ContentEncoding(f.ContentEncoding).
-					Build(), true
-			})
-
+			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, fmt.Errorf("failed to save asset files: %v", err)
+				return nil, fmt.Errorf("failed to save asset files: %w", err)
 			}
+			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
 			if err := i.event(ctx, Event{
 				Project:   prj,
@@ -985,12 +988,41 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				Object:    a,
 				Operator:  op.Operator(),
 			}); err != nil {
-				return nil, fmt.Errorf("failed to create an event: %v", err)
+				return nil, fmt.Errorf("failed to create an event: %w", err)
 			}
+			log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
 			return a, nil
 		},
 	)
+}
+
+func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, bool, error) {
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		if err == rerror.ErrNotFound {
+			return nil, false, err
+		}
+		return nil, false, fmt.Errorf("failed to find an asset: %w", err)
+	}
+
+	if a != nil {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+
+	if !op.CanUpdate(a) {
+		return nil, false, interfaces.ErrOperationDenied
+	}
+
+	if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+		return nil, false, err
+	}
+
+	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+		return a, true, nil
+	}
+
+	return a, false, nil
 }
 
 func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
