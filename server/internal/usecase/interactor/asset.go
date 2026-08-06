@@ -948,22 +948,29 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	})
 	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
-	return Run1(
+	// SaveFlat below deliberately runs outside the transaction: for archives with
+	// hundreds of thousands of extracted files, inserting them all as part of one
+	// MongoDB transaction can exceed the storage engine's transaction-size limit
+	// (WiredTiger error -31800, "transaction is too large and will not fit in the
+	// storage engine cache"), aborting the whole write. SaveFlat already commits its
+	// bulk writes in independent batches; running it non-transactionally lets each
+	// batch commit on its own instead of accumulating in one uncommitted transaction.
+	a, prj, err := Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func(ctx context.Context) (*asset.Asset, error) {
+		func(ctx context.Context) (*asset.Asset, *project.Project, error) {
 			a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if skip {
 				log.Debugfc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
-				return a, nil
+				return a, nil, nil
 			}
 
 			prj, err := i.repos.Project.FindByID(ctx, a.Project())
 			if err != nil {
-				return nil, fmt.Errorf("failed to find a project: %w", err)
+				return nil, nil, fmt.Errorf("failed to find a project: %w", err)
 			}
 
 			a.UpdateArchiveExtractionStatus(s)
@@ -972,29 +979,59 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, fmt.Errorf("failed to save an asset: %w", err)
+				return nil, nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
 
-			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
-			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, fmt.Errorf("failed to save asset files: %w", err)
-			}
-			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: prj.Workspace(),
-				Type:      event.AssetDecompress,
-				Object:    a,
-				Operator:  op.Operator(),
-			}); err != nil {
-				return nil, fmt.Errorf("failed to create an event: %w", err)
-			}
-			log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
-
-			return a, nil
+			return a, prj, nil
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+	if prj == nil {
+		// checkUpdateFilesPreconditions decided to skip; a is the asset as-is.
+		return a, nil
+	}
+
+	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
+	if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
+		// The status-flipping transaction above already committed, so the asset would
+		// otherwise be left showing status s (e.g. "done") despite having no files.
+		// Best-effort mark it failed instead, so the UI doesn't show a misleading status.
+		i.markUpdateFilesFailed(ctx, aid)
+		return nil, fmt.Errorf("failed to save asset files: %w", err)
+	}
+	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
+
+	if err := i.event(ctx, Event{
+		Project:   prj,
+		Workspace: prj.Workspace(),
+		Type:      event.AssetDecompress,
+		Object:    a,
+		Operator:  op.Operator(),
+	}); err != nil {
+		i.markUpdateFilesFailed(ctx, aid)
+		return nil, fmt.Errorf("failed to create an event: %w", err)
+	}
+	log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
+
+	return a, nil
+}
+
+// markUpdateFilesFailed best-effort marks aid's archive extraction status as failed,
+// after UpdateFiles' status-flipping transaction already committed but a later,
+// non-transactional step (saving asset files, publishing the event) failed. Errors
+// here are only logged: the original error from the caller is what gets returned.
+func (i *Asset) markUpdateFilesFailed(ctx context.Context, aid id.AssetID) {
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		log.Errorfc(ctx, "asset.UpdateFiles: failed to load asset %s to mark it failed: %v", aid, err)
+		return
+	}
+	a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusFailed))
+	if err := i.repos.Asset.Save(ctx, a); err != nil {
+		log.Errorfc(ctx, "asset.UpdateFiles: failed to mark asset %s as failed: %v", aid, err)
+	}
 }
 
 func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, bool, error) {
