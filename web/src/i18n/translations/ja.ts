@@ -489,7 +489,7 @@ export default {
   "Please transfer your project to private to use the API key": "APIキーを使用するには、プロジェクトを非公開にしてください。",
   "PNG/JPEG/TIFF/GIF": "PNG/JPEG/TIFF/GIF",
   "Posting": "書き込み",
-  "Posting allows anonymous users to submit data to a model without authentication.": "Posting では、匿名ユーザーが認証なしでモデルにデータを送信できます。",
+  "Posting allows anonymous users to submit data to a model without authentication.": "Postingでは、匿名ユーザーが認証なしでモデルにデータを送信できます。",
   "Prevents saving an entry if this field is empty": "このフィールドを必須項目とします",
   "Preview Type": "プレビュータイプ",
   "Previous": "戻る",
