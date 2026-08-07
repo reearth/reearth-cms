@@ -82,7 +82,7 @@ jobs:
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "version=$( node -e "console.log(require('@playwright/test/package.json').version)" )" >> $GITHUB_OUTPUT
