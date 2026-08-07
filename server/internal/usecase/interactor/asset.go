@@ -948,32 +948,18 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	})
 	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
-	a, prj, err := Run2(
-		ctx, op, i.repos,
-		Usecase().Transaction(),
-		func(ctx context.Context) (*asset.Asset, *project.Project, error) {
-			a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
-			if err != nil {
-				return nil, nil, err
-			}
-			if skip {
-				log.Debugfc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
-				return a, nil, nil
-			}
-
-			prj, err := i.repos.Project.FindByID(ctx, a.Project())
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to find a project: %w", err)
-			}
-
-			return a, prj, nil
-		},
-	)
+	a, skip, err = i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 	if err != nil {
 		return nil, err
 	}
-	if prj == nil {
+	if skip {
+		log.Debugfc(ctx, "asset.UpdateFiles: skipped after listing files, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 		return a, nil
+	}
+
+	prj, err := i.repos.Project.FindByID(ctx, a.Project())
+	if err != nil {
+		return nil, fmt.Errorf("failed to find a project: %w", err)
 	}
 
 	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
@@ -987,11 +973,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			a, err := i.repos.Asset.FindByID(ctx, aid)
-			if err != nil {
-				return nil, fmt.Errorf("failed to find an asset: %w", err)
-			}
-
 			a.UpdateArchiveExtractionStatus(s)
 			if previewType != nil {
 				a.UpdatePreviewType(previewType)
