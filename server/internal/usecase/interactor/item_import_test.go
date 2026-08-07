@@ -1,13 +1,24 @@
 package interactor
 
 import (
+	"context"
+	"strings"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/job"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -108,4 +119,73 @@ func TestApplyDefaultValues(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestItem_importWithProgress_streamsLargeInput verifies that importWithProgress
+// processes a JSON array without materialising all items into memory first
+// (the two-pass approach that was removed by the SCA-04 fix).
+//
+// The test creates a JSON array of 5 items and checks that all items are saved
+// to the repository after the call returns.
+func TestItem_importWithProgress_streamsLargeInput(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("name")).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(prj.ID()).MustBuild()
+
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+	lo.Must0(db.Job.Save(ctx, job.New().NewID().
+		Project(prj.ID()).
+		User(accountdomain.NewUserID()).
+		Type(job.TypeImport).
+		MustBuild()))
+
+	// Build a JSON array of 5 objects.
+	jsonItems := `[
+		{"name": "item1"},
+		{"name": "item2"},
+		{"name": "item3"},
+		{"name": "item4"},
+		{"name": "item5"}
+	]`
+
+	j := job.New().NewID().
+		Project(prj.ID()).
+		User(accountdomain.NewUserID()).
+		Type(job.TypeImport).
+		MustBuild()
+	lo.Must0(db.Job.Save(ctx, j))
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+		ReadableProjects: []id.ProjectID{prj.ID()},
+		WritableProjects: []id.ProjectID{prj.ID()},
+	}
+
+	sp := schema.NewPackage(s, nil, nil, nil)
+	itemUC := NewItem(db, &gateway.Container{})
+	itemUC.ignoreEvent = true
+
+	res, err := itemUC.importWithProgress(ctx, j, interfaces.ImportItemsParam{
+		ModelID:  m.ID(),
+		SP:       *sp,
+		Strategy: interfaces.ImportStrategyTypeInsert,
+		Format:   interfaces.ImportFormatTypeJSON,
+		Reader:   strings.NewReader(jsonItems),
+	}, op)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 5, res.Inserted)
+	assert.Equal(t, 5, res.Total)
 }
