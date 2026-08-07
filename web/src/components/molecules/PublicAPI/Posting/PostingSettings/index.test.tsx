@@ -8,7 +8,7 @@ import PostingSettings from ".";
 describe("PostingSettings", () => {
   const apiUrl = "https://test.com/api/";
   const models = [{ id: "m1", name: "Model One", key: "model1", schema: { id: "s1", fields: [] } }];
-  const ORIGIN_WARNING = "Please add at least one origin to enable Post API";
+  const ORIGIN_WARNING = "Please add at least one origin to enable Posting";
 
   // PostingTable's Form.Item switches need an ancestor Form (provided by PostingTab in the app).
   const renderSettings = (props?: Partial<React.ComponentProps<typeof PostingSettings>>) =>

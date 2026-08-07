@@ -40,7 +40,7 @@ const PostingTable: React.FC<Props> = ({
     () => [
       {
         key: "enable",
-        title: t("POST API Enable"),
+        title: t("Enable"),
         dataIndex: "id",
         align: "left",
         width: 150,
