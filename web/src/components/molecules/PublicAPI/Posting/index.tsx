@@ -114,12 +114,12 @@ const PostingEditor: React.FC<EditorProps> = ({
   return (
     <ContentSection
       description={t(
-        "Post API allows anonymous users to submit data to a model without authentication.",
+        "Posting allows anonymous users to submit data to a model without authentication.",
       )}
       headerActions={
         <Tooltip
           title={
-            isSaveDisabled ? t("Please add at least one origin to enable Post API") : undefined
+            isSaveDisabled ? t("Please add at least one origin to enable Posting") : undefined
           }>
           <Button
             type="primary"

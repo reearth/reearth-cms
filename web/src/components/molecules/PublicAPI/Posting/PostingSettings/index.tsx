@@ -21,7 +21,7 @@ const PostingSettings: React.FC<Props> = ({ apiUrl, hasPublishRight, models, ori
       {!origins?.length && (
         <Alert
           showIcon
-          description={t("Please add at least one origin to enable Post API")}
+          description={t("Please add at least one origin to enable Posting")}
           type="warning"
         />
       )}
