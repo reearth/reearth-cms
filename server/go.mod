@@ -1,30 +1,30 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.26.3
+go 1.26.5
 
 require (
-	cloud.google.com/go/pubsub/v2 v2.6.0
-	cloud.google.com/go/storage v1.62.3
+	cloud.google.com/go/pubsub/v2 v2.6.1
+	cloud.google.com/go/storage v1.64.0
 	github.com/99designs/gqlgen v0.17.91
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.33.0
-	github.com/avast/retry-go/v4 v4.7.0
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.35.0
+	github.com/avast/retry-go/v5 v5.0.0
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/gavv/httpexpect/v2 v2.17.0
-	github.com/getkin/kin-openapi v0.140.0
+	github.com/getkin/kin-openapi v0.146.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/gorilla/websocket v1.5.3
 	github.com/hellofresh/health-go/v5 v5.5.5
 	github.com/iancoleman/orderedmap v0.3.0
-	github.com/jarcoal/httpmock v1.4.1
+	github.com/jarcoal/httpmock v1.4.2
 	github.com/joho/godotenv v1.5.1
-	github.com/k0kubun/pp/v3 v3.5.1
+	github.com/k0kubun/pp/v3 v3.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/labstack/echo-opentelemetry v0.0.2
-	github.com/labstack/echo/v5 v5.2.1
-	github.com/oapi-codegen/oapi-codegen/v2 v2.7.1
-	github.com/oapi-codegen/runtime v1.4.1
+	github.com/labstack/echo-opentelemetry v0.0.3
+	github.com/labstack/echo/v5 v5.3.1
+	github.com/oapi-codegen/oapi-codegen/v2 v2.8.0
+	github.com/oapi-codegen/runtime v1.6.0
 	github.com/oapi-codegen/runtime/strictmiddleware/echo-v5 v1.3.1
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
@@ -35,22 +35,22 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0
 	github.com/stretchr/testify v1.11.1
-	github.com/vektah/gqlparser/v2 v2.5.34
+	github.com/vektah/gqlparser/v2 v2.5.36
 	github.com/vikstrous/dataloadgen v0.0.10
 	go.mongodb.org/mongo-driver v1.17.9
 	go.opencensus.io v0.24.0
-	go.opentelemetry.io/contrib/detectors/gcp v1.44.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.69.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.69.0
-	go.opentelemetry.io/otel v1.44.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.44.0
-	go.opentelemetry.io/otel/sdk v1.44.0
-	golang.org/x/sync v0.21.0
-	golang.org/x/text v0.38.0
-	google.golang.org/api v0.285.0
-	google.golang.org/grpc v1.81.1
+	go.opentelemetry.io/contrib/detectors/gcp v1.45.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.70.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.70.0
+	go.opentelemetry.io/otel v1.45.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.45.0
+	go.opentelemetry.io/otel/sdk v1.45.0
+	golang.org/x/sync v0.22.0
+	golang.org/x/text v0.40.0
+	google.golang.org/api v0.292.0
+	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.11
-	gopkg.in/go-jose/go-jose.v2 v2.6.3
+	gopkg.in/go-jose/go-jose.v4 v4.1.4
 )
 
 require (

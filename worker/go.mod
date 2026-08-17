@@ -1,20 +1,20 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.26.3
+go 1.26.5
 
 require (
-	cloud.google.com/go/pubsub/v2 v2.6.0
-	cloud.google.com/go/storage v1.62.3
-	github.com/bodgit/sevenzip v1.6.4
+	cloud.google.com/go/pubsub/v2 v2.6.1
+	cloud.google.com/go/storage v1.64.0
+	github.com/bodgit/sevenzip v1.6.5
 	github.com/google/uuid v1.6.0
 	github.com/hellofresh/health-go/v5 v5.5.5
-	github.com/jarcoal/httpmock v1.4.1
+	github.com/jarcoal/httpmock v1.4.2
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo-opentelemetry v0.0.2
-	github.com/labstack/echo/v5 v5.2.1
-	github.com/oklog/ulid v1.3.1
+	github.com/labstack/echo-opentelemetry v0.0.3
+	github.com/labstack/echo/v5 v5.3.1
+	github.com/oklog/ulid/v2 v2.1.2
 	github.com/reearth/reearth-cms/server v0.0.0-20260619075756-9a3edecf9615
 	github.com/reearth/reearthx v0.0.0-20260618134917-663d9623c331
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
@@ -22,7 +22,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
 	go.mongodb.org/mongo-driver v1.17.9
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.69.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.70.0
 )
 
 require (
