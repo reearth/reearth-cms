@@ -107,7 +107,7 @@ export default {
   "Content": "",
   "Continue": "",
   "Control": "",
-  "Control the visibility scope of the Content API": "",
+  "Control the visibility scope of the Public API": "",
   "Copied": "",
   "Copy": "",
   "Copy URL": "",
