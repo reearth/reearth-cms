@@ -104,7 +104,7 @@ export default {
   "Content": "コンテンツ",
   "Continue": "続行",
   "Control": "制御",
-  "Control the visibility scope of the Content API": "コンテンツAPIの配信範囲を制御",
+  "Control the visibility scope of the Public API": "パブリックAPIの配信範囲を制御",
   "Copied": "コピーしました",
   "Copy": "コピー",
   "Copy URL": "URLをコピー",

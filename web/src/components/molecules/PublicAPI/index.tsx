@@ -81,7 +81,7 @@ const PublicAPI: React.FC<Props> = ({
     <InnerContent
       title={t("Public API")}
       flexChildren
-      subtitle={t("Control the visibility scope of the Content API")}
+      subtitle={t("Control the visibility scope of the Public API")}
       extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./publicApi/docs" />}
       tabs={[
         {
