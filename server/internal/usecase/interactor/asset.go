@@ -904,72 +904,71 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	a, err := i.repos.Asset.FindByID(ctx, aid)
-	if err != nil {
-		if err == rerror.ErrNotFound {
-			return nil, err
-		}
-		return nil, fmt.Errorf("failed to find an asset: %v", err)
-	}
-
-	if a != nil {
-		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
-	}
-
-	if !op.CanUpdate(a) {
-		return nil, interfaces.ErrOperationDenied
-	}
-
-	if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
-		return nil, err
-	}
-
-	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
-		return a, nil
-	}
-
-	prj, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil {
-		return nil, fmt.Errorf("failed to find a project: %v", err)
-	}
-
-	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find an asset file: %v", err)
-	}
-
-	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
-	if err != nil {
-		if err == gateway.ErrFileNotFound {
-			return nil, err
-		}
-		return nil, fmt.Errorf("failed to get asset files: %v", err)
-	}
-
-	a.UpdateArchiveExtractionStatus(s)
-	if previewType := detectPreviewType(files); previewType != nil {
-		a.UpdatePreviewType(previewType)
-	}
-
-	srcName := srcfile.Name()
-	assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
-		if srcName == f.Name {
-			return nil, false
-		}
-		return asset.NewFile().
-			Name(path.Base(f.Name)).
-			Path(f.Name).
-			Size(uint64(f.Size)).
-			ContentType(f.ContentType).
-			GuessContentTypeIfEmpty().
-			ContentEncoding(f.ContentEncoding).
-			Build(), true
-	})
-
-	res, err := Run1(
+	a, err := Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
+			a, err := i.repos.Asset.FindByID(ctx, aid)
+			if err != nil {
+				if err == rerror.ErrNotFound {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to find an asset: %v", err)
+			}
+
+			if a != nil {
+				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			}
+
+			if !op.CanUpdate(a) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
+				return nil, err
+			}
+
+			if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+				return a, nil
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, fmt.Errorf("failed to find a project: %v", err)
+			}
+
+			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
+			if err != nil {
+				return nil, fmt.Errorf("failed to find an asset file: %v", err)
+			}
+
+			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+			if err != nil {
+				if err == gateway.ErrFileNotFound {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to get asset files: %v", err)
+			}
+
+			a.UpdateArchiveExtractionStatus(s)
+			if previewType := detectPreviewType(files); previewType != nil {
+				a.UpdatePreviewType(previewType)
+			}
+
+			srcName := srcfile.Name()
+			assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
+				if srcName == f.Name {
+					return nil, false
+				}
+				return asset.NewFile().
+					Name(path.Base(f.Name)).
+					Path(f.Name).
+					Size(uint64(f.Size)).
+					ContentType(f.ContentType).
+					GuessContentTypeIfEmpty().
+					ContentEncoding(f.ContentEncoding).
+					Build(), true
+			})
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, fmt.Errorf("failed to save asset files: %v", err)
 			}
@@ -996,7 +995,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, err
 	}
 
-	return res, nil
+	return a, nil
 }
 
 func (i *Asset) markUpdateFilesFailed(ctx context.Context, aid id.AssetID) {
