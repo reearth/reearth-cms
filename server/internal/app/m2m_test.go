@@ -9,13 +9,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-jose/go-jose/v4"
+	"github.com/go-jose/go-jose/v4/jwt"
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	jose "gopkg.in/go-jose/go-jose.v2"
-	"gopkg.in/go-jose/go-jose.v2/jwt"
 )
 
 const (
@@ -46,7 +46,7 @@ func newTestJWKSServer(t *testing.T, key *rsa.PrivateKey) *httptest.Server {
 
 // signTestM2MToken signs a JWT with the given custom claims (e.g. email, email_verified).
 func signTestM2MToken(key *rsa.PrivateKey, custom map[string]any) string {
-	signer := lo.Must( jose.NewSigner(
+	signer := lo.Must(jose.NewSigner(
 		jose.SigningKey{Algorithm: jose.RS256, Key: key},
 		(&jose.SignerOptions{}).WithType("JWT").WithHeader("kid", m2mTestKeyID),
 	))
@@ -59,7 +59,7 @@ func signTestM2MToken(key *rsa.PrivateKey, custom map[string]any) string {
 		Expiry:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
 	}
 
-	return lo.Must(jwt.Signed(signer).Claims(claims).Claims(custom).CompactSerialize())
+	return lo.Must(jwt.Signed(signer).Claims(claims).Claims(custom).Serialize())
 }
 
 func newTestM2MConfig(jwksURI string) *Config {
@@ -90,10 +90,10 @@ func TestM2MAuthMiddleware(t *testing.T) {
 	}{
 		{
 			name: "valid token",
-			token:  signTestM2MToken(key, map[string]any{
-					"email":          m2mTestEmail,
-					"email_verified": true,
-				}),
+			token: signTestM2MToken(key, map[string]any{
+				"email":          m2mTestEmail,
+				"email_verified": true,
+			}),
 			wantStatus:    http.StatusOK,
 			wantCalled:    true,
 			checkOperator: true,
