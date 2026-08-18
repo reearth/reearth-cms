@@ -9,7 +9,7 @@ import PostingTable from "./PostingTable";
 type Props = {
   apiUrl: string;
   hasPublishRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   origins?: string[];
 };
 
@@ -21,7 +21,7 @@ const PostingSettings: React.FC<Props> = ({ apiUrl, hasPublishRight, models, ori
       {!origins?.length && (
         <Alert
           showIcon
-          description={t("Please add at least one origin to enable Post API")}
+          description={t("Please add at least one origin to enable Posting")}
           type="warning"
         />
       )}

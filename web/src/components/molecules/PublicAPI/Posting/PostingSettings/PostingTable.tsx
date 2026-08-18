@@ -1,20 +1,27 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
 
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import Table from "@reearth-cms/components/atoms/Table";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import type { ModelDataType } from "../../types";
+
+import { buildPostItemCurl } from "./curl";
+
+type PostingRow = ModelDataType & { curl: string };
 
 type Props = {
   apiUrl: string;
   hasPublishRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
+  models: Pick<Model, "id" | "name" | "key" | "schema">[];
   publicModels?: string[];
   disabled?: boolean;
 };
@@ -29,11 +36,11 @@ const PostingTable: React.FC<Props> = ({
   const t = useT();
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
 
-  const columns: TableColumnsType<ModelDataType> = useMemo(
+  const columns: TableColumnsType<PostingRow> = useMemo(
     () => [
       {
         key: "enable",
-        title: t("POST API Enable"),
+        title: t("Enable"),
         dataIndex: "id",
         align: "left",
         width: 150,
@@ -58,9 +65,19 @@ const PostingTable: React.FC<Props> = ({
         title: t("Endpoint"),
         dataIndex: "endpoint",
         render: url => (
-          <StyledAnchor target="_blank" href={url} rel="noreferrer">
-            {url}
-          </StyledAnchor>
+          <Flex align="center">
+            <Tag bordered={false} color="green">
+              POST
+            </Tag>
+            <span>{url}</span>
+          </Flex>
+        ),
+      },
+      {
+        key: "copy",
+        align: "center",
+        render: (_, record) => (
+          <CopyButton copyable={{ text: record.curl }}>{t("Copy")}</CopyButton>
         ),
       },
     ],
@@ -69,14 +86,18 @@ const PostingTable: React.FC<Props> = ({
 
   // TODO(public-api): asset posting UX pending team-lead confirmation; assets are
   // intentionally excluded from the Posting table for now.
-  const dataSource = useMemo<ModelDataType[]>(
+  const dataSource = useMemo<PostingRow[]>(
     () =>
-      models.map(model => ({
-        key: model.key,
-        name: model.name,
-        id: ["models", model.id],
-        endpoint: `${apiUrl}${model.key}`,
-      })),
+      models.map(model => {
+        const endpoint = `${apiUrl}${model.key}/items`;
+        return {
+          key: model.key,
+          name: model.name,
+          id: ["models", model.id],
+          endpoint,
+          curl: buildPostItemCurl(endpoint, model.schema.fields),
+        };
+      }),
     [models, apiUrl],
   );
 
@@ -93,11 +114,6 @@ const TableWrapper = styled.div<{ isDisabled?: boolean }>`
   margin: ${AntdToken.SPACING.LG}px 0;
   opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
   pointer-events: ${({ isDisabled }) => (isDisabled ? "none" : "auto")};
-`;
-
-const StyledAnchor = styled.a`
-  text-decoration: underline;
-  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledFormItem = styled(Form.Item)`

@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -10,7 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"github.com/labstack/echo/v5"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -40,12 +39,10 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	})
 	srv.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
-		Upgrader: websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true // Allow all origins for WebSocket connections
+		Implementation: transport.CoderWebsocketImplementation{
+			AcceptOptions: websocket.AcceptOptions{
+				InsecureSkipVerify: true,
 			},
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
 		},
 		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, *transport.InitPayload, error) {
 			log.Infof("gql: websocket connection initialized")
