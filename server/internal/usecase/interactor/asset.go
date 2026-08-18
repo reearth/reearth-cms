@@ -918,7 +918,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 
 	prj, err := i.repos.Project.FindByID(ctx, a.Project())
 	if err != nil {
-		return nil, fmt.Errorf("failed to find a project: %v", err)
+		return nil, fmt.Errorf("failed to find a project: %w", err)
 	}
 
 	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
@@ -959,7 +959,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		func(ctx context.Context) (*asset.Asset, error) {
 			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, fmt.Errorf("failed to save asset files: %v", err)
+				return nil, fmt.Errorf("failed to save asset files: %w", err)
 			}
 			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
@@ -969,7 +969,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, fmt.Errorf("failed to save an asset: %v", err)
+				return nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
 
 			return a, nil
