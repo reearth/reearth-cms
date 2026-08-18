@@ -899,6 +899,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
+// TODO: add a test for this function
 func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
 	if op.AcOperator.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
@@ -950,12 +951,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, fmt.Errorf("failed to get asset files: %v", err)
 			}
 
-			a.UpdateArchiveExtractionStatus(s)
-			if previewType := detectPreviewType(files); previewType != nil {
-				a.UpdatePreviewType(previewType)
-			}
-
 			srcName := srcfile.Name()
+			previewType := detectPreviewType(files)
+
 			assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
 				if srcName == f.Name {
 					return nil, false
@@ -971,6 +969,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			})
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, fmt.Errorf("failed to save asset files: %v", err)
+			}
+
+			a.UpdateArchiveExtractionStatus(s)
+			if previewType != nil {
+				a.UpdatePreviewType(previewType)
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
