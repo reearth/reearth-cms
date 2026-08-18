@@ -951,24 +951,25 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		a.UpdatePreviewType(previewType)
 	}
 
-	a, err = Run1(
+	srcName := srcfile.Name()
+	assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
+		if srcName == f.Name {
+			return nil, false
+		}
+		return asset.NewFile().
+			Name(path.Base(f.Name)).
+			Path(f.Name).
+			Size(uint64(f.Size)).
+			ContentType(f.ContentType).
+			GuessContentTypeIfEmpty().
+			ContentEncoding(f.ContentEncoding).
+			Build(), true
+	})
+
+	res, err := Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			srcPath := srcfile.Path()
-			assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
-				if srcPath == f.Name {
-					return nil, false
-				}
-				return asset.NewFile().
-					Name(path.Base(f.Name)).
-					Path(f.Name).
-					Size(uint64(f.Size)).
-					ContentType(f.ContentType).
-					GuessContentTypeIfEmpty().
-					ContentEncoding(f.ContentEncoding).
-					Build(), true
-			})
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, fmt.Errorf("failed to save asset files: %v", err)
 			}
@@ -978,9 +979,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.event(ctx, Event{
-				Project:  prj,
-				Object:   a,
-				Operator: op.Operator(),
+				Project:   prj,
+				Workspace: prj.Workspace(),
+				Type:      event.AssetDecompress,
+				Object:    a,
+				Operator:  op.Operator(),
 			}); err != nil {
 				return nil, fmt.Errorf("failed to create an event: %v", err)
 			}
@@ -993,7 +996,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, err
 	}
 
-	return a, nil
+	return res, nil
 }
 
 func (i *Asset) markUpdateFilesFailed(ctx context.Context, aid id.AssetID) {
