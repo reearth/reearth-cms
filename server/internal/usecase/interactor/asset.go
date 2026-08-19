@@ -916,6 +916,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return a, nil
 	}
 
+	prj, err := i.repos.Project.FindByID(ctx, a.Project())
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, fmt.Errorf("failed to find a project: %w", err)
+	}
+
 	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find an asset file: %w", err)
@@ -952,12 +957,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
-			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, fmt.Errorf("failed to save asset files: %w", err)
-			}
-			log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
-
 			a.UpdateArchiveExtractionStatus(s)
 			if previewType != nil {
 				a.UpdatePreviewType(previewType)
@@ -974,15 +973,27 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		i.markUpdateFilesFailed(ctx, aid)
 		return nil, err
 	}
-	log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
-	if err := i.event(ctx, Event{
+	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
+	if err := i.repos.AssetFile.SaveFlat(ctx, res.ID(), srcfile, assetFiles); err != nil {
+		i.markUpdateFilesFailed(ctx, aid)
+		return nil, fmt.Errorf("failed to save asset files: %w", err)
+	}
+	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
+
+	ev := Event{
 		Type:     event.AssetDecompress,
 		Object:   a,
 		Operator: op.Operator(),
-	}); err != nil {
+	}
+	if prj != nil {
+		ev.Project = prj
+		ev.Workspace = prj.Workspace()
+	}
+	if err := i.event(ctx, ev); err != nil {
 		return nil, fmt.Errorf("failed to create an event: %w", err)
 	}
+	log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
 	return res, nil
 }
