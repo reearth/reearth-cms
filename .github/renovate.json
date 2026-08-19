@@ -2,5 +2,16 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>reearth/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "go.mongodb.org/mongo-driver"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    }
   ]
 }

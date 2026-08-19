@@ -948,63 +948,50 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	})
 	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
-	a, prj, err := Run2(
+	res, err := Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func(ctx context.Context) (*asset.Asset, *project.Project, error) {
-			a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
-			if err != nil {
-				return nil, nil, err
-			}
-			if skip {
-				log.Debugfc(ctx, "asset.UpdateFiles: skipped inside transaction, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
-				return a, nil, nil
-			}
-
-			prj, err := i.repos.Project.FindByID(ctx, a.Project())
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to find a project: %w", err)
-			}
-
+		func(ctx context.Context) (*asset.Asset, error) {
 			a.UpdateArchiveExtractionStatus(s)
 			if previewType != nil {
 				a.UpdatePreviewType(previewType)
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, nil, fmt.Errorf("failed to save an asset: %w", err)
+				return nil, fmt.Errorf("failed to save an asset: %w", err)
 			}
 
-			return a, prj, nil
+			return a, nil
 		},
 	)
 	if err != nil {
+		i.markUpdateFilesFailed(ctx, aid)
 		return nil, err
-	}
-	if prj == nil {
-		return a, nil
 	}
 
 	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
-	if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
+	if err := i.repos.AssetFile.SaveFlat(ctx, res.ID(), srcfile, assetFiles); err != nil {
 		i.markUpdateFilesFailed(ctx, aid)
 		return nil, fmt.Errorf("failed to save asset files: %w", err)
 	}
 	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
+	prj, err := i.repos.Project.FindByID(ctx, res.Project())
+	if err != nil {
+		return nil, fmt.Errorf("failed to find a project: %w", err)
+	}
 	if err := i.event(ctx, Event{
 		Project:   prj,
 		Workspace: prj.Workspace(),
 		Type:      event.AssetDecompress,
-		Object:    a,
+		Object:    res,
 		Operator:  op.Operator(),
 	}); err != nil {
-		i.markUpdateFilesFailed(ctx, aid)
 		return nil, fmt.Errorf("failed to create an event: %w", err)
 	}
 	log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
-	return a, nil
+	return res, nil
 }
 
 func (i *Asset) markUpdateFilesFailed(ctx context.Context, aid id.AssetID) {
