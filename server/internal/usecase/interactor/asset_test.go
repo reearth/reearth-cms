@@ -1144,13 +1144,28 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		ArchiveExtractionStatus(sp).
 		MustBuild()
 	a2f := asset.NewFile().Build()
+
+	assetID3 := asset.NewID()
+	orphanProj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+	a3 := asset.New().
+		ID(assetID3).
+		Project(orphanProj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID(uuid1).
+		Thread(id.NewThreadID().Ref()).
+		ArchiveExtractionStatus(sp).
+		MustBuild()
+	a3f := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()
+	sd := lo.ToPtr(asset.ArchiveExtractionStatusDone)
+
 	acop := &accountusecase.Operator{
 		User:             &uid,
 		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
 		AcOperator:     acop,
-		OwningProjects: []id.ProjectID{proj.ID()},
+		OwningProjects: []id.ProjectID{proj.ID(), orphanProj.ID()},
 	}
 
 	tests := []struct {
@@ -1269,6 +1284,39 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			}).Build(),
 			wantErr: nil,
 		},
+		{
+			name:       "update with orphaned project",
+			operator:   op,
+			seedAssets: asset.List{a3.Clone()},
+			seedFiles: map[asset.ID]*asset.File{
+				a3.ID(): a3f,
+			},
+			// orphanProj is intentionally not seeded, simulating a project
+			// that was deleted while the asset still references it.
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID3,
+			status:  sd,
+			want: asset.New().
+				ID(assetID3).
+				Project(orphanProj.ID()).
+				CreatedByUser(uid).
+				Size(1000).
+				UUID(uuid1).
+				Thread(a3.Thread()).
+				ArchiveExtractionStatus(sd).
+				MustBuild(),
+			wantFile: asset.NewFile().Name("xxx").Path(path.Join("xxx.zip")).GuessContentType().Children([]*asset.File{
+				asset.NewFile().Name("xxx").Path(path.Join("xxx")).Dir().Children([]*asset.File{
+					asset.NewFile().Name("yyy").Path(path.Join("xxx", "yyy")).Dir().Children([]*asset.File{
+						asset.NewFile().Name("hello.txt").Path(path.Join("xxx", "yyy", "hello.txt")).GuessContentType().Build(),
+					}).Build(),
+					asset.NewFile().Name("zzz.txt").Path(path.Join("xxx", "zzz.txt")).GuessContentType().Build(),
+				}).Build(),
+			}).Build(),
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
@@ -1335,13 +1383,18 @@ func TestAsset_Delete(t *testing.T) {
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
+	orphanProj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+	aid3 := id.NewAssetID()
+	a3 := asset.New().ID(aid3).Project(orphanProj.ID()).NewUUID().
+		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
 	acop := &accountusecase.Operator{
 		User:             &uid,
 		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
 		AcOperator:     acop,
-		OwningProjects: []id.ProjectID{proj1.ID()},
+		OwningProjects: []id.ProjectID{proj1.ID(), orphanProj.ID()},
 	}
 	type args struct {
 		id       id.AssetID
@@ -1414,6 +1467,18 @@ func TestAsset_Delete(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:       "delete with orphaned project",
+			seedsAsset: asset.List{a3},
+			// orphanProj is intentionally not seeded, simulating a project
+			// that was deleted while the asset still references it.
+			args: args{
+				id:       aid3,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
 		},
 	}
 
