@@ -1383,13 +1383,18 @@ func TestAsset_Delete(t *testing.T) {
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
+	orphanProj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+	aid3 := id.NewAssetID()
+	a3 := asset.New().ID(aid3).Project(orphanProj.ID()).NewUUID().
+		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
 	acop := &accountusecase.Operator{
 		User:             &uid,
 		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
 		AcOperator:     acop,
-		OwningProjects: []id.ProjectID{proj1.ID()},
+		OwningProjects: []id.ProjectID{proj1.ID(), orphanProj.ID()},
 	}
 	type args struct {
 		id       id.AssetID
@@ -1462,6 +1467,18 @@ func TestAsset_Delete(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:       "delete with orphaned project",
+			seedsAsset: asset.List{a3},
+			// orphanProj is intentionally not seeded, simulating a project
+			// that was deleted while the asset still references it.
+			args: args{
+				id:       aid3,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
 		},
 	}
 

@@ -953,13 +953,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	})
 	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
-	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
-	if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-		i.markUpdateFilesFailed(ctx, aid)
-		return nil, fmt.Errorf("failed to save asset files: %w", err)
-	}
-	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
-
 	res, err := Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
@@ -980,6 +973,13 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		i.markUpdateFilesFailed(ctx, aid)
 		return nil, err
 	}
+
+	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
+	if err := i.repos.AssetFile.SaveFlat(ctx, res.ID(), srcfile, assetFiles); err != nil {
+		i.markUpdateFilesFailed(ctx, aid)
+		return nil, fmt.Errorf("failed to save asset files: %w", err)
+	}
+	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
 	ev := Event{
 		Type:     event.AssetDecompress,
