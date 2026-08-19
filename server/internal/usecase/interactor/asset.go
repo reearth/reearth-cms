@@ -916,11 +916,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return a, nil
 	}
 
-	prj, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-		return nil, fmt.Errorf("failed to find a project: %w", err)
-	}
-
 	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find an asset file: %w", err)
@@ -981,9 +976,14 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	}
 	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files done: assetID=%s", aid)
 
+	prj, err := i.repos.Project.FindByID(ctx, res.Project())
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, fmt.Errorf("failed to find a project: %w", err)
+	}
+
 	ev := Event{
 		Type:     event.AssetDecompress,
-		Object:   a,
+		Object:   res,
 		Operator: op.Operator(),
 	}
 	if prj != nil {
@@ -1090,20 +1090,17 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		}
 
 		p, err := i.repos.Project.FindByID(ctx, a.Project())
-		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		if err != nil {
 			return aId, err
 		}
 
-		ev := Event{
-			Type:     event.AssetDelete,
-			Object:   a,
-			Operator: operator.Operator(),
-		}
-		if p != nil {
-			ev.Project = p
-			ev.Workspace = p.Workspace()
-		}
-		if err := i.event(ctx, ev); err != nil {
+		if err := i.event(ctx, Event{
+			Project:   p,
+			Workspace: p.Workspace(),
+			Type:      event.AssetDelete,
+			Object:    a,
+			Operator:  operator.Operator(),
+		}); err != nil {
 			return aId, err
 		}
 

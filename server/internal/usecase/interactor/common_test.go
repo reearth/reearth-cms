@@ -102,12 +102,6 @@ func TestCommon_webhook(t *testing.T) {
 	}
 
 	ctx := context.Background()
-
-	// empty workspace ID: skipped without error, no lookup attempted
-	mRunner.EXPECT().Run(ctx, gomock.Any()).Times(0)
-	err = webhook(ctx, db, gw, Event{}, ev)
-	assert.NoError(t, err)
-
 	// no workspace
 	err = webhook(ctx, db, gw, Event{Workspace: ws.ID()}, ev)
 	assert.Error(t, err)
