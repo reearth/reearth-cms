@@ -1090,17 +1090,20 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		}
 
 		p, err := i.repos.Project.FindByID(ctx, a.Project())
-		if err != nil {
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return aId, err
 		}
 
-		if err := i.event(ctx, Event{
-			Project:   p,
-			Workspace: p.Workspace(),
-			Type:      event.AssetDelete,
-			Object:    a,
-			Operator:  operator.Operator(),
-		}); err != nil {
+		ev := Event{
+			Type:     event.AssetDelete,
+			Object:   a,
+			Operator: operator.Operator(),
+		}
+		if p != nil {
+			ev.Project = p
+			ev.Workspace = p.Workspace()
+		}
+		if err := i.event(ctx, ev); err != nil {
 			return aId, err
 		}
 
