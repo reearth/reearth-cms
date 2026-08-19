@@ -916,11 +916,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return a, nil
 	}
 
-	prj, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil {
-		return nil, fmt.Errorf("failed to find a project: %w", err)
-	}
-
 	srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find an asset file: %w", err)
@@ -982,11 +977,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
 	if err := i.event(ctx, Event{
-		Project:   prj,
-		Workspace: prj.Workspace(),
-		Type:      event.AssetDecompress,
-		Object:    a,
-		Operator:  op.Operator(),
+		Type:     event.AssetDecompress,
+		Object:   a,
+		Operator: op.Operator(),
 	}); err != nil {
 		return nil, fmt.Errorf("failed to create an event: %w", err)
 	}
