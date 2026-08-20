@@ -1052,10 +1052,10 @@
   dependencies:
     css-tree "^3.0.0"
 
-"@cesium/engine@^26.1.0":
-  version "26.1.0"
-  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-26.1.0.tgz#8469e894e56e15deeedd71bddfa5563834bd02e3"
-  integrity sha512-WzeJEcmGD7/htBJ8JEZt95OgZjErPwUHqyAlJY/mCzmDm7hfwpuucLBSUhiynWW3khqBT1C7dhibjb7tdic7oA==
+"@cesium/engine@^26.2.0":
+  version "26.2.0"
+  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-26.2.0.tgz#15641eec5f94f01794ab44ae523c5757819065b5"
+  integrity sha512-BsfHZpg6LvlUSaTfvzfEzo9JQd9+PtMbzoylwls+aRj6bnqGNTF5F2sMC1eja5L3wg725NyiWQ8s84sIM9Dr6g==
   dependencies:
     "@cesium/wasm-splats" "^0.1.0-alpha.2"
     "@spz-loader/core" "0.3.1"
@@ -1084,12 +1084,12 @@
   resolved "https://registry.yarnpkg.com/@cesium/wasm-splats/-/wasm-splats-0.1.0-alpha.2.tgz#f2d0d717d46f5f3d6d923549e90fb5ab4d429cab"
   integrity sha512-t9pMkknv31hhIbLpMa8yPvmqfpvs5UkUjgqlQv9SeO8VerCXOYnyP8/486BDaFrztM0A7FMbRjsXtNeKvqQghA==
 
-"@cesium/widgets@^16.1.0":
-  version "16.1.0"
-  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-16.1.0.tgz#9e7ff86128aed74ecf015fd8f28f3e101af884ea"
-  integrity sha512-c+jt8F3YIZs2x6+X+HS4q0S9nd2jVcbPVShUmlrDK1s+C7IlEvXceDGrkjivHRElAVCzfaWEEwY1g7Lg5HCGmA==
+"@cesium/widgets@^16.1.1":
+  version "16.1.1"
+  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-16.1.1.tgz#e61c91e6bc869357a69a17ab017c2062567193b7"
+  integrity sha512-um2JznRouJ2pfC0FNnEgJJU7WrCDrYFeyqCdiSsdbZgdW4q/R9ysDpj0VO/H2U4r4t6HDn9pA3HgAYpuIsdUWg==
   dependencies:
-    "@cesium/engine" "^26.1.0"
+    "@cesium/engine" "^26.2.0"
     nosleep.js "^0.12.0"
 
 "@chenshuai2144/sketch-color@^1.0.7", "@chenshuai2144/sketch-color@^1.0.8":
@@ -6834,13 +6834,13 @@ cesium-mvt-imagery-provider@1.4.2:
     "@mapbox/vector-tile" "1.3.1"
     pbf "3.2.1"
 
-cesium@1.143.0:
-  version "1.143.0"
-  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.143.0.tgz#5b5123381d99469d27897ae640cae4abf88b4edc"
-  integrity sha512-EHz61NBp/2UPYE4iWCZ+YK9Jcb0d2hzRfqkj4DRaUM3cJmA9hE2FTmcPPZ2iL7w+W0YUScI0gc9XeSTXlPIQtA==
+cesium@1.144.0:
+  version "1.144.0"
+  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.144.0.tgz#cc1fb079a793edfa3b3952c24ae202a03574f966"
+  integrity sha512-g1TX13KvTUhX9zjlJNn3De5BwuHyzuQzp1+1ITpGJJmIORCGnxVKAiu9/OkQByTWNYKgNtoEuPLrnWFhl0ao5g==
   dependencies:
-    "@cesium/engine" "^26.1.0"
-    "@cesium/widgets" "^16.1.0"
+    "@cesium/engine" "^26.2.0"
+    "@cesium/widgets" "^16.1.1"
     protobufjs "^8.6.5"
 
 chai@^5.2.0:
