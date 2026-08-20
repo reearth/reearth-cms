@@ -117,8 +117,64 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	// Build field map from headers to schema fields
 	fieldMap := buildFieldMap(headers, param.SP)
 
-	// First pass: read all records to get total count
-	allRows := make([][]string, 0)
+	// Stream records directly in chunks without a first pass that would
+	// materialize all rows into memory. Total is unknown during streaming.
+	processed := 0
+	chunk := make([][]string, 0, chunkSize)
+
+	flushCSVChunk := func() error {
+		if len(chunk) == 0 {
+			return nil
+		}
+
+		// Check if job was cancelled.
+		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
+		if err != nil {
+			log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
+		}
+		if currentJob != nil && currentJob.IsCancelled() {
+			return fmt.Errorf("job cancelled")
+		}
+
+		// Check max record limit.
+		if processed+len(chunk) > interfaces.MaxImportRecordCount {
+			return interfaces.ErrImportTooManyRecords
+		}
+
+		// Convert rows to maps.
+		csvChunk := make([]map[string]any, 0, len(chunk))
+		for _, record := range chunk {
+			csvChunk = append(csvChunk, csvRowToMap(headers, record, fieldMap))
+		}
+
+		items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
+		if err != nil {
+			return err
+		}
+		if err := i.saveChunk(ctx, prj, m, s, param, items, res, operator); err != nil {
+			return err
+		}
+
+		processed += len(chunk)
+		chunk = chunk[:0]
+
+		// Report progress with unknown total (0) during streaming.
+		progress := job.NewProgress(processed, 0)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		if i.gateways.JobPubSub != nil {
+			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
+				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
+			}
+		}
+		j.SetProgress(progress)
+		if err := i.repos.Job.Save(ctx, j); err != nil {
+			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
+		}
+
+		log.Printf("chunk with %d items saved.", len(items))
+		return nil
+	}
+
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -130,65 +186,16 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		if lr.N == 0 {
 			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
-		allRows = append(allRows, record)
-	}
-	totalCount := len(allRows)
-
-	// Second pass: process in chunks with progress tracking
-	processed := 0
-	for start := 0; start < totalCount; start += chunkSize {
-		// Check if job was cancelled
-		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
-		if err != nil {
-			log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
-		}
-		if currentJob != nil && currentJob.IsCancelled() {
-			return res.Into(), fmt.Errorf("job cancelled")
-		}
-
-		end := min(start+chunkSize, totalCount)
-		rows := allRows[start:end]
-		chunkLen := len(rows)
-
-		// Check max record limit
-		if start+chunkLen > interfaces.MaxImportRecordCount {
-			return res.Into(), interfaces.ErrImportTooManyRecords
-		}
-
-		// Convert rows to maps
-		csvChunk := make([]map[string]any, 0, chunkLen)
-		for _, record := range rows {
-			row := csvRowToMap(headers, record, fieldMap)
-			csvChunk = append(csvChunk, row)
-		}
-
-		items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
-		if err != nil {
-			return res.Into(), err
-		}
-		err = i.saveChunk(ctx, prj, m, s, param, items, res, operator)
-		if err != nil {
-			return res.Into(), err
-		}
-
-		processed += chunkLen
-
-		// Publish progress
-		progress := job.NewProgress(processed, totalCount)
-		state := job.NewState(job.StatusInProgress, &progress, "")
-		if i.gateways.JobPubSub != nil {
-			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
+		chunk = append(chunk, record)
+		if len(chunk) >= chunkSize {
+			if err := flushCSVChunk(); err != nil {
+				return res.Into(), err
 			}
 		}
-
-		// Update job progress
-		j.SetProgress(progress)
-		if err := i.repos.Job.Save(ctx, j); err != nil {
-			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
-		}
-
-		log.Printf("chunk with %d items saved.", chunkLen)
+	}
+	// Flush any remaining rows in the last partial chunk.
+	if err := flushCSVChunk(); err != nil {
+		return res.Into(), err
 	}
 
 	return res.Into(), nil
