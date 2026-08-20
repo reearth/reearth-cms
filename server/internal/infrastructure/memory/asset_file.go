@@ -75,11 +75,18 @@ func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) e
 	return nil
 }
 
-func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
+func (r *AssetFile) SaveFlatFiles(ctx context.Context, id id.AssetID, files []*asset.File) error {
+	if r.err != nil {
+		return r.err
+	}
+	r.files.Store(id, slices.Clone(files))
+	return nil
+}
+
+func (r *AssetFile) CommitFlatFiles(ctx context.Context, id id.AssetID, parent *asset.File) error {
 	if r.err != nil {
 		return r.err
 	}
 	r.data.Store(id, parent.Clone())
-	r.files.Store(id, slices.Clone(files))
 	return nil
 }
