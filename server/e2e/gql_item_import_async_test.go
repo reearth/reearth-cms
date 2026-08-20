@@ -202,6 +202,18 @@ func queryJob(e *httpexpect.Expect, jobID string) *httpexpect.Value {
 			updatedAt
 			startedAt
 			completedAt
+			importResult {
+				total
+				inserted
+				updated
+				ignored
+				columns {
+					header
+					status
+					schemaFieldKey
+					reason
+				}
+			}
 		}
 	}`
 

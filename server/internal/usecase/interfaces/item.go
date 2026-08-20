@@ -115,12 +115,29 @@ type ImportItemsParam struct {
 	GeoField     *string // field key or id
 }
 
+type ImportColumnStatus string
+
+const (
+	ImportColumnStatusMatched ImportColumnStatus = "matched"
+	ImportColumnStatusSkipped ImportColumnStatus = "skipped"
+)
+
+// ImportColumnResult reports whether a column of the imported file was mapped to a schema field.
+// Reason is set only for skipped columns, SchemaFieldKey only for matched ones.
+type ImportColumnResult struct {
+	Header         string
+	Status         ImportColumnStatus
+	SchemaFieldKey *string
+	Reason         *string
+}
+
 type ImportItemsResponse struct {
 	Total     int
 	Inserted  int
 	Updated   int
 	Ignored   int
 	NewFields schema.FieldList
+	Columns   []ImportColumnResult
 }
 
 type ImportItemsAsyncParam struct {
