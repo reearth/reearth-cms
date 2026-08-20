@@ -594,6 +594,13 @@ type GuessSchemaFieldsInput struct {
 	ModelID ID `json:"modelId"`
 }
 
+type ImportColumnResult struct {
+	Header         string             `json:"header"`
+	Status         ImportColumnStatus `json:"status"`
+	SchemaFieldKey *string            `json:"schemaFieldKey,omitempty"`
+	Reason         *string            `json:"reason,omitempty"`
+}
+
 type ImportItemsAsyncPayload struct {
 	Job *Job `json:"job"`
 }
@@ -605,11 +612,20 @@ type ImportItemsInput struct {
 }
 
 type ImportItemsPayload struct {
-	ModelID       ID  `json:"modelId"`
-	TotalCount    int `json:"totalCount"`
-	InsertedCount int `json:"insertedCount"`
-	UpdatedCount  int `json:"updatedCount"`
-	IgnoredCount  int `json:"ignoredCount"`
+	ModelID       ID                    `json:"modelId"`
+	TotalCount    int                   `json:"totalCount"`
+	InsertedCount int                   `json:"insertedCount"`
+	UpdatedCount  int                   `json:"updatedCount"`
+	IgnoredCount  int                   `json:"ignoredCount"`
+	Columns       []*ImportColumnResult `json:"columns"`
+}
+
+type ImportJobResult struct {
+	Total    int                   `json:"total"`
+	Inserted int                   `json:"inserted"`
+	Updated  int                   `json:"updated"`
+	Ignored  int                   `json:"ignored"`
+	Columns  []*ImportColumnResult `json:"columns"`
 }
 
 type Integration struct {
@@ -722,16 +738,17 @@ type ItemSortInput struct {
 }
 
 type Job struct {
-	ID          ID           `json:"id"`
-	Type        JobType      `json:"type"`
-	ProjectID   ID           `json:"projectId"`
-	Status      JobStatus    `json:"status"`
-	Progress    *JobProgress `json:"progress"`
-	Error       *string      `json:"error,omitempty"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	UpdatedAt   time.Time    `json:"updatedAt"`
-	StartedAt   *time.Time   `json:"startedAt,omitempty"`
-	CompletedAt *time.Time   `json:"completedAt,omitempty"`
+	ID           ID               `json:"id"`
+	Type         JobType          `json:"type"`
+	ProjectID    ID               `json:"projectId"`
+	Status       JobStatus        `json:"status"`
+	Progress     *JobProgress     `json:"progress"`
+	Error        *string          `json:"error,omitempty"`
+	CreatedAt    time.Time        `json:"createdAt"`
+	UpdatedAt    time.Time        `json:"updatedAt"`
+	StartedAt    *time.Time       `json:"startedAt,omitempty"`
+	CompletedAt  *time.Time       `json:"completedAt,omitempty"`
+	ImportResult *ImportJobResult `json:"importResult,omitempty"`
 }
 
 func (Job) IsNode()        {}
@@ -2296,6 +2313,61 @@ func (e *GeometryObjectSupportedType) UnmarshalJSON(b []byte) error {
 }
 
 func (e GeometryObjectSupportedType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ImportColumnStatus string
+
+const (
+	ImportColumnStatusMatched ImportColumnStatus = "MATCHED"
+	ImportColumnStatusSkipped ImportColumnStatus = "SKIPPED"
+)
+
+var AllImportColumnStatus = []ImportColumnStatus{
+	ImportColumnStatusMatched,
+	ImportColumnStatusSkipped,
+}
+
+func (e ImportColumnStatus) IsValid() bool {
+	switch e {
+	case ImportColumnStatusMatched, ImportColumnStatusSkipped:
+		return true
+	}
+	return false
+}
+
+func (e ImportColumnStatus) String() string {
+	return string(e)
+}
+
+func (e *ImportColumnStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ImportColumnStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ImportColumnStatus", str)
+	}
+	return nil
+}
+
+func (e ImportColumnStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ImportColumnStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ImportColumnStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

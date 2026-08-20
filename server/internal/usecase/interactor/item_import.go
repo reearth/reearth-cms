@@ -36,6 +36,7 @@ func NewImportRes() ImportRes {
 		Updated:   0,
 		Ignored:   0,
 		NewFields: nil,
+		Columns:   nil,
 	}
 }
 
@@ -58,6 +59,10 @@ func (ir *ImportRes) FieldAdded(f *schema.Field) {
 	ir.NewFields = append(ir.NewFields, f)
 }
 
+func (ir *ImportRes) SetColumns(columns []interfaces.ImportColumnResult) {
+	ir.Columns = columns
+}
+
 func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 	return interfaces.ImportItemsResponse{
 		Total:     ir.Total,
@@ -65,6 +70,7 @@ func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 		Updated:   ir.Updated,
 		Ignored:   ir.Ignored,
 		NewFields: ir.NewFields,
+		Columns:   ir.Columns,
 	}
 }
 
@@ -381,6 +387,7 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 		Inserted: res.Inserted,
 		Updated:  res.Updated,
 		Ignored:  res.Ignored,
+		Columns:  toJobImportColumns(res.Columns),
 	}
 	resultJSON, _ := result.ToJSON()
 
@@ -403,6 +410,20 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 
 	log.Infof("item: import job %s completed: total=%d inserted=%d updated=%d ignored=%d",
 		jobID, res.Total, res.Inserted, res.Updated, res.Ignored)
+}
+
+func toJobImportColumns(columns []interfaces.ImportColumnResult) []job.ImportColumnResult {
+	if len(columns) == 0 {
+		return nil
+	}
+	return lo.Map(columns, func(c interfaces.ImportColumnResult, _ int) job.ImportColumnResult {
+		return job.ImportColumnResult{
+			Header:         c.Header,
+			Status:         string(c.Status),
+			SchemaFieldKey: c.SchemaFieldKey,
+			Reason:         c.Reason,
+		}
+	})
 }
 
 func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfaces.ImportItemsParam, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {

@@ -133,12 +133,27 @@ type PublishItemPayload {
   items: [Item!]!
 }
 
+enum ImportColumnStatus {
+  MATCHED
+  SKIPPED
+}
+
+# Per column report of the imported file. schemaFieldKey is set for matched columns,
+# reason for skipped ones. The reserved "id" column is not reported.
+type ImportColumnResult {
+  header: String!
+  status: ImportColumnStatus!
+  schemaFieldKey: String
+  reason: String
+}
+
 type ImportItemsPayload {
   modelId: ID!
   totalCount: Int!
   insertedCount: Int!
   updatedCount: Int!
   ignoredCount: Int!
+  columns: [ImportColumnResult!]!
 }
 
 type ImportItemsAsyncPayload {
