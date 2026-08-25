@@ -182,7 +182,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		Format:  exporters.FormatGeoJSON,
 		Options: exporters.ExportOptions{
 			IncludeAssets: true,
-			PublicOnly:    lo.FromPtr(request.Params.Ref) == integrationapi.ItemsAsGeoJSONParamsRef(version.Public),
+			Ref:           fromRef(request.Params.Ref),
 		},
 		SchemaPackage: *sp,
 	}
@@ -219,7 +219,7 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	}
 
 	pagination := fromPagination(request.Params.Page, request.Params.PerPage)
-	vl, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, pagination, op)
+	vl, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), fromRef(request.Params.Ref), nil, pagination, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsCSV404Response{}, err
@@ -396,7 +396,12 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 		return ItemGet400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	var i item.Versioned
+	if lo.FromPtr(fromRef(request.Params.Ref)) == version.Public {
+		i, err = uc.Item.FindPublicByID(ctx, request.ItemId, op)
+	} else {
+		i, err = uc.Item.FindByID(ctx, request.ItemId, op)
+	}
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemGet404Response{}, err

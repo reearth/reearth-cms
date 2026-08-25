@@ -146,8 +146,8 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 	return items.Unwrap(), pi, nil
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	items, pi, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	items, pi, err := i.repos.Item.FindBySchema(ctx, schemaID, ref, sort, p)
 	if err != nil {
 		return nil, nil, err
 	}

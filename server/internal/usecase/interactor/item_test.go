@@ -279,7 +279,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, tc.args.pagination, tc.args.operator)
+			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, nil, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
