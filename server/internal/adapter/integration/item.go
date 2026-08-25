@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -42,7 +43,7 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 
-	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), fromRef(request.Params.Ref))
 
 	if request.Params.Sort != nil {
 		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
@@ -105,7 +106,7 @@ func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostReque
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 
-	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), fromRef(request.Params.Ref))
 
 	if request.Params.Sort != nil {
 		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
@@ -181,6 +182,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		Format:  exporters.FormatGeoJSON,
 		Options: exporters.ExportOptions{
 			IncludeAssets: true,
+			PublicOnly:    lo.FromPtr(request.Params.Ref) == integrationapi.ItemsAsGeoJSONParamsRef(version.Public),
 		},
 		SchemaPackage: *sp,
 	}
