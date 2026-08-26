@@ -141,7 +141,7 @@ type ExportItemParams struct {
 }
 
 type Item interface {
-	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
+	FindByID(context.Context, id.ItemID, *version.Ref, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	FindByAssets(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]item.VersionedList, error)

@@ -60,8 +60,8 @@ func (i Item) checkPermissions(ctx context.Context, action rbac.Action, projectI
 	return doCheckPermission(ctx, i.gateways, rbac.ResourceItem, action, lo.Uniq(projects.Workspaces())...)
 }
 
-func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+func (i Item) FindByID(ctx context.Context, itemID id.ItemID, ref *version.Ref, _ *usecase.Operator) (item.Versioned, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemID, ref)
 	if err != nil {
 		return nil, err
 	}

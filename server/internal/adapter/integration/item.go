@@ -18,7 +18,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -268,7 +267,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 		return ItemUpdate400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		return ItemUpdate400Response{}, err
 	}
@@ -299,7 +298,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 				return ItemUpdate400Response{}, err
 			}
 		} else {
-			metaItem, err = uc.Item.FindByID(ctx, *i.Value().MetadataItem(), op)
+			metaItem, err = uc.Item.FindByID(ctx, *i.Value().MetadataItem(), nil, op)
 			if err != nil {
 				return ItemUpdate400Response{}, err
 			}
@@ -355,7 +354,7 @@ func (s *Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject
 		return ItemDelete400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemDelete400Response{}, err
@@ -396,12 +395,7 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 		return ItemGet400Response{}, err
 	}
 
-	var i item.Versioned
-	if lo.FromPtr(fromRef(request.Params.Ref)) == version.Public {
-		i, err = uc.Item.FindPublicByID(ctx, request.ItemId, op)
-	} else {
-		i, err = uc.Item.FindByID(ctx, request.ItemId, op)
-	}
+	i, err := uc.Item.FindByID(ctx, request.ItemId, fromRef(request.Params.Ref), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemGet404Response{}, err
@@ -455,7 +449,7 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 		return ItemPublish400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemPublish404Response{}, err
