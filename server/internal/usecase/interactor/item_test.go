@@ -105,7 +105,7 @@ func TestItem_FindByID(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, err := itemUC.FindByID(ctx, tc.args.id, tc.args.operator)
+			got, err := itemUC.FindByID(ctx, tc.args.id, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -279,7 +279,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, tc.args.pagination, tc.args.operator)
+			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, nil, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -741,7 +741,7 @@ func TestItem_Update(t *testing.T) {
 		ReadableProjects: []id.ProjectID{s.Project()},
 		WritableProjects: []id.ProjectID{s.Project()},
 	}
-	vi, _ := itemUC.FindByID(ctx, i.ID(), op)
+	vi, _ := itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// ok
 	item, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -777,7 +777,7 @@ func TestItem_Update(t *testing.T) {
 	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 	assert.Nil(t, item)
-	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// ok with key
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -799,7 +799,7 @@ func TestItem_Update(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, item.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("yyy").AsMultiple(), it.Value().Field(sf.ID()).Value())
-	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// validate fails
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -815,7 +815,7 @@ func TestItem_Update(t *testing.T) {
 	}, op)
 	assert.ErrorContains(t, err, "it sholud be shorter than 10")
 	assert.Nil(t, item)
-	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// update same item is not a duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -832,7 +832,7 @@ func TestItem_Update(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
 	assert.Equal(t, s.ID(), item.Value().Schema())
-	vi3, _ := itemUC.FindByID(ctx, i3.ID(), op)
+	vi3, _ := itemUC.FindByID(ctx, i3.ID(), nil, op)
 
 	// update no permission
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -847,7 +847,7 @@ func TestItem_Update(t *testing.T) {
 		Version: new(vi3.Version()),
 	}, op)
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
-	vi2, _ := itemUC.FindByID(ctx, i2.ID(), op)
+	vi2, _ := itemUC.FindByID(ctx, i2.ID(), nil, op)
 
 	// duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -877,7 +877,7 @@ func TestItem_Update(t *testing.T) {
 	s.RemoveField(sf.ID())
 	s.AddField(sf)
 	lo.Must0(db.Schema.Save(ctx, s))
-	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
@@ -892,7 +892,7 @@ func TestItem_Update(t *testing.T) {
 	}, op)
 	assert.ErrorIs(t, err, schema.ErrValueRequired)
 	assert.Nil(t, item)
-	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// mock item error
 	wantErr := errors.New("test")
@@ -971,7 +971,7 @@ func TestItem_Delete(t *testing.T) {
 	})
 	assert.Equal(t, rerror.ErrNotFound, err)
 
-	_, err = itemUC.FindByID(ctx, i1.ID(), op)
+	_, err = itemUC.FindByID(ctx, i1.ID(), nil, op)
 	assert.Error(t, err)
 
 	// mock item error
@@ -1332,7 +1332,7 @@ func TestItem_BatchDelete(t *testing.T) {
 
 			// Verify items are deleted
 			for _, itemID := range tt.wantIDs {
-				i, err := itemUC.FindByID(ctx, itemID, tt.op)
+				i, err := itemUC.FindByID(ctx, itemID, nil, tt.op)
 				assert.Nil(t, i)
 				assert.ErrorIs(t, err, rerror.ErrNotFound)
 			}
@@ -1416,9 +1416,9 @@ func TestItem_BatchDelete_TwoWayReference(t *testing.T) {
 	itemUC.ignoreEvent = true
 
 	// Verify initial state: both items reference each other
-	vi1Before, err := itemUC.FindByID(ctx, iid1, op)
+	vi1Before, err := itemUC.FindByID(ctx, iid1, nil, op)
 	assert.NoError(t, err)
-	vi2Before, err := itemUC.FindByID(ctx, iid2, op)
+	vi2Before, err := itemUC.FindByID(ctx, iid2, nil, op)
 	assert.NoError(t, err)
 
 	// Check that Item 1 references Item 2
@@ -1446,11 +1446,11 @@ func TestItem_BatchDelete_TwoWayReference(t *testing.T) {
 	assert.Equal(t, 1, len(result))
 
 	// Verify Item 1 is deleted
-	_, err = itemUC.FindByID(ctx, iid1, op)
+	_, err = itemUC.FindByID(ctx, iid1, nil, op)
 	assert.Error(t, err)
 
 	// Verify Item 2 still exists but its reference to Item 1 is cleared
-	vi2After, err := itemUC.FindByID(ctx, iid2, op)
+	vi2After, err := itemUC.FindByID(ctx, iid2, nil, op)
 	assert.NoError(t, err)
 
 	field2After := vi2After.Value().Field(refField2ID)

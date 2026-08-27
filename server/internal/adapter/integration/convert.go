@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -17,6 +18,13 @@ import (
 
 const maxPerPage = 100
 const defaultPerPage int64 = 50
+
+func fromRef[T ~string](ref *T) *version.Ref {
+	if ref == nil {
+		return nil
+	}
+	return version.Ref(*ref).Ref()
+}
 
 func fromPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination {
 	p := int64(1)
