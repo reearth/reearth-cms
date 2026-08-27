@@ -106,6 +106,11 @@ func webhooks(ctx context.Context, r *repo.Container, g *gateway.Container, el [
 
 	// all events are assumed to have the same workspace
 	wId := el[0].Workspace
+	if wId.IsNil() {
+		log.Infof("asset: webhook was not sent because event has no workspace")
+		return nil
+	}
+
 	ws, err := r.Workspace.FindByID(ctx, wId)
 	if err != nil {
 		return err
