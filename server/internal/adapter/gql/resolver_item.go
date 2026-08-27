@@ -374,6 +374,7 @@ func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.Impor
 		InsertedCount: res.Inserted,
 		UpdatedCount:  res.Updated,
 		IgnoredCount:  res.Ignored,
+		Columns:       gqlmodel.ToImportColumnResults(res.Columns),
 	}, nil
 }
 
