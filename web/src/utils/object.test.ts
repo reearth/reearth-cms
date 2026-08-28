@@ -160,6 +160,48 @@ describe("ObjectUtils", () => {
     });
   });
 
+  describe("shallowJSONParse", () => {
+    it("Pass case: leaves digit/boolean/array-looking leaf strings untouched (incident regression)", async () => {
+      const input = JSON.stringify([
+        { text_field: "1" },
+        { text_field: "true" },
+        { text_field: "false" },
+        { text_field: "[1,2,3]" },
+        { text_field: '{"a":1}' },
+        { text_field: '"quoted"' },
+      ]);
+      const expectedOutput = [
+        { text_field: "1" },
+        { text_field: "true" },
+        { text_field: "false" },
+        { text_field: "[1,2,3]" },
+        { text_field: '{"a":1}' },
+        { text_field: '"quoted"' },
+      ];
+
+      const actualOutput = await ObjectUtils.shallowJSONParse(input);
+
+      expect(actualOutput.isValid).toBe(true);
+      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
+    });
+
+    it("Pass case: parses only the outer JSON envelope", async () => {
+      const input = '{"x":1,"y":"hello","z":{"name":"john","age":20}}';
+      const expectedOutput = { x: 1, y: "hello", z: { name: "john", age: 20 } };
+
+      const actualOutput = await ObjectUtils.shallowJSONParse(input);
+
+      expect(actualOutput.isValid).toBe(true);
+      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
+    });
+
+    it("Fail case: malformed JSON", async () => {
+      const actualOutput = await ObjectUtils.shallowJSONParse("{invalid");
+
+      expect(actualOutput.isValid).toBe(false);
+    });
+  });
+
   describe("deepJsonParse", () => {
     it("test", () => {
       const raw =

@@ -25,6 +25,9 @@ export abstract class ObjectUtils {
     return keys1.length === keys2.length && keys1.every(key => obj1[key] === obj2[key]);
   }
 
+  // Recursively unwraps double-encoded JSON strings (e.g. schema x-defaultValue),
+  // so it must NOT be used on user data such as content import, where a leaf value
+  // that merely looks like JSON ("123", "true", "[1,2,3]") is meant to stay a plain string.
   public static async safeJSONParse<T = Record<string, unknown>>(
     str: string,
   ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
@@ -34,6 +37,32 @@ export abstract class ObjectUtils {
           const timer = new PerformanceTimer("safeJSONParse");
           try {
             const data = this.deepJsonParse(str) as T;
+            resolve({ isValid: true, data });
+          } catch (error) {
+            resolve({
+              isValid: false,
+              error: error instanceof Error ? error.message : "Invalid JSON",
+            });
+          } finally {
+            timer.log();
+          }
+        }, 0);
+      },
+    );
+  }
+
+  // Parses the outer JSON envelope only, leaving leaf string values untouched.
+  // Use this for user-provided JSON payloads (e.g. content import) where field
+  // values must not be reinterpreted even if they happen to look like JSON.
+  public static async shallowJSONParse<T = Record<string, unknown>>(
+    str: string,
+  ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
+    return new Promise<{ isValid: true; data: T } | { isValid: false; error: string }>(
+      (resolve, _reject) => {
+        setTimeout(() => {
+          const timer = new PerformanceTimer("shallowJSONParse");
+          try {
+            const data = JSON.parse(str) as T;
             resolve({ isValid: true, data });
           } catch (error) {
             resolve({
