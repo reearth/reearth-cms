@@ -45,7 +45,7 @@ type RateLimitConfig struct {
 	ExpiresIn time.Duration
 }
 
-func Echo(e *echo.Group, rl RateLimitConfig) {
+func Echo(readGroup, postingGroup *echo.Group, rl RateLimitConfig) {
 
 	// --- Public API routing ---
 	// ws: workspace (id or alias)
@@ -62,11 +62,11 @@ func Echo(e *echo.Group, rl RateLimitConfig) {
 	// /:ws/:p/:m.zip
 	// /:ws/:p/:m/:i
 
-	e.GET("/:workspace/:project/:sub-route", SubRoute())
-	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
-	e.GET("/:workspace/:project", OpenAPISchema())
-	e.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl))
-	e.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
+	readGroup.GET("/:workspace/:project/:sub-route", SubRoute())
+	readGroup.GET("/:workspace/:project/:model/:item", ItemOrAsset())
+	readGroup.GET("/:workspace/:project", OpenAPISchema())
+	postingGroup.POST("/:workspace/:project/:model/items", PostItem(), RateLimitMiddleware(rl))
+	postingGroup.OPTIONS("/:workspace/:project/:model/items", PreflightItem())
 }
 
 // parseSubRoute splits a sub-route segment into a model key and extension.
