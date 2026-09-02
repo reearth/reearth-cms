@@ -1052,29 +1052,29 @@
   dependencies:
     css-tree "^3.0.0"
 
-"@cesium/engine@^26.1.0":
-  version "26.1.0"
-  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-26.1.0.tgz#8469e894e56e15deeedd71bddfa5563834bd02e3"
-  integrity sha512-WzeJEcmGD7/htBJ8JEZt95OgZjErPwUHqyAlJY/mCzmDm7hfwpuucLBSUhiynWW3khqBT1C7dhibjb7tdic7oA==
+"@cesium/engine@^26.2.0", "@cesium/engine@^26.3.0":
+  version "26.3.0"
+  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-26.3.0.tgz#66e4c3261f938984cc26e19fb5a3d75407fb148c"
+  integrity sha512-jtgOewm/IZoypmqpbeTlYhMOKhQg+XPwUXoYat84vhIU8l8SfVSEat4Lc/Y4Fb7ypi3z1YmElKjVYvoI5CH6Pw==
   dependencies:
     "@cesium/wasm-splats" "^0.1.0-alpha.2"
     "@spz-loader/core" "0.3.1"
     "@tweenjs/tween.js" "^25.0.0"
-    "@zip.js/zip.js" "^2.8.1"
+    "@zip.js/zip.js" "^2.9.0"
     autolinker "^4.0.0"
     bitmap-sdf "^1.0.3"
-    dompurify "^3.3.0"
+    dompurify "^3.4.14"
     draco3d "^1.5.1"
     earcut "3.0.2"
     grapheme-splitter "^1.0.4"
     jsep "^1.3.8"
-    kdbush "^4.0.1"
+    kdbush "^4.1.0"
     ktx-parse "^1.0.0"
     lerc "^2.0.0"
     mersenne-twister "^1.1.0"
-    meshoptimizer "^1.0.1"
+    meshoptimizer "^1.2.0"
     pako "^3.0.0"
-    protobufjs "^8.6.5"
+    protobufjs "^8.8.0"
     rbush "^4.0.1"
     topojson-client "^3.1.0"
     urijs "^1.19.7"
@@ -1084,12 +1084,12 @@
   resolved "https://registry.yarnpkg.com/@cesium/wasm-splats/-/wasm-splats-0.1.0-alpha.2.tgz#f2d0d717d46f5f3d6d923549e90fb5ab4d429cab"
   integrity sha512-t9pMkknv31hhIbLpMa8yPvmqfpvs5UkUjgqlQv9SeO8VerCXOYnyP8/486BDaFrztM0A7FMbRjsXtNeKvqQghA==
 
-"@cesium/widgets@^16.1.0":
-  version "16.1.0"
-  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-16.1.0.tgz#9e7ff86128aed74ecf015fd8f28f3e101af884ea"
-  integrity sha512-c+jt8F3YIZs2x6+X+HS4q0S9nd2jVcbPVShUmlrDK1s+C7IlEvXceDGrkjivHRElAVCzfaWEEwY1g7Lg5HCGmA==
+"@cesium/widgets@^16.1.1":
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-16.2.0.tgz#56127b34db469e765f90b941ecdc1c0abcade44a"
+  integrity sha512-cxYw8t4GVJUVSNCN+yDXqB7MqxLme1mGWT4W3pYQXrlswdIBey9Q+rf5cVZysd0PUGcrLXFtNRfbScOqQe78BQ==
   dependencies:
-    "@cesium/engine" "^26.1.0"
+    "@cesium/engine" "^26.3.0"
     nosleep.js "^0.12.0"
 
 "@chenshuai2144/sketch-color@^1.0.7", "@chenshuai2144/sketch-color@^1.0.8":
@@ -6176,10 +6176,10 @@
     reference-spec-reader "^0.2.0"
     unzipit "2.0.0"
 
-"@zip.js/zip.js@^2.8.1":
-  version "2.8.34"
-  resolved "https://registry.yarnpkg.com/@zip.js/zip.js/-/zip.js-2.8.34.tgz#f847b1927f6886d32c17045893d001006880e3d6"
-  integrity sha512-+6a3lyqq69rpseLbvDPiVIWsZ/HdTGAAD6afFtug6ECPDGttb2dHnPC6cJgdPofYkzL9OvXizegq+DQVfL2rnA==
+"@zip.js/zip.js@^2.9.0":
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@zip.js/zip.js/-/zip.js-2.9.0.tgz#76bd87d71ce6dfad048bd0b3400f3fd733636758"
+  integrity sha512-AblaO/5MIVKiVExlF7GD17qn5NSsQ7qdtE+uEIMU6OiwHLqPxaI5Z5gLxMDxdEBzaiVVRCFNABcIc3sZpFcUeA==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
@@ -6834,13 +6834,13 @@ cesium-mvt-imagery-provider@1.4.2:
     "@mapbox/vector-tile" "1.3.1"
     pbf "3.2.1"
 
-cesium@1.143.0:
-  version "1.143.0"
-  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.143.0.tgz#5b5123381d99469d27897ae640cae4abf88b4edc"
-  integrity sha512-EHz61NBp/2UPYE4iWCZ+YK9Jcb0d2hzRfqkj4DRaUM3cJmA9hE2FTmcPPZ2iL7w+W0YUScI0gc9XeSTXlPIQtA==
+cesium@1.144.0:
+  version "1.144.0"
+  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.144.0.tgz#cc1fb079a793edfa3b3952c24ae202a03574f966"
+  integrity sha512-g1TX13KvTUhX9zjlJNn3De5BwuHyzuQzp1+1ITpGJJmIORCGnxVKAiu9/OkQByTWNYKgNtoEuPLrnWFhl0ao5g==
   dependencies:
-    "@cesium/engine" "^26.1.0"
-    "@cesium/widgets" "^16.1.0"
+    "@cesium/engine" "^26.2.0"
+    "@cesium/widgets" "^16.1.1"
     protobufjs "^8.6.5"
 
 chai@^5.2.0:
@@ -7494,10 +7494,10 @@ dompurify@3.2.7:
   optionalDependencies:
     "@types/trusted-types" "^2.0.7"
 
-dompurify@^3.3.0:
-  version "3.4.12"
-  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.4.12.tgz#6fa2265e9bbdce882c4ace4107626051b448ffa8"
-  integrity sha512-zQvGet8Z2sWbQhCmfFz/T5QWH2oBmjnqK3qvOjaqaNLrLEF912WamU+ohnTp0TCep/MFVHpdJuCZEdFOdTnEFg==
+dompurify@^3.4.14:
+  version "3.4.14"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.4.14.tgz#a789edb2c7bcdb69a93713a34edb7e0a5245d8c9"
+  integrity sha512-dVoH9z+MY+C9IilgGCk3YfFqjLi3fChm2OiKJMzh6axrJ5qwxqWaZamgmHrpv22CN/KdbZJuGEGgfQoL00LTdg==
   optionalDependencies:
     "@types/trusted-types" "^2.0.7"
 
@@ -10421,7 +10421,7 @@ jws@^4.0.0:
     jwa "^2.0.1"
     safe-buffer "^5.0.1"
 
-kdbush@^4.0.1:
+kdbush@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/kdbush/-/kdbush-4.1.0.tgz#d504bc0447a59be4fb75533a5c25e316b3ed8859"
   integrity sha512-e9vurzrXJQrFX6ckpHP3bvj5l+9CnYzkxDNnNQ1h2QTqdWsUAJgXiKdGNcOa1EY85dU8KbQ+z/FdQdB7P+9yfQ==
@@ -11018,7 +11018,7 @@ mersenne-twister@^1.1.0:
   resolved "https://registry.yarnpkg.com/mersenne-twister/-/mersenne-twister-1.1.0.tgz#f916618ee43d7179efcf641bec4531eb9670978a"
   integrity sha512-mUYWsMKNrm4lfygPkL3OfGzOPTR2DBlTkBNHM//F6hGp8cLThY897crAlk3/Jo17LEOOjQUrNAx6DvgO77QJkA==
 
-meshoptimizer@^1.0.1:
+meshoptimizer@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/meshoptimizer/-/meshoptimizer-1.2.0.tgz#3dcbf6a0f78a721adbb5869818c31518a89fd2df"
   integrity sha512-davRZeIJbxJrE24cwQle7ZDsxjdk/OphNOV83oX+efQinyoHY9Jcyz3MHbaoG0qySZajldGztNZ1RN/T19PZsg==
@@ -12210,6 +12210,13 @@ protobufjs@^8.6.5:
   version "8.7.1"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-8.7.1.tgz#5650e11f3d4b61c71e5bc0447230a6794a34d713"
   integrity sha512-agdGHrXNTv0IrYscJPDou/PlEJk1c/hBZ9o/B5NH2i/nSPtPqacNxzgwf1CebXxFMjMrZH5sqv9uQuw96aGt/A==
+  dependencies:
+    long "^5.3.2"
+
+protobufjs@^8.8.0:
+  version "8.8.0"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-8.8.0.tgz#7ed071d94b6755f63cc9936ecd82e4deac7cf624"
+  integrity sha512-N3xhQ5yyBx3vQq4gubBfASzYhJGNzeDbjqBpu61g7UVylsN/qyffU96TKWD3GbbLOKF82VGNRNvv1+BFgE31Eg==
   dependencies:
     long "^5.3.2"
 
