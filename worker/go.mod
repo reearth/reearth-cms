@@ -1,10 +1,10 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.26.5
+go 1.27.0
 
 require (
-	cloud.google.com/go/pubsub/v2 v2.6.1
-	cloud.google.com/go/storage v1.64.0
+	cloud.google.com/go/pubsub/v2 v2.7.0
+	cloud.google.com/go/storage v1.66.0
 	github.com/bodgit/sevenzip v1.6.5
 	github.com/google/uuid v1.6.0
 	github.com/hellofresh/health-go/v5 v5.5.5
@@ -14,15 +14,15 @@ require (
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo-opentelemetry v0.0.3
 	github.com/labstack/echo/v5 v5.3.1
-	github.com/oklog/ulid v1.3.1
+	github.com/oklog/ulid/v2 v2.1.2
 	github.com/reearth/reearth-cms/server v0.0.0-20260817071925-d71315292189
 	github.com/reearth/reearthx v0.0.0-20260730200418-fcc4927cb595
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.53.0
 	github.com/spf13/afero v1.15.0
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.1
 	go.mongodb.org/mongo-driver v1.17.9
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.70.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.71.0
 )
 
 require (
