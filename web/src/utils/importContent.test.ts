@@ -20,11 +20,11 @@ import { ObjectUtils } from "./object";
 async function readFromJSONFile(
   staticFileDirectory: string,
   baseDirectory = "public",
-): ReturnType<Awaited<typeof ObjectUtils.safeJSONParse<ImportContentItem[]>>> {
+): ReturnType<Awaited<typeof ObjectUtils.shallowJSONParse<ImportContentItem[]>>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  const validation = await ObjectUtils.safeJSONParse<ImportContentItem[]>(fileContent);
+  const validation = await ObjectUtils.shallowJSONParse<ImportContentItem[]>(fileContent);
 
   return validation.isValid
     ? { isValid: validation.isValid, data: validation.data }
