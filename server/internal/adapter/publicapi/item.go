@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -95,7 +96,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 		SchemaPackage: *sp,
 		Format:        format,
 		Options: exporters.ExportOptions{
-			PublicOnly:       true,
+			Ref:              version.Public.Ref(),
 			IncludeAssets:    wpm.PublicAssets,
 			IncludeGeometry:  true,
 			GeometryField:    nil,

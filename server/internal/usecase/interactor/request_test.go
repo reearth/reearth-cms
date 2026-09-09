@@ -408,7 +408,7 @@ func TestRequest_Approve(t *testing.T) {
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
-	itm, err := itemUC.FindByID(ctx, i.ID(), op)
+	itm, err := itemUC.FindByID(ctx, i.ID(), nil, op)
 	assert.NoError(t, err)
 	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), now, i)
 	assert.Equal(t, expected, itm)

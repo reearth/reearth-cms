@@ -24,7 +24,7 @@ func (s *Server) ItemCommentList(ctx context.Context, request ItemCommentListReq
 		return ItemCommentList400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemCommentList404Response{}, err
@@ -60,7 +60,7 @@ func (s *Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreat
 		return ItemCommentCreate400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemCommentCreate404Response{}, err
@@ -99,7 +99,7 @@ func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdat
 		return ItemCommentUpdate400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemCommentUpdate404Response{}, err
@@ -131,7 +131,7 @@ func (s *Server) ItemCommentDelete(ctx context.Context, request ItemCommentDelet
 		return ItemCommentDelete400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemCommentDelete404Response{}, err

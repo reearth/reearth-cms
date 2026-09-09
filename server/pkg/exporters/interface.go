@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -33,7 +34,7 @@ type ExportRequest struct {
 
 // ExportOptions contains format-specific options
 type ExportOptions struct {
-	PublicOnly       bool
+	Ref              *version.Ref
 	IncludeAssets    bool
 	IncludeGeometry  bool
 	GeometryField    *schema.FieldID
