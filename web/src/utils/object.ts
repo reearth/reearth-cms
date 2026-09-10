@@ -5,12 +5,6 @@ import type { GeoJSON } from "geojson";
 
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
-type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
-type JsonObject = {
-  [key: string]: JsonValue;
-};
-type JsonArray = {} & JsonValue[];
-
 type ValidateGeoJson = (
   raw: Record<string, unknown> | string | GeoJSON,
 ) => Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }>;
@@ -25,42 +19,16 @@ export abstract class ObjectUtils {
     return keys1.length === keys2.length && keys1.every(key => obj1[key] === obj2[key]);
   }
 
-  // Recursively unwraps double-encoded JSON strings (e.g. schema x-defaultValue),
-  // so it must NOT be used on user data such as content import, where a leaf value
-  // that merely looks like JSON ("123", "true", "[1,2,3]") is meant to stay a plain string.
-  public static async safeJSONParse<T = Record<string, unknown>>(
-    str: string,
-  ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
-    return new Promise<{ isValid: true; data: T } | { isValid: false; error: string }>(
-      (resolve, _reject) => {
-        setTimeout(() => {
-          const timer = new PerformanceTimer("safeJSONParse");
-          try {
-            const data = this.deepJsonParse(str) as T;
-            resolve({ isValid: true, data });
-          } catch (error) {
-            resolve({
-              isValid: false,
-              error: error instanceof Error ? error.message : "Invalid JSON",
-            });
-          } finally {
-            timer.log();
-          }
-        }, 0);
-      },
-    );
-  }
-
   // Parses the outer JSON envelope only, leaving leaf string values untouched.
-  // Use this for user-provided JSON payloads (e.g. content import) where field
-  // values must not be reinterpreted even if they happen to look like JSON.
-  public static async shallowJSONParse<T = Record<string, unknown>>(
+  // Field values must not be reinterpreted even if they happen to look like JSON
+  // (e.g. a text field value of "123" or "true" must stay a string).
+  public static async parseJSON<T = Record<string, unknown>>(
     str: string,
   ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
     return new Promise<{ isValid: true; data: T } | { isValid: false; error: string }>(
       (resolve, _reject) => {
         setTimeout(() => {
-          const timer = new PerformanceTimer("shallowJSONParse");
+          const timer = new PerformanceTimer("parseJSON");
           try {
             const data = JSON.parse(str) as T;
             resolve({ isValid: true, data });
@@ -75,29 +43,6 @@ export abstract class ObjectUtils {
         }, 0);
       },
     );
-  }
-
-  public static deepJsonParse<T = JsonValue>(value: unknown): T {
-    if (typeof value === "string") {
-      try {
-        const parsed = JSON.parse(value);
-        return this.deepJsonParse<T>(parsed);
-      } catch {
-        return value as T;
-      }
-    }
-
-    if (Array.isArray(value)) {
-      return value.map(v => this.deepJsonParse(v)) as T;
-    }
-
-    if (value && typeof value === "object") {
-      return Object.fromEntries(
-        Object.entries(value).map(([key, val]) => [key, this.deepJsonParse(val)]),
-      ) as T;
-    }
-
-    return value as T;
   }
 
   public static isEmpty(obj: Record<string, unknown>): boolean {

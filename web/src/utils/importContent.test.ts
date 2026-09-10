@@ -20,11 +20,11 @@ import { ObjectUtils } from "./object";
 async function readFromJSONFile(
   staticFileDirectory: string,
   baseDirectory = "public",
-): ReturnType<Awaited<typeof ObjectUtils.shallowJSONParse<ImportContentItem[]>>> {
+): ReturnType<typeof ObjectUtils.parseJSON<ImportContentItem[]>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  const validation = await ObjectUtils.shallowJSONParse<ImportContentItem[]>(fileContent);
+  const validation = await ObjectUtils.parseJSON<ImportContentItem[]>(fileContent);
 
   return validation.isValid
     ? { isValid: validation.isValid, data: validation.data }
@@ -48,7 +48,7 @@ async function readFromGeoJSONFile(
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  const validation = await ObjectUtils.safeJSONParse<FeatureCollection>(fileContent);
+  const validation = await ObjectUtils.parseJSON<FeatureCollection>(fileContent);
 
   if (!validation.isValid) return { isValid: false, error: validation.error };
 

@@ -219,8 +219,7 @@ const ContentImportModal: React.FC<Props> = ({
 
         switch (extension) {
           case "json": {
-            const jsonValidation =
-              await ObjectUtils.shallowJSONParse<ImportContentItem[]>(content);
+            const jsonValidation = await ObjectUtils.parseJSON<ImportContentItem[]>(content);
 
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();

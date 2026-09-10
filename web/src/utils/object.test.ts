@@ -50,11 +50,11 @@ describe("ObjectUtils", () => {
     });
   });
 
-  describe("safeJSONParse", () => {
+  describe("parseJSON", () => {
     it("Pass case: simple object", async () => {
       const input = '{"x":1,"y":"hello"}';
       const expectedOutput = { x: 1, y: "hello" };
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
+      const actualOutput = await ObjectUtils.parseJSON(input);
 
       expect(actualOutput.isValid).toBe(true);
       if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
@@ -63,52 +63,7 @@ describe("ObjectUtils", () => {
     it("Pass case: nested object", async () => {
       const input = '{"x":1,"y":"hello","z":{"name":"john","age":20}}';
       const expectedOutput = { x: 1, y: "hello", z: { name: "john", age: 20 } };
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
-    });
-
-    it("Pass case: string boolean (true)", async () => {
-      const input = "true";
-      const expectedOutput = true;
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
-    });
-
-    it("Pass case: string boolean (false)", async () => {
-      const input = "false";
-      const expectedOutput = false;
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
-    });
-
-    it("Pass case: string number", async () => {
-      const input = "123";
-      const expectedOutput = 123;
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
-    });
-
-    it("Pass case: string array", async () => {
-      const input = "[1,2,3]";
-      const expectedOutput = [1, 2, 3];
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
-    });
-
-    it("Pass case: string null", async () => {
-      const input = "null";
-      const expectedOutput = null;
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
+      const actualOutput = await ObjectUtils.parseJSON(input);
 
       expect(actualOutput.isValid).toBe(true);
       if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
@@ -124,43 +79,12 @@ describe("ObjectUtils", () => {
         w: ["green", "red", "blue"],
         a: false,
       };
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
+      const actualOutput = await ObjectUtils.parseJSON(input);
 
       expect(actualOutput.isValid).toBe(true);
       if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
     });
 
-    it("Pass case: empty string", async () => {
-      const input = "";
-      const expectedOutput = "";
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
-    });
-
-    it("Pass case: string", async () => {
-      const input = "hello";
-      const expectedOutput = "hello";
-
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
-    });
-
-    it("Pass case: string undefined", async () => {
-      const input = "undefined";
-      const expectedOutput = "undefined";
-
-      const actualOutput = await ObjectUtils.safeJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
-    });
-  });
-
-  describe("shallowJSONParse", () => {
     it("Pass case: leaves digit/boolean/array-looking leaf strings untouched (incident regression)", async () => {
       const input = JSON.stringify([
         { text_field: "1" },
@@ -179,50 +103,28 @@ describe("ObjectUtils", () => {
         { text_field: '"quoted"' },
       ];
 
-      const actualOutput = await ObjectUtils.shallowJSONParse(input);
+      const actualOutput = await ObjectUtils.parseJSON(input);
 
       expect(actualOutput.isValid).toBe(true);
       if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
     });
 
-    it("Pass case: parses only the outer JSON envelope", async () => {
-      const input = '{"x":1,"y":"hello","z":{"name":"john","age":20}}';
-      const expectedOutput = { x: 1, y: "hello", z: { name: "john", age: 20 } };
-
-      const actualOutput = await ObjectUtils.shallowJSONParse(input);
-
-      expect(actualOutput.isValid).toBe(true);
-      if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
-    });
-
-    it("Fail case: malformed JSON", async () => {
-      const actualOutput = await ObjectUtils.shallowJSONParse("{invalid");
+    it("Fail case: empty string", async () => {
+      const actualOutput = await ObjectUtils.parseJSON("");
 
       expect(actualOutput.isValid).toBe(false);
     });
-  });
 
-  describe("deepJsonParse", () => {
-    it("test", () => {
-      const raw =
-        '{\n  "geo-object-key": {\n    "title": "geo-object-key",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
-      const expectResult = {
-        "geo-object-key": {
-          title: "geo-object-key",
-          description: "this is geo obj field",
-          type: "object",
-          "x-defaultValue": {
-            coordinates: [139.6917, 35.6895],
-            type: "Point",
-          },
-          "x-fieldType": "geometryObject",
-          "x-unique": true,
-          "x-required": true,
-          "x-geoSupportedTypes": ["POINT"],
-        },
-      };
+    it("Fail case: bare unquoted string", async () => {
+      const actualOutput = await ObjectUtils.parseJSON("hello");
 
-      expect(expectResult).toEqual(ObjectUtils.deepJsonParse(raw));
+      expect(actualOutput.isValid).toBe(false);
+    });
+
+    it("Fail case: malformed JSON", async () => {
+      const actualOutput = await ObjectUtils.parseJSON("{invalid");
+
+      expect(actualOutput.isValid).toBe(false);
     });
   });
 });

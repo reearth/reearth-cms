@@ -20,7 +20,7 @@ import ContentImportModal from ".";
 
 const mockParseTextFile = vi.fn();
 const mockGetExtension = vi.fn();
-const mockShallowJSONParse = vi.fn();
+const mockParseJSON = vi.fn();
 const mockValidateGeoJson = vi.fn();
 const mockValidateContent = vi.fn();
 const mockConvertCSVToJSON = vi.fn();
@@ -36,7 +36,7 @@ vi.mock("@reearth-cms/utils/file", () => ({
 
 vi.mock("@reearth-cms/utils/object", () => ({
   ObjectUtils: {
-    shallowJSONParse: (...args: unknown[]) => mockShallowJSONParse(...args),
+    parseJSON: (...args: unknown[]) => mockParseJSON(...args),
     validateGeoJson: (...args: unknown[]) => mockValidateGeoJson(...args),
   },
 }));
@@ -122,7 +122,7 @@ const uploadJsonFile = async (fileName = "test.json") => {
   const file = Test.createMockRcFile({ name: fileName, type: "application/json" });
   mockGetExtension.mockReturnValue("json");
   mockParseTextFile.mockResolvedValue('[{"name":"test"}]');
-  mockShallowJSONParse.mockResolvedValue({ isValid: true, data: [{ name: "test" }] });
+  mockParseJSON.mockResolvedValue({ isValid: true, data: [{ name: "test" }] });
 
   const input = getFileInput();
   fireEvent.change(input, { target: { files: [file] } });
@@ -314,7 +314,7 @@ describe("ContentImportModal", () => {
     const file = Test.createMockRcFile({ name: "schema.json", type: "application/json" });
     mockGetExtension.mockReturnValue("json");
     mockParseTextFile.mockResolvedValue(JSON.stringify(schemaData));
-    mockShallowJSONParse.mockResolvedValue({ isValid: true, data: schemaData });
+    mockParseJSON.mockResolvedValue({ isValid: true, data: schemaData });
 
     render(<StatefulWrapper />);
 
