@@ -905,6 +905,49 @@ describe("Content import test", () => {
         );
       });
 
+      describe("[Pass case] Bool/Integer/Number fields accept quoted values from JSON (incident regression)", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        test.each([
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: "true" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: "false" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: "42" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: "0" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: "-7" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: "1.5" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: "-1.5" } },
+        ])(
+          "$setup.type field accepts quoted value ($setup.value) by coercing to the real type",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(true);
+          },
+        );
+      });
+
       describe("[Fail case] Field value type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
