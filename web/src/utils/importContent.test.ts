@@ -946,6 +946,57 @@ describe("Content import test", () => {
             expect(contentValidation.isValid).toBe(true);
           },
         );
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              multiple: true,
+              value: ["true", "false"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              multiple: true,
+              value: ["1", "-2"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              multiple: true,
+              value: ["1.5", "-2.5"],
+            },
+          },
+        ])(
+          "$setup.type multiple field accepts quoted values ($setup.value) by coercing each item to the real type",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(true);
+          },
+        );
       });
 
       describe("[Fail case] Field value type mismatch", () => {
