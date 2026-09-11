@@ -1,18 +1,18 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.26.5
+go 1.27.1
 
 require (
-	cloud.google.com/go/pubsub/v2 v2.6.1
-	cloud.google.com/go/storage v1.64.0
-	github.com/99designs/gqlgen v0.17.94
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.35.0
-	github.com/avast/retry-go/v4 v4.7.0
+	cloud.google.com/go/pubsub/v2 v2.7.0
+	cloud.google.com/go/storage v1.67.0
+	github.com/99designs/gqlgen v0.17.95
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.37.0
+	github.com/avast/retry-go/v5 v5.0.0
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/coder/websocket v1.8.15
 	github.com/gavv/httpexpect/v2 v2.17.0
-	github.com/getkin/kin-openapi v0.146.0
-	github.com/go-jose/go-jose/v4 v4.1.4
+	github.com/getkin/kin-openapi v0.149.0
+	github.com/go-jose/go-jose/v4 v4.1.5
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
@@ -36,21 +36,21 @@ require (
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	github.com/spf13/afero v1.15.0
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0
-	github.com/stretchr/testify v1.11.1
-	github.com/vektah/gqlparser/v2 v2.5.36
+	github.com/stretchr/testify v1.12.1
+	github.com/vektah/gqlparser/v2 v2.5.37
 	github.com/vikstrous/dataloadgen v0.0.10
 	go.mongodb.org/mongo-driver v1.17.9
 	go.opencensus.io v0.24.0
-	go.opentelemetry.io/contrib/detectors/gcp v1.45.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.70.0
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.70.0
-	go.opentelemetry.io/otel v1.45.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.45.0
-	go.opentelemetry.io/otel/sdk v1.45.0
-	golang.org/x/sync v0.22.0
+	go.opentelemetry.io/contrib/detectors/gcp v1.46.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.71.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.71.0
+	go.opentelemetry.io/otel v1.46.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.46.0
+	go.opentelemetry.io/otel/sdk v1.46.0
+	golang.org/x/sync v0.23.0
 	golang.org/x/text v0.41.0
-	google.golang.org/api v0.293.0
-	google.golang.org/grpc v1.83.0
+	google.golang.org/api v0.297.0
+	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 )
 
