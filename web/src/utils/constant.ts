@@ -66,11 +66,12 @@ export abstract class Constant {
     !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
   public static readonly PUBLIC_API_DOCS = {
-    ja: "https://eukarya.notion.site/API-1a816e0fb165803582b1caba5589d806",
-    en: "https://eukarya.notion.site/Public-API-1a816e0fb165805da250c74f00efc981",
+    ja: "https://docs.reearth.io/ja/developer/cms/public-api-reference/",
+    en: "https://docs.reearth.io/en/developer/cms/public-api-reference/",
   };
 
   public static readonly INTEGRATIONS_API_DOCS = {
-    en: "https://deepwiki.com/reearth/reearth-cms/2.3-integration-rest-api",
+    ja: "https://docs.reearth.io/ja/developer/cms/integration-api-reference/",
+    en: "https://docs.reearth.io/en/developer/cms/integration-api-reference/",
   };
 }

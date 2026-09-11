@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useT } from "@reearth-cms/i18n";
+import { useLang, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -22,13 +23,18 @@ const MyIntegrationList: React.FC<Props> = ({
   onIntegrationNavigate,
 }) => {
   const t = useT();
+  const lang = useLang();
+  const documentUrl = useMemo<string>(
+    () => (lang === "ja" ? Constant.INTEGRATIONS_API_DOCS.ja : Constant.INTEGRATIONS_API_DOCS.en),
+    [lang],
+  );
 
   return (
     <Wrapper>
       <PageHeader
         title={t("My Integrations")}
         subTitle={t("Create and test your own integration.")}
-        extra={<DocumentationLink url={Constant.INTEGRATIONS_API_DOCS.en} />}
+        extra={<DocumentationLink url={documentUrl} />}
       />
       <ListWrapper>
         {integrations.map((integration: Integration) => (
