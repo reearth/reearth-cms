@@ -94,7 +94,7 @@ func TestAssetFileRepo_FindByID(t *testing.T) {
 	}
 }
 
-func TestAssetFileRepo_SaveFlat(t *testing.T) {
+func TestAssetFileRepo_SaveFlatFiles_CommitFlatFiles(t *testing.T) {
 	initDB := mongotest.Connect(t)
 
 	t.Run("saves and round-trips files across multiple pages and bulk-write batches", func(t *testing.T) {
@@ -119,7 +119,8 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 			files[i] = asset.NewFile().Name(name).Path(name).Size(1).Build()
 		}
 
-		assert.NoError(t, r.SaveFlat(ctx, aid, parent, files))
+		assert.NoError(t, r.SaveFlatFiles(ctx, aid, files))
+		assert.NoError(t, r.CommitFlatFiles(ctx, aid, parent))
 
 		got, err := r.FindByID(ctx, aid)
 		assert.NoError(t, err)
@@ -155,7 +156,8 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 			files[i] = asset.NewFile().Name(name).Path(name).Size(1).Build()
 		}
 
-		assert.NoError(t, r.SaveFlat(ctx, aid, parent, files))
+		assert.NoError(t, r.SaveFlatFiles(ctx, aid, files))
+		assert.NoError(t, r.CommitFlatFiles(ctx, aid, parent))
 
 		got, err := r.FindByID(ctx, aid)
 		assert.NoError(t, err)
@@ -185,14 +187,45 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 		assert.NoError(t, r.Save(ctx, aid, parent))
 
 		first := []*asset.File{asset.NewFile().Name("old.txt").Path("old.txt").Size(1).Build()}
-		assert.NoError(t, r.SaveFlat(ctx, aid, parent, first))
+		assert.NoError(t, r.SaveFlatFiles(ctx, aid, first))
+		assert.NoError(t, r.CommitFlatFiles(ctx, aid, parent))
 
 		second := []*asset.File{asset.NewFile().Name("new.txt").Path("new.txt").Size(1).Build()}
-		assert.NoError(t, r.SaveFlat(ctx, aid, parent, second))
+		assert.NoError(t, r.SaveFlatFiles(ctx, aid, second))
+		assert.NoError(t, r.CommitFlatFiles(ctx, aid, parent))
 
 		got, err := r.FindByID(ctx, aid)
 		assert.NoError(t, err)
 		assert.Len(t, got.Files(), 1)
 		assert.Equal(t, "/new.txt", got.Files()[0].Path())
+	})
+
+	t.Run("files are not visible until CommitFlatFiles flips the pointer", func(t *testing.T) {
+		t.Parallel()
+
+		db := initDB(t)
+		ctx := context.Background()
+		client := mongox.NewClientWithDatabase(db)
+		r := NewAssetFile(client)
+
+		aid := id.NewAssetID()
+		_, err := db.Collection("asset").InsertOne(ctx, bson.M{"id": aid.String()})
+		assert.NoError(t, err)
+
+		parent := asset.NewFile().Name("root").Path("/").Build()
+		assert.NoError(t, r.Save(ctx, aid, parent))
+
+		files := []*asset.File{asset.NewFile().Name("new.txt").Path("new.txt").Size(1).Build()}
+		assert.NoError(t, r.SaveFlatFiles(ctx, aid, files))
+
+		got, err := r.FindByID(ctx, aid)
+		assert.NoError(t, err)
+		assert.Empty(t, got.Files())
+
+		assert.NoError(t, r.CommitFlatFiles(ctx, aid, parent))
+
+		got, err = r.FindByID(ctx, aid)
+		assert.NoError(t, err)
+		assert.Len(t, got.Files(), 1)
 	})
 }
