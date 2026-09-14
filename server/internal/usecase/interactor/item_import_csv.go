@@ -107,7 +107,10 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	// Buffer the (already size-capped) payload once so it can be scanned
 	// twice: a cheap counting pass to learn totalCount for progress
 	// reporting, and a chunked read-and-save pass that never holds more
-	// than chunkSize rows in memory at once.
+	// than chunkSize rows in memory at once. This trades CPU (the file is
+	// now parsed twice, ~2x the time) for a fixed memory ceiling
+	// independent of the record count, which is the constraint that
+	// matters on a memory-capped Cloud Run instance.
 	data, err := io.ReadAll(param.Reader)
 	if err != nil {
 		return res.Into(), fmt.Errorf("error reading import data: %v", err)
@@ -130,6 +133,8 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
 	}
 
+	cc := &importChunkCtx{prj: prj, m: m, s: s, param: param, operator: operator, totalCount: totalCount}
+
 	processed := 0
 	csvChunk := make([]map[string]any, 0, chunkSize)
 	for {
@@ -150,13 +155,13 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 			continue
 		}
 
-		if err := i.saveCSVChunk(ctx, j, prj, m, s, param, csvChunk, res, operator, &processed, totalCount); err != nil {
+		if err := i.saveImportChunk(ctx, j, cc, csvChunk, false, res, &processed); err != nil {
 			return res.Into(), err
 		}
 		csvChunk = csvChunk[:0]
 	}
 	if len(csvChunk) > 0 {
-		if err := i.saveCSVChunk(ctx, j, prj, m, s, param, csvChunk, res, operator, &processed, totalCount); err != nil {
+		if err := i.saveImportChunk(ctx, j, cc, csvChunk, false, res, &processed); err != nil {
 			return res.Into(), err
 		}
 	}
@@ -197,47 +202,6 @@ func countCSVRecords(data []byte) ([]string, int, error) {
 		count++
 	}
 	return headers, count, nil
-}
-
-// saveCSVChunk converts a chunk of CSV rows to items, saves them, and
-// publishes job progress. processed is updated in place.
-func (i Item) saveCSVChunk(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, csvChunk []map[string]any, res *ImportRes, operator *usecase.Operator, processed *int, totalCount int) error {
-	// Check if job was cancelled
-	currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
-	if err != nil {
-		log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
-	}
-	if currentJob != nil && currentJob.IsCancelled() {
-		return fmt.Errorf("job cancelled")
-	}
-
-	items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
-	if err != nil {
-		return err
-	}
-	if err := i.saveChunk(ctx, prj, m, s, param, items, res, operator); err != nil {
-		return err
-	}
-
-	*processed += len(csvChunk)
-
-	// Publish progress
-	progress := job.NewProgress(*processed, totalCount)
-	state := job.NewState(job.StatusInProgress, &progress, "")
-	if i.gateways.JobPubSub != nil {
-		if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-			log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
-		}
-	}
-
-	// Update job progress
-	j.SetProgress(progress)
-	if err := i.repos.Job.Save(ctx, j); err != nil {
-		log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
-	}
-
-	log.Printf("chunk with %d items saved.", len(csvChunk))
-	return nil
 }
 
 // buildFieldMap creates a mapping from header column name to schema field
