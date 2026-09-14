@@ -130,6 +130,9 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		if lr.N == 0 {
 			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
+		if len(allRows) >= interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
+		}
 		allRows = append(allRows, record)
 	}
 	totalCount := len(allRows)

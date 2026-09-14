@@ -1,12 +1,15 @@
 package interactor
 
 import (
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseCSVValue(t *testing.T) {
@@ -137,4 +140,41 @@ func TestCsvRowToMap(t *testing.T) {
 			assert.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+// buildOversizedCSV returns a CSV document (header + n data rows) with n
+// tiny rows, e.g. "id,field1\n1,v\n2,v\n...".
+func buildOversizedCSV(n int) string {
+	var b strings.Builder
+	b.WriteString("id,field1\n")
+	for i := 0; i < n; i++ {
+		b.WriteString("row,v\n")
+	}
+	return b.String()
+}
+
+func TestItem_importCSVWithProgress_TooManyRecords(t *testing.T) {
+	t.Parallel()
+
+	ctx, itemUC, jb, m, sp, op := setupImportWithProgressFixture(t)
+
+	overLimit := interfaces.MaxImportRecordCount + 1
+	payload := buildOversizedCSV(overLimit)
+
+	param := interfaces.ImportItemsParam{
+		ModelID:      m.ID(),
+		SP:           sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       interfaces.ImportFormatTypeCSV,
+		MutateSchema: false,
+		Reader:       strings.NewReader(payload),
+	}
+
+	res, err := itemUC.importWithProgress(ctx, jb, param, op)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, interfaces.ErrImportTooManyRecords)
+	// The guard fires in the first pass over CSV rows, before any chunk is
+	// ever handed to saveChunk, so nothing should have been inserted/updated/ignored.
+	assert.Equal(t, interfaces.ImportItemsResponse{}, res)
 }
