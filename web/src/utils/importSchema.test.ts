@@ -41,11 +41,11 @@ import { ObjectUtils } from "./object";
 async function readFromJSONFile<T>(
   staticFileDirectory: string,
   baseDirectory = "public",
-): Promise<ReturnType<typeof ObjectUtils.safeJSONParse<T>>> {
+): ReturnType<typeof ObjectUtils.parseJSON<T>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  return await ObjectUtils.safeJSONParse(fileContent);
+  return await ObjectUtils.parseJSON(fileContent);
 }
 
 describe("Test import schema", () => {

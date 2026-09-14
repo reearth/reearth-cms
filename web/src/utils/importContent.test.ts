@@ -20,11 +20,11 @@ import { ObjectUtils } from "./object";
 async function readFromJSONFile(
   staticFileDirectory: string,
   baseDirectory = "public",
-): ReturnType<Awaited<typeof ObjectUtils.safeJSONParse<ImportContentItem[]>>> {
+): ReturnType<typeof ObjectUtils.parseJSON<ImportContentItem[]>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  const validation = await ObjectUtils.safeJSONParse<ImportContentItem[]>(fileContent);
+  const validation = await ObjectUtils.parseJSON<ImportContentItem[]>(fileContent);
 
   return validation.isValid
     ? { isValid: validation.isValid, data: validation.data }
@@ -48,7 +48,7 @@ async function readFromGeoJSONFile(
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  const validation = await ObjectUtils.safeJSONParse<FeatureCollection>(fileContent);
+  const validation = await ObjectUtils.parseJSON<FeatureCollection>(fileContent);
 
   if (!validation.isValid) return { isValid: false, error: validation.error };
 
@@ -880,6 +880,100 @@ describe("Content import test", () => {
           { setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: false } },
         ])(
           "$setup.type field accepts number/boolean value ($setup.value) by coercing to string",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(true);
+          },
+        );
+      });
+
+      describe("[Pass case] Bool/Integer/Number fields accept quoted values from JSON (incident regression)", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        test.each([
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: "true" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: "false" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: "42" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: "0" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: "-7" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: "1.5" } },
+          { setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: "-1.5" } },
+        ])(
+          "$setup.type field accepts quoted value ($setup.value) by coercing to the real type",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(true);
+          },
+        );
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              multiple: true,
+              value: ["true", "false"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              multiple: true,
+              value: ["1", "-2"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              multiple: true,
+              value: ["1.5", "-2.5"],
+            },
+          },
+        ])(
+          "$setup.type multiple field accepts quoted values ($setup.value) by coercing each item to the real type",
           async ({ setup }) => {
             const fields = [
               {
