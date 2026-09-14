@@ -999,6 +999,97 @@ describe("Content import test", () => {
         );
       });
 
+      describe("[Pass case] Select/Asset/URL are unaffected by scalar-looking string values (incident regression)", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+        };
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Select,
+              typeProperty: { values: ["1", "2", "3"] },
+              value: "1",
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              typeProperty: {},
+              value: "123456",
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              typeProperty: {},
+              value: "https://123.com/",
+            },
+          },
+        ])(
+          "$setup.type field accepts a digit-looking string value ($setup.value) as a plain string",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(true);
+
+            if (!contentValidation.isValid) return;
+
+            expect(contentValidation.data[0][setup.key]).toBe(setup.value);
+          },
+        );
+
+        test("'Date' field accepts a digit-looking string value as a Date, not a plain string", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.Date,
+              key: COMMON_SETUP.key,
+              required: COMMON_SETUP.required,
+              multiple: COMMON_SETUP.multiple,
+              typeProperty: {},
+            },
+          ];
+
+          const value = "2025-12-01T00:00:00+09:00";
+          const contentList = [{ [COMMON_SETUP.key]: value }];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(true);
+
+          if (!contentValidation.isValid) return;
+
+          expect(contentValidation.data[0][COMMON_SETUP.key]).toEqual(new Date(value));
+        });
+      });
+
       describe("[Fail case] GeometryObject/GeometryEditor reject double-encoded geometry strings (incident regression)", () => {
         const doubleEncodedPoint = JSON.stringify({
           type: "Point",
