@@ -999,6 +999,76 @@ describe("Content import test", () => {
         );
       });
 
+      describe("[Fail case] GeometryObject/GeometryEditor reject double-encoded geometry strings (incident regression)", () => {
+        const doubleEncodedPoint = JSON.stringify({
+          type: "Point",
+          coordinates: [139.6917, 35.6895],
+        });
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: {
+              key: "field-key",
+              required: true,
+              multiple: false,
+              type: SchemaFieldType.GeometryObject,
+              typeProperty: { objectSupportedTypes: ["POINT"] as ObjectSupportedType[] },
+              value: doubleEncodedPoint,
+            },
+          },
+          {
+            setup: {
+              key: "field-key",
+              required: true,
+              multiple: false,
+              type: SchemaFieldType.GeometryEditor,
+              typeProperty: { editorSupportedTypes: ["POINT"] as EditorSupportedType[] },
+              value: doubleEncodedPoint,
+            },
+          },
+        ])(
+          "$setup.type field rejects a quoted/double-encoded geometry string as a type mismatch",
+          async ({ setup }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: setup.value }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(EXPECTED_RESULT.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(EXPECTED_RESULT.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(EXPECTED_RESULT.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(EXPECTED_RESULT.outOfRangeFieldKeysCount);
+          },
+        );
+      });
+
       describe("[Fail case] Field value type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
