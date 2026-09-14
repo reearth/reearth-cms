@@ -25,7 +25,7 @@ const MyIntegrationList: React.FC<Props> = ({
   const t = useT();
   const lang = useLang();
   const documentUrl = useMemo<string>(
-    () => (lang === "ja" ? Constant.INTEGRATIONS_API_DOCS.ja : Constant.INTEGRATIONS_API_DOCS.en),
+    () => (lang.split("-")[0] === "ja" ? Constant.INTEGRATIONS_API_DOCS.ja : Constant.INTEGRATIONS_API_DOCS.en),
     [lang],
   );
 
