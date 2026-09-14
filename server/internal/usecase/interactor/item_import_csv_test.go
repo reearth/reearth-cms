@@ -178,3 +178,56 @@ func TestItem_importCSVWithProgress_TooManyRecords(t *testing.T) {
 	// ever handed to saveChunk, so nothing should have been inserted/updated/ignored.
 	assert.Equal(t, interfaces.ImportItemsResponse{}, res)
 }
+
+// TestItem_importCSVWithProgress_ProcessesInChunks guards against the
+// two-pass "read every row into allRows, then chunk it" shape that only
+// bounded record *count*, not memory: a within-limit CSV import must still
+// be processed and saved in chunkSize-sized pieces (observable via
+// incremental job-progress publishes), never as one giant in-memory batch.
+func TestItem_importCSVWithProgress_ProcessesInChunks(t *testing.T) {
+	t.Parallel()
+
+	ctx, itemUC, jb, m, sp, op, pubsub := setupImportWithProgressFixtureWithPubSub(t)
+
+	recordCount := chunkSize*2 + chunkSize/2 // 2 full chunks + 1 partial
+	payload := buildOversizedCSV(recordCount)
+
+	sub, err := pubsub.Subscribe(ctx, jb.ID())
+	require.NoError(t, err)
+
+	param := interfaces.ImportItemsParam{
+		ModelID:      m.ID(),
+		SP:           sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       interfaces.ImportFormatTypeCSV,
+		MutateSchema: false,
+		Reader:       strings.NewReader(payload),
+	}
+
+	res, err := itemUC.importWithProgress(ctx, jb, param, op)
+	require.NoError(t, err)
+	assert.Equal(t, recordCount, res.Inserted)
+
+	var processedSteps []int
+drain:
+	for {
+		select {
+		case state := <-sub:
+			if p := state.Progress(); p != nil {
+				processedSteps = append(processedSteps, p.Processed())
+			}
+		default:
+			break drain
+		}
+	}
+
+	require.Len(t, processedSteps, 3, "expected one progress publish per chunk (2 full + 1 partial)")
+	for idx, processed := range processedSteps {
+		step := processed
+		if idx > 0 {
+			step = processed - processedSteps[idx-1]
+		}
+		assert.LessOrEqual(t, step, chunkSize, "no single progress step should exceed chunkSize, i.e. no chunk held more than chunkSize rows at once")
+	}
+	assert.Equal(t, recordCount, processedSteps[len(processedSteps)-1])
+}
