@@ -55,6 +55,18 @@ async function readFromGeoJSONFile(
   return await ImportContentUtils.convertGeoJSONToJSON(validation.data);
 }
 
+// Round-trips a hand-built fixture through the real JSON import parser
+// (ObjectUtils.parseJSON) instead of handing validateContent an already-shaped
+// JS object, so tests exercise the actual import pipeline rather than only
+// the Zod validator layer.
+async function parseAsImportedJSON<T>(contentList: T): Promise<T> {
+  const validation = await ObjectUtils.parseJSON<T>(JSON.stringify(contentList));
+
+  if (!validation.isValid) throw new Error(`Test fixture is not valid JSON: ${validation.error}`);
+
+  return validation.data;
+}
+
 const DEFAULT_COMMON_FIELD: Pick<Field, "id" | "description" | "title" | "isTitle" | "unique"> = {
   id: "",
   description: "",
@@ -259,7 +271,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -304,7 +316,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -353,7 +365,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -402,7 +414,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -483,7 +495,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -543,7 +555,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -615,7 +627,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -709,7 +721,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -755,7 +767,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -804,7 +816,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -853,7 +865,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -895,7 +907,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: setup.value }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -938,7 +950,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: setup.value }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -989,7 +1001,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: setup.value }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1048,7 +1060,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: setup.value }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1077,7 +1089,7 @@ describe("Content import test", () => {
           const contentList = [{ [COMMON_SETUP.key]: value }];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1141,7 +1153,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: setup.value }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1231,7 +1243,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1291,7 +1303,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1354,7 +1366,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1417,7 +1429,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1507,7 +1519,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: null }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1586,7 +1598,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: null }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1650,7 +1662,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: null }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1710,7 +1722,7 @@ describe("Content import test", () => {
             const contentList = [{ [setup.key]: null }];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1812,7 +1824,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1858,7 +1870,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1905,7 +1917,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -1952,7 +1964,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2073,7 +2085,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2197,7 +2209,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2311,7 +2323,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2350,7 +2362,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2389,7 +2401,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2428,7 +2440,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2561,7 +2573,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2622,7 +2634,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2683,7 +2695,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2736,7 +2748,7 @@ describe("Content import test", () => {
           ];
 
           const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
+            await parseAsImportedJSON(contentList),
             fields,
             "JSON",
             Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2854,7 +2866,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2908,7 +2920,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -2963,7 +2975,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3033,7 +3045,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3097,7 +3109,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3172,7 +3184,7 @@ describe("Content import test", () => {
               ];
 
               const contentValidation = await ImportContentUtils.validateContent(
-                contentList,
+                await parseAsImportedJSON(contentList),
                 fields,
                 "JSON",
                 Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3248,7 +3260,7 @@ describe("Content import test", () => {
               ];
 
               const contentValidation = await ImportContentUtils.validateContent(
-                contentList,
+                await parseAsImportedJSON(contentList),
                 fields,
                 "JSON",
                 Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3301,7 +3313,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3348,7 +3360,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3448,7 +3460,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3544,7 +3556,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3722,7 +3734,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3868,7 +3880,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -3937,7 +3949,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4005,7 +4017,7 @@ describe("Content import test", () => {
             ];
 
             const contentValidation = await ImportContentUtils.validateContent(
-              contentList,
+              await parseAsImportedJSON(contentList),
               fields,
               "JSON",
               Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4042,7 +4054,7 @@ describe("Content import test", () => {
         ];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4076,7 +4088,7 @@ describe("Content import test", () => {
         ];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4112,7 +4124,7 @@ describe("Content import test", () => {
         ];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4146,7 +4158,7 @@ describe("Content import test", () => {
         ];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4176,7 +4188,7 @@ describe("Content import test", () => {
         const contentList = [{ "text-key": "a" }, { "text-key": "b" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           1,
@@ -4206,7 +4218,7 @@ describe("Content import test", () => {
         const contentList = [{ "select-key": "yellow" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4234,7 +4246,7 @@ describe("Content import test", () => {
         const contentList = [{ "url-key": "not-a-url" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4270,7 +4282,7 @@ describe("Content import test", () => {
         const contentList = [{ "text-key": "toolong", "bool-key": "not-a-bool" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4299,7 +4311,7 @@ describe("Content import test", () => {
         const contentList = [{ "int-key": 5 }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4328,7 +4340,7 @@ describe("Content import test", () => {
         const contentList = [{ "other-key": "a" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4357,7 +4369,7 @@ describe("Content import test", () => {
         const contentList = [{ "int-key": -5 }, { "int-key": 200 }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4387,7 +4399,7 @@ describe("Content import test", () => {
         const contentList = [{ "text-key": "valid", "unknown-key": 12345 }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4412,6 +4424,9 @@ describe("Content import test", () => {
           },
         ];
 
+        // Fixture is deliberately not routed through parseAsImportedJSON: this
+        // test exercises the CSV sourceFormat path, which never goes through
+        // ObjectUtils.parseJSON in production (CSV import uses Papa.parse).
         const contentList = [{ "geo-key": "some-string" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
@@ -4438,6 +4453,9 @@ describe("Content import test", () => {
           },
         ];
 
+        // Fixture is deliberately not routed through parseAsImportedJSON: this
+        // test exercises the CSV sourceFormat path, which never goes through
+        // ObjectUtils.parseJSON in production (CSV import uses Papa.parse).
         const contentList = [{ "geo-editor-key": "some-string" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
@@ -4467,7 +4485,7 @@ describe("Content import test", () => {
         const contentList: Record<string, unknown>[] = [];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4482,7 +4500,7 @@ describe("Content import test", () => {
         const contentList = [{ "some-key": "some-value" }];
 
         const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
+          await parseAsImportedJSON(contentList),
           fields,
           "JSON",
           Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4662,7 +4680,7 @@ describe("Content import test", () => {
       const contentList = [{ "int-field": 75 }];
 
       const result = await ImportContentUtils.validateContent(
-        contentList,
+        await parseAsImportedJSON(contentList),
         fields,
         "JSON",
         Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
@@ -4688,7 +4706,7 @@ describe("Content import test", () => {
       const contentList = [{ "num-field": 75.0 }];
 
       const result = await ImportContentUtils.validateContent(
-        contentList,
+        await parseAsImportedJSON(contentList),
         fields,
         "JSON",
         Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
