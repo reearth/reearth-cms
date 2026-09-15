@@ -5,6 +5,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
 	"testing"
@@ -17,8 +18,10 @@ import (
 func TestFromURL(t *testing.T) {
 	ctx := context.Background()
 
-	httpmock.Activate()
-	defer httpmock.Deactivate()
+	// Activate httpmock on the custom urlFetchClient (not the default transport)
+	// so that the existing mock responders intercept requests going through our client.
+	httpmock.ActivateNonDefault(urlFetchClient)
+	defer httpmock.DeactivateAndReset()
 
 	t.Run("with gzip encoding", func(t *testing.T) {
 		URL := "https://cms.com/xyz/test.txt.gz"
@@ -83,4 +86,35 @@ func TestFromURL(t *testing.T) {
 		assert.Equal(t, expected.Name, got.Name)
 		assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))
 	})
+
+	t.Run("rejects non-http scheme", func(t *testing.T) {
+		_, err := FromURL(ctx, "file:///etc/passwd")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "unsupported URL scheme")
+	})
+
+	t.Run("rejects ftp scheme", func(t *testing.T) {
+		_, err := FromURL(ctx, "ftp://example.com/file.txt")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "unsupported URL scheme")
+	})
+}
+
+// TestFromURL_SSRFLoopbackBlocked verifies that requests to loopback addresses
+// are rejected even when an HTTP server is actually listening there. This test
+// operates outside the httpmock scope so that the real DialContext is invoked.
+func TestFromURL_SSRFLoopbackBlocked(t *testing.T) {
+	ctx := context.Background()
+
+	// Start a real local server; its address will be 127.0.0.1:<port>.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	// srv.URL is "http://127.0.0.1:<port>" — a loopback address.
+	// The SSRF dial error is wrapped by rerror.ErrInternalBy, so we check that
+	// an error is returned (the connection was blocked) rather than matching text.
+	_, err := FromURL(ctx, srv.URL)
+	assert.Error(t, err, "expected SSRF block for loopback address")
 }
