@@ -212,6 +212,23 @@ yarn playwright test --ui
 yarn playwright show-report
 ```
 
+### Allure Report
+
+Test results are also written to `allure-results/` by the `allure-playwright` reporter.
+
+```bash
+# Generate the report into allure-report/
+yarn allure:generate
+
+# Open the generated report
+yarn allure:open
+
+# Regenerate and serve the report as results change
+yarn allure:watch
+```
+
+In CI, the report is published to GCS and served at https://allure.test.reearth.dev/cms/ (Eukarya Google account required). The workflow keeps the last 50 runs in the dashboard index and carries trend history across runs via `history.jsonl`.
+
 ### Using VS Code Extension
 
 Install the [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) extension for:
