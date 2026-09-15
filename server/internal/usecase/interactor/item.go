@@ -60,8 +60,8 @@ func (i Item) checkPermissions(ctx context.Context, action rbac.Action, projectI
 	return doCheckPermission(ctx, i.gateways, rbac.ResourceItem, action, lo.Uniq(projects.Workspaces())...)
 }
 
-func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+func (i Item) FindByID(ctx context.Context, itemID id.ItemID, ref *version.Ref, _ *usecase.Operator) (item.Versioned, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemID, ref)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +146,8 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 	return items.Unwrap(), pi, nil
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	items, pi, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	items, pi, err := i.repos.Item.FindBySchema(ctx, schemaID, ref, sort, p)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -141,11 +141,11 @@ type ExportItemParams struct {
 }
 
 type Item interface {
-	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
+	FindByID(context.Context, id.ItemID, *version.Ref, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	FindByAssets(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]item.VersionedList, error)
-	FindBySchema(context.Context, id.SchemaID, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	FindBySchema(context.Context, id.SchemaID, *version.Ref, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindVersionByID(context.Context, id.ItemID, version.VersionOrRef, *usecase.Operator) (item.Versioned, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)

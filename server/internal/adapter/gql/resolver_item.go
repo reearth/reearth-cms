@@ -228,7 +228,7 @@ func (r *mutationResolver) DeleteItem(ctx context.Context, input gqlmodel.Delete
 		return nil, err
 	}
 
-	i, err := usecases(ctx).Item.FindByID(ctx, iid, getOperator(ctx))
+	i, err := usecases(ctx).Item.FindByID(ctx, iid, nil, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func (r *mutationResolver) DeleteItems(ctx context.Context, input gqlmodel.Delet
 		return nil, err
 	}
 
-	i, err := usecases(ctx).Item.FindByID(ctx, itemIDs[0], getOperator(ctx))
+	i, err := usecases(ctx).Item.FindByID(ctx, itemIDs[0], nil, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

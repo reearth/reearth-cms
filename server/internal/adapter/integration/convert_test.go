@@ -6,11 +6,18 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestFromRef(t *testing.T) {
+	assert.Nil(t, fromRef[integrationapi.ItemFilterParamsRef](nil))
+	assert.Equal(t, version.Public.Ref(), fromRef(lo.ToPtr(integrationapi.ItemFilterParamsRef("public"))))
+	assert.Equal(t, version.Latest.Ref(), fromRef(lo.ToPtr(integrationapi.ItemFilterParamsRef("latest"))))
+}
 
 func TestFromPagination(t *testing.T) {
 	assert.Equal(t, &usecasex.Pagination{

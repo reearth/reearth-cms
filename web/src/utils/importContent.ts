@@ -184,7 +184,11 @@ export abstract class ImportContentUtils {
         }
 
         case "Bool": {
-          let booleanField: z.ZodTypeAny = z.boolean();
+          // Coerce "true"/"false" strings to booleans to mirror server-side ToValue behavior
+          let booleanField: z.ZodTypeAny = z.preprocess(
+            val => (val === "true" ? true : val === "false" ? false : val),
+            z.boolean(),
+          );
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -228,7 +232,12 @@ export abstract class ImportContentUtils {
           const max = z.int().safeParse(field.typeProperty?.max);
           if (max.success) intField = intField.max(max.data);
 
-          let intFieldAny: z.ZodTypeAny = intField;
+          // Coerce numeric strings to numbers to mirror server-side ToValue behavior
+          let intFieldAny: z.ZodTypeAny = z.preprocess(val => {
+            if (typeof val !== "string" || val.trim() === "") return val;
+            const parsed = Number(val);
+            return Number.isFinite(parsed) ? parsed : val;
+          }, intField);
 
           // max should greater than min
           if (min.success && max.success)
@@ -279,7 +288,12 @@ export abstract class ImportContentUtils {
           const max = z.number().safeParse(field.typeProperty?.max);
           if (max.success) floatField = floatField.max(max.data);
 
-          let floatFieldAny: z.ZodTypeAny = floatField;
+          // Coerce numeric strings to numbers to mirror server-side ToValue behavior
+          let floatFieldAny: z.ZodTypeAny = z.preprocess(val => {
+            if (typeof val !== "string" || val.trim() === "") return val;
+            const parsed = Number(val);
+            return Number.isFinite(parsed) ? parsed : val;
+          }, floatField);
 
           // max should greater than min
           if (min.success && max.success)

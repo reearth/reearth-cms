@@ -23,6 +23,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
@@ -160,7 +161,7 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 		ModelID:       mId,
 		SchemaPackage: *sp,
 		Options: exporters.ExportOptions{
-			PublicOnly: true,
+			Ref: version.Public.Ref(),
 		},
 	}, w, op)
 	if err != nil {

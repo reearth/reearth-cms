@@ -2131,6 +2131,113 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		})
 }
 
+// GET /items/{itemId}?ref=public vs ref=latest
+func TestIntegrationGetItemAPIRef(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// itmId1 has never been published: ref=public must not find it, ref=latest/default must.
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusNotFound)
+
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "latest").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid1.String(),
+			},
+		})
+
+	// Publish the current version, then diverge the draft from it.
+	iAPIItemPublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{
+			"fields": []any{
+				map[string]string{
+					"id":    fId1.String(),
+					"value": "draft-only value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK)
+
+	// ref=public must still return the published version, unaffected by the later draft edit.
+	rPublic := iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	rPublic.Value("refs").IsEqual([]string{"public"})
+	rPublic.Value("fields").IsEqual([]any{
+		map[string]string{
+			"id":    fId2.String(),
+			"key":   "asset",
+			"type":  "asset",
+			"value": aid1.String(),
+		},
+	})
+
+	// ref=latest (and the default, no ref) must return the draft, including the new field.
+	for _, q := range []map[string]any{{"ref": "latest"}, {}} {
+		req := iAPIItemGet(e, wId0, pid, mId1, itmId1).
+			WithHeader("authorization", "Bearer "+secret)
+		for k, v := range q {
+			req = req.WithQuery(k, v)
+		}
+		rLatest := req.
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Object()
+		rLatest.Value("refs").IsEqual([]string{"latest"})
+		rLatest.Value("fields").IsEqual([]any{
+			map[string]string{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid1.String(),
+			},
+			map[string]string{
+				"id":    fId1.String(),
+				"type":  "text",
+				"value": "draft-only value",
+				"key":   sfKey1.String(),
+			},
+		})
+	}
+
+	// A caller without read permission still gets rejected regardless of ref.
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer secret_abc").
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusUnauthorized)
+}
+
 // DELETE /items/{itemId}
 func TestIntegrationDeleteItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
