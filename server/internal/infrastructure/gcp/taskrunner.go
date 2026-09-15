@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"sync"
-	"time"
 
 	"cloud.google.com/go/pubsub/v2"
 	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
@@ -19,20 +17,14 @@ import (
 
 var defaultDiskSizeGb int64 = 2000 // 2TB
 
-const healthCheckCacheTTL = 30 * time.Second
-
 type TaskRunner struct {
 	conf      *TaskConfig
-	pubsub    *pubsub.Client
+	psClient  *pubsub.Client
 	cbService *cloudbuild.Service
-
-	hcMu       sync.Mutex
-	hcResult   error
-	hcResultAt time.Time
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
-	pubsub, err := pubsub.NewClient(ctx, conf.GCPProject)
+	ps, err := pubsub.NewClient(ctx, conf.GCPProject)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +36,7 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 
 	return &TaskRunner{
 		conf:      conf,
-		pubsub:    pubsub,
+		psClient:  ps,
 		cbService: cb,
 	}, nil
 }
@@ -57,7 +49,7 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return t.runPubSub(ctx, p)
 }
 
-func (t *TaskRunner) Retry(ctx context.Context, id string) error {
+func (t *TaskRunner) Retry(_ context.Context, id string) error {
 	project := t.conf.GCPProject
 	region := t.conf.GCPRegion
 
@@ -80,45 +72,20 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 }
 
 // HealthCheck implements gateway.TaskRunner.
-// Results are cached for healthCheckCacheTTL to avoid hammering external APIs
-// on frequent live-probe calls while still returning a fresh result on startup.
 func (t *TaskRunner) HealthCheck(ctx context.Context) error {
-	t.hcMu.Lock()
-	if time.Since(t.hcResultAt) < healthCheckCacheTTL {
-		err := t.hcResult
-		t.hcMu.Unlock()
-		return err
-	}
-	t.hcMu.Unlock()
-
-	err := t.doHealthCheck(ctx)
-
-	t.hcMu.Lock()
-	t.hcResult = err
-	t.hcResultAt = time.Now()
-	t.hcMu.Unlock()
-
-	return err
-}
-
-func (t *TaskRunner) doHealthCheck(ctx context.Context) error {
-	if t.pubsub == nil {
+	if t.psClient == nil {
 		return rerror.ErrInternalBy(fmt.Errorf("pubsub client is not initialized"))
 	}
 
 	if t.conf.Topic != "" {
 		topicName := fmt.Sprintf("projects/%s/topics/%s", t.conf.GCPProject, t.conf.Topic)
-		if _, err := t.pubsub.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName}); err != nil {
+		if _, err := t.psClient.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName}); err != nil {
 			return rerror.ErrInternalBy(fmt.Errorf("pubsub topic %s does not exist or is inaccessible: %w", t.conf.Topic, err))
 		}
 	}
 
 	if t.conf.BuildServiceAccount == "" {
 		return rerror.ErrInternalBy(fmt.Errorf("build service account is not configured"))
-	}
-
-	if err := CheckServiceAccountPermissions(ctx, t.conf); err != nil {
-		return err
 	}
 
 	if t.conf.WorkerPool != "" {
@@ -148,7 +115,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	return nil
 }
 
-func (t *TaskRunner) decompressAsset(ctx context.Context, p task.Payload) error {
+func (t *TaskRunner) decompressAsset(_ context.Context, p task.Payload) error {
 	conf := t.conf
 	src, err := url.JoinPath("gs://"+conf.GCSBucket, "assets", p.DecompressAsset.Path)
 	if err != nil {
@@ -211,7 +178,7 @@ func (t *TaskRunner) decompressAsset(ctx context.Context, p task.Payload) error 
 	return nil
 }
 
-func (t *TaskRunner) copyItems(ctx context.Context, p task.Payload) error {
+func (t *TaskRunner) copyItems(_ context.Context, p task.Payload) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
@@ -263,7 +230,7 @@ func (t *TaskRunner) copyItems(ctx context.Context, p task.Payload) error {
 	return nil
 }
 
-func (t *TaskRunner) importItems(ctx context.Context, p task.Payload) error {
+func (t *TaskRunner) importItems(_ context.Context, p task.Payload) error {
 	if !p.Import.Validate() {
 		return rerror.Fmt("invalid import payload")
 	}
@@ -365,7 +332,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 
-	topic := t.pubsub.Publisher(t.conf.Topic)
+	topic := t.psClient.Publisher(t.conf.Topic)
 	result := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
 	})
