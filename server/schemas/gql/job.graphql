@@ -24,6 +24,18 @@ type Job implements Node {
   updatedAt: DateTime!
   startedAt: DateTime
   completedAt: DateTime
+  # only present for a completed IMPORT job
+  importResult: ImportJobResult
+}
+
+# Result of a completed import job. columns mirrors ImportItemsPayload.columns
+# and is empty for non CSV imports.
+type ImportJobResult {
+  total: Int!
+  inserted: Int!
+  updated: Int!
+  ignored: Int!
+  columns: [ImportColumnResult!]!
 }
 
 type JobProgress {

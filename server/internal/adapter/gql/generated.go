@@ -305,16 +305,32 @@ type ComplexityRoot struct {
 		TotalCount func(childComplexity int) int
 	}
 
+	ImportColumnResult struct {
+		Header         func(childComplexity int) int
+		Reason         func(childComplexity int) int
+		SchemaFieldKey func(childComplexity int) int
+		Status         func(childComplexity int) int
+	}
+
 	ImportItemsAsyncPayload struct {
 		Job func(childComplexity int) int
 	}
 
 	ImportItemsPayload struct {
+		Columns       func(childComplexity int) int
 		IgnoredCount  func(childComplexity int) int
 		InsertedCount func(childComplexity int) int
 		ModelID       func(childComplexity int) int
 		TotalCount    func(childComplexity int) int
 		UpdatedCount  func(childComplexity int) int
+	}
+
+	ImportJobResult struct {
+		Columns  func(childComplexity int) int
+		Ignored  func(childComplexity int) int
+		Inserted func(childComplexity int) int
+		Total    func(childComplexity int) int
+		Updated  func(childComplexity int) int
 	}
 
 	Integration struct {
@@ -400,16 +416,17 @@ type ComplexityRoot struct {
 	}
 
 	Job struct {
-		CompletedAt func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
-		Error       func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Progress    func(childComplexity int) int
-		ProjectID   func(childComplexity int) int
-		StartedAt   func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Type        func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		CompletedAt  func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Error        func(childComplexity int) int
+		ID           func(childComplexity int) int
+		ImportResult func(childComplexity int) int
+		Progress     func(childComplexity int) int
+		ProjectID    func(childComplexity int) int
+		StartedAt    func(childComplexity int) int
+		Status       func(childComplexity int) int
+		Type         func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
 	}
 
 	JobProgress struct {
@@ -1941,6 +1958,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.GuessSchemaFieldResult.TotalCount(childComplexity), true
 
+	case "ImportColumnResult.header":
+		if e.ComplexityRoot.ImportColumnResult.Header == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportColumnResult.Header(childComplexity), true
+	case "ImportColumnResult.reason":
+		if e.ComplexityRoot.ImportColumnResult.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportColumnResult.Reason(childComplexity), true
+	case "ImportColumnResult.schemaFieldKey":
+		if e.ComplexityRoot.ImportColumnResult.SchemaFieldKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportColumnResult.SchemaFieldKey(childComplexity), true
+	case "ImportColumnResult.status":
+		if e.ComplexityRoot.ImportColumnResult.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportColumnResult.Status(childComplexity), true
+
 	case "ImportItemsAsyncPayload.job":
 		if e.ComplexityRoot.ImportItemsAsyncPayload.Job == nil {
 			break
@@ -1948,6 +1990,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImportItemsAsyncPayload.Job(childComplexity), true
 
+	case "ImportItemsPayload.columns":
+		if e.ComplexityRoot.ImportItemsPayload.Columns == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportItemsPayload.Columns(childComplexity), true
 	case "ImportItemsPayload.ignoredCount":
 		if e.ComplexityRoot.ImportItemsPayload.IgnoredCount == nil {
 			break
@@ -1978,6 +2026,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImportItemsPayload.UpdatedCount(childComplexity), true
+
+	case "ImportJobResult.columns":
+		if e.ComplexityRoot.ImportJobResult.Columns == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportJobResult.Columns(childComplexity), true
+	case "ImportJobResult.ignored":
+		if e.ComplexityRoot.ImportJobResult.Ignored == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportJobResult.Ignored(childComplexity), true
+	case "ImportJobResult.inserted":
+		if e.ComplexityRoot.ImportJobResult.Inserted == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportJobResult.Inserted(childComplexity), true
+	case "ImportJobResult.total":
+		if e.ComplexityRoot.ImportJobResult.Total == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportJobResult.Total(childComplexity), true
+	case "ImportJobResult.updated":
+		if e.ComplexityRoot.ImportJobResult.Updated == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImportJobResult.Updated(childComplexity), true
 
 	case "Integration.config":
 		if e.ComplexityRoot.Integration.Config == nil {
@@ -2342,6 +2421,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Job.ID(childComplexity), true
+	case "Job.importResult":
+		if e.ComplexityRoot.Job.ImportResult == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.ImportResult(childComplexity), true
 	case "Job.progress":
 		if e.ComplexityRoot.Job.Progress == nil {
 			break
@@ -6343,12 +6428,27 @@ type PublishItemPayload {
   items: [Item!]!
 }
 
+enum ImportColumnStatus {
+  MATCHED
+  SKIPPED
+}
+
+# Per column report of the imported file. schemaFieldKey is set for matched columns,
+# reason for skipped ones. The reserved "id" column is not reported.
+type ImportColumnResult {
+  header: String!
+  status: ImportColumnStatus!
+  schemaFieldKey: String
+  reason: String
+}
+
 type ImportItemsPayload {
   modelId: ID!
   totalCount: Int!
   insertedCount: Int!
   updatedCount: Int!
   ignoredCount: Int!
+  columns: [ImportColumnResult!]!
 }
 
 type ImportItemsAsyncPayload {
@@ -6725,6 +6825,18 @@ type Job implements Node {
   updatedAt: DateTime!
   startedAt: DateTime
   completedAt: DateTime
+  # only present for a completed IMPORT job
+  importResult: ImportJobResult
+}
+
+# Result of a completed import job. columns mirrors ImportItemsPayload.columns
+# and is empty for non CSV imports.
+type ImportJobResult {
+  total: Int!
+  inserted: Int!
+  updated: Int!
+  ignored: Int!
+  columns: [ImportColumnResult!]!
 }
 
 type JobProgress {
@@ -7995,6 +8107,20 @@ func (ec *executionContext) childFields_GuessSchemaFieldResult(ctx context.Conte
 	return nil, fmt.Errorf("no field named %q was found under type GuessSchemaFieldResult", field.Name)
 }
 
+func (ec *executionContext) childFields_ImportColumnResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "header":
+		return ec.fieldContext_ImportColumnResult_header(ctx, field)
+	case "status":
+		return ec.fieldContext_ImportColumnResult_status(ctx, field)
+	case "schemaFieldKey":
+		return ec.fieldContext_ImportColumnResult_schemaFieldKey(ctx, field)
+	case "reason":
+		return ec.fieldContext_ImportColumnResult_reason(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImportColumnResult", field.Name)
+}
+
 func (ec *executionContext) childFields_ImportItemsAsyncPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "job":
@@ -8015,8 +8141,26 @@ func (ec *executionContext) childFields_ImportItemsPayload(ctx context.Context, 
 		return ec.fieldContext_ImportItemsPayload_updatedCount(ctx, field)
 	case "ignoredCount":
 		return ec.fieldContext_ImportItemsPayload_ignoredCount(ctx, field)
+	case "columns":
+		return ec.fieldContext_ImportItemsPayload_columns(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImportItemsPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_ImportJobResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "total":
+		return ec.fieldContext_ImportJobResult_total(ctx, field)
+	case "inserted":
+		return ec.fieldContext_ImportJobResult_inserted(ctx, field)
+	case "updated":
+		return ec.fieldContext_ImportJobResult_updated(ctx, field)
+	case "ignored":
+		return ec.fieldContext_ImportJobResult_ignored(ctx, field)
+	case "columns":
+		return ec.fieldContext_ImportJobResult_columns(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImportJobResult", field.Name)
 }
 
 func (ec *executionContext) childFields_Integration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -8205,6 +8349,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_startedAt(ctx, field)
 	case "completedAt":
 		return ec.fieldContext_Job_completedAt(ctx, field)
+	case "importResult":
+		return ec.fieldContext_Job_importResult(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 }
@@ -13416,6 +13562,98 @@ func (ec *executionContext) fieldContext_GuessSchemaFieldResult_fields(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _ImportColumnResult_header(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportColumnResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportColumnResult_header(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Header, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportColumnResult_header(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportColumnResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ImportColumnResult_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportColumnResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportColumnResult_status(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.ImportColumnStatus) graphql.Marshaler {
+			return ec.marshalNImportColumnStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnStatus(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportColumnResult_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportColumnResult", field, false, false, errors.New("field of type ImportColumnStatus does not have child fields"))
+}
+
+func (ec *executionContext) _ImportColumnResult_schemaFieldKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportColumnResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportColumnResult_schemaFieldKey(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SchemaFieldKey, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ImportColumnResult_schemaFieldKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportColumnResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ImportColumnResult_reason(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportColumnResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportColumnResult_reason(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Reason, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ImportColumnResult_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportColumnResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _ImportItemsAsyncPayload_job(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsAsyncPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -13561,6 +13799,162 @@ func (ec *executionContext) _ImportItemsPayload_ignoredCount(ctx context.Context
 }
 func (ec *executionContext) fieldContext_ImportItemsPayload_ignoredCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ImportItemsPayload", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ImportItemsPayload_columns(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportItemsPayload_columns(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Columns, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*gqlmodel.ImportColumnResult) graphql.Marshaler {
+			return ec.marshalNImportColumnResult2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnResultᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportItemsPayload_columns(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ImportColumnResult(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportJobResult_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportJobResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportJobResult_total(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportJobResult_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportJobResult", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ImportJobResult_inserted(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportJobResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportJobResult_inserted(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Inserted, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportJobResult_inserted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportJobResult", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ImportJobResult_updated(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportJobResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportJobResult_updated(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Updated, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportJobResult_updated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportJobResult", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ImportJobResult_ignored(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportJobResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportJobResult_ignored(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Ignored, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportJobResult_ignored(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ImportJobResult", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ImportJobResult_columns(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportJobResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ImportJobResult_columns(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Columns, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*gqlmodel.ImportColumnResult) graphql.Marshaler {
+			return ec.marshalNImportColumnResult2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnResultᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ImportJobResult_columns(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportJobResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ImportColumnResult(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _Integration_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Integration) (ret graphql.Marshaler) {
@@ -15245,6 +15639,38 @@ func (ec *executionContext) _Job_completedAt(ctx context.Context, field graphql.
 }
 func (ec *executionContext) fieldContext_Job_completedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Job", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _Job_importResult(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Job_importResult(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ImportResult, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *gqlmodel.ImportJobResult) graphql.Marshaler {
+			return ec.marshalOImportJobResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportJobResult(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Job_importResult(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ImportJobResult(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _JobProgress_processed(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
@@ -35590,6 +36016,59 @@ func (ec *executionContext) _GuessSchemaFieldResult(ctx context.Context, sel ast
 	return out
 }
 
+var importColumnResultImplementors = []string{"ImportColumnResult"}
+
+func (ec *executionContext) _ImportColumnResult(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportColumnResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, importColumnResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImportColumnResult")
+		case "header":
+			out.Values[i] = ec._ImportColumnResult_header(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._ImportColumnResult_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "schemaFieldKey":
+			out.Values[i] = ec._ImportColumnResult_schemaFieldKey(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._ImportColumnResult_reason(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var importItemsAsyncPayloadImplementors = []string{"ImportItemsAsyncPayload"}
 
 func (ec *executionContext) _ImportItemsAsyncPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportItemsAsyncPayload) graphql.Marshaler {
@@ -35662,6 +36141,69 @@ func (ec *executionContext) _ImportItemsPayload(ctx context.Context, sel ast.Sel
 			}
 		case "ignoredCount":
 			out.Values[i] = ec._ImportItemsPayload_ignoredCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "columns":
+			out.Values[i] = ec._ImportItemsPayload_columns(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var importJobResultImplementors = []string{"ImportJobResult"}
+
+func (ec *executionContext) _ImportJobResult(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportJobResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, importJobResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImportJobResult")
+		case "total":
+			out.Values[i] = ec._ImportJobResult_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "inserted":
+			out.Values[i] = ec._ImportJobResult_inserted(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updated":
+			out.Values[i] = ec._ImportJobResult_updated(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ignored":
+			out.Values[i] = ec._ImportJobResult_ignored(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "columns":
+			out.Values[i] = ec._ImportJobResult_columns(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -36746,6 +37288,11 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 		case "completedAt":
 			out.Values[i] = ec._Job_completedAt(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "importResult":
+			out.Values[i] = ec._Job_importResult(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
 				out.Invalids++
 			}
@@ -43737,6 +44284,42 @@ func (ec *executionContext) marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ret
 }
 
+func (ec *executionContext) marshalNImportColumnResult2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ImportColumnResult) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNImportColumnResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnResult(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNImportColumnResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnResult(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportColumnResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ImportColumnResult(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNImportColumnStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnStatus(ctx context.Context, v any) (gqlmodel.ImportColumnStatus, error) {
+	var res gqlmodel.ImportColumnStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNImportColumnStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportColumnStatus(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ImportColumnStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNImportItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsInput(ctx context.Context, v any) (gqlmodel.ImportItemsInput, error) {
 	res, err := ec.unmarshalInputImportItemsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -45898,6 +46481,13 @@ func (ec *executionContext) marshalOImportItemsPayload2ᚖgithubᚗcomᚋreearth
 		return graphql.Null
 	}
 	return ec._ImportItemsPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOImportJobResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportJobResult(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportJobResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ImportJobResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {

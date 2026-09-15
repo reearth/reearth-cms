@@ -42,7 +42,8 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 	}
 
 	// Build field map from headers to schema fields
-	fieldMap := buildFieldMap(headers, param.SP)
+	fieldMap, columns := buildFieldMap(headers, param.SP)
+	res.SetColumns(columns)
 
 	count, totalCount := 0, 0
 	csvChunk := make([]map[string]any, 0)
@@ -115,7 +116,8 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	}
 
 	// Build field map from headers to schema fields
-	fieldMap := buildFieldMap(headers, param.SP)
+	fieldMap, columns := buildFieldMap(headers, param.SP)
+	res.SetColumns(columns)
 
 	// First pass: read all records to get total count
 	allRows := make([][]string, 0)
@@ -194,9 +196,12 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	return res.Into(), nil
 }
 
-// buildFieldMap creates a mapping from header column name to schema field
-func buildFieldMap(headers []string, sp schema.Package) map[string]*schema.Field {
+// buildFieldMap creates a mapping from header column name to schema field, together with
+// a per-header report of which columns were matched to a schema field and which were skipped.
+// The reserved "id" column is left out of the report: it carries the item identifier, not field data.
+func buildFieldMap(headers []string, sp schema.Package) (map[string]*schema.Field, []interfaces.ImportColumnResult) {
 	fieldMap := make(map[string]*schema.Field)
+	columns := make([]interfaces.ImportColumnResult, 0, len(headers))
 	for _, h := range headers {
 		if h == "id" {
 			continue
@@ -205,10 +210,29 @@ func buildFieldMap(headers []string, sp schema.Package) map[string]*schema.Field
 		if key.IsValid() {
 			if f := sp.FieldByIDOrKey(nil, &key); f != nil {
 				fieldMap[h] = f
+				columns = append(columns, matchedCSVColumn(h, f))
+				continue
 			}
 		}
+		columns = append(columns, skippedCSVColumn(h))
 	}
-	return fieldMap
+	return fieldMap, columns
+}
+
+func matchedCSVColumn(header string, f *schema.Field) interfaces.ImportColumnResult {
+	return interfaces.ImportColumnResult{
+		Header:         header,
+		Status:         interfaces.ImportColumnStatusMatched,
+		SchemaFieldKey: new(f.Key().String()),
+	}
+}
+
+func skippedCSVColumn(header string) interfaces.ImportColumnResult {
+	return interfaces.ImportColumnResult{
+		Header: header,
+		Status: interfaces.ImportColumnStatusSkipped,
+		Reason: new(fmt.Sprintf("no matching schema field for header '%s'", header)),
+	}
 }
 
 // csvRowToMap converts a CSV row to a map with typed values
