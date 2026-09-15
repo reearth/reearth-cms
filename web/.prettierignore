@@ -19,6 +19,8 @@ storybook-static/*
 # Ignore Playwright test output:
 playwright-report/
 playwright/.cache/
+allure-results/
+allure-report/
 
 # Ignore GraphQL files:
 src/gql/graphql-client-api.tsx
