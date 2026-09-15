@@ -3,13 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/hellofresh/health-go/v5"
-	"github.com/hellofresh/health-go/v5/checks/mongo"
+	httpCheck "github.com/hellofresh/health-go/v5/checks/http"
+	mongoCheck "github.com/hellofresh/health-go/v5/checks/mongo"
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
@@ -39,13 +40,13 @@ func (hc *HealthChecker) Handler() echo.HandlerFunc {
 	}
 }
 
-func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthChecker {
+func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *HealthChecker {
 	checks := []health.Config{
 		{
 			Name:      "db",
 			Timeout:   time.Second * 5,
 			SkipOnErr: false,
-			Check:     mongo.New(mongo.Config{DSN: conf.DB}),
+			Check:     mongoCheck.New(mongoCheck.Config{DSN: conf.DB}),
 		},
 	}
 
@@ -54,16 +55,39 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 			Name:      "db-" + u.Name,
 			Timeout:   time.Second * 5,
 			SkipOnErr: false,
-			Check:     mongo.New(mongo.Config{DSN: u.URI}),
+			Check:     mongoCheck.New(mongoCheck.Config{DSN: u.URI}),
 		})
 	}
 
-	if fileRepo != nil {
+	if gateways != nil && gateways.File != nil {
 		checks = append(checks, health.Config{
 			Name:      "storage",
 			Timeout:   time.Second * 30,
 			SkipOnErr: false,
-			Check:     fileRepo.Check,
+			Check:     gateways.File.Check,
+		})
+	}
+
+	// Add task runner health check if configured
+	if gateways != nil && gateways.TaskRunner != nil {
+		checks = append(checks, health.Config{
+			Name:      "task_runner",
+			Timeout:   time.Second * 5,
+			SkipOnErr: false,
+			Check:     gateways.TaskRunner.HealthCheck,
+		})
+	}
+
+	// Add CMS worker service health check if configured
+	if conf.Task.GCPProject != "" && conf.Task.WorkerURL != "" {
+		checks = append(checks, health.Config{
+			Name:      "worker_service",
+			Timeout:   time.Second * 5,
+			SkipOnErr: false,
+			Check: httpCheck.New(httpCheck.Config{
+				URL:            workerHealthURL(conf.Task.WorkerURL),
+				RequestTimeout: time.Second * 5,
+			}),
 		})
 	}
 
@@ -77,9 +101,10 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 				Name:      "auth:" + a.ISS,
 				Timeout:   time.Second * 10,
 				SkipOnErr: false,
-				Check: func(ctx context.Context) error {
-					return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
-				},
+				Check: httpCheck.New(httpCheck.Config{
+					URL:            u.JoinPath(".well-known/openid-configuration").String(),
+					RequestTimeout: time.Second * 10,
+				}),
 			})
 		}
 	}
@@ -99,6 +124,14 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 	}
 }
 
+func workerHealthURL(base string) string {
+	u, err := url.JoinPath(base, "health")
+	if err != nil {
+		return strings.TrimRight(base, "/") + "/health"
+	}
+	return u
+}
+
 func (hc *HealthChecker) Check(ctx context.Context) error {
 	log.Infof("health check: running initial health checks...")
 	result := hc.health.Measure(ctx)
@@ -106,26 +139,5 @@ func (hc *HealthChecker) Check(ctx context.Context) error {
 		return fmt.Errorf("initial health check failed: %v", result.Failures)
 	}
 	log.Infof("health check: all checks passed")
-	return nil
-}
-
-func authServerPingCheck(issuerURL string) (checkErr error) {
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-	resp, err := client.Get(issuerURL)
-	if err != nil {
-		return fmt.Errorf("auth server unreachable: %v", err)
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			checkErr = fmt.Errorf("failed to close response body: %v", err)
-		}
-	}(resp.Body)
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("auth server unhealthy, status: %d", resp.StatusCode)
-	}
 	return nil
 }
