@@ -1,12 +1,15 @@
 package interactor
 
 import (
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseCSVValue(t *testing.T) {
@@ -137,4 +140,94 @@ func TestCsvRowToMap(t *testing.T) {
 			assert.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+// buildOversizedCSV returns a CSV document (header + n data rows) with n
+// tiny rows, e.g. "id,field1\n1,v\n2,v\n...".
+func buildOversizedCSV(n int) string {
+	var b strings.Builder
+	b.WriteString("id,field1\n")
+	for i := 0; i < n; i++ {
+		b.WriteString("row,v\n")
+	}
+	return b.String()
+}
+
+func TestItem_importCSVWithProgress_TooManyRecords(t *testing.T) {
+	t.Parallel()
+
+	ctx, itemUC, jb, m, sp, op := setupImportWithProgressFixture(t)
+
+	overLimit := interfaces.MaxImportRecordCount + 1
+	payload := buildOversizedCSV(overLimit)
+
+	param := interfaces.ImportItemsParam{
+		ModelID:      m.ID(),
+		SP:           sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       interfaces.ImportFormatTypeCSV,
+		MutateSchema: false,
+		Reader:       strings.NewReader(payload),
+	}
+
+	res, err := itemUC.importWithProgress(ctx, jb, param, op)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, interfaces.ErrImportTooManyRecords)
+	// The guard fires in the first pass over CSV rows, before any chunk is
+	// ever handed to saveChunk, so nothing should have been inserted/updated/ignored.
+	assert.Equal(t, interfaces.ImportItemsResponse{}, res)
+}
+
+// TestItem_importCSVWithProgress_ProcessesInChunks guards against the
+// two-pass "read every row into allRows, then chunk it" shape that only
+// bounded record *count*, not memory: a within-limit CSV import must still
+// be processed and saved in chunkSize-sized pieces (observable via
+// incremental job-progress publishes), never as one giant in-memory batch.
+func TestItem_importCSVWithProgress_ProcessesInChunks(t *testing.T) {
+	t.Parallel()
+
+	ctx, itemUC, jb, m, sp, op, pubsub := setupImportWithProgressFixtureWithPubSub(t)
+
+	recordCount := chunkSize*2 + chunkSize/2 // 2 full chunks + 1 partial
+	payload := buildOversizedCSV(recordCount)
+
+	sub, err := pubsub.Subscribe(ctx, jb.ID())
+	require.NoError(t, err)
+
+	param := interfaces.ImportItemsParam{
+		ModelID:      m.ID(),
+		SP:           sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       interfaces.ImportFormatTypeCSV,
+		MutateSchema: false,
+		Reader:       strings.NewReader(payload),
+	}
+
+	res, err := itemUC.importWithProgress(ctx, jb, param, op)
+	require.NoError(t, err)
+	assert.Equal(t, recordCount, res.Inserted)
+
+	var processedSteps []int
+drain:
+	for {
+		select {
+		case state := <-sub:
+			if p := state.Progress(); p != nil {
+				processedSteps = append(processedSteps, p.Processed())
+			}
+		default:
+			break drain
+		}
+	}
+
+	require.Len(t, processedSteps, 3, "expected one progress publish per chunk (2 full + 1 partial)")
+	for idx, processed := range processedSteps {
+		step := processed
+		if idx > 0 {
+			step = processed - processedSteps[idx-1]
+		}
+		assert.LessOrEqual(t, step, chunkSize, "no single progress step should exceed chunkSize, i.e. no chunk held more than chunkSize rows at once")
+	}
+	assert.Equal(t, recordCount, processedSteps[len(processedSteps)-1])
 }
