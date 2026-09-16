@@ -38,7 +38,7 @@ func Start(debug bool, version string) {
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
 	// Create health checker instance
-	healthChecker := NewHealthChecker(conf, version, gateways.File)
+	healthChecker := NewHealthChecker(conf, version, gateways)
 
 	// Run initial health check
 	if conf.HealthCheck.RunOnInit {

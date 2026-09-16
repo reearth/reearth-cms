@@ -514,7 +514,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
         const content = await FileUtils.parseTextFile(file);
 
-        const jsonValidation = await ObjectUtils.safeJSONParse<ImportSchema>(content);
+        const jsonValidation = await ObjectUtils.parseJSON<ImportSchema>(content);
 
         if (ObjectUtils.isEmpty(jsonValidation)) {
           raiseIllegalFileAlert();
