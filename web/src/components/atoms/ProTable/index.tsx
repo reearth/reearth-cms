@@ -8,7 +8,7 @@ import { ConfigProvider, Empty } from "antd";
 import enUSIntl from "antd/es/locale/en_US";
 import jaJPIntl from "antd/es/locale/ja_JP";
 
-import { useLang, useT } from "@reearth-cms/i18n";
+import { isJapanese, useLang, useT } from "@reearth-cms/i18n";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">;
@@ -22,7 +22,7 @@ const Table: React.FC<Props> = props => {
   };
 
   return (
-    <ConfigProvider locale={lang === "ja" ? jaJPIntl : enUSIntl} renderEmpty={renderEmpty}>
+    <ConfigProvider locale={isJapanese(lang) ? jaJPIntl : enUSIntl} renderEmpty={renderEmpty}>
       <ProTable {...props} />
     </ConfigProvider>
   );

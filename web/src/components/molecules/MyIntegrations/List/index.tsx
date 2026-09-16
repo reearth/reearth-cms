@@ -5,7 +5,7 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import type { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useLang, useT } from "@reearth-cms/i18n";
+import { isJapanese, useLang, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -25,7 +25,8 @@ const MyIntegrationList: React.FC<Props> = ({
   const t = useT();
   const lang = useLang();
   const documentUrl = useMemo<string>(
-    () => (lang.split("-")[0] === "ja" ? Constant.INTEGRATIONS_API_DOCS.ja : Constant.INTEGRATIONS_API_DOCS.en),
+    () =>
+      isJapanese(lang) ? Constant.INTEGRATIONS_API_DOCS.ja : Constant.INTEGRATIONS_API_DOCS.en,
     [lang],
   );
 
