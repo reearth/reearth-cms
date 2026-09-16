@@ -7,7 +7,6 @@ import (
 	"path"
 
 	"cloud.google.com/go/pubsub/v2"
-	"cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/log"
@@ -41,7 +40,6 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 	}, nil
 }
 
-// Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
 		return t.runCloudBuild(ctx, p)
@@ -71,17 +69,9 @@ func (t *TaskRunner) Retry(_ context.Context, id string) error {
 	return nil
 }
 
-// HealthCheck implements gateway.TaskRunner.
-func (t *TaskRunner) HealthCheck(ctx context.Context) error {
+func (t *TaskRunner) HealthCheck(_ context.Context) error {
 	if t.psClient == nil {
 		return rerror.ErrInternalBy(fmt.Errorf("pubsub client is not initialized"))
-	}
-
-	if t.conf.Topic != "" {
-		topicName := fmt.Sprintf("projects/%s/topics/%s", t.conf.GCPProject, t.conf.Topic)
-		if _, err := t.psClient.TopicAdminClient.GetTopic(ctx, &pubsubpb.GetTopicRequest{Topic: topicName}); err != nil {
-			return rerror.ErrInternalBy(fmt.Errorf("pubsub topic %s does not exist or is inaccessible: %w", t.conf.Topic, err))
-		}
 	}
 
 	if t.conf.BuildServiceAccount == "" {
@@ -91,11 +81,6 @@ func (t *TaskRunner) HealthCheck(ctx context.Context) error {
 	if t.conf.WorkerPool != "" {
 		if t.conf.GCPRegion == "" {
 			return rerror.ErrInternalBy(fmt.Errorf("GCP region is not configured but worker pool is specified"))
-		}
-
-		poolName := fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", t.conf.GCPProject, t.conf.GCPRegion, t.conf.WorkerPool)
-		if _, err := t.cbService.Projects.Locations.WorkerPools.Get(poolName).Do(); err != nil {
-			return rerror.ErrInternalBy(fmt.Errorf("failed to access worker pool %s: %w", t.conf.WorkerPool, err))
 		}
 	}
 
@@ -309,19 +294,6 @@ func (t *TaskRunner) importItems(_ context.Context, p task.Payload) error {
 	return nil
 }
 
-// buildOptions returns Cloud Build options with Pool set only when WorkerPool
-// and GCPRegion are both configured; omitting Pool when either is absent avoids
-// sending a malformed resource name to the API.
-func buildOptions(conf *TaskConfig) *cloudbuild.BuildOptions {
-	opts := &cloudbuild.BuildOptions{Logging: "CLOUD_LOGGING_ONLY"}
-	if conf.WorkerPool != "" && conf.GCPRegion != "" {
-		opts.Pool = &cloudbuild.PoolOption{
-			Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", conf.GCPProject, conf.GCPRegion, conf.WorkerPool),
-		}
-	}
-	return opts
-}
-
 func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
 		return nil
@@ -343,4 +315,14 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 	}
 
 	return nil
+}
+
+func buildOptions(conf *TaskConfig) *cloudbuild.BuildOptions {
+	opts := &cloudbuild.BuildOptions{Logging: "CLOUD_LOGGING_ONLY"}
+	if conf.WorkerPool != "" && conf.GCPRegion != "" {
+		opts.Pool = &cloudbuild.PoolOption{
+			Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", conf.GCPProject, conf.GCPRegion, conf.WorkerPool),
+		}
+	}
+	return opts
 }
