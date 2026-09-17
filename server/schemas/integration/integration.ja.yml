@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: ReEarth-CMS Integration API
-  description: ReEarth-CMS Integration API
+  title: ReEarth-CMS インテグレーションAPI
+  description: ReEarth-CMS インテグレーションAPI
   version: 1.0.0
 paths:
   ###   PROJECTS   ###
