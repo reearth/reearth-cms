@@ -288,7 +288,7 @@ paths:
       description: モデルを返します。
       responses:
         '200':
-          description: ユーザー名のJSON配列
+          description: モデルのJSONオブジェクト
           content:
             application/json:
               schema:
@@ -919,7 +919,7 @@ paths:
                     $ref: '#/components/schemas/field'
       responses:
         '200':
-          description: ユーザー名のJSON配列
+          description: アイテムのJSONオブジェクト
           content:
             application/json:
               schema:
