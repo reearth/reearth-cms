@@ -215,7 +215,7 @@ paths:
       description: モデルの一覧を返します。
       responses:
         '200':
-          description: ユーザー名のJSON配列
+          description: モデル一覧のJSONオブジェクト
           content:
             application/json:
               schema:
@@ -867,7 +867,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: ユーザー名のJSON配列
+          description: アイテム一覧のJSONオブジェクト
           content:
             application/json:
               schema:
@@ -1569,7 +1569,7 @@ paths:
       - $ref: '#/components/parameters/assetIdParam'
     post:
       operationId: AssetUnpublish
-      summary: アセットを公開
+      summary: アセットを非公開
       tags:
         - Assets
       security:
