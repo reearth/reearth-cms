@@ -23,7 +23,7 @@ paths:
       description: プロジェクトの一覧を返します
       responses:
         '200':
-          description: プロジェクトのJSON配列
+          description: プロジェクトの一覧を含むJSONオブジェクト
           content:
             application/json:
               schema:
@@ -215,7 +215,7 @@ paths:
       description: モデルの一覧を返します。
       responses:
         '200':
-          description: モデル一覧のJSONオブジェクト
+          description: モデルの一覧を含むJSONオブジェクト
           content:
             application/json:
               schema:
@@ -581,7 +581,7 @@ paths:
       description: 指定されたプロジェクトに属するグループの一覧を返します。
       responses:
         '200':
-          description: プロジェクト内のグループの一覧。
+          description: グループの一覧を含むJSONオブジェクト
           content:
             application/json:
               schema:
@@ -867,7 +867,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: アイテム一覧のJSONオブジェクト
+          description: アイテムの一覧を含むJSONオブジェクト
           content:
             application/json:
               schema:
@@ -962,7 +962,7 @@ paths:
                   $ref: '#/components/schemas/condition'
       responses:
         '200':
-          description: ページ分割されたアイテムの一覧
+          description: アイテムの一覧を含むJSONオブジェクト
           content:
             application/json:
               schema:
@@ -1324,7 +1324,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: アセットの一覧
+          description: アセットの一覧を含むJSONオブジェクト
           content:
             application/json:
               schema:
