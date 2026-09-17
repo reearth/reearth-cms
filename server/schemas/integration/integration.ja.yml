@@ -1,0 +1,2458 @@
+openapi: 3.0.3
+info:
+  title: ReEarth-CMS Integration API
+  description: ReEarth-CMS Integration API
+  version: 1.0.0
+paths:
+  ###   PROJECTS   ###
+  '/{workspaceIdOrAlias}/projects':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
+    get:
+      operationId: ProjectFilter
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクトの一覧を返します。
+      tags:
+        - Projects
+      description: プロジェクトの一覧を返します
+      responses:
+        '200':
+          description: プロジェクトのJSON配列
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/project'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          description: 内部サーバーエラー
+    post:
+      operationId: ProjectCreate
+      summary: プロジェクトを作成
+      tags:
+        - Projects
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                license:
+                  type: string
+                readme:
+                  type: string
+                alias:
+                  type: string
+                requestRoles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/projectRequestRole'
+      responses:
+        '201':
+          description: 作成されたプロジェクトのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+    get:
+      operationId: ProjectGet
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクトを返します。
+      tags:
+        - Projects
+      description: プロジェクトを返します。
+      responses:
+        '200':
+          description: プロジェクトのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    patch:
+      operationId: ProjectUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクトを更新します。
+      tags:
+        - Projects
+      description: プロジェクトを更新します。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                license:
+                  type: string
+                readme:
+                  type: string
+                alias:
+                  type: string
+                accessibility:
+                  $ref: '#/components/schemas/accessibility'
+                requestRoles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/projectRequestRole'
+      responses:
+        '200':
+          description: 更新されたプロジェクトのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: プロジェクトが見つかりません
+        '500':
+          description: 内部サーバーエラー
+    delete:
+      operationId: ProjectDelete
+      summary: プロジェクトを削除
+      tags:
+        - Projects
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: プロジェクトが正常に削除されました
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    x-go-type: id.ProjectID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+
+  ###   Models   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
+    get:
+      operationId: ModelFilter
+      security:
+        - bearerAuth: [ ]
+      summary: モデルの一覧を返します。
+      tags:
+        - Models
+      description: モデルの一覧を返します。
+      responses:
+        '200':
+          description: ユーザー名のJSON配列
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/model'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    post:
+      operationId: ModelCreate
+      summary: モデルを作成
+      tags:
+        - Models
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: モデルのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ModelGet
+      security:
+        - bearerAuth: [ ]
+      summary: モデルを返します。
+      tags:
+        - Models
+      description: モデルを返します。
+      responses:
+        '200':
+          description: ユーザー名のJSON配列
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    patch:
+      operationId: ModelUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: モデルを更新します。
+      tags:
+        - Models
+      description: モデルを更新します。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: モデルのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    delete:
+      operationId: ModelDelete
+      security:
+        - bearerAuth: [ ]
+      summary: モデルを削除します。
+      tags:
+        - Models
+      description: モデルを削除します。
+      responses:
+        '200':
+          description: モデルID
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    x-go-type: id.ModelID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: SchemaByModelAsJSON
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクトIDとモデルIDでスキーマをJSONとして返します
+      tags:
+        - Schema
+        - JSON
+      description: プロジェクトIDとモデルIDでスキーマをJSONとして返します
+      responses:
+        '200':
+          description: JSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JSONSchema'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: MetadataSchemaByModelAsJSON
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクトIDとモデルIDでメタデータスキーマをJSONとして返します
+      tags:
+        - MetadataSchema
+        - JSON
+      description: プロジェクトIDとモデルIDでメタデータスキーマをJSONとして返します
+      responses:
+        '200':
+          description: JSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JSONSchema'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/import':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    put:
+      operationId: ModelImport
+      summary: 選択したモデルにデータをインポートします
+      tags:
+        - Models
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetId:
+                  x-go-type: id.AssetID
+                  type: string
+                format:
+                  type: string
+                  enum:
+                    - geoJson
+                    - json
+                strategy:
+                  type: string
+                  enum:
+                    - insert
+                    - update
+                    - upsert
+                mutateSchema:
+                  type: boolean
+                geometryFieldKey:
+                  type: string
+                asBackground:
+                  type: boolean
+              required:
+                - assetId
+                - format
+                - strategy
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                format:
+                  type: string
+                  enum:
+                    - geoJson
+                    - json
+                strategy:
+                  type: string
+                  enum:
+                    - insert
+                    - update
+                    - upsert
+                mutateSchema:
+                  type: boolean
+                geometryFieldKey:
+                  type: string
+              required:
+                - assetId
+                - format
+                - strategy
+      responses:
+        '200':
+          description: インポート状況のJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modelId:
+                    x-go-type: id.ModelID
+                    type: string
+                  itemsCount:
+                    type: integer
+                  insertedCount:
+                    type: integer
+                  updatedCount:
+                    type: integer
+                  ignoredCount:
+                    type: integer
+                  newFields:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/schemaField'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '404':
+          description: 見つかりません
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/copy':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    post:
+      operationId: ModelCopy
+      summary: 選択したモデルのスキーマとアイテムをコピーします
+      tags:
+        - Models
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: フィールドのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          description: 内部サーバーエラー
+
+  ###   GROUPS   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+    get:
+      operationId: GroupFilter
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクト内のグループの一覧を返します。
+      tags:
+        - Groups
+      description: 指定されたプロジェクトに属するグループの一覧を返します。
+      responses:
+        '200':
+          description: プロジェクト内のグループの一覧。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/group'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: プロジェクトが見つかりません
+        '500':
+          description: 内部サーバーエラー
+    post:
+      operationId: GroupCreate
+      summary: プロジェクト内に新しいグループを作成します。
+      tags:
+        - Groups
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - key
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 作成されたグループ。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/groupIdOrKeyParam'
+    get:
+      operationId: GroupGet
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクト内のグループを取得します。
+      tags:
+        - Groups
+      description: 指定されたプロジェクト内の特定グループの詳細を返します。
+      responses:
+        '200':
+          description: グループの詳細。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: グループが見つかりません
+        '500':
+          description: 内部サーバーエラー
+    patch:
+      operationId: GroupUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクト内のグループの詳細を更新します。
+      tags:
+        - Groups
+      description: 特定プロジェクト内のグループの名前、キー、または説明を更新します。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: 更新されたグループ。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: グループが見つかりません
+        '500':
+          description: 内部サーバーエラー
+    delete:
+      operationId: GroupDelete
+      security:
+        - bearerAuth: [ ]
+      summary: プロジェクト内のグループを削除します。
+      tags:
+        - Groups
+      description: 指定されたプロジェクト内のグループを削除します。
+      responses:
+        '200':
+          description: グループが正常に削除されました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.GroupID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: グループが見つかりません
+        '500':
+          description: 内部サーバーエラー
+
+  ###   SCHEMATA   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/schemaIdParam'
+    post:
+      operationId: FieldCreate
+      summary: フィールドを作成
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: フィールドのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/schemaIdParam'
+      - $ref: '#/components/parameters/fieldIdOrKeyParam'
+    patch:
+      operationId: FieldUpdate
+      summary: フィールドを更新
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: フィールドのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    delete:
+      operationId: FieldDelete
+      summary: フィールドを削除
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: フィールドのJSONオブジェクト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.FieldID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+
+  ###   ITEMS   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemFilter
+      security:
+        - bearerAuth: [ ]
+      summary: アイテムの一覧を返します。
+      tags:
+        - Items
+      description: フィルタリングと並び替えを適用したアイテムの一覧を返します。
+      parameters:
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/sortDirParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+        - $ref: '#/components/parameters/assetParam'
+        - $ref: '#/components/parameters/keywordParam'
+      responses:
+        '200':
+          description: ユーザー名のJSON配列
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/versionedItem'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    post:
+      operationId: ItemCreate
+      summary: アイテムを作成
+      tags:
+        - Items
+      description: アイテムを作成します。
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                metadataFields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+      responses:
+        '200':
+          description: ユーザー名のJSON配列
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/filter':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    post:
+      operationId: ItemFilterPost
+      security:
+        - bearerAuth: [ ]
+      summary: 複雑な条件でフィルタリングされたアイテムの一覧を返します。
+      tags:
+        - Items
+      description: リクエストボディで指定された複雑な条件でフィルタリングされたアイテムの一覧を返します。
+      parameters:
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/sortDirParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+        - $ref: '#/components/parameters/assetParam'
+        - $ref: '#/components/parameters/keywordParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  $ref: '#/components/schemas/condition'
+      responses:
+        '200':
+          description: ページ分割されたアイテムの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/versionedItem'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemsAsGeoJSON
+      security:
+        - bearerAuth: [ ]
+      summary: アイテムの一覧をフィーチャーとして持つGeoJSONを返します。
+      tags:
+        - Items
+        - GeoJSON
+      description: アイテムの一覧をフィーチャーとして持つGeoJSONを返します。
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: GeoJSONオブジェクト
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/GeoJSON'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemsAsCSV
+      security:
+        - bearerAuth: [ ]
+      summary: アイテムの一覧をフィーチャーとして持つCSVを返します。
+      tags:
+        - Items project
+        - CSV
+      description: アイテムの一覧をフィーチャーとして持つCSVを返します。
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: CSV形式の文字列
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/itemIdParam'
+    get:
+      operationId: ItemGet
+      security:
+        - bearerAuth: [ ]
+      summary: アイテムを返します。
+      tags:
+        - Items
+      description: アイテムを返します。
+      parameters:
+        - $ref: '#/components/parameters/refParam'
+        - $ref: '#/components/parameters/assetParam'
+      responses:
+        '200':
+          description: アイテム
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    patch:
+      operationId: ItemUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: アイテムを更新します。
+      tags:
+        - Items
+      description: アイテムを更新します。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                metadataFields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                asset:
+                  $ref: '#/components/schemas/assetEmbedding'
+      responses:
+        '200':
+          description: アイテム
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+        '500':
+          description: 内部サーバーエラー
+    delete:
+      operationId: ItemDelete
+      summary: アイテムを削除
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アイテムを削除
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.ItemID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/assetParam'
+    post:
+      operationId: ItemPublish
+      summary: アイテムを公開
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: 公開されたアイテム
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+
+  ### ITEM COMMENTS ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/itemIdParam'
+    get:
+      operationId: ItemCommentList
+      summary: アイテムのコメントを取得
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アイテムのコメント一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/comment'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    post:
+      operationId: ItemCommentCreate
+      summary: アイテムのコメントを作成
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/commentIdParam'
+    patch:
+      operationId: ItemCommentUpdate
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      summary: アイテムのコメントを更新
+      description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: アイテムのコメントを更新
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    delete:
+      operationId: ItemCommentDelete
+      summary: アイテムのコメントを削除
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アイテムのコメントを削除
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.CommentID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+
+  ###   ASSETS   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+    get:
+      operationId: AssetFilter
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: [ ]
+      summary: アセットの一覧を返します。
+      description: フィルタリングと並び替えを適用したアセットの一覧を返します。
+      parameters:
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/sortDirParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/keywordParam'
+      responses:
+        '200':
+          description: アセットの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/asset'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    post:
+      operationId: AssetCreate
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: [ ]
+      summary: 新しいアセットを作成します。
+      description: 新しいアセットを作成し、作成されたアセットを返します。
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
+                skipDecompression:
+                  type: boolean
+                  default: false
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                token:
+                  type: string
+                skipDecompression:
+                  type: boolean
+                  nullable: true
+                  default: false
+                contentEncoding:
+                  type: string
+      responses:
+        '200':
+          description: アセット
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    delete:
+      operationId: AssetBatchDelete
+      summary: アセットを一括削除
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetIDs:
+                  type: array
+                  items:
+                    type: string
+                    x-go-type: id.AssetID
+      responses:
+        '200':
+          description: アセットの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ids:
+                    type: array
+                    items:
+                      x-go-type: id.AssetID
+                      type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+    post:
+      operationId: AssetUploadCreate
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: [ ]
+      summary: アセットをアップロードします。
+      description: アセットをアップロードするためのURLとトークンを発行します。
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                contentLength:
+                  type: integer
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
+                cursor:
+                  type: string
+      responses:
+        '200':
+          description: アセットのアップロード
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  token:
+                    type: string
+                  contentType:
+                    type: string
+                  contentLength:
+                    type: integer
+                  contentEncoding:
+                    type: string
+                  next:
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/assetIdParam'
+    get:
+      operationId: AssetGet
+      summary: アセットを取得
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: アセットの一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    delete:
+      operationId: AssetDelete
+      summary: アセットを削除
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: アセットの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.AssetID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/assetIdParam'
+    post:
+      operationId: AssetPublish
+      summary: アセットを公開
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アセットの一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/assetIdParam'
+    post:
+      operationId: AssetUnpublish
+      summary: アセットを公開
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アセットの一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{uuid1}/{uuid2}/{filename}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - name: uuid1
+        in: path
+        description: アセットのUUID
+        required: true
+        schema:
+          type: string
+      - name: uuid2
+        in: path
+        description: アセットのUUID
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        description: アセットのファイル名
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: AssetContentGet
+      summary: アセットのコンテンツを取得
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: アセットのバイナリコンテンツ
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+
+  ### ASSET COMMENTS ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/assetIdParam'
+    get:
+      operationId: AssetCommentList
+      summary: アセットのコメントを取得
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アセットのコメント一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/comment'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    post:
+      operationId: AssetCommentCreate
+      summary: アセットのコメントを作成
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/assetIdParam'
+      - $ref: '#/components/parameters/commentIdParam'
+    patch:
+      operationId: AssetCommentUpdate
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      summary: アセットのコメントを更新
+      description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: アセットのコメントを更新
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+    delete:
+      operationId: AssetCommentDelete
+      summary: アセットのコメントを削除
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: アセットのコメントを削除
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.CommentID
+                    type: string
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+
+components:
+  parameters:
+    workspaceIdOrAliasParam:
+      name: workspaceIdOrAlias
+      in: path
+      description: ワークスペースのIDまたはエイリアス
+      required: true
+      schema:
+        type: string
+        x-go-type: accountdomain.WorkspaceIDOrAlias
+    projectIdOrAliasParam:
+      name: projectIdOrAlias
+      in: path
+      description: プロジェクトのIDまたはエイリアス
+      required: true
+      schema:
+        type: string
+        x-go-type: project.IDOrAlias
+    schemaIdParam:
+      name: schemaId
+      in: path
+      description: モデル内のスキーマのID
+      required: true
+      schema:
+        type: string
+        x-go-type: id.SchemaID
+    modelIdOrKeyParam:
+      name: modelIdOrKey
+      in: path
+      description: プロジェクト内のモデルのIDまたはキー
+      required: true
+      schema:
+        type: string
+        x-go-type: model.IDOrKey
+    groupIdOrKeyParam:
+      name: groupIdOrKey
+      in: path
+      description: プロジェクト内のグループのIDまたはキー
+      required: true
+      schema:
+        type: string
+        x-go-type: group.IDOrKey
+    fieldIdOrKeyParam:
+      name: fieldIdOrKey
+      in: path
+      description: モデルのスキーマ内のフィールドのIDまたはキー
+      required: true
+      schema:
+        type: string
+        x-go-type: schema.FieldIDOrKey
+    itemIdParam:
+      name: itemId
+      in: path
+      description: 選択されたアイテムのID
+      required: true
+      schema:
+        type: string
+        x-go-type: id.ItemID
+    assetIdParam:
+      name: assetId
+      in: path
+      description: 選択されたアセットのID
+      required: true
+      schema:
+        type: string
+        x-go-type: id.AssetID
+    commentIdParam:
+      name: commentId
+      in: path
+      description: 選択されたコメントのID
+      required: true
+      schema:
+        x-go-type: id.CommentID
+        type: string
+    sortParam:
+      name: sort
+      in: query
+      description: レスポンス一覧の並び順を指定するために使用します
+      required: false
+      schema:
+        type: string
+        default: createdAt
+        enum:
+          - createdAt
+          - updatedAt
+    sortDirParam:
+      name: dir
+      in: query
+      description: 'レスポンス一覧の並び替え方向を指定するために使用します。並び順が指定されていない場合は無視されます'
+      required: false
+      schema:
+        type: string
+        default: desc
+        enum:
+          - asc
+          - desc
+    pageParam:
+      name: page
+      in: query
+      description: ページを選択するために使用します
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    perPageParam:
+      name: perPage
+      in: query
+      description: ページを選択するために使用します
+      required: false
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 100
+    refParam:
+      name: ref
+      in: query
+      description: refまたはverを選択するために使用します
+      required: false
+      schema:
+        type: string
+        default: latest
+        enum:
+          - latest
+          - public
+    assetParam:
+      name: asset
+      in: query
+      description: 結果にアセットデータを埋め込むかどうかを指定します
+      schema:
+        $ref: '#/components/schemas/assetEmbedding'
+    keywordParam:
+      name: keyword
+      in: query
+      description: キーワード文字列
+      required: false
+      schema:
+        type: string
+  schemas:
+    project:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - license
+        - readme
+        - workspaceId
+        - alias
+        - accessibility
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          x-go-type: id.ProjectID
+          type: string
+        workspaceId:
+          x-go-type: accountdomain.WorkspaceID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        license:
+          type: string
+        readme:
+          type: string
+        alias:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        accessibility:
+          $ref: '#/components/schemas/accessibility'
+        requestRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/projectRequestRole'
+    publicationSettings:
+      type: object
+      properties:
+        publicModels:
+          type: array
+          items:
+            type: string
+            x-go-type: id.ModelID
+        publicAssets:
+          type: boolean
+      required:
+        - publicModels
+        - publicAssets
+    apiKey:
+      type: object
+      properties:
+        id:
+          type: string
+          x-go-type: id.APIKeyID
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+      required:
+        - id
+        - name
+        - key
+        - publication
+    accessibility:
+      type: object
+      properties:
+        visibility:
+          type: string
+          enum: [ PUBLIC, PRIVATE ]
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+        apiKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/apiKey'
+      required:
+        - visibility
+        - apiKeys
+    projectRequestRole:
+      type: string
+      enum: [ READER, WRITER, MAINTAINER, OWNER ]
+    model:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ModelID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        schemaId:
+          x-go-type: id.SchemaID
+          type: string
+        schema:
+          $ref: '#/components/schemas/schema'
+        metadataSchemaId:
+          x-go-type: id.SchemaID
+          type: string
+        metadataSchema:
+          $ref: '#/components/schemas/schema'
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+    group:
+      type: object
+      required:
+        - id
+        - schemaId
+        - projectId
+        - name
+        - description
+        - key
+        - schema
+        - fields
+      properties:
+        id:
+          x-go-type: id.GroupID
+          type: string
+        schemaId:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        schema:
+          $ref: '#/components/schemas/schema'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/schemaField'
+    schema:
+      type: object
+      properties:
+        id:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/schemaField'
+        titleField:
+          x-go-type: id.FieldID
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    JSONSchema:
+      type: object
+      x-go-type: types.JSONSchema
+    valueType:
+      type: string
+      enum:
+        - text
+        - textArea
+        - richText
+        - markdown
+        - checkbox
+        - asset
+        - date
+        - bool
+        - select
+        - integer
+        - number
+        - reference
+        - url
+        - group
+        - tag
+        - geometryObject
+        - geometryEditor
+    tagResponse:
+      type: object
+      properties:
+        id:
+          x-go-type: id.TagID
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+    schemaField:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          $ref: '#/components/schemas/valueType'
+        key:
+          type: string
+        required:
+          type: boolean
+        multiple:
+          type: boolean
+        name:
+          type: string
+      required:
+        - id
+        - type
+        - key
+        - required
+        - multiple
+        - name
+    version:
+      type: object
+      properties:
+        version:
+          type: string
+          format: uuid
+        parents:
+          type: array
+          items:
+            type: string
+            format: uuid
+        refs:
+          type: array
+          items:
+            type: string
+    item:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+        metadataItemId:
+          x-go-type: id.ItemID
+          type: string
+        originalItemId:
+          x-go-type: id.ItemID
+          type: string
+        modelId:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/item'
+        createdAt:
+          type: string
+          format: date-time
+        isMetadata:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    GeoJSON:
+      type: object
+      x-go-type: types.GeoJSON
+    versionedItem:
+      allOf:
+        - $ref: '#/components/schemas/item'
+        - $ref: '#/components/schemas/version'
+        - type: object
+          properties:
+            referencedItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/versionedItem'
+    field:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          $ref: '#/components/schemas/valueType'
+        value: { }
+        key:
+          type: string
+        group:
+          x-go-type: id.ItemGroupID
+          type: string
+    refOrVersion:
+      type: object
+      properties:
+        ref:
+          type: string
+          enum:
+            - latest
+            - public
+        version:
+          type: string
+          format: uuid
+    assetEmbedding:
+      type: string
+      enum:
+        - all
+        - "true"
+        - "false"
+    asset:
+      type: object
+      required:
+        - id
+        - projectId
+        - url
+        - createdAt
+        - updatedAt
+        - public
+      properties:
+        id:
+          x-go-type: id.AssetID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        contentType:
+          type: string
+        previewType:
+          type: string
+          enum:
+            - image
+            - image_svg
+            - geo
+            - geo_3d_Tiles
+            - geo_mvt
+            - model_3d
+            - csv
+            - unknown
+        totalSize:
+          type: number
+        archiveExtractionStatus:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - done
+            - failed
+        file:
+          $ref: '#/components/schemas/file'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        public:
+          type: boolean
+    comment:
+      type: object
+      properties:
+        id:
+          x-go-type: id.CommentID
+          type: string
+        authorId:
+          type: string
+          x-go-type: any
+        authorType:
+          type: string
+          enum:
+            - user
+            - integrtaion
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    file:
+      type: object
+      properties:
+        name:
+          type: string
+        size:
+          type: number
+        contentType:
+          type: string
+        path:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/file'
+    fieldSelector:
+      type: object
+      properties:
+        fieldId:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          type: string
+          enum:
+            - id
+            - creationDate
+            - creationUser
+            - modificationDate
+            - modificationUser
+            - status
+            - field
+            - metaField
+    condition:
+      type: object
+      properties:
+        and:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        or:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        basic:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value: { }
+        nullable:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - empty
+                - notEmpty
+        multiple:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - includesAny
+                - notIncludesAny
+                - includesAll
+                - notIncludesAll
+            value:
+              type: array
+              items: { }
+          required:
+            - fieldId
+            - operator
+            - value
+        bool:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value:
+              type: boolean
+          required:
+            - fieldId
+            - operator
+            - value
+        string:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - contains
+                - notContains
+                - startsWith
+                - endsWith
+                - notStartsWith
+                - notEndsWith
+            value:
+              type: string
+          required:
+            - fieldId
+            - operator
+            - value
+        number:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - greaterThan
+                - lessThan
+                - greaterThanOrEqualTo
+                - lessThanOrEqualTo
+            value:
+              type: number
+          required:
+            - fieldId
+            - operator
+            - value
+        time:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - before
+                - after
+                - beforeOrOn
+                - afterOrOn
+                - ofThisWeek
+                - ofThisMonth
+                - ofThisYear
+            value:
+              type: string
+              format: date-time
+          required:
+            - fieldId
+            - operator
+            - value
+  responses:
+    UnauthorizedError:
+      description: アクセストークンが存在しないか無効です
+    NotFoundError:
+      description: 要求されたリソースが見つかりませんでした
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
