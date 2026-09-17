@@ -215,7 +215,7 @@ paths:
       description: Returns a list of models.
       responses:
         '200':
-          description: A JSON object of models
+          description: A JSON object that contains a list of models
           content:
             application/json:
               schema:
@@ -867,7 +867,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: A JSON object of items
+          description: A JSON object that contains a list of items
           content:
             application/json:
               schema:
