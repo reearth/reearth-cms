@@ -1,0 +1,550 @@
+openapi: 3.0.3
+info:
+  title: Re:Earth CMS - パブリックAPI
+  description: Re:Earth CMSのプロジェクトから公開データにアクセスするためのパブリックAPI。
+  version: "1.0.0"
+
+servers:
+  - url: /api/p/{workspace}/{project}
+    description: パブリックAPIエンドポイント
+    variables:
+      workspace:
+        default: "{workspace}"
+        description: ワークスペースIDまたはエイリアス
+      project:
+        default: "{project}"
+        description: プロジェクトIDまたはエイリアス
+
+components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      description: |
+        APIキー認証。非公開（Private）プロジェクトの場合のみ必須です。
+        APIキーはベアラートークンとして送信してください: `Authorization: Bearer <your_api_key>`。
+        無効なキーの場合は401レスポンスが返されます。
+
+  parameters:
+    modelParam:
+      name: model
+      in: path
+      required: true
+      description: モデルIDまたはキー
+      schema:
+        type: string
+
+    itemIdParam:
+      name: itemId
+      in: path
+      required: true
+      description: アイテムID
+      schema:
+        type: string
+
+    assetIdParam:
+      name: assetId
+      in: path
+      required: true
+      description: アセットID
+      schema:
+        type: string
+
+    pageParam:
+      name: page
+      in: query
+      description: |
+        ページベースのページネーションにおけるページ番号。0以下の値は1として扱われます。
+        `start_cursor` または `offset` が指定されている場合は無視されます
+        （ページネーションモードの優先順位: `start_cursor` > `offset` > `page`）。
+      schema:
+        type: integer
+
+    limitParam:
+      name: limit
+      in: query
+      description: |
+        1ページあたりのアイテム数。すべてのページネーションモード（page、offset、cursor）に適用されます。
+        `perPage`、`per_page`、`page_size`、`pageSize` のエイリアスでも指定できます。
+        複数指定された場合は `limit` を優先し、その順序で評価されます。
+        100を超える値は100に制限され、0以下の値はデフォルトの50になります。
+      schema:
+        type: integer
+        default: 50
+        maximum: 100
+
+    offsetParam:
+      name: offset
+      in: query
+      description: |
+        スキップするアイテム数（オフセットベースのページネーション）。
+        `page` より優先されます。`start_cursor` が指定されている場合は無視されます。
+      schema:
+        type: integer
+
+    startCursorParam:
+      name: start_cursor
+      in: query
+      description: |
+        カーソルベースのページネーション用カーソル。
+        指定された場合、`offset` および `page` より優先されます。
+      schema:
+        type: string
+
+  schemas:
+    SuccessResponse:
+      type: object
+      description: |
+        成功時のレスポンス。構造はプロジェクトおよびモデルごとに異なります。
+        フィールドキーはRe:Earth CMS内のモデルスキーマによって定義されます。
+
+    PostItemRequest:
+      type: object
+      properties:
+        fields:
+          type: object
+          description: |
+            フィールドキーをキーとするフィールド値。Asset、Reference、Tag、Group、
+            GeometryEditor、GeometryObject型のフィールドは投稿でサポートされておらず、無視されます。
+            モデルでこれらの型が必須フィールドとして定義されている場合、投稿自体が拒否されます。
+
+    PostItemResponse:
+      type: object
+      required:
+        - id
+        - $createdAt
+        - fields
+      properties:
+        id:
+          type: string
+          description: 作成されたアイテムの一意なID
+        $createdAt:
+          type: string
+          format: date-time
+          description: アイテムが作成された日時
+        fields:
+          type: object
+          description: フィールドキーをキーとするフィールド値
+
+    Error:
+      type: object
+      required:
+        - error
+        - code
+        - message
+      properties:
+        error:
+          type: string
+          description: 機械可読なエラーコード（codeと同じ内容）。
+        code:
+          type: string
+          description: 機械可読なエラーコード。
+          enum:
+            - invalid_json
+            - validation_error
+            - posting_disabled
+            - model_posting_disabled
+            - origin_not_allowed
+            - not_found
+            - payload_too_large
+            - rate_limited
+            - access_denied
+            - unsupported_field_type
+        message:
+          type: string
+          description: 人が読めるエラーの説明。
+        details:
+          type: array
+          description: フィールドレベルのバリデーションエラー。validation_errorの場合のみ含まれます。
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+
+  responses:
+    UnauthorizedError:
+      description: APIキーが無効です
+
+paths:
+  # --- Items ---
+
+  /{model}:
+    get:
+      summary: すべてのアイテムを取得
+      description: 指定されたモデルの公開済みアイテムをデフォルトですべて返します。ページネーションパラメータが指定された場合はページ分割されたレスポンスを返します。
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: モデルが見つからないか、公開されていません
+
+  /{model}.json:
+    get:
+      summary: すべてのアイテムを取得（JSON）
+      description: |
+        指定されたモデルの公開済みアイテムをデフォルトですべて返します。
+        ページネーションパラメータが指定された場合はページ分割されたレスポンスを返します（明示的なJSONエンドポイント）。
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: モデルが見つからないか、公開されていません
+
+  /{model}.csv:
+    get:
+      summary: すべてのアイテムを取得（CSV）
+      description: |
+        指定されたモデルの公開済みアイテムをデフォルトですべてCSV形式で返します。
+        ページネーションパラメータが指定された場合はページ分割されたレスポンスをCSV形式で返します（CSVエンドポイント）。
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            text/csv:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: モデルが見つからないか、公開されていません
+
+  /{model}.geojson:
+    get:
+      summary: すべてのアイテムを取得（GeoJSON）
+      description: |
+        指定されたモデルの公開済みアイテムをデフォルトですべて返します。ページネーションパラメータが指定された場合はページ分割されたレスポンスを返します（GeoJSONエンドポイント）。
+        モデルにGeometry型のフィールドが定義されている必要があります。
+        モデルスキーマのフィールドのうち、（定義順で）最初のGeometry型フィールドを使用します。
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/geo+json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: FeatureCollection
+                  features:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: モデルが見つからないか、公開されていません
+
+  /{model}/{itemId}:
+    get:
+      summary: IDでアイテムを取得
+      description: 指定されたモデルから、IDを指定して単一の公開済みアイテムを取得します。
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+        - $ref: '#/components/parameters/itemIdParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: アイテムが見つかりません
+
+  /{model}/items:
+    post:
+      summary: 新しいアイテムを作成
+      description: |
+        指定されたモデルに新しいアイテムを投稿します。作成されたアイテムは未公開（下書き）状態となり、
+        公開されるまではパブリック読み取りAPIには表示されません。
+        プロジェクトとモデルの両方で投稿が有効になっている場合のみ利用できます。
+        IPアドレスごとにレート制限があり、制限を超えた場合は `Retry-After` ヘッダーで
+        再試行までの待機秒数が示されます。
+      tags:
+        - Items
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostItemRequest'
+      responses:
+        '202':
+          description: アイテムが受理され、未公開状態で作成されました
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostItemResponse'
+        '400':
+          description: JSONボディが不正、またはフィールドのバリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: プロジェクト/モデルで投稿が無効になっているか、オリジンが許可されていません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: モデルが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: リクエストボディが許容サイズを超えています
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: モデルに投稿でサポートされていない型の必須フィールドが含まれています
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: リクエストが多すぎます。`Retry-After` ヘッダーが示す時間が経過してから再試行してください
+          headers:
+            Retry-After:
+              description: 再試行までの待機秒数
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    options:
+      summary: アイテム投稿のCORSプリフライト
+      description: ブラウザベースの投稿クライアントによるCORSプリフライトリクエストを処理します。
+      tags:
+        - Items
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      responses:
+        '204':
+          description: プリフライトレスポンス
+
+  # --- Schema ---
+
+  /{model}.schema.json:
+    get:
+      summary: モデルスキーマを取得
+      description: 指定されたモデルのJSONスキーマを取得します。
+      tags:
+        - Schema
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: モデルが見つかりません
+
+  /{model}.metadata_schema.json:
+    get:
+      summary: モデルのメタデータスキーマを取得
+      description: 指定されたモデルのメタデータJSONスキーマを取得します。
+      tags:
+        - Schema
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/modelParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: モデルが見つかりません
+
+  # --- Assets ---
+
+  /assets:
+    get:
+      summary: すべてのアセットを取得
+      description: |
+        デフォルトでプロジェクト内のすべての公開アセットを返します。
+        ページネーションパラメータが指定された場合はページ分割されたレスポンスを返します。
+      tags:
+        - Assets
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: アセットが見つかりません
+
+  /assets.json:
+    get:
+      summary: すべてのアセットを取得（JSON）
+      description: |
+        デフォルトでプロジェクト内のすべての公開アセットを返します。
+        ページネーションパラメータが指定された場合はページ分割されたレスポンスを返します（明示的なJSONエンドポイント）。
+      tags:
+        - Assets
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/startCursorParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: アセットが見つかりません
+
+  /assets/{assetId}:
+    get:
+      summary: IDでアセットを取得
+      description: |
+        IDを指定して単一の公開アセットを取得します。
+      tags:
+        - Assets
+      security:
+        - { }
+        - apiKey: [ ]
+      parameters:
+        - $ref: '#/components/parameters/assetIdParam'
+      responses:
+        '200':
+          description: 成功レスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: アセットが見つかりません
+
+  # --- OpenAPI Schema ---
+
+  /:
+    get:
+      summary: OpenAPIスキーマを取得
+      description: |
+        このプロジェクトのOpenAPIスキーマを取得します。プロジェクトごとに動的に生成されます。
+        プロジェクトのベースURL（`/api/p/{workspace}/{project}`）で提供されます。
+      tags:
+        - Schema
+      responses:
+        '200':
+          description: OpenAPIスキーマ
+          content:
+            application/json:
+              schema:
+                type: object
