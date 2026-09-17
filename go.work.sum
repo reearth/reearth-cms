@@ -4786,6 +4786,8 @@ github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/oapi-codegen/runtime v1.1.0/go.mod h1:BeSfBkWWWnAnGdyS+S/GnlbmHKzf8/hwkvelJZDeKA8=
 github.com/oapi-codegen/runtime v1.1.1/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
+github.com/oapi-codegen/runtime/strictmiddleware/echo-v5 v1.3.1 h1:aZWfGOXM/ixmBQ2zdR+F6aWyWUBoVJclj5QXfKHARns=
+github.com/oapi-codegen/runtime/strictmiddleware/echo-v5 v1.3.1/go.mod h1:RsAkeyoa9hYmbPYGC9pI1F8duodQHlzE2loyxyr9YCw=
 github.com/oapi-codegen/testutil v1.0.0 h1:1GI2IiMMLh2vDHr1OkNacaYU/VaApKdcmfgl4aeXAa8=
 github.com/oapi-codegen/testutil v1.0.0/go.mod h1:ttCaYbHvJtHuiyeBF0tPIX+4uhEPTeizXKx28okijLw=
 github.com/oasdiff/yaml v0.0.9/go.mod h1:8lvhgJG4xiKPj3HN5lDow4jZHPlx1i7dIwzkdAo6oAM=
@@ -5257,8 +5259,6 @@ github.com/vektah/gqlparser/v2 v2.5.27/go.mod h1:D1/VCZtV3LPnQrcPBeR/q5jkSQIPti0
 github.com/vektah/gqlparser/v2 v2.5.30/go.mod h1:D1/VCZtV3LPnQrcPBeR/q5jkSQIPti0uYCP/RI0gIeo=
 github.com/vikstrous/dataloadgen v0.0.9 h1:pIVKyTZEFvq9Wbfk4zZ0uFQcMPhE/uCHnlnWB6sNA4g=
 github.com/vikstrous/dataloadgen v0.0.9/go.mod h1:8vuQVpBH0ODbMKAPUdCAPcOGezoTIhgAjgex51t4vbg=
-github.com/vitorsalgado/mocha/v2 v2.0.2 h1:wb1QCRzVkp8uhRcUYmb9jJfbMj/qbiqcDyD8rD+Ldfw=
-github.com/vitorsalgado/mocha/v2 v2.0.2/go.mod h1:l7jRVm7KTL4VAxxazH99UVo+KzwztjrYpFTksTmL1DE=
 github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9znI5mJU=
 github.com/vmihailenco/msgpack/v5 v5.3.5/go.mod h1:7xyJ9e+0+9SaZT0Wt1RGleJXzli6Q/V5KbhBonMG9jc=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
