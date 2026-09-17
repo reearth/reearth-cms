@@ -215,7 +215,7 @@ paths:
       description: Returns a list of models.
       responses:
         '200':
-          description: A JSON array of user names
+          description: A JSON object of models
           content:
             application/json:
               schema:
@@ -288,7 +288,7 @@ paths:
       description: Returns a model.
       responses:
         '200':
-          description: A JSON array of user names
+          description: A JSON object of the model
           content:
             application/json:
               schema:
@@ -490,7 +490,7 @@ paths:
                 geometryFieldKey:
                   type: string
               required:
-                - assetId
+                - file
                 - format
                 - strategy
       responses:
@@ -548,7 +548,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: A JSON object of field
+          description: A JSON object of the copied model
           content:
             application/json:
               schema:
@@ -867,7 +867,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: A JSON array of user names
+          description: A JSON object of items
           content:
             application/json:
               schema:
@@ -919,7 +919,7 @@ paths:
                     $ref: '#/components/schemas/field'
       responses:
         '200':
-          description: A JSON array of user names
+          description: A JSON object of the item
           content:
             application/json:
               schema:
@@ -1504,7 +1504,7 @@ paths:
         - Assets
       responses:
         '200':
-          description: assets list
+          description: the asset
           content:
             application/json:
               schema:
@@ -1522,7 +1522,7 @@ paths:
         - Assets
       responses:
         '200':
-          description: assets list
+          description: the deleted asset id
           content:
             application/json:
               schema:
@@ -1551,7 +1551,7 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: assets list
+          description: the published asset
           content:
             application/json:
               schema:
@@ -1569,14 +1569,14 @@ paths:
       - $ref: '#/components/parameters/assetIdParam'
     post:
       operationId: AssetUnpublish
-      summary: publish asset
+      summary: unpublish asset
       tags:
         - Assets
       security:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: assets list
+          description: the unpublished asset
           content:
             application/json:
               schema:
@@ -1858,7 +1858,7 @@ components:
     perPageParam:
       name: perPage
       in: query
-      description: Used to select the page
+      description: Used to select the number of items per page
       required: false
       schema:
         type: integer
