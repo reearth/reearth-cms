@@ -167,7 +167,14 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
-    secrets: inherit
+    secrets:
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+      GC_REGION: ${{ secrets.GC_REGION }}
+      WEB_IMAGE: ${{ secrets.WEB_IMAGE }}
+      WEB_IMAGE_GC: ${{ secrets.WEB_IMAGE_GC }}
+      REEARTH_WEB_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
+      REEARTH_WEB_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 
   deploy-web-pr:
     needs: [build-web-pr, build-prepare]
@@ -204,7 +211,12 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
-    secrets: inherit
+    secrets:
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+      GC_REGION: ${{ secrets.GC_REGION }}
+      SERVER_IMAGE: ${{ secrets.SERVER_IMAGE }}
+      SERVER_IMAGE_GC: ${{ secrets.SERVER_IMAGE_GC }}
 
   deploy-worker:
     needs: [build-worker, ci-worker]
@@ -215,5 +227,10 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker
-    secrets: inherit
+    secrets:
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+      GC_REGION: ${{ secrets.GC_REGION }}
+      WORKER_IMAGE: ${{ secrets.WORKER_IMAGE }}
+      WORKER_IMAGE_GC: ${{ secrets.WORKER_IMAGE_GC }}
 
