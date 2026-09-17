@@ -490,7 +490,7 @@ paths:
                 geometryFieldKey:
                   type: string
               required:
-                - assetId
+                - file
                 - format
                 - strategy
       responses:
@@ -548,7 +548,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: フィールドのJSONオブジェクト
+          description: コピーされたモデルのJSONオブジェクト
           content:
             application/json:
               schema:
@@ -1504,7 +1504,7 @@ paths:
         - Assets
       responses:
         '200':
-          description: アセットの一覧
+          description: アセット
           content:
             application/json:
               schema:
@@ -1522,7 +1522,7 @@ paths:
         - Assets
       responses:
         '200':
-          description: アセットの一覧
+          description: 削除されたアセットのID
           content:
             application/json:
               schema:
@@ -1551,7 +1551,7 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: アセットの一覧
+          description: 公開されたアセット
           content:
             application/json:
               schema:
@@ -1576,7 +1576,7 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: アセットの一覧
+          description: 非公開にされたアセット
           content:
             application/json:
               schema:
@@ -1858,7 +1858,7 @@ components:
     perPageParam:
       name: perPage
       in: query
-      description: ページを選択するために使用します
+      description: 1ページあたりの件数を選択するために使用します
       required: false
       schema:
         type: integer
