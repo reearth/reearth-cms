@@ -23,7 +23,7 @@ paths:
       description: Returns a list of projects
       responses:
         '200':
-          description: A JSON array of projects
+          description: A JSON object containing a list of projects
           content:
             application/json:
               schema:
@@ -215,7 +215,7 @@ paths:
       description: Returns a list of models.
       responses:
         '200':
-          description: A JSON array of models
+          description: A JSON object containing a list of models
           content:
             application/json:
               schema:
@@ -581,7 +581,7 @@ paths:
       description: Returns a list of groups belonging to the specified project.
       responses:
         '200':
-          description: A list of groups in the project.
+          description: A JSON object containing a list of groups
           content:
             application/json:
               schema:
@@ -867,7 +867,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: A JSON array of items
+          description: A JSON object containing a list of items
           content:
             application/json:
               schema:
@@ -962,7 +962,7 @@ paths:
                   $ref: '#/components/schemas/condition'
       responses:
         '200':
-          description: Paginated list of items
+          description: A JSON object containing a list of items
           content:
             application/json:
               schema:
@@ -1324,7 +1324,7 @@ paths:
         - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
-          description: assets list
+          description: A JSON object containing a list of assets
           content:
             application/json:
               schema:
