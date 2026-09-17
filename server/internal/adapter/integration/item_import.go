@@ -63,6 +63,9 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 		if err := runtime.BindMultipart(&body, *request.MultipartBody); err != nil {
 			return nil, err
 		}
+		if body.File.Filename() == "" {
+			return nil, ErrFileIsMissing
+		}
 		fc, err := body.File.Reader()
 		if err != nil {
 			return nil, err
