@@ -71,7 +71,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      BUCKET: reearth-oss-cms-allure-reports
+      BUCKET: ${{ vars.ALLURE_BUCKET || 'reearth-oss-cms-allure-reports' }}
     defaults:
       run:
         working-directory: web
