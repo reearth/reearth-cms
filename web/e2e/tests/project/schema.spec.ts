@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { DATA_TEST_ID } from "@reearth-cms/test/data";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
