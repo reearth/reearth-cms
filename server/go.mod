@@ -27,7 +27,6 @@ require (
 	github.com/labstack/echo/v5 v5.3.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.8.0
 	github.com/oapi-codegen/runtime v1.7.0
-	github.com/oapi-codegen/runtime/strictmiddleware/echo-v5 v1.3.1
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/reearth/reearth-accounts/server v0.0.0-20260817064826-56ee694638f2
