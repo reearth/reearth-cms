@@ -32,8 +32,6 @@ func ToJob(j *job.Job) *Job {
 	}
 }
 
-// ToImportJobResult returns the stored result of an import job, or nil if the job is not
-// an import job, has not completed yet, or stored a result that cannot be read.
 func ToImportJobResult(j *job.Job) *ImportJobResult {
 	r, err := j.ImportResult()
 	if err != nil {
