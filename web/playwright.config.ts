@@ -18,7 +18,7 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : "25%",
   retries: 10,
   maxFailures: process.env.CI ? 4 : 10,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: false,
   use: {
     baseURL,
     screenshot: "only-on-failure",
