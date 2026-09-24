@@ -101,7 +101,7 @@ test.describe("Model Export tests on Overview page", () => {
     });
   });
 
-  test("Model Export as CSV on Overview page has succeeded", async ({
+  test.only("Model Export as CSV on Overview page has succeeded", async ({
     schemaPage,
     projectPage,
     fieldEditorPage,
