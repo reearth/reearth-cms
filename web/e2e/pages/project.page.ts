@@ -105,7 +105,7 @@ export class ProjectPage extends BasePage {
     return this.getByRole("dialog").getByText("New Model");
   }
 
-  // Export modal locators
+  // Export notification locators
   get csvExportWarningText(): Locator {
     return this.getByText("CSV export only supports simple fields");
   }
@@ -113,7 +113,7 @@ export class ProjectPage extends BasePage {
     return this.getByText("Relations, arrays, objects, and geometry fields are not included.");
   }
   get exportCSVButton(): Locator {
-    return this.getByRole("button", { name: "Export CSV" });
+    return this.getByTestId(DATA_TEST_ID.ExportContentNotification__ExportCSVButton);
   }
   get cancelButton(): Locator {
     return this.getByRole("button", { name: "Cancel" });
@@ -136,7 +136,7 @@ export class ProjectPage extends BasePage {
     return this.getByText("GeoJSON format supports only one geometry field.");
   }
   get exportAnywayButton(): Locator {
-    return this.getByRole("button", { name: "Export Anyway" });
+    return this.getByTestId(DATA_TEST_ID.ExportContentNotification__ExportAnywayButton);
   }
 
   // Dynamic locators for model-specific content

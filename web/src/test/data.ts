@@ -186,6 +186,10 @@ export enum DATA_TEST_ID {
   ModelCard__FileOperationExportContentCSV = "ModelCard__FileOperationExportContentCSV",
   ModelCard__FileOperationExportContentGeoJSON = "ModelCard__FileOperationExportContentGeoJSON",
 
+  // Export content confirmation notification (useExportContent)
+  ExportContentNotification__ExportCSVButton = "ExportContentNotification__ExportCSVButton",
+  ExportContentNotification__ExportAnywayButton = "ExportContentNotification__ExportAnywayButton",
+
   // Schema
   Schema__ImportSchemaButton = "Schema__ImportSchemaButton",
 
