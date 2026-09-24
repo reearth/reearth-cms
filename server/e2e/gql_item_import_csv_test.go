@@ -513,3 +513,171 @@ func TestGQLImportItemsSyncCSV(t *testing.T) {
 		})
 	}
 }
+
+// TestGQLImportItemsSyncCSVColumns verifies the per column matched/skipped breakdown of a CSV import
+func TestGQLImportItemsSyncCSVColumns(t *testing.T) {
+	type createFieldParams struct {
+		title    string
+		key      string
+		fType    string
+		typeProp map[string]any
+	}
+
+	textField := func(key string) createFieldParams {
+		return createFieldParams{title: key, key: key, fType: "Text", typeProp: map[string]any{"text": map[string]any{}}}
+	}
+
+	tests := []struct {
+		name            string
+		fields          []createFieldParams
+		fileContent     string
+		expectedTotal   int
+		expectedColumns []map[string]any
+	}{
+		{
+			name:          "all columns matched",
+			fields:        []createFieldParams{textField("name"), textField("memo")},
+			fileContent:   "name,memo\nItem 1,note 1\nItem 2,note 2",
+			expectedTotal: 2,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+				{"header": "memo", "status": "MATCHED", "schemaFieldKey": "memo", "reason": nil},
+			},
+		},
+		{
+			name:          "one column skipped",
+			fields:        []createFieldParams{textField("name"), textField("memo")},
+			fileContent:   "name,unknown_col\nItem 1,dropped",
+			expectedTotal: 1,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+				{"header": "unknown_col", "status": "SKIPPED", "schemaFieldKey": nil, "reason": "no matching schema field for header 'unknown_col'"},
+			},
+		},
+		{
+			name:          "multiple columns skipped",
+			fields:        []createFieldParams{textField("name")},
+			fileContent:   "name,a_col,b_col\nItem 1,dropped,dropped too",
+			expectedTotal: 1,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+				{"header": "a_col", "status": "SKIPPED", "schemaFieldKey": nil, "reason": "no matching schema field for header 'a_col'"},
+				{"header": "b_col", "status": "SKIPPED", "schemaFieldKey": nil, "reason": "no matching schema field for header 'b_col'"},
+			},
+		},
+		{
+			name:          "reserved id column is not reported",
+			fields:        []createFieldParams{textField("name")},
+			fileContent:   "id,name\n,Item 1",
+			expectedTotal: 1,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+			pId, _ := createProject(e, wId.String(), "test", "test", "e2e-alias")
+			mId, _ := createModel(e, pId, "test", "test", "e2e-alias")
+
+			for _, f := range tt.fields {
+				createField(e, mId, f.title, f.title, f.key,
+					false, false, false, false, f.fType, f.typeProp)
+			}
+
+			res := importItems(e, mId, "columns.csv", tt.fileContent, nil)
+
+			// counts keep their existing shape and value
+			res.Path("$.data.importItems.totalCount").Number().IsEqual(tt.expectedTotal)
+			res.Path("$.data.importItems.insertedCount").Number().IsEqual(tt.expectedTotal)
+			res.Path("$.data.importItems.ignoredCount").Number().IsEqual(0)
+
+			res.Path("$.data.importItems.columns").Array().IsEqual(tt.expectedColumns)
+		})
+	}
+}
+
+// TestGQLImportItemsAsyncCSVColumns verifies the column breakdown of an async CSV import is
+// retrievable from the job once it completes
+func TestGQLImportItemsAsyncCSVColumns(t *testing.T) {
+	type createFieldParams struct {
+		title    string
+		key      string
+		fType    string
+		typeProp map[string]any
+	}
+
+	textField := func(key string) createFieldParams {
+		return createFieldParams{title: key, key: key, fType: "Text", typeProp: map[string]any{"text": map[string]any{}}}
+	}
+
+	tests := []struct {
+		name            string
+		fields          []createFieldParams
+		fileContent     string
+		expectedTotal   int
+		expectedColumns []map[string]any
+	}{
+		{
+			name:          "all columns matched",
+			fields:        []createFieldParams{textField("name"), textField("memo")},
+			fileContent:   "name,memo\nItem 1,note 1\nItem 2,note 2",
+			expectedTotal: 2,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+				{"header": "memo", "status": "MATCHED", "schemaFieldKey": "memo", "reason": nil},
+			},
+		},
+		{
+			name:          "one column skipped",
+			fields:        []createFieldParams{textField("name"), textField("memo")},
+			fileContent:   "name,unknown_col\nItem 1,dropped",
+			expectedTotal: 1,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+				{"header": "unknown_col", "status": "SKIPPED", "schemaFieldKey": nil, "reason": "no matching schema field for header 'unknown_col'"},
+			},
+		},
+		{
+			name:          "multiple columns skipped",
+			fields:        []createFieldParams{textField("name")},
+			fileContent:   "name,a_col,b_col\nItem 1,dropped,dropped too",
+			expectedTotal: 1,
+			expectedColumns: []map[string]any{
+				{"header": "name", "status": "MATCHED", "schemaFieldKey": "name", "reason": nil},
+				{"header": "a_col", "status": "SKIPPED", "schemaFieldKey": nil, "reason": "no matching schema field for header 'a_col'"},
+				{"header": "b_col", "status": "SKIPPED", "schemaFieldKey": nil, "reason": "no matching schema field for header 'b_col'"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+			pId, _ := createProject(e, wId.String(), "test", "test", "e2e-alias")
+			mId, _ := createModel(e, pId, "test", "test", "e2e-alias")
+
+			for _, f := range tt.fields {
+				createField(e, mId, f.title, f.title, f.key,
+					false, false, false, false, f.fType, f.typeProp)
+			}
+
+			res := importItemsAsync(e, mId, "columns.csv", tt.fileContent, nil)
+			jobID := res.Path("$.data.importItemsAsync.job.id").String().Raw()
+
+			finalRes := waitForJobCompletion(e, jobID, 30*time.Second)
+			finalRes.Path("$.data.job.status").String().IsEqual("COMPLETED")
+
+			// counts keep their existing shape and value
+			finalRes.Path("$.data.job.importResult.total").Number().IsEqual(tt.expectedTotal)
+			finalRes.Path("$.data.job.importResult.inserted").Number().IsEqual(tt.expectedTotal)
+			finalRes.Path("$.data.job.importResult.ignored").Number().IsEqual(0)
+
+			finalRes.Path("$.data.job.importResult.columns").Array().IsEqual(tt.expectedColumns)
+		})
+	}
+}

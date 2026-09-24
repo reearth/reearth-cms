@@ -1,9 +1,12 @@
 package gqlmodel
 
 import (
+	"encoding/json"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/job"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -248,6 +251,99 @@ func TestFromJobStatus(t *testing.T) {
 			result := FromJobStatus(&status)
 			assert.NotNil(t, result)
 			assert.Equal(t, tt.want, *result)
+		})
+	}
+}
+
+func TestToImportJobResult(t *testing.T) {
+	t.Parallel()
+
+	resultJSON := func(r *job.ImportResult) json.RawMessage {
+		data, err := r.ToJSON()
+		assert.NoError(t, err)
+		return data
+	}
+
+	tests := []struct {
+		name string
+		job  *job.Job
+		want *ImportJobResult
+	}{
+		{
+			name: "pending import job has no result",
+			job:  job.New().NewID().Type(job.TypeImport).Project(id.NewProjectID()).User(accountdomain.NewUserID()).MustBuild(),
+			want: nil,
+		},
+		{
+			name: "completed import job with all columns matched",
+			job: func() *job.Job {
+				j := job.New().NewID().Type(job.TypeImport).Project(id.NewProjectID()).User(accountdomain.NewUserID()).MustBuild()
+				j.Complete(resultJSON(&job.ImportResult{
+					Total: 2, Inserted: 2,
+					Columns: []job.ImportColumnResult{
+						{Header: "name", Status: "matched", SchemaFieldKey: new("name")},
+					},
+				}))
+				return j
+			}(),
+			want: &ImportJobResult{
+				Total: 2, Inserted: 2, Updated: 0, Ignored: 0,
+				Columns: []*ImportColumnResult{
+					{Header: "name", Status: ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				},
+			},
+		},
+		{
+			name: "completed import job with a skipped column",
+			job: func() *job.Job {
+				j := job.New().NewID().Type(job.TypeImport).Project(id.NewProjectID()).User(accountdomain.NewUserID()).MustBuild()
+				j.Complete(resultJSON(&job.ImportResult{
+					Total: 1, Inserted: 1,
+					Columns: []job.ImportColumnResult{
+						{Header: "name", Status: "matched", SchemaFieldKey: new("name")},
+						{Header: "unknown_col", Status: "skipped", Reason: new("no matching schema field for header 'unknown_col'")},
+					},
+				}))
+				return j
+			}(),
+			want: &ImportJobResult{
+				Total: 1, Inserted: 1, Updated: 0, Ignored: 0,
+				Columns: []*ImportColumnResult{
+					{Header: "name", Status: ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+					{Header: "unknown_col", Status: ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'unknown_col'")},
+				},
+			},
+		},
+		{
+			name: "completed import job without column detail",
+			job: func() *job.Job {
+				j := job.New().NewID().Type(job.TypeImport).Project(id.NewProjectID()).User(accountdomain.NewUserID()).MustBuild()
+				j.Complete(resultJSON(&job.ImportResult{Total: 3, Inserted: 1, Updated: 2}))
+				return j
+			}(),
+			want: &ImportJobResult{
+				Total: 3, Inserted: 1, Updated: 2, Ignored: 0,
+				Columns: []*ImportColumnResult{},
+			},
+		},
+		{
+			name: "unreadable result is ignored",
+			job: func() *job.Job {
+				j := job.New().NewID().Type(job.TypeImport).Project(id.NewProjectID()).User(accountdomain.NewUserID()).MustBuild()
+				j.Complete(json.RawMessage(`{invalid}`))
+				return j
+			}(),
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, ToImportJobResult(tt.job))
+			// ToJob exposes the same value
+			assert.Equal(t, tt.want, ToJob(tt.job).ImportResult)
 		})
 	}
 }

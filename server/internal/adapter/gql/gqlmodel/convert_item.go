@@ -136,3 +136,24 @@ func ToItemStatus(in item.Status) ItemStatus {
 	}
 	return ""
 }
+
+func ToImportColumnResults(in []interfaces.ImportColumnResult) []*ImportColumnResult {
+	return lo.Map(in, func(c interfaces.ImportColumnResult, _ int) *ImportColumnResult {
+		return &ImportColumnResult{
+			Header:         c.Header,
+			Status:         ToImportColumnStatus(c.Status),
+			SchemaFieldKey: c.SchemaFieldKey,
+			Reason:         c.Reason,
+		}
+	})
+}
+
+func ToImportColumnStatus(in interfaces.ImportColumnStatus) ImportColumnStatus {
+	switch in {
+	case interfaces.ImportColumnStatusMatched:
+		return ImportColumnStatusMatched
+	case interfaces.ImportColumnStatusSkipped:
+		return ImportColumnStatusSkipped
+	}
+	return ""
+}

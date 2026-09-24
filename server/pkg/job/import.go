@@ -28,11 +28,20 @@ func ImportPayloadFromJSON(data json.RawMessage) (*ImportPayload, error) {
 	return &p, nil
 }
 
+// ImportColumnResult reports whether a column of the imported file was mapped to a schema field.
+type ImportColumnResult struct {
+	Header         string  `json:"header"`
+	Status         string  `json:"status"`
+	SchemaFieldKey *string `json:"schemaFieldKey,omitempty"`
+	Reason         *string `json:"reason,omitempty"`
+}
+
 type ImportResult struct {
-	Total    int `json:"total"`
-	Inserted int `json:"inserted"`
-	Updated  int `json:"updated"`
-	Ignored  int `json:"ignored"`
+	Total    int                  `json:"total"`
+	Inserted int                  `json:"inserted"`
+	Updated  int                  `json:"updated"`
+	Ignored  int                  `json:"ignored"`
+	Columns  []ImportColumnResult `json:"columns,omitempty"`
 }
 
 func (r *ImportResult) ToJSON() (json.RawMessage, error) {
