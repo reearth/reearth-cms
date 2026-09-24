@@ -31,8 +31,12 @@ const config: PlaywrightTestConfig = {
   testMatch: "**/*.spec.ts",
   testIgnore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
   reporter: process.env.CI
-    ? [["blob"], ["github"], ["list"]]
-    : [["list"], ["html", { open: "never" }]],
+    ? [["blob"], ["github"], ["list"], ["allure-playwright", { resultsDir: "allure-results" }]]
+    : [
+        ["list"],
+        ["html", { open: "never" }],
+        ["allure-playwright", { resultsDir: "allure-results" }],
+      ],
   fullyParallel: false,
   projects: [
     {
