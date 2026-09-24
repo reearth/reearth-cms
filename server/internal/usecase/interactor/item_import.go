@@ -467,9 +467,14 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return res.Into(), fmt.Errorf("expected array start, got %v", t)
 	}
 
-	// First pass: decode all items to get total count
+	// First pass: decode all items to get total count. Bounded by
+	// MaxImportRecordCount so a maliciously large file can't be decoded
+	// into memory in full before the record-count limit is enforced.
 	allItems := make([]map[string]any, 0)
 	for decoder.More() {
+		if len(allItems) >= interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
+		}
 		var obj map[string]any
 		if err := decoder.Decode(&obj); err != nil {
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)

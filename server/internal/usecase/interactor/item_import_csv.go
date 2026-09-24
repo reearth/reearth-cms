@@ -117,7 +117,9 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	// Build field map from headers to schema fields
 	fieldMap := buildFieldMap(headers, param.SP)
 
-	// First pass: read all records to get total count
+	// First pass: read all records to get total count. Bounded by
+	// MaxImportRecordCount so a maliciously large file can't be read into
+	// memory in full before the record-count limit is enforced.
 	allRows := make([][]string, 0)
 	for {
 		record, err := reader.Read()
@@ -129,6 +131,9 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		}
 		if lr.N == 0 {
 			return res.Into(), interfaces.ErrImportFileTooLarge
+		}
+		if len(allRows) >= interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
 		}
 		allRows = append(allRows, record)
 	}
@@ -149,11 +154,6 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		end := min(start+chunkSize, totalCount)
 		rows := allRows[start:end]
 		chunkLen := len(rows)
-
-		// Check max record limit
-		if start+chunkLen > interfaces.MaxImportRecordCount {
-			return res.Into(), interfaces.ErrImportTooManyRecords
-		}
 
 		// Convert rows to maps
 		csvChunk := make([]map[string]any, 0, chunkLen)
