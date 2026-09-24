@@ -1,7 +1,6 @@
 package interactor
 
 import (
-	"bytes"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -104,39 +103,24 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	// Buffer the (already size-capped) payload once so it can be scanned
-	// twice: a cheap counting pass to learn totalCount for progress
-	// reporting, and a chunked read-and-save pass that never holds more
-	// than chunkSize rows in memory at once. This trades CPU (the file is
-	// now parsed twice, ~2x the time) for a fixed memory ceiling
-	// independent of the record count, which is the constraint that
-	// matters on a memory-capped Cloud Run instance.
-	data, err := io.ReadAll(param.Reader)
-	if err != nil {
-		return res.Into(), fmt.Errorf("error reading import data: %v", err)
-	}
+	reader, lr := newCSVReader(param.Reader)
 
-	headers, totalCount, err := countCSVRecords(data)
+	// Read header row
+	headers, err := reader.Read()
 	if err != nil {
-		return res.Into(), err
-	}
-	if headers == nil {
-		// Empty file - just headers or nothing
-		return res.Into(), nil
+		if err == io.EOF {
+			return res.Into(), nil
+		}
+		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
 	}
 
 	// Build field map from headers to schema fields
 	fieldMap := buildFieldMap(headers, param.SP)
 
-	reader, lr := newCSVReader(bytes.NewReader(data))
-	if _, err := reader.Read(); err != nil { // re-consume the header row
-		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
-	}
-
-	cc := &importChunkCtx{prj: prj, m: m, s: s, param: param, operator: operator, totalCount: totalCount}
-
-	processed := 0
-	csvChunk := make([]map[string]any, 0, chunkSize)
+	// First pass: read all records to get total count. Bounded by
+	// MaxImportRecordCount so a maliciously large file can't be read into
+	// memory in full before the record-count limit is enforced.
+	allRows := make([][]string, 0)
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -148,60 +132,66 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		if lr.N == 0 {
 			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
-
-		csvChunk = append(csvChunk, csvRowToMap(headers, record, fieldMap))
-
-		if len(csvChunk) < chunkSize {
-			continue
+		if len(allRows) >= interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
 		}
-
-		if err := i.saveImportChunk(ctx, j, cc, csvChunk, false, res, &processed); err != nil {
-			return res.Into(), err
-		}
-		csvChunk = csvChunk[:0]
+		allRows = append(allRows, record)
 	}
-	if len(csvChunk) > 0 {
-		if err := i.saveImportChunk(ctx, j, cc, csvChunk, false, res, &processed); err != nil {
+	totalCount := len(allRows)
+
+	// Second pass: process in chunks with progress tracking
+	processed := 0
+	for start := 0; start < totalCount; start += chunkSize {
+		// Check if job was cancelled
+		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
+		if err != nil {
+			log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
+		}
+		if currentJob != nil && currentJob.IsCancelled() {
+			return res.Into(), fmt.Errorf("job cancelled")
+		}
+
+		end := min(start+chunkSize, totalCount)
+		rows := allRows[start:end]
+		chunkLen := len(rows)
+
+		// Convert rows to maps
+		csvChunk := make([]map[string]any, 0, chunkLen)
+		for _, record := range rows {
+			row := csvRowToMap(headers, record, fieldMap)
+			csvChunk = append(csvChunk, row)
+		}
+
+		items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
+		if err != nil {
 			return res.Into(), err
 		}
+		err = i.saveChunk(ctx, prj, m, s, param, items, res, operator)
+		if err != nil {
+			return res.Into(), err
+		}
+
+		processed += chunkLen
+
+		// Publish progress
+		progress := job.NewProgress(processed, totalCount)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		if i.gateways.JobPubSub != nil {
+			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
+				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
+			}
+		}
+
+		// Update job progress
+		j.SetProgress(progress)
+		if err := i.repos.Job.Save(ctx, j); err != nil {
+			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
+		}
+
+		log.Printf("chunk with %d items saved.", chunkLen)
 	}
 
 	return res.Into(), nil
-}
-
-// countCSVRecords reports the header row and how many data rows follow,
-// enforcing MaxImportRecordCount without retaining any row: each record is
-// read and immediately discarded, so peak memory here is independent of
-// how many rows the file holds. A nil header means the file was empty.
-func countCSVRecords(data []byte) ([]string, int, error) {
-	reader, lr := newCSVReader(bytes.NewReader(data))
-
-	headers, err := reader.Read()
-	if err != nil {
-		if err == io.EOF {
-			return nil, 0, nil
-		}
-		return nil, 0, fmt.Errorf("error reading CSV header: %v", err)
-	}
-
-	count := 0
-	for {
-		_, err := reader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, 0, fmt.Errorf("error reading CSV row: %v", err)
-		}
-		if lr.N == 0 {
-			return nil, 0, interfaces.ErrImportFileTooLarge
-		}
-		if count >= interfaces.MaxImportRecordCount {
-			return nil, 0, interfaces.ErrImportTooManyRecords
-		}
-		count++
-	}
-	return headers, count, nil
 }
 
 // buildFieldMap creates a mapping from header column name to schema field
