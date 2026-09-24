@@ -149,6 +149,9 @@ jobs:
   e2e_web:
     needs: [deploy_server, deploy_web]
     if: needs.deploy_web.result == 'success'
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/e2e_web.yml
     with:
       api_url: ${{ vars.REEARTH_CMS_API }}
@@ -158,3 +161,5 @@ jobs:
     secrets:
       REEARTH_WEB_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
       REEARTH_WEB_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
