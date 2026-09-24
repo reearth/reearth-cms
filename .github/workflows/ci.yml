@@ -233,4 +233,3 @@ jobs:
       GC_REGION: ${{ secrets.GC_REGION }}
       WORKER_IMAGE: ${{ secrets.WORKER_IMAGE }}
       WORKER_IMAGE_GC: ${{ secrets.WORKER_IMAGE_GC }}
-
