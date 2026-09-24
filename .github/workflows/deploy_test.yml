@@ -14,6 +14,29 @@ on:
         type: string
         default: 'all'
         description: 'Target to deploy'
+    secrets:
+      GC_SA_EMAIL:
+        required: true
+      GC_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GC_REGION:
+        required: true
+      SERVER_IMAGE:
+        required: false
+      SERVER_IMAGE_GC:
+        required: false
+      WEB_IMAGE:
+        required: false
+      WEB_IMAGE_GC:
+        required: false
+      WORKER_IMAGE:
+        required: false
+      WORKER_IMAGE_GC:
+        required: false
+      REEARTH_WEB_E2E_USERNAME:
+        required: false
+      REEARTH_WEB_E2E_PASSWORD:
+        required: false
 
 jobs:
   deploy_server:
