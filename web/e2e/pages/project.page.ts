@@ -113,7 +113,7 @@ export class ProjectPage extends BasePage {
     return this.getByText("Relations, arrays, objects, and geometry fields are not included.");
   }
   get exportCSVButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ExportContentNotification__ExportCSVButton);
+    return this.getByRole("button", { name: "Export as CSV" });
   }
   get cancelButton(): Locator {
     return this.getByRole("button", { name: "Cancel" });
@@ -136,7 +136,7 @@ export class ProjectPage extends BasePage {
     return this.getByText("GeoJSON format supports only one geometry field.");
   }
   get exportAnywayButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ExportContentNotification__ExportAnywayButton);
+    return this.getByRole("button", { name: "Export Anyway" });
   }
 
   // Dynamic locators for model-specific content

@@ -10,7 +10,6 @@ import { ExportFormat as GQLExportFormat } from "@reearth-cms/gql/__generated__/
 import { ExportModelDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useExportContentLoading } from "@reearth-cms/state";
-import { DATA_TEST_ID } from "@reearth-cms/test/data";
 
 const getFilenameFromFormat = (modelId: string, format: ExportFormat): string => {
   switch (format) {
@@ -110,7 +109,6 @@ export const useExportContent = () => {
                 <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
                 <Button
                   type="primary"
-                  data-testid={DATA_TEST_ID.ExportContentNotification__ExportCSVButton}
                   onClick={async () => {
                     Notification.destroy(key);
                     await handleExportContent(modelId, format);
@@ -155,7 +153,6 @@ export const useExportContent = () => {
                   <Button onClick={() => Notification.destroy(key)}>{t("Cancel")}</Button>
                   <Button
                     type="primary"
-                    data-testid={DATA_TEST_ID.ExportContentNotification__ExportAnywayButton}
                     onClick={async () => {
                       Notification.destroy(key);
                       await handleExportContent(modelId, format);
