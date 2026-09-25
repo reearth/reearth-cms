@@ -1,6 +1,7 @@
 package interactor
 
 import (
+	"bytes"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -103,45 +104,73 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	reader, lr := newCSVReader(param.Reader)
+	// Buffer the (already size-capped) payload once so it can be scanned
+	// twice: a counting pass that only tracks how many rows exist (each
+	// row is read and immediately discarded, never retained), and a
+	// chunked read-and-save pass that never holds more than chunkSize
+	// rows in memory at once. This is what actually bounds memory
+	// independent of the file's record count or size, unlike a plain
+	// post-hoc count check.
+	data, err := io.ReadAll(param.Reader)
+	if err != nil {
+		return res.Into(), fmt.Errorf("error reading import data: %v", err)
+	}
 
-	// Read header row
-	headers, err := reader.Read()
+	countReader, countLr := newCSVReader(bytes.NewReader(data))
+	headers, err := countReader.Read()
 	if err != nil {
 		if err == io.EOF {
 			return res.Into(), nil
 		}
 		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
 	}
-
-	// Build field map from headers to schema fields
-	fieldMap := buildFieldMap(headers, param.SP)
-
-	// First pass: read all records to get total count. Bounded by
-	// MaxImportRecordCount so a maliciously large file can't be read into
-	// memory in full before the record-count limit is enforced.
-	allRows := make([][]string, 0)
+	totalCount := 0
 	for {
-		record, err := reader.Read()
+		_, err := countReader.Read()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
 			return res.Into(), fmt.Errorf("error reading CSV row: %v", err)
 		}
-		if lr.N == 0 {
+		if countLr.N == 0 {
 			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
-		if len(allRows) >= interfaces.MaxImportRecordCount {
+		if totalCount >= interfaces.MaxImportRecordCount {
 			return res.Into(), interfaces.ErrImportTooManyRecords
 		}
-		allRows = append(allRows, record)
+		totalCount++
 	}
-	totalCount := len(allRows)
 
-	// Second pass: process in chunks with progress tracking
-	processed := 0
-	for start := 0; start < totalCount; start += chunkSize {
+	// Build field map from headers to schema fields
+	fieldMap := buildFieldMap(headers, param.SP)
+
+	reader, lr := newCSVReader(bytes.NewReader(data))
+	if _, err := reader.Read(); err != nil { // re-consume the header row
+		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
+	}
+
+	// Read and save in chunks, never holding more than chunkSize rows in
+	// memory at once.
+	count, processed, csvChunk, done := 0, 0, make([]map[string]any, 0, chunkSize), false
+	for !done {
+		record, err := reader.Read()
+		if err == io.EOF {
+			done = true
+		} else if err != nil {
+			return res.Into(), fmt.Errorf("error reading CSV row: %v", err)
+		} else {
+			if lr.N == 0 {
+				return res.Into(), interfaces.ErrImportFileTooLarge
+			}
+			count++
+			csvChunk = append(csvChunk, csvRowToMap(headers, record, fieldMap))
+		}
+
+		if count == 0 || (count < chunkSize && !done) {
+			continue
+		}
+
 		// Check if job was cancelled
 		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
 		if err != nil {
@@ -149,17 +178,6 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		}
 		if currentJob != nil && currentJob.IsCancelled() {
 			return res.Into(), fmt.Errorf("job cancelled")
-		}
-
-		end := min(start+chunkSize, totalCount)
-		rows := allRows[start:end]
-		chunkLen := len(rows)
-
-		// Convert rows to maps
-		csvChunk := make([]map[string]any, 0, chunkLen)
-		for _, record := range rows {
-			row := csvRowToMap(headers, record, fieldMap)
-			csvChunk = append(csvChunk, row)
 		}
 
 		items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
@@ -171,7 +189,7 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 			return res.Into(), err
 		}
 
-		processed += chunkLen
+		processed += count
 
 		// Publish progress
 		progress := job.NewProgress(processed, totalCount)
@@ -188,7 +206,8 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
 		}
 
-		log.Printf("chunk with %d items saved.", chunkLen)
+		log.Printf("chunk with %d items saved.", count)
+		count, csvChunk = 0, csvChunk[:0]
 	}
 
 	return res.Into(), nil

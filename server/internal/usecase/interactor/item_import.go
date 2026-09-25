@@ -444,10 +444,54 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 	}
 
-	decoder := json.NewDecoder(param.Reader)
+	// Buffer the (already size-capped) payload once so it can be scanned
+	// twice: a counting pass that only tracks how many records exist
+	// (each record is decoded as json.RawMessage and immediately
+	// discarded, never retained), and a chunked decode-and-save pass that
+	// never holds more than chunkSize decoded records in memory at once.
+	// This is what actually bounds memory independent of the file's
+	// record count or size, unlike a plain post-hoc count check.
+	data, err := io.ReadAll(param.Reader)
+	if err != nil {
+		return res.Into(), fmt.Errorf("error reading import data: %v", err)
+	}
+
+	isGeoJSON := param.Format == interfaces.ImportFormatTypeGeoJSON
+
+	countDecoder := json.NewDecoder(bytes.NewReader(data))
+	if isGeoJSON {
+		for {
+			token, err := countDecoder.Token()
+			if err != nil {
+				return res.Into(), fmt.Errorf("error reading token: %v", err)
+			}
+			if str, ok := token.(string); ok && str == "features" {
+				break
+			}
+		}
+	}
+	if t, err := countDecoder.Token(); err != nil || t != json.Delim('[') {
+		if err != nil {
+			return res.Into(), fmt.Errorf("error reading array start: %v", err)
+		}
+		return res.Into(), fmt.Errorf("expected array start, got %v", t)
+	}
+	totalCount := 0
+	for countDecoder.More() {
+		if totalCount >= interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
+		}
+		var raw json.RawMessage
+		if err := countDecoder.Decode(&raw); err != nil {
+			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+		totalCount++
+	}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
 
 	// For FeatureCollection, skip to the features array
-	if param.Format == interfaces.ImportFormatTypeGeoJSON {
+	if isGeoJSON {
 		for {
 			token, err := decoder.Token()
 			if err != nil {
@@ -467,62 +511,53 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return res.Into(), fmt.Errorf("expected array start, got %v", t)
 	}
 
-	// First pass: decode all items to get total count. Bounded by
-	// MaxImportRecordCount so a maliciously large file can't be decoded
-	// into memory in full before the record-count limit is enforced.
-	allItems := make([]map[string]any, 0)
+	// Decode and save in chunks, never holding more than chunkSize
+	// decoded records in memory at once.
+	count, processed, jsonChunk := 0, 0, make([]map[string]any, 0, chunkSize)
 	for decoder.More() {
-		if len(allItems) >= interfaces.MaxImportRecordCount {
-			return res.Into(), interfaces.ErrImportTooManyRecords
-		}
 		var obj map[string]any
 		if err := decoder.Decode(&obj); err != nil {
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
 		}
-		allItems = append(allItems, obj)
-	}
-	totalCount := len(allItems)
+		count++
+		jsonChunk = append(jsonChunk, obj)
 
-	// Second pass: process items in chunks
-	processed := 0
-	for start := 0; start < totalCount; start += chunkSize {
-		// Check if job was cancelled
-		currentJob, _ := i.repos.Job.FindByID(ctx, j.ID())
-		if currentJob != nil && currentJob.IsCancelled() {
-			return res.Into(), fmt.Errorf("job cancelled")
-		}
-
-		end := min(start+chunkSize, totalCount)
-		jsonChunk := allItems[start:end]
-		chunkLen := len(jsonChunk)
-
-		items, err := itemsParamsFrom(jsonChunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
-		if err != nil {
-			return res.Into(), err
-		}
-		err = i.saveChunk(ctx, prj, m, s, param, items, &res, operator)
-		if err != nil {
-			return res.Into(), err
-		}
-
-		processed += chunkLen
-
-		// Publish progress
-		progress := job.NewProgress(processed, totalCount)
-		state := job.NewState(job.StatusInProgress, &progress, "")
-		if i.gateways.JobPubSub != nil {
-			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-				log.Warnf("item: failed to publish job %s progress: %v", j.ID(), err)
+		if count == chunkSize || !decoder.More() {
+			// Check if job was cancelled
+			currentJob, _ := i.repos.Job.FindByID(ctx, j.ID())
+			if currentJob != nil && currentJob.IsCancelled() {
+				return res.Into(), fmt.Errorf("job cancelled")
 			}
-		}
 
-		// Update job progress
-		j.SetProgress(progress)
-		if err := i.repos.Job.Save(ctx, j); err != nil {
-			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
-		}
+			items, err := itemsParamsFrom(jsonChunk, isGeoJSON, param.GeoField, param.SP)
+			if err != nil {
+				return res.Into(), err
+			}
+			err = i.saveChunk(ctx, prj, m, s, param, items, &res, operator)
+			if err != nil {
+				return res.Into(), err
+			}
 
-		log.Printf("chunk with %d items saved.", chunkLen)
+			processed += count
+
+			// Publish progress
+			progress := job.NewProgress(processed, totalCount)
+			state := job.NewState(job.StatusInProgress, &progress, "")
+			if i.gateways.JobPubSub != nil {
+				if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
+					log.Warnf("item: failed to publish job %s progress: %v", j.ID(), err)
+				}
+			}
+
+			// Update job progress
+			j.SetProgress(progress)
+			if err := i.repos.Job.Save(ctx, j); err != nil {
+				log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
+			}
+
+			log.Printf("chunk with %d items saved.", count)
+			count, jsonChunk = 0, jsonChunk[:0]
+		}
 	}
 	return res.Into(), nil
 }
