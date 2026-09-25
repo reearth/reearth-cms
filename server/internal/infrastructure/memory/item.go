@@ -100,6 +100,10 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 		return true
 	})
 
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil && int64(len(res)) > *pagination.Cursor.First {
+		res = res[:*pagination.Cursor.First]
+	}
+
 	return res, nil, nil
 }
 
