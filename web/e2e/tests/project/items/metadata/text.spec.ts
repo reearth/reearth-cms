@@ -156,13 +156,25 @@ test("Text metadata editing has succeeded", async ({
   await test.step("Update metadata from tooltip in table view", async () => {
     await contentPage.backButton.click();
     await contentPage.x2Button.click();
+    const secondValue = contentPage.tooltipTextboxes.nth(1);
     await expect(contentPage.tooltipTextboxes.nth(0)).toHaveValue("text1");
-    await expect(contentPage.tooltipTextboxes.nth(1)).toHaveValue("text2");
-    await contentPage.tooltipTextboxes.nth(1).fill("new text2");
-    await contentPage.tooltipTextByName("new text1").click();
+    await expect(secondValue).toHaveValue("text2");
+    await secondValue.fill("new text2");
+    await secondValue.blur();
+    // await contentPage.tooltipTextByName("new text1").click();
     await contentPage.closeNotification(false);
-    await contentPage.tooltipTextboxes.nth(1).fill("text3");
+    // The rejected save re-renders the tooltip from the last persisted value.
+    // Filling before that settles lets the re-render clobber the new value, so
+    // the commit below silently saves "text2" again — and the success
+    // notification makes it look like it worked.
+    await expect(secondValue).toHaveValue("new text2");
+    await secondValue.fill("text3");
+    await expect(secondValue).toHaveValue("text3");
     await contentPage.clickAndExpectSuccess(contentPage.tooltipTextByName("new text1"));
+    // A success notification only proves a mutation resolved, not that this
+    // value persisted — waitForGraphQL matches any POST /graphql. Verify the
+    // round-trip before the next step depends on it.
+    await expect(secondValue).toHaveValue("text3");
     await page.waitForLoadState("networkidle");
   });
 
