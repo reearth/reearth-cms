@@ -153,6 +153,43 @@ func buildOversizedCSV(n int) string {
 	return b.String()
 }
 
+// buildOversizedCSVPayload returns a header plus a single data row whose
+// one cell alone exceeds MaxImportFileSize, isolating the file-size check
+// from the record-count check (which this payload stays well under).
+func buildOversizedCSVPayload() string {
+	var b strings.Builder
+	b.WriteString("id,field1\n")
+	b.WriteString("row,")
+	b.WriteString(strings.Repeat("a", interfaces.MaxImportFileSize+1))
+	b.WriteString("\n")
+	return b.String()
+}
+
+// TestItem_importCSVWithProgress_FileTooLarge guards the local size-cap
+// re-enforcement in importCSVWithProgress: it must reject an oversized
+// payload itself rather than relying solely on the caller (ImportAsync)
+// having already capped it.
+func TestItem_importCSVWithProgress_FileTooLarge(t *testing.T) {
+	t.Parallel()
+
+	ctx, itemUC, jb, m, sp, op := setupImportWithProgressFixture(t)
+
+	param := interfaces.ImportItemsParam{
+		ModelID:      m.ID(),
+		SP:           sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       interfaces.ImportFormatTypeCSV,
+		MutateSchema: false,
+		Reader:       strings.NewReader(buildOversizedCSVPayload()),
+	}
+
+	res, err := itemUC.importWithProgress(ctx, jb, param, op)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, interfaces.ErrImportFileTooLarge)
+	assert.Equal(t, interfaces.ImportItemsResponse{}, res)
+}
+
 func TestItem_importCSVWithProgress_TooManyRecords(t *testing.T) {
 	t.Parallel()
 

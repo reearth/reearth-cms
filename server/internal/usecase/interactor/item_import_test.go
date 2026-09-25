@@ -221,6 +221,42 @@ func buildOversizedJSONArray(n int) []byte {
 	return []byte(b.String())
 }
 
+// buildOversizedJSONPayload returns a single-record JSON array whose one
+// string field alone exceeds MaxImportFileSize, isolating the file-size
+// check from the record-count check (which this payload stays well under).
+func buildOversizedJSONPayload() []byte {
+	var b strings.Builder
+	b.WriteString(`[{"field1":"`)
+	b.WriteString(strings.Repeat("a", interfaces.MaxImportFileSize+1))
+	b.WriteString(`"}]`)
+	return []byte(b.String())
+}
+
+// TestItem_importWithProgress_FileTooLarge guards the local size-cap
+// re-enforcement in importWithProgress: it must reject an oversized
+// payload itself rather than relying solely on the caller (ImportAsync)
+// having already capped it.
+func TestItem_importWithProgress_FileTooLarge(t *testing.T) {
+	t.Parallel()
+
+	ctx, itemUC, jb, m, sp, op := setupImportWithProgressFixture(t)
+
+	param := interfaces.ImportItemsParam{
+		ModelID:      m.ID(),
+		SP:           sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       interfaces.ImportFormatTypeJSON,
+		MutateSchema: false,
+		Reader:       bytes.NewReader(buildOversizedJSONPayload()),
+	}
+
+	res, err := itemUC.importWithProgress(ctx, jb, param, op)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, interfaces.ErrImportFileTooLarge)
+	assert.Equal(t, interfaces.ImportItemsResponse{}, res)
+}
+
 func TestItem_importWithProgress_TooManyRecords(t *testing.T) {
 	t.Parallel()
 
