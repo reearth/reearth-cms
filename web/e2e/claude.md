@@ -419,6 +419,21 @@ import { test } from "../fixtures/test";
 import { SchemaPage } from "./pages/schema.page";
 ```
 
+## ⚠️ Tests Run Against a DEPLOYED Environment
+
+`.github/workflows/e2e_web.yml` has **no build and no serve step**, and `playwright.config.ts` has
+**no `webServer`**. Playwright drives whatever is already deployed at `REEARTH_CMS_E2E_BASEURL`
+(the `main` build on `test.reearth.dev`) — never a build of the current branch.
+
+Two consequences:
+
+- **A locator may only reference UI that is already deployed.** A `data-testid` added under
+  `web/src/**` is unusable by e2e until that change merges *and* web redeploys. Using it in the same
+  PR produces a 60s `locator.click` timeout with no matching element.
+- **A PR that renames a user-facing string must update the matching e2e locator in the same PR**,
+  or e2e breaks the moment it deploys. This is exactly how the i18n review in #1920 broke
+  `projectPage.exportCSVButton` (`Export CSV` → `Export as CSV`).
+
 ## 🛡️ Separation of Concerns
 
 **Important**: E2E tests should NOT import from the main application code:
