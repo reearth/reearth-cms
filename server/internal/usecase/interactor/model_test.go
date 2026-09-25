@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -850,6 +851,139 @@ func TestModel_Delete(t *testing.T) {
 		// f2 (back-reference pointing at s1) must be gone; s2 has no reference fields left
 		assert.Empty(t, s2After.FieldsByType(value.TypeReference), "dangling back-reference field should have been removed from sibling schema")
 	})
+
+	seedItems := func(t *testing.T, ctx context.Context, db *repo.Container, p *project.Project, s *schema.Schema, m *model.Model, n int) (id.ItemIDList, id.ThreadIDList) {
+		t.Helper()
+		var itemIDs id.ItemIDList
+		var threadIDs id.ThreadIDList
+		for range n {
+			th := thread.New().NewID().Workspace(wid).MustBuild()
+			assert.NoError(t, db.Thread.Save(ctx, th))
+			it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(th.ID().Ref()).Anonymous(true).MustBuild()
+			assert.NoError(t, db.Item.Save(ctx, it))
+			itemIDs = append(itemIDs, it.ID())
+			threadIDs = append(threadIDs, th.ID())
+		}
+		return itemIDs, threadIDs
+	}
+
+	t.Run("deletes items and threads across multiple batches", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		m := newModel(p.ID(), s.ID())
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+		itemIDs, threadIDs := seedItems(t, ctx, db, p, s, m, int(modelDeleteItemBatchSize)*2+50)
+
+		sp := *schema.NewPackage(s, nil, nil, nil)
+		assert.NoError(t, NewModel(db, nil).Delete(ctx, m.ID(), sp, ownerOp))
+
+		items, err := db.Item.FindByIDs(ctx, itemIDs, nil)
+		assert.NoError(t, err)
+		assert.Empty(t, items)
+		threads, err := db.Thread.FindByIDs(ctx, threadIDs)
+		assert.NoError(t, err)
+		assert.Empty(t, threads)
+		_, err = db.Model.FindByID(ctx, m.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("retrying an interrupted deletion completes it", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		m := newModel(p.ID(), s.ID())
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+		itemIDs, _ := seedItems(t, ctx, db, p, s, m, int(modelDeleteItemBatchSize)+50)
+
+		sp := *schema.NewPackage(s, nil, nil, nil)
+		u := NewModel(db, nil).(*Model)
+
+		// simulate a deletion interrupted after its first batch was committed
+		deleted, err := u.deleteItemBatch(ctx, p, m, sp, ownerOp)
+		assert.NoError(t, err)
+		assert.Len(t, deleted, int(modelDeleteItemBatchSize))
+
+		// the model and the remaining items are still there, so the deletion can be retried
+		_, err = db.Model.FindByID(ctx, m.ID())
+		assert.NoError(t, err)
+		count, err := db.Item.CountByModel(ctx, m.ID())
+		assert.NoError(t, err)
+		assert.Equal(t, 50, count)
+
+		assert.NoError(t, u.Delete(ctx, m.ID(), sp, ownerOp))
+
+		items, err := db.Item.FindByIDs(ctx, itemIDs, nil)
+		assert.NoError(t, err)
+		assert.Empty(t, items)
+		_, err = db.Model.FindByID(ctx, m.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+}
+
+func TestDrainItemBatches(t *testing.T) {
+	t.Parallel()
+
+	batch1 := id.ItemIDList{id.NewItemID(), id.NewItemID()}
+	batch2 := id.ItemIDList{id.NewItemID()}
+
+	tests := []struct {
+		name      string
+		batches   []id.ItemIDList
+		wantCalls int
+		wantErr   bool
+	}{
+		{
+			name:      "stops when a batch deletes nothing",
+			batches:   []id.ItemIDList{batch1, batch2, nil},
+			wantCalls: 3,
+		},
+		{
+			name:      "fails when a batch returns items that were not removed",
+			batches:   []id.ItemIDList{batch1, batch1},
+			wantCalls: 2,
+			wantErr:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			calls := 0
+			err := drainItemBatches(func() (id.ItemIDList, error) {
+				b := tt.batches[calls]
+				calls++
+				return b, nil
+			})
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.wantCalls, calls)
+		})
+	}
 }
 
 func TestModel_FindByIDs(t *testing.T) {
