@@ -279,7 +279,12 @@ export class ProjectPage extends BasePage {
   }
 
   async deleteProject(): Promise<void> {
+    const urlBeforeCleanup = this.page.url();
     try {
+      // Stacked notices sit over the sidebar and header and intercept clicks,
+      // which is what turns a failed cleanup into a 60s timeout.
+      await this.dismissAllNotifications();
+
       // Close any open modals/dialogs before attempting to delete
       const modalWrap = this.page.locator(".ant-modal-wrap");
       const isModalVisible = await modalWrap
@@ -325,13 +330,35 @@ export class ProjectPage extends BasePage {
       }
 
       await this.page.waitForLoadState("networkidle");
-      await expect(this.getByText("Settings").first()).toBeVisible();
-      await this.getByText("Settings").first().click();
+      await this.gotoProjectSettings();
       await this.deleteProjectButton.click();
       await this.clickAndExpectSuccess(this.confirmDeleteProjectButton);
     } catch (error) {
-      console.warn(`[E2E] deleteProject cleanup failed: ${error}`);
+      // Log the URL too: a cleanup that ran from the wrong page is the common
+      // failure, and the error alone doesn't say where it was.
+      console.warn(`[E2E] deleteProject cleanup failed (from ${urlBeforeCleanup}): ${error}`);
     }
+  }
+
+  /**
+   * Navigate to the current project's settings page.
+   *
+   * Prefers a direct URL over clicking the sidebar: both ProjectMenu and
+   * WorkspaceMenu render a "Settings" item, so `getByText("Settings").first()`
+   * lands on workspace settings whenever the test ended outside a project — and
+   * the project Danger Zone never appears there.
+   */
+  private async gotoProjectSettings(): Promise<void> {
+    const projectUrl = this.page.url().match(/^(.*\/project\/[^/?#]+)/);
+
+    if (projectUrl) {
+      await this.goto(`${projectUrl[1]}/settings`, { waitUntil: "domcontentloaded" });
+    } else {
+      await expect(this.settingsMenuItem).toBeVisible();
+      await this.settingsMenuItem.click();
+    }
+
+    await expect(this.deleteProjectButton).toBeVisible();
   }
 
   async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {

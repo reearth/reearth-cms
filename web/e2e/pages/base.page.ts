@@ -2,6 +2,7 @@ import type { Page, Locator } from "@reearth-cms/e2e/fixtures/test";
 import {
   clickAndExpectSuccess,
   closeNotification,
+  dismissAllNotifications,
 } from "@reearth-cms/e2e/helpers/notification.helper";
 
 type Role =
@@ -105,6 +106,10 @@ export abstract class BasePage {
 
   async closeNotification(isSuccess = true) {
     await closeNotification(this.page, isSuccess);
+  }
+
+  async dismissAllNotifications() {
+    await dismissAllNotifications(this.page);
   }
 
   async clickAndExpectSuccess(clickTarget: Locator, maxRetries = 2) {

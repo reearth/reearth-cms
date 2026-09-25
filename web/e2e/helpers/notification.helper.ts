@@ -82,3 +82,25 @@ export async function closeNotification(page: Page, isSuccess = true, initialNot
     await errorNotice.waitFor({ state: "detached", timeout: 10_000 });
   }
 }
+
+/**
+ * Close every notification currently on screen, whatever its type.
+ *
+ * `closeNotification` only ever targets success/error notices (it filters on the
+ * check-circle / close-circle icons), so `warning` notices are left behind. antd
+ * renders them top-right and stacks them, where they sit on top of the sidebar
+ * and header controls and swallow pointer events — the usual cause of a 60s
+ * `locator.click` timeout during cleanup.
+ */
+export async function dismissAllNotifications(page: Page): Promise<void> {
+  const notices = page.locator(".ant-notification-notice");
+  const closeButtons = await notices.locator(".ant-notification-notice-close").all();
+
+  for (const closeButton of closeButtons) {
+    // dispatchEvent bypasses the actionability checks a real click would run —
+    // these notices are precisely the thing intercepting pointer events.
+    await closeButton.dispatchEvent("click").catch(() => {});
+  }
+
+  await notices.first().waitFor({ state: "detached", timeout: 5_000 }).catch(() => {});
+}

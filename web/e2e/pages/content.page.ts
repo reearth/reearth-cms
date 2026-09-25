@@ -16,7 +16,10 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "plus New Item" });
   }
   get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
+    // exact: the default is a substring match, which also catches the
+    // "Save Changes" / "Save as new view" buttons that coexist during route
+    // transitions and turns this into a strict-mode violation.
+    return this.getByRole("button", { name: "Save", exact: true });
   }
   get backButton(): Locator {
     return this.getByLabel("Back");
@@ -545,7 +548,7 @@ export class ContentPage extends BasePage {
   async createItem(): Promise<void> {
     await this.getByText("Content").click();
     await this.getByRole("button", { name: "plus New Item" }).click();
-    await this.clickAndExpectSuccess(this.getByRole("button", { name: "Save" }));
+    await this.clickAndExpectSuccess(this.saveButton);
   }
 
   async createRequest(title: string): Promise<void> {
