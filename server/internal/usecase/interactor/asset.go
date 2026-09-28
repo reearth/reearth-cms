@@ -1058,8 +1058,6 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		return aId, interfaces.ErrInvalidOperator
 	}
 
-	// Storage deletion is irreversible and cannot take part in the DB transaction,
-	// so it runs only after the transaction has committed.
 	var uuid, filename string
 	result, err = Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetID, error) {
 		a, err := i.repos.Asset.FindByID(ctx, aId)
@@ -1123,8 +1121,6 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		return nil, interfaces.ErrEmptyIDsList
 	}
 
-	// Storage deletion is irreversible and cannot take part in the DB transaction,
-	// so it runs only after the transaction has committed.
 	var uuids []string
 	result, err = Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetIDList, error) {
 		assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
