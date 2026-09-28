@@ -920,7 +920,7 @@ func TestModel_Delete(t *testing.T) {
 		u := NewModel(db, nil).(*Model)
 
 		// simulate a deletion interrupted after its first batch was committed
-		deleted, err := u.deleteItemBatch(ctx, p, m, sp, ownerOp)
+		deleted, err := u.deleteItemsByModel(ctx, p, m, sp, ownerOp)
 		assert.NoError(t, err)
 		assert.Len(t, deleted, int(modelDeleteItemBatchSize))
 
@@ -939,51 +939,6 @@ func TestModel_Delete(t *testing.T) {
 		_, err = db.Model.FindByID(ctx, m.ID())
 		assert.ErrorIs(t, err, rerror.ErrNotFound)
 	})
-}
-
-func TestDrainItemBatches(t *testing.T) {
-	t.Parallel()
-
-	batch1 := id.ItemIDList{id.NewItemID(), id.NewItemID()}
-	batch2 := id.ItemIDList{id.NewItemID()}
-
-	tests := []struct {
-		name      string
-		batches   []id.ItemIDList
-		wantCalls int
-		wantErr   bool
-	}{
-		{
-			name:      "stops when a batch deletes nothing",
-			batches:   []id.ItemIDList{batch1, batch2, nil},
-			wantCalls: 3,
-		},
-		{
-			name:      "fails when a batch returns items that were not removed",
-			batches:   []id.ItemIDList{batch1, batch1},
-			wantCalls: 2,
-			wantErr:   true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			calls := 0
-			err := drainItemBatches(func() (id.ItemIDList, error) {
-				b := tt.batches[calls]
-				calls++
-				return b, nil
-			})
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-			assert.Equal(t, tt.wantCalls, calls)
-		})
-	}
 }
 
 func TestModel_FindByIDs(t *testing.T) {

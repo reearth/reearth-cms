@@ -319,67 +319,75 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 	if err != nil {
 		return err
 	}
-	return Run0(ctx, operator, i.repos,
-		Usecase().
-			WithPermission(i.authz(), rbac.ResourceModel, rbac.ActionDelete, wid),
-		func(ctx context.Context) error {
-			if !operator.IsWritableProject(m.Project()) {
-				return interfaces.ErrOperationDenied
+	// the checks are done once up front, since the deletion below runs as a sequence of separate transactions
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceModel, rbac.ActionDelete, wid); err != nil {
+		return err
+	}
+	if !operator.IsWritableProject(m.Project()) {
+		return interfaces.ErrOperationDenied
+	}
+
+	prj, err := i.repos.Project.FindByID(ctx, m.Project())
+	if err != nil {
+		return err
+	}
+
+	// delete the model's items in bounded batches, each in its own transaction.
+	// the transaction that finds no items left also deletes the model, so an interrupted deletion
+	// can be retried and resumes where it stopped.
+	var prev id.ItemIDList
+	for {
+		deleted, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.ItemIDList, error) {
+			deleted, err := i.deleteItemsByModel(ctx, prj, m, sp, operator)
+			if err != nil || len(deleted) > 0 {
+				return deleted, err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, m.Project())
+			// delete all views for this model
+			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
+				return nil, err
+			}
+
+			// remove reference fields in sibling schemas that point to this model's schema
+			if err := i.removeReferenceFieldsPointingToSchema(ctx, m); err != nil {
+				return nil, err
+			}
+
+			// delete the model's schema
+			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
+				return nil, err
+			}
+
+			// delete the metadata schema if present
+			if m.Metadata() != nil {
+				if err := i.repos.Schema.Remove(ctx, *m.Metadata()); err != nil {
+					return nil, err
+				}
+			}
+
+			// delete the model and reorder siblings
+			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: new(int64(1000))}.Wrap())
 			if err != nil {
-				return err
+				return nil, err
 			}
-
-			// delete all items for this model in bounded batches, each in its own transaction.
-			// the model is kept until all items are gone, so an interrupted deletion can be retried and resumes where it stopped.
-			if err := i.deleteItemsByModel(ctx, prj, m, sp, operator); err != nil {
-				return err
+			res := models.Remove(modelID)
+			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
+				return nil, err
 			}
-
-			return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
-				// delete all views for this model
-				if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
-					return err
-				}
-
-				// delete items created while the batches above were running
-				if err := drainItemBatches(func() (id.ItemIDList, error) {
-					return i.deleteItemBatch(ctx, prj, m, sp, operator)
-				}); err != nil {
-					return err
-				}
-
-				// remove reference fields in sibling schemas that point to this model's schema
-				if err := i.removeReferenceFieldsPointingToSchema(ctx, m); err != nil {
-					return err
-				}
-
-				// delete the model's schema
-				if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
-					return err
-				}
-
-				// delete the metadata schema if present
-				if m.Metadata() != nil {
-					if err := i.repos.Schema.Remove(ctx, *m.Metadata()); err != nil {
-						return err
-					}
-				}
-
-				// delete the model and reorder siblings
-				models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: new(int64(1000))}.Wrap())
-				if err != nil {
-					return err
-				}
-				res := models.Remove(modelID)
-				if err := i.repos.Model.Remove(ctx, modelID); err != nil {
-					return err
-				}
-				return i.repos.Model.SaveAll(ctx, res)
-			})
+			return nil, i.repos.Model.SaveAll(ctx, res)
 		})
+		if err != nil {
+			return err
+		}
+		if len(deleted) == 0 {
+			return nil
+		}
+		// items of the previous batch coming back means they were not removed, and the loop would never end
+		if lo.Some(prev, deleted) {
+			return rerror.ErrInternalBy(errors.New("model items were not removed"))
+		}
+		prev = deleted
+	}
 }
 
 func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
@@ -432,39 +440,10 @@ func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *mod
 
 const modelDeleteItemBatchSize = int64(100)
 
-// deleteItemsByModel deletes all items of the model batch by batch, committing each batch in its own transaction
-// so that neither the transaction duration nor the memory usage grows with the number of items.
-func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {
-	return drainItemBatches(func() (id.ItemIDList, error) {
-		return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.ItemIDList, error) {
-			return i.deleteItemBatch(ctx, prj, m, sp, operator)
-		})
-	})
-}
-
-// drainItemBatches calls deleteBatch until it deletes nothing.
-// It fails if a batch returns items of the previous batch, which means they were not removed and the loop would never end.
-func drainItemBatches(deleteBatch func() (id.ItemIDList, error)) error {
-	var prev id.ItemIDList
-	for {
-		ids, err := deleteBatch()
-		if err != nil {
-			return err
-		}
-		if len(ids) == 0 {
-			return nil
-		}
-		if lo.Some(prev, ids) {
-			return rerror.ErrInternalBy(errors.New("model items were not removed"))
-		}
-		prev = ids
-	}
-}
-
-// deleteItemBatch deletes the first batch of the model's items together with their threads and the references to them,
+// deleteItemsByModel deletes the first batch of the model's items together with their threads and the references to them,
 // publishes their item.delete events, and returns the IDs of the deleted items.
 // Items are always read from the first page because the previously processed batches are already deleted.
-func (i Model) deleteItemBatch(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) (id.ItemIDList, error) {
+func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) (id.ItemIDList, error) {
 	vList, _, err := i.repos.Item.FindByModel(ctx, m.ID(), nil, nil,
 		usecasex.CursorPagination{First: lo.ToPtr(modelDeleteItemBatchSize)}.Wrap())
 	if err != nil {
