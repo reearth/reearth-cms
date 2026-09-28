@@ -1,4 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { fillAndSettle } from "@reearth-cms/e2e/helpers/form.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
@@ -135,14 +136,14 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.dispatchEvent("click");
-  await contentPage.textBoxes.fill("http://new-default2.com");
+  await fillAndSettle(contentPage.textBoxes, "http://new-default2.com");
   await contentPage.clickAndExpectSuccess(contentPage.tooltipTextByName("new url1"));
   await contentPage.cellEditButtonByIndex(0).click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await fieldEditorPage.plusNewButton.click();
   await expect(fieldEditorPage.lastTextbox).toBeVisible();
-  await fieldEditorPage.lastTextbox.fill("http://default3.com");
+  await fillAndSettle(fieldEditorPage.lastTextbox, "http://default3.com");
   await contentPage.closeNotification();
   await expect(contentPage.textBoxByIndex(2)).toBeVisible();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");

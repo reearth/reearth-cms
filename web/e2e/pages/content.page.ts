@@ -369,8 +369,16 @@ export class ContentPage extends BasePage {
   }
 
   // Checkbox field specific
+  get checkboxes(): Locator {
+    return this.getByRole("checkbox");
+  }
   checkboxByIndex(index: number): Locator {
     return this.getByRole("checkbox").nth(index);
+  }
+  // antd Select renders the chosen value as a span that overlays its own
+  // search input, so a click on the input is intercepted until it clears.
+  selectionItemByTitle(title: string): Locator {
+    return this.locator(`.ant-select-selection-item[title="${title}"]`);
   }
 
   // Cell checkbox elements

@@ -72,7 +72,10 @@ test("@smoke Option field creating and updating has succeeded", async ({
 
   await test.step("Edit item and change option to 'second'", async () => {
     await contentPage.editButton.click();
-    await contentPage.closeCircleLabel.locator("svg").click();
+    await contentPage.closeCircleLabelSvg.click();
+    // Until the selection clears, its display span still overlays the select's
+    // search input and swallows the click below.
+    await expect(contentPage.selectionItemByTitle("first")).toHaveCount(0);
     await contentPage.fieldInput("option1").click();
     await fieldEditorPage.optionDiv("second").click();
     await expect(contentPage.rootElement.getByText("second").last()).toBeVisible();

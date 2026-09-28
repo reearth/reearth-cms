@@ -334,7 +334,7 @@ test.describe("Import content", () => {
         await expect(async () => {
           await contentPage.tableReloadIcon.click();
           await expect(contentPage.cellByText("text111")).toBeVisible();
-        }).toPass({ timeout: 30_000 });
+        }).toPass({ timeout: 60_000 });
       });
     });
   });

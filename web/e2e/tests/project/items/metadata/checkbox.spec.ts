@@ -157,6 +157,9 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
     await contentPage.clickAndExpectSuccess(fieldEditorPage.plusNewButton);
+    // The new row is added locally and auto-saved; indexing nth(2) before the
+    // re-render settles reports "element(s) not found" rather than waiting.
+    await expect(contentPage.checkboxes).toHaveCount(3);
     await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
     await expect(contentPage.checkboxByIndex(2)).not.toBeChecked();

@@ -1,4 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { fillAndSettle } from "@reearth-cms/e2e/helpers/form.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
@@ -71,10 +72,11 @@ test("Text metadata creating and updating has succeeded", async ({
 
   await test.step("Update metadata from edit view", async () => {
     await contentPage.editButton.click();
-    await expect(contentPage.fieldInput("text1")).toHaveValue("new text1");
-    await contentPage.fieldInput("text1").fill("text1");
+    const text1Input = contentPage.fieldInput("text1");
+    await expect(text1Input).toHaveValue("new text1");
+    await fillAndSettle(text1Input, "text1");
     await contentPage.closeNotification();
-    await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
+    await expect(text1Input).toHaveValue("text1");
     await page.waitForLoadState("networkidle");
   });
 
@@ -163,13 +165,12 @@ test("Text metadata editing has succeeded", async ({
     await secondValue.blur();
     // await contentPage.tooltipTextByName("new text1").click();
     await contentPage.closeNotification(false);
-    // The rejected save re-renders the tooltip from the last persisted value.
-    // Filling before that settles lets the re-render clobber the new value, so
-    // the commit below silently saves "text2" again — and the success
-    // notification makes it look like it worked.
+    // The rejected value stays in the input. Wait for the tooltip to settle on
+    // it before refilling: a fill that lands mid-render is silently discarded,
+    // and the commit below then saves the old value behind a success
+    // notification, which reads as a pass.
     await expect(secondValue).toHaveValue("new text2");
-    await secondValue.fill("text3");
-    await expect(secondValue).toHaveValue("text3");
+    await fillAndSettle(secondValue, "text3");
     await contentPage.clickAndExpectSuccess(contentPage.tooltipTextByName("new text1"));
     // A success notification only proves a mutation resolved, not that this
     // value persisted — waitForGraphQL matches any POST /graphql. Verify the
