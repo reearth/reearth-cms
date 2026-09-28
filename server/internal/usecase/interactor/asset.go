@@ -1102,6 +1102,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		return result, err
 	}
 
+	// TODO: move to a worker
 	if uuid != "" && filename != "" {
 		if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
 			log.Errorfc(ctx, "asset.Delete: failed to delete files of asset %s (uuid=%s): %v", aId, uuid, err)
@@ -1157,6 +1158,7 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		return result, err
 	}
 
+	// TODO: move to a worker
 	if len(uuids) > 0 {
 		if err := i.gateways.File.DeleteAssets(ctx, uuids); err != nil {
 			log.Errorfc(ctx, "asset.BatchDelete: failed to delete files of assets (uuids=%v): %v", uuids, err)
