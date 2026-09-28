@@ -1058,7 +1058,8 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		return aId, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetID, error) {
+	var uuid, filename string
+	result, err = Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetID, error) {
 		a, err := i.repos.Asset.FindByID(ctx, aId)
 		if err != nil {
 			return aId, err
@@ -1072,13 +1073,8 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			return aId, interfaces.ErrOperationDenied
 		}
 
-		uuid := a.UUID()
-		filename := a.FileName()
-		if uuid != "" && filename != "" {
-			if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
-				return aId, err
-			}
-		}
+		uuid = a.UUID()
+		filename = a.FileName()
 
 		err = i.repos.Asset.Delete(ctx, aId)
 		if err != nil {
@@ -1102,6 +1098,18 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 
 		return aId, nil
 	})
+	if err != nil {
+		return result, err
+	}
+
+	// TODO: move to a worker
+	if uuid != "" && filename != "" {
+		if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
+			log.Errorfc(ctx, "asset.Delete: failed to delete files of asset %s (uuid=%s): %v", aId, uuid, err)
+		}
+	}
+
+	return result, nil
 }
 
 // BatchDelete deletes assets in batch based on multiple asset IDs
@@ -1114,7 +1122,8 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		return nil, interfaces.ErrEmptyIDsList
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetIDList, error) {
+	var uuids []string
+	result, err = Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetIDList, error) {
 		assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
 		if err != nil {
 			return assetIDs, err
@@ -1132,16 +1141,12 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 			return assetIDs, err
 		}
 
-		UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
+		uuids = lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
 			if a == nil || a.UUID() == "" || a.FileName() == "" {
 				return "", false
 			}
 			return a.UUID(), true
 		})
-
-		if err := i.gateways.File.DeleteAssets(ctx, UUIDList); err != nil {
-			return assetIDs, err
-		}
 
 		if err := i.repos.Asset.BatchDelete(ctx, assetIDs); err != nil {
 			return assetIDs, err
@@ -1149,6 +1154,18 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 
 		return assetIDs, nil
 	})
+	if err != nil {
+		return result, err
+	}
+
+	// TODO: move to a worker
+	if len(uuids) > 0 {
+		if err := i.gateways.File.DeleteAssets(ctx, uuids); err != nil {
+			log.Errorfc(ctx, "asset.BatchDelete: failed to delete files of assets (uuids=%v): %v", uuids, err)
+		}
+	}
+
+	return result, nil
 }
 
 func (i *Asset) event(ctx context.Context, e Event) error {
