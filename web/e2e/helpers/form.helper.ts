@@ -19,3 +19,24 @@ export async function fillAndSettle(
     await expect(input).toHaveValue(value, { timeout: 2_000 });
   }).toPass({ timeout });
 }
+
+/**
+ * Drive a switch to a given state.
+ *
+ * Same clobbering as {@link fillAndSettle}, but a toggle cannot be retried
+ * blindly — a second click would undo the first. Click only while the switch
+ * is not yet in the wanted state, which makes the retry idempotent.
+ */
+export async function setSwitchState(
+  toggle: Locator,
+  checked: boolean,
+  timeout = 15_000,
+): Promise<void> {
+  const expected = String(checked);
+  await expect(async () => {
+    if ((await toggle.getAttribute("aria-checked")) !== expected) {
+      await toggle.click();
+    }
+    await expect(toggle).toHaveAttribute("aria-checked", expected, { timeout: 2_000 });
+  }).toPass({ timeout });
+}

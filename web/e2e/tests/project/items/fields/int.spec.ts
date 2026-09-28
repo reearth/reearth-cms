@@ -1,5 +1,6 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { fillAndSettle } from "@reearth-cms/e2e/helpers/form.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
@@ -50,8 +51,7 @@ test("@smoke Int field creating and updating has succeeded", async ({
   await test.step("Update int value", async () => {
     await contentPage.cellEditButton.click();
     await expect(contentPage.fieldInput("int1")).toHaveValue("1");
-    await contentPage.fieldInput("int1").click();
-    await contentPage.fieldInput("int1").fill("2");
+    await fillAndSettle(contentPage.fieldInput("int1"), "2");
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButtonLabel.click();
     await expect(contentPage.cellByTextExact("2")).toBeVisible();

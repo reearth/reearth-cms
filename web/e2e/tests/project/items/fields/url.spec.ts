@@ -1,4 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { fillAndSettle } from "@reearth-cms/e2e/helpers/form.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
@@ -37,8 +38,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
 
   await contentPage.editButton.click();
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://test1.com");
-  await contentPage.fieldInput("url1").click();
-  await contentPage.fieldInput("url1").fill("http://test2.com");
+  await fillAndSettle(contentPage.fieldInput("url1"), "http://test2.com");
   await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test2.com")).toBeVisible();

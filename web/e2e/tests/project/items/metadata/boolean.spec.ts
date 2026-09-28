@@ -1,4 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { setSwitchState } from "@reearth-cms/e2e/helpers/form.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
@@ -67,8 +68,10 @@ test("Boolean metadata creating and updating has succeeded", async ({
   await test.step("Update boolean from edit view to false", async () => {
     await contentPage.cellEditButton.click();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
-    await contentPage.clickAndExpectSuccess(contentPage.fieldInput("boolean1"));
-    await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
+    // A toggle that lands mid-render is discarded and the auto-save then
+    // persists the old state behind a success notification.
+    await setSwitchState(contentPage.fieldInput("boolean1"), false);
+    await contentPage.closeNotification();
     await page.waitForLoadState("networkidle");
   });
 
@@ -154,6 +157,9 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await contentPage.clickAndExpectSuccess(fieldEditorPage.plusNewButton);
+    // The new row is added locally and auto-saved; indexing nth(2) before the
+    // re-render settles reports "element(s) not found" rather than waiting.
+    await expect(contentPage.allSwitches).toHaveCount(3);
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(2)).toHaveAttribute("aria-checked", "false");
