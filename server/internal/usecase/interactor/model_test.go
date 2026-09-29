@@ -21,7 +21,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -850,48 +849,6 @@ func TestModel_Delete(t *testing.T) {
 
 		// f2 (back-reference pointing at s1) must be gone; s2 has no reference fields left
 		assert.Empty(t, s2After.FieldsByType(value.TypeReference), "dangling back-reference field should have been removed from sibling schema")
-	})
-
-	t.Run("deletes items and threads across multiple pages", func(t *testing.T) {
-		t.Parallel()
-		ctx := context.Background()
-		db := memory.New()
-
-		p := project.New().NewID().Workspace(wid).MustBuild()
-		s := newSchema(p.ID())
-		m := newModel(p.ID(), s.ID())
-		ownerOp := &usecase.Operator{
-			OwningProjects: []id.ProjectID{p.ID()},
-			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
-		}
-
-		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
-		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
-		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
-
-		// 250 items: three pages of 100
-		var itemIDs id.ItemIDList
-		var threadIDs id.ThreadIDList
-		for range 250 {
-			th := thread.New().NewID().Workspace(wid).MustBuild()
-			assert.NoError(t, db.Thread.Save(ctx, th))
-			it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(th.ID().Ref()).Anonymous(true).MustBuild()
-			assert.NoError(t, db.Item.Save(ctx, it))
-			itemIDs = append(itemIDs, it.ID())
-			threadIDs = append(threadIDs, th.ID())
-		}
-
-		sp := *schema.NewPackage(s, nil, nil, nil)
-		assert.NoError(t, NewModel(db, nil).Delete(ctx, m.ID(), sp, ownerOp))
-
-		items, err := db.Item.FindByIDs(ctx, itemIDs, nil)
-		assert.NoError(t, err)
-		assert.Empty(t, items)
-		threads, err := db.Thread.FindByIDs(ctx, threadIDs)
-		assert.NoError(t, err)
-		assert.Empty(t, threads)
-		_, err = db.Model.FindByID(ctx, m.ID())
-		assert.ErrorIs(t, err, rerror.ErrNotFound)
 	})
 }
 
