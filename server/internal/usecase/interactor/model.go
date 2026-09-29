@@ -346,7 +346,8 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 				return err
 			}
 
-			// delete items created while the items above were being deleted
+			// delete items created after the last page above was read.
+			// this is only a safety net for that short window: their threads are not removed and no item.delete events are sent.
 			if err := i.repos.Item.RemoveByModel(ctx, modelID); err != nil {
 				return err
 			}
@@ -458,7 +459,7 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 				}
 				events = append(events, Event{
 					Project:   prj,
-					Workspace: sp.Schema().Workspace(),
+					Workspace: prj.Workspace(),
 					Type:      event.ItemDelete,
 					Object:    vList[idx],
 					WebhookObject: item.ItemModelSchema{
