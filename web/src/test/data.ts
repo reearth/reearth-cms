@@ -234,6 +234,13 @@ export enum DATA_TEST_ID {
   QueueItem__ProgressBar = "QueueItem__ProgressBar",
   QueueItem__FileLink = "QueueItem__FileLink",
   QueueItem__ErrorMessage = "QueueItem__ErrorMessage",
+  QueueItem__WarningIcon = "QueueItem__WarningIcon",
+  QueueItem__WarningMessage = "QueueItem__WarningMessage",
+  QueueItem__ViewDetailsLink = "QueueItem__ViewDetailsLink",
+
+  // ImportResultContent
+  ImportResultContent__Summary = "ImportResultContent__Summary",
+  ImportResultContent__Table = "ImportResultContent__Table",
 
   // WorkspaceHeader
   WorkspaceHeader__ProjectSortSelect = "WorkspaceHeader__ProjectSortSelect",

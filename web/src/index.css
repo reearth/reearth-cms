@@ -49,6 +49,20 @@ code {
   cursor: inherit;
 }
 
+.importResultPopover {
+  .ant-popover-inner-content {
+    max-width: 40vw;
+    max-height: 50vh;
+    overflow: auto;
+  }
+  .ant-popover-title {
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .contentPopover {
   .ant-popover-title,
   .ant-popover-inner-content {
