@@ -72,5 +72,5 @@ func (m *Multiple) ValuesURL() (vv []URL, ok bool) {
 	if len(vv) != len(m.v) {
 		return nil, false
 	}
-	return
+	return vv, true
 }

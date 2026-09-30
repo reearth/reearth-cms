@@ -43,3 +43,10 @@ func TestFieldGroup_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldGroup{}).Validate(value.TypeGroup.Value(gid)))
 	assert.Error(t, (&FieldGroup{}).Validate(value.TypeGroup.Value("")))
 }
+
+func TestFieldGroup_ValidateMultiple(t *testing.T) {
+	f := &FieldGroup{}
+	gid1 := id.NewItemGroupID()
+	gid2 := id.NewItemGroupID()
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeGroup, []any{gid1, gid2})))
+}

@@ -145,6 +145,47 @@ func Test_propertyInteger_Validate(t *testing.T) {
 	assert.False(t, (&propertyInteger{}).Validate("a"))
 }
 
+func TestMultiple_ValuesInteger(t *testing.T) {
+	tests := []struct {
+		name string
+		m    *Multiple
+		want []Integer
+		ok   bool
+	}{
+		{
+			name: "nil multiple",
+			m:    nil,
+			want: nil,
+			ok:   false,
+		},
+		{
+			name: "valid values",
+			m:    NewMultiple(TypeInteger, []any{5, 6, 7}),
+			want: []Integer{5, 6, 7},
+			ok:   true,
+		},
+		{
+			name: "invalid element",
+			m: &Multiple{
+				t: TypeInteger,
+				v: []*Value{New(TypeInteger, 5), New(TypeInteger, "invalid")},
+			},
+			want: nil,
+			ok:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, ok := tt.m.ValuesInteger()
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.ok, ok)
+		})
+	}
+}
+
 func Test_propertyInteger_Equal(t *testing.T) {
 
 	var f1, f2 int64 = 10, 0

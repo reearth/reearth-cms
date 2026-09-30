@@ -69,6 +69,7 @@ func (i *Item) Timestamp() time.Time {
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
 }
+
 func (i *Item) IsMetadata() bool {
 	return i.isMetadata
 }
@@ -160,6 +161,25 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.cleanGroups()
 
 	i.timestamp = util.Now()
+}
+
+func (i *Item) AttachDefault(sp *schema.Package) {
+	if i == nil || sp == nil {
+		return
+	}
+	attach := func(s *schema.Schema) {
+		for _, f := range s.Fields() {
+			if f.DefaultValue() != nil && i.Field(f.ID()) == nil {
+				i.fields = append(i.fields, NewField(f.ID(), f.DefaultValue(), nil))
+			}
+		}
+	}
+	if i.isMetadata {
+		attach(sp.MetaSchema())
+		return
+	}
+	attach(sp.Schema())
+	// TODO: attach default values for groups
 }
 
 func (i *Item) cleanGroups() {
@@ -315,6 +335,11 @@ func (i *Item) GetTitle(s *schema.Schema) *string {
 		return nil
 	}
 	return &vv
+}
+
+// Validate validates the item's fields against sp; fields in skip already have an error and are not validated again.
+func (i *Item) Validate(sp *schema.Package, skip schema.FieldKeySet) schema.FieldValidationErrors {
+	return ValidateItem(i.fields, sp, i.isMetadata, skip)
 }
 
 type ItemModelSchema struct {

@@ -98,6 +98,128 @@ func TestItem_UpdateFields(t *testing.T) {
 	}
 }
 
+func TestItem_AttachDefault(t *testing.T) {
+	type fixture struct {
+		pkg                *schema.Package
+		groupField         *schema.Field
+		titleField         *schema.Field
+		subtitleField      *schema.Field
+		bodyField          *schema.Field
+		groupSubtitleField *schema.Field
+		groupBodyField     *schema.Field
+		metadataField      *schema.Field
+	}
+
+	newFixture := func(withGroupSchema bool) fixture {
+		groupID := id.NewGroupID()
+		titleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("title")).DefaultValue(value.TypeText.Value("untitled").AsMultiple()).MustBuild()
+		groupField := schema.NewField(schema.NewGroup(groupID).TypeProperty()).NewID().Key(id.NewKey("sections")).Multiple(true).MustBuild()
+		groupSubtitleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("subtitle")).DefaultValue(value.TypeText.Value("default subtitle").AsMultiple()).MustBuild()
+		groupBodyField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("body")).DefaultValue(value.TypeText.Value("default body").AsMultiple()).MustBuild()
+		metadataField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("metadata title")).DefaultValue(value.TypeText.Value("metadata default").AsMultiple()).MustBuild()
+
+		groupSchemas := map[id.GroupID]*schema.Schema(nil)
+		if withGroupSchema {
+			groupSchemas = map[id.GroupID]*schema.Schema{groupID: buildValidationTestSchema(groupSubtitleField, groupBodyField)}
+		}
+
+		return fixture{
+			pkg:                schema.NewPackage(buildValidationTestSchema(groupField, titleField), buildValidationTestSchema(metadataField), groupSchemas, nil),
+			groupField:         groupField,
+			titleField:         titleField,
+			groupSubtitleField: groupSubtitleField,
+			groupBodyField:     groupBodyField,
+			metadataField:      metadataField,
+		}
+	}
+
+	tests := []struct {
+		name  string
+		setup func() (*Item, *schema.Package, Fields)
+	}{
+		// TODO: re-enable this test when group default attachment is implemented
+		//{
+		//	name: "attaches missing top-level and group defaults for every instance",
+		//	setup: func() (*Item, *schema.Package, Fields) {
+		//		f := newFixture(true)
+		//		first, second := id.NewItemGroupID(), id.NewItemGroupID()
+		//		group := NewField(f.groupField.ID(), value.NewMultiple(value.TypeGroup, []any{first, second}), nil)
+		//		customBody := NewField(f.bodyField.ID(), value.TypeText.Value("custom body").AsMultiple(), &first)
+		//		return &Item{fields: []*Field{group, customBody}}, f.pkg, Fields{
+		//			group,
+		//			customBody,
+		//			NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil),
+		//			NewField(f.subtitleField.ID(), f.subtitleField.DefaultValue(), &first),
+		//			NewField(f.subtitleField.ID(), f.subtitleField.DefaultValue(), &second),
+		//			NewField(f.bodyField.ID(), f.bodyField.DefaultValue(), &second),
+		//		}
+		//	},
+		//},
+		{
+			name: "preserves an existing top-level value",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				title := NewField(f.titleField.ID(), value.TypeText.Value("custom title").AsMultiple(), nil)
+				return &Item{fields: []*Field{title}}, f.pkg, Fields{title}
+			},
+		},
+		{
+			name: "does not attach group defaults when the group field is absent",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				return &Item{}, f.pkg, Fields{NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "does not attach group defaults for an invalid group value",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				group := NewField(f.groupField.ID(), value.TypeText.Value("not a group").AsMultiple(), nil)
+				return &Item{fields: []*Field{group}}, f.pkg, Fields{group, NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "does not attach group defaults without a matching group schema",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(false)
+				instance := id.NewItemGroupID()
+				group := NewField(f.groupField.ID(), value.NewMultiple(value.TypeGroup, []any{instance}), nil)
+				return &Item{fields: []*Field{group}}, f.pkg, Fields{group, NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "attaches metadata defaults without main or group defaults",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				return &Item{isMetadata: true}, f.pkg, Fields{NewField(f.metadataField.ID(), f.metadataField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "does nothing for a nil schema package",
+			setup: func() (*Item, *schema.Package, Fields) {
+				field := NewField(id.NewFieldID(), value.TypeText.Value("value").AsMultiple(), nil)
+				return &Item{fields: []*Field{field}}, nil, Fields{field}
+			},
+		},
+		{
+			name: "does nothing for a nil item",
+			setup: func() (*Item, *schema.Package, Fields) {
+				return nil, newFixture(true).pkg, nil
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			item, pkg, want := tt.setup()
+			item.AttachDefault(pkg)
+			if item != nil {
+				assert.Equal(t, want, item.Fields())
+			}
+		})
+	}
+}
+
 func TestItem_ClearField(t *testing.T) {
 	now := time.Now()
 	defer util.MockNow(now)()

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -543,7 +544,7 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	return res.Into(), nil
 }
 
-func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
+func (i Item) saveChunk(ctx context.Context, _ *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
 	itemsIds := lo.FilterMap(items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
 		if i.ItemId != nil {
 			return *i.ItemId, true
@@ -668,10 +669,7 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 			modelSchemaFields, otherFields := filterFieldParamsBySchema(itemParam.Fields, s)
 
-			fields, err := itemFieldsFromParams(modelSchemaFields, s)
-			if err != nil {
-				return nil, nil, err
-			}
+			fields, fieldErrs := itemFieldsFromParams(modelSchemaFields, s)
 
 			// Apply default values for missing fields on new items
 			if action == interfaces.ImportStrategyTypeInsert {
@@ -679,19 +677,31 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				// TODO: Handle default values for groups fields
 			}
 
-			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
-				return nil, nil, err
+			// only the fields in the imported record are checked for uniqueness; stored values are not re-checked
+			sentFields := slices.Clone(fields)
+			var uniqueTarget *item.Item
+			if action != interfaces.ImportStrategyTypeInsert {
+				uniqueTarget = it.Clone()
 			}
-
 			oldFields := it.Fields()
 			it.UpdateFields(fields)
 
-			groupFields, _, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), it.Fields())
+			groupFields, _, groupErrs, err := handleGroupFields(otherFields, s, &param.SP, it.Fields())
 			if err != nil {
 				return nil, nil, err
 			}
-
 			it.UpdateFields(groupFields)
+			sentFields = append(sentFields, groupFields...)
+			fieldErrs = append(fieldErrs, groupErrs...)
+
+			skip := fieldErrs.Keys()
+			uniqueErrs, err := i.uniqueFieldErrors(ctx, sentFields, &param.SP, m.ID(), uniqueTarget, skip)
+			if err != nil {
+				return nil, nil, err
+			}
+			if errs := slices.Concat(fieldErrs, uniqueErrs, it.Validate(&param.SP, skip)); !errs.Empty() {
+				return nil, nil, errs
+			}
 
 			if err = i.handleReferenceFields(ctx, *s, it, oldFields); err != nil {
 				return nil, nil, err

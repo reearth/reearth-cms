@@ -32,3 +32,8 @@ func TestFieldMarkdown_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldMarkdown{s: &FieldString{t: value.TypeMarkdown}}).Validate(value.TypeMarkdown.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldMarkdown{s: &FieldString{t: value.TypeMarkdown}}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldMarkdown_ValidateMultiple(t *testing.T) {
+	f := &FieldMarkdown{s: &FieldString{t: value.TypeMarkdown}}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeMarkdown, []any{"a", "b"})))
+}

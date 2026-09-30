@@ -32,3 +32,8 @@ func TestFieldRichText_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldRichText{s: &FieldString{t: value.TypeRichText}}).Validate(value.TypeRichText.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldRichText{s: &FieldString{t: value.TypeRichText}}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldRichText_ValidateMultiple(t *testing.T) {
+	f := &FieldRichText{s: &FieldString{t: value.TypeRichText}}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeRichText, []any{"a", "b"})))
+}

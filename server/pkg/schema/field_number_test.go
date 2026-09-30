@@ -52,3 +52,8 @@ func TestFieldNumber_Validate(t *testing.T) {
 		"value should be smaller than 1.100000")
 	assert.Equal(t, ErrInvalidValue, (&FieldNumber{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldNumber_ValidateMultiple(t *testing.T) {
+	f := &FieldNumber{}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeNumber, []any{1.1, 2.2})))
+}

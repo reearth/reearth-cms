@@ -186,7 +186,7 @@ type PostItemResponse struct {
 
 type PostItemResult struct {
 	Item        *PostItemResponse
-	FieldErrors []schema.FieldValidationError
+	FieldErrors schema.FieldValidationErrors
 	Err         error
 }
 
@@ -231,12 +231,6 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 		return PostItemResult{Err: ErrUnsupportedFieldType}
 	}
 
-	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body, unsupportedTypes); len(fieldErrs) > 0 {
-		return PostItemResult{
-			FieldErrors: fieldErrs,
-		}
-	}
-
 	op := getOperator(ctx)
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: wpm.SchemaPackage.Schema().ID(),
@@ -244,6 +238,9 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
 	}, op)
 	if err != nil {
+		if fve, ok := errors.AsType[schema.FieldValidationErrors](err); ok {
+			return PostItemResult{FieldErrors: fve}
+		}
 		return PostItemResult{Err: err}
 	}
 
