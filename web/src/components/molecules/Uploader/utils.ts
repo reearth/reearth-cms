@@ -1,7 +1,4 @@
-import type {
-  ImportColumnResult,
-  ImportJobResult,
-} from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { ImportJobResult } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportColumnStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 import type { UploaderQueueItem } from "./types";

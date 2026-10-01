@@ -217,8 +217,9 @@ describe("Test QueueItem component", () => {
     // the popover content portals into an antd zoom animation that never resolves under jsdom,
     // so assert on what it rendered rather than on computed visibility
     const summary = await screen.findByTestId(DATA_TEST_ID.ImportResultContent__Summary);
-    expect(summary).toHaveTextContent("Matched columns");
-    expect(summary).toHaveTextContent("Skipped columns");
+    expect(summary).toHaveTextContent("Rows");
+    expect(summary).toHaveTextContent("Columns");
+    expect(summary).toHaveTextContent("Skipped 2");
 
     const table = screen.getByTestId(DATA_TEST_ID.ImportResultContent__Table);
     expect(table).toHaveTextContent("name");
