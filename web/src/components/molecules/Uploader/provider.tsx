@@ -245,7 +245,10 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
       if (payload.jobState.status !== JobStatus.Completed) return;
 
       // the subscription payload has no import result, so the completed job has to be re-queried
-      void getJob({ variables: { jobId: payload.jobId } }).then(jobRes => {
+      void getJob({
+        variables: { jobId: payload.jobId },
+        fetchPolicy: "network-only",
+      }).then(jobRes => {
         const importResult = jobRes.data?.job?.importResult ?? null;
 
         setUploaderState(prev => ({
