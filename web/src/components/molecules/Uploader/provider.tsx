@@ -63,9 +63,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
                     status: jobRes.data?.job ? jobRes.data.job.status : item.jobState.status,
                     error: jobRes.data?.job ? jobRes.data.job.error : item.jobState.error,
                   },
-                  importResult: jobRes.data?.job
-                    ? jobRes.data.job.importResult
-                    : item.importResult,
+                  importResult: jobRes.data?.job ? jobRes.data.job.importResult : item.importResult,
                 }
               : item,
           ),
