@@ -123,7 +123,7 @@ const ImportResultContent: React.FC<Props> = ({ importResult }) => {
         <Table
           columns={columns}
           dataSource={importResult.columns}
-          rowKey="header"
+          rowKey={(_, index) => index ?? 0}
           size="small"
           pagination={false}
           sticky
