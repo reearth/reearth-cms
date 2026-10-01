@@ -112,7 +112,9 @@ const ImportResultContent: React.FC<Props> = ({ importResult }) => {
             <Space size="small" split="·" wrap>
               {group.entries.map(({ label, value }) => (
                 <span key={label}>
-                  <SummaryLabel>{label}</SummaryLabel> <SummaryValue>{value}</SummaryValue>
+                  <SummaryLabel>{label}</SummaryLabel>
+                  <span>&nbsp;</span>
+                  <SummaryValue>{value}</SummaryValue>
                 </span>
               ))}
             </Space>
