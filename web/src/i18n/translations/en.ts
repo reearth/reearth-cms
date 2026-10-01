@@ -314,7 +314,7 @@ export default {
   "Ignored": "",
   "Image URL": "",
   "Import": "",
-  "Import completed with {{count}} skipped columns_one": "Import completed with {{count, number}} skipped columns",
+  "Import completed with {{count}} skipped columns_one": "Import completed with {{count, number}} skipped column",
   "Import completed with {{count}} skipped columns_other": "Import completed with {{count, number}} skipped columns",
   "Import content": "",
   "Import Error Log": "",
