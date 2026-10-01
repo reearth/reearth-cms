@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import Progress from "@reearth-cms/components/atoms/Progress";
@@ -115,9 +116,9 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             placement="left"
             title={queue.fileName}
             content={<ImportResultContent importResult={queue.importResult} />}>
-            <DetailsLink data-testid={DATA_TEST_ID.QueueItem__ViewDetailsLink}>
+            <DetailsButton type="link" data-testid={DATA_TEST_ID.QueueItem__ViewDetailsLink}>
               {t("View details")}
-            </DetailsLink>
+            </DetailsButton>
           </Popover>
         </CompletedMessage>
       );
@@ -255,7 +256,7 @@ const WarningText = styled.span`
   color: ${AntdColor.GOLD.GOLD_6};
 `;
 
-const DetailsLink = styled.a`
+const DetailsButton = styled(Button)`
   align-self: flex-start;
 `;
 
