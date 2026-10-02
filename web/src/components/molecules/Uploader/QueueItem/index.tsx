@@ -258,6 +258,8 @@ const WarningText = styled.span`
 
 const DetailsButton = styled(Button)`
   align-self: flex-start;
+  padding: 0;
+  height: fit-content;
 `;
 
 const Message = styled.div`
