@@ -6,6 +6,8 @@ export type Incremental<T> =
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+export type ImportColumnStatus = "MATCHED" | "SKIPPED";
+
 export type JobStatus = "CANCELLED" | "COMPLETED" | "FAILED" | "IN_PROGRESS" | "PENDING";
 
 export type JobType = "IMPORT";
@@ -27,6 +29,20 @@ export type JobQuery = {
     startedAt: Date | null;
     completedAt: Date | null;
     progress: { __typename: "JobProgress"; processed: number; total: number; percentage: number };
+    importResult: {
+      __typename: "ImportJobResult";
+      total: number;
+      inserted: number;
+      updated: number;
+      ignored: number;
+      columns: Array<{
+        __typename: "ImportColumnResult";
+        header: string;
+        status: Types.ImportColumnStatus;
+        schemaFieldKey: string | null;
+        reason: string | null;
+      }>;
+    } | null;
   } | null;
 };
 
@@ -127,6 +143,32 @@ export const JobDocument = {
                 { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "completedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importResult" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "total" } },
+                      { kind: "Field", name: { kind: "Name", value: "inserted" } },
+                      { kind: "Field", name: { kind: "Name", value: "updated" } },
+                      { kind: "Field", name: { kind: "Name", value: "ignored" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "columns" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "header" } },
+                            { kind: "Field", name: { kind: "Name", value: "status" } },
+                            { kind: "Field", name: { kind: "Name", value: "schemaFieldKey" } },
+                            { kind: "Field", name: { kind: "Name", value: "reason" } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },

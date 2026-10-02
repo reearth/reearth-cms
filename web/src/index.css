@@ -49,6 +49,29 @@ code {
   cursor: inherit;
 }
 
+.importResultPopover {
+  /* the trigger keeps the root's padding box inside the viewport, so this reserves bottom clearance */
+  padding-bottom: 20px;
+
+  .ant-popover-inner {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 200px);
+  }
+  .ant-popover-inner-content {
+    max-width: 40vw;
+    min-height: 0;
+    overflow: auto;
+  }
+  .ant-popover-title {
+    flex-shrink: 0;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .contentPopover {
   .ant-popover-title,
   .ant-popover-inner-content {

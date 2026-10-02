@@ -4,7 +4,8 @@ import type { ComponentProps } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
-import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { ImportJobResult } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { ImportColumnStatus, JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import type { UploaderQueueItem } from "../types";
@@ -27,6 +28,41 @@ const baseQueue: UploaderQueueItem = {
   workspaceId: "workspace-1",
   projectId: "project-1",
   modelId: "model-1",
+};
+
+const completedJobState: UploaderQueueItem["jobState"] = {
+  status: JobStatus.Completed,
+  progress: { percentage: 100, processed: 100, total: 100 },
+};
+
+const allMatchedResult: ImportJobResult = {
+  total: 100,
+  inserted: 80,
+  updated: 20,
+  ignored: 0,
+  columns: [
+    { header: "name", status: ImportColumnStatus.Matched, schemaFieldKey: "name", reason: null },
+    { header: "age", status: ImportColumnStatus.Matched, schemaFieldKey: "age", reason: null },
+  ],
+};
+
+const skippedResult: ImportJobResult = {
+  ...allMatchedResult,
+  columns: [
+    ...allMatchedResult.columns,
+    {
+      header: "unknown_a",
+      status: ImportColumnStatus.Skipped,
+      schemaFieldKey: null,
+      reason: "no matching schema field for header 'unknown_a'",
+    },
+    {
+      header: "unknown_b",
+      status: ImportColumnStatus.Skipped,
+      schemaFieldKey: null,
+      reason: "no matching schema field for header 'unknown_b'",
+    },
+  ],
 };
 
 const renderQueueItem = (
@@ -147,5 +183,73 @@ describe("Test QueueItem component", () => {
 
     const errorIcon = screen.queryByTestId(DATA_TEST_ID.QueueItem__ErrorIcon);
     expect(errorIcon).not.toBeInTheDocument();
+  });
+
+  test("Test completed CSV item with all columns matched", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: completedJobState,
+      importResult: allMatchedResult,
+    });
+
+    expect(screen.getByTestId(DATA_TEST_ID.Uploader__CompleteIcon)).toBeVisible();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__WarningIcon)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__WarningMessage)).not.toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.QueueItem__ViewDetailsLink)).toBeVisible();
+  });
+
+  test("Test completed CSV item with skipped columns", async () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: completedJobState,
+      importResult: skippedResult,
+    });
+
+    expect(screen.getByTestId(DATA_TEST_ID.QueueItem__WarningIcon)).toBeVisible();
+    expect(screen.queryByTestId(DATA_TEST_ID.Uploader__CompleteIcon)).not.toBeInTheDocument();
+
+    const warningMessage = screen.getByTestId(DATA_TEST_ID.QueueItem__WarningMessage);
+    expect(warningMessage).toBeVisible();
+    expect(warningMessage).toHaveTextContent("2");
+
+    await user.click(screen.getByTestId(DATA_TEST_ID.QueueItem__ViewDetailsLink));
+
+    // the popover content portals into an antd zoom animation that never resolves under jsdom,
+    // so assert on what it rendered rather than on computed visibility
+    const summary = await screen.findByTestId(DATA_TEST_ID.ImportResultContent__Summary);
+    expect(summary).toHaveTextContent("Rows");
+    expect(summary).toHaveTextContent("Columns");
+    expect(summary).toHaveTextContent("2Skipped");
+
+    const table = screen.getByTestId(DATA_TEST_ID.ImportResultContent__Table);
+    expect(table).toHaveTextContent("name");
+    expect(table).toHaveTextContent("unknown_a");
+    expect(table).toHaveTextContent("no matching schema field for header 'unknown_a'");
+  });
+
+  test("Test completed non CSV item", () => {
+    renderQueueItem({
+      ...baseQueue,
+      fileName: "test.json",
+      extension: "json",
+      jobState: completedJobState,
+      importResult: { ...allMatchedResult, columns: [] },
+    });
+
+    expect(screen.getByTestId(DATA_TEST_ID.Uploader__CompleteIcon)).toBeVisible();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__WarningIcon)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__ViewDetailsLink)).not.toBeInTheDocument();
+  });
+
+  test("Test completed CSV item without an import result", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: completedJobState,
+      importResult: null,
+    });
+
+    expect(screen.getByTestId(DATA_TEST_ID.Uploader__CompleteIcon)).toBeVisible();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__WarningIcon)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__ViewDetailsLink)).not.toBeInTheDocument();
   });
 });

@@ -17,6 +17,18 @@ export const JOB = gql`
       updatedAt
       startedAt
       completedAt
+      importResult {
+        total
+        inserted
+        updated
+        ignored
+        columns {
+          header
+          status
+          schemaFieldKey
+          reason
+        }
+      }
     }
   }
 `;
