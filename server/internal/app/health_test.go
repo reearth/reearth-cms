@@ -3,10 +3,13 @@ package app
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/hellofresh/health-go/v5"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -62,6 +65,34 @@ func TestHealthChecker_Check(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestWorkerHealthCheck_FailureIsNonCritical(t *testing.T) {
+	t.Parallel()
+
+	worker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	t.Cleanup(worker.Close)
+
+	h, err := health.New(health.WithChecks(
+		health.Config{Name: "db", Timeout: time.Second, Check: func(context.Context) error { return nil }},
+		workerHealthCheck(worker.URL),
+	))
+	require.NoError(t, err)
+	hc := &HealthChecker{health: h, config: &Config{}}
+
+	// startup check must not fail
+	assert.NoError(t, hc.Check(context.Background()))
+
+	// /health must stay 200 and report the worker failure
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	rec := httptest.NewRecorder()
+	require.NoError(t, hc.Handler()(echo.NewContext(req, rec)))
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Contains(t, rec.Body.String(), string(health.StatusPartiallyAvailable))
+	assert.Contains(t, rec.Body.String(), "worker_service")
 }
 
 func TestWorkerHealthURL(t *testing.T) {
