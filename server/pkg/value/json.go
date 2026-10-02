@@ -7,6 +7,8 @@ import (
 )
 
 const TypeJson Type = "json"
+const TypeGeometryObject Type = "geometryObject"
+const TypeGeometryEditor Type = "geometryEditor"
 
 type propertyJson struct{}
 
@@ -16,6 +18,9 @@ func (p *propertyJson) ToValue(i any) (any, bool) {
 	// Handle nil input
 	if i == nil {
 		return nil, false
+	}
+	if i == "" {
+		return nil, true
 	}
 
 	// Handle string input - validate it's valid JSON

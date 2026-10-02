@@ -2,7 +2,9 @@ At least one asset ID is required: アセットIDは少なくとも1つ必要で
 Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
 File is missing: ファイルがありません
+Geo field max size exceeded: ジオメトリフィールドの最大サイズを超えています。
 Options could not be empty!: 選択フィールドは空にできません
+URL field max length exceeded: URLフィールドの最大文字数を超えています。
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
@@ -30,7 +32,10 @@ failed to lock: ロックに失敗しました。
 failed to update user: ユーザー情報の更新に失敗しました。
 failed to upload file: ファイルのアップロードに失敗しました。
 field not found: フィールドが見つかりませんでした。
+field not found for the given schema: 指定されたスキーマにフィールドが見つかりません。
 field value exist: フィールドの値はすでに存在します。
+field value must be a list for the given schema field: このフィールドの値はリストである必要があります。
+field value must not be a list for the given schema field: このフィールドの値はリストにできません。
 file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
@@ -39,6 +44,7 @@ format is incompatible with export type: 形式がエクスポートタイプと
 import file contains too many records (max 50,000): レコード数が上限（50,000件）を超えています
 import file is too large (max 100MB): ファイルサイズが上限（100MB）を超えています
 internal: 内部
+invalid Geo field structure: ジオメトリフィールドの構造が無効です。
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
@@ -114,6 +120,9 @@ unsupported geometry type: サポートされていないジオメトリタイ�
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
+value should be larger than %d: 値は%d以上である必要があります。
+value should be shorter than %d characters: 値は%d文字以内である必要があります。
+value should be smaller than %d: 値は%d以下である必要があります。
 views are not in the same model: ビューが同じモデルに存在していません。
 views length mismatch: ビューの総数が正しくありません。
 workspace id is required: ワークスペースIDは必須です。

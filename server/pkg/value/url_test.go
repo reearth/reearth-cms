@@ -109,17 +109,46 @@ func TestMultiple_ValuesURL(t *testing.T) {
 }
 
 func TestValue_ValueURL(t *testing.T) {
-	var m *Multiple
-	got, ok := m.ValuesURL()
-	var expected []URL
-	assert.Equal(t, expected, got)
-	assert.Equal(t, false, ok)
-
 	u1, _ := url.Parse("https://example1.com")
 	u2, _ := url.Parse("https://example2.com")
 	u3, _ := url.Parse("https://example3.com")
-	m = NewMultiple(TypeURL, []any{u1, u2, u3})
-	expected = []URL{u1, u2, u3}
-	got, _ = m.ValuesURL()
-	assert.Equal(t, expected, got)
+
+	tests := []struct {
+		name string
+		m    *Multiple
+		want []URL
+		ok   bool
+	}{
+		{
+			name: "nil multiple",
+			m:    nil,
+			want: nil,
+			ok:   false,
+		},
+		{
+			name: "valid values",
+			m:    NewMultiple(TypeURL, []any{u1, u2, u3}),
+			want: []URL{u1, u2, u3},
+			ok:   true,
+		},
+		{
+			name: "invalid element",
+			m: &Multiple{
+				t: TypeURL,
+				v: []*Value{New(TypeURL, u1), New(TypeURL, "%zz")},
+			},
+			want: nil,
+			ok:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, ok := tt.m.ValuesURL()
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.ok, ok)
+		})
+	}
 }

@@ -86,7 +86,7 @@ func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gsList sche
 	}
 }
 
-func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
+func ToItemParam(field *ItemFieldInput) *item.FieldInput {
 	if field == nil {
 		return nil
 	}
@@ -96,10 +96,9 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 		return nil
 	}
 
-	return &interfaces.ItemFieldParam{
+	return &item.FieldInput{
 		Group: ToIDRef[id.ItemGroup](field.ItemGroupID),
 		Field: &fid,
-		// Type:  FromValueType(field.Type),
 		Value: field.Value,
 	}
 }

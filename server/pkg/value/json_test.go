@@ -51,7 +51,7 @@ func Test_propertyJson_ToValue(t *testing.T) {
 			name: "empty string",
 			args: "",
 			want: nil,
-			ok:   false,
+			ok:   true,
 		},
 		{
 			name: "map object",

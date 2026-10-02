@@ -155,6 +155,12 @@ func TestSchema_Field(t *testing.T) {
 		want *Field
 	}{
 		{
+			name: "nil schema",
+			s:    nil,
+			fid:  fid1,
+			want: nil,
+		},
+		{
 			name: "add on empty array",
 			s:    &Schema{},
 			fid:  fid1,
