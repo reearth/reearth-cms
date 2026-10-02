@@ -103,11 +103,11 @@ func TestItem_updateFields(t *testing.T) {
 
 func TestItem_AttachDefault(t *testing.T) {
 	type fixture struct {
-		pkg                *schema.Package
-		groupField         *schema.Field
-		titleField         *schema.Field
-		subtitleField      *schema.Field
-		bodyField          *schema.Field
+		pkg        *schema.Package
+		groupField *schema.Field
+		titleField *schema.Field
+		//subtitleField      *schema.Field
+		//bodyField          *schema.Field
 		groupSubtitleField *schema.Field
 		groupBodyField     *schema.Field
 		metadataField      *schema.Field
