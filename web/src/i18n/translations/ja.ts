@@ -94,6 +94,7 @@ export default {
   "CLOSED": "クローズ済み",
   "Code Example": "コード例",
   "Columns": "カラム",
+  "Columns whose header doesn't match any field key in the schema. Their data wasn't imported.": "スキーマのフィールドキーと一致しないヘッダーのカラムです。これらのデータはインポートされていません。",
   "Comment": "コメント",
   "Comments": "コメント",
   "Confirm": "確認",

@@ -219,7 +219,7 @@ describe("Test QueueItem component", () => {
     const summary = await screen.findByTestId(DATA_TEST_ID.ImportResultContent__Summary);
     expect(summary).toHaveTextContent("Rows");
     expect(summary).toHaveTextContent("Columns");
-    expect(summary).toHaveTextContent("Skipped 2");
+    expect(summary).toHaveTextContent("2Skipped");
 
     const table = screen.getByTestId(DATA_TEST_ID.ImportResultContent__Table);
     expect(table).toHaveTextContent("name");

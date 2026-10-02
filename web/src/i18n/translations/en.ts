@@ -97,6 +97,7 @@ export default {
   "CLOSED": "Closed",
   "Code Example": "",
   "Columns": "",
+  "Columns whose header doesn't match any field key in the schema. Their data wasn't imported.": "",
   "Comment": "",
   "Comments": "",
   "Confirm": "",

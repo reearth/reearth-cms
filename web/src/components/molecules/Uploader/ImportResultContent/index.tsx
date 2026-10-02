@@ -1,10 +1,12 @@
 import styled from "@emotion/styled";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 
-import Space from "@reearth-cms/components/atoms/Space";
+import Flex from "@reearth-cms/components/atoms/Flex";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import type { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import Table from "@reearth-cms/components/atoms/Table";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import type {
   ImportColumnResult,
@@ -15,6 +17,8 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
+import Stat from "../Stat";
+import SummaryCard from "../SummaryCard";
 import { ImportResultUtils } from "../utils";
 
 const EMPTY_VALUE = "—";
@@ -24,9 +28,9 @@ type SummaryEntry = {
   value: number;
 };
 
-type SummaryGroup = {
-  label: string;
-  entries: SummaryEntry[];
+type ColumnStats = {
+  matchedCount: number;
+  skippedCount: number;
 };
 
 type Props = {
@@ -36,29 +40,27 @@ type Props = {
 const ImportResultContent: React.FC<Props> = ({ importResult }) => {
   const t = useT();
 
-  const summary = useMemo<SummaryGroup[]>(
+  const rowStats = useMemo<SummaryEntry[]>(
     () =>
       importResult
         ? [
-            {
-              label: t("Rows"),
-              entries: [
-                { label: t("Total"), value: importResult.total },
-                { label: t("Inserted"), value: importResult.inserted },
-                { label: t("Updated"), value: importResult.updated },
-                { label: t("Ignored"), value: importResult.ignored },
-              ],
-            },
-            {
-              label: t("Columns"),
-              entries: [
-                { label: t("Matched"), value: ImportResultUtils.matchedCount(importResult) },
-                { label: t("Skipped"), value: ImportResultUtils.skippedCount(importResult) },
-              ],
-            },
+            { label: t("Inserted"), value: importResult.inserted },
+            { label: t("Updated"), value: importResult.updated },
+            { label: t("Ignored"), value: importResult.ignored },
           ]
         : [],
     [importResult, t],
+  );
+
+  const { matchedCount, skippedCount } = useMemo<ColumnStats>(
+    () =>
+      importResult
+        ? {
+            matchedCount: ImportResultUtils.matchedCount(importResult),
+            skippedCount: ImportResultUtils.skippedCount(importResult),
+          }
+        : { matchedCount: 0, skippedCount: 0 },
+    [importResult],
   );
 
   const columns = useMemo<TableColumnsType<ImportColumnResult>>(
@@ -105,22 +107,50 @@ const ImportResultContent: React.FC<Props> = ({ importResult }) => {
 
   return (
     <Wrapper>
-      <Summary data-testid={DATA_TEST_ID.ImportResultContent__Summary}>
-        {summary.map(group => (
-          <Fragment key={group.label}>
-            <SummaryGroupLabel>{group.label}</SummaryGroupLabel>
-            <Space size="small" split="·" wrap>
-              {group.entries.map(({ label, value }) => (
-                <span key={label}>
-                  <SummaryLabel>{label}</SummaryLabel>
-                  <span>&nbsp;</span>
-                  <SummaryValue>{value}</SummaryValue>
-                </span>
-              ))}
-            </Space>
-          </Fragment>
-        ))}
-      </Summary>
+      <Flex data-testid={DATA_TEST_ID.ImportResultContent__Summary} gap={AntdToken.SPACING.XS}>
+        <SummaryCard title={t("Columns")}>
+          <Flex gap={AntdToken.SPACING.MD}>
+            <Stat value={matchedCount} label={t("Matched")} type="success" />
+            <Stat
+              value={skippedCount}
+              type="warning"
+              label={
+                <>
+                  {t("Skipped")}
+                  <Tooltip
+                    title={t(
+                      "Columns whose header doesn't match any field key in the schema. Their data wasn't imported.",
+                    )}>
+                    <span>
+                      <Icon icon="exclamationCircle" />
+                    </span>
+                  </Tooltip>
+                </>
+              }
+            />
+          </Flex>
+          <ColumnBar>
+            <ColumnBarSegment
+              style={{ flexGrow: matchedCount, background: AntdColor.GREEN.GREEN_5 }}
+            />
+            <ColumnBarSegment
+              style={{ flexGrow: skippedCount, background: AntdColor.GOLD.GOLD_5 }}
+            />
+          </ColumnBar>
+        </SummaryCard>
+        <SummaryCard title={t("Rows")}>
+          <Flex gap={AntdToken.SPACING.MD}>
+            {rowStats.map(({ label, value }) => (
+              <Stat
+                key={label}
+                value={value}
+                label={label}
+                type={value === 0 ? "secondary" : undefined}
+              />
+            ))}
+          </Flex>
+        </SummaryCard>
+      </Flex>
       <div data-testid={DATA_TEST_ID.ImportResultContent__Table}>
         <Table
           columns={columns}
@@ -141,23 +171,18 @@ const Wrapper = styled.div`
   gap: ${AntdToken.SPACING.MD}px;
 `;
 
-const Summary = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  gap: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.MD}px;
+// rounds only the outer ends; the boundary between segments stays a flat cut
+const ColumnBar = styled.div`
+  display: flex;
+  height: 8px;
+  margin-top: ${AntdToken.SPACING.XS}px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: ${AntdColor.NEUTRAL.BG_LAYOUT};
 `;
 
-const SummaryGroupLabel = styled.span`
-  font-weight: 500;
+const ColumnBarSegment = styled.div`
+  flex-basis: 0;
 `;
 
-const SummaryLabel = styled.span`
-  color: ${AntdColor.GREY.GREY_2};
-  font-size: ${AntdToken.FONT.SIZE_SM}px;
-`;
-
-const SummaryValue = styled.span`
-  font-size: ${AntdToken.FONT.SIZE}px;
-`;
 export default ImportResultContent;
