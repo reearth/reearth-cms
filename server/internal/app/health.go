@@ -78,12 +78,14 @@ func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *He
 		})
 	}
 
-	// Add CMS worker service health check if configured
+	// Add CMS worker service health check if configured.
+	// The worker is a background dependency, so its failure only degrades the
+	// status to "Partially Available" instead of failing startup or /health.
 	if conf.Task.GCPProject != "" && conf.Task.WorkerURL != "" {
 		checks = append(checks, health.Config{
 			Name:      "worker_service",
 			Timeout:   time.Second * 5,
-			SkipOnErr: false,
+			SkipOnErr: true,
 			Check: httpCheck.New(httpCheck.Config{
 				URL:            workerHealthURL(conf.Task.WorkerURL),
 				RequestTimeout: time.Second * 5,
@@ -134,9 +136,16 @@ func workerHealthURL(base string) string {
 
 func (hc *HealthChecker) Check(ctx context.Context) error {
 	log.Infof("health check: running initial health checks...")
-	result := hc.health.Measure(ctx)
-	if len(result.Failures) > 0 {
+	return checkResult(hc.health.Measure(ctx))
+}
+
+func checkResult(result health.Check) error {
+	if result.Status == health.StatusUnavailable {
 		return fmt.Errorf("initial health check failed: %v", result.Failures)
+	}
+	if len(result.Failures) > 0 {
+		log.Warnf("health check: non-critical checks failed: %v", result.Failures)
+		return nil
 	}
 	log.Infof("health check: all checks passed")
 	return nil

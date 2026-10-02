@@ -1,10 +1,67 @@
 package app
 
 import (
+	"context"
+	"errors"
 	"testing"
+	"time"
 
+	"github.com/hellofresh/health-go/v5"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestCheckResult(t *testing.T) {
+	t.Parallel()
+
+	ok := func(context.Context) error { return nil }
+	fail := func(context.Context) error { return errors.New("down") }
+
+	tests := []struct {
+		name    string
+		checks  []health.Config
+		wantErr bool
+	}{
+		{
+			name: "all checks pass",
+			checks: []health.Config{
+				{Name: "db", Timeout: time.Second, Check: ok},
+				{Name: "worker_service", Timeout: time.Second, SkipOnErr: true, Check: ok},
+			},
+		},
+		{
+			name: "non-critical check fails",
+			checks: []health.Config{
+				{Name: "db", Timeout: time.Second, Check: ok},
+				{Name: "worker_service", Timeout: time.Second, SkipOnErr: true, Check: fail},
+			},
+		},
+		{
+			name: "critical check fails",
+			checks: []health.Config{
+				{Name: "db", Timeout: time.Second, Check: fail},
+				{Name: "worker_service", Timeout: time.Second, SkipOnErr: true, Check: ok},
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			h, err := health.New(health.WithChecks(tt.checks...))
+			require.NoError(t, err)
+
+			err = checkResult(h.Measure(context.Background()))
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
 
 func TestWorkerHealthURL(t *testing.T) {
 	t.Parallel()
