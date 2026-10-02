@@ -6,10 +6,7 @@ import (
 	"github.com/samber/lo"
 )
 
-// ValidateItem validates the whole item (required fields and field constraints) against its schema,
-// and for content items also every group instance against its group schema.
-// Fields in skip already have an error from an earlier step (e.g. parsing) and are not validated again.
-func ValidateItem(fields Fields, sp *schema.Package, isMetadata bool, skip schema.FieldKeySet) schema.FieldValidationErrors {
+func validateItem(fields Fields, sp *schema.Package, isMetadata bool, skip schema.FieldKeySet) schema.FieldValidationErrors {
 	if sp == nil {
 		return nil
 	}
@@ -41,7 +38,11 @@ func ValidateItem(fields Fields, sp *schema.Package, isMetadata bool, skip schem
 		if !ok {
 			continue
 		}
-		groupSchema := sp.GroupSchema(fieldGroupID(gf))
+		fg, ok := schema.FieldGroupFromTypeProperty(gf.TypeProperty())
+		if !ok {
+			continue
+		}
+		groupSchema := sp.GroupSchema(fg.Group())
 		if groupSchema == nil {
 			continue
 		}
@@ -78,14 +79,4 @@ func validateAgainstSchema(fields Fields, s *schema.Schema, group *ItemGroupID, 
 		errs = append(errs, sf.Validate(f.Value()).WithGroup(group)...)
 	}
 	return errs
-}
-
-func fieldGroupID(f *schema.Field) schema.GroupID {
-	var gid schema.GroupID
-	f.TypeProperty().Match(schema.TypePropertyMatch{
-		Group: func(fg *schema.FieldGroup) {
-			gid = fg.Group()
-		},
-	})
-	return gid
 }

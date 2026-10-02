@@ -199,8 +199,8 @@ func hasUnsupportedRequiredTypes(s *schema.Schema) bool {
 	return false
 }
 
-func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
-	params := make([]interfaces.ItemFieldParam, 0, len(body))
+func fieldsFromBody(body map[string]any, s *schema.Schema) item.FieldInputList {
+	params := make(item.FieldInputList, 0, len(body))
 	for _, f := range s.Fields() {
 		if slices.Contains(unsupportedTypes, f.Type()) {
 			continue
@@ -211,7 +211,7 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 		if !ok {
 			continue
 		}
-		params = append(params, interfaces.ItemFieldParam{
+		params = append(params, item.FieldInput{
 			Field: f.ID().Ref(),
 			Key:   key.Ref(),
 			Value: v,

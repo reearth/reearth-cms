@@ -13,8 +13,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -588,33 +588,33 @@ func TestFieldsFromBody(t *testing.T) {
 		Fields([]*schema.Field{textField, numberField}).
 		MustBuild()
 
-	titleParam := interfaces.ItemFieldParam{Field: textField.ID().Ref(), Key: textField.Key().Ref(), Value: "hello"}
-	countParam := interfaces.ItemFieldParam{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 42}
+	titleParam := item.FieldInput{Field: textField.ID().Ref(), Key: textField.Key().Ref(), Value: "hello"}
+	countParam := item.FieldInput{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 42}
 
 	tests := []struct {
 		name string
 		body map[string]any
-		want []interfaces.ItemFieldParam
+		want item.FieldInputList
 	}{
 		{
 			name: "maps known fields by key",
 			body: map[string]any{"title": "hello", "count": 42},
-			want: []interfaces.ItemFieldParam{titleParam, countParam},
+			want: item.FieldInputList{titleParam, countParam},
 		},
 		{
 			name: "ignores keys not in schema",
 			body: map[string]any{"title": "hello", "unknown": "x"},
-			want: []interfaces.ItemFieldParam{titleParam},
+			want: item.FieldInputList{titleParam},
 		},
 		{
 			name: "empty body returns empty slice",
 			body: map[string]any{},
-			want: []interfaces.ItemFieldParam{},
+			want: item.FieldInputList{},
 		},
 		{
 			name: "missing field is not included",
 			body: map[string]any{"count": 1},
-			want: []interfaces.ItemFieldParam{{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 1}},
+			want: item.FieldInputList{{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 1}},
 		},
 	}
 

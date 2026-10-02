@@ -213,7 +213,7 @@ func TestValidateItem(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			errs := ValidateItem(tt.fields, tt.sp, tt.isMetadata, nil)
+			errs := validateItem(tt.fields, tt.sp, tt.isMetadata, nil)
 
 			if tt.wantCodes == nil {
 				assert.Empty(t, errs)
@@ -249,7 +249,7 @@ func TestValidateItem_Group(t *testing.T) {
 			// no "subtitle" field for instanceID
 		}
 
-		errs := ValidateItem(fields, sp, false, nil)
+		errs := validateItem(fields, sp, false, nil)
 		require.Len(t, errs, 1)
 		assert.Equal(t, "subtitle", errs[0].Key.String())
 		assert.Equal(t, schema.FieldValidationCodeRequired, errs[0].Code)
@@ -270,7 +270,7 @@ func TestValidateItem_Group(t *testing.T) {
 			// invalidInstance has no "subtitle" field
 		}
 
-		errs := ValidateItem(fields, sp, false, nil)
+		errs := validateItem(fields, sp, false, nil)
 		require.Len(t, errs, 1)
 		assert.Equal(t, "subtitle", errs[0].Key.String())
 		assert.Equal(t, schema.FieldValidationCodeRequired, errs[0].Code)
@@ -290,7 +290,7 @@ func TestValidateItem_Group(t *testing.T) {
 		}
 		skip := schema.FieldKeySet{schema.NewFieldKey(subtitleField.ID(), &instanceID): {}}
 
-		assert.Empty(t, ValidateItem(fields, sp, false, skip))
+		assert.Empty(t, validateItem(fields, sp, false, skip))
 		// the same field at top level is a different key, so it isn't skipped by a group-scoped key
 		assert.False(t, skip.Has(subtitleField.ID(), nil))
 	})
@@ -308,7 +308,7 @@ func TestValidateItem_SkipAndIndex(t *testing.T) {
 		t.Parallel()
 
 		skip := schema.FieldKeySet{schema.NewFieldKey(titleField.ID(), nil): {}}
-		assert.Empty(t, ValidateItem(Fields{}, sp, false, skip))
+		assert.Empty(t, validateItem(Fields{}, sp, false, skip))
 	})
 
 	t.Run("every failing element of a multiple field is reported with its index", func(t *testing.T) {
@@ -318,7 +318,7 @@ func TestValidateItem_SkipAndIndex(t *testing.T) {
 			NewField(titleField.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
 			NewField(countsField.ID(), value.NewMultiple(value.TypeInteger, []any{int64(200), int64(5), int64(300)}), nil),
 		}
-		errs := ValidateItem(fields, sp, false, nil)
+		errs := validateItem(fields, sp, false, nil)
 		require.Len(t, errs, 2)
 		for i, want := range []int{0, 2} {
 			assert.Equal(t, schema.FieldValidationCodeConstraint, errs[i].Code)

@@ -667,39 +667,29 @@ func (i Item) saveChunk(ctx context.Context, _ *project.Project, m *model.Model,
 				itemsToSave = append(itemsToSave, mi.Value())
 			}
 
-			modelSchemaFields, otherFields := filterFieldParamsBySchema(itemParam.Fields, s)
-
-			fields, fieldErrs := itemFieldsFromParams(modelSchemaFields, s)
-
-			// Apply default values for missing fields on new items
-			if action == interfaces.ImportStrategyTypeInsert {
-				fields = append(fields, missingFieldsWithDefaultValues(fields, s)...)
-				// TODO: Handle default values for groups fields
-			}
-
-			// only the fields in the imported record are checked for uniqueness; stored values are not re-checked
-			sentFields := slices.Clone(fields)
 			var uniqueTarget *item.Item
 			if action != interfaces.ImportStrategyTypeInsert {
 				uniqueTarget = it.Clone()
 			}
 			oldFields := it.Fields()
-			it.UpdateFields(fields)
+			if action == interfaces.ImportStrategyTypeInsert {
+				it.AttachDefault(&param.SP)
+			}
 
-			groupFields, _, groupErrs, err := handleGroupFields(otherFields, s, &param.SP, it.Fields())
+			changed, fieldErrs, err := it.ApplyInput(itemParam.Fields, &param.SP)
 			if err != nil {
 				return nil, nil, err
 			}
-			it.UpdateFields(groupFields)
-			sentFields = append(sentFields, groupFields...)
-			fieldErrs = append(fieldErrs, groupErrs...)
 
-			skip := fieldErrs.Keys()
-			uniqueErrs, err := i.uniqueFieldErrors(ctx, sentFields, &param.SP, m.ID(), uniqueTarget, skip)
+			uniqueFields := changed
+			if action == interfaces.ImportStrategyTypeInsert {
+				uniqueFields = it.Fields()
+			}
+			uniqueErrs, err := i.uniqueFieldErrors(ctx, uniqueFields, &param.SP, m.ID(), uniqueTarget, fieldErrs.Keys())
 			if err != nil {
 				return nil, nil, err
 			}
-			if errs := slices.Concat(fieldErrs, uniqueErrs, it.Validate(&param.SP, skip)); !errs.Empty() {
+			if errs := slices.Concat(fieldErrs, uniqueErrs); !errs.Empty() {
 				return nil, nil, errs
 			}
 
@@ -771,36 +761,6 @@ func (i Item) updateSchema(ctx context.Context, s *schema.Schema, params []inter
 	return fields, nil
 }
 
-// missingFieldsWithDefaultValues returns a list of fields with default values for schema fields that are missing in the imported data.
-func missingFieldsWithDefaultValues(importedFields item.Fields, s *schema.Schema) item.Fields {
-	// Build set of existing field IDs
-	existingFieldIDs := make(map[id.FieldID]struct{})
-	for _, f := range importedFields {
-		existingFieldIDs[f.FieldID()] = struct{}{}
-	}
-
-	newFields := item.Fields{}
-
-	// Check each schema field for default values
-	for _, sf := range s.Fields() {
-		// Skip if field already has a value from import
-		if _, exists := existingFieldIDs[sf.ID()]; exists {
-			continue
-		}
-
-		// Skip if no default value
-		defaultVal := sf.DefaultValue()
-		if defaultVal == nil {
-			continue
-		}
-
-		// Create item field with default value
-		newFields = append(newFields, item.NewField(sf.ID(), defaultVal, nil))
-	}
-
-	return newFields
-}
-
 func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, error) {
 	if isGeoJson && geoField == nil {
 		return nil, rerror.ErrInvalidParams
@@ -828,7 +788,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 				if err != nil {
 					return nil, rerror.ErrInvalidParams
 				}
-				param.Fields = append(param.Fields, interfaces.ItemFieldParam{
+				param.Fields = append(param.Fields, item.FieldInput{
 					Field: f.ID().Ref(),
 					Key:   f.Key().Ref(),
 					Value: string(v),
@@ -862,7 +822,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 				return nil, rerror.ErrInvalidParams
 			}
 
-			param.Fields = append(param.Fields, interfaces.ItemFieldParam{
+			param.Fields = append(param.Fields, item.FieldInput{
 				Field: nil,
 				Key:   key.Ref(),
 				Value: v,

@@ -278,20 +278,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
-
-			fields, fieldErrs := itemFieldsFromParams(modelSchemaFields, s)
-
 			isMetadata := m.Metadata() != nil && param.SchemaID == *m.Metadata()
-
-			if !isMetadata {
-				groupFields, _, groupErrs, err := handleGroupFields(otherFields, s, sp, fields)
-				if err != nil {
-					return nil, err
-				}
-				fields = append(fields, groupFields...)
-				fieldErrs = append(fieldErrs, groupErrs...)
-			}
 
 			ib := item.New().
 				ForSchemaPackage(sp).
@@ -300,7 +287,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				IsMetadata(isMetadata).
 				Project(s.Project()).
 				Model(m.ID()).
-				Fields(fields).
 				AttachDefault()
 
 			if operator.AcOperator.User != nil {
@@ -330,12 +316,16 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				return nil, err
 			}
 
-			skip := fieldErrs.Keys()
-			uniqueErrs, err := i.uniqueFieldErrors(ctx, it.Fields(), sp, m.ID(), nil, skip)
+			_, fieldErrs, err := it.ApplyInput(param.Fields, sp)
 			if err != nil {
 				return nil, err
 			}
-			if errs := slices.Concat(fieldErrs, uniqueErrs, it.Validate(sp, skip)); !errs.Empty() {
+			// default values are checked for uniqueness too, so all the item's fields are passed
+			uniqueErrs, err := i.uniqueFieldErrors(ctx, it.Fields(), sp, m.ID(), nil, fieldErrs.Keys())
+			if err != nil {
+				return nil, err
+			}
+			if errs := slices.Concat(fieldErrs, uniqueErrs); !errs.Empty() {
 				return nil, errs
 			}
 
@@ -455,37 +445,19 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				return nil, rerror.ErrNotFound
 			}
 
-			modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
-
-			// every validation step below collects its errors instead of returning early,
-			// so the user gets all problems of the request at once
-			fields, fieldErrs := itemFieldsFromParams(modelSchemaFields, s)
-
-			// only the fields sent in the request are checked for uniqueness; stored values are not re-checked
-			sentFields := slices.Clone(fields)
 			oldItem := itv.Clone()
 			oldFields := itv.Fields()
-			itv.UpdateFields(fields)
 
-			var groupSchemas schema.List
-			if !itv.IsMetadata() {
-				var groupFields item.Fields
-				var groupErrs schema.FieldValidationErrors
-				groupFields, groupSchemas, groupErrs, err = handleGroupFields(otherFields, s, sp, itv.Fields())
-				if err != nil {
-					return nil, err
-				}
-				itv.UpdateFields(groupFields)
-				sentFields = append(sentFields, groupFields...)
-				fieldErrs = append(fieldErrs, groupErrs...)
-			}
-
-			skip := fieldErrs.Keys()
-			uniqueErrs, err := i.uniqueFieldErrors(ctx, sentFields, sp, itv.Model(), oldItem, skip)
+			changed, fieldErrs, err := itv.ApplyInput(param.Fields, sp)
 			if err != nil {
 				return nil, err
 			}
-			if errs := slices.Concat(fieldErrs, uniqueErrs, itv.Validate(sp, skip)); !errs.Empty() {
+			// only the fields sent in the request are checked for uniqueness; stored values are not re-checked
+			uniqueErrs, err := i.uniqueFieldErrors(ctx, changed, sp, itv.Model(), oldItem, fieldErrs.Keys())
+			if err != nil {
+				return nil, err
+			}
+			if errs := slices.Concat(fieldErrs, uniqueErrs); !errs.Empty() {
 				return nil, errs
 			}
 
@@ -546,7 +518,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 					Item:            itv,
 					Model:           m,
 					Schema:          s,
-					GroupSchemas:    groupSchemas,
+					GroupSchemas:    sp.GroupSchemas(),
 					ReferencedItems: refItems,
 					Changes:         item.CompareFields(itv.Fields(), oldFields),
 				},
@@ -835,8 +807,7 @@ func (i Item) handleReferenceField(ctx context.Context, sf schema.Field, iID ite
 		return nil
 	}
 	refItm, _ := items.Item(refItmId)
-	idValue := value.NewMultiple(value.TypeReference, []any{iID})
-	refItm.UpdateFields([]*item.Field{item.NewField(*fr.CorrespondingFieldID(), idValue, nil)})
+	refItm.SetReference(*fr.CorrespondingFieldID(), iID)
 	if err := i.repos.Item.Save(ctx, refItm); err != nil {
 		return err
 	}
@@ -882,80 +853,6 @@ func (i Item) getItemCorrespondingItems(ctx context.Context, fr schema.FieldRefe
 		}
 	}
 	return ci, nil
-}
-
-func handleGroupFields(params []interfaces.ItemFieldParam, s *schema.Schema, sp *schema.Package, itemFields item.Fields) (res item.Fields, groupSchemas schema.List, errs schema.FieldValidationErrors, err error) {
-	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
-		sf := s.Field(field.FieldID())
-		if sf == nil {
-			continue
-		}
-		var fieldGroup *schema.FieldGroup
-		sf.TypeProperty().Match(schema.TypePropertyMatch{
-			Group: func(f *schema.FieldGroup) {
-				fieldGroup = f
-			},
-		})
-		if fieldGroup == nil {
-			return nil, nil, nil, interfaces.ErrInvalidField
-		}
-
-		groupSchema := sp.GroupSchema(fieldGroup.Group())
-		if groupSchema == nil {
-			return nil, nil, nil, rerror.ErrNotFound
-		}
-		groupSchemas = append(groupSchemas, groupSchema)
-
-		mvg, ok := field.Value().ValuesGroup()
-		if !ok {
-			// the group instances can't be resolved, so the fields inside them can't be validated
-			errs = append(errs, sf.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch))
-			continue
-		}
-
-		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
-			return param.Group != nil && slices.Contains(mvg, *param.Group)
-		})
-
-		fields, fieldErrs := itemFieldsFromParams(groupItemParams, groupSchema)
-		errs = append(errs, fieldErrs...)
-		res = append(res, fields...)
-	}
-	return res, groupSchemas, errs, nil
-}
-
-func filterFieldParamsBySchema(params []interfaces.ItemFieldParam, s *schema.Schema) (res []interfaces.ItemFieldParam, other []interfaces.ItemFieldParam) {
-	for _, param := range params {
-		sf := s.FieldByIDOrKey(param.Field, param.Key)
-		if sf != nil {
-			res = append(res, param)
-		} else {
-			other = append(other, param)
-		}
-	}
-	return
-}
-
-func itemFieldsFromParams(params []interfaces.ItemFieldParam, s *schema.Schema) (item.Fields, schema.FieldValidationErrors) {
-	var fields item.Fields
-	var errs schema.FieldValidationErrors
-	for _, p := range params {
-		sf := s.FieldByIDOrKey(p.Field, p.Key)
-		if sf == nil {
-			errs = append(errs, schema.FieldValidationError{
-				Field:  p.Field,
-				Key:    p.Key,
-				Code:   schema.FieldValidationCodeNotFound,
-				Detail: schema.ErrFieldNotFound,
-			}.WithGroup(p.Group))
-			continue
-		}
-
-		m, fieldErrs := sf.ParseValue(p.Value)
-		errs = append(errs, fieldErrs.WithGroup(p.Group)...)
-		fields = append(fields, item.NewField(sf.ID(), m, p.Group))
-	}
-	return fields, errs
 }
 
 func (i Item) event(ctx context.Context, e Event) error {
@@ -1086,28 +983,7 @@ func (i Item) clearRelatedReferenceFields(ctx context.Context, modelID id.ModelI
 		updates := lo.FilterMap(ivl.Unwrap(), func(itm *item.Item, _ int) (*item.Item, bool) {
 			updated := false
 			for _, refFieldID := range refFieldIDs {
-				field := itm.Field(refFieldID)
-				if field == nil {
-					continue
-				}
-
-				newValues := make([]any, 0, field.Value().Len())
-				hasDeletedRef := false
-
-				for _, val := range field.Value().Values() {
-					if refID, ok := val.ValueReference(); ok && itemIDs.Has(refID) {
-						hasDeletedRef = true
-					} else {
-						newValues = append(newValues, val.Value())
-					}
-				}
-
-				if hasDeletedRef {
-					newMultiple := value.NewMultiple(value.TypeReference, newValues)
-					newField := item.NewField(refFieldID, newMultiple, field.ItemGroup())
-					itm.UpdateFields([]*item.Field{newField})
-					updated = true
-				}
+				updated = itm.ClearReference(refFieldID, itemIDs) || updated
 			}
 			return itm, updated
 		})

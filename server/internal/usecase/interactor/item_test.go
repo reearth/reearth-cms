@@ -608,7 +608,7 @@ func TestItem_Create(t *testing.T) {
 	validParam := interfaces.CreateItemParam{
 		SchemaID: sID,
 		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf1.ID().Ref(),
 				Value: "xxx",
@@ -643,7 +643,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Field: sf1.ID().Ref(),
 						Value: "xxx",
@@ -658,7 +658,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Key:   sf1.Key().Ref(),
 						Value: "xxx2",
@@ -673,7 +673,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Key:   sf1.Key().Ref(),
 						Value: "abcabcabcabc",
@@ -692,7 +692,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Key:   sf2.Key().Ref(),
 						Value: "xxx",
@@ -708,7 +708,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Key:   sf1.Key().Ref(),
 						Value: "",
@@ -725,7 +725,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields:   []interfaces.ItemFieldParam{},
+				Fields:   item.FieldInputList{},
 			},
 			operator: validOperator,
 			wantErr:  schema.FieldValidationErrors{{Field: sf1.ID().Ref(), Key: sf1.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired}},
@@ -736,7 +736,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields:   []interfaces.ItemFieldParam{},
+				Fields:   item.FieldInputList{},
 			},
 			operator: validOperator,
 			wantErr: schema.FieldValidationErrors{
@@ -750,7 +750,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Key:   sf1.Key().Ref(),
 						Value: "",
@@ -767,7 +767,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields:   []interfaces.ItemFieldParam{},
+				Fields:   item.FieldInputList{},
 			},
 			operator: validOperator,
 			wantErr:  nil,
@@ -788,7 +788,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: unrelatedSchema.ID(),
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Field: sf1.ID().Ref(),
 						Value: "xxx",
@@ -804,7 +804,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Field: sf1.ID().Ref(),
 						Value: "xxx",
@@ -825,7 +825,7 @@ func TestItem_Create(t *testing.T) {
 			param: interfaces.CreateItemParam{
 				SchemaID: sID,
 				ModelID:  m.ID(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Field: sf1.ID().Ref(),
 						Value: "xxx",
@@ -845,7 +845,7 @@ func TestItem_Create(t *testing.T) {
 				SchemaID:   sID,
 				ModelID:    m.ID(),
 				MetadataID: id.NewItemID().Ref(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Field: sf1.ID().Ref(),
 						Value: "xxx",
@@ -866,7 +866,7 @@ func TestItem_Create(t *testing.T) {
 				ModelID:  m.ID(),
 				// m has no metadata schema, so any existing item passed as MetadataID mismatches
 				MetadataID: existingItemForMetadataMismatch.ID().Ref(),
-				Fields: []interfaces.ItemFieldParam{
+				Fields: item.FieldInputList{
 					{
 						Field: sf1.ID().Ref(),
 						Value: "xxx",
@@ -939,103 +939,97 @@ func TestItem_Update(t *testing.T) {
 	vi, _ := itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// ok
-	item, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i.ID(), item.Value().ID())
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	assert.Equal(t, i.ID(), updated.Value().ID())
+	assert.Equal(t, s.ID(), updated.Value().Schema())
 
-	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
+	it, err := db.Item.FindByID(ctx, updated.Value().ID(), nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.Value(), it.Value())
+	assert.Equal(t, updated.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// invalid operator
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
 	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// ok with key
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
-				Key: sf.Key().Ref(),
-				// Type:  value.TypeText,
+				Key:   sf.Key().Ref(),
 				Value: "yyy",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i.ID(), item.Value().ID())
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	assert.Equal(t, i.ID(), updated.Value().ID())
+	assert.Equal(t, s.ID(), updated.Value().Schema())
 
-	it, err = db.Item.FindByID(ctx, item.Value().ID(), nil)
+	it, err = db.Item.FindByID(ctx, updated.Value().ID(), nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.Value(), it.Value())
+	assert.Equal(t, updated.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("yyy").AsMultiple(), it.Value().Field(sf.ID()).Value())
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// validate fails
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.ErrorContains(t, err, schema.ErrStringFieldMaxLengthExceeded(10).Error())
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
-	// update same item is not a duplicate
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	// update same updated is not a duplicate
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i.ID(), item.Value().ID())
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	assert.Equal(t, i.ID(), updated.Value().ID())
+	assert.Equal(t, s.ID(), updated.Value().Schema())
 	vi3, _ := itemUC.FindByID(ctx, i3.ID(), nil, op)
 
 	// update no permission
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i3.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -1045,12 +1039,11 @@ func TestItem_Update(t *testing.T) {
 	vi2, _ := itemUC.FindByID(ctx, i2.ID(), nil, op)
 
 	// duplicate
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i2.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -1058,15 +1051,15 @@ func TestItem_Update(t *testing.T) {
 	}, op)
 	assert.Equal(t, schema.FieldValidationErrors{{Field: sf.ID().Ref(), Key: sf.Key().Ref(), Code: schema.FieldValidationCodeUnique, Detail: interfaces.ErrDuplicatedItemValue}}, err)
 	assert.ErrorIs(t, err, interfaces.ErrDuplicatedItemValue)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 
 	// no fields
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{},
+		Fields: item.FieldInputList{},
 	}, op)
 	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 
 	// required
 	sf.SetRequired(true)
@@ -1075,12 +1068,11 @@ func TestItem_Update(t *testing.T) {
 	lo.Must0(db.Schema.Save(ctx, s))
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "",
 			},
 		},
@@ -1094,25 +1086,24 @@ func TestItem_Update(t *testing.T) {
 			Detail: schema.ErrValueRequired,
 		},
 	}.Error())
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
-	// mock item error
+	// mock updated error
 	wantErr := errors.New("test")
 	memory.SetItemError(db.Item, wantErr)
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "a",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.Equal(t, wantErr, err)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 }
 
 func TestItem_Update_RequiredFieldValidation(t *testing.T) {
@@ -1153,7 +1144,7 @@ func TestItem_Update_RequiredFieldValidation(t *testing.T) {
 	// update succeeds even though the patch never mentions it
 	got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: existing.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{Field: nameField.ID().Ref(), Value: "bob"},
 		},
 		Version: new(vi.Version()),
@@ -1173,7 +1164,7 @@ func TestItem_Update_RequiredFieldValidation(t *testing.T) {
 
 	got, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: existing.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{Field: nameField.ID().Ref(), Value: "carol"},
 		},
 		Version: new(vi.Version()),
@@ -1231,7 +1222,7 @@ func TestItem_Create_GroupAndMetadataValidation(t *testing.T) {
 	got, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: s.ID(),
 		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{Field: sectionField.ID().Ref(), Value: instanceID},
 		},
 	}, op)
@@ -1309,7 +1300,7 @@ func TestItem_CreateUpdate_ReportsAllErrors(t *testing.T) {
 		got, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 			SchemaID: s.ID(),
 			ModelID:  m.ID(),
-			Fields: []interfaces.ItemFieldParam{
+			Fields: item.FieldInputList{
 				{Field: countField.ID().Ref(), Value: "abc"},
 				{Field: countsField.ID().Ref(), Value: []any{float64(5), float64(200)}},
 				{Field: codeField.ID().Ref(), Value: "dup"},
@@ -1335,7 +1326,7 @@ func TestItem_CreateUpdate_ReportsAllErrors(t *testing.T) {
 		_, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 			SchemaID: s.ID(),
 			ModelID:  m.ID(),
-			Fields: []interfaces.ItemFieldParam{
+			Fields: item.FieldInputList{
 				{Field: titleField.ID().Ref(), Value: "hello"},
 				{Field: sectionField.ID().Ref(), Value: instanceID},
 				{Field: subtitleField.ID().Ref(), Value: []any{"a"}, Group: &instanceID},
@@ -1353,7 +1344,7 @@ func TestItem_CreateUpdate_ReportsAllErrors(t *testing.T) {
 	t.Run("update keeps stored values for fields not sent", func(t *testing.T) {
 		got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 			ItemID: existing.ID(),
-			Fields: []interfaces.ItemFieldParam{{Field: countField.ID().Ref(), Value: float64(1)}},
+			Fields: item.FieldInputList{{Field: countField.ID().Ref(), Value: float64(1)}},
 		}, op)
 		require.NoError(t, err)
 		// title is required and only stored; code keeps its own (unique) value
@@ -1364,7 +1355,7 @@ func TestItem_CreateUpdate_ReportsAllErrors(t *testing.T) {
 	t.Run("update with an unparsable value doesn't fall back to the stored value", func(t *testing.T) {
 		got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 			ItemID: existing.ID(),
-			Fields: []interfaces.ItemFieldParam{
+			Fields: item.FieldInputList{
 				{Field: countField.ID().Ref(), Value: "abc"},
 				{Field: titleField.ID().Ref(), Value: ""},
 			},
@@ -1592,9 +1583,7 @@ func TestItem_BatchDelete(t *testing.T) {
 
 				// Create target item (will be referenced)
 				i1withRef := i1.Clone()
-				refValue := value.TypeReference.Value(i3.ID())
-				refItemField := item.NewField(refFieldID, refValue.AsMultiple(), nil)
-				i1withRef.UpdateFields([]*item.Field{refItemField})
+				i1withRef.SetReference(refFieldID, i3.ID())
 
 				if err := db.Item.Save(ctx, i1withRef); err != nil {
 					return err
@@ -1637,15 +1626,11 @@ func TestItem_BatchDelete(t *testing.T) {
 				s2WithRef.AddField(refField2)
 
 				// Create items with two-way references
-				refValue1 := value.TypeReference.Value(i2.ID())
-				refItemField1 := item.NewField(ref1FieldID, refValue1.AsMultiple(), nil)
 				i1WithRef := i1.Clone()
-				i1WithRef.UpdateFields([]*item.Field{refItemField1})
+				i1WithRef.SetReference(ref1FieldID, i2.ID())
 
-				refValue2 := value.TypeReference.Value(i1.ID())
-				refItemField2 := item.NewField(ref2FieldID, refValue2.AsMultiple(), nil)
 				i2WithRef := i2.Clone()
-				i2WithRef.UpdateFields([]*item.Field{refItemField2})
+				i2WithRef.SetReference(ref2FieldID, i1.ID())
 
 				// Save schemas and items
 				if err := db.Schema.Save(ctx, s1WithRef); err != nil {
@@ -1691,15 +1676,11 @@ func TestItem_BatchDelete(t *testing.T) {
 				s2WithRef.AddField(refField2)
 
 				// Create items with two-way references
-				refValue1 := value.TypeReference.Value(i2.ID())
-				refItemField1 := item.NewField(ref1FieldID, refValue1.AsMultiple(), nil)
 				i1WithRef := i1.Clone()
-				i1WithRef.UpdateFields([]*item.Field{refItemField1})
+				i1WithRef.SetReference(ref1FieldID, i2.ID())
 
-				refValue2 := value.TypeReference.Value(i1.ID())
-				refItemField2 := item.NewField(ref2FieldID, refValue2.AsMultiple(), nil)
 				i2WithRef := i2.Clone()
-				i2WithRef.UpdateFields([]*item.Field{refItemField2})
+				i2WithRef.SetReference(ref2FieldID, i1.ID())
 
 				// Save schemas and items
 				if err := db.Schema.Save(ctx, s1WithRef); err != nil {
@@ -1737,10 +1718,8 @@ func TestItem_BatchDelete(t *testing.T) {
 				selfRefSchema.AddField(selfRefField)
 
 				// Create item with self-reference
-				selfRefValue := value.TypeReference.Value(i1.ID())
-				selfRefItemField := item.NewField(selfRefFieldID, selfRefValue.AsMultiple(), nil)
 				selfRefItem := i1.Clone()
-				selfRefItem.UpdateFields([]*item.Field{selfRefItemField})
+				selfRefItem.SetReference(selfRefFieldID, i1.ID())
 
 				// Save schema and item
 				if err := db.Schema.Save(ctx, selfRefSchema); err != nil {
