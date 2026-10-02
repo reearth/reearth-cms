@@ -143,23 +143,11 @@ func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) e
 	return nil
 }
 
-func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
-	doc := mongodoc.NewFile(parent)
-	_, err := r.client.Client().UpdateOne(ctx, bson.M{
-		"id": id.String(),
-	}, bson.M{
-		"$set": bson.M{
-			"id":        id.String(),
-			"flatfiles": true,
-			"file":      doc,
-		},
-	})
-	if errors.Is(err, mongo.ErrNoDocuments) {
-		return rerror.ErrNotFound
-	}
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
+// SaveFlatFiles replaces the staged file list for the asset. It does not
+// touch the parent asset document's flatfiles pointer, so it is safe to run
+// outside a transaction regardless of how large the file list is; readers
+// keep seeing the previous file tree until CommitFlatFiles flips the pointer.
+func (r *AssetFile) SaveFlatFiles(ctx context.Context, id id.AssetID, files []*asset.File) error {
 	if err := r.assetFilesClient.RemoveAll(ctx, bson.M{"assetid": id.String()}); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
@@ -179,6 +167,29 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 			return rerror.ErrInternalBy(err)
 		}
 		log.Debugfc(ctx, "mongo asset_file: bulk write batch done: assetID=%s batch=%d/%d", id, i+1, len(batches))
+	}
+	return nil
+}
+
+// CommitFlatFiles points the parent asset document at the file list most
+// recently written by SaveFlatFiles. This is a single small document write,
+// so it is safe to run inside a transaction alongside other asset writes.
+func (r *AssetFile) CommitFlatFiles(ctx context.Context, id id.AssetID, parent *asset.File) error {
+	doc := mongodoc.NewFile(parent)
+	_, err := r.client.Client().UpdateOne(ctx, bson.M{
+		"id": id.String(),
+	}, bson.M{
+		"$set": bson.M{
+			"id":        id.String(),
+			"flatfiles": true,
+			"file":      doc,
+		},
+	})
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return rerror.ErrNotFound
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
