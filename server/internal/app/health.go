@@ -136,10 +136,7 @@ func workerHealthURL(base string) string {
 
 func (hc *HealthChecker) Check(ctx context.Context) error {
 	log.Infof("health check: running initial health checks...")
-	return checkResult(hc.health.Measure(ctx))
-}
-
-func checkResult(result health.Check) error {
+	result := hc.health.Measure(ctx)
 	if result.Status == health.StatusUnavailable {
 		return fmt.Errorf("initial health check failed: %v", result.Failures)
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCheckResult(t *testing.T) {
+func TestHealthChecker_Check(t *testing.T) {
 	t.Parallel()
 
 	ok := func(context.Context) error { return nil }
@@ -53,7 +53,8 @@ func TestCheckResult(t *testing.T) {
 			h, err := health.New(health.WithChecks(tt.checks...))
 			require.NoError(t, err)
 
-			err = checkResult(h.Measure(context.Background()))
+			hc := &HealthChecker{health: h}
+			err = hc.Check(context.Background())
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
