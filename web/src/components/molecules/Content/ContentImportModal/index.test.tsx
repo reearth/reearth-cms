@@ -20,16 +20,25 @@ import ContentImportModal from ".";
 
 const mockParseTextFile = vi.fn();
 const mockGetExtension = vi.fn();
+const mockIsUTF8 = vi.fn();
 const mockParseJSON = vi.fn();
 const mockValidateGeoJson = vi.fn();
 const mockValidateContent = vi.fn();
 const mockConvertCSVToJSON = vi.fn();
 const mockConvertGeoJSONToJSON = vi.fn();
+const mockNotificationWarning = vi.fn();
+
+vi.mock("@reearth-cms/components/atoms/Notification", () => ({
+  default: {
+    warning: (...args: unknown[]) => mockNotificationWarning(...args),
+  },
+}));
 
 vi.mock("@reearth-cms/utils/file", () => ({
   FileUtils: {
     parseTextFile: (...args: unknown[]) => mockParseTextFile(...args),
     getExtension: (...args: unknown[]) => mockGetExtension(...args),
+    isUTF8: (...args: unknown[]) => mockIsUTF8(...args),
     MBtoBytes: (mb: number) => mb * 1024 * 1024,
   },
 }));
@@ -135,6 +144,7 @@ const uploadJsonFile = async (fileName = "test.json") => {
 const uploadCsvFile = async (fileName = "test.csv") => {
   const file = Test.createMockRcFile({ name: fileName, type: "text/csv" });
   mockGetExtension.mockReturnValue("csv");
+  mockIsUTF8.mockResolvedValue(true);
   mockParseTextFile.mockResolvedValue("name,age\ntest,1");
   mockConvertCSVToJSON.mockResolvedValue({ isValid: true, data: [{ name: "test", age: 1 }] });
 
@@ -347,5 +357,37 @@ describe("ContentImportModal", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Validation errors")).toBeInTheDocument();
     expect(screen.getByText("Download error log")).toBeInTheDocument();
+  });
+
+  test("shows encoding warning but still imports when CSV is not UTF-8", async () => {
+    mockValidateContent.mockResolvedValue({ isValid: true });
+    const file = Test.createMockRcFile({ name: "sjis.csv", type: "text/csv" });
+    mockGetExtension.mockReturnValue("csv");
+    mockIsUTF8.mockResolvedValue(false);
+    mockParseTextFile.mockResolvedValue("name,age\ntest,1");
+    mockConvertCSVToJSON.mockResolvedValue({ isValid: true, data: [{ name: "test", age: 1 }] });
+
+    render(<StatefulWrapper />);
+
+    const input = getFileInput();
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => expect(mockOnEnqueueJob).toHaveBeenCalled());
+    expect(mockNotificationWarning).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          "The CSV file is not UTF-8 encoded. Some characters may not be imported correctly.",
+      }),
+    );
+  });
+
+  test("does not show encoding warning when CSV is UTF-8", async () => {
+    mockValidateContent.mockResolvedValue({ isValid: true });
+
+    render(<StatefulWrapper />);
+    await uploadCsvFile();
+
+    await waitFor(() => expect(mockOnEnqueueJob).toHaveBeenCalled());
+    expect(mockNotificationWarning).not.toHaveBeenCalled();
   });
 });

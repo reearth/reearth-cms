@@ -11,6 +11,7 @@ import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import type { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import ImportErrorLogView from "@reearth-cms/components/molecules/Common/ImportErrorLogView";
@@ -294,6 +295,15 @@ const ContentImportModal: React.FC<Props> = ({
           }
 
           case "csv": {
+            if (!(await FileUtils.isUTF8(file))) {
+              Notification.warning({
+                message: t(
+                  "The CSV file is not UTF-8 encoded. Some characters may not be imported correctly.",
+                ),
+                duration: 6,
+              });
+            }
+
             const csvValidation =
               await ImportContentUtils.convertCSVToJSON<ImportContentItem>(content);
             if (!csvValidation.isValid) {

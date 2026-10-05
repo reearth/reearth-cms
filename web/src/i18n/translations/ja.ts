@@ -655,6 +655,7 @@ export default {
   "Text": "テキスト",
   "TextArea": "テキストエリア",
   "The attempt to re-generate the integration token has failed.": "インテグレーショントークンの再生成に失敗しました。",
+  "The CSV file is not UTF-8 encoded. Some characters may not be imported correctly.": "CSVファイルがUTF-8でエンコードされていません。一部の文字が正しくインポートされない可能性があります。",
   "The first one in the list will be the default Terrain.": "リストの最初の地形がデフォルトになります。",
   "The first one in the list will be the default Tile.": "リストの最初のタイルがデフォルトになります。",
   "The item is currently under request review and cannot be published.": "このアイテムは現在リクエストレビュー中のため公開できません。",

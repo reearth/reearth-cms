@@ -658,6 +658,7 @@ export default {
   "Text": "",
   "TextArea": "",
   "The attempt to re-generate the integration token has failed.": "",
+  "The CSV file is not UTF-8 encoded. Some characters may not be imported correctly.": "",
   "The first one in the list will be the default Terrain.": "",
   "The first one in the list will be the default Tile.": "",
   "The item is currently under request review and cannot be published.": "",
