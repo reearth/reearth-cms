@@ -256,7 +256,12 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	if err != nil {
 		return nil, err
 	}
-	s := sp.SchemaByID(param.SchemaID)
+	var s *schema.Schema
+	if ms := sp.Schema(); ms != nil && ms.ID() == param.SchemaID {
+		s = ms
+	} else if mms := sp.MetaSchema(); mms != nil && mms.ID() == param.SchemaID {
+		s = mms
+	}
 	if s == nil {
 		return nil, rerror.ErrNotFound
 	}
