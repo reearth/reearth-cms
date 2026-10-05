@@ -66,9 +66,6 @@ code {
   .ant-popover-title {
     flex-shrink: 0;
     max-width: 40vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 

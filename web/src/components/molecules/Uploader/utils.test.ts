@@ -1,17 +1,14 @@
 import { describe, expect, test } from "vitest";
 
-import type { ImportJobResult } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportColumnStatus, JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { Test } from "@reearth-cms/test/utils";
 
-import type { UploaderQueueItem } from "./types";
+import type { ImportResult, UploaderQueueItem } from "./types";
 import { ImportResultUtils } from "./utils";
 
-const importResult: ImportJobResult = {
+const importResult: ImportResult = {
   total: 10,
   inserted: 8,
-  updated: 2,
-  ignored: 0,
   columns: [
     { header: "name", status: ImportColumnStatus.Matched, schemaFieldKey: "name", reason: null },
     { header: "age", status: ImportColumnStatus.Matched, schemaFieldKey: "age", reason: null },
@@ -52,7 +49,7 @@ describe("Test ImportResultUtils", () => {
   });
 
   test("Test counting with empty columns", () => {
-    const emptyResult: ImportJobResult = { ...importResult, columns: [] };
+    const emptyResult: ImportResult = { ...importResult, columns: [] };
 
     expect(ImportResultUtils.matchedCount(emptyResult)).toBe(0);
     expect(ImportResultUtils.skippedCount(emptyResult)).toBe(0);

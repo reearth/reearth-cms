@@ -8,6 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import Progress from "@reearth-cms/components/atoms/Progress";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -114,7 +115,14 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             rootClassName="importResultPopover"
             trigger="click"
             placement="left"
-            title={queue.fileName}
+            title={
+              <PopoverTitle>
+                <PopoverFileName>{queue.fileName}</PopoverFileName>
+                <ImportedCount type="secondary" data-testid={DATA_TEST_ID.QueueItem__ImportedCount}>
+                  {t("{{count}} rows imported", { count: queue.importResult?.inserted ?? 0 })}
+                </ImportedCount>
+              </PopoverTitle>
+            }
             content={<ImportResultContent importResult={queue.importResult} />}>
             <DetailsButton type="link" data-testid={DATA_TEST_ID.QueueItem__ViewDetailsLink}>
               {t("View details")}
@@ -260,6 +268,25 @@ const DetailsButton = styled(Button)`
   align-self: flex-start;
   padding: 0;
   height: fit-content;
+`;
+
+const PopoverTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: ${AntdToken.SPACING.MD}px;
+`;
+
+const PopoverFileName = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const ImportedCount = styled(Typography.Text)`
+  flex-shrink: 0;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const Message = styled.div`

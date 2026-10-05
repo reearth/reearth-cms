@@ -4,11 +4,10 @@ import type { ComponentProps } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
-import type { ImportJobResult } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportColumnStatus, JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
-import type { UploaderQueueItem } from "../types";
+import type { ImportResult, UploaderQueueItem } from "../types";
 
 import QueueItem from ".";
 
@@ -35,18 +34,16 @@ const completedJobState: UploaderQueueItem["jobState"] = {
   progress: { percentage: 100, processed: 100, total: 100 },
 };
 
-const allMatchedResult: ImportJobResult = {
+const allMatchedResult: ImportResult = {
   total: 100,
   inserted: 80,
-  updated: 20,
-  ignored: 0,
   columns: [
     { header: "name", status: ImportColumnStatus.Matched, schemaFieldKey: "name", reason: null },
     { header: "age", status: ImportColumnStatus.Matched, schemaFieldKey: "age", reason: null },
   ],
 };
 
-const skippedResult: ImportJobResult = {
+const skippedResult: ImportResult = {
   ...allMatchedResult,
   columns: [
     ...allMatchedResult.columns,
@@ -217,9 +214,11 @@ describe("Test QueueItem component", () => {
     // the popover content portals into an antd zoom animation that never resolves under jsdom,
     // so assert on what it rendered rather than on computed visibility
     const summary = await screen.findByTestId(DATA_TEST_ID.ImportResultContent__Summary);
-    expect(summary).toHaveTextContent("Rows");
     expect(summary).toHaveTextContent("Columns");
-    expect(summary).toHaveTextContent("2Skipped");
+    expect(summary).toHaveTextContent("Skipped2");
+    expect(screen.getByTestId(DATA_TEST_ID.QueueItem__ImportedCount)).toHaveTextContent(
+      "80 rows imported",
+    );
 
     const table = screen.getByTestId(DATA_TEST_ID.ImportResultContent__Table);
     expect(table).toHaveTextContent("name");

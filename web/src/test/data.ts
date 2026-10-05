@@ -237,6 +237,7 @@ export enum DATA_TEST_ID {
   QueueItem__WarningIcon = "QueueItem__WarningIcon",
   QueueItem__WarningMessage = "QueueItem__WarningMessage",
   QueueItem__ViewDetailsLink = "QueueItem__ViewDetailsLink",
+  QueueItem__ImportedCount = "QueueItem__ImportedCount",
 
   // ImportResultContent
   ImportResultContent__Summary = "ImportResultContent__Summary",

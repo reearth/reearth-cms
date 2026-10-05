@@ -14,17 +14,11 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import Stat from "../Stat";
 import SummaryCard from "../SummaryCard";
 import type { ImportResult } from "../types";
 import { ImportResultUtils } from "../utils";
 
 const EMPTY_VALUE = "—";
-
-type SummaryEntry = {
-  label: string;
-  value: number;
-};
 
 type ColumnStats = {
   matchedCount: number;
@@ -37,11 +31,6 @@ type Props = {
 
 const ImportResultContent: React.FC<Props> = ({ importResult }) => {
   const t = useT();
-
-  const rowStats = useMemo<SummaryEntry[]>(
-    () => (importResult ? [{ label: t("Inserted"), value: importResult.inserted }] : []),
-    [importResult, t],
-  );
 
   const { matchedCount, skippedCount } = useMemo<ColumnStats>(
     () =>
@@ -100,26 +89,6 @@ const ImportResultContent: React.FC<Props> = ({ importResult }) => {
     <Wrapper>
       <Flex data-testid={DATA_TEST_ID.ImportResultContent__Summary} gap={AntdToken.SPACING.XS}>
         <SummaryCard title={t("Columns")}>
-          <Flex gap={AntdToken.SPACING.MD}>
-            <Stat value={matchedCount} label={t("Matched")} type="success" />
-            <Stat
-              value={skippedCount}
-              type="warning"
-              label={
-                <>
-                  {t("Skipped")}
-                  <Tooltip
-                    title={t(
-                      "Columns whose header doesn't match any field key in the schema. Their data wasn't imported.",
-                    )}>
-                    <span>
-                      <Icon icon="exclamationCircle" />
-                    </span>
-                  </Tooltip>
-                </>
-              }
-            />
-          </Flex>
           <ColumnBar>
             <ColumnBarSegment
               style={{ flexGrow: matchedCount, background: AntdColor.GREEN.GREEN_5 }}
@@ -128,18 +97,30 @@ const ImportResultContent: React.FC<Props> = ({ importResult }) => {
               style={{ flexGrow: skippedCount, background: AntdColor.GOLD.GOLD_5 }}
             />
           </ColumnBar>
-        </SummaryCard>
-        <SummaryCard title={t("Rows")}>
-          <Flex gap={AntdToken.SPACING.MD}>
-            {rowStats.map(({ label, value }) => (
-              <Stat
-                key={label}
-                value={value}
-                label={label}
-                type={value === 0 ? "secondary" : undefined}
-              />
-            ))}
-          </Flex>
+          <Legend gap={AntdToken.SPACING.BASE}>
+            <LegendItem>
+              <Dot color={AntdColor.GREEN.GREEN_5} />
+              <LegendLabel>
+                <Typography.Text type="secondary">{t("Matched")}</Typography.Text>
+                <span>{matchedCount}</span>
+              </LegendLabel>
+            </LegendItem>
+            <LegendItem>
+              <Dot color={AntdColor.GOLD.GOLD_5} />
+              <LegendLabel>
+                <Typography.Text type="secondary">{t("Skipped")}</Typography.Text>
+                <span>{skippedCount}</span>
+                <Tooltip
+                  title={t(
+                    "Columns whose header doesn't match any field key in the schema. Their data wasn't imported.",
+                  )}>
+                  <Typography.Text type="secondary">
+                    <Icon icon="exclamationCircle" />
+                  </Typography.Text>
+                </Tooltip>
+              </LegendLabel>
+            </LegendItem>
+          </Legend>
         </SummaryCard>
       </Flex>
       <div data-testid={DATA_TEST_ID.ImportResultContent__Table}>
@@ -174,6 +155,33 @@ const ColumnBar = styled.div`
 
 const ColumnBarSegment = styled.div`
   flex-basis: 0;
+`;
+
+const Legend = styled(Flex)`
+  margin-top: ${AntdToken.SPACING.XS}px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+`;
+
+const LegendItem = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XS}px;
+`;
+
+const Dot = styled("span", {
+  shouldForwardProp: prop => prop !== "color",
+})<{ color: string }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ color }) => color};
+`;
+
+const LegendLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XXS}px;
 `;
 
 export default ImportResultContent;

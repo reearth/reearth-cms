@@ -10,7 +10,7 @@ type Props = {
 };
 
 const SummaryCard: React.FC<Props> = ({ title, children }) => (
-  <SummaryCol styles={{ body: { padding: AntdToken.SPACING.SM } }}>
+  <SummaryCol variant="borderless" styles={{ body: { padding: 0 } }}>
     <CardTitle>{title}</CardTitle>
     {children}
   </SummaryCol>

@@ -5,7 +5,6 @@ import { Provider as JotaiProvider } from "jotai";
 import { useEffect, useRef } from "react";
 import { describe, expect, test } from "vitest";
 
-import type { ImportJobResult } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   ImportColumnStatus,
   JobStatus,
@@ -17,15 +16,13 @@ import { Test } from "@reearth-cms/test/utils";
 
 import useUploaderHook from "./hooks";
 import { UploaderProvider } from "./provider";
-import type { UploaderQueueItem } from "./types";
+import type { ImportResult, UploaderQueueItem } from "./types";
 
 const JOB_ID = "job-1";
 
-const importResult: ImportJobResult = {
+const importResult: ImportResult = {
   total: 100,
   inserted: 80,
-  updated: 20,
-  ignored: 0,
   columns: [
     { header: "name", status: ImportColumnStatus.Matched, schemaFieldKey: "name", reason: null },
     {
@@ -49,7 +46,7 @@ const queueItem: UploaderQueueItem = {
   modelId: "model-1",
 };
 
-const jobMock = (result: ImportJobResult | null) => ({
+const jobMock = (result: ImportResult | null) => ({
   request: { query: JobDocument, variables: { jobId: JOB_ID } },
   result: {
     data: {
