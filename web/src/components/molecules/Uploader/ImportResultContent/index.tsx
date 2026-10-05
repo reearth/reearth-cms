@@ -8,10 +8,7 @@ import Table from "@reearth-cms/components/atoms/Table";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import type {
-  ImportColumnResult,
-  ImportJobResult,
-} from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { ImportColumnResult } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportColumnStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -19,6 +16,7 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import Stat from "../Stat";
 import SummaryCard from "../SummaryCard";
+import type { ImportResult } from "../types";
 import { ImportResultUtils } from "../utils";
 
 const EMPTY_VALUE = "—";
@@ -34,21 +32,14 @@ type ColumnStats = {
 };
 
 type Props = {
-  importResult: ImportJobResult | null | undefined;
+  importResult: ImportResult | null | undefined;
 };
 
 const ImportResultContent: React.FC<Props> = ({ importResult }) => {
   const t = useT();
 
   const rowStats = useMemo<SummaryEntry[]>(
-    () =>
-      importResult
-        ? [
-            { label: t("Inserted"), value: importResult.inserted },
-            { label: t("Updated"), value: importResult.updated },
-            { label: t("Ignored"), value: importResult.ignored },
-          ]
-        : [],
+    () => (importResult ? [{ label: t("Inserted"), value: importResult.inserted }] : []),
     [importResult, t],
   );
 

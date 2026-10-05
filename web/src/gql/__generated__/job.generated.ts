@@ -33,8 +33,6 @@ export type JobQuery = {
       __typename: "ImportJobResult";
       total: number;
       inserted: number;
-      updated: number;
-      ignored: number;
       columns: Array<{
         __typename: "ImportColumnResult";
         header: string;
@@ -151,8 +149,6 @@ export const JobDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "total" } },
                       { kind: "Field", name: { kind: "Name", value: "inserted" } },
-                      { kind: "Field", name: { kind: "Name", value: "updated" } },
-                      { kind: "Field", name: { kind: "Name", value: "ignored" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "columns" },

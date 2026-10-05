@@ -20,8 +20,6 @@ export const JOB = gql`
       importResult {
         total
         inserted
-        updated
-        ignored
         columns {
           header
           status
