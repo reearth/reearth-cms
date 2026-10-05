@@ -3,6 +3,7 @@ package value
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,6 +23,122 @@ func TestNewMultiple(t *testing.T) {
 	for i := range v {
 		assert.Equal(t, v[i], m.v[i])
 		assert.NotSame(t, v[i], m.v[i])
+	}
+}
+
+func TestNewMultipleStrict(t *testing.T) {
+	gid := id.NewItemGroupID()
+
+	tests := []struct {
+		name        string
+		typ         Type
+		input       []any
+		want        *Multiple
+		wantKept    []int
+		wantInvalid []int
+	}{
+		{
+			name:  "unknown type",
+			typ:   TypeUnknown,
+			input: []any{1},
+		},
+		{
+			name:  "unknown type with nil input",
+			typ:   TypeUnknown,
+			input: nil,
+		},
+		{
+			name:     "nil input",
+			typ:      TypeBool,
+			input:    nil,
+			want:     &Multiple{t: TypeBool, v: []*Value{}},
+			wantKept: []int{},
+		},
+		{
+			name:     "empty input",
+			typ:      TypeBool,
+			input:    []any{},
+			want:     &Multiple{t: TypeBool, v: []*Value{}},
+			wantKept: []int{},
+		},
+		{
+			name:     "all valid",
+			typ:      TypeInteger,
+			input:    []any{int64(1), int64(2)},
+			want:     &Multiple{t: TypeInteger, v: []*Value{New(TypeInteger, int64(1)), New(TypeInteger, int64(2))}},
+			wantKept: []int{0, 1},
+		},
+		{
+			name:     "convertible values are kept",
+			typ:      TypeInteger,
+			input:    []any{"10", 2.0},
+			want:     &Multiple{t: TypeInteger, v: []*Value{New(TypeInteger, int64(10)), New(TypeInteger, int64(2))}},
+			wantKept: []int{0, 1},
+		},
+		{
+			name:        "mixed valid, invalid and nil",
+			typ:         TypeInteger,
+			input:       []any{int64(1), "x", nil, int64(3), struct{}{}},
+			want:        &Multiple{t: TypeInteger, v: []*Value{New(TypeInteger, int64(1)), New(TypeInteger, int64(3))}},
+			wantKept:    []int{0, 3},
+			wantInvalid: []int{1, 4},
+		},
+		{
+			name:        "all invalid",
+			typ:         TypeInteger,
+			input:       []any{"x", struct{}{}},
+			want:        &Multiple{t: TypeInteger, v: []*Value{}},
+			wantKept:    []int{},
+			wantInvalid: []int{0, 1},
+		},
+		{
+			name:     "nil elements are skipped, not invalid",
+			typ:      TypeInteger,
+			input:    []any{nil, nil},
+			want:     &Multiple{t: TypeInteger, v: []*Value{}},
+			wantKept: []int{},
+		},
+		{
+			// "" the type can't convert is no value, not an error
+			name:     "unconvertible empty string is skipped, not invalid",
+			typ:      TypeGroup,
+			input:    []any{""},
+			want:     &Multiple{t: TypeGroup, v: []*Value{}},
+			wantKept: []int{},
+		},
+		{
+			name:        "unconvertible empty string among valid and invalid values",
+			typ:         TypeGroup,
+			input:       []any{"", gid, "x"},
+			want:        &Multiple{t: TypeGroup, v: []*Value{New(TypeGroup, gid)}},
+			wantKept:    []int{1},
+			wantInvalid: []int{2},
+		},
+		{
+			// integer maps "" to an empty value rather than failing, so it is kept
+			name:     "empty string mapped to empty value is kept",
+			typ:      TypeInteger,
+			input:    []any{"", int64(5)},
+			want:     &Multiple{t: TypeInteger, v: []*Value{New(TypeInteger, ""), New(TypeInteger, int64(5))}},
+			wantKept: []int{0, 1},
+		},
+		{
+			name:     "convertible empty string is kept",
+			typ:      TypeText,
+			input:    []any{"", "a"},
+			want:     &Multiple{t: TypeText, v: []*Value{New(TypeText, ""), New(TypeText, "a")}},
+			wantKept: []int{0, 1},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			m, kept, invalid := NewMultipleStrict(tt.typ, tt.input)
+			assert.Equal(t, tt.want, m)
+			assert.Equal(t, tt.wantKept, kept)
+			assert.Equal(t, tt.wantInvalid, invalid)
+		})
 	}
 }
 

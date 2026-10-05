@@ -153,6 +153,9 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 		Bool: func(f *FieldBool) error {
 			return f.ValidateMultiple(v)
 		},
+		Checkbox: func(f *FieldCheckbox) error {
+			return f.ValidateMultiple(v)
+		},
 		DateTime: func(f *FieldDateTime) error {
 			return f.ValidateMultiple(v)
 		},

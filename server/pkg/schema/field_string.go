@@ -1,12 +1,15 @@
 package schema
 
 import (
-	"fmt"
 	"unicode/utf8"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
+
+var ErrStringFieldMaxLengthExceeded = func(max int) error { return rerror.FmtE(i18n.T("value should be shorter than %d characters"), max) }
 
 type FieldString struct {
 	t         value.Type
@@ -38,6 +41,10 @@ func (f *FieldString) Clone() *FieldString {
 	}
 }
 
+func (f *FieldString) ValidateMultiple(_ *value.Multiple) error {
+	return nil
+}
+
 func (f *FieldString) Validate(v *value.Value) error {
 	if v.Type() != f.t {
 		return ErrInvalidValue
@@ -49,9 +56,8 @@ func (f *FieldString) Validate(v *value.Value) error {
 	}
 
 	if f.maxLength != nil {
-		len := utf8.RuneCountInString(s)
-		if len > *f.maxLength {
-			return fmt.Errorf("value has %d characters, but it sholud be shorter than %d characters", len, *f.maxLength)
+		if utf8.RuneCountInString(s) > *f.maxLength {
+			return ErrStringFieldMaxLengthExceeded(*f.maxLength)
 		}
 	}
 

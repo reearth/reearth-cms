@@ -175,5 +175,5 @@ func (m *Multiple) ValuesNumber() (vv []Number, ok bool) {
 	if len(vv) != len(m.v) {
 		return nil, false
 	}
-	return
+	return vv, true
 }

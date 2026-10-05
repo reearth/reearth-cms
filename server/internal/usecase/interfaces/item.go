@@ -25,7 +25,6 @@ const (
 
 var (
 	ErrItemFieldRequired        = rerror.NewE(i18n.T("item field required"))
-	ErrInvalidField             = rerror.NewE(i18n.T("invalid field"))
 	ErrDuplicatedItemValue      = rerror.NewE(i18n.T("duplicated value"))
 	ErrFieldValueExist          = rerror.NewE(i18n.T("field value exist"))
 	ErrItemsShouldBeOnSameModel = rerror.NewE(i18n.T("items should be on the same model"))
@@ -36,24 +35,17 @@ var (
 	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 50,000)"))
 )
 
-type ItemFieldParam struct {
-	Field *item.FieldID
-	Key   *id.Key
-	Value any
-	Group *id.ItemGroupID
-}
-
 type CreateItemParam struct {
 	SchemaID   schema.ID
 	ModelID    model.ID
 	MetadataID *item.ID
-	Fields     []ItemFieldParam
+	Fields     item.FieldInputList
 }
 
 type UpdateItemParam struct {
 	ItemID     item.ID
 	MetadataID *item.ID
-	Fields     []ItemFieldParam
+	Fields     item.FieldInputList
 	Version    *version.Version
 }
 
@@ -102,7 +94,7 @@ func ImportStrategyTypeFromString(s string) ImportStrategyType {
 type ImportItemParam struct {
 	ItemId     *id.ItemID
 	MetadataID *item.ID
-	Fields     []ItemFieldParam
+	Fields     item.FieldInputList
 }
 
 type ImportItemsParam struct {

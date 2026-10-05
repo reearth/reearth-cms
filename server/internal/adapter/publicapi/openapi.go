@@ -108,11 +108,16 @@ func (c *Controller) GetOpenAPISchema(ctx context.Context, wsAlias, pAlias strin
 				"type":        "array",
 				"description": "Field-level validation errors, present only for validation_error.",
 				"items": map[string]any{
-					"type": "object",
+					"type":     "object",
+					"required": []string{"code"},
 					"properties": map[string]any{
-						"field":   map[string]any{"type": "string"},
-						"code":    map[string]any{"type": "string"},
-						"message": map[string]any{"type": "string"},
+						"field": map[string]any{
+							"type":        "string",
+							"description": "Path of the value that failed validation, built from schema keys: \"title\" for a field, \"title[1]\" for an element of a multiple field, \"group.title\" for a field inside a group and \"group[0].title\" for a field inside an instance of a multiple group.",
+							"example":     "tags[1]",
+						},
+						"code":   map[string]any{"type": "string", "description": "Machine-readable field validation error code."},
+						"detail": map[string]any{"type": "string", "description": "Additional human-readable detail, when available."},
 					},
 				},
 			},
