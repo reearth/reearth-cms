@@ -19,9 +19,6 @@ func (p *propertyJson) ToValue(i any) (any, bool) {
 	if i == nil {
 		return nil, false
 	}
-	if i == "" {
-		return nil, true
-	}
 
 	// Handle string input - validate it's valid JSON
 	if v, ok := i.(string); ok {
