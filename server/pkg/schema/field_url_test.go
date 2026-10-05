@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -31,4 +32,14 @@ func TestFieldURL_Clone(t *testing.T) {
 func TestFieldURL_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldURL{}).Validate(value.TypeURL.Value("https://example.com")))
 	assert.Equal(t, ErrInvalidValue, (&FieldURL{}).Validate(value.TypeText.Value("")))
+
+	base := "https://example.com/"
+	atLimit := base + strings.Repeat("a", maxURLFieldLength-len(base))
+	assert.NoError(t, (&FieldURL{}).Validate(value.TypeURL.Value(atLimit)))
+	assert.Equal(t, ErrURLFieldMaxLengthExceeded, (&FieldURL{}).Validate(value.TypeURL.Value(atLimit+"a")))
+}
+
+func TestFieldURL_ValidateMultiple(t *testing.T) {
+	f := &FieldURL{}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeURL, []any{"https://example.com/a", "https://example.com/b"})))
 }

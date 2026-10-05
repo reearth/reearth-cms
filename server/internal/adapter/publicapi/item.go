@@ -186,7 +186,7 @@ type PostItemResponse struct {
 
 type PostItemResult struct {
 	Item        *PostItemResponse
-	FieldErrors []schema.FieldValidationError
+	FieldErrors schema.FieldValidationErrors
 	Err         error
 }
 
@@ -199,8 +199,8 @@ func hasUnsupportedRequiredTypes(s *schema.Schema) bool {
 	return false
 }
 
-func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFieldParam {
-	params := make([]interfaces.ItemFieldParam, 0, len(body))
+func fieldsFromBody(body map[string]any, s *schema.Schema) item.FieldInputList {
+	params := make(item.FieldInputList, 0, len(body))
 	for _, f := range s.Fields() {
 		if slices.Contains(unsupportedTypes, f.Type()) {
 			continue
@@ -211,7 +211,7 @@ func fieldsFromBody(body map[string]any, s *schema.Schema) []interfaces.ItemFiel
 		if !ok {
 			continue
 		}
-		params = append(params, interfaces.ItemFieldParam{
+		params = append(params, item.FieldInput{
 			Field: f.ID().Ref(),
 			Key:   key.Ref(),
 			Value: v,
@@ -231,12 +231,6 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 		return PostItemResult{Err: ErrUnsupportedFieldType}
 	}
 
-	if fieldErrs := wpm.SchemaPackage.Schema().ValidateFields(body, unsupportedTypes); len(fieldErrs) > 0 {
-		return PostItemResult{
-			FieldErrors: fieldErrs,
-		}
-	}
-
 	op := getOperator(ctx)
 	it, err := c.usecases.Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: wpm.SchemaPackage.Schema().ID(),
@@ -244,6 +238,9 @@ func (c *Controller) PostItem(ctx context.Context, wpm *WPMContext, body map[str
 		Fields:   fieldsFromBody(body, wpm.SchemaPackage.Schema()),
 	}, op)
 	if err != nil {
+		if fve, ok := errors.AsType[schema.FieldValidationErrors](err); ok {
+			return PostItemResult{FieldErrors: fve}
+		}
 		return PostItemResult{Err: err}
 	}
 

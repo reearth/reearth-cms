@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/rerror"
 
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -69,6 +70,7 @@ func (i *Item) Timestamp() time.Time {
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
 }
+
 func (i *Item) IsMetadata() bool {
 	return i.isMetadata
 }
@@ -120,7 +122,7 @@ func (i *Item) SetUpdatedByUser(u UserID) {
 	i.updatedByIntegration = nil
 }
 
-func (i *Item) UpdateFields(fields []*Field) {
+func (i *Item) updateFields(fields []*Field) {
 	if fields == nil {
 		return
 	}
@@ -160,6 +162,134 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.cleanGroups()
 
 	i.timestamp = util.Now()
+}
+
+func (i *Item) SetReference(fid FieldID, ref ID) {
+	i.updateFields([]*Field{NewField(fid, value.NewMultiple(value.TypeReference, []any{ref}), nil)})
+}
+
+func (i *Item) ClearReference(fid FieldID, refs IDList) bool {
+	f := i.Field(fid)
+	if f == nil {
+		return false
+	}
+
+	kept := make([]any, 0, f.Value().Len())
+	for _, v := range f.Value().Values() {
+		if ref, ok := v.ValueReference(); ok && refs.Has(ref) {
+			continue
+		}
+		kept = append(kept, v.Value())
+	}
+	if len(kept) == f.Value().Len() {
+		return false
+	}
+
+	i.updateFields([]*Field{NewField(fid, value.NewMultiple(value.TypeReference, kept), f.ItemGroup())})
+	return true
+}
+
+func (i *Item) ApplyInput(inputs FieldInputList, sp *schema.Package) (changed Fields, errs schema.FieldValidationErrors, err error) {
+	if sp == nil {
+		return nil, nil, rerror.ErrNotFound
+	}
+	s := sp.SchemaByID(i.schema)
+	if s == nil {
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	// unknown top-level fields are ignored
+	topLevel := lo.Filter(inputs.TopLevel(), func(in FieldInput, _ int) bool {
+		return s.FieldByIDOrKey(in.Field, in.Key) != nil
+	})
+	changed, errs = parseInputs(topLevel, s)
+	i.updateFields(changed)
+
+	if !i.isMetadata {
+		groupFields, groupErrs, err := parseGroupInputs(inputs, sp, i.Fields())
+		if err != nil {
+			return nil, nil, err
+		}
+		i.updateFields(groupFields)
+		changed = append(changed, groupFields...)
+		errs = append(errs, groupErrs...)
+	}
+
+	errs = append(errs, validateItem(i.fields, sp, i.isMetadata, errs.Keys())...)
+	return changed, errs, nil
+}
+
+func parseInputs(inputs FieldInputList, s *schema.Schema) (Fields, schema.FieldValidationErrors) {
+	var fields Fields
+	var errs schema.FieldValidationErrors
+	for _, in := range inputs {
+		sf := s.FieldByIDOrKey(in.Field, in.Key)
+		if sf == nil {
+			errs = append(errs, schema.FieldValidationError{
+				Field:  in.Field,
+				Key:    in.Key,
+				Code:   schema.FieldValidationCodeNotFound,
+				Detail: schema.ErrFieldNotFound,
+			}.WithGroup(in.Group))
+			continue
+		}
+
+		m, fieldErrs := sf.ParseValue(in.Value)
+		errs = append(errs, fieldErrs.WithGroup(in.Group)...)
+		fields = append(fields, NewField(sf.ID(), m, in.Group))
+	}
+	return fields, errs
+}
+
+func parseGroupInputs(inputs FieldInputList, sp *schema.Package, itemFields Fields) (Fields, schema.FieldValidationErrors, error) {
+	var res Fields
+	var errs schema.FieldValidationErrors
+	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
+		sf := sp.Schema().Field(field.FieldID())
+		if sf == nil {
+			continue
+		}
+		fieldGroup, ok := schema.FieldGroupFromTypeProperty(sf.TypeProperty())
+		if !ok {
+			return nil, nil, ErrInvalidField
+		}
+
+		groupSchema := sp.GroupSchema(fieldGroup.Group())
+		if groupSchema == nil {
+			return nil, nil, rerror.ErrNotFound
+		}
+
+		mvg, ok := field.Value().ValuesGroup()
+		if !ok {
+			// the group instances can't be resolved, so the fields inside them can't be validated
+			errs = append(errs, sf.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch))
+			continue
+		}
+
+		fields, fieldErrs := parseInputs(inputs.InGroups(mvg), groupSchema)
+		errs = append(errs, fieldErrs...)
+		res = append(res, fields...)
+	}
+	return res, errs, nil
+}
+
+func (i *Item) AttachDefault(sp *schema.Package) {
+	if i == nil || sp == nil {
+		return
+	}
+	attach := func(s *schema.Schema) {
+		for _, f := range s.Fields() {
+			if f.DefaultValue() != nil && i.Field(f.ID()) == nil {
+				i.fields = append(i.fields, NewField(f.ID(), f.DefaultValue(), nil))
+			}
+		}
+	}
+	if i.isMetadata {
+		attach(sp.MetaSchema())
+		return
+	}
+	attach(sp.Schema())
+	// TODO: attach default values for groups
 }
 
 func (i *Item) cleanGroups() {

@@ -82,6 +82,9 @@ func (s *Schema) AddField(f *Field) {
 }
 
 func (s *Schema) Field(fId FieldID) *Field {
+	if s == nil {
+		return nil
+	}
 	f, _ := lo.Find(s.fields, func(f *Field) bool { return f.id == fId })
 	return f
 }

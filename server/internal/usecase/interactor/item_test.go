@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -27,6 +28,7 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewItem(t *testing.T) {
@@ -553,165 +555,358 @@ func TestItem_IsItemReferenced(t *testing.T) {
 }
 
 func TestItem_Create(t *testing.T) {
+	t.Parallel()
+
+	wID := accountdomain.NewWorkspaceID()
 	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
-	prj := project.New().NewID().RequestRoles(r).MustBuild()
-	sf := schema.NewField(schema.NewText(new(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
-	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
-	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
+	p := project.New().NewID().Workspace(wID).RequestRoles(r).MustBuild()
+	sf1 := schema.NewField(schema.NewText(new(10)).TypeProperty()).
+		NewID().Name("f1").Unique(false).Required(true).Key(id.NewKey("f1")).MustBuild()
+	sf2 := schema.NewField(schema.NewText(new(10)).TypeProperty()).
+		NewID().Name("f2").Unique(true).Required(false).Key(id.NewKey("f2")).MustBuild()
+	sf3 := schema.NewField(schema.NewText(new(10)).TypeProperty()).
+		NewID().Name("f3").Unique(false).Required(true).DefaultValue(value.NewMultiple(value.TypeText, []any{"test"})).Key(id.NewKey("f3")).MustBuild()
+	sf4 := schema.NewField(schema.NewText(new(10)).TypeProperty()).
+		NewID().Name("f4").Unique(false).Required(true).Key(id.NewKey("f4")).MustBuild()
+	sf5 := schema.NewField(schema.NewText(new(10)).TypeProperty()).
+		NewID().Name("f5").Multiple(true).Required(false).Key(id.NewKey("f5")).MustBuild()
+	sID := schema.NewID()
+	m := model.New().NewID().Schema(sID).Key(id.RandomKey()).Project(p.ID()).MustBuild()
 
-	ctx := context.Background()
-	db := memory.New()
-	lo.Must0(db.Project.Save(ctx, prj))
-	lo.Must0(db.Schema.Save(ctx, s))
-	lo.Must0(db.Model.Save(ctx, m))
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
-
-	op := &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User:               accountdomain.NewUserID().Ref(),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
-			WritableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
-		},
-		ReadableProjects: []id.ProjectID{s.Project()},
-		WritableProjects: []id.ProjectID{s.Project()},
+	seeder := func(list schema.FieldList) func(t *testing.T, ctx context.Context, db *repo.Container) {
+		s := schema.New().ID(sID).Workspace(wID).Project(p.ID()).Fields(list).MustBuild()
+		return func(t *testing.T, ctx context.Context, db *repo.Container) {
+			require.NoError(t, db.Project.Save(ctx, p.Clone()))
+			require.NoError(t, db.Schema.Save(ctx, s.Clone()))
+			require.NoError(t, db.Model.Save(ctx, m.Clone()))
+		}
 	}
 
-	// invalid operator
-	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
-				Value: "xxx",
-			},
-		},
-	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
-	assert.Equal(t, interfaces.ErrInvalidOperator, err)
-	assert.Nil(t, item)
+	// exists in the DB but is unrelated to model m, so the model's schema package never contains it.
+	unrelatedSchema := schema.New().NewID().Workspace(wID).Project(p.ID()).MustBuild()
 
-	// operation denied
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
-				Value: "xxx",
-			},
-		},
-	}, &usecase.Operator{
+	// a plain item to pass as MetadataID; m has no metadata schema, so linking it always mismatches.
+	existingItemForMetadataMismatch := item.New().NewID().Schema(sID).Model(m.ID()).Project(p.ID()).Anonymous(true).MustBuild()
+	seedWithUnrelatedSchema := func(list schema.FieldList) func(t *testing.T, ctx context.Context, db *repo.Container) {
+		normal := seeder(list)
+		return func(t *testing.T, ctx context.Context, db *repo.Container) {
+			normal(t, ctx, db)
+			require.NoError(t, db.Schema.Save(ctx, unrelatedSchema.Clone()))
+		}
+	}
+
+	validOperator := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: accountdomain.NewUserID().Ref()},
-	})
-	assert.Equal(t, interfaces.ErrOperationDenied, err)
-	assert.Nil(t, item)
+			User:               accountdomain.NewUserID().Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wID},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wID},
+		},
+		ReadableProjects: []id.ProjectID{p.ID()},
+		WritableProjects: []id.ProjectID{p.ID()},
+	}
 
-	// ok
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
+	validParam := interfaces.CreateItemParam{
+		SchemaID: sID,
 		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
-				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
+				Field: sf1.ID().Ref(),
 				Value: "xxx",
 			},
 		},
-	}, op)
-	assert.NoError(t, err)
-	assert.NotNil(t, item)
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	}
 
-	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, item, it)
-	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
-
-	// ok by key
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Key: sf.Key().Ref(),
-				// Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
-				Value: "xxx2",
+	tests := []struct {
+		name     string
+		seed     func(t *testing.T, ctx context.Context, db *repo.Container)
+		param    interfaces.CreateItemParam
+		operator *usecase.Operator
+		wantErr  error
+	}{
+		{
+			name:     "invalid operator",
+			seed:     seeder(schema.FieldList{sf1, sf2, sf3}),
+			param:    validParam,
+			operator: &usecase.Operator{AcOperator: &accountusecase.Operator{}},
+			wantErr:  interfaces.ErrInvalidOperator,
+		},
+		{
+			name:     "operation denied",
+			seed:     seeder(schema.FieldList{sf1, sf2, sf3}),
+			param:    validParam,
+			operator: &usecase.Operator{AcOperator: &accountusecase.Operator{User: accountdomain.NewUserID().Ref()}},
+			wantErr:  interfaces.ErrOperationDenied,
+		},
+		{
+			name: "ok by field id",
+			seed: seeder(schema.FieldList{sf1, sf2, sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Field: sf1.ID().Ref(),
+						Value: "xxx",
+					},
+				},
+			},
+			operator: validOperator,
+		},
+		{
+			name: "ok by key",
+			seed: seeder(schema.FieldList{sf1, sf2, sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Key:   sf1.Key().Ref(),
+						Value: "xxx2",
+					},
+				},
+			},
+			operator: validOperator,
+		},
+		{
+			name: "validate fails - too long",
+			seed: seeder(schema.FieldList{sf1, sf2}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Key:   sf1.Key().Ref(),
+						Value: "abcabcabcabc",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  schema.FieldValidationErrors{{Field: sf1.ID().Ref(), Key: sf1.Key().Ref(), Code: schema.FieldValidationCodeConstraint, Detail: schema.ErrStringFieldMaxLengthExceeded(10)}},
+		},
+		{
+			name: "validate fails - duplicated unique field",
+			seed: func(t *testing.T, ctx context.Context, db *repo.Container) {
+				seeder(schema.FieldList{sf2})(t, ctx, db)
+				require.NoError(t, db.Item.Save(ctx, item.New().NewID().Schema(sID).Model(m.ID()).Project(p.ID()).Fields([]*item.Field{item.NewField(sf2.ID(), value.TypeText.Value("xxx").AsMultiple(), nil)}).Anonymous(true).MustBuild()))
+			},
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Key:   sf2.Key().Ref(),
+						Value: "xxx",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  schema.FieldValidationErrors{{Field: sf2.ID().Ref(), Key: sf2.Key().Ref(), Code: schema.FieldValidationCodeUnique, Detail: interfaces.ErrDuplicatedItemValue}},
+		},
+		{
+			name: "validate - required field empty",
+			seed: seeder(schema.FieldList{sf1, sf2}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Key:   sf1.Key().Ref(),
+						Value: "",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  schema.FieldValidationErrors{{Field: sf1.ID().Ref(), Key: sf1.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired}},
+			//wantErr:  fmt.Errorf("%w: id=%s key=%s", schema.ErrValueRequired, sf1.ID(), sf1.Name()),
+		},
+		{
+			name: "validate - required field omitted",
+			seed: seeder(schema.FieldList{sf1, sf2}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields:   item.FieldInputList{},
+			},
+			operator: validOperator,
+			wantErr:  schema.FieldValidationErrors{{Field: sf1.ID().Ref(), Key: sf1.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired}},
+		},
+		{
+			name: "validate - multiple required fields omitted",
+			seed: seeder(schema.FieldList{sf1, sf2, sf4}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields:   item.FieldInputList{},
+			},
+			operator: validOperator,
+			wantErr: schema.FieldValidationErrors{
+				{Field: sf1.ID().Ref(), Key: sf1.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired},
+				{Field: sf4.ID().Ref(), Key: sf4.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired},
 			},
 		},
-	}, op)
-	assert.NoError(t, err)
-	assert.NotNil(t, item)
-	assert.Equal(t, s.ID(), item.Value().Schema())
-
-	it, err = db.Item.FindByID(ctx, item.Value().ID(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, item, it)
-	assert.Equal(t, value.TypeText.Value("xxx2").AsMultiple(), it.Value().Field(sf.ID()).Value())
-
-	// validate fails
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
-				Value: "abcabcabcabc", // too long
+		{
+			name: "validate - required with default field empty",
+			seed: seeder(schema.FieldList{sf1, sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Key:   sf1.Key().Ref(),
+						Value: "",
+					},
+				},
 			},
+			operator: validOperator,
+			wantErr:  schema.FieldValidationErrors{{Field: sf1.ID().Ref(), Key: sf1.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired}},
+			//wantErr:  fmt.Errorf("%w: id=%s key=%s", schema.ErrValueRequired, sf1.ID(), sf1.Name()),
 		},
-	}, op)
-	assert.ErrorContains(t, err, "it sholud be shorter than 10")
-	assert.Nil(t, item)
-
-	// duplicated
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
-				Value: "xxx", // duplicated
+		{
+			name: "validate - required with default field omitted",
+			seed: seeder(schema.FieldList{sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields:   item.FieldInputList{},
 			},
+			operator: validOperator,
+			wantErr:  nil,
 		},
-	}, op)
-	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
-	assert.Nil(t, item)
-
-	// required
-	sf.SetRequired(true)
-	s.RemoveField(sf.ID())
-	s.AddField(sf)
-	lo.Must0(db.Schema.Save(ctx, s))
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
-				Value: "",
+		{
+			name: "item repository error",
+			seed: func(t *testing.T, ctx context.Context, db *repo.Container) {
+				seeder(schema.FieldList{sf1, sf3})(t, ctx, db)
+				memory.SetItemError(db.Item, rerror.ErrNotImplemented)
 			},
+			param:    validParam,
+			operator: validOperator,
+			wantErr:  rerror.ErrNotImplemented,
 		},
-	}, op)
-	assert.ErrorIs(t, err, schema.ErrValueRequired)
-	assert.Nil(t, item)
+		{
+			name: "schema not found in model's schema package",
+			seed: seedWithUnrelatedSchema(schema.FieldList{sf1, sf2, sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID: unrelatedSchema.ID(),
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Field: sf1.ID().Ref(),
+						Value: "xxx",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  rerror.ErrNotFound,
+		},
+		{
+			name: "invalid value shape for multiple field",
+			seed: seeder(schema.FieldList{sf1, sf5}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Field: sf1.ID().Ref(),
+						Value: "xxx",
+					},
+					{
+						Field: sf5.ID().Ref(),
+						Value: "not-a-slice",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  schema.FieldValidationErrors{{Field: sf5.ID().Ref(), Key: sf5.Key().Ref(), Code: schema.FieldValidationCodeTypeMismatch, Detail: schema.ErrFieldValueNotMultiple}},
+			//wantErr:  fmt.Errorf("%w: id=%s key=%s", interfaces.ErrInvalidValue, sf5.ID().Ref(), (*id.Key)(nil))
+		},
+		{
+			name: "unrecognized field param is silently ignored",
+			seed: seeder(schema.FieldList{sf1, sf2, sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				Fields: item.FieldInputList{
+					{
+						Field: sf1.ID().Ref(),
+						Value: "xxx",
+					},
+					{
+						Field: id.NewFieldID().Ref(),
+						Value: "orphan",
+					},
+				},
+			},
+			operator: validOperator,
+		},
+		{
+			name: "metadata id not found",
+			seed: seeder(schema.FieldList{sf1, sf2, sf3}),
+			param: interfaces.CreateItemParam{
+				SchemaID:   sID,
+				ModelID:    m.ID(),
+				MetadataID: id.NewItemID().Ref(),
+				Fields: item.FieldInputList{
+					{
+						Field: sf1.ID().Ref(),
+						Value: "xxx",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  rerror.ErrNotFound,
+		},
+		{
+			name: "metadata id schema mismatch",
+			seed: func(t *testing.T, ctx context.Context, db *repo.Container) {
+				seeder(schema.FieldList{sf1, sf2, sf3})(t, ctx, db)
+				require.NoError(t, db.Item.Save(ctx, existingItemForMetadataMismatch.Clone()))
+			},
+			param: interfaces.CreateItemParam{
+				SchemaID: sID,
+				ModelID:  m.ID(),
+				// m has no metadata schema, so any existing item passed as MetadataID mismatches
+				MetadataID: existingItemForMetadataMismatch.ID().Ref(),
+				Fields: item.FieldInputList{
+					{
+						Field: sf1.ID().Ref(),
+						Value: "xxx",
+					},
+				},
+			},
+			operator: validOperator,
+			wantErr:  interfaces.ErrMetadataMismatch,
+		},
+	}
 
-	// mock item error
-	wantErr := errors.New("test")
-	memory.SetItemError(db.Item, wantErr)
-	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: s.ID(),
-		ModelID:  m.ID(),
-		Fields:   nil,
-	}, op)
-	assert.Equal(t, wantErr, err)
-	assert.Nil(t, item)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			tt.seed(t, ctx, db)
+
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
+
+			got, err := itemUC.Create(ctx, tt.param, tt.operator)
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				assert.Nil(t, got)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, sID, got.Value().Schema())
+			assert.Equal(t, m.ID(), got.Value().Model())
+
+			it, err := db.Item.FindByID(ctx, got.Value().ID(), nil)
+			require.NoError(t, err)
+			assert.Equal(t, got, it)
+		})
+	}
 }
 
 func TestItem_Update(t *testing.T) {
@@ -744,103 +939,97 @@ func TestItem_Update(t *testing.T) {
 	vi, _ := itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// ok
-	item, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i.ID(), item.Value().ID())
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	assert.Equal(t, i.ID(), updated.Value().ID())
+	assert.Equal(t, s.ID(), updated.Value().Schema())
 
-	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
+	it, err := db.Item.FindByID(ctx, updated.Value().ID(), nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.Value(), it.Value())
+	assert.Equal(t, updated.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// invalid operator
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
 	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// ok with key
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
-				Key: sf.Key().Ref(),
-				// Type:  value.TypeText,
+				Key:   sf.Key().Ref(),
 				Value: "yyy",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i.ID(), item.Value().ID())
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	assert.Equal(t, i.ID(), updated.Value().ID())
+	assert.Equal(t, s.ID(), updated.Value().Schema())
 
-	it, err = db.Item.FindByID(ctx, item.Value().ID(), nil)
+	it, err = db.Item.FindByID(ctx, updated.Value().ID(), nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.Value(), it.Value())
+	assert.Equal(t, updated.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("yyy").AsMultiple(), it.Value().Field(sf.ID()).Value())
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
 	// validate fails
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
-	assert.ErrorContains(t, err, "it sholud be shorter than 10")
-	assert.Nil(t, item)
+	assert.ErrorContains(t, err, schema.ErrStringFieldMaxLengthExceeded(10).Error())
+	assert.Nil(t, updated)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
-	// update same item is not a duplicate
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	// update same updated is not a duplicate
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i.ID(), item.Value().ID())
-	assert.Equal(t, s.ID(), item.Value().Schema())
+	assert.Equal(t, i.ID(), updated.Value().ID())
+	assert.Equal(t, s.ID(), updated.Value().Schema())
 	vi3, _ := itemUC.FindByID(ctx, i3.ID(), nil, op)
 
 	// update no permission
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i3.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -850,27 +1039,27 @@ func TestItem_Update(t *testing.T) {
 	vi2, _ := itemUC.FindByID(ctx, i2.ID(), nil, op)
 
 	// duplicate
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i2.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
 		Version: new(vi2.Version()),
 	}, op)
-	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
-	assert.Nil(t, item)
+	assert.Equal(t, schema.FieldValidationErrors{{Field: sf.ID().Ref(), Key: sf.Key().Ref(), Code: schema.FieldValidationCodeUnique, Detail: interfaces.ErrDuplicatedItemValue}}, err)
+	assert.ErrorIs(t, err, interfaces.ErrDuplicatedItemValue)
+	assert.Nil(t, updated)
 
 	// no fields
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{},
+		Fields: item.FieldInputList{},
 	}, op)
 	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
 
 	// required
 	sf.SetRequired(true)
@@ -879,37 +1068,307 @@ func TestItem_Update(t *testing.T) {
 	lo.Must0(db.Schema.Save(ctx, s))
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
-	assert.ErrorIs(t, err, schema.ErrValueRequired)
-	assert.Nil(t, item)
+	assert.ErrorContains(t, err, schema.FieldValidationErrors{
+		schema.FieldValidationError{
+			Field:  sf.ID().Ref(),
+			Key:    sf.Key().Ref(),
+			Code:   schema.FieldValidationCodeRequired,
+			Detail: schema.ErrValueRequired,
+		},
+	}.Error())
+	assert.Nil(t, updated)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), nil, op)
 
-	// mock item error
+	// mock updated error
 	wantErr := errors.New("test")
 	memory.SetItemError(db.Item, wantErr)
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	updated, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
-		Fields: []interfaces.ItemFieldParam{
+		Fields: item.FieldInputList{
 			{
 				Field: sf.ID().Ref(),
-				// Type:  value.TypeText,
 				Value: "a",
 			},
 		},
 		Version: new(vi.Version()),
 	}, op)
 	assert.Equal(t, wantErr, err)
-	assert.Nil(t, item)
+	assert.Nil(t, updated)
+}
+
+func TestItem_Update_RequiredFieldValidation(t *testing.T) {
+	t.Parallel()
+
+	uID := accountdomain.NewUserID().Ref()
+	prj := project.New().NewID().MustBuild()
+
+	nameField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Required(true).Key(id.RandomKey()).MustBuild()
+	statusField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("status").Required(true).Key(id.RandomKey()).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{nameField, statusField}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
+
+	existing := item.New().NewID().User(*uID).Model(m.ID()).Project(s.Project()).Schema(s.ID()).
+		Fields(item.Fields{
+			item.NewField(nameField.ID(), value.TypeText.Value("alice").AsMultiple(), nil),
+			item.NewField(statusField.ID(), value.TypeText.Value("active").AsMultiple(), nil),
+		}).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+	lo.Must0(db.Item.Save(ctx, existing))
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		AcOperator:       &accountusecase.Operator{User: uID},
+		WritableProjects: []id.ProjectID{s.Project()},
+	}
+
+	vi, err := itemUC.FindByID(ctx, existing.ID(), nil, op)
+	assert.NoError(t, err)
+
+	// partial patch touching only "name": "status" keeps its already-valid stored value, so the
+	// update succeeds even though the patch never mentions it
+	got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: existing.ID(),
+		Fields: item.FieldInputList{
+			{Field: nameField.ID().Ref(), Value: "bob"},
+		},
+		Version: new(vi.Version()),
+	}, op)
+	assert.NoError(t, err)
+	if assert.NotNil(t, got) {
+		assert.Equal(t, value.TypeText.Value("active").AsMultiple(), got.Value().Field(statusField.ID()).Value())
+	}
+
+	// a required field added to the schema after the item was created, never set on the item and
+	// not touched by this patch, must fail whole-item validation on update
+	newRequiredField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("newRequired").Required(true).Key(id.RandomKey()).MustBuild()
+	s.AddField(newRequiredField)
+	lo.Must0(db.Schema.Save(ctx, s))
+	vi, err = itemUC.FindByID(ctx, existing.ID(), nil, op)
+	assert.NoError(t, err)
+
+	got, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: existing.ID(),
+		Fields: item.FieldInputList{
+			{Field: nameField.ID().Ref(), Value: "carol"},
+		},
+		Version: new(vi.Version()),
+	}, op)
+	assert.Nil(t, got)
+	var fve schema.FieldValidationErrors
+	if assert.ErrorAs(t, err, &fve) {
+		assert.Len(t, fve, 1)
+		assert.Equal(t, newRequiredField.ID().Ref(), fve[0].Field)
+		assert.Equal(t, newRequiredField.Key().Ref(), fve[0].Key)
+		assert.Equal(t, schema.FieldValidationCodeRequired, fve[0].Code)
+	}
+}
+
+func TestItem_Create_GroupAndMetadataValidation(t *testing.T) {
+	t.Parallel()
+
+	prj := project.New().NewID().MustBuild()
+	wid := accountdomain.NewWorkspaceID()
+
+	subtitleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("subtitle").Required(true).Key(id.RandomKey()).MustBuild()
+	groupSchema := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{subtitleField}).MustBuild()
+	g := group.New().NewID().Project(prj.ID()).Schema(groupSchema.ID()).Key(id.RandomKey()).Name("section").MustBuild()
+
+	sectionField := schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).NewID().Name("section").Key(id.RandomKey()).MustBuild()
+
+	metaField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("docStatus").Required(true).Key(id.RandomKey()).MustBuild()
+	metaSchema := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{metaField}).MustBuild()
+
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{sectionField}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Metadata(metaSchema.ID().Ref()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Schema.Save(ctx, groupSchema))
+	lo.Must0(db.Schema.Save(ctx, metaSchema))
+	lo.Must0(db.Group.Save(ctx, g))
+	lo.Must0(db.Model.Save(ctx, m))
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			WritableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
+		},
+		WritableProjects: []id.ProjectID{s.Project()},
+	}
+
+	instanceID := id.NewItemGroupID()
+
+	// required field missing inside the referenced group instance -> fails
+	got, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: item.FieldInputList{
+			{Field: sectionField.ID().Ref(), Value: instanceID},
+		},
+	}, op)
+	assert.Nil(t, got)
+	var fve schema.FieldValidationErrors
+	if assert.ErrorAs(t, err, &fve) {
+		assert.Len(t, fve, 1)
+		assert.Equal(t, subtitleField.ID().Ref(), fve[0].Field)
+		assert.Equal(t, subtitleField.Key().Ref(), fve[0].Key)
+		assert.Equal(t, schema.FieldValidationCodeRequired, fve[0].Code)
+	}
+
+	// required metadata field omitted -> create against the metadata schema itself fails too,
+	// through the exact same Create call (metadata items are just items on a different schema)
+	got, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: metaSchema.ID(),
+		ModelID:  m.ID(),
+	}, op)
+	assert.Nil(t, got)
+	fve = nil
+	if assert.ErrorAs(t, err, &fve) {
+		assert.Len(t, fve, 1)
+		assert.Equal(t, metaField.ID().Ref(), fve[0].Field)
+		assert.Equal(t, metaField.Key().Ref(), fve[0].Key)
+		assert.Equal(t, schema.FieldValidationCodeRequired, fve[0].Code)
+	}
+}
+
+func TestItem_CreateUpdate_ReportsAllErrors(t *testing.T) {
+	t.Parallel()
+
+	prj := project.New().NewID().MustBuild()
+	wid := accountdomain.NewWorkspaceID()
+
+	maxCount := int64(100)
+	countField := schema.NewField(schema.MustNewInteger(nil, nil).TypeProperty()).NewID().Name("count").Key(id.NewKey("count")).MustBuild()
+	countsField := schema.NewField(schema.MustNewInteger(nil, &maxCount).TypeProperty()).NewID().Name("counts").Multiple(true).Key(id.NewKey("counts")).MustBuild()
+	titleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("title").Required(true).Key(id.NewKey("title")).MustBuild()
+	codeField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("code").Unique(true).Key(id.NewKey("code")).MustBuild()
+
+	subtitleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("subtitle").Required(true).Key(id.NewKey("subtitle")).MustBuild()
+	groupSchema := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{subtitleField}).MustBuild()
+	g := group.New().NewID().Project(prj.ID()).Schema(groupSchema.ID()).Key(id.RandomKey()).Name("section").MustBuild()
+	sectionField := schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).NewID().Name("section").Key(id.NewKey("section")).MustBuild()
+
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).Fields(schema.FieldList{countField, countsField, titleField, codeField, sectionField}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
+	uid := accountdomain.NewUserID()
+	existing := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Fields([]*item.Field{
+		item.NewField(titleField.ID(), value.TypeText.Value("existing").AsMultiple(), nil),
+		item.NewField(codeField.ID(), value.TypeText.Value("dup").AsMultiple(), nil),
+	}).User(uid).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Schema.Save(ctx, groupSchema))
+	lo.Must0(db.Group.Save(ctx, g))
+	lo.Must0(db.Model.Save(ctx, m))
+	lo.Must0(db.Item.Save(ctx, existing))
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               uid.Ref(),
+			WritableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
+		},
+		WritableProjects: []id.ProjectID{s.Project()},
+	}
+
+	t.Run("create reports type, constraint, required, unique and group errors in one response", func(t *testing.T) {
+		instanceID := id.NewItemGroupID()
+		got, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+			SchemaID: s.ID(),
+			ModelID:  m.ID(),
+			Fields: item.FieldInputList{
+				{Field: countField.ID().Ref(), Value: "abc"},
+				{Field: countsField.ID().Ref(), Value: []any{float64(5), float64(200)}},
+				{Field: codeField.ID().Ref(), Value: "dup"},
+				{Field: sectionField.ID().Ref(), Value: instanceID},
+				// title is required and missing; subtitle is required and missing in the group instance
+			},
+		}, op)
+		assert.Nil(t, got)
+
+		var fve schema.FieldValidationErrors
+		require.ErrorAs(t, err, &fve)
+		assert.ElementsMatch(t, schema.FieldValidationErrors{
+			{Field: countField.ID().Ref(), Key: countField.Key().Ref(), Code: schema.FieldValidationCodeTypeMismatch, Detail: schema.ErrInvalidValue},
+			{Field: countsField.ID().Ref(), Key: countsField.Key().Ref(), Code: schema.FieldValidationCodeConstraint, Detail: schema.ErrIntegerFieldMaxExceeded(100), Index: lo.ToPtr(1)},
+			{Field: codeField.ID().Ref(), Key: codeField.Key().Ref(), Code: schema.FieldValidationCodeUnique, Detail: interfaces.ErrDuplicatedItemValue},
+			{Field: titleField.ID().Ref(), Key: titleField.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired},
+			{Field: subtitleField.ID().Ref(), Key: subtitleField.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired, Group: &instanceID},
+		}, fve)
+	})
+
+	t.Run("create reports a type error inside a group instance with its group", func(t *testing.T) {
+		instanceID := id.NewItemGroupID()
+		_, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+			SchemaID: s.ID(),
+			ModelID:  m.ID(),
+			Fields: item.FieldInputList{
+				{Field: titleField.ID().Ref(), Value: "hello"},
+				{Field: sectionField.ID().Ref(), Value: instanceID},
+				{Field: subtitleField.ID().Ref(), Value: []any{"a"}, Group: &instanceID},
+			},
+		}, op)
+
+		var fve schema.FieldValidationErrors
+		require.ErrorAs(t, err, &fve)
+		// no extra required error for subtitle: it already has a type error
+		assert.Equal(t, schema.FieldValidationErrors{
+			{Field: subtitleField.ID().Ref(), Key: subtitleField.Key().Ref(), Code: schema.FieldValidationCodeTypeMismatch, Detail: schema.ErrFieldValueMultiple, Group: &instanceID},
+		}, fve)
+	})
+
+	t.Run("update keeps stored values for fields not sent", func(t *testing.T) {
+		got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+			ItemID: existing.ID(),
+			Fields: item.FieldInputList{{Field: countField.ID().Ref(), Value: float64(1)}},
+		}, op)
+		require.NoError(t, err)
+		// title is required and only stored; code keeps its own (unique) value
+		assert.Equal(t, value.TypeText.Value("existing").AsMultiple(), got.Value().Field(titleField.ID()).Value())
+	})
+
+	// count has a valid stored value (1); the unparsable value sent must still be reported instead of the stored one passing
+	t.Run("update with an unparsable value doesn't fall back to the stored value", func(t *testing.T) {
+		got, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+			ItemID: existing.ID(),
+			Fields: item.FieldInputList{
+				{Field: countField.ID().Ref(), Value: "abc"},
+				{Field: titleField.ID().Ref(), Value: ""},
+			},
+		}, op)
+		assert.Nil(t, got)
+
+		var fve schema.FieldValidationErrors
+		require.ErrorAs(t, err, &fve)
+		assert.ElementsMatch(t, schema.FieldValidationErrors{
+			{Field: countField.ID().Ref(), Key: countField.Key().Ref(), Code: schema.FieldValidationCodeTypeMismatch, Detail: schema.ErrInvalidValue},
+			{Field: titleField.ID().Ref(), Key: titleField.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired},
+		}, fve)
+	})
 }
 
 func TestItem_Delete(t *testing.T) {
@@ -1124,9 +1583,7 @@ func TestItem_BatchDelete(t *testing.T) {
 
 				// Create target item (will be referenced)
 				i1withRef := i1.Clone()
-				refValue := value.TypeReference.Value(i3.ID())
-				refItemField := item.NewField(refFieldID, refValue.AsMultiple(), nil)
-				i1withRef.UpdateFields([]*item.Field{refItemField})
+				i1withRef.SetReference(refFieldID, i3.ID())
 
 				if err := db.Item.Save(ctx, i1withRef); err != nil {
 					return err
@@ -1169,15 +1626,11 @@ func TestItem_BatchDelete(t *testing.T) {
 				s2WithRef.AddField(refField2)
 
 				// Create items with two-way references
-				refValue1 := value.TypeReference.Value(i2.ID())
-				refItemField1 := item.NewField(ref1FieldID, refValue1.AsMultiple(), nil)
 				i1WithRef := i1.Clone()
-				i1WithRef.UpdateFields([]*item.Field{refItemField1})
+				i1WithRef.SetReference(ref1FieldID, i2.ID())
 
-				refValue2 := value.TypeReference.Value(i1.ID())
-				refItemField2 := item.NewField(ref2FieldID, refValue2.AsMultiple(), nil)
 				i2WithRef := i2.Clone()
-				i2WithRef.UpdateFields([]*item.Field{refItemField2})
+				i2WithRef.SetReference(ref2FieldID, i1.ID())
 
 				// Save schemas and items
 				if err := db.Schema.Save(ctx, s1WithRef); err != nil {
@@ -1223,15 +1676,11 @@ func TestItem_BatchDelete(t *testing.T) {
 				s2WithRef.AddField(refField2)
 
 				// Create items with two-way references
-				refValue1 := value.TypeReference.Value(i2.ID())
-				refItemField1 := item.NewField(ref1FieldID, refValue1.AsMultiple(), nil)
 				i1WithRef := i1.Clone()
-				i1WithRef.UpdateFields([]*item.Field{refItemField1})
+				i1WithRef.SetReference(ref1FieldID, i2.ID())
 
-				refValue2 := value.TypeReference.Value(i1.ID())
-				refItemField2 := item.NewField(ref2FieldID, refValue2.AsMultiple(), nil)
 				i2WithRef := i2.Clone()
-				i2WithRef.UpdateFields([]*item.Field{refItemField2})
+				i2WithRef.SetReference(ref2FieldID, i1.ID())
 
 				// Save schemas and items
 				if err := db.Schema.Save(ctx, s1WithRef); err != nil {
@@ -1269,10 +1718,8 @@ func TestItem_BatchDelete(t *testing.T) {
 				selfRefSchema.AddField(selfRefField)
 
 				// Create item with self-reference
-				selfRefValue := value.TypeReference.Value(i1.ID())
-				selfRefItemField := item.NewField(selfRefFieldID, selfRefValue.AsMultiple(), nil)
 				selfRefItem := i1.Clone()
-				selfRefItem.UpdateFields([]*item.Field{selfRefItemField})
+				selfRefItem.SetReference(selfRefFieldID, i1.ID())
 
 				// Save schema and item
 				if err := db.Schema.Save(ctx, selfRefSchema); err != nil {
