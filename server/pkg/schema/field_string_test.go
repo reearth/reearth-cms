@@ -23,10 +23,10 @@ func TestFieldString_Clone(t *testing.T) {
 func TestFieldString_Validate(t *testing.T) {
 	assert.ErrorContains(t,
 		(&FieldString{t: value.TypeText, maxLength: new(1)}).Validate(value.TypeText.Value("aaa")),
-		"value has 3 characters, but it sholud be shorter than 1 characters")
+		ErrStringFieldMaxLengthExceeded(1).Error())
 	assert.ErrorContains(t,
 		(&FieldString{t: value.TypeText, maxLength: new(1)}).Validate(value.TypeText.Value("ああ")),
-		"value has 2 characters, but it sholud be shorter than 1 characters")
+		ErrStringFieldMaxLengthExceeded(1).Error())
 	assert.NoError(t, (&FieldString{t: value.TypeText, maxLength: new(4)}).Validate(value.TypeText.Value("あ")))
 	assert.NoError(t, (&FieldString{t: value.TypeText}).Validate(value.TypeText.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldString{t: value.TypeText}).Validate(value.TypeNumber.Value(1)))

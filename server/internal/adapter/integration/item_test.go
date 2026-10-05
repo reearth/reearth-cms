@@ -3,9 +3,9 @@ package integration
 import (
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
@@ -31,7 +31,7 @@ func Test_convertMetaFields(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []interfaces.ItemFieldParam
+		want item.FieldInputList
 	}{
 		{
 			name: "test japanese tag",
@@ -44,11 +44,10 @@ func Test_convertMetaFields(t *testing.T) {
 				}},
 				s: sp,
 			},
-			want: []interfaces.ItemFieldParam{
+			want: item.FieldInputList{
 				{
 					Field: sf1.ID().Ref(),
 					Key:   sf1.Key().Ref(),
-					// Type:  value.TypeTag,
 					Value: tag2.ID(),
 				},
 			},
@@ -68,10 +67,9 @@ func Test_convertMetaFields(t *testing.T) {
 				},
 				s: sp,
 			},
-			want: []interfaces.ItemFieldParam{
+			want: item.FieldInputList{
 				{
-					Key: sf1.Key().Ref(),
-					// Type:  value.TypeTag,
+					Key:   sf1.Key().Ref(),
 					Value: tag1.ID(),
 				},
 				{
