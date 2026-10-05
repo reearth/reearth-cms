@@ -1,10 +1,10 @@
 package integration
 
 import (
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -56,7 +56,7 @@ func Page(p usecasex.OffsetPagination) int {
 	return int(p.Offset/int64(p.Limit)) + 1
 }
 
-func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.ItemFieldParam {
+func fromItemFieldInput(f integrationapi.Field, _ *schema.Field) item.FieldInput {
 	var v = f.Value
 	if f.Value != nil {
 		v = f.Value
@@ -67,17 +67,16 @@ func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.Item
 		k = id.NewKey(*f.Key).Ref()
 	}
 
-	return interfaces.ItemFieldParam{
+	return item.FieldInput{
 		Field: f.Id,
 		Key:   k,
-		// Type:  sf.Type(),
 		Value: v,
 		Group: f.Group,
 	}
 }
 
-func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDefault, isMeta bool) (res []interfaces.ItemFieldParam) {
-	res = []interfaces.ItemFieldParam{}
+func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDefault, isMeta bool) (res item.FieldInputList) {
+	res = item.FieldInputList{}
 	if fields == nil {
 		fields = &[]integrationapi.Field{}
 	}
@@ -92,7 +91,7 @@ func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDef
 			tagNameToId(sf, &field)
 		}
 
-		res = append(res, fromItemFieldParam(field, sf))
+		res = append(res, fromItemFieldInput(field, sf))
 	}
 
 	if !appendDefault {
@@ -109,7 +108,7 @@ func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDef
 	return res
 }
 
-func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFieldParam) []interfaces.ItemFieldParam {
+func appendGroupFieldsDefaultValue(sp *schema.Package, res item.FieldInputList) item.FieldInputList {
 	gsflist := sp.Schema().FieldsByType(value.TypeGroup)
 	for _, gsf := range gsflist {
 		var gID id.GroupID
@@ -127,10 +126,9 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 		if gsf.Multiple() {
 			v = []any{igID}
 		}
-		res = append(res, interfaces.ItemFieldParam{
+		res = append(res, item.FieldInput{
 			Field: gsf.ID().Ref(),
 			Key:   gsf.Key().Ref(),
-			// Type:  gsf.Type(),
 			Value: v,
 			Group: nil,
 		})
@@ -139,16 +137,13 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 	return res
 }
 
-func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID *id.ItemGroupID) []interfaces.ItemFieldParam {
+func appendDefaultValues(s *schema.Schema, res item.FieldInputList, igID *id.ItemGroupID) item.FieldInputList {
 	for _, sf := range s.Fields() {
 		if sf.DefaultValue() == nil || sf.DefaultValue().Len() == 0 {
 			continue
 		}
 
-		exists := lo.ContainsBy(res, func(f interfaces.ItemFieldParam) bool {
-			return (f.Field != nil && *f.Field == sf.ID()) && (f.Group != nil && igID != nil && *f.Group == *igID)
-		})
-		if exists {
+		if res.Has(sf.ID(), igID) {
 			continue
 		}
 		var v any
@@ -156,10 +151,9 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID
 		if !sf.Multiple() {
 			v = sf.DefaultValue().Interface()[0]
 		}
-		res = append(res, interfaces.ItemFieldParam{
+		res = append(res, item.FieldInput{
 			Field: sf.ID().Ref(),
 			Key:   sf.Key().Ref(),
-			// Type:  sf.Type(),
 			Value: v,
 			Group: igID,
 		})
