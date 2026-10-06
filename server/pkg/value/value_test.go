@@ -7,6 +7,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	assert.Equal(t, &Value{
 		t: TypeText,
 		v: "a",
@@ -14,6 +16,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestValue_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -48,6 +52,8 @@ func TestValue_IsEmpty(t *testing.T) {
 }
 
 func TestValue_Clone(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -63,6 +69,21 @@ func TestValue_Clone(t *testing.T) {
 				t: TypeText,
 				v: "foo",
 			},
+		},
+		{
+			name:  "url",
+			value: TypeURL.Value("https://example.com/a"),
+			want:  TypeURL.Value("https://example.com/a"),
+		},
+		{
+			name:  "unknown type",
+			value: &Value{t: Type("foo"), v: "foo"},
+			want:  nil,
+		},
+		{
+			name:  "nil value",
+			value: &Value{t: TypeText},
+			want:  nil,
 		},
 		{
 			name:  "nil",
@@ -87,7 +108,22 @@ func TestValue_Clone(t *testing.T) {
 	}
 }
 
+func TestValue_Clone_URL(t *testing.T) {
+	t.Parallel()
+
+	v := TypeURL.Value("https://example.com/a")
+	c := v.Clone()
+
+	u, _ := c.ValueURL()
+	u.Path = "/b"
+
+	orig, _ := v.ValueURL()
+	assert.Equal(t, "/a", orig.Path)
+}
+
 func TestValue_Some(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -128,6 +164,8 @@ func TestValue_Some(t *testing.T) {
 }
 
 func TestValue_AsMultiple(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -168,6 +206,8 @@ func TestValue_AsMultiple(t *testing.T) {
 }
 
 func TestValue_Value(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -200,6 +240,8 @@ func TestValue_Value(t *testing.T) {
 }
 
 func TestValue_Type(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -230,6 +272,8 @@ func TestValue_Type(t *testing.T) {
 }
 
 func TestValue_TypeProperty(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -268,6 +312,8 @@ func TestValue_TypeProperty(t *testing.T) {
 }
 
 func TestValue_Interface(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -283,14 +329,6 @@ func TestValue_Interface(t *testing.T) {
 			value: &Value{
 				t: Type("bar"),
 				v: "bar",
-			},
-			want: nil,
-		},
-		{
-			name: "failed to convert",
-			value: &Value{
-				t: Type("baz"),
-				v: "baz",
 			},
 			want: nil,
 		},
@@ -315,6 +353,8 @@ func TestValue_Interface(t *testing.T) {
 }
 
 func TestValue_Validate(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -324,6 +364,11 @@ func TestValue_Validate(t *testing.T) {
 			name:  "string",
 			value: &Value{t: TypeText, v: "hoge"},
 			want:  true,
+		},
+		{
+			name:  "unknown type",
+			value: &Value{t: Type("foo"), v: "foo"},
+			want:  false,
 		},
 		{
 			name:  "empty",
@@ -346,6 +391,8 @@ func TestValue_Validate(t *testing.T) {
 }
 
 func TestValue_Equal(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *Value
 	}
@@ -375,6 +422,18 @@ func TestValue_Equal(t *testing.T) {
 			want:   false,
 		},
 		{
+			name:   "both empty",
+			target: &Value{},
+			args:   args{v: &Value{}},
+			want:   false,
+		},
+		{
+			name:   "unknown type",
+			target: &Value{t: Type("foo"), v: "foo"},
+			args:   args{v: &Value{t: Type("foo"), v: "foo"}},
+			want:   false,
+		},
+		{
 			name:   "nil",
 			target: nil,
 			args:   args{v: TypeText.Value("")},
@@ -391,6 +450,8 @@ func TestValue_Equal(t *testing.T) {
 }
 
 func TestValue_Cast(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		t Type
 	}

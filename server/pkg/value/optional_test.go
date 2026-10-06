@@ -7,12 +7,16 @@ import (
 )
 
 func TestNewOptional(t *testing.T) {
+	t.Parallel()
+
 	assert.Nil(t, NewOptional(TypeAsset, TypeBool.Value(true)))
 	assert.Equal(t, &Optional{t: TypeBool}, NewOptional(TypeBool, nil))
 	assert.Equal(t, &Optional{t: TypeBool, v: TypeBool.Value(true)}, NewOptional(TypeBool, TypeBool.Value(true)))
 }
 
 func TestOptionalFrom(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *Value
 	}
@@ -59,6 +63,8 @@ func TestOptionalFrom(t *testing.T) {
 }
 
 func TestOptional_Type(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Optional
@@ -90,6 +96,8 @@ func TestOptional_Type(t *testing.T) {
 }
 
 func TestOptional_Value(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Optional
@@ -125,6 +133,8 @@ func TestOptional_Value(t *testing.T) {
 }
 
 func TestOptional_TypeAndValue(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Optional
@@ -165,6 +175,8 @@ func TestOptional_TypeAndValue(t *testing.T) {
 }
 
 func TestOptional_SetValue(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *Value
 	}
@@ -243,6 +255,8 @@ func TestOptional_SetValue(t *testing.T) {
 }
 
 func TestOptional_Clone(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		target *Optional
@@ -274,6 +288,8 @@ func TestOptional_Clone(t *testing.T) {
 }
 
 func TestOptional_Cast(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		t Type
 	}
@@ -331,6 +347,8 @@ func TestOptional_Cast(t *testing.T) {
 }
 
 func TestOptional_IsSome_IsNone_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	v := (*Optional)(nil)
 	assert.False(t, v.IsSome())
 	assert.True(t, v.IsNone())

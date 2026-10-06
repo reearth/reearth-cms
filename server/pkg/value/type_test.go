@@ -7,6 +7,8 @@ import (
 )
 
 func TestType_Default(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		tr   Type
@@ -38,6 +40,8 @@ func TestType_Default(t *testing.T) {
 }
 
 func TestType_None(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		tr   Type
@@ -69,6 +73,8 @@ func TestType_None(t *testing.T) {
 }
 
 func TestType_Value(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		i any
 	}
@@ -107,50 +113,6 @@ func TestType_Value(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.tr.Value(tt.args.i))
-		})
-	}
-}
-
-func TestType_valueFrom(t *testing.T) {
-	type args struct {
-		i any
-		p typeRegistry
-	}
-
-	tests := []struct {
-		name string
-		tr   Type
-		args args
-		want *Value
-	}{
-		{
-			name: "default type",
-			tr:   TypeText,
-			args: args{
-				i: "hoge",
-			},
-			want: &Value{t: TypeText, v: "hoge"},
-		},
-		{
-			name: "nil",
-			tr:   TypeText,
-			args: args{},
-			want: nil,
-		},
-		{
-			name: "unknown type",
-			tr:   TypeUnknown,
-			args: args{
-				i: "hoge",
-			},
-			want: nil,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.tr.valueFrom(tt.args.i, tt.args.p))
 		})
 	}
 }

@@ -22,22 +22,12 @@ var defaultTypes = typeRegistry{
 
 type typeRegistry map[Type]TypeProperty
 
-func (r typeRegistry) Find(t Type) (tp TypeProperty) {
-	if r != nil {
-		tp = r[t]
-	}
-	if tp == nil {
-		tp = defaultTypes.Get(t)
-	}
-	return tp
-}
-
 func (r typeRegistry) Get(t Type) TypeProperty {
 	return r[t]
 }
 
 func (r typeRegistry) ToValue(t Type, v any) (any, bool) {
-	tp := r.Find(t)
+	tp := r.Get(t)
 	if tp == nil {
 		return nil, false
 	}
@@ -45,7 +35,7 @@ func (r typeRegistry) ToValue(t Type, v any) (any, bool) {
 }
 
 func (r typeRegistry) ToInterface(t Type, v any) (any, bool) {
-	tp := r.Find(t)
+	tp := r.Get(t)
 	if tp == nil {
 		return nil, false
 	}
@@ -53,7 +43,7 @@ func (r typeRegistry) ToInterface(t Type, v any) (any, bool) {
 }
 
 func (r typeRegistry) Validate(t Type, v any) (bool, bool) {
-	tp := r.Find(t)
+	tp := r.Get(t)
 	if tp == nil {
 		return false, false
 	}

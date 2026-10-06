@@ -18,10 +18,16 @@ func (v *Value) IsEmpty() bool {
 }
 
 func (v *Value) Clone() *Value {
-	if v == nil {
+	if v == nil || v.v == nil || v.TypeProperty() == nil {
 		return nil
 	}
-	return v.t.Value(v.v)
+	vv := v.v
+	// URL is the only mutable value type, so copy it to avoid sharing the pointer
+	if u, ok := vv.(URL); ok && u != nil {
+		c := *u
+		vv = &c
+	}
+	return &Value{t: v.t, v: vv}
 }
 
 func (v *Value) Some() *Optional {
@@ -49,14 +55,11 @@ func (v *Value) Type() Type {
 	return v.t
 }
 
-func (v *Value) TypeProperty() (tp TypeProperty) {
+func (v *Value) TypeProperty() TypeProperty {
 	if v == nil {
-		return
+		return nil
 	}
-	if tp := defaultTypes.Find(v.t); tp != nil {
-		return tp
-	}
-	return
+	return defaultTypes.Get(v.t)
 }
 
 // Interface converts the value into generic representation
@@ -65,10 +68,8 @@ func (v *Value) Interface() any {
 		return nil
 	}
 
-	if i, ok := defaultTypes.ToInterface(v.t, v.v); ok {
-		return i
-	}
-	return nil
+	i, _ := defaultTypes.ToInterface(v.t, v.v)
+	return i
 }
 
 func (v *Value) Validate() bool {
@@ -84,7 +85,11 @@ func (v *Value) Equal(w *Value) bool {
 	if v == nil || w == nil || v.t != w.t {
 		return false
 	}
-	return defaultTypes.Find(v.t).Equal(v.v, w.v)
+	tp := defaultTypes.Get(v.t)
+	if tp == nil {
+		return false
+	}
+	return tp.Equal(v.v, w.v)
 }
 
 func (v *Value) Cast(t Type) *Value {
