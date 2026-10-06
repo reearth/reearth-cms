@@ -13,13 +13,6 @@ func TestNew(t *testing.T) {
 	}, New(TypeText, "a"))
 }
 
-func TestNewWithTypeRegistry(t *testing.T) {
-	assert.Equal(t, &Value{
-		t: TypeText,
-		v: "a",
-	}, NewWithTypeRegistry(TypeText, "a", nil))
-}
-
 func TestValue_IsEmpty(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -55,11 +48,6 @@ func TestValue_IsEmpty(t *testing.T) {
 }
 
 func TestValue_Clone(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		Type("hoge"): tp,
-	}
-
 	tests := []struct {
 		name  string
 		value *Value
@@ -74,19 +62,6 @@ func TestValue_Clone(t *testing.T) {
 			want: &Value{
 				t: TypeText,
 				v: "foo",
-			},
-		},
-		{
-			name: "custom type property",
-			value: &Value{
-				t: Type("hoge"),
-				v: "foo",
-				p: tpm,
-			},
-			want: &Value{
-				t: Type("hoge"),
-				v: "fooa",
-				p: tpm,
 			},
 		},
 		{
@@ -105,16 +80,14 @@ func TestValue_Clone(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.value.Clone())
+			if tt.value != nil {
+				assert.NotSame(t, tt.value, tt.value.Clone())
+			}
 		})
 	}
 }
 
 func TestValue_Some(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		Type("hoge"): tp,
-	}
-
 	tests := []struct {
 		name  string
 		value *Value
@@ -131,22 +104,6 @@ func TestValue_Some(t *testing.T) {
 				v: &Value{
 					t: TypeText,
 					v: "foo",
-				},
-			},
-		},
-		{
-			name: "custom type property",
-			value: &Value{
-				t: Type("hoge"),
-				v: "fooa",
-				p: tpm,
-			},
-			want: &Optional{
-				t: Type("hoge"),
-				v: &Value{
-					t: Type("hoge"),
-					v: "fooa",
-					p: tpm,
 				},
 			},
 		},
@@ -273,11 +230,6 @@ func TestValue_Type(t *testing.T) {
 }
 
 func TestValue_TypeProperty(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		Type("hoge"): tp,
-	}
-
 	tests := []struct {
 		name  string
 		value *Value
@@ -290,15 +242,6 @@ func TestValue_TypeProperty(t *testing.T) {
 				t: TypeText,
 			},
 			want: defaultTypes.Get(TypeText),
-		},
-		{
-			name: "custom type",
-			value: &Value{
-				v: "string",
-				t: Type("hoge"),
-				p: tpm,
-			},
-			want: tp,
 		},
 		{
 			name:  "empty",
@@ -325,11 +268,6 @@ func TestValue_TypeProperty(t *testing.T) {
 }
 
 func TestValue_Interface(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		"foo": tp,
-	}
-
 	tests := []struct {
 		name  string
 		value *Value
@@ -341,20 +279,18 @@ func TestValue_Interface(t *testing.T) {
 			want:  "hoge",
 		},
 		{
-			name: "custom",
-			value: &Value{
-				p: tpm,
-				t: Type("foo"),
-				v: "foo",
-			},
-			want: "foobar",
-		},
-		{
 			name: "Unknown",
 			value: &Value{
-				p: tpm,
 				t: Type("bar"),
 				v: "bar",
+			},
+			want: nil,
+		},
+		{
+			name: "failed to convert",
+			value: &Value{
+				t: Type("baz"),
+				v: "baz",
 			},
 			want: nil,
 		},
@@ -379,11 +315,6 @@ func TestValue_Interface(t *testing.T) {
 }
 
 func TestValue_Validate(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		"foo": tp,
-	}
-
 	tests := []struct {
 		name  string
 		value *Value
@@ -393,15 +324,6 @@ func TestValue_Validate(t *testing.T) {
 			name:  "string",
 			value: &Value{t: TypeText, v: "hoge"},
 			want:  true,
-		},
-		{
-			name: "custom",
-			value: &Value{
-				p: tpm,
-				t: Type("foo"),
-				v: "foo",
-			},
-			want: true,
 		},
 		{
 			name:  "empty",

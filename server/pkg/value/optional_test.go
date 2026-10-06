@@ -25,9 +25,9 @@ func TestOptionalFrom(t *testing.T) {
 		{
 			name: "default type",
 			args: args{
-				v: TypeText.ValueFrom("foo", nil),
+				v: TypeText.Value("foo"),
 			},
-			want: &Optional{t: TypeText, v: TypeText.ValueFrom("foo", nil)},
+			want: &Optional{t: TypeText, v: TypeText.Value("foo")},
 		},
 		{
 			name: "custom type",
@@ -249,7 +249,7 @@ func TestOptional_Clone(t *testing.T) {
 	}{
 		{
 			name:   "ok",
-			target: &Optional{t: TypeText, v: TypeText.ValueFrom("foo", nil)},
+			target: &Optional{t: TypeText, v: TypeText.Value("foo")},
 		},
 		{
 			name:   "empty",
@@ -286,15 +286,15 @@ func TestOptional_Cast(t *testing.T) {
 	}{
 		{
 			name:   "diff type",
-			target: &Optional{t: TypeNumber, v: TypeNumber.ValueFrom(1.1, nil)},
+			target: &Optional{t: TypeNumber, v: TypeNumber.Value(1.1)},
 			args:   args{t: TypeText},
-			want:   &Optional{t: TypeText, v: TypeText.ValueFrom("1.1", nil)},
+			want:   &Optional{t: TypeText, v: TypeText.Value("1.1")},
 		},
 		{
 			name:   "same type",
-			target: &Optional{t: TypeNumber, v: TypeNumber.ValueFrom(1.1, nil)},
+			target: &Optional{t: TypeNumber, v: TypeNumber.Value(1.1)},
 			args:   args{t: TypeNumber},
-			want:   &Optional{t: TypeNumber, v: TypeNumber.ValueFrom(1.1, nil)},
+			want:   &Optional{t: TypeNumber, v: TypeNumber.Value(1.1)},
 		},
 		{
 			name:   "nil value",
@@ -304,7 +304,7 @@ func TestOptional_Cast(t *testing.T) {
 		},
 		{
 			name:   "failed to cast",
-			target: &Optional{t: TypeBool, v: TypeBool.ValueFrom(true, nil)},
+			target: &Optional{t: TypeBool, v: TypeBool.Value(true)},
 			args:   args{t: TypeDateTime},
 			want:   &Optional{t: TypeDateTime},
 		},

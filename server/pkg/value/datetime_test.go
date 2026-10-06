@@ -124,7 +124,6 @@ func TestValue_ValueDateTime(t *testing.T) {
 	v = &Value{
 		t: TypeDateTime,
 		v: nil,
-		p: nil,
 	}
 
 	res, ok = v.ValueDateTime()
@@ -135,7 +134,6 @@ func TestValue_ValueDateTime(t *testing.T) {
 	v = &Value{
 		t: TypeDateTime,
 		v: now,
-		p: nil,
 	}
 
 	res, ok = v.ValueDateTime()

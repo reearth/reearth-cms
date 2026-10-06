@@ -16,9 +16,9 @@ func Test_propertyBool_ToValue(t *testing.T) {
 		{
 			name: "true",
 			args: []any{
-				true, "true", "TRUE", "True", "T", "t", "1", 1,
+				true, "true", "TRUE", "True", "T", "t", "1", 1, 2, 3.14,
 				new(true), new("true"), new("TRUE"), new("True"),
-				new("T"), new("t"), new("1"), new(1),
+				new("T"), new("t"), new("1"), new(1), new(2), new(3.14),
 			},
 			want1: true,
 			want2: true,
@@ -26,9 +26,9 @@ func Test_propertyBool_ToValue(t *testing.T) {
 		{
 			name: "false",
 			args: []any{
-				false, "false", "FALSE", "False", "F", "f", "0", 0,
+				false, "false", "FALSE", "False", "F", "f", "0", 0, -1, "-1", 0.5,
 				new(false), new("false"), new("FALSE"), new("False"),
-				new("F"), new("f"), new("0"), new(0),
+				new("F"), new("f"), new("0"), new(0), new(-1), new("-1"), new(0.5),
 			},
 			want1: false,
 			want2: true,
@@ -36,6 +36,18 @@ func Test_propertyBool_ToValue(t *testing.T) {
 		{
 			name:  "nil",
 			args:  []any{"foo", (*bool)(nil), (*string)(nil), nil},
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "empty string",
+			args:  []any{"", new("")},
+			want1: nil,
+			want2: true,
+		},
+		{
+			name:  "invalid value",
+			args:  []any{"foo", " ", "bar", new("foo"), new(" "), map[string]any{}, []any{}},
 			want1: nil,
 			want2: false,
 		},
@@ -80,7 +92,6 @@ func TestValue_ValueBool(t *testing.T) {
 	v = &Value{
 		t: TypeBool,
 		v: nil,
-		p: nil,
 	}
 
 	res, ok = v.ValueBool()
@@ -90,7 +101,6 @@ func TestValue_ValueBool(t *testing.T) {
 	v = &Value{
 		t: TypeBool,
 		v: true,
-		p: nil,
 	}
 
 	res, ok = v.ValueBool()

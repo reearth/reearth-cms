@@ -92,7 +92,6 @@ func TestValue_ValueAsset(t *testing.T) {
 	v = &Value{
 		t: TypeAsset,
 		v: nil,
-		p: nil,
 	}
 
 	res, ok = v.ValueAsset()
@@ -103,7 +102,6 @@ func TestValue_ValueAsset(t *testing.T) {
 	v = &Value{
 		t: TypeAsset,
 		v: aId,
-		p: nil,
 	}
 
 	res, ok = v.ValueAsset()

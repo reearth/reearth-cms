@@ -111,14 +111,10 @@ func TestType_Value(t *testing.T) {
 	}
 }
 
-func TestType_ValueFrom(t *testing.T) {
-	tpm := TypeRegistry{
-		Type("foo"): &tpmock{},
-	}
-
+func TestType_valueFrom(t *testing.T) {
 	type args struct {
 		i any
-		p TypeRegistry
+		p typeRegistry
 	}
 
 	tests := []struct {
@@ -136,15 +132,6 @@ func TestType_ValueFrom(t *testing.T) {
 			want: &Value{t: TypeText, v: "hoge"},
 		},
 		{
-			name: "custom type",
-			tr:   Type("foo"),
-			args: args{
-				i: "hoge",
-				p: tpm,
-			},
-			want: &Value{p: tpm, t: Type("foo"), v: "hogea"},
-		},
-		{
 			name: "nil",
 			tr:   TypeText,
 			args: args{},
@@ -158,21 +145,12 @@ func TestType_ValueFrom(t *testing.T) {
 			},
 			want: nil,
 		},
-		{
-			name: "unknown type + custom type",
-			tr:   Type("bar"),
-			args: args{
-				i: "hoge",
-				p: tpm,
-			},
-			want: nil,
-		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, tt.tr.ValueFrom(tt.args.i, tt.args.p))
+			assert.Equal(t, tt.want, tt.tr.valueFrom(tt.args.i, tt.args.p))
 		})
 	}
 }

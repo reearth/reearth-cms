@@ -16,16 +16,12 @@ func (t Type) None() *Optional {
 }
 
 func (t Type) Value(i any) *Value {
-	return t.ValueFrom(i, nil)
+	return t.valueFrom(i, nil)
 }
 
-func (t Type) ValueFrom(i any, p TypeRegistry) *Value {
+func (t Type) valueFrom(i any, p typeRegistry) *Value {
 	if v, ok := p.ToValue(t, i); ok {
-		return &Value{p: p, v: v, t: t}
+		return &Value{v: v, t: t}
 	}
 	return nil
-}
-
-func (t Type) IsGeometryFieldType() bool {
-	return t == TypeGeometryObject || t == TypeGeometryEditor
 }
