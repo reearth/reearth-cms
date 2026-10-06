@@ -10,8 +10,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
-import Modal from "@reearth-cms/components/atoms/Modal";
-import Notification from "@reearth-cms/components/atoms/Notification";
+import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import type { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import ImportErrorLogView from "@reearth-cms/components/molecules/Common/ImportErrorLogView";
@@ -40,6 +39,7 @@ enum ImportContentError {
   WrongFileType = "wrong_file_type",
   ExceedRecordLimit = "exceed_record_limit",
   ValidationError = "validation_error",
+  EncodingImportCancelled = "encoding_import_cancelled",
 }
 
 type Props = {
@@ -80,6 +80,7 @@ const ContentImportModal: React.FC<Props> = ({
   setImportValidationResult,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
   const location = useLocation();
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -150,6 +151,22 @@ const ContentImportModal: React.FC<Props> = ({
       },
     ]);
   }, [setAlertList, t]);
+
+  const confirmNonUTF8Import = useCallback(
+    () =>
+      new Promise<boolean>(resolve => {
+        confirm({
+          title: t("This file may not be UTF-8 encoded"),
+          content: t(
+            "Non-English characters (such as Japanese, Chinese, or accented letters) may appear garbled after import. In Excel, use Save As → CSV UTF-8 (Comma delimited) and upload again.",
+          ),
+          okText: t("Import anyway"),
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      }),
+    [confirm, t],
+  );
 
   const schemaValidationAlert = useCallback(
     (errorMeta: ValidationErrorMeta, fileName: string) => {
@@ -295,13 +312,8 @@ const ContentImportModal: React.FC<Props> = ({
           }
 
           case "csv": {
-            if (!(await FileUtils.isUTF8(file))) {
-              Notification.warning({
-                message: t(
-                  "The CSV file is not UTF-8 encoded. Some characters may not be imported correctly.",
-                ),
-                duration: 6,
-              });
+            if (!(await FileUtils.isUTF8(file)) && !(await confirmNonUTF8Import())) {
+              throw new Error(ImportContentError.EncodingImportCancelled);
             }
 
             const csvValidation =
@@ -367,6 +379,7 @@ const ContentImportModal: React.FC<Props> = ({
       handleEnqueueJob,
       raiseWrongFileTypeAlert,
       raiseExceedRecordLimitAlert,
+      confirmNonUTF8Import,
       schemaValidationAlert,
       t,
       handleEndLoading,
