@@ -37,6 +37,7 @@ func TestProjectRepo(t *testing.T, newRepo projectFactory) {
 	t.Run("FindByPublicAPIKey", func(t *testing.T) { testProjectFindByPublicAPIKey(t, newRepo) })
 	t.Run("Search", func(t *testing.T) { testProjectSearch(t, newRepo) })
 	t.Run("SearchPagination", func(t *testing.T) { testProjectSearchPagination(t, newRepo) })
+	t.Run("SearchSortPrecision", func(t *testing.T) { testProjectSearchSortPrecision(t, newRepo) })
 	t.Run("Save", func(t *testing.T) { testProjectSave(t, newRepo) })
 	t.Run("Star", func(t *testing.T) { testProjectStar(t, newRepo) })
 	t.Run("Remove", func(t *testing.T) { testProjectRemove(t, newRepo) })
@@ -1008,20 +1009,17 @@ func testProjectSearchPagination(t *testing.T, newRepo projectFactory) {
 		wantHasNext bool
 		wantHasPrev bool
 		wantErr     bool
-		wantCursors bool // assert the start and end cursors
 	}{
 		{
 			name:        "must find the first page in ID order",
 			pagination:  first(2),
 			want:        project.List{w1p1, w1p2},
 			wantHasNext: true,
-			wantCursors: true,
 		},
 		{
-			name:        "must find all projects when the page is larger",
-			pagination:  first(10),
-			want:        project.List{w1p1, w1p2, w1p3, w1p4},
-			wantCursors: true,
+			name:       "must find all projects when the page is larger",
+			pagination: first(10),
+			want:       project.List{w1p1, w1p2, w1p3, w1p4},
 		},
 		{
 			name:       "must find all projects with the default page size",
@@ -1160,10 +1158,73 @@ func testProjectSearchPagination(t *testing.T, newRepo projectFactory) {
 			assert.Equal(t, int64(len(ps)), pi.TotalCount)
 			assert.Equal(t, tc.wantHasNext, pi.HasNextPage, "HasNextPage")
 			assert.Equal(t, tc.wantHasPrev, pi.HasPreviousPage, "HasPreviousPage")
-			if tc.wantCursors {
-				assert.Equal(t, cursor(tc.want[0]), pi.StartCursor)
-				assert.Equal(t, cursor(tc.want[len(tc.want)-1]), pi.EndCursor)
+			var wantStart, wantEnd *usecasex.Cursor
+			if len(tc.want) > 0 {
+				wantStart, wantEnd = cursor(tc.want[0]), cursor(tc.want[len(tc.want)-1])
 			}
+			assert.Equal(t, wantStart, pi.StartCursor, "StartCursor")
+			assert.Equal(t, wantEnd, pi.EndCursor, "EndCursor")
+		})
+	}
+}
+
+func testProjectSearchSortPrecision(t *testing.T, newRepo projectFactory) {
+	ctx := context.Background()
+	w1 := accountdomain.NewWorkspaceID()
+	base := time.Now().Truncate(time.Millisecond).UTC()
+
+	// both update times fall in the same millisecond, the precision mongo
+	// stores, so they tie and the ID decides the order; by nanoseconds w1p2
+	// would come first
+	ids := id.ProjectIDList{id.NewProjectID(), id.NewProjectID()}
+	slices.SortFunc(ids, func(a, b id.ProjectID) int { return a.Compare(b) })
+	w1p1 := project.New().ID(ids[0]).Workspace(w1).Topics([]string{}).
+		UpdatedAt(base.Add(900 * time.Microsecond)).MustBuild()
+	w1p2 := project.New().ID(ids[1]).Workspace(w1).Topics([]string{}).
+		UpdatedAt(base.Add(100 * time.Microsecond)).MustBuild()
+
+	cursor := func(p *project.Project) *usecasex.Cursor { return new(usecasex.Cursor(p.ID().String())) }
+
+	tests := []struct {
+		name       string
+		sort       *usecasex.Sort
+		pagination *usecasex.Pagination
+		want       project.List // in order
+	}{
+		{
+			name:       "must break a millisecond tie by ID",
+			sort:       &usecasex.Sort{Key: "updatedat"},
+			pagination: first(10),
+			want:       project.List{w1p1, w1p2},
+		},
+		{
+			name:       "must break a millisecond tie by ID in reverse",
+			sort:       &usecasex.Sort{Key: "updatedat", Reverted: true},
+			pagination: first(10),
+			want:       project.List{w1p2, w1p1},
+		},
+		{
+			name:       "must find projects after a cursor in a millisecond tie",
+			sort:       &usecasex.Sort{Key: "updatedat"},
+			pagination: usecasex.CursorPagination{After: cursor(w1p1), First: new(int64(10))}.Wrap(),
+			want:       project.List{w1p2},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newRepo(t)
+			seedProjects(t, r, project.List{w1p1, w1p2})
+
+			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+				WorkspaceIds: &accountdomain.WorkspaceIDList{w1},
+				Sort:         tc.sort,
+				Pagination:   tc.pagination,
+			})
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want.IDs(), got.IDs())
 		})
 	}
 }

@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"cmp"
 	"context"
 	"slices"
 	"strings"
@@ -84,7 +85,7 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 			startCursor = new(usecasex.Cursor(result[0].ID().String()))
 			endCursor = new(usecasex.Cursor(result[len(result)-1].ID().String()))
 		}
-		return result, usecasex.NewPageInfo(int64(len(result)), startCursor, endCursor, false, true), nil
+		return result, usecasex.NewPageInfo(int64(len(result)), startCursor, endCursor, false, false), nil
 	}
 
 	return r.pager().paginate(result, f.Sort, f.Pagination)
@@ -250,7 +251,10 @@ func (r *Project) pager() pager[*project.Project] {
 	return pager[*project.Project]{
 		id: func(p *project.Project) string { return p.ID().String() },
 		keys: map[string]compareFunc[*project.Project]{
-			"updatedat": func(a, b *project.Project) int { return a.UpdatedAt().Compare(b.UpdatedAt()) },
+			// mongo stores times in milliseconds, so finer differences tie
+			"updatedat": func(a, b *project.Project) int {
+				return cmp.Compare(a.UpdatedAt().UnixMilli(), b.UpdatedAt().UnixMilli())
+			},
 		},
 		find: func(c usecasex.Cursor) (*project.Project, bool) {
 			pid, err := id.ProjectIDFrom(string(c))

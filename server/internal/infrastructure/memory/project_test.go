@@ -41,6 +41,9 @@ func TestProject_MemorySpecific_SearchWithoutPagination(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, project.List{w1p1, w1p2}.SortByID(), got)
 	assert.Equal(t, int64(2), pi.TotalCount)
+	// every matching project is returned, so there is no page on either side
+	assert.False(t, pi.HasNextPage, "HasNextPage")
+	assert.False(t, pi.HasPreviousPage, "HasPreviousPage")
 }
 
 // TestProject_MemorySpecific_Errors tests the SetProjectError injection

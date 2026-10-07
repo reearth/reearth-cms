@@ -85,11 +85,11 @@ func TestPager_Paginate(t *testing.T) {
 			wantInfo: usecasex.NewPageInfo(4, cursor(a), cursor(d), false, false),
 		},
 		{
-			name:     "last page with the start cursor at its end, like mongo",
+			name:     "last page",
 			elems:    elems,
 			p:        lastN(2),
 			want:     []pageElem{c, d},
-			wantInfo: usecasex.NewPageInfo(4, cursor(d), cursor(c), false, true),
+			wantInfo: usecasex.NewPageInfo(4, cursor(c), cursor(d), false, true),
 		},
 		{
 			name:     "after a cursor",
@@ -103,7 +103,7 @@ func TestPager_Paginate(t *testing.T) {
 			elems:    elems,
 			p:        usecasex.CursorPagination{Before: cursor(d), Last: new(int64(2))}.Wrap(),
 			want:     []pageElem{b, c},
-			wantInfo: usecasex.NewPageInfo(4, cursor(c), cursor(b), false, true),
+			wantInfo: usecasex.NewPageInfo(4, cursor(b), cursor(c), false, true),
 		},
 		{
 			name:     "after takes precedence over before",
@@ -169,7 +169,7 @@ func TestPager_Paginate(t *testing.T) {
 			sort:     &usecasex.Sort{Key: "n", Reverted: true},
 			p:        usecasex.CursorPagination{Before: cursor(c), Last: new(int64(10))}.Wrap(),
 			want:     []pageElem{a, b},
-			wantInfo: usecasex.NewPageInfo(4, cursor(b), cursor(a), false, false),
+			wantInfo: usecasex.NewPageInfo(4, cursor(a), cursor(b), false, false),
 		},
 		{
 			name:     "unknown sort key orders by ID like a missing mongo field",

@@ -15,7 +15,7 @@ const defaultPageSize = 20
 type compareFunc[T any] func(a, b T) int
 
 type pager[T any] struct {
-	id func(T) string
+	id   func(T) string
 	keys map[string]compareFunc[T]
 	find func(cursor usecasex.Cursor) (T, bool)
 }
@@ -64,14 +64,8 @@ func (pg pager[T]) paginate(l []T, s *usecasex.Sort, p *usecasex.Pagination) ([]
 
 	var startCursor, endCursor *usecasex.Cursor
 	if len(page) > 0 {
-		start, end := page[0], page[len(page)-1]
-		// mongo reads a "last" page in reverse and takes the cursors from
-		// that read, so the start cursor is the last element of the page
-		if last {
-			start, end = end, start
-		}
-		startCursor = new(usecasex.Cursor(pg.id(start)))
-		endCursor = new(usecasex.Cursor(pg.id(end)))
+		startCursor = new(usecasex.Cursor(pg.id(page[0])))
+		endCursor = new(usecasex.Cursor(pg.id(page[len(page)-1])))
 	} else {
 		page = nil
 	}
