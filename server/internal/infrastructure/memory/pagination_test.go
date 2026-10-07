@@ -140,6 +140,12 @@ func TestPager_Paginate(t *testing.T) {
 			wantInfo: usecasex.NewPageInfo(4, nil, nil, false, false),
 		},
 		{
+			name:    "negative offset",
+			elems:   elems,
+			p:       usecasex.OffsetPagination{Offset: -1, Limit: 2}.Wrap(),
+			wantErr: true,
+		},
+		{
 			name:     "sort key",
 			elems:    elems,
 			sort:     &usecasex.Sort{Key: "n"},

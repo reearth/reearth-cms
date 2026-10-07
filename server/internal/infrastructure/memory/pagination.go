@@ -49,7 +49,10 @@ func (pg pager[T]) paginate(l []T, s *usecasex.Sort, p *usecasex.Pagination) ([]
 	}
 
 	if p.Offset != nil {
-		sorted = sorted[min(int(max(p.Offset.Offset, 0)), len(sorted)):]
+		if p.Offset.Offset < 0 {
+			return nil, nil, rerror.ErrInternalBy(errors.New("negative offset"))
+		}
+		sorted = sorted[min(int(p.Offset.Offset), len(sorted)):]
 	}
 
 	last := p.Cursor != nil && p.Cursor.Last != nil

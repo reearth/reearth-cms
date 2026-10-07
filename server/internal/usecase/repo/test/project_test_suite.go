@@ -1075,6 +1075,11 @@ func testProjectSearchPagination(t *testing.T, newRepo projectFactory) {
 			pagination: usecasex.OffsetPagination{Offset: 10, Limit: 2}.Wrap(),
 		},
 		{
+			name:       "must fail with a negative offset",
+			pagination: usecasex.OffsetPagination{Offset: -1, Limit: 2}.Wrap(),
+			wantErr:    true,
+		},
+		{
 			name:        "must sort by ID in reverse",
 			sort:        &usecasex.Sort{Key: "id", Reverted: true},
 			pagination:  first(2),
