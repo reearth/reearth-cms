@@ -41,5 +41,5 @@ func (f *FieldMarkdown) Validate(v *value.Value) error {
 }
 
 func (f *FieldMarkdown) ValidateMultiple(v *value.Multiple) error {
-	return nil
+	return f.s.ValidateMultiple(v)
 }

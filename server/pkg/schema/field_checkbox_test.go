@@ -32,3 +32,8 @@ func TestFieldCheckbox_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldCheckbox{}).Validate(value.TypeCheckbox.Value(true)))
 	assert.Equal(t, ErrInvalidValue, (&FieldCheckbox{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldCheckbox_ValidateMultiple(t *testing.T) {
+	f := &FieldCheckbox{}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeCheckbox, []any{true, false})))
+}
