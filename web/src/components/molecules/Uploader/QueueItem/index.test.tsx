@@ -192,7 +192,7 @@ describe("Test QueueItem component", () => {
     expect(screen.getByTestId(DATA_TEST_ID.Uploader__CompleteIcon)).toBeVisible();
     expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__WarningIcon)).not.toBeInTheDocument();
     expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__WarningMessage)).not.toBeInTheDocument();
-    expect(screen.getByTestId(DATA_TEST_ID.QueueItem__ViewDetailsLink)).toBeVisible();
+    expect(screen.queryByTestId(DATA_TEST_ID.QueueItem__ViewDetailsLink)).not.toBeInTheDocument();
   });
 
   test("Test completed CSV item with skipped columns", async () => {

@@ -103,14 +103,12 @@ const QueueItem: React.FC<Props> = (props: Props) => {
   }, [onCancel, onRetry, queue.jobId, queue.jobState.status, skippedCount, t]);
 
   const renderMessage = useMemo<ReactNode>(() => {
-    if (queue.jobState.status === JobStatus.Completed && hasColumnReport) {
+    if (queue.jobState.status === JobStatus.Completed && skippedCount > 0) {
       return (
         <CompletedMessage>
-          {skippedCount > 0 && (
-            <WarningText data-testid={DATA_TEST_ID.QueueItem__WarningMessage}>
-              {t("Import completed with {{count}} skipped columns", { count: skippedCount })}
-            </WarningText>
-          )}
+          <WarningText data-testid={DATA_TEST_ID.QueueItem__WarningMessage}>
+            {t("Import completed with {{count}} skipped columns", { count: skippedCount })}
+          </WarningText>
           <Popover
             rootClassName="importResultPopover"
             trigger="click"
@@ -142,7 +140,6 @@ const QueueItem: React.FC<Props> = (props: Props) => {
       return null;
     }
   }, [
-    hasColumnReport,
     queue.fileName,
     queue.importResult,
     queue.jobState.error,
