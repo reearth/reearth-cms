@@ -140,6 +140,14 @@ func TestAsset_UpdateStatus(t *testing.T) {
 	assert.Equal(t, p, got.ArchiveExtractionStatus())
 }
 
+func TestAsset_SetFlatFiles(t *testing.T) {
+	got := Asset{id: NewID(), project: NewProjectID()}
+	assert.False(t, got.FlatFiles())
+
+	got.SetFlatFiles(true)
+	assert.True(t, got.FlatFiles())
+}
+
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()

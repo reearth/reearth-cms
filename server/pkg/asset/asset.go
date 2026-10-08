@@ -166,6 +166,10 @@ func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 	a.archiveExtractionStatus = util.CloneRef(s)
 }
 
+func (a *Asset) SetFlatFiles(flatFiles bool) {
+	a.flatFiles = flatFiles
+}
+
 func (a *Asset) UpdatePublic(public bool) {
 	a.public = public
 }
