@@ -20,7 +20,6 @@ ignore:
   - server/internal/adapter/gql/generated.go
   - server/tools
   - server/main.go
-  - server/tools.go
   - web/**/*.test.ts
   - web/**/*.test.tsx
   - web/**/*.stories.ts
