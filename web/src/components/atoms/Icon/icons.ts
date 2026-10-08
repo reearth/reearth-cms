@@ -63,6 +63,7 @@ import {
   PaperClipOutlined,
   ExclamationCircleFilled,
   ExperimentOutlined,
+  DiscordOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -77,6 +78,7 @@ import Control from "./Icons/control.svg";
 import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
+import DotsNine from "./Icons/dotsNine.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
 import Export from "./Icons/export.svg";
 import Group from "./Icons/group.svg";
@@ -91,6 +93,10 @@ import Linked from "./Icons/linked.svg";
 import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
+import LogoCms from "./Icons/logo-cms.svg";
+import LogoNavara from "./Icons/logo-navara.svg";
+import LogoReearth from "./Icons/logo-reearth.svg";
+import LogoVisualizer from "./Icons/logo-visualizer.svg";
 import MapPin from "./Icons/mapPin.svg";
 import MarkDown from "./Icons/markDown.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
@@ -215,6 +221,12 @@ const icons = {
   importOutlined: ImportOutlined2,
   experimentOutlined: ExperimentOutlined,
   export: Export,
+  dotsNine: DotsNine,
+  logoReearth: LogoReearth,
+  logoVisualizer: LogoVisualizer,
+  logoCms: LogoCms,
+  logoNavara: LogoNavara,
+  discord: DiscordOutlined,
 };
 
 export type IconName = keyof typeof icons;
