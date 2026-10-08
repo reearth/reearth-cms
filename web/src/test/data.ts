@@ -238,6 +238,18 @@ export enum DATA_TEST_ID {
   // WorkspaceHeader
   WorkspaceHeader__ProjectSortSelect = "WorkspaceHeader__ProjectSortSelect",
 
+  // AppLauncher
+  AppLauncher__Trigger = "AppLauncher__Trigger",
+  AppLauncher__Dashboard = "AppLauncher__Dashboard",
+  AppLauncher__Visualizer = "AppLauncher__Visualizer",
+  AppLauncher__Cms = "AppLauncher__Cms",
+  AppLauncher__Navara = "AppLauncher__Navara",
+  AppLauncher__Terrain = "AppLauncher__Terrain",
+  AppLauncher__Buildings = "AppLauncher__Buildings",
+  AppLauncher__Papers = "AppLauncher__Papers",
+  AppLauncher__Home = "AppLauncher__Home",
+  AppLauncher__Community = "AppLauncher__Community",
+
   // Versions
   Versions__RequestStatus = "Versions__RequestStatus",
 
