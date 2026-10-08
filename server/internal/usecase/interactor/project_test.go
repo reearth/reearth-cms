@@ -127,7 +127,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids:      []id.ProjectID{pid1},
 				operator: op,
 			},
-			want:    nil,
+			want:    project.List{},
 			wantErr: nil,
 		},
 		{
@@ -137,7 +137,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
 			},
-			want:    nil,
+			want:    project.List{},
 			wantErr: nil,
 		},
 		{
