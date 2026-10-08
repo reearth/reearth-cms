@@ -199,13 +199,18 @@ func (p *Project) Clone() *Project {
 	return &Project{
 		id:            p.id.Clone(),
 		workspaceID:   p.workspaceID.Clone(),
+		alias:         p.alias,
 		name:          p.name,
 		description:   p.description,
-		alias:         p.alias,
+		readme:        p.readme,
+		license:       p.license,
 		imageURL:      util.CopyURL(p.imageURL),
+		starCount:     p.starCount,
+		starredBy:     slices.Clone(p.starredBy),
+		topics:        slices.Clone(p.topics),
 		updatedAt:     p.updatedAt,
 		accessibility: p.accessibility.Clone(),
-		requestRoles:  p.requestRoles,
+		requestRoles:  slices.Clone(p.requestRoles),
 	}
 }
 

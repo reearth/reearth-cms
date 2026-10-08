@@ -5,7 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -191,12 +193,61 @@ func TestProject_UpdateAlias(t *testing.T) {
 }
 
 func TestProject_Clone(t *testing.T) {
-	pub := &Accessibility{}
-	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
-	p := New().NewID().Name("a").Accessibility(pub).RequestRoles(r).MustBuild()
+	posting, err := NewPostingSettings(true, []string{"https://example.com"})
+	assert.NoError(t, err)
+	key := NewAPIKeyBuilder().NewID().GenerateKey().Name("key").
+		Publication(NewPublicationSettings(ModelIDList{NewModelID()}, true)).Build()
+	u1 := accountdomain.NewUserID()
 
-	got := p.Clone()
-	assert.Equal(t, p, got)
-	assert.NotSame(t, p, got)
+	tests := []struct {
+		name string
+		p    *Project
+	}{
+		{
+			name: "must clone a project with all fields",
+			p: New().NewID().Workspace(accountdomain.NewWorkspaceID()).
+				Alias("alias-one").Name("name").Description("description").
+				Readme("readme").License("license").
+				ImageURL(lo.Must(url.Parse("https://example.com/image.png"))).
+				StarCount(1).StarredBy([]string{u1.String()}).
+				Topics([]string{"topic1", "topic2"}).
+				UpdatedAt(time.Now()).
+				Accessibility(NewAccessibility(VisibilityPrivate, NewPublicationSettings(ModelIDList{NewModelID()}, false), posting, APIKeys{key})).
+				RequestRoles([]workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}).
+				MustBuild(),
+		},
+		{
+			name: "must clone a project with default fields",
+			p:    New().NewID().MustBuild(),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tc.p.Clone()
+			assert.Equal(t, tc.p, got)
+			assert.NotSame(t, tc.p, got)
+			assert.NotSame(t, tc.p.Accessibility(), got.Accessibility())
+
+			// changing the clone must not change the original
+			want := tc.p.Clone()
+			got.Star(accountdomain.NewUserID())
+			got.SetTopics(append(got.Topics(), "topic3"))
+			got.SetRequestRoles(append(got.RequestRoles(), workspace.RoleReader))
+			if len(got.StarredBy()) > 1 {
+				got.StarredBy()[0] = "changed"
+			}
+			if len(got.Topics()) > 1 {
+				got.Topics()[0] = "changed"
+			}
+			if len(got.RequestRoles()) > 1 {
+				got.RequestRoles()[0] = workspace.RoleReader
+			}
+			assert.Equal(t, want, tc.p)
+		})
+	}
+
 	assert.Nil(t, (*Project)(nil).Clone())
 }
