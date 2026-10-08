@@ -21,13 +21,7 @@ func (v *Value) Clone() *Value {
 	if v == nil || v.v == nil || v.TypeProperty() == nil {
 		return nil
 	}
-	vv := v.v
-	// URL is the only mutable value type, so copy it to avoid sharing the pointer
-	if u, ok := vv.(URL); ok && u != nil {
-		c := *u
-		vv = &c
-	}
-	return &Value{t: v.t, v: vv}
+	return v.t.Value(v.v)
 }
 
 func (v *Value) Some() *Optional {
