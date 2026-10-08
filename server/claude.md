@@ -45,8 +45,7 @@ server/
 ├── schemas/              # GraphQL schema definitions
 ├── e2e/                  # End-to-end tests
 ├── go.mod                # Go module definition
-├── gqlgen.yml            # GraphQL code generation config
-└── tools.go              # Development tool dependencies
+└── gqlgen.yml            # GraphQL code generation config
 ```
 
 ## 🏗️ Clean Architecture Pattern
