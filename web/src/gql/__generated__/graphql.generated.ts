@@ -682,6 +682,19 @@ export type GuessSchemaFieldsInput = {
   modelId: Scalars["ID"]["input"];
 };
 
+export type ImportColumnResult = {
+  __typename?: "ImportColumnResult";
+  header: Scalars["String"]["output"];
+  reason?: Maybe<Scalars["String"]["output"]>;
+  schemaFieldKey?: Maybe<Scalars["String"]["output"]>;
+  status: ImportColumnStatus;
+};
+
+export enum ImportColumnStatus {
+  Matched = "MATCHED",
+  Skipped = "SKIPPED",
+}
+
 export type ImportItemsAsyncPayload = {
   __typename?: "ImportItemsAsyncPayload";
   job: Job;
@@ -695,11 +708,21 @@ export type ImportItemsInput = {
 
 export type ImportItemsPayload = {
   __typename?: "ImportItemsPayload";
+  columns: Array<ImportColumnResult>;
   ignoredCount: Scalars["Int"]["output"];
   insertedCount: Scalars["Int"]["output"];
   modelId: Scalars["ID"]["output"];
   totalCount: Scalars["Int"]["output"];
   updatedCount: Scalars["Int"]["output"];
+};
+
+export type ImportJobResult = {
+  __typename?: "ImportJobResult";
+  columns: Array<ImportColumnResult>;
+  ignored: Scalars["Int"]["output"];
+  inserted: Scalars["Int"]["output"];
+  total: Scalars["Int"]["output"];
+  updated: Scalars["Int"]["output"];
 };
 
 export type Integration = Node & {
@@ -831,6 +854,7 @@ export type Job = Node & {
   createdAt: Scalars["DateTime"]["output"];
   error?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
+  importResult?: Maybe<ImportJobResult>;
   progress: JobProgress;
   projectId: Scalars["ID"]["output"];
   startedAt?: Maybe<Scalars["DateTime"]["output"]>;

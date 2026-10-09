@@ -44,12 +44,21 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
 
   const [importItemsAsyncMutation] = useMutation(ImportItemsAsyncDocument);
   const [cancelJobMutation] = useMutation(CancelJobDocument);
-  const [getJob] = useLazyQuery(JobDocument);
+  const [getJob] = useLazyQuery(JobDocument, { fetchPolicy: "network-only" });
 
   const getJobStateFallback = useCallback(
     (jobId: UploaderQueueItem["jobId"]) => {
       setTimeout(async () => {
-        const jobRes = await getJob({ variables: { jobId } });
+        let jobRes: Awaited<ReturnType<typeof getJob>>;
+        try {
+          // retain so a later getJob call for another job doesn't abort this one
+          jobRes = await getJob({ variables: { jobId } }).retain();
+        } catch (error: unknown) {
+          Notification.error({
+            message: error instanceof Error ? error.message : "Failed to fetch job status",
+          });
+          return;
+        }
 
         setUploaderState(prev => ({
           ...prev,
@@ -63,6 +72,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
                     status: jobRes.data?.job ? jobRes.data.job.status : item.jobState.status,
                     error: jobRes.data?.job ? jobRes.data.job.error : item.jobState.error,
                   },
+                  importResult: jobRes.data?.job ? jobRes.data.job.importResult : item.importResult,
                 }
               : item,
           ),
@@ -159,6 +169,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
                   ..._prev,
                   jobId: newJobId,
                   jobState: { status, progress },
+                  importResult: null,
                 }
               : _prev,
           ),
@@ -239,8 +250,29 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           item.jobId === payload.jobId ? { ...item, jobState: payload.jobState } : item,
         ),
       }));
+
+      if (payload.jobState.status !== JobStatus.Completed) return;
+
+      // the subscription payload has no import result, so the completed job has to be re-queried
+      void getJob({ variables: { jobId: payload.jobId } })
+        .retain()
+        .then(jobRes => {
+          const importResult = jobRes.data?.job?.importResult ?? null;
+
+          setUploaderState(prev => ({
+            ...prev,
+            queue: prev.queue.map(item =>
+              item.jobId === payload.jobId ? { ...item, importResult } : item,
+            ),
+          }));
+        })
+        .catch((error: unknown) => {
+          Notification.error({
+            message: error instanceof Error ? error.message : "Failed to fetch import result",
+          });
+        });
     },
-    [setUploaderState],
+    [getJob, setUploaderState],
   );
 
   const contextValue = useMemo<UploaderHookState>(
