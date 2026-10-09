@@ -3,16 +3,21 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Popover from "@reearth-cms/components/atoms/Popover";
 import Progress from "@reearth-cms/components/atoms/Progress";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
+import ImportResultContent from "../ImportResultContent";
 import type { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
+import { ImportResultUtils } from "../utils";
 
 type Props = {
   queue: UploaderQueueItem;
@@ -26,6 +31,12 @@ type Props = {
 const QueueItem: React.FC<Props> = (props: Props) => {
   const { queue, onRetry, onCancel, onJobUpdate, onJobComplete, onJobError } = props;
   const t = useT();
+
+  const hasColumnReport = useMemo<boolean>(() => ImportResultUtils.hasColumnReport(queue), [queue]);
+  const skippedCount = useMemo<number>(
+    () => (hasColumnReport ? ImportResultUtils.skippedCount(queue.importResult) : 0),
+    [hasColumnReport, queue.importResult],
+  );
 
   useJobState({
     jobId: queue.jobId,
@@ -52,7 +63,11 @@ const QueueItem: React.FC<Props> = (props: Props) => {
           </Tooltip>
         );
       case JobStatus.Completed:
-        return (
+        return skippedCount > 0 ? (
+          <span data-testid={DATA_TEST_ID.QueueItem__WarningIcon}>
+            <InfoIcon icon="exclamationSolid" color={AntdColor.GOLD.GOLD_5} />
+          </span>
+        ) : (
           <span data-testid={DATA_TEST_ID.Uploader__CompleteIcon}>
             <InfoIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} />
           </span>
@@ -85,10 +100,35 @@ const QueueItem: React.FC<Props> = (props: Props) => {
       default:
         return null;
     }
-  }, [onCancel, onRetry, queue.jobId, queue.jobState.status, t]);
+  }, [onCancel, onRetry, queue.jobId, queue.jobState.status, skippedCount, t]);
 
   const renderMessage = useMemo<ReactNode>(() => {
-    if (queue.jobState.status === JobStatus.Failed && queue.jobState.error) {
+    if (queue.jobState.status === JobStatus.Completed && skippedCount > 0) {
+      return (
+        <CompletedMessage>
+          <WarningText data-testid={DATA_TEST_ID.QueueItem__WarningMessage}>
+            {t("Import completed with {{count}} skipped columns", { count: skippedCount })}
+          </WarningText>
+          <Popover
+            rootClassName="importResultPopover"
+            trigger="click"
+            placement="left"
+            title={
+              <PopoverTitle>
+                <PopoverFileName>{queue.fileName}</PopoverFileName>
+                <ImportedCount type="secondary" data-testid={DATA_TEST_ID.QueueItem__ImportedCount}>
+                  {t("{{count}} rows imported", { count: queue.importResult?.inserted ?? 0 })}
+                </ImportedCount>
+              </PopoverTitle>
+            }
+            content={<ImportResultContent importResult={queue.importResult} />}>
+            <DetailsButton type="link" data-testid={DATA_TEST_ID.QueueItem__ViewDetailsLink}>
+              {t("View details")}
+            </DetailsButton>
+          </Popover>
+        </CompletedMessage>
+      );
+    } else if (queue.jobState.status === JobStatus.Failed && queue.jobState.error) {
       return (
         <ErrorMessage title={queue.jobState.error}>
           <span data-testid={DATA_TEST_ID.QueueItem__ErrorMessage}>{queue.jobState.error}</span>
@@ -99,7 +139,14 @@ const QueueItem: React.FC<Props> = (props: Props) => {
     } else {
       return null;
     }
-  }, [queue.jobState.error, queue.jobState.status, t]);
+  }, [
+    queue.fileName,
+    queue.importResult,
+    queue.jobState.error,
+    queue.jobState.status,
+    skippedCount,
+    t,
+  ]);
 
   return (
     <ItemWrapper data-testid={DATA_TEST_ID.QueueItem__Wrapper}>
@@ -200,6 +247,43 @@ const ErrorMessage = styled(Tooltip)`
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+`;
+
+const CompletedMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-left: 22px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
+`;
+
+const WarningText = styled.span`
+  color: ${AntdColor.GOLD.GOLD_6};
+`;
+
+const DetailsButton = styled(Button)`
+  align-self: flex-start;
+  padding: 0;
+  height: fit-content;
+`;
+
+const PopoverTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: ${AntdToken.SPACING.MD}px;
+`;
+
+const PopoverFileName = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const ImportedCount = styled(Typography.Text)`
+  flex-shrink: 0;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const Message = styled.div`

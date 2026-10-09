@@ -428,7 +428,7 @@ import { SchemaPage } from "./pages/schema.page";
 Two consequences:
 
 - **A locator may only reference UI that is already deployed.** A `data-testid` added under
-  `web/src/**` is unusable by e2e until that change merges *and* web redeploys. Using it in the same
+  `web/src/**` is unusable by e2e until that change merges _and_ web redeploys. Using it in the same
   PR produces a 60s `locator.click` timeout with no matching element.
 - **A PR that renames a user-facing string must update the matching e2e locator in the same PR**,
   or e2e breaks the moment it deploys. This is exactly how the i18n review in #1920 broke
