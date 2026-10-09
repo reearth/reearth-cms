@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import type { IconName } from "@reearth-cms/components/atoms/Icon";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/data";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -66,14 +67,14 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
     {
       title: "Visualizer",
       icon: "logoVisualizer",
-      iconBackground: "#fcf4f4",
+      iconBackground: CustomColor.PRODUCT_LOGO_BG_VISUALIZER,
       href: visualizerUrl,
       testId: DATA_TEST_ID.AppLauncher__Visualizer,
     },
     {
       title: "CMS",
       icon: "logoCms",
-      iconBackground: "#fffce7",
+      iconBackground: CustomColor.PRODUCT_LOGO_BG_CMS,
       onClick: handleCmsClick,
       testId: DATA_TEST_ID.AppLauncher__Cms,
     },
@@ -129,13 +130,11 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
     }
     if (!item.href) {
       return (
-        <span
-          className={className}
-          aria-disabled
-          title={t("The link is not available for now")}
-          data-testid={item.testId}>
-          {children}
-        </span>
+        <Tooltip title={t("The link is not available for now")}>
+          <span className={className} aria-disabled data-testid={item.testId}>
+            {children}
+          </span>
+        </Tooltip>
       );
     }
     return (
@@ -180,7 +179,7 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
             testId: DATA_TEST_ID.AppLauncher__Navara,
           },
           <>
-            <IconPlate style={{ backgroundColor: "#e8f4f7" }}>
+            <IconPlate style={{ backgroundColor: CustomColor.PRODUCT_LOGO_BG_NAVARA }}>
               <Icon icon="logoNavara" size={40} />
             </IconPlate>
             <RowText>
@@ -290,7 +289,6 @@ const Panel = styled.div`
   button {
     border: none;
     background: none;
-    padding: 0;
     font: inherit;
     cursor: pointer;
   }
@@ -320,25 +318,28 @@ const Divider = styled.div`
 `;
 
 const ProductGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  justify-content: center;
   gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const ProductTile = styled.div`
+  display: flex;
+
   > * {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: ${AntdToken.SPACING.XXS}px;
-    width: 88px;
+    width: 100%;
     padding: ${AntdToken.SPACING.XXS}px;
     border-radius: ${AntdToken.RADIUS.LG}px;
   }
 
   > a:hover,
   > button:hover {
-    background-color: ${AntdColor.NEUTRAL.FILL_TERTIARY};
+    background-color: ${AntdColor.BLUE.BLUE_0};
   }
 `;
 
@@ -351,9 +352,9 @@ const IconPlate = styled.div`
 
 const ProductTitle = styled.span`
   width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Japanese is the primary UI language; wrap long titles (e.g. ダッシュボード) instead of truncating. */
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;
   text-align: center;
   font-size: ${AntdToken.FONT.SIZE}px;
 `;
@@ -370,7 +371,7 @@ const Row = styled.div`
   }
 
   > a:hover {
-    background-color: ${AntdColor.NEUTRAL.FILL_TERTIARY};
+    background-color: ${AntdColor.BLUE.BLUE_0};
   }
 `;
 
@@ -425,6 +426,6 @@ const Pill = styled.div`
   }
 
   > a:hover {
-    background-color: ${AntdColor.NEUTRAL.FILL};
+    background-color: ${AntdColor.BLUE.BLUE_0};
   }
 `;

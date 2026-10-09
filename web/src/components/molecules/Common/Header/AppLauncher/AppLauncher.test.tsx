@@ -78,7 +78,7 @@ describe("AppLauncher", () => {
 
   test("disables links whose URL is not configured", async () => {
     window.REEARTH_CONFIG = { api: "/api" } as Config;
-    await openLauncher();
+    const { user } = await openLauncher();
 
     for (const testId of [
       DATA_TEST_ID.AppLauncher__Dashboard,
@@ -87,9 +87,11 @@ describe("AppLauncher", () => {
     ]) {
       const item = await screen.findByTestId(testId);
       expect(item).toHaveAttribute("aria-disabled", "true");
-      expect(item).toHaveAttribute("title", DISABLED_TITLE);
       expect(item).not.toHaveAttribute("href");
     }
+
+    await user.hover(screen.getByTestId(DATA_TEST_ID.AppLauncher__Dashboard));
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(DISABLED_TITLE);
   });
 
   test("navigates home within CMS when the CMS tile is clicked", async () => {
