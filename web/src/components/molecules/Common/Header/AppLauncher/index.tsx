@@ -47,8 +47,8 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
   const editorUrl = window.REEARTH_CONFIG?.editorUrl;
 
   const visualizerUrl = useMemo<string | undefined>(() => {
-    if (!editorUrl) return undefined;
-    return workspaceId ? new URL(`dashboard/${workspaceId}`, editorUrl).href : editorUrl;
+    if (!editorUrl || !workspaceId) return undefined;
+    return new URL(`dashboard/${workspaceId}`, editorUrl).href;
   }, [editorUrl, workspaceId]);
 
   const handleCmsClick = useCallback(() => {
@@ -130,8 +130,13 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
     }
     if (!item.href) {
       return (
-        <Tooltip title={t("The link is not available for now")}>
-          <span className={className} aria-disabled data-testid={item.testId}>
+        <Tooltip title={t("The link is not available for now")} trigger={["hover", "focus"]}>
+          <span
+            className={className}
+            role="link"
+            tabIndex={0}
+            aria-disabled
+            data-testid={item.testId}>
             {children}
           </span>
         </Tooltip>
@@ -297,7 +302,8 @@ const Panel = styled.div`
   }
 
   a:focus-visible,
-  button:focus-visible {
+  button:focus-visible,
+  [aria-disabled]:focus-visible {
     outline: 2px solid ${AntdColor.BLUE.BLUE_5};
     outline-offset: 2px;
   }

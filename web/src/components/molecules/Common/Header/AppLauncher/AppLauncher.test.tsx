@@ -90,8 +90,20 @@ describe("AppLauncher", () => {
       expect(item).not.toHaveAttribute("href");
     }
 
-    await user.hover(screen.getByTestId(DATA_TEST_ID.AppLauncher__Dashboard));
+    const dashboard = screen.getByTestId(DATA_TEST_ID.AppLauncher__Dashboard);
+    expect(dashboard).toHaveAttribute("role", "link");
+    expect(dashboard).toHaveAttribute("tabindex", "0");
+    await user.tab();
+    expect(dashboard).toHaveFocus();
     expect(await screen.findByRole("tooltip")).toHaveTextContent(DISABLED_TITLE);
+  });
+
+  test("disables Visualizer when workspace is not available", async () => {
+    await openLauncher({ workspaceId: undefined });
+    const visualizer = await screen.findByTestId(DATA_TEST_ID.AppLauncher__Visualizer);
+
+    expect(visualizer).toHaveAttribute("aria-disabled", "true");
+    expect(visualizer).not.toHaveAttribute("href");
   });
 
   test("navigates home within CMS when the CMS tile is clicked", async () => {
