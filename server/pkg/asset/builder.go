@@ -131,11 +131,6 @@ func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
 	return b
 }
 
-func (b *Builder) FlatFiles(flatFiles bool) *Builder {
-	b.a.flatFiles = flatFiles
-	return b
-}
-
 func (b *Builder) Public(public bool) *Builder {
 	b.a.public = public
 	return b

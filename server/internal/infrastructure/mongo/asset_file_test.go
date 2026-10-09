@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -194,5 +197,41 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Len(t, got.Files(), 1)
 		assert.Equal(t, "/new.txt", got.Files()[0].Path())
+	})
+
+	t.Run("keeps files after saving an asset loaded before SaveFlat", func(t *testing.T) {
+		t.Parallel()
+
+		db := initDB(t)
+		ctx := context.Background()
+		client := mongox.NewClientWithDatabase(db)
+		r := NewAssetFile(client)
+
+		pid := id.NewProjectID()
+		ar := NewAsset(client).Filtered(repo.ProjectFilter{Readable: id.ProjectIDList{pid}, Writable: id.ProjectIDList{pid}})
+
+		a := asset.New().NewID().Project(pid).CreatedByUser(accountdomain.NewUserID()).Size(1).NewUUID().MustBuild()
+		assert.NoError(t, ar.Save(ctx, a))
+
+		parent := asset.NewFile().Name("root").Path("/").Build()
+		assert.NoError(t, r.Save(ctx, a.ID(), parent))
+
+		stale, err := ar.FindByID(ctx, a.ID())
+		assert.NoError(t, err)
+
+		files := []*asset.File{asset.NewFile().Name("a.txt").Path("a.txt").Size(1).Build()}
+		assert.NoError(t, r.SaveFlat(ctx, a.ID(), parent, files))
+
+		stale.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusDone))
+		assert.NoError(t, ar.Save(ctx, stale))
+
+		got, err := r.FindByID(ctx, a.ID())
+		assert.NoError(t, err)
+		assert.Len(t, got.Files(), 1)
+		assert.Equal(t, "/a.txt", got.Files()[0].Path())
+
+		var doc bson.M
+		assert.NoError(t, db.Collection("asset").FindOne(ctx, bson.M{"id": a.ID().String()}).Decode(&doc))
+		assert.Equal(t, true, doc["flatfiles"])
 	})
 }
