@@ -13,6 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
+import AppLauncher from "./AppLauncher";
 import HeaderDropdown from "./Dropdown";
 
 type Props = {
@@ -149,6 +150,7 @@ const HeaderMolecule: React.FC<Props> = ({
       ) : (
         <Logo src="/logo.svg" onClick={onHomeNavigation} />
       )}
+      <AppLauncher workspaceId={currentWorkspace?.id} onHomeNavigation={onHomeNavigation} />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
         profilePictureUrl={profilePictureUrl}

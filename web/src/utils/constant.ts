@@ -74,4 +74,18 @@ export abstract class Constant {
     ja: "https://docs.reearth.io/ja/developer/cms/integration-api-reference/",
     en: "https://docs.reearth.io/en/developer/cms/integration-api-reference/",
   };
+
+  public static readonly SOCIAL_URLS = {
+    DISCORD: "https://discord.com/invite/XJhYkQQDAu",
+  };
+
+  public static readonly MAP_ENGINE_URLS = {
+    NAVARA: "https://navara.world/",
+  };
+
+  public static readonly DATA_SERVICE_URLS = {
+    TERRAIN: "https://terrain.reearth.land/",
+    BUILDINGS: "https://buildings.reearth.land/",
+    PAPERS: "https://papers.reearth.land/",
+  };
 }
