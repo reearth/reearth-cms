@@ -58,7 +58,7 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
 
   const products: ProductItem[] = [
     {
-      title: t("Dashboard"),
+      title: "Dashboard",
       icon: "logoReearth",
       iconBackground: AntdColor.NEUTRAL.BG_LAYOUT,
       href: dashboardBaseUrl,
@@ -198,18 +198,16 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
       <SectionLabel>{t("Re:Earth data services")}</SectionLabel>
       <DataServiceList>
         {dataServices.map(service => (
-          <Row key={service.testId}>
+          <DataServiceItem key={service.testId}>
             {renderLink(
               service,
-              <RowText>
-                <RowTitle>
-                  {service.title}
-                  <ExternalIcon icon="arrowUpRight" />
-                </RowTitle>
-                <RowDescription>{service.description}</RowDescription>
-              </RowText>,
+              <>
+                {service.title}
+                <ExternalIcon icon="arrowUpRight" />
+              </>,
             )}
-          </Row>
+            <RowDescription>{service.description}</RowDescription>
+          </DataServiceItem>
         ))}
       </DataServiceList>
 
@@ -319,8 +317,10 @@ const Divider = styled.div`
 
 const ProductGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 72px);
-  justify-content: center;
+  /* 1fr columns in a max-content grid all resolve to the widest title, so tiles are equal width. */
+  grid-template-columns: repeat(3, 1fr);
+  width: max-content;
+  align-self: center;
   gap: ${AntdToken.SPACING.XS}px;
 `;
 
@@ -352,9 +352,7 @@ const IconPlate = styled.div`
 
 const ProductTitle = styled.span`
   width: 100%;
-  /* Japanese is the primary UI language; wrap long titles (e.g. ダッシュボード) instead of truncating. */
-  word-break: auto-phrase;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
   text-align: center;
   font-size: ${AntdToken.FONT.SIZE}px;
 `;
@@ -406,6 +404,27 @@ const DataServiceList = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${AntdToken.SPACING.XS}px;
+`;
+
+const DataServiceItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  /* The negative margin cancels the padding, so the hover background grows around the title without shifting it off the section label's edge. */
+  > a {
+    display: flex;
+    align-items: center;
+    gap: ${AntdToken.SPACING.XXS}px;
+    padding: 2px ${AntdToken.SPACING.XXS}px;
+    margin: -2px -${AntdToken.SPACING.XXS}px;
+    border-radius: ${AntdToken.RADIUS.SM}px;
+    font-size: ${AntdToken.FONT.SIZE}px;
+  }
+
+  > a:hover {
+    background-color: ${AntdColor.BLUE.BLUE_0};
+  }
 `;
 
 const PillRow = styled.div`

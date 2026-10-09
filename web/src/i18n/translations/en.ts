@@ -136,7 +136,6 @@ export default {
   "Customize your API key to control the visibility of your models": "",
   "Customized meta data": "",
   "Danger Zone": "",
-  "Dashboard": "",
   "Date": "",
   "Date picker": "",
   "Decompress": "",

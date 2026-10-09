@@ -133,7 +133,6 @@ export default {
   "Customize your API key to control the visibility of your models": "モデルの配信範囲を制御するには、APIキーをカスタマイズしてください",
   "Customized meta data": "カスタムメタデータ",
   "Danger Zone": "重要操作",
-  "Dashboard": "ダッシュボード",
   "Date": "日付",
   "Date picker": "日付ピッカー",
   "Decompress": "解凍",
