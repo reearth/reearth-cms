@@ -47,8 +47,8 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
   const editorUrl = window.REEARTH_CONFIG?.editorUrl;
 
   const visualizerUrl = useMemo<string | undefined>(() => {
-    if (!editorUrl) return undefined;
-    return workspaceId ? new URL(`dashboard/${workspaceId}`, editorUrl).href : editorUrl;
+    if (!editorUrl || !workspaceId) return undefined;
+    return new URL(`dashboard/${workspaceId}`, editorUrl).href;
   }, [editorUrl, workspaceId]);
 
   const handleCmsClick = useCallback(() => {
