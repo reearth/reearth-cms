@@ -28,8 +28,10 @@ type AssetDocument struct {
 	UUID                    string
 	Thread                  *string
 	ArchiveExtractionStatus string
-	FlatFiles               bool
-	Public                  bool
+	// FlatFiles is written only by AssetFile.SaveFlat. NewAsset leaves it false and
+	// omitempty drops it from Asset.Save's $set, so saving a stale asset can't reset it.
+	FlatFiles bool `bson:",omitempty"`
+	Public    bool
 }
 
 type AssetAndFileDocument struct {
@@ -99,7 +101,6 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		UUID:                    a.UUID(),
 		Thread:                  a.Thread().StringRef(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
-		FlatFiles:               a.FlatFiles(),
 		Public:                  a.Public(),
 	}, aid
 }

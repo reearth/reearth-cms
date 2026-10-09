@@ -960,7 +960,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
 			a.UpdateArchiveExtractionStatus(s)
-			a.SetFlatFiles(true)
 			if previewType != nil {
 				a.UpdatePreviewType(previewType)
 			}
