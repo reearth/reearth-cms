@@ -28,10 +28,7 @@ type AssetDocument struct {
 	UUID                    string
 	Thread                  *string
 	ArchiveExtractionStatus string
-	// FlatFiles is written only by AssetFile.SaveFlat. NewAsset leaves it false and
-	// omitempty drops it from Asset.Save's $set, so saving a stale asset can't reset it.
-	FlatFiles bool `bson:",omitempty"`
-	Public    bool
+	Public                  bool
 }
 
 type AssetAndFileDocument struct {
@@ -53,7 +50,7 @@ type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
 type AssetAndFileConsumer = mongox.SliceConsumer[*AssetAndFileDocument]
 
 func NewAssetConsumer() *AssetConsumer {
-	return NewConsumer[*AssetDocument, *asset.Asset]()
+	return NewConsumer[*AssetDocument]()
 }
 
 func NewAsset(a *asset.Asset) (*AssetDocument, string) {
@@ -126,7 +123,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		UUID(d.UUID).
 		Thread(id.ThreadIDFromRef(d.Thread)).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(new(d.ArchiveExtractionStatus))).
-		FlatFiles(d.FlatFiles).
 		Public(d.Public)
 
 	if d.User != nil {

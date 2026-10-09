@@ -218,7 +218,6 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 
 		stale, err := ar.FindByID(ctx, a.ID())
 		assert.NoError(t, err)
-		assert.False(t, stale.FlatFiles())
 
 		files := []*asset.File{asset.NewFile().Name("a.txt").Path("a.txt").Size(1).Build()}
 		assert.NoError(t, r.SaveFlat(ctx, a.ID(), parent, files))
@@ -231,8 +230,8 @@ func TestAssetFileRepo_SaveFlat(t *testing.T) {
 		assert.Len(t, got.Files(), 1)
 		assert.Equal(t, "/a.txt", got.Files()[0].Path())
 
-		saved, err := ar.FindByID(ctx, a.ID())
-		assert.NoError(t, err)
-		assert.True(t, saved.FlatFiles())
+		var doc bson.M
+		assert.NoError(t, db.Collection("asset").FindOne(ctx, bson.M{"id": a.ID().String()}).Decode(&doc))
+		assert.Equal(t, true, doc["flatfiles"])
 	})
 }
