@@ -65,7 +65,7 @@ func (*propertyBool) IsEmpty(_ any) bool {
 	return false
 }
 
-func (v *Value) ValueBool() (vv bool, ok bool) {
+func (v *Value) ValueBool() (vv Bool, ok bool) {
 	if v == nil {
 		return
 	}
@@ -73,11 +73,11 @@ func (v *Value) ValueBool() (vv bool, ok bool) {
 	return
 }
 
-func (m *Multiple) ValuesBool() (vv []bool, ok bool) {
+func (m *Multiple) ValuesBool() (vv []Bool, ok bool) {
 	if m == nil {
 		return nil, false
 	}
-	vv = lo.FilterMap(m.v, func(v *Value, _ int) (bool, bool) {
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Bool, bool) {
 		return v.ValueBool()
 	})
 	if len(vv) != len(m.v) {

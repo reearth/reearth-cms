@@ -26,4 +26,25 @@ describe("FileUtils", () => {
       expect(FileUtils.getExtension(undefined)).toBe("");
     });
   });
+
+  describe("isUTF8", () => {
+    test("returns true for UTF-8 content", async () => {
+      expect(await FileUtils.isUTF8(new Blob(["name,タイトル\n1,あ"]))).toBe(true);
+    });
+
+    test("returns true for UTF-8 content with BOM", async () => {
+      const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+      expect(await FileUtils.isUTF8(new Blob([bom, "name,タイトル\n1,あ"]))).toBe(true);
+    });
+
+    test("returns true for ASCII-only content", async () => {
+      expect(await FileUtils.isUTF8(new Blob(["name,age\nfoo,1"]))).toBe(true);
+    });
+
+    test("returns false for Shift_JIS content", async () => {
+      // "name,あ" in Shift_JIS
+      const sjis = new Uint8Array([0x6e, 0x61, 0x6d, 0x65, 0x2c, 0x82, 0xa0]);
+      expect(await FileUtils.isUTF8(new Blob([sjis]))).toBe(false);
+    });
+  });
 });

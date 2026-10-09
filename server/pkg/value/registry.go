@@ -1,6 +1,6 @@
 package value
 
-var defaultTypes = TypeRegistry{
+var defaultTypes = typeRegistry{
 	TypeAsset:          &propertyAsset{},
 	TypeBool:           &propertyBool{},
 	TypeCheckbox:       &propertyBool{},
@@ -20,40 +20,30 @@ var defaultTypes = TypeRegistry{
 	TypeGeometryEditor: &propertyJson{},
 }
 
-type TypeRegistry map[Type]TypeProperty
+type typeRegistry map[Type]TypeProperty
 
-func (r TypeRegistry) Find(t Type) (tp TypeProperty) {
-	if r != nil {
-		tp = r[t]
-	}
-	if tp == nil {
-		tp = defaultTypes.Get(t)
-	}
-	return tp
-}
-
-func (r TypeRegistry) Get(t Type) TypeProperty {
+func (r typeRegistry) Get(t Type) TypeProperty {
 	return r[t]
 }
 
-func (r TypeRegistry) ToValue(t Type, v any) (any, bool) {
-	tp := r.Find(t)
+func (r typeRegistry) ToValue(t Type, v any) (any, bool) {
+	tp := r.Get(t)
 	if tp == nil {
 		return nil, false
 	}
 	return tp.ToValue(v)
 }
 
-func (r TypeRegistry) ToInterface(t Type, v any) (any, bool) {
-	tp := r.Find(t)
+func (r typeRegistry) ToInterface(t Type, v any) (any, bool) {
+	tp := r.Get(t)
 	if tp == nil {
 		return nil, false
 	}
 	return tp.ToInterface(v)
 }
 
-func (r TypeRegistry) Validate(t Type, v any) (bool, bool) {
-	tp := r.Find(t)
+func (r typeRegistry) Validate(t Type, v any) (bool, bool) {
+	tp := r.Get(t)
 	if tp == nil {
 		return false, false
 	}
