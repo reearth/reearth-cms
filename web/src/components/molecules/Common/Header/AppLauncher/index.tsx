@@ -202,7 +202,7 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
             {renderLink(
               service,
               <>
-                {service.title}
+                <DataServiceTitle>{service.title}</DataServiceTitle>
                 <ExternalIcon icon="arrowUpRight" />
               </>,
             )}
@@ -411,21 +411,21 @@ const DataServiceItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
 
-  /* The negative margin cancels the padding, so the hover background grows around the title without shifting it off the section label's edge. */
   > a {
     display: flex;
     align-items: center;
     gap: ${AntdToken.SPACING.XXS}px;
-    padding: 2px ${AntdToken.SPACING.XXS}px;
-    margin: -2px -${AntdToken.SPACING.XXS}px;
-    border-radius: ${AntdToken.RADIUS.SM}px;
     font-size: ${AntdToken.FONT.SIZE}px;
+    font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   }
 
-  > a:hover {
-    background-color: ${AntdColor.BLUE.BLUE_0};
+  /* Only the title turns blue; the arrow keeps its own color. */
+  > a:hover > span:first-child {
+    color: ${AntdColor.BLUE.BLUE_5};
   }
 `;
+
+const DataServiceTitle = styled.span``;
 
 const PillRow = styled.div`
   display: flex;
