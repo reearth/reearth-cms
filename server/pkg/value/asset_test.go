@@ -8,6 +8,8 @@ import (
 )
 
 func Test_propertyAsset_ToValue(t *testing.T) {
+	t.Parallel()
+
 	a := id.NewAssetID()
 
 	tests := []struct {
@@ -56,6 +58,8 @@ func Test_propertyAsset_ToValue(t *testing.T) {
 }
 
 func Test_propertyAsset_ToInterface(t *testing.T) {
+	t.Parallel()
+
 	a := id.NewAssetID()
 	tt, ok := (&propertyAsset{}).ToInterface(a)
 	assert.Equal(t, a.String(), tt)
@@ -63,6 +67,8 @@ func Test_propertyAsset_ToInterface(t *testing.T) {
 }
 
 func Test_propertyAsset_Equal(t *testing.T) {
+	t.Parallel()
+
 	aId := id.NewAssetID()
 	assert.True(t, (&propertyAsset{}).Equal(aId, aId))
 	assert.True(t, (&propertyAsset{}).Equal(id.AssetID{}, id.AssetID{}))
@@ -74,16 +80,22 @@ func Test_propertyAsset_Equal(t *testing.T) {
 }
 
 func Test_propertyAsset_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	assert.True(t, (&propertyAsset{}).IsEmpty(id.AssetID{}))
 	assert.False(t, (&propertyAsset{}).IsEmpty(id.NewAssetID()))
 }
 
 func Test_propertyAsset_Validate(t *testing.T) {
+	t.Parallel()
+
 	a := id.NewAssetID()
 	assert.True(t, (&propertyAsset{}).Validate(a))
 }
 
 func TestValue_ValueAsset(t *testing.T) {
+	t.Parallel()
+
 	var v *Value = nil
 	res, ok := v.ValueAsset()
 	assert.Equal(t, Asset{}, res)
@@ -92,7 +104,6 @@ func TestValue_ValueAsset(t *testing.T) {
 	v = &Value{
 		t: TypeAsset,
 		v: nil,
-		p: nil,
 	}
 
 	res, ok = v.ValueAsset()
@@ -103,7 +114,6 @@ func TestValue_ValueAsset(t *testing.T) {
 	v = &Value{
 		t: TypeAsset,
 		v: aId,
-		p: nil,
 	}
 
 	res, ok = v.ValueAsset()
@@ -112,6 +122,8 @@ func TestValue_ValueAsset(t *testing.T) {
 }
 
 func TestValue_ValuesAsset(t *testing.T) {
+	t.Parallel()
+
 	var v *Multiple = nil
 	res, ok := v.ValuesAsset()
 	assert.Nil(t, res)

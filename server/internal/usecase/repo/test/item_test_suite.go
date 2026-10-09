@@ -143,6 +143,12 @@ func testItemFindByIDs(t *testing.T, newRepo itemFactory) {
 		wantErr error
 	}{
 		{
+			name:  "must find no items",
+			seeds: seeds,
+			args:  id.ItemIDList{},
+			want:  item.List{},
+		},
+		{
 			name:  "must find two items",
 			seeds: seeds,
 			args:  id.ItemIDList{i1.ID(), i2.ID()},

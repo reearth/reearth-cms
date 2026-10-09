@@ -20,16 +20,24 @@ import ContentImportModal from ".";
 
 const mockParseTextFile = vi.fn();
 const mockGetExtension = vi.fn();
+const mockIsUTF8 = vi.fn();
 const mockParseJSON = vi.fn();
 const mockValidateGeoJson = vi.fn();
 const mockValidateContent = vi.fn();
 const mockConvertCSVToJSON = vi.fn();
 const mockConvertGeoJSONToJSON = vi.fn();
+const mockConfirm = vi.fn();
+
+vi.mock("@reearth-cms/components/atoms/Modal", async importOriginal => ({
+  ...(await importOriginal<object>()),
+  useModal: () => ({ confirm: mockConfirm }),
+}));
 
 vi.mock("@reearth-cms/utils/file", () => ({
   FileUtils: {
     parseTextFile: (...args: unknown[]) => mockParseTextFile(...args),
     getExtension: (...args: unknown[]) => mockGetExtension(...args),
+    isUTF8: (...args: unknown[]) => mockIsUTF8(...args),
     MBtoBytes: (mb: number) => mb * 1024 * 1024,
   },
 }));
@@ -135,6 +143,7 @@ const uploadJsonFile = async (fileName = "test.json") => {
 const uploadCsvFile = async (fileName = "test.csv") => {
   const file = Test.createMockRcFile({ name: fileName, type: "text/csv" });
   mockGetExtension.mockReturnValue("csv");
+  mockIsUTF8.mockResolvedValue(true);
   mockParseTextFile.mockResolvedValue("name,age\ntest,1");
   mockConvertCSVToJSON.mockResolvedValue({ isValid: true, data: [{ name: "test", age: 1 }] });
 
@@ -347,5 +356,54 @@ describe("ContentImportModal", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Validation errors")).toBeInTheDocument();
     expect(screen.getByText("Download error log")).toBeInTheDocument();
+  });
+
+  const uploadNonUTF8CsvFile = () => {
+    const file = Test.createMockRcFile({ name: "sjis.csv", type: "text/csv" });
+    mockGetExtension.mockReturnValue("csv");
+    mockIsUTF8.mockResolvedValue(false);
+    mockParseTextFile.mockResolvedValue("name,age\ntest,1");
+    mockConvertCSVToJSON.mockResolvedValue({ isValid: true, data: [{ name: "test", age: 1 }] });
+
+    fireEvent.change(getFileInput(), { target: { files: [file] } });
+  };
+
+  test("imports non-UTF-8 CSV when user confirms 'Import anyway'", async () => {
+    mockValidateContent.mockResolvedValue({ isValid: true });
+    mockConfirm.mockImplementation(({ onOk }: { onOk: () => void }) => onOk());
+
+    render(<StatefulWrapper />);
+    uploadNonUTF8CsvFile();
+
+    await waitFor(() => expect(mockOnEnqueueJob).toHaveBeenCalled());
+    expect(mockConfirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "This file may not be UTF-8 encoded",
+        okText: "Import anyway",
+      }),
+    );
+  });
+
+  test("does not import non-UTF-8 CSV when user cancels", async () => {
+    mockConfirm.mockImplementation(({ onCancel }: { onCancel: () => void }) => onCancel());
+
+    render(<StatefulWrapper />);
+    uploadNonUTF8CsvFile();
+
+    await waitFor(() => expect(mockConfirm).toHaveBeenCalled());
+    await waitFor(() => expect(mockOnSetDataChecking).toHaveBeenLastCalledWith(false));
+    expect(mockConvertCSVToJSON).not.toHaveBeenCalled();
+    expect(mockOnEnqueueJob).not.toHaveBeenCalled();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  test("does not ask for confirmation when CSV is UTF-8", async () => {
+    mockValidateContent.mockResolvedValue({ isValid: true });
+
+    render(<StatefulWrapper />);
+    await uploadCsvFile();
+
+    await waitFor(() => expect(mockOnEnqueueJob).toHaveBeenCalled());
+    expect(mockConfirm).not.toHaveBeenCalled();
   });
 });

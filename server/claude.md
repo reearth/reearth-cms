@@ -45,8 +45,7 @@ server/
 ├── schemas/              # GraphQL schema definitions
 ├── e2e/                  # End-to-end tests
 ├── go.mod                # Go module definition
-├── gqlgen.yml            # GraphQL code generation config
-└── tools.go              # Development tool dependencies
+└── gqlgen.yml            # GraphQL code generation config
 ```
 
 ## 🏗️ Clean Architecture Pattern
@@ -495,7 +494,7 @@ func TestCreateItem(t *testing.T) {
 
 ### Mock Generation
 
-Uses [gomock](https://github.com/golang/mock/mockgen) for generating mocks.
+Uses [gomock](https://github.com/uber-go/mock) for generating mocks.
 
 ```bash
 go generate ./...
@@ -773,7 +772,7 @@ if item == nil {
 - **Database:** MongoDB with [mongo-driver](https://github.com/mongodb/mongo-go-driver)
 - **HTTP Framework:** [Echo](https://echo.labstack.com/)
 - **OpenAPI:** [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
-- **Testing:** [testify](https://github.com/stretchr/testify), [gomock](https://github.com/golang/mock)
+- **Testing:** [testify](https://github.com/stretchr/testify), [gomock](https://github.com/uber-go/mock)
 - **Storage:** AWS S3, Google Cloud Storage
 - **Observability:** OpenTelemetry
 

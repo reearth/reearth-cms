@@ -15,12 +15,12 @@ flag_management:
 ignore:
   - server/**/*_gen.go
   - server/**/*_test.go
+  - server/**/*_test_suite.go
   - server/**/doc.go
   - server/**/testdata
   - server/internal/adapter/gql/generated.go
   - server/tools
   - server/main.go
-  - server/tools.go
   - web/**/*.test.ts
   - web/**/*.test.tsx
   - web/**/*.stories.ts
