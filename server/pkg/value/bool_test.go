@@ -7,6 +7,8 @@ import (
 )
 
 func Test_propertyBool_ToValue(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		args  []any
@@ -16,9 +18,9 @@ func Test_propertyBool_ToValue(t *testing.T) {
 		{
 			name: "true",
 			args: []any{
-				true, "true", "TRUE", "True", "T", "t", "1", 1,
+				true, "true", "TRUE", "True", "T", "t", "1", 1, 2, 3.14,
 				new(true), new("true"), new("TRUE"), new("True"),
-				new("T"), new("t"), new("1"), new(1),
+				new("T"), new("t"), new("1"), new(1), new(2), new(3.14),
 			},
 			want1: true,
 			want2: true,
@@ -26,9 +28,9 @@ func Test_propertyBool_ToValue(t *testing.T) {
 		{
 			name: "false",
 			args: []any{
-				false, "false", "FALSE", "False", "F", "f", "0", 0,
+				false, "false", "FALSE", "False", "F", "f", "0", 0, -1, "-1", 0.5,
 				new(false), new("false"), new("FALSE"), new("False"),
-				new("F"), new("f"), new("0"), new(0),
+				new("F"), new("f"), new("0"), new(0), new(-1), new("-1"), new(0.5),
 			},
 			want1: false,
 			want2: true,
@@ -36,6 +38,18 @@ func Test_propertyBool_ToValue(t *testing.T) {
 		{
 			name:  "nil",
 			args:  []any{"foo", (*bool)(nil), (*string)(nil), nil},
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "empty string",
+			args:  []any{"", new("")},
+			want1: nil,
+			want2: true,
+		},
+		{
+			name:  "invalid value",
+			args:  []any{"foo", " ", "bar", new("foo"), new(" "), map[string]any{}, []any{}},
 			want1: nil,
 			want2: false,
 		},
@@ -56,22 +70,30 @@ func Test_propertyBool_ToValue(t *testing.T) {
 }
 
 func Test_propertyBool_ToInterface(t *testing.T) {
+	t.Parallel()
+
 	tt, ok := (&propertyBool{}).ToInterface(true)
 	assert.Equal(t, true, tt)
 	assert.Equal(t, true, ok)
 }
 
 func Test_propertyBool_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	assert.False(t, (&propertyBool{}).IsEmpty(false))
 	assert.False(t, (&propertyBool{}).IsEmpty(true))
 }
 
 func Test_propertyBool_Validate(t *testing.T) {
+	t.Parallel()
+
 	assert.True(t, (&propertyBool{}).Validate(true))
 	assert.False(t, (&propertyBool{}).Validate("a"))
 }
 
 func TestValue_ValueBool(t *testing.T) {
+	t.Parallel()
+
 	var v *Value = nil
 	res, ok := v.ValueBool()
 	assert.Equal(t, false, res)
@@ -80,7 +102,6 @@ func TestValue_ValueBool(t *testing.T) {
 	v = &Value{
 		t: TypeBool,
 		v: nil,
-		p: nil,
 	}
 
 	res, ok = v.ValueBool()
@@ -90,7 +111,6 @@ func TestValue_ValueBool(t *testing.T) {
 	v = &Value{
 		t: TypeBool,
 		v: true,
-		p: nil,
 	}
 
 	res, ok = v.ValueBool()
@@ -99,6 +119,8 @@ func TestValue_ValueBool(t *testing.T) {
 }
 
 func TestValue_ValuesBool(t *testing.T) {
+	t.Parallel()
+
 	var v *Multiple = nil
 	res, ok := v.ValuesBool()
 	assert.Nil(t, res)
@@ -132,6 +154,8 @@ func TestValue_ValuesBool(t *testing.T) {
 }
 
 func Test_propertyBool_Equal(t *testing.T) {
+	t.Parallel()
+
 	assert.True(t, (&propertyBool{}).Equal(true, true))
 	assert.True(t, (&propertyBool{}).Equal(false, false))
 	assert.True(t, (&propertyBool{}).Equal(nil, nil))

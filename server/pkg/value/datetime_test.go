@@ -12,6 +12,8 @@ import (
 )
 
 func Test_propertyDateTime_ToValue(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now().Truncate(time.Second)
 	tests := []struct {
 		name  string
@@ -87,6 +89,8 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 }
 
 func Test_propertyDateTime_ToInterface(t *testing.T) {
+	t.Parallel()
+
 	v := time.Now()
 	tt, ok := (&propertyDateTime{}).ToInterface(v)
 	assert.Equal(t, v.Format(time.RFC3339), tt)
@@ -94,16 +98,22 @@ func Test_propertyDateTime_ToInterface(t *testing.T) {
 }
 
 func Test_propertyDateTime_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	assert.True(t, (&propertyDateTime{}).IsEmpty(time.Time{}))
 	assert.False(t, (&propertyDateTime{}).IsEmpty(time.Now()))
 }
 
 func Test_propertyDateTime_Validate(t *testing.T) {
+	t.Parallel()
+
 	assert.True(t, (&propertyDateTime{}).Validate(time.Now()))
 	assert.False(t, (&propertyDateTime{}).Validate("a"))
 }
 
 func Test_propertyDateTime_Equal(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now()
 	p := &propertyDateTime{}
 	assert.True(t, (&propertyDateTime{}).Equal(now, lo.Must(p.ToValue(&now))))
@@ -116,6 +126,8 @@ func Test_propertyDateTime_Equal(t *testing.T) {
 }
 
 func TestValue_ValueDateTime(t *testing.T) {
+	t.Parallel()
+
 	var v *Value = nil
 	res, ok := v.ValueDateTime()
 	assert.Equal(t, DateTime{}, res)
@@ -124,7 +136,6 @@ func TestValue_ValueDateTime(t *testing.T) {
 	v = &Value{
 		t: TypeDateTime,
 		v: nil,
-		p: nil,
 	}
 
 	res, ok = v.ValueDateTime()
@@ -135,7 +146,6 @@ func TestValue_ValueDateTime(t *testing.T) {
 	v = &Value{
 		t: TypeDateTime,
 		v: now,
-		p: nil,
 	}
 
 	res, ok = v.ValueDateTime()
@@ -144,6 +154,8 @@ func TestValue_ValueDateTime(t *testing.T) {
 }
 
 func TestValue_ValuesDateTime(t *testing.T) {
+	t.Parallel()
+
 	var v *Multiple = nil
 	res, ok := v.ValuesDateTime()
 	assert.Nil(t, res)

@@ -7,12 +7,16 @@ import (
 )
 
 func TestNewOptional(t *testing.T) {
+	t.Parallel()
+
 	assert.Nil(t, NewOptional(TypeAsset, TypeBool.Value(true)))
 	assert.Equal(t, &Optional{t: TypeBool}, NewOptional(TypeBool, nil))
 	assert.Equal(t, &Optional{t: TypeBool, v: TypeBool.Value(true)}, NewOptional(TypeBool, TypeBool.Value(true)))
 }
 
 func TestOptionalFrom(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *Value
 	}
@@ -25,9 +29,9 @@ func TestOptionalFrom(t *testing.T) {
 		{
 			name: "default type",
 			args: args{
-				v: TypeText.ValueFrom("foo", nil),
+				v: TypeText.Value("foo"),
 			},
-			want: &Optional{t: TypeText, v: TypeText.ValueFrom("foo", nil)},
+			want: &Optional{t: TypeText, v: TypeText.Value("foo")},
 		},
 		{
 			name: "custom type",
@@ -59,6 +63,8 @@ func TestOptionalFrom(t *testing.T) {
 }
 
 func TestOptional_Type(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Optional
@@ -90,6 +96,8 @@ func TestOptional_Type(t *testing.T) {
 }
 
 func TestOptional_Value(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Optional
@@ -125,6 +133,8 @@ func TestOptional_Value(t *testing.T) {
 }
 
 func TestOptional_TypeAndValue(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Optional
@@ -165,6 +175,8 @@ func TestOptional_TypeAndValue(t *testing.T) {
 }
 
 func TestOptional_SetValue(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *Value
 	}
@@ -243,13 +255,15 @@ func TestOptional_SetValue(t *testing.T) {
 }
 
 func TestOptional_Clone(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		target *Optional
 	}{
 		{
 			name:   "ok",
-			target: &Optional{t: TypeText, v: TypeText.ValueFrom("foo", nil)},
+			target: &Optional{t: TypeText, v: TypeText.Value("foo")},
 		},
 		{
 			name:   "empty",
@@ -274,6 +288,8 @@ func TestOptional_Clone(t *testing.T) {
 }
 
 func TestOptional_Cast(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		t Type
 	}
@@ -286,15 +302,15 @@ func TestOptional_Cast(t *testing.T) {
 	}{
 		{
 			name:   "diff type",
-			target: &Optional{t: TypeNumber, v: TypeNumber.ValueFrom(1.1, nil)},
+			target: &Optional{t: TypeNumber, v: TypeNumber.Value(1.1)},
 			args:   args{t: TypeText},
-			want:   &Optional{t: TypeText, v: TypeText.ValueFrom("1.1", nil)},
+			want:   &Optional{t: TypeText, v: TypeText.Value("1.1")},
 		},
 		{
 			name:   "same type",
-			target: &Optional{t: TypeNumber, v: TypeNumber.ValueFrom(1.1, nil)},
+			target: &Optional{t: TypeNumber, v: TypeNumber.Value(1.1)},
 			args:   args{t: TypeNumber},
-			want:   &Optional{t: TypeNumber, v: TypeNumber.ValueFrom(1.1, nil)},
+			want:   &Optional{t: TypeNumber, v: TypeNumber.Value(1.1)},
 		},
 		{
 			name:   "nil value",
@@ -304,7 +320,7 @@ func TestOptional_Cast(t *testing.T) {
 		},
 		{
 			name:   "failed to cast",
-			target: &Optional{t: TypeBool, v: TypeBool.ValueFrom(true, nil)},
+			target: &Optional{t: TypeBool, v: TypeBool.Value(true)},
 			args:   args{t: TypeDateTime},
 			want:   &Optional{t: TypeDateTime},
 		},
@@ -331,6 +347,8 @@ func TestOptional_Cast(t *testing.T) {
 }
 
 func TestOptional_IsSome_IsNone_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	v := (*Optional)(nil)
 	assert.False(t, v.IsSome())
 	assert.True(t, v.IsNone())
