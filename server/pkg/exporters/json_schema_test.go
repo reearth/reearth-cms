@@ -383,10 +383,7 @@ func TestNewJSONSchema_Target(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			var got types.JSONSchema
-			assert.NotPanics(t, func() {
-				got = NewJSONSchema(m, tt.sp, tt.target)
-			})
+			got := NewJSONSchema(m, tt.sp, tt.target)
 			assert.Equal(t, tt.wantID, got.Id)
 			assert.ElementsMatch(t, tt.wantProps, lo.Keys(got.Properties))
 		})

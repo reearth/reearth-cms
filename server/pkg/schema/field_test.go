@@ -288,14 +288,9 @@ func TestField_ParseValue_EmptyStringInMultiple(t *testing.T) {
 
 			f := NewField(tt.tp).NewID().Key(id.NewKey("f")).Multiple(true).MustBuild()
 
-			var parseErrs, validateErrs FieldValidationErrors
-			assert.NotPanics(t, func() {
-				_, parseErrs = f.ParseValue([]any{"", tt.valid})
-			})
+			_, parseErrs := f.ParseValue([]any{"", tt.valid})
 			assert.Len(t, parseErrs, tt.wantErrs)
-			assert.NotPanics(t, func() {
-				validateErrs = f.Validate(value.NewMultiple(f.Type(), []any{"", tt.valid}))
-			})
+			validateErrs := f.Validate(value.NewMultiple(f.Type(), []any{"", tt.valid}))
 			assert.Len(t, validateErrs, tt.wantErrs)
 		})
 	}

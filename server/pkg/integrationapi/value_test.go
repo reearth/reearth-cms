@@ -258,11 +258,7 @@ func TestToValue_Tag(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			var got any
-			assert.NotPanics(t, func() {
-				got = ToValue(tt.value, sf, nil)
-			})
-			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.want, ToValue(tt.value, sf, nil))
 		})
 	}
 }
