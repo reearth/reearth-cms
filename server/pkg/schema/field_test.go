@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -258,6 +259,44 @@ func TestField_ParseValue(t *testing.T) {
 					assert.ErrorIs(t, errs[i], want.err)
 				}
 			}
+		})
+	}
+}
+
+func TestField_ParseValue_EmptyStringInMultiple(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		tp       *TypeProperty
+		valid    any
+		wantErrs int
+	}{
+		{name: "integer", tp: MustNewInteger(nil, nil).TypeProperty(), valid: float64(5)},
+		{name: "number", tp: lo.Must(NewNumber(nil, nil)).TypeProperty(), valid: float64(1.5)},
+		{name: "bool", tp: NewBool().TypeProperty(), valid: true},
+		{name: "datetime", tp: NewDateTime().TypeProperty(), valid: "2024-01-01T00:00:00Z"},
+		{name: "url", tp: NewURL().TypeProperty(), valid: "https://example.com"},
+		{name: "asset", tp: NewAsset().TypeProperty(), valid: id.NewAssetID().String()},
+		// "" is never a select option (NewSelect drops it), so a "" value is still rejected
+		{name: "select", tp: NewSelect([]string{"", "a"}).TypeProperty(), valid: "a", wantErrs: 1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := NewField(tt.tp).NewID().Key(id.NewKey("f")).Multiple(true).MustBuild()
+
+			var parseErrs, validateErrs FieldValidationErrors
+			assert.NotPanics(t, func() {
+				_, parseErrs = f.ParseValue([]any{"", tt.valid})
+			})
+			assert.Len(t, parseErrs, tt.wantErrs)
+			assert.NotPanics(t, func() {
+				validateErrs = f.Validate(value.NewMultiple(f.Type(), []any{"", tt.valid}))
+			})
+			assert.Len(t, validateErrs, tt.wantErrs)
 		})
 	}
 }
