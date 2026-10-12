@@ -5,10 +5,12 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -333,6 +335,60 @@ func TestBuildPropertiesExtended(t *testing.T) {
 			properties := buildPropertiesMap(fieldList, nil)
 
 			assert.Equal(t, tt.expected, properties[tt.field.Key().String()])
+		})
+	}
+}
+
+func TestNewJSONSchema_Target(t *testing.T) {
+	t.Parallel()
+
+	ws := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	f := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("title")).MustBuild()
+	s := schema.New().NewID().Workspace(ws).Project(pid).Fields(schema.FieldList{f}).MustBuild()
+	meta := schema.New().NewID().Workspace(ws).Project(pid).MustBuild()
+	m := model.New().NewID().Project(pid).Schema(s.ID()).Key(id.NewKey("model")).MustBuild()
+
+	tests := []struct {
+		name      string
+		sp        *schema.Package
+		target    JSONSchemaExportTarget
+		wantID    *string
+		wantProps []string
+	}{
+		{
+			name:      "schema",
+			sp:        schema.NewPackage(s, nil, nil, nil),
+			target:    JSONSchemaExportTargetSchema,
+			wantID:    s.ID().Ref().StringRef(),
+			wantProps: []string{"title"},
+		},
+		{
+			name:      "metadata schema",
+			sp:        schema.NewPackage(s, meta, nil, nil),
+			target:    JSONSchemaExportTargetMetadataSchema,
+			wantID:    meta.ID().Ref().StringRef(),
+			wantProps: []string{},
+		},
+		{
+			name:      "metadata schema when the model has none",
+			sp:        schema.NewPackage(s, nil, nil, nil),
+			target:    JSONSchemaExportTargetMetadataSchema,
+			wantID:    nil,
+			wantProps: []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			var got types.JSONSchema
+			assert.NotPanics(t, func() {
+				got = NewJSONSchema(m, tt.sp, tt.target)
+			})
+			assert.Equal(t, tt.wantID, got.Id)
+			assert.ElementsMatch(t, tt.wantProps, lo.Keys(got.Properties))
 		})
 	}
 }
