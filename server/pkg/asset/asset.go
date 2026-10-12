@@ -196,11 +196,12 @@ func (a *Asset) Clone() *Asset {
 		updatedByIntegration:    a.updatedByIntegration.CloneRef(),
 		fileName:                a.fileName,
 		size:                    a.size,
-		previewType:             a.previewType,
+		previewType:             util.CloneRef(a.previewType),
 		uuid:                    a.uuid,
 		thread:                  a.thread.CloneRef(),
-		archiveExtractionStatus: a.archiveExtractionStatus,
+		archiveExtractionStatus: util.CloneRef(a.archiveExtractionStatus),
 		flatFiles:               a.flatFiles,
 		public:                  a.public,
+		accessInfoResolver:      a.accessInfoResolver,
 	}
 }
