@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -12,7 +12,6 @@ import { joinPaths } from "@reearth-cms/utils/path";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
-  workspaceId?: string;
   onHomeNavigation: () => void;
 };
 
@@ -39,22 +38,12 @@ type OtherItem = LauncherLink & {
   icon: IconName;
 };
 
-const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
+const AppLauncher: React.FC<Props> = ({ onHomeNavigation }) => {
   const t = useT();
   const [open, setOpen] = useState<boolean>(false);
 
   const dashboardBaseUrl = window.REEARTH_CONFIG?.dashboardBaseUrl;
-  const editorUrl = window.REEARTH_CONFIG?.editorUrl;
-
-  const visualizerUrl = useMemo<string | undefined>(() => {
-    if (!editorUrl || !workspaceId) return undefined;
-    // A malformed editorUrl would otherwise throw during render and take down the whole header.
-    try {
-      return new URL(`dashboard/${workspaceId}`, editorUrl).href;
-    } catch {
-      return undefined;
-    }
-  }, [editorUrl, workspaceId]);
+  const visualizerBaseUrl = window.REEARTH_CONFIG?.visualizerBaseUrl;
 
   const handleCmsClick = useCallback(() => {
     setOpen(false);
@@ -73,7 +62,7 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
       title: "Visualizer",
       icon: "logoVisualizer",
       iconBackground: CustomColor.PRODUCT_LOGO_BG_VISUALIZER,
-      href: visualizerUrl,
+      href: visualizerBaseUrl,
       testId: DATA_TEST_ID.AppLauncher__Visualizer,
     },
     {

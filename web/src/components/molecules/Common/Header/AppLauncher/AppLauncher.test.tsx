@@ -16,7 +16,7 @@ describe("AppLauncher", () => {
   beforeEach(() => {
     window.REEARTH_CONFIG = {
       api: "/api",
-      editorUrl: "https://visualizer.example.com",
+      visualizerBaseUrl: "https://visualizer.example.com",
       dashboardBaseUrl: "https://dashboard.example.com",
     } as Config;
   });
@@ -28,7 +28,7 @@ describe("AppLauncher", () => {
   const openLauncher = async (props: Partial<React.ComponentProps<typeof AppLauncher>> = {}) => {
     const user = userEvent.setup();
     const onHomeNavigation = vi.fn();
-    render(<AppLauncher workspaceId="ws-1" onHomeNavigation={onHomeNavigation} {...props} />);
+    render(<AppLauncher onHomeNavigation={onHomeNavigation} {...props} />);
     await user.click(screen.getByTestId(DATA_TEST_ID.AppLauncher__Trigger));
     return { user, onHomeNavigation };
   };
@@ -51,7 +51,7 @@ describe("AppLauncher", () => {
     );
     expect(screen.getByTestId(DATA_TEST_ID.AppLauncher__Visualizer)).toHaveAttribute(
       "href",
-      "https://visualizer.example.com/dashboard/ws-1",
+      "https://visualizer.example.com",
     );
     expect(screen.getByTestId(DATA_TEST_ID.AppLauncher__Home)).toHaveAttribute(
       "href",
@@ -96,23 +96,6 @@ describe("AppLauncher", () => {
     await user.tab();
     expect(dashboard).toHaveFocus();
     expect(await screen.findByRole("tooltip")).toHaveTextContent(DISABLED_TITLE);
-  });
-
-  test("disables Visualizer when workspace is not available", async () => {
-    await openLauncher({ workspaceId: undefined });
-    const visualizer = await screen.findByTestId(DATA_TEST_ID.AppLauncher__Visualizer);
-
-    expect(visualizer).toHaveAttribute("aria-disabled", "true");
-    expect(visualizer).not.toHaveAttribute("href");
-  });
-
-  test("disables Visualizer when editorUrl is malformed", async () => {
-    window.REEARTH_CONFIG = { ...window.REEARTH_CONFIG, editorUrl: "not a url" } as Config;
-    await openLauncher();
-    const visualizer = await screen.findByTestId(DATA_TEST_ID.AppLauncher__Visualizer);
-
-    expect(visualizer).toHaveAttribute("aria-disabled", "true");
-    expect(visualizer).not.toHaveAttribute("href");
   });
 
   test("navigates home within CMS when the CMS tile is clicked", async () => {

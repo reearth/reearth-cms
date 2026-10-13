@@ -143,7 +143,7 @@ const HeaderMolecule: React.FC<Props> = ({
       ) : (
         <Logo src="/logo.svg" onClick={onHomeNavigation} />
       )}
-      <AppLauncher workspaceId={currentWorkspace?.id} onHomeNavigation={onHomeNavigation} />
+      <AppLauncher onHomeNavigation={onHomeNavigation} />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
         profilePictureUrl={profilePictureUrl}
