@@ -47,7 +47,7 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, pagination *u
 	// only CanRead applies, as mongox.And drops the mongo read filter for
 	// queries keyed by project
 	result := r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project() == pid && r.canRead(m)
+		return m.Project() == pid
 	})
 
 	return r.pager().paginate(result, nil, pagination)
@@ -65,7 +65,7 @@ func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k *
 	// the keyword matches the name case-insensitively, as the mongo regex does
 	keyword := strings.ToLower(lo.FromPtr(k))
 	result := r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project() == pid && strings.Contains(strings.ToLower(m.Name()), keyword) && r.canRead(m)
+		return m.Project() == pid && strings.Contains(strings.ToLower(m.Name()), keyword)
 	})
 
 	return r.pager().paginate(result, normalize(sort), pagination)
@@ -114,6 +114,10 @@ func (r *Model) FindByIDOrKey(_ context.Context, pid id.ProjectID, q model.IDOrK
 		return nil, rerror.ErrNotFound
 	}
 
+	if !r.f.CanRead(pid) {
+		return nil, rerror.ErrNotFound
+	}
+
 	return r.findOne(func(m *model.Model) bool {
 		if m.Project() != pid {
 			return false
@@ -131,7 +135,7 @@ func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error
 	}
 
 	return r.findOne(func(m *model.Model) bool {
-		return m.ID() == mid
+		return m.ID() == mid && r.canRead(m)
 	})
 }
 
@@ -141,7 +145,7 @@ func (r *Model) FindBySchema(_ context.Context, sid id.SchemaID) (*model.Model, 
 	}
 
 	return r.findOne(func(m *model.Model) bool {
-		return m.Schema() == sid || (m.Metadata() != nil && *m.Metadata() == sid)
+		return (m.Schema() == sid || (m.Metadata() != nil && *m.Metadata() == sid)) && r.canRead(m)
 	})
 }
 
@@ -210,7 +214,7 @@ func (r *Model) Remove(_ context.Context, mId id.ModelID) error {
 
 func (r *Model) findOne(f func(*model.Model) bool) (*model.Model, error) {
 	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return f(m) && r.canRead(m)
+		return f(m)
 	})
 	if m == nil {
 		return nil, rerror.ErrNotFound

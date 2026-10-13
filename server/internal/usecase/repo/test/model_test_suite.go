@@ -450,6 +450,16 @@ func testModelFindByProject(t *testing.T, newRepo modelFactory) {
 			wantPage:  true,
 		},
 		{
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
+			name:      "must find models of a writable-only project",
+			filter:    new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:      first(10),
+			want:      model.List{p1m1, p1m2, p1m3, p1m4},
+			wantTotal: 4,
+			wantPage:  true,
+		},
+		{
 			name:     "must find nothing in an unreadable project",
 			filter:   new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
 			args:     first(10),
@@ -665,6 +675,16 @@ func testModelFindByProjectAndKeyword(t *testing.T, newRepo modelFactory) {
 			wantPage:  true,
 		},
 		{
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
+			name:      "must find models of a writable-only project",
+			filter:    new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:      args{keyword: new("alpha"), pagination: first(10)},
+			want:      model.List{p1m3, p1m1},
+			wantTotal: 2,
+			wantPage:  true,
+		},
+		{
 			name:     "must find nothing in an unreadable project",
 			filter:   new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
 			args:     args{pagination: first(10)},
@@ -747,6 +767,15 @@ func testModelFindByKey(t *testing.T, newRepo modelFactory) {
 			name:   "must find a model of a readable project",
 			seeds:  seeds,
 			filter: new(pjFilter(id.ProjectIDList{p1}, id.ProjectIDList{p2})),
+			args:   args{p1, p1m1.Key().String()},
+			want:   p1m1,
+		},
+		{
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
+			name:   "must find a model of a writable-only project",
+			seeds:  seeds,
+			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:   args{p1, p1m1.Key().String()},
 			want:   p1m1,
 		},
@@ -851,6 +880,15 @@ func testModelFindByIDOrKey(t *testing.T, newRepo modelFactory) {
 			seeds:  seeds,
 			filter: new(pjFilter(id.ProjectIDList{p1}, id.ProjectIDList{p2})),
 			args:   args{p1, model.IDOrKey(p1m1.Key().String())},
+			want:   p1m1,
+		},
+		{
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
+			name:   "must find a model of a writable-only project",
+			seeds:  seeds,
+			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:   args{p1, model.IDOrKey(p1m1.ID().String())},
 			want:   p1m1,
 		},
 		{
