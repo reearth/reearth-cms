@@ -96,6 +96,12 @@ describe("Style", () => {
       expect(CustomColor.TEXT_DISABLED).toBe("#c4c4c4");
       expect(CustomColor.ICON_MUTED).toBe("#b8b8b8");
     });
+
+    test("has app launcher logo plate colors", () => {
+      expect(CustomColor.PRODUCT_LOGO_BG_VISUALIZER).toBe("#fcf4f4");
+      expect(CustomColor.PRODUCT_LOGO_BG_CMS).toBe("#fffce7");
+      expect(CustomColor.PRODUCT_LOGO_BG_NAVARA).toBe("#e8f4f7");
+    });
   });
 
   describe("AntdToken", () => {
