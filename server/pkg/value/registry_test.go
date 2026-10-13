@@ -1,26 +1,47 @@
 package value
 
-type tpmock struct {
-	TypeProperty
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func Test_typeRegistry_ToValue(t *testing.T) {
+	t.Parallel()
+
+	got, ok := defaultTypes.ToValue(TypeText, "foo")
+	assert.Equal(t, "foo", got)
+	assert.True(t, ok)
+
+	got, ok = defaultTypes.ToValue(Type("foo"), "foo")
+	assert.Nil(t, got)
+	assert.False(t, ok)
 }
 
-func (*tpmock) ToValue(i any) (any, bool) {
-	return i.(string) + "a", true
+func Test_typeRegistry_ToInterface(t *testing.T) {
+	t.Parallel()
+
+	got, ok := defaultTypes.ToInterface(TypeText, "foo")
+	assert.Equal(t, "foo", got)
+	assert.True(t, ok)
+
+	got, ok = defaultTypes.ToInterface(Type("foo"), "foo")
+	assert.Nil(t, got)
+	assert.False(t, ok)
 }
 
-func (*tpmock) ToInterface(v any) (any, bool) {
-	return v.(string) + "bar", true
-}
+func Test_typeRegistry_Validate(t *testing.T) {
+	t.Parallel()
 
-func (*tpmock) Equal(a, b any) bool {
-	return a.(string) == b.(string)
-}
+	valid, ok := defaultTypes.Validate(TypeText, "foo")
+	assert.True(t, valid)
+	assert.True(t, ok)
 
-func (*tpmock) IsEmpty(v any) bool {
-	return v.(string) == ""
-}
+	valid, ok = defaultTypes.Validate(TypeText, 1)
+	assert.False(t, valid)
+	assert.True(t, ok)
 
-func (*tpmock) Validate(v any) bool {
-	_, ok := v.(string)
-	return ok
+	valid, ok = defaultTypes.Validate(Type("foo"), "foo")
+	assert.False(t, valid)
+	assert.False(t, ok)
 }

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -127,7 +127,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids:      []id.ProjectID{pid1},
 				operator: op,
 			},
-			want:    nil,
+			want:    project.List{},
 			wantErr: nil,
 		},
 		{
@@ -137,7 +137,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
 			},
-			want:    nil,
+			want:    project.List{},
 			wantErr: nil,
 		},
 		{
