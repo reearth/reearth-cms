@@ -106,6 +106,15 @@ describe("AppLauncher", () => {
     expect(visualizer).not.toHaveAttribute("href");
   });
 
+  test("disables Visualizer when editorUrl is malformed", async () => {
+    window.REEARTH_CONFIG = { ...window.REEARTH_CONFIG, editorUrl: "not a url" } as Config;
+    await openLauncher();
+    const visualizer = await screen.findByTestId(DATA_TEST_ID.AppLauncher__Visualizer);
+
+    expect(visualizer).toHaveAttribute("aria-disabled", "true");
+    expect(visualizer).not.toHaveAttribute("href");
+  });
+
   test("navigates home within CMS when the CMS tile is clicked", async () => {
     const { user, onHomeNavigation } = await openLauncher();
 

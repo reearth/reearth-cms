@@ -300,7 +300,6 @@ export default {
   "GLTF/GLB": "",
   "Go back": "Go back",
   "Go back Home": "",
-  "Go to Editor": "",
   "greater than": "",
   "greater than or equal to": "",
   "Group": "",

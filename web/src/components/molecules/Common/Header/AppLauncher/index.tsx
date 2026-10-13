@@ -48,7 +48,12 @@ const AppLauncher: React.FC<Props> = ({ workspaceId, onHomeNavigation }) => {
 
   const visualizerUrl = useMemo<string | undefined>(() => {
     if (!editorUrl || !workspaceId) return undefined;
-    return new URL(`dashboard/${workspaceId}`, editorUrl).href;
+    // A malformed editorUrl would otherwise throw during render and take down the whole header.
+    try {
+      return new URL(`dashboard/${workspaceId}`, editorUrl).href;
+    } catch {
+      return undefined;
+    }
   }, [editorUrl, workspaceId]);
 
   const handleCmsClick = useCallback(() => {

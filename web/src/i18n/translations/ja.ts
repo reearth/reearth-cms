@@ -296,7 +296,6 @@ export default {
   "GLTF/GLB": "GLTF/GLB",
   "Go back": "戻る",
   "Go back Home": "ホームへ戻る",
-  "Go to Editor": "エディタへ移動",
   "greater than": "超える",
   "greater than or equal to": "以上",
   "Group": "グループ",
