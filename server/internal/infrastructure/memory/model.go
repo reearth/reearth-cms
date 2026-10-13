@@ -1,9 +1,10 @@
 package memory
 
 import (
+	"cmp"
 	"context"
+	"slices"
 	"strings"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,19 +12,18 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Model struct {
 	data *util.SyncMap[id.ModelID, *model.Model]
 	f    repo.ProjectFilter
-	now  *util.TimeNow
 	err  error
 }
 
 func NewModel() repo.Model {
 	return &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -31,68 +31,44 @@ func (r *Model) Filtered(f repo.ProjectFilter) repo.Model {
 	return &Model{
 		data: r.data,
 		f:    r.f.Merge(f),
-		now:  &util.TimeNow{},
+		err:  r.err,
 	}
 }
 
-func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
-	// TODO: implement pagination
-
 	if !r.f.CanRead(pid) {
-		return nil, nil, nil
+		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
-	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project() == pid
-	})).SortByID()
+	// only CanRead applies, as mongox.And drops the mongo read filter for
+	// queries keyed by project
+	result := r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
+		return m.Project() == pid && r.canRead(m)
+	})
 
-	var startCursor, endCursor *usecasex.Cursor
-	if len(result) > 0 {
-		startCursor = new(usecasex.Cursor(result[0].ID().String()))
-		endCursor = new(usecasex.Cursor(result[len(result)-1].ID().String()))
-	}
-
-	return result, usecasex.NewPageInfo(
-		int64(len(result)),
-		startCursor,
-		endCursor,
-		false,
-		false,
-	), nil
+	return r.pager().paginate(result, nil, pagination)
 }
 
-func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k *string, _ *usecasex.Sort, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k *string, sort *usecasex.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
-	// TODO: implement pagination and sorting
-
 	if !r.f.CanRead(pid) {
-		return nil, nil, nil
+		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
-	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project() == pid && (k == nil || strings.Contains(m.Name(), *k))
-	})).SortByID()
+	// the keyword matches the name case-insensitively, as the mongo regex does
+	keyword := strings.ToLower(lo.FromPtr(k))
+	result := r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
+		return m.Project() == pid && strings.Contains(strings.ToLower(m.Name()), keyword) && r.canRead(m)
+	})
 
-	var startCursor, endCursor *usecasex.Cursor
-	if len(result) > 0 {
-		startCursor = new(usecasex.Cursor(result[0].ID().String()))
-		endCursor = new(usecasex.Cursor(result[len(result)-1].ID().String()))
-	}
-
-	return result, usecasex.NewPageInfo(
-		int64(len(result)),
-		startCursor,
-		endCursor,
-		true,
-		true,
-	), nil
+	return r.pager().paginate(result, normalize(sort), pagination)
 }
 
 func (r *Model) CountByProject(_ context.Context, pid id.ProjectID) (int, error) {
@@ -114,21 +90,20 @@ func (r *Model) FindByKey(_ context.Context, pid id.ProjectID, key string) (*mod
 		return nil, r.err
 	}
 
-	if !r.f.CanRead(pid) {
-		return nil, nil
-	}
-
-	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return m.Key().String() == key && m.Project() == pid
-	})
-	if m == nil {
+	if key == "" {
 		return nil, rerror.ErrNotFound
 	}
 
-	return m, nil
+	if !r.f.CanRead(pid) {
+		return nil, repo.ErrOperationDenied
+	}
+
+	return r.findOne(func(m *model.Model) bool {
+		return m.Project() == pid && m.Key().String() == key
+	})
 }
 
-func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q model.IDOrKey) (*model.Model, error) {
+func (r *Model) FindByIDOrKey(_ context.Context, pid id.ProjectID, q model.IDOrKey) (*model.Model, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -139,14 +114,15 @@ func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q mod
 		return nil, rerror.ErrNotFound
 	}
 
-	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return r.f.CanRead(m.Project()) && (modelID != nil && m.ID() == *modelID || key != nil && m.Key().String() == *key)
+	return r.findOne(func(m *model.Model) bool {
+		if m.Project() != pid {
+			return false
+		}
+		if modelID != nil {
+			return m.ID() == *modelID
+		}
+		return m.Key().String() == *key
 	})
-	if m == nil {
-		return nil, rerror.ErrNotFound
-	}
-
-	return m, nil
 }
 
 func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error) {
@@ -154,14 +130,9 @@ func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error
 		return nil, r.err
 	}
 
-	m := r.data.Find(func(k id.ModelID, m *model.Model) bool {
-		return k == mid && r.f.CanRead(m.Project())
+	return r.findOne(func(m *model.Model) bool {
+		return m.ID() == mid
 	})
-
-	if m != nil {
-		return m, nil
-	}
-	return nil, rerror.ErrNotFound
 }
 
 func (r *Model) FindBySchema(_ context.Context, sid id.SchemaID) (*model.Model, error) {
@@ -169,14 +140,9 @@ func (r *Model) FindBySchema(_ context.Context, sid id.SchemaID) (*model.Model, 
 		return nil, r.err
 	}
 
-	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return (m.Schema() == sid || (m.Metadata() != nil && *m.Metadata() == sid)) && r.f.CanRead(m.Project())
+	return r.findOne(func(m *model.Model) bool {
+		return m.Schema() == sid || (m.Metadata() != nil && *m.Metadata() == sid)
 	})
-
-	if m != nil {
-		return m, nil
-	}
-	return nil, rerror.ErrNotFound
 }
 
 func (r *Model) FindByIDs(_ context.Context, ids id.ModelIDList) (model.List, error) {
@@ -184,11 +150,18 @@ func (r *Model) FindByIDs(_ context.Context, ids id.ModelIDList) (model.List, er
 		return nil, r.err
 	}
 
-	result := r.data.FindAll(func(k id.ModelID, m *model.Model) bool {
-		return ids.Has(k) && r.f.CanRead(m.Project())
-	})
+	if len(ids) == 0 {
+		return nil, nil
+	}
 
-	return model.List(result).SortByID(), nil
+	// models are returned in the order of the given IDs
+	res := make(model.List, 0, len(ids))
+	for _, mid := range ids {
+		if m, ok := r.data.Load(mid); ok && r.canRead(m) {
+			res = append(res, m)
+		}
+	}
+	return res, nil
 }
 
 func (r *Model) Save(_ context.Context, m *model.Model) error {
@@ -200,8 +173,26 @@ func (r *Model) Save(_ context.Context, m *model.Model) error {
 		return repo.ErrOperationDenied
 	}
 
-	m.SetUpdatedAt(r.now.Now())
 	r.data.Store(m.ID(), m)
+	return nil
+}
+
+func (r *Model) SaveAll(_ context.Context, models model.List) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	if len(models) == 0 {
+		return nil
+	}
+
+	if !r.f.CanWrite(models.Projects()...) {
+		return repo.ErrOperationDenied
+	}
+
+	r.data.StoreAll(lo.SliceToMap(models, func(m *model.Model) (id.ModelID, *model.Model) {
+		return m.ID(), m
+	}))
 	return nil
 }
 
@@ -217,30 +208,69 @@ func (r *Model) Remove(_ context.Context, mId id.ModelID) error {
 	return rerror.ErrNotFound
 }
 
-func MockModelNow(r repo.Model, t time.Time) func() {
-	return r.(*Model).now.Mock(t)
+func (r *Model) findOne(f func(*model.Model) bool) (*model.Model, error) {
+	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
+		return f(m) && r.canRead(m)
+	})
+	if m == nil {
+		return nil, rerror.ErrNotFound
+	}
+	return m, nil
+}
+
+func (r *Model) canRead(m *model.Model) bool {
+	return r.f.Readable == nil || r.f.Readable.Has(m.Project())
+}
+
+func (r *Model) pager() pager[*model.Model] {
+	text := func(f func(*model.Model) string) compareFunc[*model.Model] {
+		return func(a, b *model.Model) int { return strings.Compare(f(a), f(b)) }
+	}
+	return pager[*model.Model]{
+		id: func(m *model.Model) string { return m.ID().String() },
+		keys: map[string]compareFunc[*model.Model]{
+			"name":        text((*model.Model).Name),
+			"description": text((*model.Model).Description),
+			"key":         text(func(m *model.Model) string { return m.Key().String() }),
+			"project":     text(func(m *model.Model) string { return m.Project().String() }),
+			"schema":      text(func(m *model.Model) string { return m.Schema().String() }),
+			"metadata":    text(func(m *model.Model) string { return lo.FromPtr(m.Metadata().StringRef()) }),
+			// mongo stores times in milliseconds, so finer differences tie
+			"updatedat": func(a, b *model.Model) int {
+				return cmp.Compare(a.UpdatedAt().UnixMilli(), b.UpdatedAt().UnixMilli())
+			},
+			"order": func(a, b *model.Model) int { return cmp.Compare(a.Order(), b.Order()) },
+		},
+		find: func(c usecasex.Cursor) (*model.Model, bool) {
+			mid, err := id.ModelIDFrom(string(c))
+			if err != nil {
+				return nil, false
+			}
+			return r.data.Load(mid)
+		},
+	}
+}
+
+func normalize(s *usecasex.Sort) *usecasex.Sort {
+	if s == nil {
+		return &usecasex.Sort{Key: "order", Reverted: true}
+	}
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(s.Key)),
+		Reverted: s.Reverted,
+	}
+	switch res.Key {
+	case "createdat", "created_at":
+		res.Key = "id"
+	case "updated_at":
+		res.Key = "updatedat"
+	}
+	if !slices.Contains([]string{"id", "name", "description", "key", "project", "schema", "metadata", "updatedat", "order"}, res.Key) {
+		res.Key = "order"
+	}
+	return res
 }
 
 func SetModelError(r repo.Model, err error) {
 	r.(*Model).err = err
-}
-
-func (r *Model) SaveAll(ctx context.Context, models model.List) error {
-	if r.err != nil {
-		return r.err
-	}
-	if len(models) == 0 {
-		return nil
-	}
-
-	if !r.f.CanWrite(models.Projects()...) {
-		return repo.ErrOperationDenied
-	}
-	inp := map[id.ModelID]*model.Model{}
-	for _, m := range models {
-		m.SetUpdatedAt(r.now.Now())
-		inp[m.ID()] = m
-	}
-	r.data.StoreAll(inp)
-	return nil
 }
