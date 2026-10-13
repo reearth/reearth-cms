@@ -46,7 +46,7 @@
     "@graphql-codegen/typescript": "6.1.0",
     "@graphql-codegen/typescript-operations": "6.1.0",
     "@mapbox/vector-tile": "3.0.0",
-    "@playwright/test": "1.61.1",
+    "@playwright/test": "1.64.0",
     "@rollup/plugin-yaml": "5.0.0",
     "@storybook/addon-docs": "10.5.2",
     "@storybook/addon-links": "10.5.2",
