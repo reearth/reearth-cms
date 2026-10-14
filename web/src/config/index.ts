@@ -12,10 +12,10 @@ export type Config = {
   tilesUrl?: string;
   terrainUrl?: string;
   tilesToken?: string;
-  editorUrl: string;
   multiTenant?: Record<string, AuthInfo>;
   disableWorkspaceUi?: string | boolean;
   dashboardBaseUrl?: string;
+  visualizerBaseUrl?: string;
 } & AuthInfo;
 
 const env = import.meta.env;
@@ -31,7 +31,6 @@ export const defaultConfig: Config = {
   tilesUrl: env.REEARTH_CMS_TILES_URL || "https://tiles.reearth.land",
   terrainUrl: env.REEARTH_CMS_TERRAIN_URL || "https://terrain.reearth.land",
   tilesToken: env.REEARTH_CMS_TILES_TOKEN || "",
-  editorUrl: env.REEARTH_CMS_EDITOR_URL,
   firebase: {
     firebaseApiKey: env.REEARTH_CMS_FIREBASE_API_KEY,
     firebaseAuthDomain: env.REEARTH_CMS_FIREBASE_AUTH_DOMAIN,
@@ -42,6 +41,7 @@ export const defaultConfig: Config = {
   },
   disableWorkspaceUi: env.REEARTH_CMS_DISABLE_WORKSPACE_UI,
   dashboardBaseUrl: env.REEARTH_CMS_DASHBOARD_BASE_URL,
+  visualizerBaseUrl: env.REEARTH_CMS_VISUALIZER_BASE_URL,
 };
 
 export default async function loadConfig() {
