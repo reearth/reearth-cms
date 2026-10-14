@@ -28,7 +28,6 @@ type AssetDocument struct {
 	UUID                    string
 	Thread                  *string
 	ArchiveExtractionStatus string
-	FlatFiles               bool
 	Public                  bool
 }
 
@@ -99,7 +98,6 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		UUID:                    a.UUID(),
 		Thread:                  a.Thread().StringRef(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
-		FlatFiles:               a.FlatFiles(),
 		Public:                  a.Public(),
 	}, aid
 }
@@ -125,7 +123,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		UUID(d.UUID).
 		Thread(id.ThreadIDFromRef(d.Thread)).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(new(d.ArchiveExtractionStatus))).
-		FlatFiles(d.FlatFiles).
 		Public(d.Public)
 
 	if d.User != nil {
