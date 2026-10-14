@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
@@ -30,6 +31,15 @@ type Seeder func(context.Context, *repo.Container, *gateway.Container) error
 
 func init() {
 	mongotest.Env = "REEARTH_CMS_DB"
+}
+
+func TestMain(m *testing.M) {
+	devNull := lo.Must(os.OpenFile(os.DevNull, os.O_WRONLY, 0))
+	defer func() { _ = devNull.Close() }()
+
+	log.DefaultOutput = devNull // loggers created by log.New(), e.g. the echo access logger
+	log.SetOutput(devNull)      // global logger
+	m.Run()
 }
 
 func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountrepos *accountrepo.Container, gateway *gateway.Container, accountgateway *accountgateway.Container) *httpexpect.Expect {
@@ -111,7 +121,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		log.Infof("test: new db created with name: %v", db.Name())
+		t.Logf("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -161,7 +171,7 @@ func StartServerWithGateway(t *testing.T, cfg *app.Config, useMongo bool, seeder
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		log.Infof("test: new db created with name: %v", db.Name())
+		t.Logf("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -207,7 +217,7 @@ func StartServerAndGetURL(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		log.Infof("test: new db created with name: %v", db.Name())
+		t.Logf("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
