@@ -167,7 +167,7 @@ func (s *Schema) Clone() *Schema {
 		id:         s.ID(),
 		project:    s.Project().Clone(),
 		workspace:  s.Workspace().Clone(),
-		fields:     slices.Clone(s.fields),
+		fields:     s.fields.Clone(),
 		titleField: s.TitleField().CloneRef(),
 	}
 }
@@ -195,6 +195,6 @@ func (s *Schema) CopyFrom(s2 *Schema) {
 	if s == nil || s2 == nil {
 		return
 	}
-	s.fields = slices.Clone(s2.fields)
+	s.fields = s2.fields.Clone()
 	s.titleField = s2.TitleField().CloneRef()
 }
