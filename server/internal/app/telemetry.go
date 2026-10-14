@@ -13,8 +13,8 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/semconv/v1.26.0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/oauth"
@@ -67,10 +67,10 @@ func initTelemetry(ctx context.Context, config OtelConfig) func() {
 		res = resource.Default()
 	}
 
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(exporter, batcherOptions(config)...),
-		sdktrace.WithResource(res),
-		sdktrace.WithSampler(sampler(config)),
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter, batcherOptions(config)...),
+		trace.WithResource(res),
+		trace.WithSampler(sampler(config)),
 	)
 
 	otel.SetTracerProvider(tp)
@@ -92,7 +92,7 @@ func initTelemetry(ctx context.Context, config OtelConfig) func() {
 	}
 }
 
-func buildExporter(ctx context.Context, config OtelConfig) (sdktrace.SpanExporter, string, error) {
+func buildExporter(ctx context.Context, config OtelConfig) (trace.SpanExporter, string, error) {
 	if project := os.Getenv("GOOGLE_CLOUD_PROJECT"); project != "" {
 		exp, err := newCloudTraceExporter(ctx)
 		return exp, "Google Cloud Trace (project=" + project + ")", err
@@ -106,7 +106,7 @@ func buildExporter(ctx context.Context, config OtelConfig) (sdktrace.SpanExporte
 	return nil, "", nil
 }
 
-func newCloudTraceExporter(ctx context.Context) (sdktrace.SpanExporter, error) {
+func newCloudTraceExporter(ctx context.Context) (trace.SpanExporter, error) {
 	creds, err := oauth.NewApplicationDefault(ctx, gcpTraceAppendScope)
 	if err != nil {
 		return nil, err
@@ -119,26 +119,26 @@ func newCloudTraceExporter(ctx context.Context) (sdktrace.SpanExporter, error) {
 	)
 }
 
-func sampler(config OtelConfig) sdktrace.Sampler {
+func sampler(config OtelConfig) trace.Sampler {
 	if config.SamplingRatio <= 0 {
-		return sdktrace.NeverSample()
+		return trace.NeverSample()
 	}
 	if config.SamplingRatio >= 1 {
-		return sdktrace.AlwaysSample()
+		return trace.AlwaysSample()
 	}
-	return sdktrace.ParentBased(sdktrace.TraceIDRatioBased(config.SamplingRatio))
+	return trace.ParentBased(trace.TraceIDRatioBased(config.SamplingRatio))
 }
 
-func batcherOptions(config OtelConfig) []sdktrace.BatchSpanProcessorOption {
-	var opts []sdktrace.BatchSpanProcessorOption
+func batcherOptions(config OtelConfig) []trace.BatchSpanProcessorOption {
+	var opts []trace.BatchSpanProcessorOption
 	if config.MaxExportBatchSize > 0 {
-		opts = append(opts, sdktrace.WithMaxExportBatchSize(config.MaxExportBatchSize))
+		opts = append(opts, trace.WithMaxExportBatchSize(config.MaxExportBatchSize))
 	}
 	if config.BatchTimeout > 0 {
-		opts = append(opts, sdktrace.WithBatchTimeout(config.BatchTimeout))
+		opts = append(opts, trace.WithBatchTimeout(config.BatchTimeout))
 	}
 	if config.MaxQueueSize > 0 {
-		opts = append(opts, sdktrace.WithMaxQueueSize(config.MaxQueueSize))
+		opts = append(opts, trace.WithMaxQueueSize(config.MaxQueueSize))
 	}
 	return opts
 }
