@@ -3,9 +3,9 @@ package e2e
 import (
 	"context"
 	"errors"
+	"io"
 	"net"
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
@@ -34,11 +34,8 @@ func init() {
 }
 
 func TestMain(m *testing.M) {
-	devNull := lo.Must(os.OpenFile(os.DevNull, os.O_WRONLY, 0))
-	defer func() { _ = devNull.Close() }()
-
-	log.DefaultOutput = devNull // loggers created by log.New(), e.g. the echo access logger
-	log.SetOutput(devNull)      // global logger
+	log.DefaultOutput = io.Discard // loggers created by log.New(), e.g. the echo access logger
+	log.SetOutput(io.Discard)      // global logger
 	m.Run()
 }
 
