@@ -76,7 +76,7 @@ func (r *ProjectRepo) FindByID(ctx context.Context, id id.ProjectID) (*project.P
 
 func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (project.List, error) {
 	if len(ids) == 0 {
-		return nil, nil
+		return project.List{}, nil
 	}
 
 	filter := bson.M{

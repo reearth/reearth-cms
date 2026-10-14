@@ -32,3 +32,8 @@ func TestFieldBool_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldBool{}).Validate(value.TypeBool.Value(true)))
 	assert.Equal(t, ErrInvalidValue, (&FieldBool{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldBool_ValidateMultiple(t *testing.T) {
+	f := &FieldBool{}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeBool, []any{true, false})))
+}

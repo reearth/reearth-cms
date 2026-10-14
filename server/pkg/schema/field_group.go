@@ -56,3 +56,10 @@ func (f *FieldGroup) Validate(v *value.Value) (err error) {
 func (f *FieldGroup) ValidateMultiple(v *value.Multiple) error {
 	return nil
 }
+
+func FieldGroupFromTypeProperty(tp *TypeProperty) (*FieldGroup, bool) {
+	if tp == nil {
+		return nil, false
+	}
+	return tp.group, tp.Type() == value.TypeGroup && tp.group != nil
+}

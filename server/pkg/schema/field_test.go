@@ -146,7 +146,7 @@ func TestField_SetTypeProperty(t *testing.T) {
 	assert.Equal(t, &Field{typeProperty: tp}, f)
 
 	f = &Field{defaultValue: value.TypeText.Value("aaa").AsMultiple()}
-	assert.ErrorContains(t, f.SetTypeProperty(tp), "it sholud be shorter than 1 characters")
+	assert.ErrorContains(t, f.SetTypeProperty(tp), ErrStringFieldMaxLengthExceeded(1).Error())
 	assert.Equal(t, &Field{defaultValue: value.TypeText.Value("aaa").AsMultiple()}, f)
 
 	assert.Same(t, ErrInvalidType, f.SetTypeProperty(nil))
@@ -163,18 +163,117 @@ func TestField_SetDefaultValue(t *testing.T) {
 	assert.Nil(t, f.defaultValue)
 	assert.Nil(t, f.DefaultValue())
 
-	assert.ErrorContains(t, f.SetDefaultValue(value.TypeText.Value("aaa").AsMultiple()), "it sholud be shorter than 1 characters")
+	assert.ErrorContains(t, f.SetDefaultValue(value.TypeText.Value("aaa").AsMultiple()), ErrStringFieldMaxLengthExceeded(1).Error())
 	assert.Nil(t, f.defaultValue)
 	assert.Nil(t, f.DefaultValue())
 }
 
+func TestField_ParseValue(t *testing.T) {
+	t.Parallel()
+
+	maxCount := int64(100)
+	single := NewField(MustNewInteger(nil, &maxCount).TypeProperty()).NewID().Key(id.NewKey("count")).MustBuild()
+	multiple := NewField(MustNewInteger(nil, &maxCount).TypeProperty()).NewID().Key(id.NewKey("counts")).Multiple(true).MustBuild()
+
+	type wantErr struct {
+		code  FieldValidationCode
+		index *int
+		err   error
+	}
+	tests := []struct {
+		name     string
+		field    *Field
+		raw      any
+		wantVals []any
+		wantErrs []wantErr
+	}{
+		{
+			name:     "single valid value",
+			field:    single,
+			raw:      float64(5),
+			wantVals: []any{int64(5)},
+		},
+		{
+			name:     "single value that can't be converted",
+			field:    single,
+			raw:      "abc",
+			wantVals: []any{},
+			wantErrs: []wantErr{{code: FieldValidationCodeTypeMismatch, err: ErrInvalidValue}},
+		},
+		{
+			name:     "single value over the max is reported as a constraint violation",
+			field:    single,
+			raw:      float64(200),
+			wantVals: []any{int64(200)},
+			wantErrs: []wantErr{{code: FieldValidationCodeConstraint}},
+		},
+		{
+			name:     "list sent to a single-value field",
+			field:    single,
+			raw:      []any{float64(1)},
+			wantVals: []any{},
+			wantErrs: []wantErr{{code: FieldValidationCodeTypeMismatch, err: ErrFieldValueMultiple}},
+		},
+		{
+			name:     "nil for a single-value field is no value",
+			field:    single,
+			raw:      nil,
+			wantVals: []any{},
+		},
+		{
+			name:     "scalar sent to a multiple field",
+			field:    multiple,
+			raw:      float64(1),
+			wantVals: []any{},
+			wantErrs: []wantErr{{code: FieldValidationCodeTypeMismatch, err: ErrFieldValueNotMultiple}},
+		},
+		{
+			name:     "every problem of a multiple value is reported with its raw index",
+			field:    multiple,
+			raw:      []any{float64(5), "x", nil, float64(200)},
+			wantVals: []any{int64(5), int64(200)},
+			wantErrs: []wantErr{
+				{code: FieldValidationCodeTypeMismatch, index: new(1), err: ErrInvalidValue},
+				{code: FieldValidationCodeConstraint, index: new(3)},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			m, errs := tt.field.ParseValue(tt.raw)
+			assert.NotNil(t, m)
+			assert.Equal(t, value.NewMultiple(value.TypeInteger, tt.wantVals), m)
+			assert.Len(t, errs, len(tt.wantErrs))
+			for i, want := range tt.wantErrs {
+				if i >= len(errs) {
+					break
+				}
+				assert.Equal(t, want.code, errs[i].Code)
+				assert.Equal(t, want.index, errs[i].Index)
+				assert.Equal(t, tt.field.ID().Ref(), errs[i].Field)
+				if want.err != nil {
+					assert.ErrorIs(t, errs[i], want.err)
+				}
+			}
+		})
+	}
+}
+
 func TestField_Validate(t *testing.T) {
-	f := &Field{typeProperty: NewText(new(1)).TypeProperty()}
-	assert.NoError(t, f.Validate(value.TypeText.Value("a").AsMultiple()))
-	assert.NoError(t, f.Validate(nil))
+	t.Parallel()
 
-	f.required = true
-	assert.Same(t, ErrValueRequired, f.Validate(nil))
+	f := NewField(MustNewInteger(new(int64(50)), new(int64(100))).TypeProperty()).NewID().Key(id.NewKey("counts")).Multiple(true).MustBuild()
 
-	assert.ErrorContains(t, f.Validate(value.TypeText.Value("aaa").AsMultiple()), "it sholud be shorter than 1 characters")
+	assert.Empty(t, f.Validate(nil))
+	assert.Empty(t, f.Validate(value.NewMultiple(value.TypeInteger, []any{51, 52})))
+
+	errs := f.Validate(value.NewMultiple(value.TypeInteger, []any{25, 75, 300}))
+	assert.Len(t, errs, 2)
+	assert.Equal(t, new(0), errs[0].Index)
+	assert.Equal(t, new(2), errs[1].Index)
+	assert.Equal(t, ErrIntegerFieldMinExceeded(50).Error(), errs[0].Detail.Error())
+	assert.Equal(t, ErrIntegerFieldMaxExceeded(100).Error(), errs[1].Detail.Error())
 }

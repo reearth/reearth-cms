@@ -72,3 +72,10 @@ func TestFieldReference_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldReference{}).Validate(value.TypeReference.Value(aid)))
 	assert.Equal(t, ErrInvalidValue, (&FieldReference{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldReference_ValidateMultiple(t *testing.T) {
+	f := &FieldReference{}
+	iid1 := id.NewItemID()
+	iid2 := id.NewItemID()
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeReference, []any{iid1, iid2})))
+}

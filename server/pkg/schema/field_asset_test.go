@@ -34,3 +34,10 @@ func TestFieldAsset_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldAsset{}).Validate(value.TypeAsset.Value(aid)))
 	assert.Equal(t, ErrInvalidValue, (&FieldAsset{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldAsset_ValidateMultiple(t *testing.T) {
+	f := &FieldAsset{}
+	aid1 := id.NewAssetID()
+	aid2 := id.NewAssetID()
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeAsset, []any{aid1, aid2})))
+}

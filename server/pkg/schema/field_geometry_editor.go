@@ -73,12 +73,12 @@ func (f *FieldGeometryEditor) Validate(v *value.Value) (err error) {
 			if len(strings.TrimSpace(a)) == 0 {
 				return
 			}
-			t, ok := isValidGeoJSON(a)
-			if !ok {
-				err = ErrInvalidValue
+			t, gerr := validateGeoJSON(a)
+			if gerr != nil {
+				err = gerr
+				return
 			}
-			ok2 := f.SupportedTypes().Has(GeometryEditorSupportedTypeFrom(string(t)))
-			if !ok2 {
+			if !f.SupportedTypes().Has(GeometryEditorSupportedTypeFrom(string(t))) {
 				err = ErrUnsupportedType
 			}
 		},
@@ -89,6 +89,6 @@ func (f *FieldGeometryEditor) Validate(v *value.Value) (err error) {
 	return
 }
 
-func (f *FieldGeometryEditor) ValidateMultiple(v *value.Multiple) (err error) {
+func (f *FieldGeometryEditor) ValidateMultiple(_ *value.Multiple) (err error) {
 	return nil
 }

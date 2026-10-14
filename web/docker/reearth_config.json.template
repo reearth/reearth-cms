@@ -4,11 +4,11 @@
     "auth0ClientId": $REEARTH_CMS_AUTH0_CLIENT_ID,
     "auth0Domain": $REEARTH_CMS_AUTH0_DOMAIN,
     "coverImageUrl": $REEARTH_CMS_COVER_IMAGE_URL,
-    "editorUrl": $REEARTH_CMS_EDITOR_URL,
     "logoUrl": $REEARTH_CMS_LOGO_URL,
     "multiTenant": $REEARTH_CMS_MULTI_TENANT,
     "disableWorkspaceUi": $REEARTH_CMS_DISABLE_WORKSPACE_UI,
     "dashboardBaseUrl": $REEARTH_CMS_DASHBOARD_BASE_URL,
+    "visualizerBaseUrl": $REEARTH_CMS_VISUALIZER_BASE_URL,
     "tilesUrl": $REEARTH_CMS_TILES_URL,
     "terrainUrl": $REEARTH_CMS_TERRAIN_URL,
     "tilesToken": $REEARTH_CMS_TILES_TOKEN

@@ -629,8 +629,6 @@ export type ImportItemsMutation = {
     modelId: string;
     totalCount: number;
     insertedCount: number;
-    updatedCount: number;
-    ignoredCount: number;
   } | null;
 };
 
@@ -2506,8 +2504,6 @@ export const ImportItemsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "modelId" } },
                 { kind: "Field", name: { kind: "Name", value: "totalCount" } },
                 { kind: "Field", name: { kind: "Name", value: "insertedCount" } },
-                { kind: "Field", name: { kind: "Name", value: "updatedCount" } },
-                { kind: "Field", name: { kind: "Name", value: "ignoredCount" } },
               ],
             },
           },

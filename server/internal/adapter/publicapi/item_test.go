@@ -13,17 +13,19 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmemory"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -110,6 +112,13 @@ func TestController_PostItem(t *testing.T) {
 
 	requiredTextField := schema.NewField(schema.NewText(nil).TypeProperty()).
 		NewID().Key(id.NewKey("title")).Required(true).MustBuild()
+	requiredWithDefaultField := schema.NewField(schema.NewText(nil).TypeProperty()).
+		NewID().Key(id.NewKey("status")).Required(true).DefaultValue(value.TypeText.Value("draft").AsMultiple()).MustBuild()
+	maxCount := int64(100)
+	countsField := schema.NewField(schema.MustNewInteger(nil, &maxCount).TypeProperty()).
+		NewID().Key(id.NewKey("counts")).Multiple(true).MustBuild()
+	activeField := schema.NewField(schema.NewBool().TypeProperty()).
+		NewID().Key(id.NewKey("active")).MustBuild()
 
 	tests := []struct {
 		name            string
@@ -117,7 +126,7 @@ func TestController_PostItem(t *testing.T) {
 		body            map[string]any
 		mutateAliases   func(wAlias, pAlias, mKey string) (string, string, string)
 		wantErr         error
-		wantFieldErrors []schema.FieldValidationError
+		wantFieldErrors schema.FieldValidationErrors
 	}{
 		{
 			name:         "valid body returns no error",
@@ -129,9 +138,29 @@ func TestController_PostItem(t *testing.T) {
 			name:         "empty body missing required field returns field errors",
 			schemaFields: []*schema.Field{requiredTextField},
 			body:         map[string]any{},
-			wantFieldErrors: []schema.FieldValidationError{
-				{Field: "title", Code: schema.FieldValidationCodeRequired},
+			wantFieldErrors: schema.FieldValidationErrors{
+				{Field: requiredTextField.ID().Ref(), Key: requiredTextField.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired},
 			},
+		},
+		{
+			name:         "every problem of the body is reported at once",
+			schemaFields: []*schema.Field{requiredTextField, countsField, activeField},
+			body: map[string]any{
+				"counts": []any{float64(5), "x", float64(200)},
+				"active": []any{true},
+			},
+			wantFieldErrors: schema.FieldValidationErrors{
+				{Field: countsField.ID().Ref(), Key: countsField.Key().Ref(), Code: schema.FieldValidationCodeTypeMismatch, Detail: schema.ErrInvalidValue, Index: lo.ToPtr(1)},
+				{Field: countsField.ID().Ref(), Key: countsField.Key().Ref(), Code: schema.FieldValidationCodeConstraint, Detail: schema.ErrIntegerFieldMaxExceeded(100), Index: lo.ToPtr(2)},
+				{Field: activeField.ID().Ref(), Key: activeField.Key().Ref(), Code: schema.FieldValidationCodeTypeMismatch, Detail: schema.ErrFieldValueMultiple},
+				{Field: requiredTextField.ID().Ref(), Key: requiredTextField.Key().Ref(), Code: schema.FieldValidationCodeRequired, Detail: schema.ErrValueRequired},
+			},
+		},
+		{
+			name:         "required field with a schema default succeeds without it in the body",
+			schemaFields: []*schema.Field{requiredTextField, requiredWithDefaultField},
+			body:         map[string]any{"title": "hello"},
+			wantErr:      nil,
 		},
 		{
 			name: "unknown workspace returns ErrNotFound",
@@ -187,7 +216,46 @@ func TestController_PostItem(t *testing.T) {
 			} else {
 				assert.NoError(t, result.Err)
 			}
-			assert.Equal(t, tt.wantFieldErrors, result.FieldErrors)
+			assert.ElementsMatch(t, tt.wantFieldErrors, result.FieldErrors)
+		})
+	}
+}
+
+func TestFieldErrorDetails(t *testing.T) {
+	t.Parallel()
+
+	fid := id.NewFieldID()
+
+	fe := func(index *int, group *id.ItemGroupID) schema.FieldValidationError {
+		return schema.FieldValidationError{Field: fid.Ref(), Key: id.NewKey("title").Ref(), Code: schema.FieldValidationCodeConstraint, Detail: schema.ErrInvalidValue, Index: index, Group: group}
+	}
+
+	tests := []struct {
+		name    string
+		err     schema.FieldValidationError
+		wantKey string
+	}{
+		{name: "top-level field", err: fe(nil, nil), wantKey: "title"},
+		{name: "element of a top-level multiple field", err: fe(lo.ToPtr(1), nil), wantKey: "title[1]"},
+		//{name: "field in a group", err: fe(nil, &single), wantKey: "group.title"},
+		//{name: "element of a multiple field in a group", err: fe(lo.ToPtr(1), &single), wantKey: "group.title[1]"},
+		//{name: "field in a multiple group", err: fe(nil, &multiple), wantKey: "groups[2].title"},
+		//{name: "element of a multiple field in a multiple group", err: fe(lo.ToPtr(0), &multiple), wantKey: "groups[2].title[0]"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := fieldErrorDetails(schema.FieldValidationErrors{tt.err})
+			assert.Equal(t, []fieldErrorDetail{{Key: tt.wantKey, Code: string(schema.FieldValidationCodeConstraint), Detail: schema.ErrInvalidValue.Error()}}, got)
+
+			// internal IDs are never exposed
+			b, err := json.Marshal(got)
+			assert.NoError(t, err)
+			assert.NotContains(t, string(b), fid.String())
+			if tt.err.Group != nil {
+				assert.NotContains(t, string(b), tt.err.Group.String())
+			}
 		})
 	}
 }
@@ -520,33 +588,33 @@ func TestFieldsFromBody(t *testing.T) {
 		Fields([]*schema.Field{textField, numberField}).
 		MustBuild()
 
-	titleParam := interfaces.ItemFieldParam{Field: textField.ID().Ref(), Key: textField.Key().Ref(), Value: "hello"}
-	countParam := interfaces.ItemFieldParam{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 42}
+	titleParam := item.FieldInput{Field: textField.ID().Ref(), Key: textField.Key().Ref(), Value: "hello"}
+	countParam := item.FieldInput{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 42}
 
 	tests := []struct {
 		name string
 		body map[string]any
-		want []interfaces.ItemFieldParam
+		want item.FieldInputList
 	}{
 		{
 			name: "maps known fields by key",
 			body: map[string]any{"title": "hello", "count": 42},
-			want: []interfaces.ItemFieldParam{titleParam, countParam},
+			want: item.FieldInputList{titleParam, countParam},
 		},
 		{
 			name: "ignores keys not in schema",
 			body: map[string]any{"title": "hello", "unknown": "x"},
-			want: []interfaces.ItemFieldParam{titleParam},
+			want: item.FieldInputList{titleParam},
 		},
 		{
 			name: "empty body returns empty slice",
 			body: map[string]any{},
-			want: []interfaces.ItemFieldParam{},
+			want: item.FieldInputList{},
 		},
 		{
 			name: "missing field is not included",
 			body: map[string]any{"count": 1},
-			want: []interfaces.ItemFieldParam{{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 1}},
+			want: item.FieldInputList{{Field: numberField.ID().Ref(), Key: numberField.Key().Ref(), Value: 1}},
 		},
 	}
 

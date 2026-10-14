@@ -24,6 +24,15 @@ export abstract class FileUtils {
     });
   }
 
+  public static async isUTF8(file: Blob): Promise<boolean> {
+    try {
+      new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   public static async readInput(input: string | ArrayBuffer | Blob): Promise<string> {
     if (typeof input === "string") return input;
 

@@ -51,7 +51,7 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 		Debug:      true,
 	})
 
-	l1, err := net.Listen("tcp", ":0")
+	l1, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("http server failed to listen: %v", err)
 	}
@@ -262,7 +262,7 @@ func startServerWithURL(t *testing.T, cfg *app.Config, repos *repo.Container, ac
 		Debug:      true,
 	})
 
-	l1, err := net.Listen("tcp", ":0")
+	l1, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("http server failed to listen: %v", err)
 	}

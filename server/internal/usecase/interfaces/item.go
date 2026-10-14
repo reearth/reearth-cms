@@ -25,7 +25,6 @@ const (
 
 var (
 	ErrItemFieldRequired        = rerror.NewE(i18n.T("item field required"))
-	ErrInvalidField             = rerror.NewE(i18n.T("invalid field"))
 	ErrDuplicatedItemValue      = rerror.NewE(i18n.T("duplicated value"))
 	ErrFieldValueExist          = rerror.NewE(i18n.T("field value exist"))
 	ErrItemsShouldBeOnSameModel = rerror.NewE(i18n.T("items should be on the same model"))
@@ -36,24 +35,17 @@ var (
 	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 50,000)"))
 )
 
-type ItemFieldParam struct {
-	Field *item.FieldID
-	Key   *id.Key
-	Value any
-	Group *id.ItemGroupID
-}
-
 type CreateItemParam struct {
 	SchemaID   schema.ID
 	ModelID    model.ID
 	MetadataID *item.ID
-	Fields     []ItemFieldParam
+	Fields     item.FieldInputList
 }
 
 type UpdateItemParam struct {
 	ItemID     item.ID
 	MetadataID *item.ID
-	Fields     []ItemFieldParam
+	Fields     item.FieldInputList
 	Version    *version.Version
 }
 
@@ -102,7 +94,7 @@ func ImportStrategyTypeFromString(s string) ImportStrategyType {
 type ImportItemParam struct {
 	ItemId     *id.ItemID
 	MetadataID *item.ID
-	Fields     []ItemFieldParam
+	Fields     item.FieldInputList
 }
 
 type ImportItemsParam struct {
@@ -115,12 +107,29 @@ type ImportItemsParam struct {
 	GeoField     *string // field key or id
 }
 
+type ImportColumnStatus string
+
+const (
+	ImportColumnStatusMatched ImportColumnStatus = "matched"
+	ImportColumnStatusSkipped ImportColumnStatus = "skipped"
+)
+
+// ImportColumnResult reports whether a column of the imported file was mapped to a schema field.
+// Reason is set only for skipped columns, SchemaFieldKey only for matched ones.
+type ImportColumnResult struct {
+	Header         string
+	Status         ImportColumnStatus
+	SchemaFieldKey *string
+	Reason         *string
+}
+
 type ImportItemsResponse struct {
 	Total     int
 	Inserted  int
 	Updated   int
 	Ignored   int
 	NewFields schema.FieldList
+	Columns   []ImportColumnResult
 }
 
 type ImportItemsAsyncParam struct {

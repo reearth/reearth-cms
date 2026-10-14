@@ -25,6 +25,36 @@ func NewMultiple(t Type, v []any) *Multiple {
 	}
 }
 
+// NewMultipleStrict converts v like NewMultiple, but also reports the indexes of
+// the elements that could not be converted to t instead of silently dropping them.
+// nil elements, and "" elements the type can't convert, are treated as "no value" and are skipped without being reported.
+// kept holds, for each element of the returned Multiple, its index in v.
+func NewMultipleStrict(t Type, v []any) (m *Multiple, kept []int, invalid []int) {
+	if t == TypeUnknown {
+		return nil, nil, nil
+	}
+	vs := make([]*Value, 0, len(v))
+	kept = make([]int, 0, len(v))
+	for i, w := range v {
+		if w == nil {
+			continue
+		}
+		vv := New(t, w)
+		if vv == nil {
+			if w != "" {
+				invalid = append(invalid, i)
+			}
+			continue
+		}
+		vs = append(vs, vv)
+		kept = append(kept, i)
+	}
+	return &Multiple{
+		t: t,
+		v: vs,
+	}, kept, invalid
+}
+
 func MultipleFrom(t Type, v []*Value) *Multiple {
 	if t == TypeUnknown {
 		return nil

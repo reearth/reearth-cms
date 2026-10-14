@@ -67,7 +67,7 @@ func (f *Field) SetDefaultValue(v *value.Multiple) error {
 	if v.Type() != f.Type() {
 		return ErrInvalidValue
 	}
-	if err := f.ValidateValue(v); err != nil {
+	if err := f.Validate(v); err != nil {
 		return err
 	}
 	f.defaultValue = v
@@ -167,28 +167,60 @@ func (f *Field) Clone() *Field {
 	}
 }
 
-// Validate the Multiple value against the Field schema
-// if its multiple it will return only the first error
-func (f *Field) Validate(m *value.Multiple) error {
-	if f.required && m.IsEmpty() {
-		return ErrValueRequired
+func (f *Field) ParseValue(raw any) (*value.Multiple, FieldValidationErrors) {
+	empty := value.NewMultiple(f.Type(), nil)
+	as, isList := raw.([]any)
+	if f.multiple && !isList && raw != nil {
+		return empty, f.ValidationError(ErrFieldValueNotMultiple, FieldValidationCodeTypeMismatch).AsList()
 	}
-	return f.ValidateValue(m)
+	if !f.multiple {
+		if isList {
+			return empty, f.ValidationError(ErrFieldValueMultiple, FieldValidationCodeTypeMismatch).AsList()
+		}
+		as = []any{raw}
+	}
+
+	m, rawIndexes, invalid := value.NewMultipleStrict(f.Type(), as)
+	var errs FieldValidationErrors
+	for _, i := range invalid {
+		err := f.ValidationError(ErrInvalidValue, FieldValidationCodeTypeMismatch)
+		if f.multiple {
+			err = err.WithIndex(i)
+		}
+		errs = append(errs, err)
+	}
+	return m, append(errs, f.validate(m, rawIndexes)...)
 }
 
-func (f *Field) ValidateValue(m *value.Multiple) error {
+func (f *Field) Validate(m *value.Multiple) FieldValidationErrors {
+	return f.validate(m, nil)
+}
+
+func (f *Field) validate(m *value.Multiple, rawIndexes []int) FieldValidationErrors {
 	if m.IsEmpty() {
 		return nil
 	}
 	if !f.multiple && m.Len() > 1 {
-		return ErrInvalidValue
+		return f.ValidationError(ErrFieldValueMultiple, FieldValidationCodeTypeMismatch).AsList()
 	}
-	for _, v := range m.Values() {
+	var errs FieldValidationErrors
+	for i, v := range m.Values() {
 		if err := f.typeProperty.Validate(v); err != nil {
-			return err
+			idx := i
+			if rawIndexes != nil {
+				idx = rawIndexes[i]
+			}
+			err := f.ValidationError(err, FieldValidationCodeConstraint)
+			if f.multiple {
+				err = err.WithIndex(idx)
+			}
+			errs = append(errs, err)
 		}
 	}
-	return f.typeProperty.ValidateMultiple(m)
+	if err := f.typeProperty.ValidateMultiple(m); err != nil {
+		errs = append(errs, f.ValidationError(err, FieldValidationCodeConstraint))
+	}
+	return errs
 }
 
 func (f *Field) IsGeometryField() bool {

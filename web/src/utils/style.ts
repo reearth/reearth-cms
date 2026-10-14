@@ -257,6 +257,14 @@ export abstract class CustomColor {
   public static readonly TEXT_DISABLED = "#c4c4c4";
   /** Muted icon color */
   public static readonly ICON_MUTED = "#b8b8b8";
+
+  // --- App Launcher (product logo plates) ---
+  /** Visualizer logo plate background */
+  public static readonly PRODUCT_LOGO_BG_VISUALIZER = "#fcf4f4";
+  /** CMS logo plate background */
+  public static readonly PRODUCT_LOGO_BG_CMS = "#fffce7";
+  /** Navara logo plate background */
+  public static readonly PRODUCT_LOGO_BG_NAVARA = "#e8f4f7";
 }
 
 export abstract class AntdToken {

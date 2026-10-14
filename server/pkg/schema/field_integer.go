@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"fmt"
-
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -10,7 +8,9 @@ import (
 )
 
 var (
-	ErrInvalidMinMax = rerror.NewE(i18n.T("max must be larger then min"))
+	ErrInvalidMinMax           = rerror.NewE(i18n.T("max must be larger then min"))
+	ErrIntegerFieldMinExceeded = func(min int64) error { return rerror.FmtE(i18n.T("value should be larger than %d"), min) }
+	ErrIntegerFieldMaxExceeded = func(max int64) error { return rerror.FmtE(i18n.T("value should be smaller than %d"), max) }
 )
 
 type FieldInteger struct {
@@ -69,10 +69,10 @@ func (f *FieldInteger) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Integer: func(a value.Integer) {
 			if f.min != nil && a < *f.min {
-				err = fmt.Errorf("value should be larger than %d", *f.min)
+				err = ErrIntegerFieldMinExceeded(*f.min)
 			}
 			if f.max != nil && a > *f.max {
-				err = fmt.Errorf("value should be smaller than %d", *f.max)
+				err = ErrIntegerFieldMaxExceeded(*f.max)
 			}
 		},
 		Default: func() {
@@ -82,6 +82,6 @@ func (f *FieldInteger) Validate(v *value.Value) (err error) {
 	return
 }
 
-func (f *FieldInteger) ValidateMultiple(v *value.Multiple) error {
+func (f *FieldInteger) ValidateMultiple(_ *value.Multiple) error {
 	return nil
 }

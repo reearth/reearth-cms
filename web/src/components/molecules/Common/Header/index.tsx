@@ -11,8 +11,9 @@ import type { Project, Workspace } from "@reearth-cms/components/molecules/Works
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
-import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
+import { AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
+import AppLauncher from "./AppLauncher";
 import HeaderDropdown from "./Dropdown";
 
 type Props = {
@@ -44,13 +45,6 @@ const HeaderMolecule: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { logout } = useAuth();
-  const url = useMemo(() => {
-    if (window.REEARTH_CONFIG?.editorUrl && currentWorkspace?.id) {
-      return new URL(`dashboard/${currentWorkspace.id}`, window.REEARTH_CONFIG?.editorUrl);
-    }
-    return undefined;
-  }, [currentWorkspace?.id]);
-
   const currentIsPersonal = useMemo(
     () => currentWorkspace?.id === personalWorkspace?.id,
     [currentWorkspace?.id, personalWorkspace?.id],
@@ -149,6 +143,7 @@ const HeaderMolecule: React.FC<Props> = ({
       ) : (
         <Logo src="/logo.svg" onClick={onHomeNavigation} />
       )}
+      <AppLauncher onHomeNavigation={onHomeNavigation} />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
         profilePictureUrl={profilePictureUrl}
@@ -176,13 +171,6 @@ const HeaderMolecule: React.FC<Props> = ({
         showName={false}
         showArrow={false}
       />
-      {url && (
-        <LinkWrapper>
-          <EditorLink rel="noreferrer" href={url.href} target="_blank">
-            {t("Go to Editor")}
-          </EditorLink>
-        </LinkWrapper>
-      )}
     </MainHeader>
   );
 };
@@ -259,19 +247,6 @@ const MenuText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   width: 140px;
-`;
-
-const LinkWrapper = styled.div`
-  padding-right: ${AntdToken.SPACING.BASE}px;
-`;
-
-const EditorLink = styled.a`
-  border: 1px solid;
-  color: ${AntdColor.NEUTRAL.BORDER};
-  padding: 5px ${AntdToken.SPACING.BASE}px;
-  :hover {
-    color: ${AntdColor.NEUTRAL.BORDER};
-  }
 `;
 
 export default HeaderMolecule;

@@ -1,11 +1,25 @@
 package interactor
 
 import (
+	"context"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/job"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -135,6 +149,256 @@ func TestCsvRowToMap(t *testing.T) {
 			t.Parallel()
 			result := csvRowToMap(tt.headers, tt.record, tt.fieldMap)
 			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func csvTestSchema(keys ...string) *schema.Schema {
+	fields := lo.Map(keys, func(k string, _ int) *schema.Field {
+		return schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey(k)).MustBuild()
+	})
+	return schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).Fields(fields).MustBuild()
+}
+
+func TestBuildFieldMap(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name            string
+		headers         []string
+		schemaKeys      []string
+		wantFieldMapLen int
+		wantColumns     []interfaces.ImportColumnResult
+	}{
+		{
+			name:            "all columns matched",
+			headers:         []string{"name", "count"},
+			schemaKeys:      []string{"name", "count"},
+			wantFieldMapLen: 2,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				{Header: "count", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("count")},
+			},
+		},
+		{
+			name:            "one column skipped",
+			headers:         []string{"name", "unknown_col"},
+			schemaKeys:      []string{"name", "count"},
+			wantFieldMapLen: 1,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				{Header: "unknown_col", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'unknown_col'")},
+			},
+		},
+		{
+			name:            "multiple columns skipped",
+			headers:         []string{"name", "a_col", "b_col"},
+			schemaKeys:      []string{"name"},
+			wantFieldMapLen: 1,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				{Header: "a_col", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'a_col'")},
+				{Header: "b_col", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'b_col'")},
+			},
+		},
+		{
+			name:            "reserved id column is not reported",
+			headers:         []string{"id", "name"},
+			schemaKeys:      []string{"name"},
+			wantFieldMapLen: 1,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+			},
+		},
+		{
+			name:            "invalid key header skipped",
+			headers:         []string{"", "name"},
+			schemaKeys:      []string{"name"},
+			wantFieldMapLen: 1,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header ''")},
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+			},
+		},
+		{
+			name:            "no headers",
+			headers:         nil,
+			schemaKeys:      []string{"name"},
+			wantFieldMapLen: 0,
+			wantColumns:     []interfaces.ImportColumnResult{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			s := csvTestSchema(tt.schemaKeys...)
+			sp := schema.NewPackage(s, nil, nil, nil)
+
+			fieldMap, columns := buildFieldMap(tt.headers, *sp)
+
+			assert.Len(t, fieldMap, tt.wantFieldMapLen)
+			assert.Equal(t, tt.wantColumns, columns)
+			for h, f := range fieldMap {
+				assert.Equal(t, h, f.Key().String())
+			}
+		})
+	}
+}
+
+// csvImportTestEnv sets up an item usecase with a model whose schema has the given field keys.
+func csvImportTestEnv(t *testing.T, schemaKeys ...string) (*Item, *repo.Container, schema.Package, *usecase.Operator) {
+	t.Helper()
+
+	s := csvTestSchema(schemaKeys...)
+	prj := project.New().ID(s.Project()).Workspace(s.Workspace()).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+
+	itemUC := NewItem(db, &gateway.Container{})
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
+			WritableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
+		},
+		ReadableProjects: []id.ProjectID{s.Project()},
+		WritableProjects: []id.ProjectID{s.Project()},
+	}
+
+	return itemUC, db, *schema.NewPackage(s, nil, nil, nil), op
+}
+
+type csvColumnCase struct {
+	name        string
+	schemaKeys  []string
+	content     string
+	wantTotal   int
+	wantColumns []interfaces.ImportColumnResult
+}
+
+func csvColumnCases() []csvColumnCase {
+	return []csvColumnCase{
+		{
+			name:       "all columns matched",
+			schemaKeys: []string{"name", "count"},
+			content:    "name,count\nItem 1,10\nItem 2,20",
+			wantTotal:  2,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				{Header: "count", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("count")},
+			},
+		},
+		{
+			name:       "one column skipped",
+			schemaKeys: []string{"name", "count"},
+			content:    "name,unknown_col\nItem 1,ignored",
+			wantTotal:  1,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				{Header: "unknown_col", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'unknown_col'")},
+			},
+		},
+		{
+			name:       "multiple columns skipped",
+			schemaKeys: []string{"name"},
+			content:    "name,a_col,b_col\nItem 1,x,y",
+			wantTotal:  1,
+			wantColumns: []interfaces.ImportColumnResult{
+				{Header: "name", Status: interfaces.ImportColumnStatusMatched, SchemaFieldKey: new("name")},
+				{Header: "a_col", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'a_col'")},
+				{Header: "b_col", Status: interfaces.ImportColumnStatusSkipped, Reason: new("no matching schema field for header 'b_col'")},
+			},
+		},
+	}
+}
+
+func TestItem_Import_CSVColumns(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range csvColumnCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			itemUC, _, sp, op := csvImportTestEnv(t, tt.schemaKeys...)
+			m := lo.Must(itemUC.repos.Model.FindBySchema(context.Background(), sp.Schema().ID()))
+
+			res, err := itemUC.Import(context.Background(), interfaces.ImportItemsParam{
+				ModelID:  m.ID(),
+				SP:       sp,
+				Strategy: interfaces.ImportStrategyTypeInsert,
+				Format:   interfaces.ImportFormatTypeCSV,
+				Reader:   strings.NewReader(tt.content),
+			}, op)
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.wantColumns, res.Columns)
+			// existing fields are untouched
+			assert.Equal(t, tt.wantTotal, res.Total)
+			assert.Equal(t, tt.wantTotal, res.Inserted)
+			assert.Equal(t, 0, res.Updated)
+			assert.Equal(t, 0, res.Ignored)
+			assert.Nil(t, res.NewFields)
+		})
+	}
+}
+
+func TestItem_ImportAsync_CSVColumns(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range csvColumnCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			itemUC, db, sp, op := csvImportTestEnv(t, tt.schemaKeys...)
+			m := lo.Must(db.Model.FindBySchema(ctx, sp.Schema().ID()))
+
+			j := job.New().
+				NewID().
+				Type(job.TypeImport).
+				Project(sp.Schema().Project()).
+				User(*op.AcOperator.User).
+				MustBuild()
+			lo.Must0(db.Job.Save(ctx, j))
+
+			itemUC.runImportJob(j.ID(), interfaces.ImportItemsAsyncParam{
+				ModelID:  m.ID(),
+				SP:       sp,
+				Strategy: interfaces.ImportStrategyTypeInsert,
+				Format:   interfaces.ImportFormatTypeCSV,
+				Reader:   strings.NewReader(tt.content),
+			}, op)
+
+			// the column detail is retrievable from the completed job
+			completed, err := db.Job.FindByID(ctx, j.ID())
+			assert.NoError(t, err)
+			assert.Equal(t, job.StatusCompleted, completed.Status())
+
+			result, err := completed.ImportResult()
+			assert.NoError(t, err)
+			wantColumns := lo.Map(tt.wantColumns, func(c interfaces.ImportColumnResult, _ int) job.ImportColumnResult {
+				return job.ImportColumnResult{
+					Header:         c.Header,
+					Status:         string(c.Status),
+					SchemaFieldKey: c.SchemaFieldKey,
+					Reason:         c.Reason,
+				}
+			})
+			assert.Equal(t, wantColumns, result.Columns)
+			// existing fields are untouched
+			assert.Equal(t, tt.wantTotal, result.Total)
+			assert.Equal(t, tt.wantTotal, result.Inserted)
+			assert.Equal(t, 0, result.Updated)
+			assert.Equal(t, 0, result.Ignored)
 		})
 	}
 }
