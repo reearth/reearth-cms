@@ -64,7 +64,7 @@ func initTelemetry(ctx context.Context, config OtelConfig) func() {
 	)
 	if err != nil {
 		log.Warnf("otel: failed to create resource: %v", err)
-		res = resource.Default()
+		res, _ = resource.Merge(resource.Default(), resource.NewSchemaless(attrs...))
 	}
 
 	tp := trace.NewTracerProvider(
