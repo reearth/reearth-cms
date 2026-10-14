@@ -38,10 +38,6 @@ func newSchemaField(tp *schema.TypeProperty) *schema.FieldBuilder {
 	return schema.NewField(tp).NewID().RandomKey().UpdatedAt(util.Now().Truncate(time.Millisecond).UTC())
 }
 
-func schemaIDs(l schema.List) id.SchemaIDList {
-	return lo.Map(l, func(s *schema.Schema, _ int) id.SchemaID { return s.ID() })
-}
-
 func storedSchemas(t *testing.T, r repo.Schema, ids id.SchemaIDList) schema.List {
 	t.Helper()
 	var res schema.List
@@ -108,7 +104,7 @@ func testSchemaFiltered(t *testing.T, newRepo schemaFactory) {
 			require.NoError(t, base.SaveAll(ctx, seeds))
 			r := tc.filter(base)
 
-			assert.Equal(t, tc.wantRead, storedSchemas(t, r, schemaIDs(seeds)))
+			assert.Equal(t, tc.wantRead, storedSchemas(t, r, seeds.IDs()))
 			for _, w := range tc.wantWrite {
 				assert.NoError(t, r.Save(ctx, newSchema(w).MustBuild()))
 			}
@@ -117,7 +113,7 @@ func testSchemaFiltered(t *testing.T, newRepo schemaFactory) {
 			}
 
 			// filtering must not change the base repository
-			assert.Equal(t, seeds, storedSchemas(t, base, schemaIDs(seeds)))
+			assert.Equal(t, seeds, storedSchemas(t, base, seeds.IDs()))
 		})
 	}
 }
@@ -233,6 +229,7 @@ func testSchemaFindByIDs(t *testing.T, newRepo schemaFactory) {
 			args:  id.SchemaIDList{},
 		},
 		{
+			// TODO: should return Err
 			name:  "must find schemas across workspaces",
 			seeds: seeds,
 			args:  id.SchemaIDList{w1s1.ID(), w1s2.ID(), w2s1.ID()},
@@ -495,6 +492,7 @@ func testSchemaSaveAll(t *testing.T, newRepo schemaFactory) {
 			args: schema.List{},
 		},
 		{
+			// TODO: should return Err
 			name: "must save schemas across workspaces",
 			args: schema.List{w1s1, w1s2, w2s1},
 			want: schema.List{w1s1, w1s2, w2s1},
@@ -585,6 +583,7 @@ func testSchemaRemove(t *testing.T, newRepo schemaFactory) {
 			want:   schema.List{w1s1, w1s2},
 		},
 		{
+			// TODO: should return ErrOperationDenied instead of ErrNotFound
 			name:    "must not remove a schema in a readable-only workspace",
 			seeds:   seeds,
 			filter:  new(wsFilter(accountdomain.WorkspaceIDList{w1}, accountdomain.WorkspaceIDList{w2})),
@@ -609,7 +608,7 @@ func testSchemaRemove(t *testing.T, newRepo schemaFactory) {
 
 			// remaining schemas are checked unfiltered to prove they truly
 			// survived (and were not just hidden by the filter)
-			assert.Equal(t, tc.want, storedSchemas(t, base, schemaIDs(seeds)))
+			assert.Equal(t, tc.want, storedSchemas(t, base, seeds.IDs()))
 		})
 	}
 }
