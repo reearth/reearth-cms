@@ -143,7 +143,7 @@ func TestAsset_Clone(t *testing.T) {
 	uid := accountdomain.NewUserID()
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID().Ref()).NewUUID().
 		FileName("a.png").Type(new(PreviewTypeImage)).ArchiveExtractionStatus(new(ArchiveExtractionStatusDone)).
-		FlatFiles(true).Public(true).MustBuild()
+		Public(true).MustBuild()
 	a.SetAccessInfoResolver(func(a *Asset) *AccessInfo {
 		return &AccessInfo{Url: "https://example.com/" + a.FileName(), Public: a.Public()}
 	})
