@@ -109,27 +109,41 @@ func (i *Condition) Into() *view.Condition {
 		}
 	}
 	if i.And != nil {
+		conditions := intoConditions(*i.And)
+		if len(conditions) == 0 {
+			return nil
+		}
 		return &view.Condition{
 			ConditionType: view.ConditionTypeAnd,
 			AndCondition: &view.AndCondition{
-				Conditions: lo.Map(*i.And, func(c Condition, _ int) view.Condition {
-					return *c.Into()
-				}),
+				Conditions: conditions,
 			},
 		}
 	}
 	if i.Or != nil {
+		conditions := intoConditions(*i.Or)
+		if len(conditions) == 0 {
+			return nil
+		}
 		return &view.Condition{
 			ConditionType: view.ConditionTypeOr,
 			OrCondition: &view.OrCondition{
-				Conditions: lo.Map(*i.Or, func(c Condition, _ int) view.Condition {
-					return *c.Into()
-				}),
+				Conditions: conditions,
 			},
 		}
 	}
 
 	return nil
+}
+
+func intoConditions(cs []Condition) []view.Condition {
+	return lo.FilterMap(cs, func(c Condition, _ int) (view.Condition, bool) {
+		vc := c.Into()
+		if vc == nil {
+			return view.Condition{}, false
+		}
+		return *vc, true
+	})
 }
 
 func (e ConditionBoolOperator) Into() view.BoolOperator {
