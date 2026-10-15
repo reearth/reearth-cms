@@ -9,7 +9,7 @@ lint:
 	golangci-lint run --fix
 
 test:
-	go test -race -v ./...
+	go test -race ./...
 
 build:
 	go build ./cmd/reearth-cms
