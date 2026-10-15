@@ -44,25 +44,24 @@ func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
 	if !ok {
 		return "", false
 	}
-	var t geojson.GeometryType
 	switch geoType {
 	case "Point", "MultiPoint", "LineString", "Polygon", "MultiLineString", "MultiPolygon":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
+		if err != nil {
+			return "", false
 		}
-		return t, err == nil && isValidRFC7946(g)
+		return g.Type, isValidRFC7946(g)
 
 	case "GeometryCollection":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
+		if err != nil {
+			return "", false
 		}
 		v := true
 		for _, geometry := range g.Geometries {
 			v = v && isValidRFC7946(geometry)
 		}
-		return t, err == nil && v
+		return g.Type, v
 
 	default:
 		return "", false

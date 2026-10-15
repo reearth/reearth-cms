@@ -281,6 +281,27 @@ func Test_Clone(t *testing.T) {
 			},
 		},
 		{
+			name: "with flat files",
+			file: &File{
+				name:        "test",
+				size:        1,
+				contentType: "type",
+				path:        "hoge.zip",
+				files: []*File{
+					{name: "a.txt", path: "/hello/good/a.txt", size: 10, contentType: "text/plain"},
+				},
+			},
+			want: &File{
+				name:        "test",
+				size:        1,
+				contentType: "type",
+				path:        "hoge.zip",
+				files: []*File{
+					{name: "a.txt", path: "/hello/good/a.txt", size: 10, contentType: "text/plain"},
+				},
+			},
+		},
+		{
 			name: "file is nil",
 			file: nil,
 			want: nil,
@@ -290,7 +311,10 @@ func Test_Clone(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			cloned := tt.file.Clone()
-			assert.Equal(t, cloned, tt.want)
+			assert.Equal(t, tt.want, cloned)
+			if tt.file != nil && len(tt.file.files) > 0 && assert.Len(t, cloned.files, len(tt.file.files)) {
+				assert.NotSame(t, tt.file.files[0], cloned.files[0])
+			}
 		})
 	}
 }
