@@ -5,23 +5,33 @@ import (
 	"os"
 	"time"
 
-	texporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"github.com/reearth/reearthx/log"
 	"go.opentelemetry.io/contrib/detectors/gcp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/semconv/v1.26.0"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/oauth"
 )
 
-const serviceName = "reearth-cms"
+const (
+	serviceName = "reearth-cms"
+
+	gcpTelemetryEndpoint  = "telemetry.googleapis.com:443"
+	gcpTraceAppendScope   = "https://www.googleapis.com/auth/trace.append"
+	gcpProjectIDAttribute = "gcp.project_id"
+)
 
 // initTelemetry sets up the OpenTelemetry TracerProvider from OtelConfig.
 //
 // Exporter selection (in order):
-//  1. GOOGLE_CLOUD_PROJECT env var set → Cloud Trace
+//  1. GOOGLE_CLOUD_PROJECT env var set → Cloud Trace (OTLP gRPC via telemetry.googleapis.com)
 //  2. config.Endpoint set              → OTLP HTTP (e.g. Jaeger)
 //  3. Neither                          → no-op
 //
@@ -42,19 +52,25 @@ func initTelemetry(ctx context.Context, config OtelConfig) func() {
 		return func() {}
 	}
 
+	attrs := []attribute.KeyValue{semconv.ServiceName(serviceName)}
+	if project := os.Getenv("GOOGLE_CLOUD_PROJECT"); project != "" {
+		// Cloud Trace's OTLP endpoint resolves the destination project from this attribute.
+		attrs = append(attrs, attribute.String(gcpProjectIDAttribute, project))
+	}
+
 	res, err := resource.New(ctx,
 		resource.WithDetectors(gcp.NewDetector()),
-		resource.WithAttributes(semconv.ServiceName(serviceName)),
+		resource.WithAttributes(attrs...),
 	)
 	if err != nil {
 		log.Warnf("otel: failed to create resource: %v", err)
-		res = resource.Default()
+		res, _ = resource.Merge(resource.Default(), resource.NewSchemaless(attrs...))
 	}
 
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(exporter, batcherOptions(config)...),
-		sdktrace.WithResource(res),
-		sdktrace.WithSampler(sampler(config)),
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter, batcherOptions(config)...),
+		trace.WithResource(res),
+		trace.WithSampler(sampler(config)),
 	)
 
 	otel.SetTracerProvider(tp)
@@ -76,9 +92,9 @@ func initTelemetry(ctx context.Context, config OtelConfig) func() {
 	}
 }
 
-func buildExporter(ctx context.Context, config OtelConfig) (sdktrace.SpanExporter, string, error) {
+func buildExporter(ctx context.Context, config OtelConfig) (trace.SpanExporter, string, error) {
 	if project := os.Getenv("GOOGLE_CLOUD_PROJECT"); project != "" {
-		exp, err := texporter.New(texporter.WithProjectID(project))
+		exp, err := newCloudTraceExporter(ctx)
 		return exp, "Google Cloud Trace (project=" + project + ")", err
 	}
 
@@ -90,26 +106,39 @@ func buildExporter(ctx context.Context, config OtelConfig) (sdktrace.SpanExporte
 	return nil, "", nil
 }
 
-func sampler(config OtelConfig) sdktrace.Sampler {
-	if config.SamplingRatio <= 0 {
-		return sdktrace.NeverSample()
+func newCloudTraceExporter(ctx context.Context) (trace.SpanExporter, error) {
+	creds, err := oauth.NewApplicationDefault(ctx, gcpTraceAppendScope)
+	if err != nil {
+		return nil, err
 	}
-	if config.SamplingRatio >= 1 {
-		return sdktrace.AlwaysSample()
-	}
-	return sdktrace.ParentBased(sdktrace.TraceIDRatioBased(config.SamplingRatio))
+
+	return otlptracegrpc.New(ctx,
+		otlptracegrpc.WithEndpoint(gcpTelemetryEndpoint),
+		otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, "")),
+		otlptracegrpc.WithDialOption(grpc.WithPerRPCCredentials(creds)),
+	)
 }
 
-func batcherOptions(config OtelConfig) []sdktrace.BatchSpanProcessorOption {
-	var opts []sdktrace.BatchSpanProcessorOption
+func sampler(config OtelConfig) trace.Sampler {
+	if config.SamplingRatio <= 0 {
+		return trace.NeverSample()
+	}
+	if config.SamplingRatio >= 1 {
+		return trace.AlwaysSample()
+	}
+	return trace.ParentBased(trace.TraceIDRatioBased(config.SamplingRatio))
+}
+
+func batcherOptions(config OtelConfig) []trace.BatchSpanProcessorOption {
+	var opts []trace.BatchSpanProcessorOption
 	if config.MaxExportBatchSize > 0 {
-		opts = append(opts, sdktrace.WithMaxExportBatchSize(config.MaxExportBatchSize))
+		opts = append(opts, trace.WithMaxExportBatchSize(config.MaxExportBatchSize))
 	}
 	if config.BatchTimeout > 0 {
-		opts = append(opts, sdktrace.WithBatchTimeout(config.BatchTimeout))
+		opts = append(opts, trace.WithBatchTimeout(config.BatchTimeout))
 	}
 	if config.MaxQueueSize > 0 {
-		opts = append(opts, sdktrace.WithMaxQueueSize(config.MaxQueueSize))
+		opts = append(opts, trace.WithMaxQueueSize(config.MaxQueueSize))
 	}
 	return opts
 }
