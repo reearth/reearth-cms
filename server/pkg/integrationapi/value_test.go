@@ -3,7 +3,10 @@ package integrationapi
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -214,6 +217,48 @@ func TestToValueType(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.expected, ToValueType(tt.input))
+		})
+	}
+}
+
+func TestToValue_Tag(t *testing.T) {
+	t.Parallel()
+
+	tag := schema.NewTag("tag", schema.TagColorRed)
+	ft := lo.Must(schema.NewFieldTag(schema.TagList{tag}))
+	sf := schema.NewField(ft.TypeProperty()).NewID().Key(id.NewKey("tag")).MustBuild()
+
+	tests := []struct {
+		name  string
+		value *value.Value
+		want  any
+	}{
+		{
+			name:  "existing tag",
+			value: value.TypeTag.Value(tag.ID().String()),
+			want: TagResponse{
+				Color: new(schema.TagColorRed.String()),
+				Id:    tag.ID().Ref(),
+				Name:  new("tag"),
+			},
+		},
+		{
+			name:  "tag removed from the field",
+			value: value.TypeTag.Value(id.NewTagID().String()),
+			want:  nil,
+		},
+		{
+			name:  "invalid tag id",
+			value: value.TypeTag.Value("invalid"),
+			want:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, ToValue(tt.value, sf, nil))
 		})
 	}
 }

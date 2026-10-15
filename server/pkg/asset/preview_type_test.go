@@ -281,6 +281,32 @@ func TestPreviewType_PreviewTypeFromExtension(t *testing.T) {
 	assert.Equal(t, want7, got7)
 }
 
+func TestPreviewType_DetectPreviewType_ExtensionCase(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		file string
+		want PreviewType
+	}{
+		{name: "upper-case image", file: "PHOTO.JPG", want: PreviewTypeImage},
+		{name: "mixed-case geo", file: "map.GeoJSON", want: PreviewTypeGeo},
+		{name: "upper-case svg", file: "ICON.SVG", want: PreviewTypeImageSvg},
+		{name: "upper-case 3d model", file: "MODEL.GLB", want: PreviewTypeModel3d},
+		{name: "upper-case csv", file: "DATA.CSV", want: PreviewTypeCSV},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// a generic content type forces detection from the file extension
+			got := DetectPreviewType(&file.File{Name: tt.file, ContentType: "application/octet-stream"})
+			assert.Equal(t, tt.want, *got)
+		})
+	}
+}
+
 func TestPreviewType_String(t *testing.T) {
 	s := "image"
 	pt := PreviewTypeImage

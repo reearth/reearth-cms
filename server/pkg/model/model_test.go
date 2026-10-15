@@ -33,6 +33,21 @@ func TestModel_Clone(t *testing.T) {
 			},
 		},
 		{
+			name: "with metadata",
+			model: &Model{
+				id:             mId,
+				project:        pId,
+				schema:         sId,
+				metadata:       id.NewSchemaID().Ref(),
+				name:           "n1",
+				description:    "d1",
+				key:            id.NewKey("123456"),
+				updatedAt:      now,
+				order:          2,
+				postingEnabled: true,
+			},
+		},
+		{
 			name:  "test",
 			model: nil,
 		},
@@ -48,6 +63,9 @@ func TestModel_Clone(t *testing.T) {
 			}
 			assert.Equal(t, tt.model, c)
 			assert.NotSame(t, tt.model, c)
+			if tt.model.metadata != nil {
+				assert.NotSame(t, tt.model.metadata, c.metadata)
+			}
 		})
 	}
 }
