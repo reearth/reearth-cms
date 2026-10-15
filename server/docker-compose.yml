@@ -1,24 +1,24 @@
-version: '3'
+name: reearth-cms
 services:
-  reearth-cms-backend:
+  server:
     build:
       context: .
     environment:
-      REEARTH_DB: mongodb://reearth-cms-mongo
+      REEARTH_DB: mongodb://mongo
       REEARTH_CMS_OTEL_ENDPOINT: http://jaeger:4318
     ports:
       - '8080:8080'
     # env_file:
     #   - ./.env
     links:
-      - reearth-cms-mongo
+      - mongo
       - jaeger
     depends_on:
-      - reearth-cms-mongo
+      - mongo
       - jaeger
     volumes:
       - ./data:/reearth/data
-  reearth-cms-mongo:
+  mongo:
     image: mongo:6-focal
     ports:
       - 27017:27017

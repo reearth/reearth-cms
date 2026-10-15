@@ -24,7 +24,7 @@ run-app:
 	go run ./cmd/reearth-cms
 
 run-db:
-	docker compose up -d reearth-cms-mongo
+	docker compose up -d mongo
 
 gql:
 	go generate ./internal/adapter/gql
