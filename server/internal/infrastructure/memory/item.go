@@ -100,6 +100,12 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 		return true
 	})
 
+	// return at most First items, like the mongo implementation does.
+	// only First is supported: sort, After/Before, Last, offset and page info are not.
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil && int64(len(res)) > *pagination.Cursor.First {
+		res = res[:*pagination.Cursor.First]
+	}
+
 	return res, nil, nil
 }
 
