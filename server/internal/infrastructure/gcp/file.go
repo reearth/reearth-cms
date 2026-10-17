@@ -23,6 +23,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -42,6 +43,8 @@ type fileRepo struct {
 	replaceUploadURL bool
 	client           *storage.Client
 	clientMu         sync.Mutex
+	proxiedClient    *storage.Client
+	proxiedClientMu  sync.Mutex
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -379,13 +382,14 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		file.ContentEncoding = ""
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucketForUpload, err := f.bucketWithEndpoint(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return 0, rerror.ErrInternalBy(err)
 	}
 
-	object := bucket.Object(objectName)
+	object := bucketForUpload.Object(objectName)
+
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload err: %+v\n", err)
 		return 0, gateway.ErrFailedToUploadFile
@@ -555,6 +559,25 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 		f.client = client
 	}
 	return f.client.Bucket(f.bucketName), nil
+}
+
+func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
+	f.proxiedClientMu.Lock()
+	defer f.proxiedClientMu.Unlock()
+
+	if f.publicBase == nil || f.publicBase.Host == "storage.googleapis.com" {
+		return f.client.Bucket(f.bucketName), nil
+	}
+
+	if f.proxiedClient == nil {
+		client, err := storage.NewClient(ctx, option.WithEndpoint(f.publicBase.String()))
+		if err != nil {
+			log.Errorf("gcs: failed to initialize proxied client: %v", err)
+			return nil, err
+		}
+		f.proxiedClient = client
+	}
+	return f.proxiedClient.Bucket(f.bucketName), nil
 }
 
 func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
