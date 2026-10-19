@@ -1259,13 +1259,17 @@ func TestModel_Copy(t *testing.T) {
 				Name:    new("Copied Model"),
 			},
 			setupMock: func(mock *gatewaymock.MockTaskRunner) {
-				mock.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(nil)
+				// one copy task for the schema items and one for the metadata items
+				mock.EXPECT().Run(ctx, gomock.Any()).Times(2).Return(nil)
 			},
 			validate: func(t *testing.T, got *model.Model) {
 				assert.NotEqual(t, m.ID(), got.ID())
 				assert.NotEqual(t, m.Key(), got.Key())
 				assert.Equal(t, "Copied Model", got.Name())
 				assert.Equal(t, m.Description(), got.Description())
+				if assert.NotNil(t, got.Metadata()) {
+					assert.NotEqual(t, *m.Metadata(), *got.Metadata())
+				}
 			},
 		},
 		{

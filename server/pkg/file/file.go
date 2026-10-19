@@ -81,13 +81,15 @@ func FromURL(ctx context.Context, rawURL string) (*File, error) {
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	if res.StatusCode > 300 {
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		_ = res.Body.Close()
 		return nil, rerror.ErrInternalBy(fmt.Errorf("status code is %d", res.StatusCode))
 	}
 
 	ct := res.Header.Get("Content-Type")
 	ce := res.Header.Get("Content-Encoding")
 	if ce != "" && ce != "gzip" {
+		_ = res.Body.Close()
 		return nil, fmt.Errorf("unsupported content encoding: %s", ce)
 	}
 	fs, _ := strconv.ParseInt(res.Header.Get("Content-Length"), 10, 64)

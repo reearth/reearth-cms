@@ -94,6 +94,7 @@ func PreviewTypeFromContentType(c string) PreviewType {
 }
 
 func PreviewTypeFromExtension(ext string) PreviewType {
+	ext = strings.ToLower(ext)
 	if lo.Contains(imageExtensions, ext) {
 		return PreviewTypeImage
 	}

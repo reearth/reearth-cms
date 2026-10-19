@@ -205,6 +205,9 @@ func (f *Field) validate(m *value.Multiple, rawIndexes []int) FieldValidationErr
 	}
 	var errs FieldValidationErrors
 	for i, v := range m.Values() {
+		if v.Value() == nil {
+			continue
+		}
 		if err := f.typeProperty.Validate(v); err != nil {
 			idx := i
 			if rawIndexes != nil {
