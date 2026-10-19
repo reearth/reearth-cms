@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/job"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,16 +18,45 @@ func jsonRecords(n int) string {
 	return "[" + strings.TrimSuffix(strings.Repeat(`{"name":"x"},`, n), ",") + "]"
 }
 
+func geoJSONFeatures(n int) string {
+	feature := `{"type":"Feature","geometry":{"type":"Point","coordinates":[139.7,35.6]},"properties":{"name":"x"}},`
+	return `{"type":"FeatureCollection","features":[` + strings.TrimSuffix(strings.Repeat(feature, n), ",") + `]}`
+}
+
 func TestItem_RunImportJob_JSON(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name       string
-		format     interfaces.ImportFormatType
-		reader     func() io.Reader
-		wantStatus job.Status
-		wantTotal  int
+		name         string
+		format       interfaces.ImportFormatType
+		mutateSchema bool
+		reader       func() io.Reader
+		wantStatus   job.Status
+		wantTotal    int
 	}{
+		{
+			name:       "geojson",
+			format:     interfaces.ImportFormatTypeGeoJSON,
+			reader:     func() io.Reader { return strings.NewReader(geoJSONFeatures(2)) },
+			wantStatus: job.StatusCompleted,
+			wantTotal:  2,
+		},
+		{
+			name:         "json with mutate schema",
+			format:       interfaces.ImportFormatTypeJSON,
+			mutateSchema: true,
+			reader:       func() io.Reader { return strings.NewReader(`[{"title":"a"},{"title":"b"},{"title":"c"}]`) },
+			wantStatus:   job.StatusCompleted,
+			wantTotal:    3,
+		},
+		{
+			name:   "non-object record fails before saving",
+			format: interfaces.ImportFormatTypeJSON,
+			reader: func() io.Reader {
+				return strings.NewReader("[" + strings.Repeat(`{"name":"x"},`, chunkSize+1) + "1]")
+			},
+			wantStatus: job.StatusFailed,
+		},
 		{
 			name:       "json",
 			format:     interfaces.ImportFormatTypeJSON,
@@ -63,13 +94,25 @@ func TestItem_RunImportJob_JSON(t *testing.T) {
 				MustBuild()
 			lo.Must0(db.Job.Save(ctx, j))
 
-			itemUC.runImportJob(j.ID(), interfaces.ImportItemsAsyncParam{
-				ModelID:  m.ID(),
-				SP:       sp,
-				Strategy: interfaces.ImportStrategyTypeInsert,
-				Format:   tt.format,
-				Reader:   tt.reader(),
-			}, op)
+			param := interfaces.ImportItemsAsyncParam{
+				ModelID:      m.ID(),
+				SP:           sp,
+				Strategy:     interfaces.ImportStrategyTypeInsert,
+				Format:       tt.format,
+				MutateSchema: tt.mutateSchema,
+				Reader:       tt.reader(),
+			}
+			if tt.format == interfaces.ImportFormatTypeGeoJSON {
+				geo := schema.NewField(schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint}).TypeProperty()).
+					NewID().Key(id.NewKey("location")).MustBuild()
+				s := sp.Schema()
+				s.AddField(geo)
+				lo.Must0(db.Schema.Save(ctx, s))
+				param.SP = *schema.NewPackage(s, nil, nil, nil)
+				param.GeoField = new("location")
+			}
+
+			itemUC.runImportJob(j.ID(), param, op)
 
 			got, err := db.Job.FindByID(ctx, j.ID())
 			assert.NoError(t, err)

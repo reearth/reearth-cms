@@ -488,6 +488,10 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		if err := decoder.Decode(&obj); err != nil {
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
 		}
+		// Reject non-object records here so the import fails before any chunk is saved
+		if len(obj) == 0 || (obj[0] != '{' && obj[0] != 'n') {
+			return res.Into(), fmt.Errorf("error decoding JSON object: record %d is not an object", totalCount)
+		}
 	}
 
 	// Second pass: re-read the file and process items in chunks
