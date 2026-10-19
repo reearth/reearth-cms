@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"go.uber.org/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -25,6 +24,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 // sequentialPolicyChecker for testing multiple policy calls
@@ -744,7 +744,7 @@ func TestProject_Create(t *testing.T) {
 
 func TestProject_Update(t *testing.T) {
 	now := util.Now()
-	defer util.MockNow(now)
+	defer util.MockNow(now)()
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
