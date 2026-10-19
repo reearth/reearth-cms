@@ -1,6 +1,6 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.26.5
+go 1.27.2
 
 require (
 	cloud.google.com/go/pubsub/v2 v2.7.0
@@ -14,7 +14,7 @@ require (
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo-opentelemetry v0.0.4
 	github.com/labstack/echo/v5 v5.4.0
-	github.com/oklog/ulid v1.3.1
+	github.com/oklog/ulid/v2 v2.1.2
 	github.com/reearth/reearth-cms/server v0.0.0-20261014075612-0e8a1da63af6
 	github.com/reearth/reearthx v0.0.0-20261014111438-ae898c8089c9
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
