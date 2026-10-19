@@ -1046,7 +1046,7 @@ func TestProject_Update(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -1054,8 +1054,7 @@ func TestProject_Update(t *testing.T) {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
+				require.NoError(t, db.Project.Save(ctx, p.Clone()))
 			}
 
 			var gateways *gateway.Container
