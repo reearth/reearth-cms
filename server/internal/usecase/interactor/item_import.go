@@ -447,6 +447,12 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return i.importCSVWithProgress(ctx, j, prj, m, s, param, &res, operator)
 	}
 
+	// The file is read twice (count, then import), so the reader must be rewindable
+	src, ok := param.Reader.(io.ReadSeeker)
+	if !ok {
+		return res.Into(), fmt.Errorf("import reader must support rewinding")
+	}
+
 	// guess schema fields from first object
 	if param.MutateSchema {
 		rr := utils.NewReplyReader(param.Reader)
@@ -466,41 +472,32 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 	}
 
-	decoder := json.NewDecoder(param.Reader)
-
-	// For FeatureCollection, skip to the features array
-	if param.Format == interfaces.ImportFormatTypeGeoJSON {
-		for {
-			token, err := decoder.Token()
-			if err != nil {
-				return res.Into(), fmt.Errorf("error reading token: %v", err)
-			}
-			if str, ok := token.(string); ok && str == "features" {
-				break
-			}
-		}
+	decoder, err := openJSONArray(param.Reader, param.Format == interfaces.ImportFormatTypeGeoJSON)
+	if err != nil {
+		return res.Into(), err
 	}
 
-	// Read the opening bracket of array
-	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
-		if err != nil {
-			return res.Into(), fmt.Errorf("error reading array start: %v", err)
-		}
-		return res.Into(), fmt.Errorf("expected array start, got %v", t)
-	}
-
-	// First pass: decode all items to get total count
-	allItems := make([]map[string]any, 0)
+	// First pass: count items without keeping them in memory
+	totalCount := 0
 	for decoder.More() {
-		var obj map[string]any
+		totalCount++
+		if totalCount > interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
+		}
+		var obj json.RawMessage
 		if err := decoder.Decode(&obj); err != nil {
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
 		}
-		allItems = append(allItems, obj)
 	}
-	totalCount := len(allItems)
 
-	// Second pass: process items in chunks
+	// Second pass: re-read the file and process items in chunks
+	if _, err := src.Seek(0, io.SeekStart); err != nil {
+		return res.Into(), fmt.Errorf("error rewinding import file: %v", err)
+	}
+	decoder, err = openJSONArray(src, param.Format == interfaces.ImportFormatTypeGeoJSON)
+	if err != nil {
+		return res.Into(), err
+	}
 	processed := 0
 	for start := 0; start < totalCount; start += chunkSize {
 		// Check if job was cancelled
@@ -510,7 +507,14 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 
 		end := min(start+chunkSize, totalCount)
-		jsonChunk := allItems[start:end]
+		jsonChunk := make([]map[string]any, 0, end-start)
+		for range end - start {
+			var obj map[string]any
+			if err := decoder.Decode(&obj); err != nil {
+				return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+			}
+			jsonChunk = append(jsonChunk, obj)
+		}
 		chunkLen := len(jsonChunk)
 
 		items, err := itemsParamsFrom(jsonChunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
@@ -542,6 +546,34 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		log.Printf("chunk with %d items saved.", chunkLen)
 	}
 	return res.Into(), nil
+}
+
+// openJSONArray returns a decoder positioned just inside the array of records
+// (the top-level array for JSON, the "features" array for GeoJSON).
+func openJSONArray(r io.Reader, isGeoJSON bool) (*json.Decoder, error) {
+	decoder := json.NewDecoder(r)
+
+	// For FeatureCollection, skip to the features array
+	if isGeoJSON {
+		for {
+			token, err := decoder.Token()
+			if err != nil {
+				return nil, fmt.Errorf("error reading token: %v", err)
+			}
+			if str, ok := token.(string); ok && str == "features" {
+				break
+			}
+		}
+	}
+
+	// Read the opening bracket of array
+	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
+		if err != nil {
+			return nil, fmt.Errorf("error reading array start: %v", err)
+		}
+		return nil, fmt.Errorf("expected array start, got %v", t)
+	}
+	return decoder, nil
 }
 
 func (i Item) saveChunk(ctx context.Context, _ *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
