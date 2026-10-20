@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -14,14 +13,12 @@ import (
 
 type Integration struct {
 	data *util.SyncMap[id.IntegrationID, *integration.Integration]
-	now  *util.TimeNow
 	err  error
 }
 
 func NewIntegration() repo.Integration {
 	return &Integration{
 		data: &util.SyncMap[id.IntegrationID, *integration.Integration]{},
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -30,12 +27,8 @@ func (r *Integration) FindByID(_ context.Context, iId id.IntegrationID) (*integr
 		return nil, r.err
 	}
 
-	i := r.data.Find(func(k id.IntegrationID, i *integration.Integration) bool {
-		return k == iId
-	})
-
-	if i != nil {
-		return i, nil
+	if i, ok := r.data.Load(iId); ok {
+		return i.Clone(), nil
 	}
 	return nil, rerror.ErrNotFound
 }
@@ -50,7 +43,7 @@ func (r *Integration) FindByToken(_ context.Context, token string) (*integration
 	})
 
 	if i != nil {
-		return i, nil
+		return i.Clone(), nil
 	}
 	return nil, rerror.ErrNotFound
 }
@@ -60,11 +53,18 @@ func (r *Integration) FindByIDs(_ context.Context, iIds id.IntegrationIDList) (i
 		return nil, r.err
 	}
 
-	result := r.data.FindAll(func(k id.IntegrationID, i *integration.Integration) bool {
-		return iIds.Has(k)
-	})
+	if len(iIds) == 0 {
+		return nil, nil
+	}
 
-	return integration.List(result).SortByID(), nil
+	// the result keeps the order of the given IDs, as mongo does
+	res := make(integration.List, 0, len(iIds))
+	for _, iId := range iIds {
+		if i, ok := r.data.Load(iId); ok {
+			res = append(res, i.Clone())
+		}
+	}
+	return res, nil
 }
 
 func (r *Integration) FindByUser(_ context.Context, uID accountdomain.UserID) (integration.List, error) {
@@ -76,7 +76,7 @@ func (r *Integration) FindByUser(_ context.Context, uID accountdomain.UserID) (i
 		return i.Developer() == uID
 	})
 
-	return integration.List(result).SortByID(), nil
+	return integration.List(result).SortByID().Clone(), nil
 }
 
 func (r *Integration) Save(_ context.Context, i *integration.Integration) error {
@@ -84,7 +84,7 @@ func (r *Integration) Save(_ context.Context, i *integration.Integration) error 
 		return r.err
 	}
 
-	r.data.Store(i.ID(), i)
+	r.data.Store(i.ID(), i.Clone())
 	return nil
 }
 
@@ -105,24 +105,8 @@ func (r *Integration) RemoveMany(_ context.Context, iIDs id.IntegrationIDList) e
 		return r.err
 	}
 
-	notFoundCount := 0
-	for _, iId := range iIDs {
-		if _, ok := r.data.Load(iId); ok {
-			r.data.Delete(iId)
-		} else {
-			notFoundCount++
-		}
-	}
-
-	if notFoundCount == len(iIDs) {
-		return rerror.ErrNotFound
-	}
-
+	r.data.DeleteAll(iIDs...)
 	return nil
-}
-
-func MockIntegrationNow(r repo.Integration, t time.Time) func() {
-	return r.(*Integration).now.Mock(t)
 }
 
 func SetIntegrationError(r repo.Integration, err error) {
