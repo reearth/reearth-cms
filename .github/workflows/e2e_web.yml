@@ -63,7 +63,7 @@ env:
 jobs:
   e2e:
     name: playwright
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     concurrency:
       group: e2e-web-allure-reports
       cancel-in-progress: false
@@ -332,14 +332,14 @@ jobs:
                 || echo "Failed to delete runs/$EVICTED_ID; it may already be gone."
             done < /tmp/evicted_runs.txt
           fi
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ !cancelled() }}
         with:
           name: allure-report
           path: web/allure-report/
           retention-days: 14
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: failure()
         with:
           name: test-results

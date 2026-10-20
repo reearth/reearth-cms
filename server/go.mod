@@ -1,12 +1,12 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.26.5
+go 1.27.2
 
 require (
 	cloud.google.com/go/pubsub/v2 v2.7.0
 	cloud.google.com/go/storage v1.69.0
 	github.com/99designs/gqlgen v0.17.95
-	github.com/avast/retry-go/v4 v4.7.0
+	github.com/avast/retry-go/v5 v5.0.0
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/coder/websocket v1.8.15
 	github.com/gavv/httpexpect/v2 v2.17.0
@@ -27,7 +27,7 @@ require (
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/reearth/reearth-accounts/server v0.0.0-20261013054957-a545c2083d8b
-	github.com/reearth/reearthx v0.0.0-20261014111438-ae898c8089c9
+	github.com/reearth/reearthx v0.0.0-20261019070039-3b14d79ab14b
 	github.com/samber/lo v1.53.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	github.com/spf13/afero v1.15.0
@@ -41,7 +41,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.72.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.72.0
 	go.opentelemetry.io/otel v1.47.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.45.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.47.0
 	go.opentelemetry.io/otel/sdk v1.47.0
 	go.uber.org/mock v0.6.0

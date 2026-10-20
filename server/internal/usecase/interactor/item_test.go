@@ -228,7 +228,8 @@ func TestItem_FindBySchema(t *testing.T) {
 			seedItems:  item.List{i1, i2, i3},
 			seedSchema: s1,
 			args: args{
-				schema: s1.ID(),
+				schema:     s1.ID(),
+				pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User: &uid,
@@ -245,7 +246,8 @@ func TestItem_FindBySchema(t *testing.T) {
 			seedItems:  item.List{},
 			seedSchema: s1,
 			args: args{
-				schema: s1.ID(),
+				schema:     s1.ID(),
+				pagination: usecasex.CursorPagination{First: new(int64(10))}.Wrap(),
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User: &uid,
@@ -451,7 +453,7 @@ func TestItem_Search(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.Search(ctx, schema.Package{}, tc.args.query, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, schema.Package{}, tc.args.query, usecasex.CursorPagination{First: new(int64(10))}.Wrap(), tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
