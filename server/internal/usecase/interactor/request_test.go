@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -343,7 +344,8 @@ func TestRequest_FindByProject(t *testing.T) {
 			}
 			requestUC := NewRequest(db, nil)
 
-			got, _, err := requestUC.FindByProject(ctx, tc.args.pid, tc.args.filter, nil, nil, tc.args.operator)
+			pagination := usecasex.CursorPagination{First: new(int64(10))}.Wrap()
+			got, _, err := requestUC.FindByProject(ctx, tc.args.pid, tc.args.filter, nil, pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
