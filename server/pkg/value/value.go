@@ -3,15 +3,10 @@ package value
 type Value struct {
 	t Type
 	v any
-	p TypeRegistry
 }
 
 func New(t Type, v any) *Value {
-	return NewWithTypeRegistry(t, v, nil)
-}
-
-func NewWithTypeRegistry(t Type, v any, p TypeRegistry) *Value {
-	return t.ValueFrom(v, p)
+	return t.Value(v)
 }
 
 func (v *Value) IsEmpty() bool {
@@ -23,10 +18,10 @@ func (v *Value) IsEmpty() bool {
 }
 
 func (v *Value) Clone() *Value {
-	if v == nil {
+	if v == nil || v.v == nil || v.TypeProperty() == nil {
 		return nil
 	}
-	return v.t.ValueFrom(v.v, v.p)
+	return v.t.Value(v.v)
 }
 
 func (v *Value) Some() *Optional {
@@ -54,14 +49,11 @@ func (v *Value) Type() Type {
 	return v.t
 }
 
-func (v *Value) TypeProperty() (tp TypeProperty) {
+func (v *Value) TypeProperty() TypeProperty {
 	if v == nil {
-		return
+		return nil
 	}
-	if tp := v.p.Find(v.t); tp != nil {
-		return tp
-	}
-	return
+	return defaultTypes.Get(v.t)
 }
 
 // Interface converts the value into generic representation
@@ -70,10 +62,8 @@ func (v *Value) Interface() any {
 		return nil
 	}
 
-	if i, ok := v.p.ToInterface(v.t, v.v); ok {
-		return i
-	}
-	return nil
+	i, _ := defaultTypes.ToInterface(v.t, v.v)
+	return i
 }
 
 func (v *Value) Validate() bool {
@@ -81,7 +71,7 @@ func (v *Value) Validate() bool {
 		return false
 	}
 
-	valid, _ := v.p.Validate(v.t, v.v)
+	valid, _ := defaultTypes.Validate(v.t, v.v)
 	return valid
 }
 
@@ -89,7 +79,11 @@ func (v *Value) Equal(w *Value) bool {
 	if v == nil || w == nil || v.t != w.t {
 		return false
 	}
-	return v.p.Find(v.t).Equal(v.v, w.v)
+	tp := defaultTypes.Get(v.t)
+	if tp == nil {
+		return false
+	}
+	return tp.Equal(v.v, w.v)
 }
 
 func (v *Value) Cast(t Type) *Value {
@@ -99,5 +93,5 @@ func (v *Value) Cast(t Type) *Value {
 	if v.t == t {
 		return v.Clone()
 	}
-	return t.ValueFrom(v.v, v.p)
+	return t.Value(v.v)
 }

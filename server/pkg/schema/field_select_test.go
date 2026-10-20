@@ -33,3 +33,8 @@ func TestFieldSelect_Validate(t *testing.T) {
 	assert.Equal(t, ErrInvalidValue, (&FieldSelect{values: []string{"aa"}}).Validate(value.TypeSelect.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldSelect{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldSelect_ValidateMultiple(t *testing.T) {
+	f := &FieldSelect{values: []string{"a", "b"}}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeSelect, []any{"a", "b"})))
+}

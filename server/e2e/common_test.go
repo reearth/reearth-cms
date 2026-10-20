@@ -3,6 +3,7 @@ package e2e
 import (
 	"context"
 	"errors"
+	"io"
 	"net"
 	"net/http"
 	"testing"
@@ -32,6 +33,12 @@ func init() {
 	mongotest.Env = "REEARTH_CMS_DB"
 }
 
+func TestMain(m *testing.M) {
+	log.DefaultOutput = io.Discard // loggers created by log.New(), e.g. the echo access logger
+	log.SetOutput(io.Discard)      // global logger
+	m.Run()
+}
+
 func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountrepos *accountrepo.Container, gateway *gateway.Container, accountgateway *accountgateway.Container) *httpexpect.Expect {
 	t.Helper()
 
@@ -51,7 +58,7 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 		Debug:      true,
 	})
 
-	l1, err := net.Listen("tcp", ":0")
+	l1, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("http server failed to listen: %v", err)
 	}
@@ -111,7 +118,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		log.Infof("test: new db created with name: %v", db.Name())
+		t.Logf("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -161,7 +168,7 @@ func StartServerWithGateway(t *testing.T, cfg *app.Config, useMongo bool, seeder
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		log.Infof("test: new db created with name: %v", db.Name())
+		t.Logf("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -207,7 +214,7 @@ func StartServerAndGetURL(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		log.Infof("test: new db created with name: %v", db.Name())
+		t.Logf("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -262,7 +269,7 @@ func startServerWithURL(t *testing.T, cfg *app.Config, repos *repo.Container, ac
 		Debug:      true,
 	})
 
-	l1, err := net.Listen("tcp", ":0")
+	l1, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("http server failed to listen: %v", err)
 	}

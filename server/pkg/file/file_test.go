@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -83,4 +84,51 @@ func TestFromURL(t *testing.T) {
 		assert.Equal(t, expected.Name, got.Name)
 		assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))
 	})
+}
+
+type closeTrackingBody struct {
+	io.Reader
+	closed bool
+}
+
+func (b *closeTrackingBody) Close() error {
+	b.closed = true
+	return nil
+}
+
+func TestFromURL_Error(t *testing.T) {
+	ctx := context.Background()
+
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+
+	tests := []struct {
+		name            string
+		status          int
+		contentEncoding string
+	}{
+		{name: "300 multiple choices", status: http.StatusMultipleChoices},
+		{name: "404 not found", status: http.StatusNotFound},
+		{name: "unsupported content encoding", status: http.StatusOK, contentEncoding: "br"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			URL := "https://cms.com/xyz/error.txt"
+			body := &closeTrackingBody{Reader: strings.NewReader("body")}
+			httpmock.RegisterResponder("GET", URL, func(r *http.Request) (*http.Response, error) {
+				res := httpmock.NewStringResponse(tt.status, "")
+				res.Body = body
+				if tt.contentEncoding != "" {
+					res.Header.Set("Content-Encoding", tt.contentEncoding)
+				}
+				return res, nil
+			})
+
+			got, err := FromURL(ctx, URL)
+			assert.Error(t, err)
+			assert.Nil(t, got)
+			assert.True(t, body.closed, "response body should be closed")
+		})
+	}
 }

@@ -97,9 +97,13 @@ func TestWebhook_Clone(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equalf(t, tt.want, tt.w.Clone(), "Clone()")
+			c := tt.w.Clone()
+			assert.Equalf(t, tt.want, c, "Clone()")
 			if tt.want != nil {
-				assert.NotSame(t, tt.want, tt.w)
+				assert.NotSame(t, tt.w, c)
+				// the trigger map is copied: enabling an event on the clone leaves the original untouched
+				c.Trigger().Enable(event.ItemCreate)
+				assert.False(t, tt.w.Trigger().IsActive(event.ItemCreate))
 			}
 		})
 	}

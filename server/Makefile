@@ -9,7 +9,7 @@ lint:
 	golangci-lint run --fix
 
 test:
-	go test -race -v ./...
+	go test -race ./...
 
 build:
 	go build ./cmd/reearth-cms
@@ -33,10 +33,10 @@ oapi:
 	go generate ./pkg/integrationapi && go generate ./internal/adapter/integration
 
 i18n:
-	go run github.com/reearth/reearthx/tools i18n-extract -l en,ja -o i18n
+	go tool github.com/reearth/reearthx/tools i18n-extract -l en,ja -o i18n
 
 i18n-ci:
-	go run github.com/reearth/reearthx/tools i18n-extract -l en,ja -o i18n -f
+	go tool github.com/reearth/reearthx/tools i18n-extract -l en,ja -o i18n -f
 
 grpc:
 	protoc --go_out=./internal/adapter/internalapi/ --go_opt=paths=source_relative \

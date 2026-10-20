@@ -162,15 +162,44 @@ func TestValue_ValueNumber(t *testing.T) {
 }
 
 func TestMultiple_ValuesNumber(t *testing.T) {
-	var m *Multiple
-	got, ok := m.ValuesNumber()
-	var expected []Number
-	assert.Equal(t, expected, got)
-	assert.Equal(t, false, ok)
-	m = NewMultiple(TypeNumber, []any{5.0, 6.0, 7.0})
-	expected = []Number{5.0, 6.0, 7.0}
-	got, _ = m.ValuesNumber()
-	assert.Equal(t, expected, got)
+	tests := []struct {
+		name string
+		m    *Multiple
+		want []Number
+		ok   bool
+	}{
+		{
+			name: "nil multiple",
+			m:    nil,
+			want: nil,
+			ok:   false,
+		},
+		{
+			name: "valid values",
+			m:    NewMultiple(TypeNumber, []any{5.0, 6.0, 7.0}),
+			want: []Number{5.0, 6.0, 7.0},
+			ok:   true,
+		},
+		{
+			name: "invalid element",
+			m: &Multiple{
+				t: TypeNumber,
+				v: []*Value{New(TypeNumber, 5.0), New(TypeNumber, "invalid")},
+			},
+			want: nil,
+			ok:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, ok := tt.m.ValuesNumber()
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.ok, ok)
+		})
+	}
 }
 
 func Test_propertyNumber_Equal(t *testing.T) {

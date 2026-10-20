@@ -7,20 +7,17 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	assert.Equal(t, &Value{
 		t: TypeText,
 		v: "a",
 	}, New(TypeText, "a"))
 }
 
-func TestNewWithTypeRegistry(t *testing.T) {
-	assert.Equal(t, &Value{
-		t: TypeText,
-		v: "a",
-	}, NewWithTypeRegistry(TypeText, "a", nil))
-}
-
 func TestValue_IsEmpty(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -55,10 +52,7 @@ func TestValue_IsEmpty(t *testing.T) {
 }
 
 func TestValue_Clone(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		Type("hoge"): tp,
-	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string
@@ -77,17 +71,19 @@ func TestValue_Clone(t *testing.T) {
 			},
 		},
 		{
-			name: "custom type property",
-			value: &Value{
-				t: Type("hoge"),
-				v: "foo",
-				p: tpm,
-			},
-			want: &Value{
-				t: Type("hoge"),
-				v: "fooa",
-				p: tpm,
-			},
+			name:  "url",
+			value: TypeURL.Value("https://example.com/a"),
+			want:  TypeURL.Value("https://example.com/a"),
+		},
+		{
+			name:  "unknown type",
+			value: &Value{t: Type("foo"), v: "foo"},
+			want:  nil,
+		},
+		{
+			name:  "nil value",
+			value: &Value{t: TypeText},
+			want:  nil,
 		},
 		{
 			name:  "nil",
@@ -105,15 +101,28 @@ func TestValue_Clone(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.value.Clone())
+			if tt.value != nil {
+				assert.NotSame(t, tt.value, tt.value.Clone())
+			}
 		})
 	}
 }
 
+func TestValue_Clone_URL(t *testing.T) {
+	t.Parallel()
+
+	v := TypeURL.Value("https://example.com/a")
+	c := v.Clone()
+
+	u, _ := c.ValueURL()
+	u.Path = "/b"
+
+	orig, _ := v.ValueURL()
+	assert.Equal(t, "/a", orig.Path)
+}
+
 func TestValue_Some(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		Type("hoge"): tp,
-	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string
@@ -131,22 +140,6 @@ func TestValue_Some(t *testing.T) {
 				v: &Value{
 					t: TypeText,
 					v: "foo",
-				},
-			},
-		},
-		{
-			name: "custom type property",
-			value: &Value{
-				t: Type("hoge"),
-				v: "fooa",
-				p: tpm,
-			},
-			want: &Optional{
-				t: Type("hoge"),
-				v: &Value{
-					t: Type("hoge"),
-					v: "fooa",
-					p: tpm,
 				},
 			},
 		},
@@ -171,6 +164,8 @@ func TestValue_Some(t *testing.T) {
 }
 
 func TestValue_AsMultiple(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -211,6 +206,8 @@ func TestValue_AsMultiple(t *testing.T) {
 }
 
 func TestValue_Value(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -243,6 +240,8 @@ func TestValue_Value(t *testing.T) {
 }
 
 func TestValue_Type(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name  string
 		value *Value
@@ -273,10 +272,7 @@ func TestValue_Type(t *testing.T) {
 }
 
 func TestValue_TypeProperty(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		Type("hoge"): tp,
-	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string
@@ -290,15 +286,6 @@ func TestValue_TypeProperty(t *testing.T) {
 				t: TypeText,
 			},
 			want: defaultTypes.Get(TypeText),
-		},
-		{
-			name: "custom type",
-			value: &Value{
-				v: "string",
-				t: Type("hoge"),
-				p: tpm,
-			},
-			want: tp,
 		},
 		{
 			name:  "empty",
@@ -325,10 +312,7 @@ func TestValue_TypeProperty(t *testing.T) {
 }
 
 func TestValue_Interface(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		"foo": tp,
-	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string
@@ -341,18 +325,8 @@ func TestValue_Interface(t *testing.T) {
 			want:  "hoge",
 		},
 		{
-			name: "custom",
-			value: &Value{
-				p: tpm,
-				t: Type("foo"),
-				v: "foo",
-			},
-			want: "foobar",
-		},
-		{
 			name: "Unknown",
 			value: &Value{
-				p: tpm,
 				t: Type("bar"),
 				v: "bar",
 			},
@@ -379,10 +353,7 @@ func TestValue_Interface(t *testing.T) {
 }
 
 func TestValue_Validate(t *testing.T) {
-	tp := &tpmock{}
-	tpm := TypeRegistry{
-		"foo": tp,
-	}
+	t.Parallel()
 
 	tests := []struct {
 		name  string
@@ -395,13 +366,9 @@ func TestValue_Validate(t *testing.T) {
 			want:  true,
 		},
 		{
-			name: "custom",
-			value: &Value{
-				p: tpm,
-				t: Type("foo"),
-				v: "foo",
-			},
-			want: true,
+			name:  "unknown type",
+			value: &Value{t: Type("foo"), v: "foo"},
+			want:  false,
 		},
 		{
 			name:  "empty",
@@ -424,6 +391,8 @@ func TestValue_Validate(t *testing.T) {
 }
 
 func TestValue_Equal(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		v *Value
 	}
@@ -453,6 +422,18 @@ func TestValue_Equal(t *testing.T) {
 			want:   false,
 		},
 		{
+			name:   "both empty",
+			target: &Value{},
+			args:   args{v: &Value{}},
+			want:   false,
+		},
+		{
+			name:   "unknown type",
+			target: &Value{t: Type("foo"), v: "foo"},
+			args:   args{v: &Value{t: Type("foo"), v: "foo"}},
+			want:   false,
+		},
+		{
 			name:   "nil",
 			target: nil,
 			args:   args{v: TypeText.Value("")},
@@ -469,6 +450,8 @@ func TestValue_Equal(t *testing.T) {
 }
 
 func TestValue_Cast(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		t Type
 	}

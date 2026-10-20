@@ -31,7 +31,7 @@ func (r *Thread) Save(_ context.Context, th *thread.Thread) error {
 		return repo.ErrOperationDenied
 	}
 
-	r.data.Store(th.ID(), th)
+	r.data.Store(th.ID(), th.Clone())
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (r *Thread) SaveAll(_ context.Context, th thread.List) error {
 			return repo.ErrOperationDenied
 		}
 	}
-	r.data.StoreAll(th.ToMap())
+	r.data.StoreAll(th.Clone().ToMap())
 	return nil
 }
 
@@ -53,32 +53,36 @@ func (r *Thread) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	return &Thread{
 		data: r.data,
 		f:    r.f.Merge(f),
+		err:  r.err,
 	}
 }
 
-func (r *Thread) FindByID(ctx context.Context, thid id.ThreadID) (*thread.Thread, error) {
+func (r *Thread) FindByID(_ context.Context, thid id.ThreadID) (*thread.Thread, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	th := r.data.Find(func(k id.ThreadID, v *thread.Thread) bool {
-		return k == thid && r.f.CanRead(v.Workspace())
-	})
-
-	if th != nil {
-		return th, nil
+	if th, ok := r.data.Load(thid); ok && r.canRead(th) {
+		return th.Clone(), nil
 	}
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Thread) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
+func (r *Thread) FindByIDs(_ context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
 
-	res := thread.List(r.data.FindAll(func(key thread.ID, value *thread.Thread) bool {
-		return ids.Has(key) && r.f.CanRead(value.Workspace())
-	})).SortByID()
+	// the result keeps the order of the given IDs, as mongo does
+	res := make([]*thread.Thread, 0, len(ids))
+	for _, thid := range ids {
+		if th, ok := r.data.Load(thid); ok && r.canRead(th) {
+			res = append(res, th.Clone())
+		}
+	}
 	return res, nil
 }
 
@@ -87,6 +91,9 @@ func (r *Thread) Remove(_ context.Context, thid id.ThreadID) error {
 		return r.err
 	}
 
+	if _, ok := r.data.Load(thid); !ok {
+		return rerror.ErrNotFound
+	}
 	r.data.Delete(thid)
 	return nil
 }
@@ -100,6 +107,10 @@ func (r *Thread) RemoveByIDs(_ context.Context, ids id.ThreadIDList) error {
 		r.data.Delete(thid)
 	}
 	return nil
+}
+
+func (r *Thread) canRead(th *thread.Thread) bool {
+	return r.f.Readable == nil || r.f.Readable.Has(th.Workspace())
 }
 
 func SetThreadError(r repo.Thread, err error) {

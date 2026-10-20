@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -36,6 +37,7 @@ func NewImportRes() ImportRes {
 		Updated:   0,
 		Ignored:   0,
 		NewFields: nil,
+		Columns:   nil,
 	}
 }
 
@@ -58,6 +60,10 @@ func (ir *ImportRes) FieldAdded(f *schema.Field) {
 	ir.NewFields = append(ir.NewFields, f)
 }
 
+func (ir *ImportRes) SetColumns(columns []interfaces.ImportColumnResult) {
+	ir.Columns = columns
+}
+
 func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 	return interfaces.ImportItemsResponse{
 		Total:     ir.Total,
@@ -65,6 +71,7 @@ func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 		Updated:   ir.Updated,
 		Ignored:   ir.Ignored,
 		NewFields: ir.NewFields,
+		Columns:   ir.Columns,
 	}
 }
 
@@ -381,6 +388,7 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 		Inserted: res.Inserted,
 		Updated:  res.Updated,
 		Ignored:  res.Ignored,
+		Columns:  toJobImportColumns(res.Columns),
 	}
 	resultJSON, _ := result.ToJSON()
 
@@ -403,6 +411,20 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 
 	log.Infof("item: import job %s completed: total=%d inserted=%d updated=%d ignored=%d",
 		jobID, res.Total, res.Inserted, res.Updated, res.Ignored)
+}
+
+func toJobImportColumns(columns []interfaces.ImportColumnResult) []job.ImportColumnResult {
+	if len(columns) == 0 {
+		return nil
+	}
+	return lo.Map(columns, func(c interfaces.ImportColumnResult, _ int) job.ImportColumnResult {
+		return job.ImportColumnResult{
+			Header:         c.Header,
+			Status:         string(c.Status),
+			SchemaFieldKey: c.SchemaFieldKey,
+			Reason:         c.Reason,
+		}
+	})
 }
 
 func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfaces.ImportItemsParam, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
@@ -567,7 +589,7 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	return res.Into(), nil
 }
 
-func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
+func (i Item) saveChunk(ctx context.Context, _ *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
 	itemsIds := lo.FilterMap(items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
 		if i.ItemId != nil {
 			return *i.ItemId, true
@@ -690,32 +712,31 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				itemsToSave = append(itemsToSave, mi.Value())
 			}
 
-			modelSchemaFields, otherFields := filterFieldParamsBySchema(itemParam.Fields, s)
-
-			fields, err := itemFieldsFromParams(modelSchemaFields, s)
-			if err != nil {
-				return nil, nil, err
+			var uniqueTarget *item.Item
+			if action != interfaces.ImportStrategyTypeInsert {
+				uniqueTarget = it.Clone()
 			}
-
-			// Apply default values for missing fields on new items
-			if action == interfaces.ImportStrategyTypeInsert {
-				fields = append(fields, missingFieldsWithDefaultValues(fields, s)...)
-				// TODO: Handle default values for groups fields
-			}
-
-			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
-				return nil, nil, err
-			}
-
 			oldFields := it.Fields()
-			it.UpdateFields(fields)
+			if action == interfaces.ImportStrategyTypeInsert {
+				it.AttachDefault(&param.SP)
+			}
 
-			groupFields, _, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), it.Fields())
+			changed, fieldErrs, err := it.ApplyInput(itemParam.Fields, &param.SP)
 			if err != nil {
 				return nil, nil, err
 			}
 
-			it.UpdateFields(groupFields)
+			uniqueFields := changed
+			if action == interfaces.ImportStrategyTypeInsert {
+				uniqueFields = it.Fields()
+			}
+			uniqueErrs, err := i.uniqueFieldErrors(ctx, uniqueFields, &param.SP, m.ID(), uniqueTarget, fieldErrs.Keys())
+			if err != nil {
+				return nil, nil, err
+			}
+			if errs := slices.Concat(fieldErrs, uniqueErrs); !errs.Empty() {
+				return nil, nil, errs
+			}
 
 			if err = i.handleReferenceFields(ctx, *s, it, oldFields); err != nil {
 				return nil, nil, err
@@ -785,36 +806,6 @@ func (i Item) updateSchema(ctx context.Context, s *schema.Schema, params []inter
 	return fields, nil
 }
 
-// missingFieldsWithDefaultValues returns a list of fields with default values for schema fields that are missing in the imported data.
-func missingFieldsWithDefaultValues(importedFields item.Fields, s *schema.Schema) item.Fields {
-	// Build set of existing field IDs
-	existingFieldIDs := make(map[id.FieldID]struct{})
-	for _, f := range importedFields {
-		existingFieldIDs[f.FieldID()] = struct{}{}
-	}
-
-	newFields := item.Fields{}
-
-	// Check each schema field for default values
-	for _, sf := range s.Fields() {
-		// Skip if field already has a value from import
-		if _, exists := existingFieldIDs[sf.ID()]; exists {
-			continue
-		}
-
-		// Skip if no default value
-		defaultVal := sf.DefaultValue()
-		if defaultVal == nil {
-			continue
-		}
-
-		// Create item field with default value
-		newFields = append(newFields, item.NewField(sf.ID(), defaultVal, nil))
-	}
-
-	return newFields
-}
-
 func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, error) {
 	if isGeoJson && geoField == nil {
 		return nil, rerror.ErrInvalidParams
@@ -842,7 +833,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 				if err != nil {
 					return nil, rerror.ErrInvalidParams
 				}
-				param.Fields = append(param.Fields, interfaces.ItemFieldParam{
+				param.Fields = append(param.Fields, item.FieldInput{
 					Field: f.ID().Ref(),
 					Key:   f.Key().Ref(),
 					Value: string(v),
@@ -876,7 +867,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 				return nil, rerror.ErrInvalidParams
 			}
 
-			param.Fields = append(param.Fields, interfaces.ItemFieldParam{
+			param.Fields = append(param.Fields, item.FieldInput{
 				Field: nil,
 				Key:   key.Ref(),
 				Value: v,

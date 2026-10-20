@@ -7,12 +7,33 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 
+	// TODO: use "github.com/reearth/reearth-cms/server/pkg/types"
 	geojson "github.com/paulmach/go.geojson"
 )
 
-var ErrUnsupportedType = rerror.NewE(i18n.T("unsupported geometry type"))
+var (
+	ErrUnsupportedType             = rerror.NewE(i18n.T("unsupported geometry type"))
+	ErrGeoFieldMaxSizeExceeded     = rerror.NewE(i18n.T("Geo field max size exceeded"))
+	ErrGeoFieldInvalidGeoStructure = rerror.NewE(i18n.T("invalid Geo field structure"))
+)
 
-// isValidGeoJSON uses the go.geojson library to validate a GeoJSON string
+const maxGeoFieldBytes = 10 * 1024
+
+func validateGeoJSON(data string) (geojson.GeometryType, error) {
+	if !isValidGeoJSONLimits(data) {
+		return "", ErrGeoFieldMaxSizeExceeded
+	}
+	t, ok := isValidGeoJSON(data)
+	if !ok {
+		return "", ErrGeoFieldInvalidGeoStructure
+	}
+	return t, nil
+}
+
+func isValidGeoJSONLimits(data string) bool {
+	return len(data) <= maxGeoFieldBytes
+}
+
 func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
 	var raw map[string]any
 	if err := json.Unmarshal([]byte(data), &raw); err != nil {
@@ -23,25 +44,24 @@ func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
 	if !ok {
 		return "", false
 	}
-	var t geojson.GeometryType
 	switch geoType {
 	case "Point", "MultiPoint", "LineString", "Polygon", "MultiLineString", "MultiPolygon":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
+		if err != nil {
+			return "", false
 		}
-		return t, err == nil && isValidRFC7946(g)
+		return g.Type, isValidRFC7946(g)
 
 	case "GeometryCollection":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
+		if err != nil {
+			return "", false
 		}
 		v := true
 		for _, geometry := range g.Geometries {
 			v = v && isValidRFC7946(geometry)
 		}
-		return t, err == nil && v
+		return g.Type, v
 
 	default:
 		return "", false

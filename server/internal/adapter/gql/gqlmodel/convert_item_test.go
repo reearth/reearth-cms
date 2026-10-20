@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -167,18 +166,17 @@ func TestToItemParam(t *testing.T) {
 	tests := []struct {
 		name  string
 		input *ItemFieldInput
-		want  *interfaces.ItemFieldParam
+		want  *item.FieldInput
 	}{
 		{
-			name: "should return ItemFieldParam",
+			name: "should return FieldInput",
 			input: &ItemFieldInput{
 				SchemaFieldID: IDFrom(sfid),
 				Type:          SchemaFieldTypeText,
 				Value:         "foo",
 			},
-			want: &interfaces.ItemFieldParam{
+			want: &item.FieldInput{
 				Field: &sfid,
-				// Type:  value.TypeText,
 				Value: "foo",
 			},
 		},

@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -25,6 +24,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 // sequentialPolicyChecker for testing multiple policy calls
@@ -127,7 +127,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids:      []id.ProjectID{pid1},
 				operator: op,
 			},
-			want:    nil,
+			want:    project.List{},
 			wantErr: nil,
 		},
 		{
@@ -137,7 +137,7 @@ func TestProject_Fetch(t *testing.T) {
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
 			},
-			want:    nil,
+			want:    project.List{},
 			wantErr: nil,
 		},
 		{
@@ -744,7 +744,7 @@ func TestProject_Create(t *testing.T) {
 
 func TestProject_Update(t *testing.T) {
 	now := util.Now()
-	defer util.MockNow(now)
+	defer util.MockNow(now)()
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
@@ -1046,7 +1046,7 @@ func TestProject_Update(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -1054,8 +1054,7 @@ func TestProject_Update(t *testing.T) {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
+				require.NoError(t, db.Project.Save(ctx, p.Clone()))
 			}
 
 			var gateways *gateway.Container

@@ -82,7 +82,7 @@ func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.C
 			if err := i.linkThreadToResource(ctx, th.ID(), input.ResourceType, input.ResourceID); err != nil {
 				return nil, nil, err
 			}
-			_, c, err := i.addComment(ctx, th.ID(), input.Content, op)
+			th, c, err := i.addComment(ctx, th.ID(), input.Content, op)
 			if err != nil {
 				return nil, nil, err
 			}

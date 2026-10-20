@@ -444,8 +444,6 @@ export const IMPORT_ITEMS = gql`
       modelId
       totalCount
       insertedCount
-      updatedCount
-      ignoredCount
     }
   }
 `;

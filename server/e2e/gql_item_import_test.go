@@ -19,6 +19,12 @@ func importItems(e *httpexpect.Expect, modelID string, fileName string, fileCont
 			insertedCount
 			updatedCount
 			ignoredCount
+			columns {
+				header
+				status
+				schemaFieldKey
+				reason
+			}
 		}
 	}`
 

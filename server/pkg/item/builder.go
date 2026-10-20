@@ -14,11 +14,18 @@ import (
 var ErrOperatorRequired = rerror.NewE(i18n.T("item must have a user, integration, or be anonymous"))
 
 type Builder struct {
-	i *Item
+	i             *Item
+	sp            *schema.Package
+	attachDefault bool
 }
 
 func New() *Builder {
 	return &Builder{i: &Item{}}
+}
+
+func (b *Builder) ForSchemaPackage(sp *schema.Package) *Builder {
+	b.sp = sp
+	return b
 }
 
 func (b *Builder) Build() (*Item, error) {
@@ -39,6 +46,9 @@ func (b *Builder) Build() (*Item, error) {
 	}
 	if b.i.user == nil && b.i.integration == nil && !b.i.isAnonymous {
 		return nil, ErrOperatorRequired
+	}
+	if b.attachDefault && b.sp != nil {
+		b.i.AttachDefault(b.sp)
 	}
 	return b.i, nil
 }
@@ -133,5 +143,10 @@ func (b *Builder) OriginalItem(id *ID) *Builder {
 
 func (b *Builder) Timestamp(createdAt time.Time) *Builder {
 	b.i.timestamp = createdAt
+	return b
+}
+
+func (b *Builder) AttachDefault() *Builder {
+	b.attachDefault = true
 	return b
 }

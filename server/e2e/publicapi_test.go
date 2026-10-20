@@ -1513,10 +1513,10 @@ func TestPublicAPI_PostItem(t *testing.T) {
 		assertFieldError(postM(map[string]any{"tags": "one"}), "tags", "TYPE_MISMATCH")
 	})
 	t.Run("multiple field reports type mismatch on invalid item in array", func(t *testing.T) {
-		assertFieldError(postM(map[string]any{"counts": []any{float64(1), map[string]any{"bad": "value"}}}), "counts", "TYPE_MISMATCH")
+		assertFieldError(postM(map[string]any{"counts": []any{float64(1), map[string]any{"bad": "value"}}}), "counts[1]", "TYPE_MISMATCH")
 	})
 	t.Run("multiple field reports constraint violation on item out of range", func(t *testing.T) {
-		assertFieldError(postM(map[string]any{"counts": []any{float64(5), float64(999)}}), "counts", "CONSTRAINT_VIOLATION")
+		assertFieldError(postM(map[string]any{"counts": []any{float64(5), float64(999)}}), "counts[1]", "CONSTRAINT_VIOLATION")
 	})
 	t.Run("multiple field accepts all valid items", func(t *testing.T) {
 		postMOK(map[string]any{"counts": []any{float64(1), float64(5), float64(10)}})

@@ -110,6 +110,39 @@ func TestImportResult_ToJSON(t *testing.T) {
 	assert.Equal(t, result, restored)
 }
 
+func TestImportResult_ToJSON_withColumns(t *testing.T) {
+	result := &ImportResult{
+		Total:    2,
+		Inserted: 2,
+		Columns: []ImportColumnResult{
+			{Header: "name", Status: "matched", SchemaFieldKey: new("name")},
+			{Header: "unknown_col", Status: "skipped", Reason: new("no matching schema field for header 'unknown_col'")},
+		},
+	}
+
+	data, err := result.ToJSON()
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{
+		"total": 2, "inserted": 2, "updated": 0, "ignored": 0,
+		"columns": [
+			{"header":"name","status":"matched","schemaFieldKey":"name"},
+			{"header":"unknown_col","status":"skipped","reason":"no matching schema field for header 'unknown_col'"}
+		]
+	}`, string(data))
+
+	// Verify round-trip
+	restored, err := ImportResultFromJSON(data)
+	assert.NoError(t, err)
+	assert.Equal(t, result, restored)
+}
+
+// columns are omitted for results without column detail, keeping the stored document unchanged
+func TestImportResult_ToJSON_omitsEmptyColumns(t *testing.T) {
+	data, err := (&ImportResult{Total: 1, Inserted: 1}).ToJSON()
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{"total":1,"inserted":1,"updated":0,"ignored":0}`, string(data))
+}
+
 func TestImportResultFromJSON(t *testing.T) {
 	tests := []struct {
 		name    string

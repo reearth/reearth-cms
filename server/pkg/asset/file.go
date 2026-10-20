@@ -105,12 +105,18 @@ func (f *File) Clone() *File {
 		children = lo.Map(f.children, func(f *File, _ int) *File { return f.Clone() })
 	}
 
+	var files []*File
+	if f.files != nil {
+		files = lo.Map(f.files, func(f *File, _ int) *File { return f.Clone() })
+	}
+
 	return &File{
 		name:            f.name,
 		size:            f.size,
 		contentType:     f.contentType,
 		path:            f.path,
 		children:        children,
+		files:           files,
 		contentEncoding: f.contentEncoding,
 	}
 }

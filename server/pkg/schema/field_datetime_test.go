@@ -34,3 +34,10 @@ func TestFieldDateTime_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldDateTime{}).Validate(value.TypeDateTime.Value(now)))
 	assert.Equal(t, ErrInvalidValue, (&FieldDateTime{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldDateTime_ValidateMultiple(t *testing.T) {
+	f := &FieldDateTime{}
+	now := time.Now()
+	later := now.Add(time.Hour)
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeDateTime, []any{now, later})))
+}

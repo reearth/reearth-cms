@@ -12,6 +12,10 @@ type propertyReference struct{}
 type Reference = id.ItemID
 
 func (p *propertyReference) ToValue(i any) (any, bool) {
+	if i == nil {
+		return nil, false
+	}
+
 	if v, ok := i.(string); ok {
 		if u, err := id.ItemIDFrom(v); err == nil {
 			return u, true

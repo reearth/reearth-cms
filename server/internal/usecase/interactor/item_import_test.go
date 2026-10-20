@@ -20,6 +20,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -113,11 +114,26 @@ func TestApplyDefaultValues(t *testing.T) {
 			t.Parallel()
 
 			importedFields, s, fId1, fId2, fId3 := tt.setupFields()
-			result := missingFieldsWithDefaultValues(importedFields, s)
+			sp := schema.NewPackage(s, nil, nil, nil)
+			// a new imported item gets the default values of the fields missing in the record
+			it := item.New().NewID().Schema(s.ID()).Project(s.Project()).Model(id.NewModelID()).
+				User(accountdomain.NewUserID()).ForSchemaPackage(sp).AttachDefault().MustBuild()
+			inputs := lo.Map(importedFields, func(f *item.Field, _ int) item.FieldInput {
+				return item.FieldInput{Field: f.FieldID().Ref(), Value: f.Value().First().Value()}
+			})
+			_, errs, err := it.ApplyInput(inputs, sp)
+			assert.NoError(t, err)
+			assert.Empty(t, errs)
 
+			result := lo.Filter(it.Fields(), func(f *item.Field, _ int) bool {
+				return importedFields.Field(f.FieldID()) == nil
+			})
 			assert.Equal(t, tt.expectedLen, len(result))
 			if tt.checkDefaults != nil {
 				tt.checkDefaults(t, result, fId1, fId2, fId3)
+			}
+			for _, f := range importedFields {
+				assert.Equal(t, f.Value(), it.Field(f.FieldID()).Value())
 			}
 		})
 	}

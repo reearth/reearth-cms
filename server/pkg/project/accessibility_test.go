@@ -359,3 +359,41 @@ func TestAccessibility_IsModelPublic(t *testing.T) {
 		})
 	}
 }
+
+func TestAccessibility_AddAPIKey(t *testing.T) {
+	t.Parallel()
+
+	existing := NewAPIKeyBuilder().NewID().GenerateKey().Name("existing").Build()
+
+	tests := []struct {
+		name      string
+		key       *APIKey
+		wantNames []string
+	}{
+		{
+			name:      "new key is appended",
+			key:       NewAPIKeyBuilder().NewID().GenerateKey().Name("new").Build(),
+			wantNames: []string{"existing", "new"},
+		},
+		{
+			name:      "key with an existing ID replaces it instead of being appended",
+			key:       NewAPIKeyBuilder().ID(existing.ID()).Key(existing.Key()).Name("renamed").Build(),
+			wantNames: []string{"renamed"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			a := NewAccessibility(VisibilityPrivate, nil, nil, APIKeys{existing})
+			a.AddAPIKey(*tt.key)
+
+			names := make([]string, 0, len(a.ApiKeys()))
+			for _, k := range a.ApiKeys() {
+				names = append(names, k.Name())
+			}
+			assert.Equal(t, tt.wantNames, names)
+		})
+	}
+}
