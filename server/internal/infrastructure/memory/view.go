@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -14,14 +13,12 @@ import (
 type View struct {
 	data *util.SyncMap[id.ViewID, *view.View]
 	f    repo.ProjectFilter
-	now  *util.TimeNow
 	err  error
 }
 
 func NewView() repo.View {
 	return &View{
 		data: &util.SyncMap[id.ViewID, *view.View]{},
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -29,66 +26,69 @@ func (r *View) Filtered(f repo.ProjectFilter) repo.View {
 	return &View{
 		data: r.data,
 		f:    r.f.Merge(f),
-		now:  &util.TimeNow{},
+		err:  r.err,
 	}
 }
 
-func (r *View) FindByID(_ context.Context, iId id.ViewID) (*view.View, error) {
+func (r *View) FindByID(_ context.Context, vid id.ViewID) (*view.View, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	i := r.data.Find(func(k id.ViewID, i *view.View) bool {
-		return k == iId && r.f.CanRead(i.Project())
-	})
-
-	if i != nil {
-		return i, nil
+	if v, ok := r.data.Load(vid); ok && r.f.CanRead(v.Project()) {
+		return v.Clone(), nil
 	}
 	return nil, rerror.ErrNotFound
 }
 
-func (r *View) FindByModel(_ context.Context, mID id.ModelID) (view.List, error) {
+func (r *View) FindByModel(_ context.Context, mid id.ModelID) (view.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	i := r.data.FindAll(func(_ id.ViewID, i *view.View) bool {
-		return i.Model() == mID && r.f.CanRead(i.Project())
+	// like mongo, no views is not an error and the result is not sorted
+	var res view.List
+	r.data.Range(func(_ id.ViewID, v *view.View) bool {
+		if v.Model() == mid && r.f.CanRead(v.Project()) {
+			res = append(res, v.Clone())
+		}
+		return true
 	})
-
-	if i != nil {
-		return i, nil
-	}
-	return nil, rerror.ErrNotFound
+	return res, nil
 }
 
-func (r *View) FindByIDs(_ context.Context, iIds id.ViewIDList) (view.List, error) {
+func (r *View) FindByIDs(_ context.Context, ids id.ViewIDList) (view.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
-
-	result := r.data.FindAll(func(k id.ViewID, i *view.View) bool {
-		return iIds.Has(k) && r.f.CanRead(i.Project())
-	})
-
-	return view.List(result).SortByID(), nil
-}
-
-func (r *View) Save(_ context.Context, i *view.View) error {
-	if !r.f.CanWrite(i.Project()) {
-		return repo.ErrOperationDenied
+	if len(ids) == 0 {
+		return nil, nil
 	}
 
+	// the result keeps the order of the given IDs, as mongo does
+	res := make(view.List, 0, len(ids))
+	for _, vid := range ids {
+		if v, ok := r.data.Load(vid); ok && r.f.CanRead(v.Project()) {
+			res = append(res, v.Clone())
+		}
+	}
+	return res, nil
+}
+
+func (r *View) Save(_ context.Context, v *view.View) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	r.data.Store(i.ID(), i)
+	if !r.f.CanWrite(v.Project()) {
+		return repo.ErrOperationDenied
+	}
+
+	r.data.Store(v.ID(), v.Clone())
 	return nil
 }
 
-func (r *View) SaveAll(ctx context.Context, views view.List) error {
+func (r *View) SaveAll(_ context.Context, views view.List) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -99,42 +99,36 @@ func (r *View) SaveAll(ctx context.Context, views view.List) error {
 	if !r.f.CanWrite(views.Projects()...) {
 		return repo.ErrOperationDenied
 	}
-	inp := map[id.ViewID]*view.View{}
 	for _, v := range views {
-		inp[v.ID()] = v
+		r.data.Store(v.ID(), v.Clone())
 	}
-	r.data.StoreAll(inp)
 	return nil
 }
 
-func (r *View) Remove(_ context.Context, iId id.ViewID) error {
+func (r *View) Remove(_ context.Context, vid id.ViewID) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	if i, ok := r.data.Load(iId); ok && r.f.CanWrite(i.Project()) {
-		r.data.Delete(iId)
+	if v, ok := r.data.Load(vid); ok && r.f.CanWrite(v.Project()) {
+		r.data.Delete(vid)
 		return nil
 	}
 	return rerror.ErrNotFound
 }
 
-func (r *View) RemoveByModel(_ context.Context, mID id.ModelID) error {
+func (r *View) RemoveByModel(_ context.Context, mid id.ModelID) error {
 	if r.err != nil {
 		return r.err
 	}
 
 	r.data.Range(func(k id.ViewID, v *view.View) bool {
-		if v.Model() == mID {
+		if v.Model() == mid {
 			r.data.Delete(k)
 		}
 		return true
 	})
 	return nil
-}
-
-func MockViewNow(r repo.View, t time.Time) func() {
-	return r.(*View).now.Mock(t)
 }
 
 func SetViewError(r repo.View, err error) {
