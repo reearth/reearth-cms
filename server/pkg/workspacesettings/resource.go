@@ -44,3 +44,15 @@ func (r *Resource) SetTile(n *TileResource) {
 func (r *Resource) SetTerrain(n *TerrainResource) {
 	r.terrain = n
 }
+
+func (r *Resource) Clone() *Resource {
+	if r == nil {
+		return nil
+	}
+
+	return &Resource{
+		resourceType: r.resourceType,
+		tile:         r.tile,
+		terrain:      r.terrain,
+	}
+}
