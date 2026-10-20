@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -61,11 +62,11 @@ func (r *Item) FindByID(_ context.Context, itemID id.ItemID, ref *version.Ref) (
 		return nil, r.err
 	}
 
-	item, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
+	itm, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
 	if !ok {
 		return nil, rerror.ErrNotFound
 	}
-	return item, nil
+	return itm, nil
 }
 
 func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -73,16 +74,10 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 		return nil, nil, r.err
 	}
 
-	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(ref.OrLatest().OrVersion())
-		it := itv.Value()
-		if it.Schema() == schemaID && r.f.CanRead(it.Project()) {
-			res = append(res, itv)
-		}
-		return true
+	res := r.findAll(ref, func(it *item.Item) bool {
+		return it.Schema() == schemaID
 	})
-	return res, nil, nil
+	return r.pager(ref).paginate(res, sort, pagination)
 }
 
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -90,23 +85,10 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 		return nil, nil, r.err
 	}
 
-	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(ref.OrLatest().OrVersion())
-		it := itv.Value()
-		if it.Model() == modelID && r.f.CanRead(it.Project()) {
-			res = append(res, itv)
-		}
-		return true
+	res := r.findAll(ref, func(it *item.Item) bool {
+		return it.Model() == modelID
 	})
-
-	// return at most First items, like the mongo implementation does.
-	// only First is supported: sort, After/Before, Last, offset and page info are not.
-	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil && int64(len(res)) > *pagination.Cursor.First {
-		res = res[:*pagination.Cursor.First]
-	}
-
-	return res, nil, nil
+	return r.pager(ref).paginate(res, sort, pagination)
 }
 
 func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref) (item.VersionedList, error) {
@@ -122,11 +104,11 @@ func (r *Item) FindVersionByID(_ context.Context, itemID id.ItemID, ver version.
 		return nil, r.err
 	}
 
-	item, ok := r.data.Load(itemID, ver)
+	itm, ok := r.data.Load(itemID, ver)
 	if !ok {
 		return nil, rerror.ErrNotFound
 	}
-	return item, nil
+	return itm, nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -240,11 +222,11 @@ func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 		return r.err
 	}
 
-	item, _ := r.data.Load(itemID, version.Latest.OrVersion())
-	if item == nil {
+	itm, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	if itm == nil {
 		return rerror.ErrNotFound
 	}
-	if !r.f.CanWrite(item.Value().Project()) {
+	if !r.f.CanWrite(itm.Value().Project()) {
 		return repo.ErrOperationDenied
 	}
 
@@ -279,9 +261,9 @@ func (r *Item) BatchRemove(_ context.Context, itemIDs id.ItemIDList) error {
 	// Load all items once and check permissions
 	itemsToDelete := make([]id.ItemID, 0, len(itemIDs))
 	for _, itemID := range itemIDs {
-		item, _ := r.data.Load(itemID, version.Latest.OrVersion())
-		if item != nil {
-			if !r.f.CanWrite(item.Value().Project()) {
+		itm, _ := r.data.Load(itemID, version.Latest.OrVersion())
+		if itm != nil {
+			if !r.f.CanWrite(itm.Value().Project()) {
 				return repo.ErrOperationDenied
 			}
 			itemsToDelete = append(itemsToDelete, itemID)
@@ -331,8 +313,29 @@ func SetItemError(r repo.Item, err error) {
 	r.(*Item).err = err
 }
 
-func (r *Item) Len() int {
-	return r.data.Len()
+func (r *Item) findAll(ref *version.Ref, f func(*item.Item) bool) item.VersionedList {
+	var res item.VersionedList
+	r.data.Range(func(_ item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(ref.OrLatest().OrVersion())
+		if itv != nil && f(itv.Value()) && r.f.CanRead(itv.Value().Project()) {
+			res = append(res, itv)
+		}
+		return true
+	})
+	return res
+}
+
+func (r *Item) pager(ref *version.Ref) pager[item.Versioned] {
+	return pager[item.Versioned]{
+		id: func(v item.Versioned) string { return v.Value().ID().String() },
+		find: func(c usecasex.Cursor) (item.Versioned, bool) {
+			iid, err := id.ItemIDFrom(string(c))
+			if err != nil {
+				return nil, false
+			}
+			return r.data.Load(iid, ref.OrLatest().OrVersion())
+		},
+	}
 }
 
 func sortItems(items []*version.Value[*item.Item]) {
@@ -341,18 +344,14 @@ func sortItems(items []*version.Value[*item.Item]) {
 	})
 }
 
-func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	// TODO: support filters, sort, and pagination
+func (r *Item) Search(_ context.Context, _ schema.Package, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	// TODO: support filters and sort by fields other than ID
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
-	var res item.VersionedList
 	qq := q.Keyword()
-
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		it := v.Get(version.Latest.OrVersion())
-		itv := it.Value()
+	res := r.findAll(q.Ref(), func(itv *item.Item) bool {
 		searchMatched := qq == ""
 		if !searchMatched {
 			_, searchMatched = lo.Find(itv.Fields(), func(f *item.Field) bool {
@@ -368,12 +367,16 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 		}
 		schemaMatched := q.Schema() == nil || itv.Schema() == *q.Schema()
 		modelMatched := itv.Model() == q.Model()
-		if searchMatched && schemaMatched && modelMatched && r.f.CanRead(itv.Project()) {
-			res = append(res, it)
-		}
-		return true
+		return searchMatched && schemaMatched && modelMatched
 	})
-	return res, nil, nil
+	return r.pager(q.Ref()).paginate(res, searchSort(q.Sort()), pagination)
+}
+
+func searchSort(s *view.Sort) *usecasex.Sort {
+	if s == nil || s.Field.Type != view.FieldTypeId {
+		return nil
+	}
+	return &usecasex.Sort{Key: "id", Reverted: s.Direction == view.DirectionDesc}
 }
 
 func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
@@ -416,7 +419,7 @@ func (r *Item) CountByModel(_ context.Context, modelID id.ModelID) (int, error) 
 	return count, nil
 }
 
-func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
+func (r *Item) Copy(_ context.Context, params repo.CopyParams) (*string, *string, error) {
 	filter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
 	if err != nil {
 		return nil, nil, err
