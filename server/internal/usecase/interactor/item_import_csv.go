@@ -105,14 +105,6 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	// Buffer the payload once so it can be scanned twice: a counting pass
-	// that only tracks how many rows exist (each row is read and
-	// immediately discarded, never retained), and a chunked read-and-save
-	// pass that never holds more than chunkSize rows in memory at once.
-	// This is what actually bounds memory independent of the file's
-	// record count or size, unlike a plain post-hoc count check. The
-	// LimitReader re-enforces the size cap locally rather than relying
-	// solely on the caller having applied it already.
 	data, err := io.ReadAll(io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1))
 	if err != nil {
 		return res.Into(), fmt.Errorf("error reading import data: %v", err)

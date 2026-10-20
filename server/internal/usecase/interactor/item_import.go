@@ -466,15 +466,6 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 	}
 
-	// Buffer the payload once so it can be scanned twice: a counting pass
-	// that only tracks how many records exist (each record is decoded as
-	// json.RawMessage and immediately discarded, never retained), and a
-	// chunked decode-and-save pass that never holds more than chunkSize
-	// decoded records in memory at once. This is what actually bounds
-	// memory independent of the file's record count or size, unlike a
-	// plain post-hoc count check. The LimitReader re-enforces the size
-	// cap locally rather than relying solely on the caller having applied
-	// it already.
 	data, err := io.ReadAll(io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1))
 	if err != nil {
 		return res.Into(), fmt.Errorf("error reading import data: %v", err)
@@ -484,7 +475,6 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	}
 
 	isGeoJSON := param.Format == interfaces.ImportFormatTypeGeoJSON
-
 	countDecoder := json.NewDecoder(bytes.NewReader(data))
 	if isGeoJSON {
 		for {
