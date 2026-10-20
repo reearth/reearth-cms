@@ -36,6 +36,18 @@ func (wr *ResourceList) SetEnabled(s *bool) {
 	wr.enabled = util.CloneRef(s)
 }
 
+func (wr *ResourceList) Clone() *ResourceList {
+	if wr == nil {
+		return nil
+	}
+
+	return &ResourceList{
+		resources:        util.Map(wr.resources, (*Resource).Clone),
+		selectedResource: wr.selectedResource.CloneRef(),
+		enabled:          util.CloneRef(wr.enabled),
+	}
+}
+
 func NewResourceList(resources []*Resource, selectedResource *ResourceID, enabled *bool) *ResourceList {
 	return &ResourceList{
 		resources:        slices.Clone(resources),
