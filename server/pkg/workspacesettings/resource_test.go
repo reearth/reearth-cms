@@ -24,3 +24,29 @@ func TestWorkspaceSettings_NewResource(t *testing.T) {
 	r.SetTerrain(tt2)
 	assert.Equal(t, r.Terrain(), tt2)
 }
+
+func TestResource_Clone(t *testing.T) {
+	tile := NewTileResource(NewResourceID(), TileTypeDefault, NewURLResourceProps("foo", "bar", "baz"))
+	terrain := NewTerrainResource(NewResourceID(), TerrainTypeCesiumIon, NewCesiumResourceProps("foo", "bar", "baz", "test", "test"))
+
+	tests := []struct {
+		name string
+		r    *Resource
+	}{
+		{name: "must clone a tile resource", r: NewResource(ResourceTypeTile, tile, nil)},
+		{name: "must clone a terrain resource", r: NewResource(ResourceTypeTerrain, nil, terrain)},
+		{name: "must clone an empty resource", r: NewResource("", nil, nil)},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tc.r.Clone()
+			assert.Equal(t, tc.r, got)
+			assert.NotSame(t, tc.r, got)
+		})
+	}
+
+	assert.Nil(t, (*Resource)(nil).Clone())
+}

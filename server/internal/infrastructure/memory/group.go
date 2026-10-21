@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"cmp"
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -9,19 +10,18 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Group struct {
 	data *util.SyncMap[id.GroupID, *group.Group]
 	f    repo.ProjectFilter
-	now  *util.TimeNow
 	err  error
 }
 
 func NewGroup() repo.Group {
 	return &Group{
 		data: &util.SyncMap[id.GroupID, *group.Group]{},
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -29,115 +29,130 @@ func (r *Group) Filtered(filter repo.ProjectFilter) repo.Group {
 	return &Group{
 		data: r.data,
 		f:    r.f.Merge(filter),
-		now:  &util.TimeNow{},
+		err:  r.err,
 	}
 }
 
-func (r *Group) FindByID(ctx context.Context, groupID id.GroupID) (*group.Group, error) {
+func (r *Group) FindByID(_ context.Context, groupID id.GroupID) (*group.Group, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	m := r.data.Find(func(k id.GroupID, m *group.Group) bool {
-		return k == groupID && r.f.CanRead(m.Project())
-	})
-
-	if m != nil {
-		return m, nil
+	if g, ok := r.data.Load(groupID); ok && r.canRead(g) {
+		return g.Clone(), nil
 	}
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List, error) {
+func (r *Group) FindByIDs(_ context.Context, list id.GroupIDList) (group.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	result := r.data.FindAll(func(k id.GroupID, m *group.Group) bool {
-		return list.Has(k) && r.f.CanRead(m.Project())
-	})
+	if len(list) == 0 {
+		return nil, nil
+	}
 
-	return group.List(result).SortByID(), nil
+	// groups are returned in the order of the given IDs, as mongo does
+	res := make(group.List, 0, len(list))
+	for _, gid := range list {
+		if g, ok := r.data.Load(gid); ok && r.canRead(g) {
+			res = append(res, g.Clone())
+		}
+	}
+	return res, nil
 }
 
-func (r *Group) Filter(ctx context.Context, pid id.ProjectID, _ *group.Sort, _ *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+func (r *Group) Filter(_ context.Context, pid id.ProjectID, sort *group.Sort, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
-	// TODO: implement sort and pagination
-
 	if !r.f.CanRead(pid) {
-		return nil, nil, nil
+		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
-	result := group.List(r.data.FindAll(func(_ id.GroupID, m *group.Group) bool {
-		return m.Project() == pid
-	})).SortByID()
-
-	return result, nil, nil
-}
-
-func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-
-	if !r.f.CanRead(pid) {
-		return nil, nil
-	}
-
-	result := group.List(r.data.FindAll(func(_ id.GroupID, m *group.Group) bool {
-		return m.Project() == pid
-	})).SortByID()
-
-	return result, nil
-}
-
-func (r *Group) FindByKey(ctx context.Context, pid id.ProjectID, key string) (*group.Group, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-
-	if !r.f.CanRead(pid) {
-		return nil, nil
-	}
-
-	g := r.data.Find(func(_ id.GroupID, m *group.Group) bool {
-		return m.Key().String() == key && m.Project() == pid
+	// only CanRead applies, as mongox.And drops the mongo read filter for
+	// queries keyed by project
+	result := r.data.FindAll(func(_ id.GroupID, g *group.Group) bool {
+		return g.Project() == pid
 	})
-	if g == nil {
+
+	res, pi, err := r.pager().paginate(result, groupSort(sort), pagination)
+	if err != nil {
+		return nil, nil, err
+	}
+	return group.List(res).Clone(), pi, nil
+}
+
+func (r *Group) FindByProject(_ context.Context, pid id.ProjectID) (group.List, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	if !r.f.CanRead(pid) {
+		return nil, nil
+	}
+
+	result := group.List(r.data.FindAll(func(_ id.GroupID, g *group.Group) bool {
+		return g.Project() == pid
+	}))
+	if len(result) == 0 {
+		return nil, nil
+	}
+
+	return result.SortByID().Clone(), nil
+}
+
+func (r *Group) FindByKey(_ context.Context, pid id.ProjectID, key string) (*group.Group, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	if key == "" {
 		return nil, rerror.ErrNotFound
 	}
 
-	return g, nil
+	if !r.f.CanRead(pid) {
+		return nil, repo.ErrOperationDenied
+	}
+
+	return r.findOne(func(g *group.Group) bool {
+		return g.Project() == pid && g.Key().String() == key
+	})
 }
 
-func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDOrKey) (*group.Group, error) {
+func (r *Group) FindByIDOrKey(_ context.Context, pid id.ProjectID, q group.IDOrKey) (*group.Group, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	groupID := g.ID()
-	key := g.Key()
+	groupID := q.ID()
+	key := q.Key()
 	if groupID == nil && (key == nil || *key == "") {
 		return nil, rerror.ErrNotFound
 	}
 
-	m := r.data.Find(func(_ id.GroupID, m *group.Group) bool {
-		return r.f.CanRead(m.Project()) && (groupID != nil && m.ID() == *groupID || key != nil && m.Key().String() == *key)
-	})
-	if m == nil {
+	if !r.f.CanRead(pid) {
 		return nil, rerror.ErrNotFound
 	}
 
-	return m, nil
+	return r.findOne(func(g *group.Group) bool {
+		if g.Project() != pid {
+			return false
+		}
+		if groupID != nil {
+			return g.ID() == *groupID
+		}
+		return g.Key().String() == *key
+	})
 }
 
-func (r *Group) SaveAll(ctx context.Context, groups group.List) error {
+func (r *Group) SaveAll(_ context.Context, groups group.List) error {
 	if r.err != nil {
 		return r.err
 	}
+
 	if len(groups) == 0 {
 		return nil
 	}
@@ -145,15 +160,14 @@ func (r *Group) SaveAll(ctx context.Context, groups group.List) error {
 	if !r.f.CanWrite(groups.Projects()...) {
 		return repo.ErrOperationDenied
 	}
-	inp := map[id.GroupID]*group.Group{}
-	for _, m := range groups {
-		inp[m.ID()] = m
-	}
-	r.data.StoreAll(inp)
+
+	r.data.StoreAll(lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *group.Group) {
+		return g.ID(), g.Clone()
+	}))
 	return nil
 }
 
-func (r *Group) Save(ctx context.Context, g *group.Group) error {
+func (r *Group) Save(_ context.Context, g *group.Group) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -162,18 +176,64 @@ func (r *Group) Save(ctx context.Context, g *group.Group) error {
 		return repo.ErrOperationDenied
 	}
 
-	r.data.Store(g.ID(), g)
+	r.data.Store(g.ID(), g.Clone())
 	return nil
 }
 
-func (r *Group) Remove(ctx context.Context, groupID id.GroupID) error {
+func (r *Group) Remove(_ context.Context, groupID id.GroupID) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	if m, ok := r.data.Load(groupID); ok && r.f.CanWrite(m.Project()) {
+	if g, ok := r.data.Load(groupID); ok && r.f.CanWrite(g.Project()) {
 		r.data.Delete(groupID)
 		return nil
 	}
 	return rerror.ErrNotFound
+}
+
+func (r *Group) findOne(f func(*group.Group) bool) (*group.Group, error) {
+	g := r.data.Find(func(_ id.GroupID, g *group.Group) bool {
+		return f(g)
+	})
+	if g == nil {
+		return nil, rerror.ErrNotFound
+	}
+	return g.Clone(), nil
+}
+
+func (r *Group) canRead(g *group.Group) bool {
+	return r.f.Readable == nil || r.f.Readable.Has(g.Project())
+}
+
+func (r *Group) pager() pager[*group.Group] {
+	return pager[*group.Group]{
+		id: func(g *group.Group) string { return g.ID().String() },
+		keys: map[string]compareFunc[*group.Group]{
+			"order": func(a, b *group.Group) int { return cmp.Compare(a.Order(), b.Order()) },
+		},
+		find: func(c usecasex.Cursor) (*group.Group, bool) {
+			gid, err := id.GroupIDFrom(string(c))
+			if err != nil {
+				return nil, false
+			}
+			return r.data.Load(gid)
+		},
+	}
+}
+
+func groupSort(s *group.Sort) *usecasex.Sort {
+	res := &usecasex.Sort{Key: "order"}
+	if s == nil {
+		return res
+	}
+	if s.Column == group.ColumnCreatedAt {
+		res.Key = "id"
+	}
+	res.Reverted = s.Direction == group.DirectionDesc
+	return res
+}
+
+func SetGroupError(r repo.Group, err error) {
+	r.(*Group).err = err
 }
