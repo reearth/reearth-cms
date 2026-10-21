@@ -39,6 +39,7 @@ export type SearchPin = {
 };
 
 type Props = {
+  initialSearch?: string;
   multiple: boolean;
   readOnly: boolean;
   allowedKinds: readonly GeometryKind[];
@@ -61,6 +62,7 @@ const TOOL_ICON = {
 } as const;
 
 const EditorMap: React.FC<Props> = ({
+  initialSearch,
   multiple,
   readOnly,
   allowedKinds,
@@ -176,6 +178,7 @@ const EditorMap: React.FC<Props> = ({
       <MapContainer ref={containerRef} />
       <TopLeft>
         <SearchBox
+          initialQuery={initialSearch}
           activeResultId={searchPin?.id ?? null}
           addLabel={readOnly ? undefined : searchAddLabel}
           onFlyTo={onSearchFlyTo}

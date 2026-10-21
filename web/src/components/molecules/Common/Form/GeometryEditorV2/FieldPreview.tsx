@@ -6,6 +6,7 @@ import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PopConfirm from "@reearth-cms/components/atoms/PopConfirm";
+import Search from "@reearth-cms/components/atoms/Search";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
@@ -23,6 +24,8 @@ type Props = {
   issues: GeometryIssue[];
   disabled: boolean;
   onOpen: () => void;
+  /** Opens the editor with this place search already run. */
+  onSearch: (query: string) => void;
   onCopy: () => void;
   onClear: () => void;
 };
@@ -39,6 +42,7 @@ const FieldPreview: React.FC<Props> = ({
   issues,
   disabled,
   onOpen,
+  onSearch,
   onCopy,
   onClear,
 }) => {
@@ -89,6 +93,20 @@ const FieldPreview: React.FC<Props> = ({
               </Button>
             )}
           </EmptyOverlay>
+        )}
+        {!disabled && (
+          // Where today's field has it: people look for search on the map in the form.
+          <SearchOverlay>
+            <Search
+              size="small"
+              allowClear
+              aria-label={t("Search for a place or address")}
+              placeholder={t("Search for a place or address")}
+              onSearch={value => {
+                if (value.trim()) onSearch(value.trim());
+              }}
+            />
+          </SearchOverlay>
         )}
         <Overlay>
           {!empty && (
@@ -205,6 +223,17 @@ const MapArea = styled.div`
 const MapContainer = styled.div`
   position: absolute;
   inset: 0;
+`;
+
+const SearchOverlay = styled.div`
+  position: absolute;
+  top: ${AntdToken.SPACING.XS}px;
+  left: ${AntdToken.SPACING.XS}px;
+  width: 260px;
+  max-width: calc(100% - 96px);
+  z-index: 2;
+  box-shadow: ${AntdToken.SHADOW.SECONDARY};
+  border-radius: ${AntdToken.RADIUS.BASE}px;
 `;
 
 const Overlay = styled.div`

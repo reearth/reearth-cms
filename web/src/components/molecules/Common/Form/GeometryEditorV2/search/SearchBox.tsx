@@ -19,6 +19,8 @@ import type { GeocodeResult } from "./providers";
 const PROVIDER_KEY = "reearth-cms:geometry-v2:geocoder";
 
 type Props = {
+  /** Searched immediately on mount, e.g. when typed into the inline field. */
+  initialQuery?: string;
   activeResultId: string | null;
   /** "Add point" / "Replace point"; undefined when the field cannot hold a point. */
   addLabel?: string;
@@ -41,11 +43,18 @@ const readProvider = (): GeocoderId => {
  * Searching never changes the value by itself: a result is first flown to and shown as a
  * pin, and only "Add point" writes it into the field.
  */
-const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, onClear }) => {
+const SearchBox: React.FC<Props> = ({
+  initialQuery,
+  activeResultId,
+  addLabel,
+  onFlyTo,
+  onAdd,
+  onClear,
+}) => {
   const t = useT();
   const lang = useLang();
   const [providerId, setProviderId] = useState<GeocoderId>(readProvider);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [searchedQuery, setSearchedQuery] = useState<string | null>(null);
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -90,6 +99,14 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
     },
     [clear, lang],
   );
+
+  // Run the search handed over from the inline field when the editor opens. No "once"
+  // guard: React's dev double-mount aborts the first request, so it must run again.
+  useEffect(() => {
+    if (initialQuery) void runSearch(initialQuery, providerId);
+    // Only on open; provider changes re-run the search in handleProviderChange.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery]);
 
   const handleProviderChange = useCallback(
     (next: GeocoderId) => {

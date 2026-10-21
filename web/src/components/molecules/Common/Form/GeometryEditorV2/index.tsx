@@ -47,6 +47,7 @@ const GeometryEditorV2: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const [initialQuery, setInitialQuery] = useState<string>();
 
   const allowedKinds = useMemo(
     () =>
@@ -90,12 +91,20 @@ const GeometryEditorV2: React.FC<Props> = ({
         collection={read.ok ? read.collection : { type: "FeatureCollection", features: [] }}
         issues={read.ok ? [] : read.issues}
         disabled={disabled}
-        onOpen={() => setOpen(true)}
+        onOpen={() => {
+          setInitialQuery(undefined);
+          setOpen(true);
+        }}
+        onSearch={query => {
+          setInitialQuery(query);
+          setOpen(true);
+        }}
         onCopy={handleCopy}
         onClear={() => onChange?.(multiple ? [] : "")}
       />
       <EditorModal
         open={open}
+        initialQuery={initialQuery}
         title={title}
         multiple={multiple}
         readOnly={disabled}

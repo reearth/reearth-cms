@@ -39,6 +39,8 @@ const MOD = isMac ? "⌘" : "Ctrl";
 
 type Props = {
   open: boolean;
+  /** A place search to run as soon as the editor opens (from the inline field). */
+  initialQuery?: string;
   title: string;
   multiple: boolean;
   readOnly: boolean;
@@ -120,6 +122,7 @@ const EditorBody: React.FC<BodyProps> = ({
   allowedKinds,
   store,
   initial,
+  initialQuery,
   onApply,
   onClose,
 }) => {
@@ -388,6 +391,7 @@ const EditorBody: React.FC<BodyProps> = ({
         </Splitter.Panel>
         <Splitter.Panel>
           <EditorMap
+            initialSearch={initialQuery}
             multiple={multiple}
             readOnly={readOnly}
             allowedKinds={allowedKinds}
