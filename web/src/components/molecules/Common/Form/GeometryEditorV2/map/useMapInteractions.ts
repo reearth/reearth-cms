@@ -47,7 +47,7 @@ export function useMapInteractions({
 }: Options) {
   useEffect(() => {
     if (!handles || readOnly) return;
-    const { map, source, selected } = handles;
+    const { map, source, selected, editable } = handles;
     const added: Interaction[] = [];
     const register = (interaction: Interaction) => {
       map.addInteraction(interaction);
@@ -68,6 +68,9 @@ export function useMapInteractions({
 
     const type = drawType(tool);
     if (type === null) {
+      // As in the PoC, any line or polygon can be reshaped without selecting it first:
+      // hover a border to add a vertex, drag a vertex to move it, Alt-click to remove it.
+      // Multi* and GeometryCollection stay out of `editable` (proposal §3.4).
       // ol dispatches to the most recently added interaction first: Modify goes after
       // Translate so grabbing a vertex reshapes instead of moving the whole shape.
       const translate = new Translate({ features: selected });
@@ -78,7 +81,7 @@ export function useMapInteractions({
       });
       register(translate);
 
-      const modify = new Modify({ features: selected });
+      const modify = new Modify({ features: editable });
       modify.on("modifystart", () => store.beginGesture());
       modify.on("modifyend", event => {
         store.endGesture();

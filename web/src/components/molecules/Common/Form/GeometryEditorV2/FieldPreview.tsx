@@ -79,6 +79,7 @@ const FieldPreview: React.FC<Props> = ({
   }, [handles, onOpen]);
 
   const firstKind = collection.features[0]?.geometry?.type;
+  const summary = invalid ? t("Invalid value") : summarize(collection);
 
   return (
     <Wrapper invalid={invalid}>
@@ -87,49 +88,12 @@ const FieldPreview: React.FC<Props> = ({
         {empty && !invalid && (
           <EmptyOverlay>
             <Typography.Text type="secondary">{t("No geometry yet")}</Typography.Text>
-            {!disabled && (
-              <Button type="primary" icon={<Icon icon="plus" />} onClick={onOpen}>
-                {t("Add geometry")}
-              </Button>
-            )}
           </EmptyOverlay>
         )}
-        {!disabled && (
-          // Where today's field has it: people look for search on the map in the form.
-          <SearchOverlay>
-            <Search
-              size="small"
-              allowClear
-              aria-label={t("Search for a place or address")}
-              placeholder={t("Search for a place or address")}
-              onSearch={value => {
-                if (value.trim()) onSearch(value.trim());
-              }}
-            />
-          </SearchOverlay>
-        )}
-        <Overlay>
-          {!empty && (
-            <Tooltip title={t("Fit to shapes")} placement="left">
-              <Button
-                size="small"
-                aria-label={t("Fit to shapes")}
-                icon={<Icon icon="fitBounds" />}
-                onClick={() => fit(250)}
-              />
-            </Tooltip>
-          )}
-          <Tooltip title={disabled ? t("Open full screen") : t("Open editor")} placement="left">
-            <Button
-              size="small"
-              aria-label={disabled ? t("Open full screen") : t("Open editor")}
-              icon={<Icon icon="fullscreen" />}
-              onClick={onOpen}
-            />
-          </Tooltip>
-        </Overlay>
         {!empty && (
-          <ZoomHint>{isMac ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}</ZoomHint>
+          <ZoomHint className="zoom-hint">
+            {isMac ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
+          </ZoomHint>
         )}
       </MapArea>
       {invalid && (
@@ -147,23 +111,47 @@ const FieldPreview: React.FC<Props> = ({
           }
         />
       )}
+      {/* Every control sits in this bar, so nothing on the map reads as part of the data. */}
       <Footer>
         <Summary>
           {firstKind && (
             <Icon icon={kindIcon(firstKind)} size={14} color={AntdColor.NEUTRAL.TEXT_TERTIARY} />
           )}
-          <Typography.Text type={empty ? "secondary" : undefined} ellipsis>
-            {invalid ? t("Invalid value") : summarize(collection)}
+          <Typography.Text type={empty ? "secondary" : undefined} ellipsis={{ tooltip: summary }}>
+            {summary}
           </Typography.Text>
         </Summary>
         <FooterActions>
+          {!disabled && (
+            <Search
+              size="small"
+              allowClear
+              aria-label={t("Search for a place")}
+              placeholder={t("Search for a place")}
+              onSearch={value => {
+                if (value.trim()) onSearch(value.trim());
+              }}
+              style={{ width: 200 }}
+            />
+          )}
+          {!empty && (
+            <Tooltip title={t("Fly to shapes")}>
+              <Button
+                type="text"
+                size="small"
+                aria-label={t("Fly to shapes")}
+                icon={<Icon icon="aim" size={14} />}
+                onClick={() => fit(400)}
+              />
+            </Tooltip>
+          )}
           {!empty && (
             <Tooltip title={t("Copy GeoJSON")}>
               <Button
                 type="text"
                 size="small"
                 aria-label={t("Copy GeoJSON")}
-                icon={<Icon icon="editorCopy" size={14} />}
+                icon={<Icon icon="copy" size={14} />}
                 onClick={onCopy}
               />
             </Tooltip>
@@ -180,19 +168,26 @@ const FieldPreview: React.FC<Props> = ({
                   type="text"
                   size="small"
                   aria-label={t("Clear")}
-                  icon={<Icon icon="delete" />}
+                  icon={<Icon icon="delete" size={14} />}
                 />
               </Tooltip>
             </PopConfirm>
           )}
-          {!disabled && !empty && (
-            <Button size="small" icon={<Icon icon="edit" />} onClick={onOpen}>
-              {t("Edit geometry")}
-            </Button>
-          )}
-          {disabled && (
-            <Button size="small" icon={<Icon icon="fullscreen" />} onClick={onOpen}>
+          {disabled ? (
+            <Button size="small" icon={<Icon icon="fullscreen" size={14} />} onClick={onOpen}>
               {t("View")}
+            </Button>
+          ) : empty ? (
+            <Button
+              type="primary"
+              size="small"
+              icon={<Icon icon="plus" size={14} />}
+              onClick={onOpen}>
+              {t("Add geometry")}
+            </Button>
+          ) : (
+            <Button size="small" icon={<Icon icon="edit" size={14} />} onClick={onOpen}>
+              {t("Edit geometry")}
             </Button>
           )}
         </FooterActions>
@@ -212,11 +207,14 @@ const Wrapper = styled.div<{ invalid: boolean }>`
 
 const MapArea = styled.div`
   position: relative;
-  height: 280px;
+  height: 360px;
   .ol-attribution {
     bottom: 0;
     right: 0;
     font-size: 10px;
+  }
+  &:hover .zoom-hint {
+    opacity: 1;
   }
 `;
 
@@ -225,38 +223,14 @@ const MapContainer = styled.div`
   inset: 0;
 `;
 
-const SearchOverlay = styled.div`
-  position: absolute;
-  top: ${AntdToken.SPACING.XS}px;
-  left: ${AntdToken.SPACING.XS}px;
-  width: 260px;
-  max-width: calc(100% - 96px);
-  z-index: 2;
-  box-shadow: ${AntdToken.SHADOW.SECONDARY};
-  border-radius: ${AntdToken.RADIUS.BASE}px;
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  top: ${AntdToken.SPACING.XS}px;
-  right: ${AntdToken.SPACING.XS}px;
-  display: flex;
-  gap: ${AntdToken.SPACING.XXS}px;
-  z-index: 1;
-  .ant-btn {
-    box-shadow: ${AntdToken.SHADOW.SECONDARY};
-  }
-`;
-
 const EmptyOverlay = styled.div`
   position: absolute;
   inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: ${AntdToken.SPACING.XS}px;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
   z-index: 1;
 `;
 
@@ -270,13 +244,16 @@ const ZoomHint = styled.div`
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-size: 11px;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
 `;
 
 const Footer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: ${AntdToken.SPACING.XS}px;
+  gap: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
   padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
   border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
@@ -285,12 +262,19 @@ const Summary = styled.div`
   display: flex;
   align-items: center;
   gap: ${AntdToken.SPACING.XS}px;
-  min-width: 0;
+  /* Basis 0 keeps summary and actions on one row until the field gets narrow. */
+  flex: 1 1 0;
+  min-width: 140px;
 `;
 
 const FooterActions = styled.div`
   display: flex;
   align-items: center;
   gap: ${AntdToken.SPACING.XXS}px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  .ant-btn-icon {
+    display: inline-flex;
+    align-items: center;
+  }
 `;

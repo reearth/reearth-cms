@@ -133,14 +133,14 @@ const SearchBox: React.FC<Props> = ({
           popupMatchSelectWidth={false}
           aria-label={t("Search provider")}
           options={Object.values(PROVIDERS).map(p => ({ value: p.id, label: p.label() }))}
-          style={{ width: 160, flexShrink: 0 }}
+          style={{ width: 132, flexShrink: 0 }}
         />
         <Search
           value={query}
           allowClear
           loading={loading}
-          aria-label={t("Search for a place or address")}
-          placeholder={t("Search for a place or address")}
+          aria-label={t("Search for a place")}
+          placeholder={t("Search for a place")}
           onChange={e => {
             setQuery(e.target.value);
             if (!e.target.value) clear();
@@ -236,12 +236,17 @@ const SearchBox: React.FC<Props> = ({
 export default SearchBox;
 
 const Wrapper = styled.div`
-  width: 460px;
-  max-width: calc(100% - 24px);
+  position: relative;
+  width: 100%;
+  max-width: 420px;
 `;
 
 const Results = styled.div`
-  margin-top: ${AntdToken.SPACING.XXS}px;
+  position: absolute;
+  top: calc(100% + ${AntdToken.SPACING.XXS}px);
+  left: 0;
+  width: max(100%, 380px);
+  z-index: 10;
   background: ${AntdColor.NEUTRAL.BG_WHITE};
   border-radius: ${AntdToken.RADIUS.LG}px;
   box-shadow: ${AntdToken.SHADOW.SECONDARY};

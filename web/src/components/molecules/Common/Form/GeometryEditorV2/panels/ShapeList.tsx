@@ -13,6 +13,7 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import { GeoUtils } from "../core/GeoUtils";
 import { kindIcon, kindName, shapeDetail } from "../core/labels";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
+import type { GeometryKind } from "../core/types";
 
 import ShapeDetails from "./ShapeDetails";
 
@@ -20,6 +21,7 @@ type Props = {
   multiple: boolean;
   readOnly: boolean;
   drawHint: string;
+  allowedKinds: readonly GeometryKind[];
   onDelete: (id: string) => void;
   onShowJson: () => void;
 };
@@ -28,7 +30,14 @@ type Props = {
  * Shapes in the value, in stored order. Selecting a row selects the shape on the map
  * and the other way round; the selected row opens its coordinates in place.
  */
-const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete, onShowJson }) => {
+const ShapeList: React.FC<Props> = ({
+  multiple,
+  readOnly,
+  drawHint,
+  allowedKinds,
+  onDelete,
+  onShowJson,
+}) => {
   const t = useT();
   const store = useGeoStore();
   const { collection, selectedId } = useGeoSnapshot();
@@ -135,7 +144,12 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete, on
               </Actions>
             </Row>
             {selected && (
-              <ShapeDetails feature={feature} readOnly={readOnly} onShowJson={onShowJson} />
+              <ShapeDetails
+                feature={feature}
+                readOnly={readOnly}
+                allowedKinds={allowedKinds}
+                onShowJson={onShowJson}
+              />
             )}
           </div>
         );

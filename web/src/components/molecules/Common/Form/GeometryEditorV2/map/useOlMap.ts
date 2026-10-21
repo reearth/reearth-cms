@@ -23,8 +23,10 @@ export type MapHandles = {
   readonly layer: VectorLayer;
   readonly pinSource: VectorSource;
   readonly bases: ReadonlyMap<BaseMapId, TileLayer>;
-  /** Editable shapes currently selected; Translate and Modify act on these. */
+  /** The selected shape, when editable; Translate moves it. */
   readonly selected: Collection<Feature<Geometry>>;
+  /** Every Point, LineString and Polygon; Modify reshapes these (PoC behaviour). */
+  readonly editable: Collection<Feature<Geometry>>;
 };
 
 /** Japan, as the existing field opens. */
@@ -81,6 +83,7 @@ export function useOlMap(
       pinSource,
       bases,
       selected: new Collection<Feature<Geometry>>(),
+      editable: new Collection<Feature<Geometry>>(),
     });
 
     return () => {

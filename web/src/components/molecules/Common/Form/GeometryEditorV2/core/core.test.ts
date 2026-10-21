@@ -8,6 +8,7 @@ import {
   writeFieldValue,
 } from "./fieldValue";
 import { createGeoStore } from "./geoStore";
+import { GeoUtils } from "./GeoUtils";
 import { EditOrigin, GeometryKind } from "./types";
 import { validateValue } from "./validation";
 
@@ -226,5 +227,44 @@ describe("geoStore", () => {
     store.undo();
     expect(store.getSnapshot().collection.features).toHaveLength(1);
     store.endGesture();
+  });
+});
+
+describe("PoC vertex and type editing", () => {
+  const square = {
+    type: "Polygon" as const,
+    coordinates: [
+      [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+      ],
+    ],
+  };
+
+  test("inserting after a vertex adds the midpoint and keeps the ring closed", () => {
+    const next = GeoUtils.insertVertex(square, 1);
+    if (next.type !== "Polygon") throw new Error("expected Polygon");
+    expect(next.coordinates[0]).toHaveLength(6);
+    expect(next.coordinates[0][2]).toEqual([1, 0.5]);
+    expect(next.coordinates[0][0]).toEqual(next.coordinates[0][5]);
+  });
+
+  test("converting a polygon to a line keeps its positions; to a point drops them", () => {
+    const line = GeoUtils.convertGeometry(square, GeometryKind.LINE_STRING);
+    expect(line.type).toBe("LineString");
+    expect(GeoUtils.droppedPositions(square, line)).toBe(0);
+    const point = GeoUtils.convertGeometry(square, GeometryKind.POINT);
+    expect(GeoUtils.droppedPositions(square, point)).toBe(3);
+  });
+
+  test("a point becomes a small closed square when converted to a polygon", () => {
+    const polygon = GeoUtils.convertGeometry(
+      { type: "Point", coordinates: [139.7, 35.6] },
+      GeometryKind.POLYGON,
+    );
+    expect(validateValue(polygon, false)).toEqual([]);
   });
 });

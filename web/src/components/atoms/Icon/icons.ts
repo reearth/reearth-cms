@@ -68,7 +68,6 @@ import {
   RedoOutlined,
   AimOutlined,
   SelectOutlined,
-  GatewayOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -236,7 +235,6 @@ const icons = {
   redo: RedoOutlined,
   aim: AimOutlined,
   select: SelectOutlined,
-  fitBounds: GatewayOutlined,
 };
 
 export type IconName = keyof typeof icons;

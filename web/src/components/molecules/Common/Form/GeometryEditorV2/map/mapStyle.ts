@@ -67,8 +67,8 @@ export function featureStyle(feature: FeatureLike, selectedId: string | null): S
     }),
   ];
 
-  // Vertex handles only on the selected, editable shape — the ones you can drag.
-  if (selected && !locked && geometry && geometry.getType() !== "Point") {
+  // Vertex dots on every editable line and polygon, as in the PoC: they can all be reshaped.
+  if (!locked && geometry && geometry.getType() !== "Point") {
     styles.push(
       new Style({
         zIndex: zIndex + 1,

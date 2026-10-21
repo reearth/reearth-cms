@@ -5,31 +5,36 @@ import { useState } from "react";
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { GeoUtils } from "../core/GeoUtils";
-import { vertexLabel } from "../core/labels";
+import { kindName, vertexLabel } from "../core/labels";
 import { useGeoStore } from "../core/StoreContext";
-import { EditOrigin, GeometryKind } from "../core/types";
+import { EDITABLE_KINDS, EditOrigin, GeometryKind } from "../core/types";
 
 import CoordinateInput from "./CoordinateInput";
 
 type Props = {
   feature: Feature;
   readOnly: boolean;
+  allowedKinds: readonly GeometryKind[];
   onShowJson: () => void;
 };
 
 /**
  * The one place coordinates are edited. It replaces both the PoC's Form card and its
- * Inspector, which showed the same numbers twice in opposite orders.
+ * Inspector, which showed the same numbers twice in opposite orders. Type conversion and
+ * vertex insert/remove work as in the PoC.
  */
-const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
+const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShowJson }) => {
   const t = useT();
   const store = useGeoStore();
+  const { confirm } = useModal();
   const [showVertices, setShowVertices] = useState(false);
   const geometry = feature.geometry as Geometry;
   const id = String(feature.id);
@@ -40,6 +45,28 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
     const position = [...vertex.position];
     position[axis] = value;
     store.setGeometry(id, GeoUtils.setVertex(geometry, index, position), EditOrigin.NUMERIC);
+  };
+
+  const changeType = (kind: GeometryKind) => {
+    const converted = GeoUtils.convertGeometry(geometry, kind);
+    const dropped = GeoUtils.droppedPositions(geometry, converted);
+    const apply = () => store.setGeometry(id, converted, EditOrigin.LIST);
+    if (dropped === 0) {
+      apply();
+      return;
+    }
+    confirm({
+      title: t("Change {{from}} to {{to}}?", {
+        from: kindName(geometry.type),
+        to: kindName(kind),
+      }),
+      content: t("This removes {{dropped}} of its {{total}} positions. You can undo it.", {
+        dropped,
+        total: GeoUtils.flattenPositions(geometry).length,
+      }),
+      okText: t("Change type"),
+      onOk: apply,
+    });
   };
 
   if (!GeoUtils.isEditableKind(geometry)) {
@@ -63,10 +90,33 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
     );
   }
 
+  const typeOptions = EDITABLE_KINDS.filter(kind => allowedKinds.includes(kind)).map(kind => ({
+    value: kind,
+    label: kindName(kind),
+  }));
+
+  const typeRow = (
+    <TypeRow>
+      <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
+        {t("Type")}
+      </Typography.Text>
+      <Select
+        size="small"
+        value={geometry.type as GeometryKind}
+        options={typeOptions}
+        disabled={readOnly || typeOptions.length < 2}
+        aria-label={t("Shape type")}
+        onChange={changeType}
+        style={{ width: 120 }}
+      />
+    </TypeRow>
+  );
+
   if (geometry.type === GeometryKind.POINT) {
     const [lng, lat] = geometry.coordinates;
     return (
       <Details>
+        {typeRow}
         <Row>
           <CoordinateInput
             label={t("Latitude")}
@@ -97,6 +147,7 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
   const vertices = GeoUtils.listVertices(geometry);
   return (
     <Details>
+      {typeRow}
       {!readOnly && (
         <Hint type="secondary">
           {t(
@@ -146,22 +197,40 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
                 onCommit={v => setVertex(vertex.index, 0, v)}
               />
               {!readOnly && (
-                <Tooltip title={t("Remove vertex")}>
-                  <Button
-                    size="small"
-                    type="text"
-                    aria-label={t("Remove vertex")}
-                    disabled={!GeoUtils.canRemoveVertex(geometry, vertex.index)}
-                    icon={<Icon icon="minus" />}
-                    onClick={() =>
-                      store.setGeometry(
-                        id,
-                        GeoUtils.removeVertex(geometry, vertex.index),
-                        EditOrigin.LIST,
-                      )
-                    }
-                  />
-                </Tooltip>
+                <RowActions>
+                  <Tooltip title={t("Insert a vertex after this one")}>
+                    <Button
+                      size="small"
+                      type="text"
+                      aria-label={t("Insert a vertex after this one")}
+                      icon={<Icon icon="plus" />}
+                      onClick={() =>
+                        store.setGeometry(
+                          id,
+                          GeoUtils.insertVertex(geometry, vertex.index),
+                          EditOrigin.LIST,
+                        )
+                      }
+                    />
+                  </Tooltip>
+                  <Tooltip title={t("Remove vertex")}>
+                    <Button
+                      size="small"
+                      type="text"
+                      danger
+                      aria-label={t("Remove vertex")}
+                      disabled={!GeoUtils.canRemoveVertex(geometry, vertex.index)}
+                      icon={<Icon icon="close" />}
+                      onClick={() =>
+                        store.setGeometry(
+                          id,
+                          GeoUtils.removeVertex(geometry, vertex.index),
+                          EditOrigin.LIST,
+                        )
+                      }
+                    />
+                  </Tooltip>
+                </RowActions>
               )}
             </VertexRow>
           ))}
@@ -180,6 +249,12 @@ const Details = styled.div`
   padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.SM}px 40px;
 `;
 
+const TypeRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XS}px;
+`;
+
 const Row = styled.div`
   display: flex;
   gap: ${AntdToken.SPACING.XS}px;
@@ -193,7 +268,7 @@ const VertexTable = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${AntdToken.SPACING.XXS}px;
-  max-height: 240px;
+  max-height: 280px;
   overflow-y: auto;
   border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   padding-top: ${AntdToken.SPACING.XXS}px;
@@ -201,7 +276,7 @@ const VertexTable = styled.div`
 
 const grid = `
   display: grid;
-  grid-template-columns: 56px 1fr 1fr 24px;
+  grid-template-columns: 48px 1fr 1fr 52px;
   gap: ${AntdToken.SPACING.XXS}px;
   align-items: center;
 `;
@@ -214,4 +289,8 @@ const VertexHead = styled.div`
 
 const VertexRow = styled.div`
   ${grid}
+`;
+
+const RowActions = styled.div`
+  display: flex;
 `;

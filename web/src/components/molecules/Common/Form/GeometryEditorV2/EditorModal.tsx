@@ -372,6 +372,7 @@ const EditorBody: React.FC<BodyProps> = ({
                 multiple={multiple}
                 readOnly={readOnly}
                 drawHint={drawHint}
+                allowedKinds={allowedKinds}
                 onDelete={deleteShape}
                 onShowJson={() => setJsonOpen(true)}
               />

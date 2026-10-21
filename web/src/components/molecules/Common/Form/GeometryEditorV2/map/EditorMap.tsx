@@ -113,7 +113,7 @@ const EditorMap: React.FC<Props> = ({
     fitTo(handles, extentOf(geometries), 16, 0);
   }, [handles, collection]);
 
-  // Selection drives styling and which shapes Translate/Modify may touch.
+  // Selection drives styling and which shape Translate may move.
   useEffect(() => {
     selectedIdRef.current = selectedId;
     if (!handles) return;
@@ -125,6 +125,17 @@ const EditorMap: React.FC<Props> = ({
     }
     handles.layer.changed();
   }, [handles, selectedId, collection]);
+
+  // Every editable shape can be reshaped (runs after useMapSync, so new shapes exist).
+  useEffect(() => {
+    if (!handles) return;
+    handles.editable.clear();
+    for (const data of collection.features) {
+      if (!GeoUtils.isEditableKind(data.geometry)) continue;
+      const feature = handles.source.getFeatureById(String(data.id));
+      if (feature) handles.editable.push(feature as Feature<Geometry>);
+    }
+  }, [handles, collection]);
 
   useEffect(() => {
     if (!handles) return;
@@ -144,18 +155,12 @@ const EditorMap: React.FC<Props> = ({
     view?.animate({ zoom: (view.getZoom() ?? 0) + delta, duration: 200 });
   };
 
-  const fitAll = () => {
-    if (!handles) return;
-    const geometries = collection.features.flatMap(f => (f.geometry ? [f.geometry] : []));
-    fitTo(handles, extentOf(geometries), 16);
-  };
-
   const toolOptions = [MapTool.SELECT, MapTool.POINT, MapTool.LINE, MapTool.POLYGON]
     .filter(option => option === MapTool.SELECT || allowedKinds.includes(TOOL_KIND[option]))
     .map(option => ({
       value: option,
       label: (
-        <Tooltip title={TOOL_TIPS[option](t)} placement="top">
+        <Tooltip title={TOOL_TIPS[option](t)} placement="bottom">
           <ToolLabel>
             <Icon icon={TOOL_ICON[option]} size={14} />
             {TOOL_LABELS[option](t)}
@@ -173,81 +178,79 @@ const EditorMap: React.FC<Props> = ({
           )
         : null;
 
+  // Controls live in a bar above the map, so nothing on the map can be mistaken for data.
   return (
     <Wrapper>
-      <MapContainer ref={containerRef} />
-      <TopLeft>
-        <SearchBox
-          initialQuery={initialSearch}
-          activeResultId={searchPin?.id ?? null}
-          addLabel={readOnly ? undefined : searchAddLabel}
-          onFlyTo={onSearchFlyTo}
-          onAdd={onSearchAdd}
-          onClear={onSearchClear}
-        />
-      </TopLeft>
-      {!readOnly && (
-        <BottomCenter>
-          <Toolbar>
-            <Segmented
-              value={tool}
-              options={toolOptions}
-              onChange={value => onToolRequest(value as MapTool)}
-            />
-            <Tooltip title={t("Delete selected shape (Delete)")}>
+      <TopBar>
+        <BarLeft>
+          <SearchBox
+            initialQuery={initialSearch}
+            activeResultId={searchPin?.id ?? null}
+            addLabel={readOnly ? undefined : searchAddLabel}
+            onFlyTo={onSearchFlyTo}
+            onAdd={onSearchAdd}
+            onClear={onSearchClear}
+          />
+        </BarLeft>
+        <BarCenter>
+          {!readOnly && (
+            <>
+              <Segmented
+                value={tool}
+                options={toolOptions}
+                onChange={value => onToolRequest(value as MapTool)}
+              />
+              <Tooltip title={t("Delete selected shape (Delete)")} placement="bottom">
+                <Button
+                  danger
+                  type="text"
+                  disabled={!selectedId}
+                  icon={<Icon icon="delete" />}
+                  aria-label={t("Delete selected shape")}
+                  onClick={onDeleteSelected}
+                />
+              </Tooltip>
+            </>
+          )}
+        </BarCenter>
+        <BarRight>
+          <Select
+            value={baseMap}
+            options={baseMapOptions()}
+            aria-label={t("Base map")}
+            popupMatchSelectWidth={false}
+            onChange={value => {
+              setBaseMap(value);
+              try {
+                localStorage.setItem(BASEMAP_KEY, value);
+              } catch {
+                // Not remembering the base map is acceptable.
+              }
+            }}
+            style={{ width: 180 }}
+          />
+          <Space.Compact>
+            <Tooltip title={t("Zoom out")} placement="bottom">
               <Button
-                danger
-                type="text"
-                disabled={!selectedId}
-                icon={<Icon icon="delete" />}
-                aria-label={t("Delete selected shape")}
-                onClick={onDeleteSelected}
+                aria-label={t("Zoom out")}
+                icon={<Icon icon="minus" />}
+                onClick={() => zoomBy(-1)}
               />
             </Tooltip>
-          </Toolbar>
-        </BottomCenter>
-      )}
-      <TopRight>
-        <Select
-          value={baseMap}
-          options={baseMapOptions()}
-          aria-label={t("Base map")}
-          popupMatchSelectWidth={false}
-          onChange={value => {
-            setBaseMap(value);
-            try {
-              localStorage.setItem(BASEMAP_KEY, value);
-            } catch {
-              // Not remembering the base map is acceptable.
-            }
-          }}
-          style={{ minWidth: 190 }}
-        />
-        <Space.Compact direction="vertical">
-          <Tooltip title={t("Zoom in")} placement="left">
-            <Button
-              aria-label={t("Zoom in")}
-              icon={<Icon icon="plus" />}
-              onClick={() => zoomBy(1)}
-            />
-          </Tooltip>
-          <Tooltip title={t("Zoom out")} placement="left">
-            <Button
-              aria-label={t("Zoom out")}
-              icon={<Icon icon="minus" />}
-              onClick={() => zoomBy(-1)}
-            />
-          </Tooltip>
-          <Tooltip title={t("Fit all shapes")} placement="left">
-            <Button
-              aria-label={t("Fit all shapes")}
-              icon={<Icon icon="fitBounds" />}
-              onClick={fitAll}
-            />
-          </Tooltip>
-        </Space.Compact>
-      </TopRight>
-      {drawHint && <Hint role="status">{drawHint}</Hint>}
+            <Tooltip title={t("Zoom in")} placement="bottom">
+              <Button
+                aria-label={t("Zoom in")}
+                icon={<Icon icon="plus" />}
+                onClick={() => zoomBy(1)}
+              />
+            </Tooltip>
+          </Space.Compact>
+        </BarRight>
+      </TopBar>
+      <MapArea>
+        <MapContainer ref={containerRef} />
+        {drawHint && <Hint role="status">{drawHint}</Hint>}
+      </MapArea>
     </Wrapper>
   );
 };
@@ -269,9 +272,57 @@ const TOOL_TIPS: Record<MapTool, (t: T) => string> = {
 export default EditorMap;
 
 const Wrapper = styled.div`
-  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
+`;
+
+const TopBar = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: ${AntdToken.SPACING.SM}px;
+  min-height: 52px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
+  position: relative;
+  z-index: 3;
+  .ant-segmented {
+    background: ${AntdColor.NEUTRAL.FILL_TERTIARY};
+  }
+`;
+
+const BarLeft = styled.div`
+  min-width: 0;
+`;
+
+const BarCenter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${AntdToken.SPACING.XXS}px;
+`;
+
+const BarRight = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: ${AntdToken.SPACING.XS}px;
+  min-width: 0;
+`;
+
+const ToolLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+`;
+
+const MapArea = styled.div`
+  position: relative;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   .ol-attribution {
     bottom: 0;
@@ -285,58 +336,9 @@ const MapContainer = styled.div`
   inset: 0;
 `;
 
-const TopLeft = styled.div`
-  position: absolute;
-  top: ${AntdToken.SPACING.SM}px;
-  left: ${AntdToken.SPACING.SM}px;
-  z-index: 2;
-`;
-
-const BottomCenter = styled.div`
-  position: absolute;
-  bottom: ${AntdToken.SPACING.LG}px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-`;
-
-const Toolbar = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${AntdToken.SPACING.XXS}px;
-  padding: ${AntdToken.SPACING.XXS}px;
-  background: ${AntdColor.NEUTRAL.BG_WHITE};
-  border-radius: ${AntdToken.RADIUS.LG}px;
-  box-shadow: ${AntdToken.SHADOW.SECONDARY};
-  .ant-segmented {
-    background: ${AntdColor.NEUTRAL.FILL_TERTIARY};
-  }
-`;
-
-const ToolLabel = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 2px;
-`;
-
-const TopRight = styled.div`
-  position: absolute;
-  top: ${AntdToken.SPACING.SM}px;
-  right: ${AntdToken.SPACING.SM}px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: ${AntdToken.SPACING.XS}px;
-  z-index: 1;
-  .ant-btn {
-    box-shadow: ${AntdToken.SHADOW.SECONDARY};
-  }
-`;
-
 const Hint = styled.div`
   position: absolute;
-  bottom: 76px;
+  bottom: ${AntdToken.SPACING.LG}px;
   left: 50%;
   transform: translateX(-50%);
   padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
