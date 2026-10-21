@@ -12,10 +12,7 @@ export abstract class GeoUtils {
   /** ~1cm. Without a fixed precision the EPSG:3857 round-trip never settles. */
   public static readonly COORDINATE_PRECISION = 7;
 
-  /** Tokyo Station. */
-  public static readonly DEFAULT_CENTER: Position = [139.767125, 35.681236];
-
-  /** Degrees moved when an insert or conversion needs a position it cannot derive. */
+  /** Degrees moved when an insert needs a position it cannot derive. */
   public static readonly VERTEX_STEP = 0.002;
 
   private static readonly ID_PATTERN = /^s(\d+)$/;
@@ -228,37 +225,6 @@ export abstract class GeoUtils {
     return geometry;
   }
 
-  /** Every addressable position in document order; ring closing positions dropped. */
-  public static flattenPositions(geometry: Geometry): Position[] {
-    if (geometry.type === GeometryKind.GEOMETRY_COLLECTION) {
-      return geometry.geometries.flatMap(g => GeoUtils.flattenPositions(g));
-    }
-    if (geometry.type === GeometryKind.POINT) return [geometry.coordinates];
-    if (geometry.type === GeometryKind.POLYGON) {
-      return geometry.coordinates.flatMap(ring => ring.slice(0, -1));
-    }
-    if (geometry.type === GeometryKind.MULTI_POLYGON) {
-      return geometry.coordinates.flatMap(polygon => polygon.flatMap(ring => ring.slice(0, -1)));
-    }
-    if (geometry.type === GeometryKind.MULTI_LINE_STRING) return geometry.coordinates.flat();
-    return [...geometry.coordinates];
-  }
-
-  /** Rebuilds `geometry` as `kind` from its positions in order (PoC behaviour). */
-  public static convertGeometry(geometry: Geometry, kind: GeometryKind): Geometry {
-    if (!EDITABLE_KINDS.includes(kind) || geometry.type === kind) return geometry;
-    return GeoUtils.buildGeometry(kind, GeoUtils.flattenPositions(geometry));
-  }
-
-  /** How many of `source`'s positions `converted` no longer carries. */
-  public static droppedPositions(source: Geometry, converted: Geometry): number {
-    const before = GeoUtils.flattenPositions(source);
-    const after = GeoUtils.flattenPositions(converted);
-    const kept = new Set(after.map(position => String(position)));
-    const missing = before.filter(position => !kept.has(String(position))).length;
-    return Math.max(missing, before.length - after.length);
-  }
-
   /** [west, south, east, north] in WGS84, or null for an empty geometry. */
   public static bbox(geometries: readonly Geometry[]): [number, number, number, number] | null {
     let west = Infinity;
@@ -285,40 +251,11 @@ export abstract class GeoUtils {
     return Number.isFinite(west) ? [west, south, east, north] : null;
   }
 
-  private static buildGeometry(kind: GeometryKind, positions: readonly Position[]): Geometry {
-    const anchor = positions[0] ?? GeoUtils.DEFAULT_CENTER;
-    if (kind === GeometryKind.LINE_STRING) {
-      const coordinates =
-        positions.length >= 2 ? [...positions] : [anchor, GeoUtils.between(anchor, undefined)];
-      return { type: GeometryKind.LINE_STRING, coordinates };
-    }
-    if (kind === GeometryKind.POLYGON) {
-      if (positions.length === 2) {
-        // Derive a third corner along the axis the segment varies less, so the ring has area.
-        const [a, b] = positions;
-        const apex: Position =
-          Math.abs(b[0] - a[0]) >= Math.abs(b[1] - a[1])
-            ? [b[0], GeoUtils.step(b[1], 90)]
-            : [GeoUtils.step(b[0], 180), b[1]];
-        return { type: GeometryKind.POLYGON, coordinates: [[a, b, apex, a]] };
-      }
-      const ring = positions.length >= 3 ? [...positions] : GeoUtils.square(anchor);
-      return { type: GeometryKind.POLYGON, coordinates: [[...ring, ring[0]]] };
-    }
-    return { type: GeometryKind.POINT, coordinates: anchor };
-  }
-
   private static between(a: Position, b: Position | undefined): Position {
     if (!b) return [GeoUtils.step(a[0], 180), a[1]];
     const midpoint: Position = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
     if (a.length > 2 && b.length > 2) midpoint.push((a[2] + b[2]) / 2);
     return midpoint;
-  }
-
-  private static square(anchor: Position): Position[] {
-    const east = GeoUtils.step(anchor[0], 180);
-    const north = GeoUtils.step(anchor[1], 90);
-    return [anchor, [east, anchor[1]], [east, north], [anchor[0], north]];
   }
 
   /** One step along an axis, turning back rather than crossing the axis limit. */

@@ -230,7 +230,7 @@ describe("geoStore", () => {
   });
 });
 
-describe("PoC vertex and type editing", () => {
+describe("PoC vertex editing", () => {
   const square = {
     type: "Polygon" as const,
     coordinates: [
@@ -250,21 +250,5 @@ describe("PoC vertex and type editing", () => {
     expect(next.coordinates[0]).toHaveLength(6);
     expect(next.coordinates[0][2]).toEqual([1, 0.5]);
     expect(next.coordinates[0][0]).toEqual(next.coordinates[0][5]);
-  });
-
-  test("converting a polygon to a line keeps its positions; to a point drops them", () => {
-    const line = GeoUtils.convertGeometry(square, GeometryKind.LINE_STRING);
-    expect(line.type).toBe("LineString");
-    expect(GeoUtils.droppedPositions(square, line)).toBe(0);
-    const point = GeoUtils.convertGeometry(square, GeometryKind.POINT);
-    expect(GeoUtils.droppedPositions(square, point)).toBe(3);
-  });
-
-  test("a point becomes a small closed square when converted to a polygon", () => {
-    const polygon = GeoUtils.convertGeometry(
-      { type: "Point", coordinates: [139.7, 35.6] },
-      GeometryKind.POLYGON,
-    );
-    expect(validateValue(polygon, false)).toEqual([]);
   });
 });

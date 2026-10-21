@@ -13,7 +13,6 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import { GeoUtils } from "../core/GeoUtils";
 import { kindIcon, kindName, shapeDetail } from "../core/labels";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
-import type { GeometryKind } from "../core/types";
 
 import ShapeDetails from "./ShapeDetails";
 
@@ -21,7 +20,6 @@ type Props = {
   multiple: boolean;
   readOnly: boolean;
   drawHint: string;
-  allowedKinds: readonly GeometryKind[];
   onDelete: (id: string) => void;
   onShowJson: () => void;
 };
@@ -34,7 +32,6 @@ const ShapeList: React.FC<Props> = ({
   multiple,
   readOnly,
   drawHint,
-  allowedKinds,
   onDelete,
   onShowJson,
 }) => {
@@ -147,7 +144,6 @@ const ShapeList: React.FC<Props> = ({
               <ShapeDetails
                 feature={feature}
                 readOnly={readOnly}
-                allowedKinds={allowedKinds}
                 onShowJson={onShowJson}
               />
             )}

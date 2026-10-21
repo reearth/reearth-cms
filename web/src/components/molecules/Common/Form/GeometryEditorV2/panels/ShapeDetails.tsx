@@ -4,36 +4,32 @@ import { useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { useModal } from "@reearth-cms/components/atoms/Modal";
-import Select from "@reearth-cms/components/atoms/Select";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { GeoUtils } from "../core/GeoUtils";
-import { kindName, vertexLabel } from "../core/labels";
+import { vertexLabel } from "../core/labels";
 import { useGeoStore } from "../core/StoreContext";
-import { EDITABLE_KINDS, EditOrigin, GeometryKind } from "../core/types";
+import { EditOrigin, GeometryKind } from "../core/types";
 
 import CoordinateInput from "./CoordinateInput";
 
 type Props = {
   feature: Feature;
   readOnly: boolean;
-  allowedKinds: readonly GeometryKind[];
   onShowJson: () => void;
 };
 
 /**
  * The one place coordinates are edited. It replaces both the PoC's Form card and its
- * Inspector, which showed the same numbers twice in opposite orders. Type conversion and
- * vertex insert/remove work as in the PoC.
+ * Inspector, which showed the same numbers twice in opposite orders. Vertex insert/remove
+ * works as in the PoC; to change a shape's type, draw a new one.
  */
-const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShowJson }) => {
+const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
   const t = useT();
   const store = useGeoStore();
-  const { confirm } = useModal();
   const [showVertices, setShowVertices] = useState(false);
   const geometry = feature.geometry as Geometry;
   const id = String(feature.id);
@@ -46,28 +42,6 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShow
     store.setGeometry(id, GeoUtils.setVertex(geometry, index, position), EditOrigin.NUMERIC);
   };
 
-  const changeType = (kind: GeometryKind) => {
-    const converted = GeoUtils.convertGeometry(geometry, kind);
-    const dropped = GeoUtils.droppedPositions(geometry, converted);
-    const apply = () => store.setGeometry(id, converted, EditOrigin.LIST);
-    if (dropped === 0) {
-      apply();
-      return;
-    }
-    confirm({
-      title: t("Change {{from}} to {{to}}?", {
-        from: kindName(geometry.type),
-        to: kindName(kind),
-      }),
-      content: t("This removes {{dropped}} of its {{total}} positions. You can undo it.", {
-        dropped,
-        total: GeoUtils.flattenPositions(geometry).length,
-      }),
-      okText: t("Change type"),
-      onOk: apply,
-    });
-  };
-
   if (!GeoUtils.isEditableKind(geometry)) {
     return (
       <Details>
@@ -75,40 +49,17 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShow
           <Icon icon="lock" />
           {t("{{type}} can't be edited on the map.", { type: geometry.type })}
           <Button size="small" type="link" style={{ padding: 0, height: "auto" }} onClick={onShowJson}>
-            {t("Open GeoJSON")}
+            {t("Change it in GeoJSON")}
           </Button>
         </Locked>
       </Details>
     );
   }
 
-  const typeOptions = EDITABLE_KINDS.filter(kind => allowedKinds.includes(kind)).map(kind => ({
-    value: kind,
-    label: kindName(kind),
-  }));
-
-  const typeRow = (
-    <TypeRow>
-      <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
-        {t("Type")}
-      </Typography.Text>
-      <Select
-        size="small"
-        value={geometry.type as GeometryKind}
-        options={typeOptions}
-        disabled={readOnly || typeOptions.length < 2}
-        aria-label={t("Shape type")}
-        onChange={changeType}
-        style={{ width: 120 }}
-      />
-    </TypeRow>
-  );
-
   if (geometry.type === GeometryKind.POINT) {
     const [lng, lat] = geometry.coordinates;
     return (
       <Details>
-        {typeRow}
         <Row>
           <CoordinateInput
             label={t("Latitude")}
@@ -139,7 +90,6 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShow
   const vertices = GeoUtils.listVertices(geometry);
   return (
     <Details>
-      {typeRow}
       {!readOnly && (
         <Hint type="secondary">
           {t(
@@ -239,12 +189,6 @@ const Details = styled.div`
   flex-direction: column;
   gap: ${AntdToken.SPACING.XS}px;
   padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.SM}px 40px;
-`;
-
-const TypeRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const Row = styled.div`
