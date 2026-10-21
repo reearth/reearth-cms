@@ -83,21 +83,24 @@ func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Proj
 	g := group.New().NewID().Project(p.ID()).Schema(gs.ID()).Name(mixedKey + "-group").Key(id.NewKey(mixedKey + "-group")).MustBuild()
 	lo.Must0(r.Group.Save(ctx, g))
 
+	/// Models
 	groupId := id.NewFieldID()
 	geoId := id.NewFieldID()
-	s1 := schema.New().NewID().Project(p.ID()).Workspace(p.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).ID(groupId).Name("detail").Key(id.NewKey("detail")).MustBuild(),
-		schema.NewField(tp).ID(geoId).Name("location").Key(id.NewKey("location")).MustBuild(),
-	}).MustBuild()
-	lo.Must0(r.Schema.Save(ctx, s1))
-	s2 := s1.Clone()
-	lo.Must0(r.Schema.Save(ctx, s2))
+	newModel := func(key string) *model.Model {
+		s := schema.New().NewID().Project(p.ID()).Workspace(p.Workspace()).Fields(schema.FieldList{
+			schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).ID(groupId).Name("detail").Key(id.NewKey("detail")).MustBuild(),
+			schema.NewField(tp).ID(geoId).Name("location").Key(id.NewKey("location")).MustBuild(),
+		}).MustBuild()
+		lo.Must0(r.Schema.Save(ctx, s))
 
-	m1 := model.New().NewID().Project(p.ID()).Schema(s1.ID()).Key(id.NewKey(incidentKey)).MustBuild()
-	lo.Must0(r.Model.Save(ctx, m1))
-	m2 := model.New().NewID().Project(p.ID()).Schema(s2.ID()).Key(id.NewKey(mixedKey)).MustBuild()
-	lo.Must0(r.Model.Save(ctx, m2))
+		m := model.New().NewID().Project(p.ID()).Schema(s.ID()).Key(id.NewKey(key)).MustBuild()
+		lo.Must0(r.Model.Save(ctx, m))
+		return m
+	}
+	m1 := newModel(incidentKey)
+	m2 := newModel(mixedKey)
 
+	/// Items
 	// group geometry is placed before the top-level geometry in the item fields
 	groupFields := func(label string) []*item.Field {
 		ig := id.NewItemGroupID()
