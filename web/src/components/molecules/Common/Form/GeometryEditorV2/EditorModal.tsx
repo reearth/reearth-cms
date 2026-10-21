@@ -305,8 +305,9 @@ const EditorBody: React.FC<BodyProps> = ({
         }
       }
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    // Capture phase: runs even though the editor stops keys from bubbling to modals below.
+    document.addEventListener("keydown", handler, true);
+    return () => document.removeEventListener("keydown", handler, true);
   }, [deleteShape, readOnly, requestClose, store, tool]);
 
   const drawableKinds = allowedKinds.filter(kind => Object.values(TOOL_KIND).includes(kind));
@@ -318,7 +319,8 @@ const EditorBody: React.FC<BodyProps> = ({
   const count = snapshot.collection.features.length;
 
   return (
-    <Layout>
+    // Keys typed here must not reach a modal underneath (e.g. the schema field dialog's Esc).
+    <Layout onKeyDown={e => e.stopPropagation()}>
       <Header>
         <Title>
           <Typography.Title level={5} style={{ margin: 0 }}>

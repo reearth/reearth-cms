@@ -9,6 +9,7 @@ import type {
   FieldProps,
   ObjectSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { isUnifiedGeometryField } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
@@ -39,16 +40,17 @@ const GeometryField: React.FC<FieldProps> = ({
 
   const isEditor = useMemo(() => field.type === "GeometryEditor", [field.type]);
 
-  // Prototype: Geometry Object fields use the unified editor unless it is switched off
-  // with localStorage["reearth-cms:geometry-v2"] = "off".
+  // Prototype: the unified Geometry field (a Geometry Object accepting every type) uses the
+  // new editor; restricted Geometry Object and Geometry Editor fields keep the old one.
+  // localStorage["reearth-cms:geometry-v2"] = "off" shows the old editor everywhere.
   const useV2 = useMemo(() => {
-    if (field.type !== "GeometryObject") return false;
+    if (!isUnifiedGeometryField(field)) return false;
     try {
       return localStorage.getItem("reearth-cms:geometry-v2") !== "off";
     } catch {
       return true;
     }
-  }, [field.type]);
+  }, [field]);
 
   const handleValidityChange = useCallback(
     (valid: boolean) => (valid ? errorDelete(0) : errorAdd(0)),

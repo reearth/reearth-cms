@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 
+import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -318,6 +319,17 @@ const FieldModal: React.FC<Props> = ({
                   ))}
                 </Radio.Group>
               </Form.Item>
+            )}
+            {selectedType === "Geometry" && (
+              <Alert
+                type="info"
+                showIcon
+                message={t("Accepts points, lines, areas and every other GeoJSON geometry type.")}
+                description={t(
+                  "One shape per item by default. Turn on Support multiple values to let an item hold several shapes, for example a polygon and two points.",
+                )}
+                style={{ marginBottom: AntdToken.SPACING.BASE }}
+              />
             )}
             <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
