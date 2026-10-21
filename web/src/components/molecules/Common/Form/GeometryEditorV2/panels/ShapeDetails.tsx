@@ -50,11 +50,13 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
           showIcon
           icon={<Icon icon="lock" />}
           message={t("{{type}} can't be edited on the map", { type: geometry.type })}
-          description={t("You can delete it, or change it in the GeoJSON panel.")}
-          action={
-            <Button size="small" onClick={onShowJson}>
-              {t("Open GeoJSON")}
-            </Button>
+          description={
+            <>
+              <div>{t("You can delete it, or change it in the GeoJSON panel.")}</div>
+              <Button size="small" onClick={onShowJson} style={{ marginTop: AntdToken.SPACING.XS }}>
+                {t("Open GeoJSON")}
+              </Button>
+            </>
           }
         />
       </Details>
