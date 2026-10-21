@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import type { Feature, Geometry } from "geojson";
 import { useState } from "react";
 
-import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
@@ -72,20 +71,13 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShow
   if (!GeoUtils.isEditableKind(geometry)) {
     return (
       <Details>
-        <Alert
-          type="info"
-          showIcon
-          icon={<Icon icon="lock" />}
-          message={t("{{type}} can't be edited on the map", { type: geometry.type })}
-          description={
-            <>
-              <div>{t("You can delete it, or change it in the GeoJSON panel.")}</div>
-              <Button size="small" onClick={onShowJson} style={{ marginTop: AntdToken.SPACING.XS }}>
-                {t("Open GeoJSON")}
-              </Button>
-            </>
-          }
-        />
+        <Locked type="secondary">
+          <Icon icon="lock" />
+          {t("{{type}} can't be edited on the map.", { type: geometry.type })}
+          <Button size="small" type="link" style={{ padding: 0, height: "auto" }} onClick={onShowJson}>
+            {t("Open GeoJSON")}
+          </Button>
+        </Locked>
       </Details>
     );
   }
@@ -262,6 +254,17 @@ const Row = styled.div`
 
 const Hint = styled(Typography.Text)`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
+`;
+
+const Locked = styled(Hint)`
+  .anticon {
+    margin-right: ${AntdToken.SPACING.XXS}px;
+  }
+  .ant-btn {
+    font-size: inherit;
+    margin-left: ${AntdToken.SPACING.XS}px;
+    vertical-align: baseline;
+  }
 `;
 
 const VertexTable = styled.div`

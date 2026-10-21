@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 
-import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -321,21 +320,17 @@ const FieldModal: React.FC<Props> = ({
               </Form.Item>
             )}
             {selectedType === "Geometry" && (
-              <Alert
-                type="info"
-                showIcon
-                message={t("Accepts points, lines, areas and every other GeoJSON geometry type.")}
-                description={t(
-                  "One shape per item by default. Turn on Support multiple values to let an item hold several shapes, for example a polygon and two points.",
-                )}
-                style={{ marginBottom: AntdToken.SPACING.BASE }}
-              />
+              <TypeHint>{t("Accepts any GeoJSON geometry: points, lines, areas and more.")}</TypeHint>
             )}
             <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"
-              extra={t("Stores a list of values instead of a single value")}>
+              extra={
+                selectedType === "Geometry"
+                  ? t("Lets an item hold several shapes, for example a polygon and two points")
+                  : t("Stores a list of values instead of a single value")
+              }>
               <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
@@ -411,6 +406,11 @@ const Required = styled.span`
 const Optional = styled.span`
   color: ${AntdColor.GREY.GREY_2};
   margin-left: ${AntdToken.SPACING.XXS}px;
+`;
+
+const TypeHint = styled.p`
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  margin-bottom: ${AntdToken.SPACING.BASE}px;
 `;
 
 const OptionTitle = styled.p`
