@@ -162,7 +162,8 @@ const FieldPreview: React.FC<Props> = ({
       )}
       <MapArea>
         <MapContainer ref={containerRef} />
-        {!disabled && (
+        {/* An empty field has one action, Add geometry; search lives in the editor then. */}
+        {!disabled && !empty && (
           <SearchOverlay>
             <Search
               size="small"
