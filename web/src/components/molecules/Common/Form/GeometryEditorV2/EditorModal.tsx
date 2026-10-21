@@ -33,6 +33,8 @@ import type { GeocodeResult } from "./search/providers";
 /** Shared with the legacy field so "Do not show this again" means the same thing. */
 const REPLACE_WARNING_KEY = "disableGeometryWarning";
 const JSON_OPEN_KEY = "reearth-cms:geometry-v2:json-open";
+/** Height of the collapsed GeoJSON panel: just its header. */
+const GEOJSON_HEADER_HEIGHT = 41;
 
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 const MOD = isMac ? "⌘" : "Ctrl";
@@ -132,6 +134,7 @@ const EditorBody: React.FC<BodyProps> = ({
   const [tool, setTool] = useState<MapTool>(MapTool.SELECT);
   const [searchPin, setSearchPin] = useState<SearchPin | null>(null);
   const [jsonOpen, setJsonOpen] = useState(() => !initial.ok || storedFlag(JSON_OPEN_KEY));
+  const [jsonSize, setJsonSize] = useState<number | string>("45%");
   const [issues, setIssues] = useState<GeometryIssue[]>([]);
   const drawRef = useRef<Draw | null>(null);
 
@@ -215,6 +218,31 @@ const EditorBody: React.FC<BodyProps> = ({
     [store, t],
   );
 
+  /**
+   * Single fields: a new shape replaces the old one. The confirm dialog can be switched off
+   * ("Do not show this again"), so this notice always tells the user, with a way back.
+   */
+  const notifyReplaced = useCallback(() => {
+    const key = `geometry-replace-${Date.now()}`;
+    Notification.info({
+      key,
+      message: t("Replaced the previous shape"),
+      description: t("This field holds one shape."),
+      placement: "bottomLeft",
+      duration: 5,
+      btn: (
+        <Button
+          size="small"
+          onClick={() => {
+            store.undo();
+            Notification.destroy(key);
+          }}>
+          {t("Undo")}
+        </Button>
+      ),
+    });
+  }, [store, t]);
+
   const pointAllowed = allowedKinds.includes(GeometryKind.POINT);
   const searchAddLabel = !pointAllowed
     ? undefined
@@ -235,13 +263,18 @@ const EditorBody: React.FC<BodyProps> = ({
     (result: GeocodeResult) => {
       const geometry: Point = { type: "Point", coordinates: result.position };
       confirmReplace(() => {
-        if (multiple) store.addFeature(geometry, EditOrigin.SEARCH);
-        else store.replaceAll(geometry, EditOrigin.SEARCH);
+        if (multiple) {
+          store.addFeature(geometry, EditOrigin.SEARCH);
+        } else {
+          const replacing = store.getSnapshot().collection.features.length > 0;
+          store.replaceAll(geometry, EditOrigin.SEARCH);
+          if (replacing) notifyReplaced();
+        }
         store.focus({ kind: "position", position: result.position, zoom: 16 });
         setSearchPin(null);
       });
     },
-    [confirmReplace, multiple, store],
+    [confirmReplace, multiple, notifyReplaced, store],
   );
 
   const handleSearchClear = useCallback(() => setSearchPin(null), []);
@@ -326,7 +359,20 @@ const EditorBody: React.FC<BodyProps> = ({
           <Typography.Title level={5} style={{ margin: 0 }}>
             {title}
           </Typography.Title>
-          <Tag bordered={false}>{multiple ? t("Multiple shapes") : t("Single shape")}</Tag>
+          <Tooltip
+            title={
+              multiple
+                ? t(
+                    "This field holds several shapes. Each new drawing or search result is added as another shape.",
+                  )
+                : t(
+                    "This field holds one shape. Drawing a shape or adding a search result replaces the current one.",
+                  )
+            }>
+            <ModeTag bordered={false}>
+              {multiple ? t("Multiple shapes") : t("Single shape")}
+            </ModeTag>
+          </Tooltip>
           {readOnly && <Tag color="default">{t("Read only")}</Tag>}
         </Title>
         <HeaderActions>
@@ -364,33 +410,47 @@ const EditorBody: React.FC<BodyProps> = ({
       </Header>
       <StyledSplitter>
         <Splitter.Panel defaultSize={360} min={280} max="50%">
-          <Side>
-            <SideHeader>
-              <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
-              {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
-            </SideHeader>
-            <ListScroll>
-              <ShapeList
+          <SideSplitter
+            layout="vertical"
+            onResize={sizes => {
+              if (jsonOpen) setJsonSize(sizes[1]);
+            }}>
+            <Splitter.Panel min={120}>
+              <SidePane>
+                <SideHeader>
+                  <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
+                  {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
+                </SideHeader>
+                <ListScroll>
+                  <ShapeList
+                    multiple={multiple}
+                    readOnly={readOnly}
+                    drawHint={drawHint}
+                    allowedKinds={allowedKinds}
+                    onDelete={deleteShape}
+                    onShowJson={() => setJsonOpen(true)}
+                  />
+                </ListScroll>
+              </SidePane>
+            </Splitter.Panel>
+            <Splitter.Panel
+              size={jsonOpen ? jsonSize : GEOJSON_HEADER_HEIGHT}
+              min={jsonOpen ? 160 : GEOJSON_HEADER_HEIGHT}
+              max={jsonOpen ? "85%" : GEOJSON_HEADER_HEIGHT}
+              resizable={jsonOpen}>
+              <GeoJsonPanel
                 multiple={multiple}
                 readOnly={readOnly}
-                drawHint={drawHint}
-                allowedKinds={allowedKinds}
-                onDelete={deleteShape}
-                onShowJson={() => setJsonOpen(true)}
+                open={jsonOpen}
+                validateOptions={validateOptions}
+                initialInvalid={
+                  initial.ok ? undefined : { text: initial.text, issues: initial.issues }
+                }
+                onToggle={toggleJson}
+                onIssuesChange={setIssues}
               />
-            </ListScroll>
-            <GeoJsonPanel
-              multiple={multiple}
-              readOnly={readOnly}
-              open={jsonOpen}
-              validateOptions={validateOptions}
-              initialInvalid={
-                initial.ok ? undefined : { text: initial.text, issues: initial.issues }
-              }
-              onToggle={toggleJson}
-              onIssuesChange={setIssues}
-            />
-          </Side>
+            </Splitter.Panel>
+          </SideSplitter>
         </Splitter.Panel>
         <Splitter.Panel>
           <EditorMap
@@ -402,6 +462,8 @@ const EditorBody: React.FC<BodyProps> = ({
             drawRef={drawRef}
             searchPin={searchPin}
             searchAddLabel={searchAddLabel}
+            replaceWarning={!multiple && hasValue}
+            onReplaced={notifyReplaced}
             onToolRequest={requestTool}
             onDeleteSelected={() => {
               const selected = store.getSnapshot().selectedId;
@@ -469,11 +531,19 @@ const StyledSplitter = styled(Splitter)`
   min-height: 0;
 `;
 
-const Side = styled.div`
+const SideSplitter = styled(Splitter)`
+  height: 100%;
+`;
+
+const SidePane = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
+`;
+
+const ModeTag = styled(Tag)`
+  cursor: help;
 `;
 
 const SideHeader = styled.div`

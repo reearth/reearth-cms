@@ -216,7 +216,7 @@ export default GeoJsonPanel;
 const Panel = styled.div<{ open: boolean }>`
   display: flex;
   flex-direction: column;
-  flex: ${({ open }) => (open ? "0 0 45%" : "0 0 auto")};
+  height: 100%;
   min-height: 0;
   border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;

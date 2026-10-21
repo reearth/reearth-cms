@@ -83,36 +83,7 @@ const FieldPreview: React.FC<Props> = ({
 
   return (
     <Wrapper invalid={invalid}>
-      <MapArea>
-        <MapContainer ref={containerRef} />
-        {empty && !invalid && (
-          <EmptyOverlay>
-            <Typography.Text type="secondary">{t("No geometry yet")}</Typography.Text>
-          </EmptyOverlay>
-        )}
-        {!empty && (
-          <ZoomHint className="zoom-hint">
-            {isMac ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
-          </ZoomHint>
-        )}
-      </MapArea>
-      {invalid && (
-        <Alert
-          banner
-          type="error"
-          message={t("This value is not valid GeoJSON")}
-          description={formatIssue(issues[0])}
-          action={
-            !disabled && (
-              <Button size="small" onClick={onOpen}>
-                {t("Fix in editor")}
-              </Button>
-            )
-          }
-        />
-      )}
-      {/* Every control sits in this bar, so nothing on the map reads as part of the data. */}
-      <Footer>
+      <Bar>
         <Summary>
           {firstKind && (
             <Icon icon={kindIcon(firstKind)} size={14} color={AntdColor.NEUTRAL.TEXT_TERTIARY} />
@@ -121,19 +92,7 @@ const FieldPreview: React.FC<Props> = ({
             {summary}
           </Typography.Text>
         </Summary>
-        <FooterActions>
-          {!disabled && (
-            <Search
-              size="small"
-              allowClear
-              aria-label={t("Search for a place")}
-              placeholder={t("Search for a place")}
-              onSearch={value => {
-                if (value.trim()) onSearch(value.trim());
-              }}
-              style={{ width: 200 }}
-            />
-          )}
+        <BarActions>
           {!empty && (
             <Tooltip title={t("Fly to shapes")}>
               <Button
@@ -177,21 +136,61 @@ const FieldPreview: React.FC<Props> = ({
             <Button size="small" icon={<Icon icon="fullscreen" size={14} />} onClick={onOpen}>
               {t("View")}
             </Button>
-          ) : empty ? (
-            <Button
-              type="primary"
-              size="small"
-              icon={<Icon icon="plus" size={14} />}
-              onClick={onOpen}>
-              {t("Add geometry")}
-            </Button>
           ) : (
-            <Button size="small" icon={<Icon icon="edit" size={14} />} onClick={onOpen}>
-              {t("Edit geometry")}
-            </Button>
+            !empty && (
+              <Button size="small" icon={<Icon icon="edit" size={14} />} onClick={onOpen}>
+                {t("Edit geometry")}
+              </Button>
+            )
           )}
-        </FooterActions>
-      </Footer>
+        </BarActions>
+      </Bar>
+      {invalid && (
+        <Alert
+          banner
+          type="error"
+          message={t("This value is not valid GeoJSON")}
+          description={formatIssue(issues[0])}
+          action={
+            !disabled && (
+              <Button size="small" onClick={onOpen}>
+                {t("Fix in editor")}
+              </Button>
+            )
+          }
+        />
+      )}
+      <MapArea>
+        <MapContainer ref={containerRef} />
+        {!disabled && (
+          <SearchOverlay>
+            <Search
+              size="small"
+              allowClear
+              aria-label={t("Search for a place")}
+              placeholder={t("Search for a place")}
+              onSearch={value => {
+                if (value.trim()) onSearch(value.trim());
+              }}
+            />
+          </SearchOverlay>
+        )}
+        {empty && !invalid && (
+          <EmptyOverlay>
+            <Typography.Text type="secondary">{t("No geometry yet")}</Typography.Text>
+            {!disabled && (
+              <Button type="primary" icon={<Icon icon="plus" />} onClick={onOpen}>
+                {t("Add geometry")}
+              </Button>
+            )}
+          </EmptyOverlay>
+        )}
+        {!empty && (
+          <ZoomHint className="zoom-hint">
+            {isMac ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
+          </ZoomHint>
+        )}
+      </MapArea>
     </Wrapper>
   );
 };
@@ -223,15 +222,31 @@ const MapContainer = styled.div`
   inset: 0;
 `;
 
+const SearchOverlay = styled.div`
+  position: absolute;
+  top: ${AntdToken.SPACING.XS}px;
+  left: ${AntdToken.SPACING.XS}px;
+  width: 240px;
+  max-width: calc(100% - 16px);
+  z-index: 2;
+  border-radius: ${AntdToken.RADIUS.BASE}px;
+  box-shadow: ${AntdToken.SHADOW.SECONDARY};
+`;
+
 const EmptyOverlay = styled.div`
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: ${AntdToken.SPACING.XS}px;
   background: rgba(255, 255, 255, 0.6);
   pointer-events: none;
   z-index: 1;
+  .ant-btn {
+    pointer-events: auto;
+  }
 `;
 
 const ZoomHint = styled.div`
@@ -248,14 +263,15 @@ const ZoomHint = styled.div`
   transition: opacity 0.15s;
 `;
 
-const Footer = styled.div`
+const Bar = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
-  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
-  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  min-height: 40px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.SM}px;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const Summary = styled.div`
@@ -267,7 +283,7 @@ const Summary = styled.div`
   min-width: 140px;
 `;
 
-const FooterActions = styled.div`
+const BarActions = styled.div`
   display: flex;
   align-items: center;
   gap: ${AntdToken.SPACING.XXS}px;

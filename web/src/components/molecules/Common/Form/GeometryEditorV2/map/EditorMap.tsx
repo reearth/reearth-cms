@@ -39,6 +39,9 @@ export type SearchPin = {
 };
 
 type Props = {
+  /** Single field that already has a shape: drawing replaces it. */
+  replaceWarning?: boolean;
+  onReplaced?: () => void;
   initialSearch?: string;
   multiple: boolean;
   readOnly: boolean;
@@ -62,6 +65,8 @@ const TOOL_ICON = {
 } as const;
 
 const EditorMap: React.FC<Props> = ({
+  replaceWarning,
+  onReplaced,
   initialSearch,
   multiple,
   readOnly,
@@ -102,6 +107,7 @@ const EditorMap: React.FC<Props> = ({
     readOnly,
     drawRef,
     onDrawEnd: handleDrawEnd,
+    onReplaced,
   });
 
   // Frame the value once when the editor opens; never again behind the user's back.
@@ -169,7 +175,7 @@ const EditorMap: React.FC<Props> = ({
       ),
     }));
 
-  const drawHint =
+  const toolHint =
     tool === MapTool.POINT
       ? t("Click the map to place the point · Esc to cancel")
       : tool === MapTool.LINE || tool === MapTool.POLYGON
@@ -177,6 +183,8 @@ const EditorMap: React.FC<Props> = ({
             "Click to add vertices · Double-click to finish · Backspace removes the last one · Esc to cancel",
           )
         : null;
+  const drawHint =
+    toolHint && replaceWarning ? `${t("Replaces the current shape")} · ${toolHint}` : toolHint;
 
   // Controls live in a bar above the map, so nothing on the map can be mistaken for data.
   return (

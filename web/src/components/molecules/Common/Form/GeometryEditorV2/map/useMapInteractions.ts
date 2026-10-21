@@ -30,6 +30,8 @@ type Options = {
   /** Lets the keyboard handler abort a sketch or drop its last vertex. */
   drawRef: RefObject<Draw | null>;
   onDrawEnd: () => void;
+  /** Single field: a drawing replaced an existing shape. */
+  onReplaced?: () => void;
 };
 
 /**
@@ -44,6 +46,7 @@ export function useMapInteractions({
   readOnly,
   drawRef,
   onDrawEnd,
+  onReplaced,
 }: Options) {
   useEffect(() => {
     if (!handles || readOnly) return;
@@ -98,7 +101,11 @@ export function useMapInteractions({
         const geometry = event.feature.getGeometry();
         if (!geometry) return;
         if (multiple) store.addFeature(toGeoJson(geometry), EditOrigin.MAP);
-        else store.replaceAll(toGeoJson(geometry), EditOrigin.MAP);
+        else {
+          const replacing = store.getSnapshot().collection.features.length > 0;
+          store.replaceAll(toGeoJson(geometry), EditOrigin.MAP);
+          if (replacing) onReplaced?.();
+        }
         onDrawEnd();
       });
       register(draw);
@@ -111,7 +118,7 @@ export function useMapInteractions({
       drawRef.current = null;
       store.endGesture();
     };
-  }, [handles, store, tool, multiple, readOnly, drawRef, onDrawEnd]);
+  }, [handles, store, tool, multiple, readOnly, drawRef, onDrawEnd, onReplaced]);
 
   useEffect(() => {
     if (!handles || drawType(tool) !== null) return;
