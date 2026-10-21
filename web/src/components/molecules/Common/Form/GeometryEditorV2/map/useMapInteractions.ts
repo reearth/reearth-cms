@@ -1,5 +1,7 @@
 import type { Geometry as GeoJsonGeometry } from "geojson";
+import { primaryAction } from "ol/events/condition";
 import type Feature from "ol/Feature";
+import type { FeatureLike } from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
 import Draw from "ol/interaction/Draw";
 import type Interaction from "ol/interaction/Interaction";
@@ -7,16 +9,32 @@ import Modify from "ol/interaction/Modify";
 import Snap from "ol/interaction/Snap";
 import Translate from "ol/interaction/Translate";
 import type MapBrowserEvent from "ol/MapBrowserEvent";
+import CircleStyle from "ol/style/Circle";
+import Fill from "ol/style/Fill";
+import Stroke from "ol/style/Stroke";
+import Style from "ol/style/Style";
 import { useEffect } from "react";
 import type { RefObject } from "react";
 
 import type { GeoStore, GeometryUpdate } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
 
+import { handleAt, isNearHandle } from "./handles";
+import { HANDLE_COLOUR } from "./mapStyle";
 import type { MapTool } from "./mapTools";
 import { drawType } from "./mapTools";
 import { GEOJSON_FORMAT } from "./useMapSync";
 import type { MapHandles } from "./useOlMap";
+
+/** The handle under the pointer while it can be grabbed or is being dragged. */
+const GRAB_STYLE = new Style({
+  image: new CircleStyle({
+    radius: 7,
+    fill: new Fill({ color: HANDLE_COLOUR }),
+    stroke: new Stroke({ color: "#ffffff", width: 2 }),
+  }),
+  zIndex: 200,
+});
 
 const toGeoJson = (geometry: Geometry) =>
   GEOJSON_FORMAT.writeGeometryObject(geometry) as GeoJsonGeometry;
@@ -50,7 +68,8 @@ export function useMapInteractions({
 }: Options) {
   useEffect(() => {
     if (!handles || readOnly) return;
-    const { map, source, selected, editable } = handles;
+    const { map, source, selected } = handles;
+    const selectedGeometry = () => selected.item(0)?.getGeometry();
     const added: Interaction[] = [];
     const register = (interaction: Interaction) => {
       map.addInteraction(interaction);
@@ -71,12 +90,14 @@ export function useMapInteractions({
 
     const type = drawType(tool);
     if (type === null) {
-      // As in the PoC, any line or polygon can be reshaped without selecting it first:
-      // hover a border to add a vertex, drag a vertex to move it, Alt-click to remove it.
-      // Multi* and GeometryCollection stay out of `editable` (proposal §3.4).
+      // Select first, then: drag a white dot to move a vertex, drag a small dot to add one,
+      // drag anywhere else on the shape to move it, Alt-click a white dot to remove it.
+      // The same for points, lines and polygons. (The PoC reshaped on any edge-drag, so a
+      // line could never be moved.) Multi* and GeometryCollection are never selectable
+      // for editing (proposal §3.4).
       // ol dispatches to the most recently added interaction first: Modify goes after
-      // Translate so grabbing a vertex reshapes instead of moving the whole shape.
-      const translate = new Translate({ features: selected });
+      // Translate and only takes the drag when it starts on a handle.
+      const translate = new Translate({ features: selected, hitTolerance: 6 });
       translate.on("translatestart", () => store.beginGesture());
       translate.on("translateend", event => {
         store.endGesture();
@@ -84,7 +105,23 @@ export function useMapInteractions({
       });
       register(translate);
 
-      const modify = new Modify({ features: editable });
+      const modify = new Modify({
+        features: selected,
+        condition: event => {
+          const geometry = selectedGeometry();
+          return (
+            primaryAction(event) && !!geometry && handleAt(map, geometry, event.pixel) !== null
+          );
+        },
+        // Modify previews the grab point anywhere along an edge; show it only on handles.
+        style: (feature: FeatureLike, resolution: number) => {
+          const geometry = selectedGeometry();
+          const point = feature.getGeometry();
+          if (!geometry || !point || point.getType() !== "Point") return undefined;
+          const coordinate = (point as unknown as { getCoordinates(): number[] }).getCoordinates();
+          return isNearHandle(geometry, coordinate, resolution) ? GRAB_STYLE : undefined;
+        },
+      });
       modify.on("modifystart", () => store.beginGesture());
       modify.on("modifyend", event => {
         store.endGesture();
@@ -136,8 +173,15 @@ export function useMapInteractions({
       store.select(hit ? String(hit.getId()) : null);
     };
     const handleMove = (event: MapBrowserEvent) => {
-      if (event.dragging) return;
-      if (element) element.style.cursor = hitAt(event) ? "pointer" : "";
+      if (event.dragging || !element) return;
+      const selectedFeature = handles.selected.item(0);
+      const geometry = selectedFeature?.getGeometry();
+      if (geometry && handleAt(map, geometry, event.pixel)) {
+        element.style.cursor = "grab";
+        return;
+      }
+      const hit = hitAt(event);
+      element.style.cursor = !hit ? "" : hit === selectedFeature ? "move" : "pointer";
     };
     map.on("click", handleClick);
     map.on("pointermove", handleMove);

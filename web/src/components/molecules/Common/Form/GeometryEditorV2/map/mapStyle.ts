@@ -1,8 +1,6 @@
 import type { FeatureLike } from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
-import GeometryCollection from "ol/geom/GeometryCollection";
 import MultiPoint from "ol/geom/MultiPoint";
-import SimpleGeometry from "ol/geom/SimpleGeometry";
 import CircleStyle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
@@ -13,8 +11,12 @@ import { AntdColor } from "@reearth-cms/utils/style";
 import { EDITABLE_KINDS } from "../core/types";
 import type { GeometryKind } from "../core/types";
 
+import { midpointHandles, vertexHandles } from "./handles";
+
 const BASE = AntdColor.BLUE.BLUE_6;
 const SELECTED = AntdColor.VOLCANO.VOLCANO_5;
+/** Colour of a handle being grabbed. */
+export const HANDLE_COLOUR = SELECTED;
 const WHITE = "#ffffff";
 
 const alpha = (hex: string, a: number) =>
@@ -28,18 +30,6 @@ const zIndexOf = (geometry: Geometry | undefined) => {
   if (type === "Point" || type === "MultiPoint") return 3;
   if (type === "LineString" || type === "MultiLineString") return 2;
   return 1;
-};
-
-const flatten = (value: unknown): number[][] => {
-  if (!Array.isArray(value) || value.length === 0) return [];
-  if (typeof value[0] === "number") return [value as number[]];
-  return (value as unknown[]).flatMap(flatten);
-};
-
-const vertices = (geometry: Geometry): number[][] => {
-  if (geometry instanceof GeometryCollection) return geometry.getGeometries().flatMap(vertices);
-  if (geometry instanceof SimpleGeometry) return flatten(geometry.getCoordinates());
-  return [];
 };
 
 export function featureStyle(feature: FeatureLike, selectedId: string | null): Style[] {
@@ -67,17 +57,27 @@ export function featureStyle(feature: FeatureLike, selectedId: string | null): S
     }),
   ];
 
-  // Vertex dots on every editable line and polygon, as in the PoC: they can all be reshaped.
-  if (!locked && geometry && geometry.getType() !== "Point") {
+  // Editing handles only on the selected shape: white dots on vertices, small dots
+  // halfway along each edge (see handles.ts).
+  if (selected && !locked && geometry && geometry.getType() !== "Point") {
     styles.push(
       new Style({
         zIndex: zIndex + 1,
         image: new CircleStyle({
-          radius: 4,
+          radius: 3.5,
+          fill: new Fill({ color: alpha(WHITE, 0.9) }),
+          stroke: new Stroke({ color: alpha(colour, 0.8), width: 1.5 }),
+        }),
+        geometry: () => new MultiPoint(midpointHandles(geometry)),
+      }),
+      new Style({
+        zIndex: zIndex + 2,
+        image: new CircleStyle({
+          radius: 5,
           fill: new Fill({ color: WHITE }),
           stroke: new Stroke({ color: colour, width: 2 }),
         }),
-        geometry: () => new MultiPoint(vertices(geometry)),
+        geometry: () => new MultiPoint(vertexHandles(geometry)),
       }),
     );
   }

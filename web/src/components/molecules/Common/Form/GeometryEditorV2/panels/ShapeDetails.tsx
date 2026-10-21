@@ -151,7 +151,7 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, allowedKinds, onShow
       {!readOnly && (
         <Hint type="secondary">
           {t(
-            "Drag a vertex to move it. Drag the middle of an edge to add one. Alt-click a vertex to remove it.",
+            "On the map: drag a white dot to move a vertex, drag a small dot to add one, drag the shape to move it. Alt-click a white dot to remove it.",
           )}
         </Hint>
       )}

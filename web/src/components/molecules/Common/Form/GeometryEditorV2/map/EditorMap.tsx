@@ -132,17 +132,6 @@ const EditorMap: React.FC<Props> = ({
     handles.layer.changed();
   }, [handles, selectedId, collection]);
 
-  // Every editable shape can be reshaped (runs after useMapSync, so new shapes exist).
-  useEffect(() => {
-    if (!handles) return;
-    handles.editable.clear();
-    for (const data of collection.features) {
-      if (!GeoUtils.isEditableKind(data.geometry)) continue;
-      const feature = handles.source.getFeatureById(String(data.id));
-      if (feature) handles.editable.push(feature as Feature<Geometry>);
-    }
-  }, [handles, collection]);
-
   useEffect(() => {
     if (!handles) return;
     handles.bases.forEach((layer, id) => layer.setVisible(id === baseMap));
@@ -183,8 +172,22 @@ const EditorMap: React.FC<Props> = ({
             "Click to add vertices · Double-click to finish · Backspace removes the last one · Esc to cancel",
           )
         : null;
+  const selectedType = GeoUtils.findFeature(collection, selectedId)?.geometry?.type;
+  // While a shape is selected, say how to edit it: the handles are not self-explanatory.
+  const editHint =
+    readOnly || tool !== MapTool.SELECT
+      ? null
+      : selectedType === "LineString" || selectedType === "Polygon"
+        ? t(
+            "Drag a white dot to move a vertex · Drag a small dot to add one · Drag the shape to move it · Alt-click a white dot to remove it",
+          )
+        : selectedType === "Point"
+          ? t("Drag the point to move it")
+          : null;
   const drawHint =
-    toolHint && replaceWarning ? `${t("Replaces the current shape")} · ${toolHint}` : toolHint;
+    toolHint && replaceWarning
+      ? `${t("Replaces the current shape")} · ${toolHint}`
+      : (toolHint ?? editHint);
 
   // Controls live in a bar above the map, so nothing on the map can be mistaken for data.
   return (
