@@ -69,7 +69,20 @@ export const summarize = (collection: FeatureCollection): string => {
     return `${kindName(geometries[0].type)} · ${shapeDetail(geometries[0])}`;
   }
   const counts = new Map<string, number>();
-  geometries.forEach(g => counts.set(kindName(g.type), (counts.get(kindName(g.type)) ?? 0) + 1));
-  const parts = [...counts.entries()].map(([name, count]) => `${count} ${name}`).join(", ");
+  geometries.forEach(g => counts.set(g.type, (counts.get(g.type) ?? 0) + 1));
+  const parts = [...counts.entries()].map(([kind, count]) => kindCount(kind, count)).join(", ");
   return `${t("{{count}} shapes", { count: geometries.length })} · ${parts}`;
+};
+
+const kindCount = (kind: string, count: number): string => {
+  switch (kind) {
+    case GeometryKind.POINT:
+      return t("{{count}} points", { count });
+    case GeometryKind.LINE_STRING:
+      return t("{{count}} lines", { count });
+    case GeometryKind.POLYGON:
+      return t("{{count}} polygons", { count });
+    default:
+      return `${count} ${kind}`;
+  }
 };
