@@ -447,6 +447,18 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return i.importCSVWithProgress(ctx, j, prj, m, s, param, &res, operator)
 	}
 
+	// The import payload is always a seekable reader in the async path
+	// (ImportAsync buffers the upload into a *bytes.Reader before the
+	// background job starts), so the same reader can be rewound and
+	// decoded a second time instead of being read into memory up front.
+	// This is captured before the MutateSchema block below, because
+	// replacing param.Reader with a ReplyReader's MultiReader would no
+	// longer be seekable.
+	seeker, ok := param.Reader.(io.ReadSeeker)
+	if !ok {
+		return res.Into(), fmt.Errorf("import reader does not support being read twice")
+	}
+
 	// guess schema fields from first object
 	if param.MutateSchema {
 		rr := utils.NewReplyReader(param.Reader)
@@ -454,7 +466,12 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		if err != nil {
 			return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
 		}
-		param.Reader = rr.Full
+		// Rewind the original seekable reader instead of keeping rr.Full:
+		// rr.Full is a MultiReader replaying the peeked prefix, which would
+		// no longer satisfy io.ReadSeeker for the two-pass decode below.
+		if _, err := seeker.Seek(0, io.SeekStart); err != nil {
+			return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
+		}
 
 		fields, err := i.updateSchema(ctx, s, createFieldParamsFrom(guessedFields, s.ID()))
 		if err != nil {
@@ -464,15 +481,6 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		for _, f := range fields {
 			res.FieldAdded(f)
 		}
-	}
-
-	// The import payload is always a seekable reader in the async path
-	// (ImportAsync buffers the upload into a *bytes.Reader before the
-	// background job starts), so the same reader can be rewound and
-	// decoded a second time instead of being read into memory up front.
-	seeker, ok := param.Reader.(io.ReadSeeker)
-	if !ok {
-		return res.Into(), fmt.Errorf("import reader does not support being read twice")
 	}
 
 	isGeoJSON := param.Format == interfaces.ImportFormatTypeGeoJSON
