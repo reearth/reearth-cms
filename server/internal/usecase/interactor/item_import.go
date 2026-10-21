@@ -466,46 +466,21 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 	}
 
-	data, err := io.ReadAll(io.LimitReader(param.Reader, interfaces.MaxImportFileSize+1))
-	if err != nil {
-		return res.Into(), fmt.Errorf("error reading import data: %v", err)
-	}
-	if int64(len(data)) > interfaces.MaxImportFileSize {
-		return res.Into(), interfaces.ErrImportFileTooLarge
+	// The import payload is always a seekable reader in the async path
+	// (ImportAsync buffers the upload into a *bytes.Reader before the
+	// background job starts), so the same reader can be rewound and
+	// decoded a second time instead of being read into memory up front.
+	seeker, ok := param.Reader.(io.ReadSeeker)
+	if !ok {
+		return res.Into(), fmt.Errorf("import reader does not support being read twice")
 	}
 
 	isGeoJSON := param.Format == interfaces.ImportFormatTypeGeoJSON
-	countDecoder := json.NewDecoder(bytes.NewReader(data))
-	if isGeoJSON {
-		for {
-			token, err := countDecoder.Token()
-			if err != nil {
-				return res.Into(), fmt.Errorf("error reading token: %v", err)
-			}
-			if str, ok := token.(string); ok && str == "features" {
-				break
-			}
-		}
-	}
-	if t, err := countDecoder.Token(); err != nil || t != json.Delim('[') {
-		if err != nil {
-			return res.Into(), fmt.Errorf("error reading array start: %v", err)
-		}
-		return res.Into(), fmt.Errorf("expected array start, got %v", t)
-	}
-	totalCount := 0
-	for countDecoder.More() {
-		if totalCount >= interfaces.MaxImportRecordCount {
-			return res.Into(), interfaces.ErrImportTooManyRecords
-		}
-		var raw json.RawMessage
-		if err := countDecoder.Decode(&raw); err != nil {
-			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
-		}
-		totalCount++
-	}
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
+	// First pass: count records only. Each decoded object is discarded
+	// immediately instead of being kept, so nothing from the file is held
+	// in memory here.
+	decoder := json.NewDecoder(seeker)
 
 	// For FeatureCollection, skip to the features array
 	if isGeoJSON {
@@ -528,9 +503,50 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return res.Into(), fmt.Errorf("expected array start, got %v", t)
 	}
 
-	// Decode and save in chunks, never holding more than chunkSize
-	// decoded records in memory at once.
-	count, processed, jsonChunk := 0, 0, make([]map[string]any, 0, chunkSize)
+	totalCount := 0
+	for decoder.More() {
+		totalCount++
+
+		// Check max record limit
+		if totalCount > interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
+		}
+
+		var obj map[string]any
+		if err := decoder.Decode(&obj); err != nil {
+			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+	}
+
+	// Second pass: rewind and decode-and-save one record at a time, in
+	// chunks of chunkSize, same as the synchronous Import path.
+	if _, err := seeker.Seek(0, io.SeekStart); err != nil {
+		return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
+	}
+	decoder = json.NewDecoder(seeker)
+
+	// For FeatureCollection, skip to the features array
+	if isGeoJSON {
+		for {
+			token, err := decoder.Token()
+			if err != nil {
+				return res.Into(), fmt.Errorf("error reading token: %v", err)
+			}
+			if str, ok := token.(string); ok && str == "features" {
+				break
+			}
+		}
+	}
+
+	// Read the opening bracket of array
+	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
+		if err != nil {
+			return res.Into(), fmt.Errorf("error reading array start: %v", err)
+		}
+		return res.Into(), fmt.Errorf("expected array start, got %v", t)
+	}
+
+	count, processed, jsonChunk := 0, 0, make([]map[string]any, 0)
 	for decoder.More() {
 		var obj map[string]any
 		if err := decoder.Decode(&obj); err != nil {
@@ -573,7 +589,7 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 			}
 
 			log.Printf("chunk with %d items saved.", count)
-			count, jsonChunk = 0, jsonChunk[:0]
+			count, jsonChunk = 0, nil
 		}
 	}
 	return res.Into(), nil
