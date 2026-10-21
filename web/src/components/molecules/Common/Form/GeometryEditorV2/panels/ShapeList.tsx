@@ -21,19 +21,18 @@ type Props = {
   readOnly: boolean;
   drawHint: string;
   onDelete: (id: string) => void;
-  onShowJson: () => void;
 };
 
 /**
  * Shapes in the value, in stored order. Selecting a row selects the shape on the map
- * and the other way round; the selected row opens its coordinates in place.
+ * and the other way round; the selected row opens its coordinates in place. Shapes the
+ * map can't edit say so in the row itself, selected or not.
  */
 const ShapeList: React.FC<Props> = ({
   multiple,
   readOnly,
   drawHint,
   onDelete,
-  onShowJson,
 }) => {
   const t = useT();
   const store = useGeoStore();
@@ -100,15 +99,16 @@ const ShapeList: React.FC<Props> = ({
                 <Typography.Text strong={selected}>
                   {multiple && <Index>{index + 1}</Index>}
                   {kindName(feature.geometry.type)}
-                  {locked && (
-                    <Tooltip title={t("Display only: edit it in the GeoJSON panel")}>
-                      <LockIcon icon="lock" size={12} />
-                    </Tooltip>
-                  )}
+                  {locked && <LockIcon icon="lock" size={12} />}
                 </Typography.Text>
                 <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
                   {shapeDetail(feature.geometry)}
                 </Typography.Text>
+                {locked && (
+                  <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
+                    {t("Can't be edited on the map. Change it in GeoJSON.")}
+                  </Typography.Text>
+                )}
               </RowText>
               <Actions className="row-actions" visible={selected}>
                 <Tooltip title={t("Zoom to shape")}>
@@ -140,13 +140,7 @@ const ShapeList: React.FC<Props> = ({
                 )}
               </Actions>
             </Row>
-            {selected && (
-              <ShapeDetails
-                feature={feature}
-                readOnly={readOnly}
-                onShowJson={onShowJson}
-              />
-            )}
+            {selected && !locked && <ShapeDetails feature={feature} readOnly={readOnly} />}
           </div>
         );
       })}

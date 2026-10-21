@@ -19,15 +19,15 @@ import CoordinateInput from "./CoordinateInput";
 type Props = {
   feature: Feature;
   readOnly: boolean;
-  onShowJson: () => void;
 };
 
 /**
  * The one place coordinates are edited. It replaces both the PoC's Form card and its
- * Inspector, which showed the same numbers twice in opposite orders. Vertex insert/remove
+ * Inspector, which showed the same numbers twice in opposite orders. Only shown for
+ * shapes the map can edit. Vertex insert/remove
  * works as in the PoC; to change a shape's type, draw a new one.
  */
-const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
+const ShapeDetails: React.FC<Props> = ({ feature, readOnly }) => {
   const t = useT();
   const store = useGeoStore();
   const [showVertices, setShowVertices] = useState(false);
@@ -41,20 +41,6 @@ const ShapeDetails: React.FC<Props> = ({ feature, readOnly, onShowJson }) => {
     position[axis] = value;
     store.setGeometry(id, GeoUtils.setVertex(geometry, index, position), EditOrigin.NUMERIC);
   };
-
-  if (!GeoUtils.isEditableKind(geometry)) {
-    return (
-      <Details>
-        <Locked type="secondary">
-          <Icon icon="lock" />
-          {t("{{type}} can't be edited on the map.", { type: geometry.type })}
-          <Button size="small" type="link" style={{ padding: 0, height: "auto" }} onClick={onShowJson}>
-            {t("Change it in GeoJSON")}
-          </Button>
-        </Locked>
-      </Details>
-    );
-  }
 
   if (geometry.type === GeometryKind.POINT) {
     const [lng, lat] = geometry.coordinates;
@@ -198,17 +184,6 @@ const Row = styled.div`
 
 const Hint = styled(Typography.Text)`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
-`;
-
-const Locked = styled(Hint)`
-  .anticon {
-    margin-right: ${AntdToken.SPACING.XXS}px;
-  }
-  .ant-btn {
-    font-size: inherit;
-    margin-left: ${AntdToken.SPACING.XS}px;
-    vertical-align: baseline;
-  }
 `;
 
 const VertexTable = styled.div`

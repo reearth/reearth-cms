@@ -427,7 +427,6 @@ const EditorBody: React.FC<BodyProps> = ({
                     readOnly={readOnly}
                     drawHint={drawHint}
                     onDelete={deleteShape}
-                    onShowJson={() => setJsonOpen(true)}
                   />
                 </ListScroll>
               </SidePane>
