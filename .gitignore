@@ -18,3 +18,7 @@ node_modules
 /server/web
 
 /worker/.env
+
+# Allure
+allure-results/
+allure-report/
