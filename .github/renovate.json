@@ -12,6 +12,19 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "Upgrade the Go toolchain (go.mod directive + golang images) in one PR",
+      "matchDatasources": [
+        "golang-version",
+        "docker"
+      ],
+      "matchPackageNames": [
+        "go",
+        "golang"
+      ],
+      "groupName": "Go toolchain",
+      "groupSlug": "go-toolchain"
     }
   ]
 }
