@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -79,10 +78,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		pagination = params.Options.Pagination
 	}
 
-	ver := version.Public.Ref()
-	if !params.Options.PublicOnly {
-		ver = nil
-	}
+	ver := params.Options.Ref
 
 	pageInfo := &usecasex.PageInfo{}
 

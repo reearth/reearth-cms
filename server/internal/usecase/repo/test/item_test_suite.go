@@ -6,6 +6,7 @@ package test
 
 import (
 	"context"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -46,6 +48,9 @@ func TestItemRepo(t *testing.T, newRepo itemFactory) {
 	t.Run("FindByAssets", func(t *testing.T) { testItemFindByAssets(t, newRepo) })
 	t.Run("CountByModel", func(t *testing.T) { testItemCountByModel(t, newRepo) })
 	t.Run("FindByModel", func(t *testing.T) { testItemFindByModel(t, newRepo) })
+	t.Run("FindBySchemaPagination", func(t *testing.T) { testItemFindBySchemaPagination(t, newRepo) })
+	t.Run("FindByModelPagination", func(t *testing.T) { testItemFindByModelPagination(t, newRepo) })
+	t.Run("SearchPagination", func(t *testing.T) { testItemSearchPagination(t, newRepo) })
 	t.Run("LastModifiedByModel", func(t *testing.T) { testItemLastModifiedByModel(t, newRepo) })
 	t.Run("FindVersionByID", func(t *testing.T) { testItemFindVersionByID(t, newRepo) })
 	t.Run("RemoveByModel", func(t *testing.T) { testItemRemoveByModel(t, newRepo) })
@@ -142,6 +147,12 @@ func testItemFindByIDs(t *testing.T, newRepo itemFactory) {
 		want    item.List
 		wantErr error
 	}{
+		{
+			name:  "must find no items",
+			seeds: seeds,
+			args:  id.ItemIDList{},
+			want:  item.List{},
+		},
 		{
 			name:  "must find two items",
 			seeds: seeds,
@@ -1082,6 +1093,210 @@ func testItemFindByModel(t *testing.T, newRepo itemFactory) {
 
 			assert.NoError(t, err)
 			assert.ElementsMatch(t, tc.want, got.Unwrap())
+		})
+	}
+}
+
+func newOrderedItems(pid id.ProjectID, sid id.SchemaID, mid id.ModelID, n int) item.List {
+	ids := make(id.ItemIDList, n)
+	for i := range ids {
+		ids[i] = id.NewItemID()
+		time.Sleep(10 * time.Millisecond)
+	}
+	slices.SortFunc(ids, func(a, b id.ItemID) int { return a.Compare(b) })
+	ts := time.Now().Truncate(time.Millisecond).UTC()
+	return lo.Map(ids, func(iid id.ItemID, _ int) *item.Item {
+		return item.New().ID(iid).Schema(sid).Model(mid).Project(pid).
+			Thread(id.NewThreadID().Ref()).Timestamp(ts).Anonymous(true).MustBuild()
+	})
+}
+
+type itemLister = func(ctx context.Context, r repo.Item, pid id.ProjectID, mid id.ModelID, sid id.SchemaID, ref *version.Ref, s *usecasex.Sort, p *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
+
+func testItemFindBySchemaPagination(t *testing.T, newRepo itemFactory) {
+	testItemPagination(t, newRepo, func(ctx context.Context, r repo.Item, _ id.ProjectID, _ id.ModelID, sid id.SchemaID, ref *version.Ref, s *usecasex.Sort, p *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+		return r.FindBySchema(ctx, sid, ref, s, p)
+	})
+}
+
+func testItemFindByModelPagination(t *testing.T, newRepo itemFactory) {
+	testItemPagination(t, newRepo, func(ctx context.Context, r repo.Item, _ id.ProjectID, mid id.ModelID, _ id.SchemaID, ref *version.Ref, s *usecasex.Sort, p *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+		return r.FindByModel(ctx, mid, ref, s, p)
+	})
+}
+
+func testItemSearchPagination(t *testing.T, newRepo itemFactory) {
+	toViewSort := func(s *usecasex.Sort) *view.Sort {
+		if s == nil {
+			return nil
+		}
+		d := view.DirectionAsc
+		if s.Reverted {
+			d = view.DirectionDesc
+		}
+		return &view.Sort{Field: view.FieldSelector{Type: view.FieldTypeId}, Direction: d}
+	}
+	testItemPagination(t, newRepo, func(ctx context.Context, r repo.Item, pid id.ProjectID, mid id.ModelID, sid id.SchemaID, ref *version.Ref, s *usecasex.Sort, p *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+		sc := schema.New().ID(sid).Project(pid).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+		sp := schema.NewPackage(sc, nil, nil, nil)
+		return r.Search(ctx, *sp, item.NewQuery(pid, mid, nil, "", ref).WithSort(toViewSort(s)), p)
+	})
+}
+
+func testItemPagination(t *testing.T, newRepo itemFactory, listFunc itemLister) {
+	itemCursor := func(i *item.Item) *usecasex.Cursor {
+		return new(usecasex.Cursor(i.ID().String()))
+	}
+
+	itemPage := func(total int64, want item.List, hasNext, hasPrev bool) *usecasex.PageInfo {
+		var start, end *usecasex.Cursor
+		if len(want) > 0 {
+			start, end = itemCursor(want[0]), itemCursor(want[len(want)-1])
+		}
+		return usecasex.NewPageInfo(total, start, end, hasNext, hasPrev)
+	}
+
+	ctx := context.Background()
+	pid, sid, mid := id.NewProjectID(), id.NewSchemaID(), id.NewModelID()
+	is := newOrderedItems(pid, sid, mid, 4)
+	i1, i2, i3, i4 := is[0], is[1], is[2], is[3]
+
+	// an item of another schema and model is excluded from the results and
+	// the count; i2 and i4 are public
+	r := newRepo(t)
+	require.NoError(t, r.SaveAll(ctx, append(item.List{newItem(pid, id.NewSchemaID(), id.NewModelID())}, is...)))
+	for _, i := range []*item.Item{i2, i4} {
+		require.NoError(t, r.UpdateRef(ctx, i.ID(), version.Public, new(version.Latest.OrVersion())))
+	}
+	reverted := &usecasex.Sort{Key: "id", Reverted: true}
+	last := func(n int64, before *usecasex.Cursor) *usecasex.Pagination {
+		return usecasex.CursorPagination{Last: new(n), Before: before}.Wrap()
+	}
+
+	type testCase struct {
+		name       string
+		filter     repo.ProjectFilter
+		ref        *version.Ref
+		sort       *usecasex.Sort
+		pagination *usecasex.Pagination
+		want       item.List // in order
+		wantPage   *usecasex.PageInfo
+		// the message of the error, which hides its cause
+		wantErr string
+	}
+	tests := []testCase{
+		{
+			name:       "must find the first page in ID order",
+			pagination: first(2),
+			want:       item.List{i1, i2},
+			wantPage:   itemPage(4, item.List{i1, i2}, true, false),
+		},
+		{
+			name:       "must find all items when the page is larger",
+			pagination: first(10),
+			want:       item.List{i1, i2, i3, i4},
+			wantPage:   itemPage(4, item.List{i1, i2, i3, i4}, false, false),
+		},
+		{
+			name:       "must find all items with the default page size",
+			pagination: usecasex.CursorPagination{}.Wrap(),
+			want:       item.List{i1, i2, i3, i4},
+			wantPage:   itemPage(4, item.List{i1, i2, i3, i4}, false, false),
+		},
+		{
+			name:       "must find the last page",
+			pagination: last(2, nil),
+			want:       item.List{i3, i4},
+			wantPage:   itemPage(4, item.List{i3, i4}, false, true),
+		},
+		{
+			name:       "must find a page after a cursor",
+			pagination: usecasex.CursorPagination{After: itemCursor(i1), First: new(int64(2))}.Wrap(),
+			want:       item.List{i2, i3},
+			wantPage:   itemPage(4, item.List{i2, i3}, true, false),
+		},
+		{
+			name:       "must find items before a cursor",
+			pagination: last(10, itemCursor(i3)),
+			want:       item.List{i1, i2},
+			wantPage:   itemPage(4, item.List{i1, i2}, false, false),
+		},
+		{
+			name:       "must find a page by offset",
+			pagination: usecasex.OffsetPagination{Offset: 1, Limit: 2}.Wrap(),
+			want:       item.List{i2, i3},
+			wantPage:   itemPage(4, item.List{i2, i3}, true, false),
+		},
+		{
+			name:       "must find nothing beyond the last offset",
+			pagination: usecasex.OffsetPagination{Offset: 10, Limit: 2}.Wrap(),
+			wantPage:   itemPage(4, nil, false, false),
+		},
+		{
+			name:       "must find the first page in reverted ID order",
+			sort:       reverted,
+			pagination: first(2),
+			want:       item.List{i4, i3},
+			wantPage:   itemPage(4, item.List{i4, i3}, true, false),
+		},
+		{
+			name:       "must find items after a cursor in reverted ID order",
+			sort:       reverted,
+			pagination: usecasex.CursorPagination{After: itemCursor(i3), First: new(int64(10))}.Wrap(),
+			want:       item.List{i2, i1},
+			wantPage:   itemPage(4, item.List{i2, i1}, false, false),
+		},
+		{
+			name:       "must find only the items with a version at the ref",
+			ref:        version.Public.Ref(),
+			pagination: first(10),
+			want:       item.List{i2, i4},
+			wantPage:   itemPage(2, item.List{i2, i4}, false, false),
+		},
+		{
+			name:       "must find items of a readable project",
+			filter:     *rwFilter(pid),
+			pagination: first(10),
+			want:       item.List{i1, i2, i3, i4},
+			wantPage:   itemPage(4, item.List{i1, i2, i3, i4}, false, false),
+		},
+		{
+			name:       "must find nothing in an unreadable project",
+			filter:     *rwFilter(id.NewProjectID()),
+			pagination: first(10),
+			wantPage:   itemPage(0, nil, false, false),
+		},
+		{
+			name: "must find nothing without pagination",
+		},
+		{
+			name:       "must fail with a negative offset",
+			pagination: usecasex.OffsetPagination{Offset: -1, Limit: 2}.Wrap(),
+			wantErr:    "internal",
+		},
+		{
+			name:       "must fail with an unknown cursor",
+			pagination: usecasex.CursorPagination{After: new(usecasex.Cursor(id.NewItemID().String())), First: new(int64(10))}.Wrap(),
+			wantErr:    "internal",
+		},
+		{
+			name:       "must fail with a malformed cursor",
+			pagination: usecasex.CursorPagination{After: new(usecasex.Cursor("malformed")), First: new(int64(10))}.Wrap(),
+			wantErr:    "internal",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, pi, err := listFunc(ctx, r.Filtered(tc.filter), pid, mid, sid, tc.ref, tc.sort, tc.pagination)
+			if tc.wantErr != "" {
+				assert.EqualError(t, err, tc.wantErr)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.want.IDs(), got.Unwrap().IDs())
+			assert.Equal(t, tc.wantPage, pi)
 		})
 	}
 }

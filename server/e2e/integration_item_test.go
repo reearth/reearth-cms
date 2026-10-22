@@ -598,14 +598,14 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	if err := r.Group.Save(ctx, gp); err != nil {
 		return err
 	}
-	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(id.RandomKey()).MustBuild()
-	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
-	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(id.NewKey("dvsf1")).MustBuild()
+	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("dvsf2")).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
+	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(id.NewKey("dvsf3")).MustBuild()
 
 	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(id.NewKey("dvsf4")).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(id.NewKey("dvsf5")).MustBuild()
 
 	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
@@ -2129,6 +2129,113 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 				"key":   sfKey8.String(),
 			},
 		})
+}
+
+// GET /items/{itemId}?ref=public vs ref=latest
+func TestIntegrationGetItemAPIRef(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// itmId1 has never been published: ref=public must not find it, ref=latest/default must.
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusNotFound)
+
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "latest").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid1.String(),
+			},
+		})
+
+	// Publish the current version, then diverge the draft from it.
+	iAPIItemPublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{
+			"fields": []any{
+				map[string]string{
+					"id":    fId1.String(),
+					"value": "draft-only value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK)
+
+	// ref=public must still return the published version, unaffected by the later draft edit.
+	rPublic := iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	rPublic.Value("refs").IsEqual([]string{"public"})
+	rPublic.Value("fields").IsEqual([]any{
+		map[string]string{
+			"id":    fId2.String(),
+			"key":   "asset",
+			"type":  "asset",
+			"value": aid1.String(),
+		},
+	})
+
+	// ref=latest (and the default, no ref) must return the draft, including the new field.
+	for _, q := range []map[string]any{{"ref": "latest"}, {}} {
+		req := iAPIItemGet(e, wId0, pid, mId1, itmId1).
+			WithHeader("authorization", "Bearer "+secret)
+		for k, v := range q {
+			req = req.WithQuery(k, v)
+		}
+		rLatest := req.
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Object()
+		rLatest.Value("refs").IsEqual([]string{"latest"})
+		rLatest.Value("fields").IsEqual([]any{
+			map[string]string{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid1.String(),
+			},
+			map[string]string{
+				"id":    fId1.String(),
+				"type":  "text",
+				"value": "draft-only value",
+				"key":   sfKey1.String(),
+			},
+		})
+	}
+
+	// A caller without read permission still gets rejected regardless of ref.
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer secret_abc").
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusUnauthorized)
 }
 
 // DELETE /items/{itemId}

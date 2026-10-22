@@ -32,3 +32,8 @@ func TestFieldText_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldText{s: &FieldString{t: value.TypeText}}).Validate(value.TypeText.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldText{s: &FieldString{t: value.TypeText}}).Validate(value.TypeTextArea.Value("")))
 }
+
+func TestFieldText_ValidateMultiple(t *testing.T) {
+	f := &FieldText{s: &FieldString{t: value.TypeText}}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeText, []any{"a", "b"})))
+}

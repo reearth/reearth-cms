@@ -23,7 +23,6 @@ type Asset struct {
 	uuid                    string
 	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
-	flatFiles               bool
 	public                  bool
 	accessInfoResolver      *AccessInfoResolver
 }
@@ -116,10 +115,6 @@ func (a *Asset) Thread() *ThreadID {
 	return a.thread
 }
 
-func (a *Asset) FlatFiles() bool {
-	return a.flatFiles
-}
-
 func (a *Asset) Public() bool {
 	return a.public
 }
@@ -196,11 +191,11 @@ func (a *Asset) Clone() *Asset {
 		updatedByIntegration:    a.updatedByIntegration.CloneRef(),
 		fileName:                a.fileName,
 		size:                    a.size,
-		previewType:             a.previewType,
+		previewType:             util.CloneRef(a.previewType),
 		uuid:                    a.uuid,
 		thread:                  a.thread.CloneRef(),
-		archiveExtractionStatus: a.archiveExtractionStatus,
-		flatFiles:               a.flatFiles,
+		archiveExtractionStatus: util.CloneRef(a.archiveExtractionStatus),
 		public:                  a.public,
+		accessInfoResolver:      a.accessInfoResolver,
 	}
 }

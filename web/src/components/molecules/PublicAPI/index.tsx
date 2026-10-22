@@ -8,7 +8,7 @@ import type {
   FormType,
   PostingFormType,
 } from "@reearth-cms/components/molecules/PublicAPI/types";
-import { useT } from "@reearth-cms/i18n";
+import { isJapanese, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { AntdToken } from "@reearth-cms/utils/style";
 
@@ -73,7 +73,7 @@ const PublicAPI: React.FC<Props> = ({
 }) => {
   const t = useT();
   const documentUrl = useMemo<string>(
-    () => (currentLang === "ja" ? Constant.PUBLIC_API_DOCS.ja : Constant.PUBLIC_API_DOCS.en),
+    () => (isJapanese(currentLang) ? Constant.PUBLIC_API_DOCS.ja : Constant.PUBLIC_API_DOCS.en),
     [currentLang],
   );
 

@@ -363,6 +363,31 @@ func TestFieldSelector_Into(t *testing.T) {
 func TestConditionInto(t *testing.T) {
 	fieldID := id.NewFieldID().Ref()
 	timeNow := time.Now()
+	boolCond := Condition{
+		Bool: &struct {
+			FieldId  FieldSelector         "json:\"fieldId\""
+			Operator ConditionBoolOperator "json:\"operator\""
+			Value    bool                  "json:\"value\""
+		}{
+			FieldId: FieldSelector{
+				FieldId: fieldID,
+				Type:    new(FieldSelectorTypeId),
+			},
+			Operator: ConditionBoolOperatorEquals,
+			Value:    true,
+		},
+	}
+	boolViewCond := view.Condition{
+		ConditionType: view.ConditionTypeBool,
+		BoolCondition: &view.BoolCondition{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeId,
+				ID:   fieldID,
+			},
+			Op:    view.BoolOperatorEquals,
+			Value: true,
+		},
+	}
 
 	tests := []struct {
 		name      string
@@ -702,6 +727,32 @@ func TestConditionInto(t *testing.T) {
 		{
 			name:      "empty condition",
 			condition: &Condition{},
+			want:      nil,
+		},
+		{
+			name:      "and skips an empty nested condition",
+			condition: &Condition{And: &[]Condition{{}, boolCond}},
+			want: &view.Condition{
+				ConditionType: view.ConditionTypeAnd,
+				AndCondition:  &view.AndCondition{Conditions: []view.Condition{boolViewCond}},
+			},
+		},
+		{
+			name:      "or skips an empty nested condition",
+			condition: &Condition{Or: &[]Condition{boolCond, {}}},
+			want: &view.Condition{
+				ConditionType: view.ConditionTypeOr,
+				OrCondition:   &view.OrCondition{Conditions: []view.Condition{boolViewCond}},
+			},
+		},
+		{
+			name:      "and with only empty nested conditions is no condition",
+			condition: &Condition{And: &[]Condition{{}}},
+			want:      nil,
+		},
+		{
+			name:      "or without nested conditions is no condition",
+			condition: &Condition{Or: &[]Condition{}},
 			want:      nil,
 		},
 	}

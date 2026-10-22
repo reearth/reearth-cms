@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"maps"
 	"net/url"
 	"time"
 
@@ -90,7 +91,7 @@ func (w *Webhook) Clone() *Webhook {
 		name:      w.name,
 		url:       u,
 		active:    w.active,
-		trigger:   w.trigger,
+		trigger:   maps.Clone(w.trigger),
 		updatedAt: w.updatedAt,
 		secret:    w.secret,
 	}

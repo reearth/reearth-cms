@@ -38,3 +38,7 @@ func (f *FieldCheckbox) Validate(v *value.Value) (err error) {
 	})
 	return
 }
+
+func (f *FieldCheckbox) ValidateMultiple(_ *value.Multiple) error {
+	return nil
+}

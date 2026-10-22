@@ -33,7 +33,6 @@ func TestAsset_Type(t *testing.T) {
 		uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:                  thid.Ref(),
 		archiveExtractionStatus: &gotStatus,
-		flatFiles:               false,
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -46,7 +45,6 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 	assert.Equal(t, &thid, got.Thread())
-	assert.Equal(t, false, got.FlatFiles())
 	assert.Equal(t, &wantStatus, got.ArchiveExtractionStatus())
 }
 
@@ -143,10 +141,18 @@ func TestAsset_UpdateStatus(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID().Ref()).NewUUID().MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID().Ref()).NewUUID().
+		FileName("a.png").Type(new(PreviewTypeImage)).ArchiveExtractionStatus(new(ArchiveExtractionStatusDone)).
+		Public(true).MustBuild()
+	a.SetAccessInfoResolver(func(a *Asset) *AccessInfo {
+		return &AccessInfo{Url: "https://example.com/" + a.FileName(), Public: a.Public()}
+	})
 
 	got := a.Clone()
 	assert.Equal(t, a, got)
 	assert.NotSame(t, a, got)
+	assert.Equal(t, AccessInfo{Url: "https://example.com/a.png", Public: true}, got.AccessInfo())
+	assert.NotSame(t, a.PreviewType(), got.PreviewType())
+	assert.NotSame(t, a.ArchiveExtractionStatus(), got.ArchiveExtractionStatus())
 	assert.Nil(t, (*Asset)(nil).Clone())
 }

@@ -136,3 +136,17 @@ func TestFieldGeometryObject_Validate(t *testing.T) {
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometryObject{}).Validate(value.TypeText.Value("{}")))
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometryObject{}).Validate(value.TypeText.Value(float64(1))))
 }
+
+func TestFieldGeometryObject_Validate_Limits(t *testing.T) {
+	f := &FieldGeometryObject{st: GeometryObjectSupportedTypeList{GeometryObjectSupportedTypeLineString}}
+	assert.NoError(t, f.Validate(value.TypeGeometryObject.Value(bigValidGeoJSON(maxGeoFieldBytes-64))))
+	assert.Equal(t, ErrGeoFieldMaxSizeExceeded, f.Validate(value.TypeGeometryObject.Value(bigValidGeoJSON(maxGeoFieldBytes+1))))
+	assert.Equal(t, ErrGeoFieldInvalidGeoStructure, f.Validate(value.TypeGeometryObject.Value(`{"type":"Circle"}`)))
+}
+
+func TestFieldGeometryObject_ValidateMultiple(t *testing.T) {
+	f := &FieldGeometryObject{}
+	geojsonA := `{"type": "Point", "coordinates": [102.0, 0.5]}`
+	geojsonB := `{"type": "Point", "coordinates": [103.0, 1.5]}`
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeGeometryObject, []any{geojsonA, geojsonB})))
+}

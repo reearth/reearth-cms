@@ -155,6 +155,12 @@ func TestSchema_Field(t *testing.T) {
 		want *Field
 	}{
 		{
+			name: "nil schema",
+			s:    nil,
+			fid:  fid1,
+			want: nil,
+		},
+		{
 			name: "add on empty array",
 			s:    &Schema{},
 			fid:  fid1,
@@ -485,6 +491,10 @@ func TestSchema_Clone(t *testing.T) {
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)
+	// fields are deep-copied: changing the clone's field leaves the original untouched
+	assert.NotSame(t, s.fields[0], c.fields[0])
+	c.fields[0].SetName("changed")
+	assert.Equal(t, "f1", s.fields[0].Name())
 
 	s = nil
 	c = s.Clone()
@@ -543,6 +553,10 @@ func TestSchema_CopyFrom(t *testing.T) {
 	s2.CopyFrom(s1)
 	assert.Equal(t, s1.fields, s2.fields)
 	assert.Equal(t, s1.titleField, s2.titleField)
+	// fields are deep-copied: changing the copy's field leaves the source untouched
+	assert.NotSame(t, s1.fields[0], s2.fields[0])
+	s2.fields[0].SetName("changed")
+	assert.Equal(t, "f1", s1.fields[0].Name())
 
 	s3 := &Schema{id: id.NewSchemaID(), fields: FieldList{}}
 	s3.CopyFrom(nil)

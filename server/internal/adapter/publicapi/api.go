@@ -301,7 +301,7 @@ func PostItem() echo.HandlerFunc {
 		}
 
 		if len(result.FieldErrors) > 0 {
-			return c.JSON(http.StatusBadRequest, newAPIError(codeValidationError, msgValidationError, result.FieldErrors))
+			return c.JSON(http.StatusBadRequest, newAPIError(codeValidationError, msgValidationError, fieldErrorDetails(result.FieldErrors)))
 		}
 
 		if isBrowserRequest(origin) {

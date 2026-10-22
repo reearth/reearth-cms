@@ -1,7 +1,7 @@
 // e2e/pages/workspace.page.ts
 import type { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import type { Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { DATA_TEST_ID } from "@reearth-cms/test/data";
 
 import { BasePage } from "./base.page";
 

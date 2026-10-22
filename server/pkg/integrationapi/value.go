@@ -125,6 +125,9 @@ func ToValue(v *value.Value, sf *schema.Field, assets *AssetContext) any {
 			return nil
 		}
 		res := tag.Tags().FindByID(tid)
+		if res == nil {
+			return nil
+		}
 		return TagResponse{
 			Color: new(res.Color().String()),
 			Id:    res.ID().Ref(),

@@ -17,23 +17,29 @@ import (
 var defaultDiskSizeGb int64 = 2000 // 2TB
 
 type TaskRunner struct {
-	conf   *TaskConfig
-	pubsub *pubsub.Client
+	conf      *TaskConfig
+	psClient  *pubsub.Client
+	cbService *cloudbuild.Service
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
-	pubsub, err := pubsub.NewClient(ctx, conf.GCPProject)
+	ps, err := pubsub.NewClient(ctx, conf.GCPProject)
 	if err != nil {
 		return nil, err
 	}
 
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create cloud build service: %w", err)
+	}
+
 	return &TaskRunner{
-		conf:   conf,
-		pubsub: pubsub,
+		conf:      conf,
+		psClient:  ps,
+		cbService: cb,
 	}, nil
 }
 
-// Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
 		return t.runCloudBuild(ctx, p)
@@ -41,12 +47,7 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return t.runPubSub(ctx, p)
 }
 
-func (t *TaskRunner) Retry(ctx context.Context, id string) error {
-	cb, err := cloudbuild.NewService(ctx)
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
-
+func (t *TaskRunner) Retry(_ context.Context, id string) error {
 	project := t.conf.GCPProject
 	region := t.conf.GCPRegion
 
@@ -55,43 +56,52 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 		ProjectId: project,
 	}
 
+	var err error
 	if region != "" {
 		name := path.Join("projects", project, "locations", region, "builds", id)
-		call := cb.Projects.Locations.Builds.Retry(name, req)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Locations.Builds.Retry(name, req).Do()
 	} else {
-		call := cb.Projects.Builds.Retry(project, id, req)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Builds.Retry(project, id, req).Do()
 	}
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
+	return nil
+}
+
+func (t *TaskRunner) HealthCheck(_ context.Context) error {
+	if t.psClient == nil {
+		return rerror.ErrInternalBy(fmt.Errorf("pubsub client is not initialized"))
+	}
+
+	if t.conf.BuildServiceAccount == "" {
+		return rerror.ErrInternalBy(fmt.Errorf("build service account is not configured"))
+	}
+
+	if t.conf.WorkerPool != "" {
+		if t.conf.GCPRegion == "" {
+			return rerror.ErrInternalBy(fmt.Errorf("GCP region is not configured but worker pool is specified"))
+		}
+	}
+
 	return nil
 }
 
 func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
-		return decompressAsset(ctx, p, t.conf)
+		return t.decompressAsset(ctx, p)
 	}
 	if p.Copy != nil {
-		return copyItems(ctx, p, t.conf)
+		return t.copyItems(ctx, p)
 	}
 	if p.Import != nil {
-		return importItems(ctx, p, t.conf)
+		return t.importItems(ctx, p)
 	}
 	return nil
 }
 
-func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) error {
-	if p.DecompressAsset == nil {
-		return nil
-	}
-
-	cb, err := cloudbuild.NewService(ctx)
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
-
+func (t *TaskRunner) decompressAsset(_ context.Context, p task.Payload) error {
+	conf := t.conf
 	src, err := url.JoinPath("gs://"+conf.GCSBucket, "assets", p.DecompressAsset.Path)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
@@ -110,11 +120,9 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 		machineType = v
 	}
 
-	var diskSizeGb int64
+	diskSizeGb := defaultDiskSizeGb
 	if v := conf.DecompressorDiskSideGb; v > 0 {
 		diskSizeGb = v
-	} else {
-		diskSizeGb = defaultDiskSizeGb
 	}
 
 	build := &cloudbuild.Build{
@@ -144,28 +152,23 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	}
 
 	if region != "" {
-		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build).Do()
 	} else {
-		call := cb.Projects.Builds.Create(project, build)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Builds.Create(project, build).Do()
 	}
+	// Must guard on err: rerror.ErrInternalBy(nil) returns a non-nil typed nil.
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
 
-func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+func (t *TaskRunner) copyItems(_ context.Context, p task.Payload) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
 
-	cb, err := cloudbuild.NewService(ctx)
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
-
+	conf := t.conf
 	project := conf.GCPProject
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
@@ -189,12 +192,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			},
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
-		Options: &cloudbuild.BuildOptions{
-			Logging: "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
-		},
+		Options:        buildOptions(conf),
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
 				{
@@ -205,12 +203,11 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 	}
 
+	var err error
 	if region != "" {
-		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build).Do()
 	} else {
-		call := cb.Projects.Builds.Create(project, build)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Builds.Create(project, build).Do()
 	}
 	if err != nil {
 		return rerror.ErrInternalBy(err)
@@ -218,16 +215,12 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	return nil
 }
 
-func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+func (t *TaskRunner) importItems(_ context.Context, p task.Payload) error {
 	if !p.Import.Validate() {
 		return rerror.Fmt("invalid import payload")
 	}
 
-	cb, err := cloudbuild.NewService(ctx)
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
-
+	conf := t.conf
 	project := conf.GCPProject
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
@@ -257,9 +250,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			Env:         "REEARTH_CMS_DB",
 		},
 	}
-	stepSecretEnv := []string{
-		"REEARTH_CMS_DB",
-	}
+	stepSecretEnv := []string{"REEARTH_CMS_DB"}
 	if !singleDb {
 		availableSecrets = append(availableSecrets, &cloudbuild.SecretManagerSecret{
 			VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.AccountDBSecretName),
@@ -285,23 +276,17 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			},
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
-		Options: &cloudbuild.BuildOptions{
-			Logging: "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
-		},
+		Options:        buildOptions(conf),
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: availableSecrets,
 		},
 	}
 
+	var err error
 	if region != "" {
-		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build).Do()
 	} else {
-		call := cb.Projects.Builds.Create(project, build)
-		_, err = call.Do()
+		_, err = t.cbService.Projects.Builds.Create(project, build).Do()
 	}
 	if err != nil {
 		return rerror.ErrInternalBy(err)
@@ -319,7 +304,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 
-	topic := t.pubsub.Publisher(t.conf.Topic)
+	topic := t.psClient.Publisher(t.conf.Topic)
 	result := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
 	})
@@ -330,4 +315,14 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 	}
 
 	return nil
+}
+
+func buildOptions(conf *TaskConfig) *cloudbuild.BuildOptions {
+	opts := &cloudbuild.BuildOptions{Logging: "CLOUD_LOGGING_ONLY"}
+	if conf.WorkerPool != "" && conf.GCPRegion != "" {
+		opts.Pool = &cloudbuild.PoolOption{
+			Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", conf.GCPProject, conf.GCPRegion, conf.WorkerPool),
+		}
+	}
+	return opts
 }

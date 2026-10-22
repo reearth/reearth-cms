@@ -18,7 +18,7 @@ jobs:
     if: github.ref == 'refs/heads/release'
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
       - name: Set up git config
@@ -31,13 +31,13 @@ jobs:
           fetch-depth: 0
       - id: changelog
         name: Generate CHANGELOG
-        uses: reearth/changelog-action@86cb9d7a3727f3cb6afe36a1536fad61e9775287 # main
+        uses: reearth/changelog-action@cd9d00f467a683c3c9996c1574cfa42d60968dc5 # main
         with:
           version: ${{ github.event.inputs.version }}
           repo: ${{ github.repository }}
           latest: CHANGELOG_latest.md
       - name: Upload latest CHANGELOG
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: changelog-${{ steps.changelog.outputs.version }}
           path: CHANGELOG_latest.md

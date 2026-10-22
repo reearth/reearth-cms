@@ -501,7 +501,7 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 		ModelID:       mId,
 		SchemaPackage: *sp,
 		Options: exporters.ExportOptions{
-			PublicOnly: true,
+			Ref: version.Public.Ref(),
 		},
 	}, w, op)
 	if err != nil {
@@ -562,7 +562,7 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportReques
 		ModelID:       mId,
 		SchemaPackage: *sp,
 		Options: exporters.ExportOptions{
-			PublicOnly: true,
+			Ref: version.Public.Ref(),
 		},
 	}, w, op)
 	if err != nil {

@@ -46,3 +46,8 @@ func TestFieldInteger_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldInteger{}).Validate(value.TypeInteger.Value(1)))
 	assert.Equal(t, ErrInvalidValue, (&FieldInteger{}).Validate(value.TypeText.Value("")))
 }
+
+func TestFieldInteger_ValidateMultiple(t *testing.T) {
+	f := &FieldInteger{}
+	assert.NoError(t, f.ValidateMultiple(value.NewMultiple(value.TypeInteger, []any{1, 2})))
+}

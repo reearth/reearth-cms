@@ -41,5 +41,5 @@ func (f *FieldTextArea) Validate(v *value.Value) error {
 }
 
 func (f *FieldTextArea) ValidateMultiple(v *value.Multiple) error {
-	return nil
+	return f.s.ValidateMultiple(v)
 }

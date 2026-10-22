@@ -82,6 +82,9 @@ func (s *Schema) AddField(f *Field) {
 }
 
 func (s *Schema) Field(fId FieldID) *Field {
+	if s == nil {
+		return nil
+	}
 	f, _ := lo.Find(s.fields, func(f *Field) bool { return f.id == fId })
 	return f
 }
@@ -164,7 +167,7 @@ func (s *Schema) Clone() *Schema {
 		id:         s.ID(),
 		project:    s.Project().Clone(),
 		workspace:  s.Workspace().Clone(),
-		fields:     slices.Clone(s.fields),
+		fields:     s.fields.Clone(),
 		titleField: s.TitleField().CloneRef(),
 	}
 }
@@ -192,6 +195,6 @@ func (s *Schema) CopyFrom(s2 *Schema) {
 	if s == nil || s2 == nil {
 		return
 	}
-	s.fields = slices.Clone(s2.fields)
+	s.fields = s2.fields.Clone()
 	s.titleField = s2.TitleField().CloneRef()
 }

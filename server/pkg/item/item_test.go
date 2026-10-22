@@ -8,11 +8,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestItem_UpdateFields(t *testing.T) {
+func TestItem_updateFields(t *testing.T) {
 	now := time.Now()
 	defer util.MockNow(now)()
 	f := NewField(id.NewFieldID(), value.TypeText.Value("test").AsMultiple(), nil)
@@ -92,8 +95,130 @@ func TestItem_UpdateFields(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.target.UpdateFields(tt.input)
+			tt.target.updateFields(tt.input)
 			assert.Equal(t, tt.want, tt.target)
+		})
+	}
+}
+
+func TestItem_AttachDefault(t *testing.T) {
+	type fixture struct {
+		pkg        *schema.Package
+		groupField *schema.Field
+		titleField *schema.Field
+		//subtitleField      *schema.Field
+		//bodyField          *schema.Field
+		groupSubtitleField *schema.Field
+		groupBodyField     *schema.Field
+		metadataField      *schema.Field
+	}
+
+	newFixture := func(withGroupSchema bool) fixture {
+		groupID := id.NewGroupID()
+		titleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("title")).DefaultValue(value.TypeText.Value("untitled").AsMultiple()).MustBuild()
+		groupField := schema.NewField(schema.NewGroup(groupID).TypeProperty()).NewID().Key(id.NewKey("sections")).Multiple(true).MustBuild()
+		groupSubtitleField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("subtitle")).DefaultValue(value.TypeText.Value("default subtitle").AsMultiple()).MustBuild()
+		groupBodyField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("body")).DefaultValue(value.TypeText.Value("default body").AsMultiple()).MustBuild()
+		metadataField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("metadata title")).DefaultValue(value.TypeText.Value("metadata default").AsMultiple()).MustBuild()
+
+		groupSchemas := map[id.GroupID]*schema.Schema(nil)
+		if withGroupSchema {
+			groupSchemas = map[id.GroupID]*schema.Schema{groupID: buildValidationTestSchema(groupSubtitleField, groupBodyField)}
+		}
+
+		return fixture{
+			pkg:                schema.NewPackage(buildValidationTestSchema(groupField, titleField), buildValidationTestSchema(metadataField), groupSchemas, nil),
+			groupField:         groupField,
+			titleField:         titleField,
+			groupSubtitleField: groupSubtitleField,
+			groupBodyField:     groupBodyField,
+			metadataField:      metadataField,
+		}
+	}
+
+	tests := []struct {
+		name  string
+		setup func() (*Item, *schema.Package, Fields)
+	}{
+		// TODO: re-enable this test when group default attachment is implemented
+		//{
+		//	name: "attaches missing top-level and group defaults for every instance",
+		//	setup: func() (*Item, *schema.Package, Fields) {
+		//		f := newFixture(true)
+		//		first, second := id.NewItemGroupID(), id.NewItemGroupID()
+		//		group := NewField(f.groupField.ID(), value.NewMultiple(value.TypeGroup, []any{first, second}), nil)
+		//		customBody := NewField(f.bodyField.ID(), value.TypeText.Value("custom body").AsMultiple(), &first)
+		//		return &Item{fields: []*Field{group, customBody}}, f.pkg, Fields{
+		//			group,
+		//			customBody,
+		//			NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil),
+		//			NewField(f.subtitleField.ID(), f.subtitleField.DefaultValue(), &first),
+		//			NewField(f.subtitleField.ID(), f.subtitleField.DefaultValue(), &second),
+		//			NewField(f.bodyField.ID(), f.bodyField.DefaultValue(), &second),
+		//		}
+		//	},
+		//},
+		{
+			name: "preserves an existing top-level value",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				title := NewField(f.titleField.ID(), value.TypeText.Value("custom title").AsMultiple(), nil)
+				return &Item{fields: []*Field{title}}, f.pkg, Fields{title}
+			},
+		},
+		{
+			name: "does not attach group defaults when the group field is absent",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				return &Item{}, f.pkg, Fields{NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "does not attach group defaults for an invalid group value",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				group := NewField(f.groupField.ID(), value.TypeText.Value("not a group").AsMultiple(), nil)
+				return &Item{fields: []*Field{group}}, f.pkg, Fields{group, NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "does not attach group defaults without a matching group schema",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(false)
+				instance := id.NewItemGroupID()
+				group := NewField(f.groupField.ID(), value.NewMultiple(value.TypeGroup, []any{instance}), nil)
+				return &Item{fields: []*Field{group}}, f.pkg, Fields{group, NewField(f.titleField.ID(), f.titleField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "attaches metadata defaults without main or group defaults",
+			setup: func() (*Item, *schema.Package, Fields) {
+				f := newFixture(true)
+				return &Item{isMetadata: true}, f.pkg, Fields{NewField(f.metadataField.ID(), f.metadataField.DefaultValue(), nil)}
+			},
+		},
+		{
+			name: "does nothing for a nil schema package",
+			setup: func() (*Item, *schema.Package, Fields) {
+				field := NewField(id.NewFieldID(), value.TypeText.Value("value").AsMultiple(), nil)
+				return &Item{fields: []*Field{field}}, nil, Fields{field}
+			},
+		},
+		{
+			name: "does nothing for a nil item",
+			setup: func() (*Item, *schema.Package, Fields) {
+				return nil, newFixture(true).pkg, nil
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			item, pkg, want := tt.setup()
+			item.AttachDefault(pkg)
+			if item != nil {
+				assert.Equal(t, want, item.Fields())
+			}
 		})
 	}
 }
@@ -794,6 +919,554 @@ func TestItem_Clone(t *testing.T) {
 					assert.NotSame(t, tt.item.fields[i], cloned.fields[i])
 				}
 			}
+		})
+	}
+}
+
+func TestItem_SetReference(t *testing.T) {
+	t.Parallel()
+
+	fid, other := id.NewFieldID(), id.NewFieldID()
+	ref, ref2 := NewID(), NewID()
+	it := &Item{fields: []*Field{
+		NewField(fid, value.TypeReference.Value(ref).AsMultiple(), nil),
+		NewField(other, value.TypeText.Value("x").AsMultiple(), nil),
+	}}
+
+	it.SetReference(fid, ref2)
+	assert.Equal(t, value.TypeReference.Value(ref2).AsMultiple(), it.Field(fid).Value())
+	assert.Len(t, it.Fields(), 2)
+
+	fid2 := id.NewFieldID()
+	it.SetReference(fid2, ref)
+	assert.Equal(t, value.TypeReference.Value(ref).AsMultiple(), it.Field(fid2).Value())
+	assert.Len(t, it.Fields(), 3)
+}
+
+func TestItem_ClearReference(t *testing.T) {
+	t.Parallel()
+
+	fid := id.NewFieldID()
+	ig := id.NewItemGroupID()
+	ref1, ref2, ref3 := NewID(), NewID(), NewID()
+	refs := func(ids ...ID) *value.Multiple {
+		return value.NewMultiple(value.TypeReference, lo.Map(ids, func(i ID, _ int) any { return i }))
+	}
+
+	tests := []struct {
+		name        string
+		fields      []*Field
+		refs        IDList
+		want        bool
+		wantValue   *value.Multiple
+		wantGroup   *ItemGroupID
+		wantMissing bool
+	}{
+		{
+			name:      "removes only the matching references",
+			fields:    []*Field{NewField(fid, refs(ref1, ref2, ref3), nil)},
+			refs:      IDList{ref2},
+			want:      true,
+			wantValue: refs(ref1, ref3),
+		},
+		{
+			name: "keeps the group of the field",
+			fields: []*Field{
+				NewField(id.NewFieldID(), value.NewMultiple(value.TypeGroup, []any{ig}), nil),
+				NewField(fid, refs(ref1), &ig),
+			},
+			refs:      IDList{ref1},
+			want:      true,
+			wantValue: refs(),
+			wantGroup: &ig,
+		},
+		{
+			name:      "nothing to remove",
+			fields:    []*Field{NewField(fid, refs(ref1), nil)},
+			refs:      IDList{ref2},
+			want:      false,
+			wantValue: refs(ref1),
+		},
+		{
+			name:        "field missing",
+			refs:        IDList{ref1},
+			want:        false,
+			wantMissing: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			it := &Item{fields: tt.fields}
+			assert.Equal(t, tt.want, it.ClearReference(fid, tt.refs))
+			f := it.Field(fid)
+			if tt.wantMissing {
+				assert.Nil(t, f)
+				return
+			}
+			assert.Equal(t, tt.wantValue, f.Value())
+			assert.Equal(t, tt.wantGroup, f.ItemGroup())
+		})
+	}
+}
+
+func TestItem_ApplyInput(t *testing.T) {
+	t.Parallel()
+
+	gid := id.NewGroupID()
+	subtitleField := buildValidationTestField("subtitle", schema.NewText(nil).TypeProperty(), true)
+	groupSchema := buildValidationTestSchema(subtitleField)
+
+	titleField := buildValidationTestField("title", schema.NewText(nil).TypeProperty(), true)
+	noteField := buildValidationTestField("note", schema.NewText(nil).TypeProperty(), false)
+	defaultField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("withDefault")).
+		DefaultValue(value.TypeText.Value("default").AsMultiple()).MustBuild()
+	sectionField := buildValidationTestFieldMultiple("section", schema.NewGroup(gid).TypeProperty(), false)
+	s := buildValidationTestSchema(titleField, noteField, defaultField, sectionField)
+	groups := map[id.GroupID]*schema.Schema{gid: groupSchema}
+	sp := schema.NewPackage(s, nil, groups, nil)
+
+	metaField := buildValidationTestField("status", schema.NewText(nil).TypeProperty(), true)
+	metaDefaultField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("metaDefault")).
+		DefaultValue(value.TypeText.Value("meta default").AsMultiple()).MustBuild()
+	meta := buildValidationTestSchema(metaField, metaDefaultField)
+	msp := schema.NewPackage(s, meta, groups, nil)
+
+	ig1, ig2, other := id.NewItemGroupID(), id.NewItemGroupID(), id.NewItemGroupID()
+	unknownKey := id.NewKey("unknown")
+	unknownFieldID := id.NewFieldID()
+
+	text := func(v string) *value.Multiple { return value.TypeText.Value(v).AsMultiple() }
+	groupsValue := func(igs ...ItemGroupID) *value.Multiple {
+		return value.NewMultiple(value.TypeGroup, lo.ToAnySlice(igs))
+	}
+	newItem := func(fields ...*Field) func() *Item {
+		return func() *Item {
+			return New().NewID().Schema(s.ID()).Project(s.Project()).Model(id.NewModelID()).
+				User(accountdomain.NewUserID()).Fields(fields).ForSchemaPackage(sp).AttachDefault().MustBuild()
+		}
+	}
+	newMetaItem := func(fields ...*Field) func() *Item {
+		return func() *Item {
+			return New().NewID().Schema(meta.ID()).Project(meta.Project()).Model(id.NewModelID()).
+				User(accountdomain.NewUserID()).IsMetadata(true).Fields(fields).ForSchemaPackage(msp).AttachDefault().MustBuild()
+		}
+	}
+	defaultValue := NewField(defaultField.ID(), text("default"), nil)
+
+	tests := []struct {
+		name        string
+		item        func() *Item
+		sp          *schema.Package
+		inputs      FieldInputList
+		wantErr     error
+		wantChanged Fields
+		wantErrs    schema.FieldValidationErrors
+		wantFields  Fields
+	}{
+		{
+			name:    "nil package",
+			item:    newItem(),
+			sp:      nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "package without the item schema",
+			item:    newItem(),
+			sp:      schema.NewPackage(buildValidationTestSchema(), nil, nil, nil),
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "group schema missing from the package",
+			item: newItem(),
+			sp:   schema.NewPackage(s, nil, nil, nil),
+			inputs: FieldInputList{
+				{Field: sectionField.ID().Ref(), Value: []any{ig1.String()}},
+			},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "stored group-typed value on a non-group schema field",
+			item: newItem(NewField(titleField.ID(), groupsValue(ig1), nil)),
+			sp:   sp,
+			// title is not sent, so the stored group value is kept and resolved as a group field
+			wantErr: ErrInvalidField,
+		},
+		{
+			name: "input by key replaces the stored field and keeps the others",
+			item: newItem(
+				NewField(titleField.ID(), text("old"), nil),
+				NewField(noteField.ID(), text("kept"), nil),
+			),
+			sp:          sp,
+			inputs:      FieldInputList{{Key: titleField.Key().Ref(), Value: "new"}},
+			wantChanged: Fields{NewField(titleField.ID(), text("new"), nil)},
+			wantFields: Fields{
+				NewField(titleField.ID(), text("new"), nil),
+				NewField(noteField.ID(), text("kept"), nil),
+				defaultValue,
+			},
+		},
+		{
+			name:        "input by id adds a new field and keeps the default value",
+			item:        newItem(),
+			sp:          sp,
+			inputs:      FieldInputList{{Field: titleField.ID().Ref(), Value: "t"}},
+			wantChanged: Fields{NewField(titleField.ID(), text("t"), nil)},
+			wantFields:  Fields{defaultValue, NewField(titleField.ID(), text("t"), nil)},
+		},
+		{
+			name: "sent value replaces the default value",
+			item: newItem(),
+			sp:   sp,
+			inputs: FieldInputList{
+				{Field: titleField.ID().Ref(), Value: "t"},
+				{Field: defaultField.ID().Ref(), Value: "sent"},
+			},
+			wantChanged: Fields{
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(defaultField.ID(), text("sent"), nil),
+			},
+			wantFields: Fields{
+				NewField(defaultField.ID(), text("sent"), nil),
+				NewField(titleField.ID(), text("t"), nil),
+			},
+		},
+		{
+			name: "unknown top-level inputs are ignored",
+			item: newItem(),
+			sp:   sp,
+			inputs: FieldInputList{
+				{Field: titleField.ID().Ref(), Value: "t"},
+				{Key: unknownKey.Ref(), Value: "x"},
+				{Field: unknownFieldID.Ref(), Value: "x"},
+			},
+			wantChanged: Fields{NewField(titleField.ID(), text("t"), nil)},
+			wantFields:  Fields{defaultValue, NewField(titleField.ID(), text("t"), nil)},
+		},
+		{
+			name: "missing required field",
+			item: newItem(),
+			sp:   sp,
+			wantErrs: schema.FieldValidationErrors{
+				titleField.ValidationError(schema.ErrValueRequired, schema.FieldValidationCodeRequired),
+			},
+			wantFields: Fields{defaultValue},
+		},
+		{
+			name:   "type mismatch is reported once, not also as required, and still replaces the stored value",
+			item:   newItem(NewField(titleField.ID(), text("old"), nil)),
+			sp:     sp,
+			inputs: FieldInputList{{Field: titleField.ID().Ref(), Value: 1}},
+			wantChanged: Fields{
+				NewField(titleField.ID(), value.NewMultiple(value.TypeText, nil), nil),
+			},
+			wantErrs: schema.FieldValidationErrors{
+				titleField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch),
+			},
+			wantFields: Fields{
+				NewField(titleField.ID(), value.NewMultiple(value.TypeText, nil), nil),
+				defaultValue,
+			},
+		},
+		{
+			name: "parses every referenced group instance and drops the others",
+			item: newItem(),
+			sp:   sp,
+			inputs: FieldInputList{
+				{Field: titleField.ID().Ref(), Value: "t"},
+				{Field: sectionField.ID().Ref(), Value: []any{ig1.String(), ig2.String()}},
+				{Field: subtitleField.ID().Ref(), Value: "s1", Group: &ig1},
+				{Key: subtitleField.Key().Ref(), Value: "s2", Group: &ig2},
+				{Field: subtitleField.ID().Ref(), Value: "x", Group: &other},
+			},
+			wantChanged: Fields{
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(sectionField.ID(), groupsValue(ig1, ig2), nil),
+				NewField(subtitleField.ID(), text("s1"), &ig1),
+				NewField(subtitleField.ID(), text("s2"), &ig2),
+			},
+			wantFields: Fields{
+				defaultValue,
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(sectionField.ID(), groupsValue(ig1, ig2), nil),
+				NewField(subtitleField.ID(), text("s1"), &ig1),
+				NewField(subtitleField.ID(), text("s2"), &ig2),
+			},
+		},
+		{
+			name: "group instances referenced by the stored group field are parsed",
+			item: newItem(
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(sectionField.ID(), groupsValue(ig1), nil),
+				NewField(subtitleField.ID(), text("old"), &ig1),
+			),
+			sp:          sp,
+			inputs:      FieldInputList{{Field: subtitleField.ID().Ref(), Value: "new", Group: &ig1}},
+			wantChanged: Fields{NewField(subtitleField.ID(), text("new"), &ig1)},
+			wantFields: Fields{
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(sectionField.ID(), groupsValue(ig1), nil),
+				NewField(subtitleField.ID(), text("new"), &ig1),
+				defaultValue,
+			},
+		},
+		{
+			name: "reports unknown, mismatched and missing required fields inside group instances",
+			item: newItem(),
+			sp:   sp,
+			inputs: FieldInputList{
+				{Field: titleField.ID().Ref(), Value: "t"},
+				{Field: sectionField.ID().Ref(), Value: []any{ig1.String(), ig2.String(), other.String()}},
+				{Field: subtitleField.ID().Ref(), Value: "s1", Group: &ig1},
+				{Key: unknownKey.Ref(), Value: "x", Group: &ig1},
+				{Field: subtitleField.ID().Ref(), Value: 1, Group: &other},
+				// ig2 has no subtitle
+			},
+			wantChanged: Fields{
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(sectionField.ID(), groupsValue(ig1, ig2, other), nil),
+				NewField(subtitleField.ID(), text("s1"), &ig1),
+				NewField(subtitleField.ID(), value.NewMultiple(value.TypeText, nil), &other),
+			},
+			wantErrs: schema.FieldValidationErrors{
+				{Key: unknownKey.Ref(), Group: &ig1, Code: schema.FieldValidationCodeNotFound, Detail: schema.ErrFieldNotFound},
+				subtitleField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch).WithGroup(&other),
+				subtitleField.ValidationError(schema.ErrValueRequired, schema.FieldValidationCodeRequired).WithGroup(&ig2),
+			},
+			wantFields: Fields{
+				defaultValue,
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(sectionField.ID(), groupsValue(ig1, ig2, other), nil),
+				NewField(subtitleField.ID(), text("s1"), &ig1),
+				NewField(subtitleField.ID(), value.NewMultiple(value.TypeText, nil), &other),
+			},
+		},
+		{
+			name: "stored group-typed field unknown to the schema is skipped",
+			item: newItem(
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(unknownFieldID, groupsValue(ig1), nil),
+			),
+			sp:     sp,
+			inputs: FieldInputList{{Field: subtitleField.ID().Ref(), Value: "s", Group: &ig1}},
+			wantFields: Fields{
+				NewField(titleField.ID(), text("t"), nil),
+				NewField(unknownFieldID, groupsValue(ig1), nil),
+				defaultValue,
+			},
+		},
+		{
+			name: "metadata item parses top-level inputs and ignores group inputs",
+			item: newMetaItem(),
+			sp:   msp,
+			inputs: FieldInputList{
+				{Field: metaField.ID().Ref(), Value: "draft"},
+				{Field: subtitleField.ID().Ref(), Value: "s", Group: &ig1},
+			},
+			wantChanged: Fields{NewField(metaField.ID(), text("draft"), nil)},
+			wantFields: Fields{
+				NewField(metaDefaultField.ID(), text("meta default"), nil),
+				NewField(metaField.ID(), text("draft"), nil),
+			},
+		},
+		{
+			name: "metadata item is validated against the meta schema",
+			item: newMetaItem(),
+			sp:   msp,
+			// a content schema field is unknown to the meta schema
+			inputs: FieldInputList{{Field: titleField.ID().Ref(), Value: "t"}},
+			wantErrs: schema.FieldValidationErrors{
+				metaField.ValidationError(schema.ErrValueRequired, schema.FieldValidationCodeRequired),
+			},
+			wantFields: Fields{NewField(metaDefaultField.ID(), text("meta default"), nil)},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			it := tt.item()
+			changed, errs, err := it.ApplyInput(tt.inputs, tt.sp)
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.Nil(t, changed)
+				assert.Nil(t, errs)
+				return
+			}
+			require.NoError(t, err)
+			assert.ElementsMatch(t, tt.wantChanged, changed)
+			assert.ElementsMatch(t, tt.wantErrs, errs)
+			assert.ElementsMatch(t, tt.wantFields, it.Fields())
+		})
+	}
+}
+
+func TestParseInputs(t *testing.T) {
+	t.Parallel()
+
+	maxLength := 3
+	titleField := buildValidationTestField("title", schema.NewText(&maxLength).TypeProperty(), true)
+	tagsField := buildValidationTestFieldMultiple("tags", schema.NewText(&maxLength).TypeProperty(), false)
+	sectionField := buildValidationTestField("section", schema.NewGroup(id.NewGroupID()).TypeProperty(), false)
+	s := buildValidationTestSchema(titleField, tagsField, sectionField)
+
+	ig := id.NewItemGroupID()
+	unknownKey := id.NewKey("unknown")
+	unknownFieldID := id.NewFieldID()
+
+	text := func(v ...string) *value.Multiple { return value.NewMultiple(value.TypeText, lo.ToAnySlice(v)) }
+	empty := value.NewMultiple(value.TypeText, nil)
+
+	tests := []struct {
+		name       string
+		inputs     FieldInputList
+		wantFields Fields
+		wantErrs   schema.FieldValidationErrors
+	}{
+		{
+			name: "no inputs",
+		},
+		{
+			name:       "input by field id",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: "a"}},
+			wantFields: Fields{NewField(titleField.ID(), text("a"), nil)},
+		},
+		{
+			name:       "input by key",
+			inputs:     FieldInputList{{Key: titleField.Key().Ref(), Value: "a"}},
+			wantFields: Fields{NewField(titleField.ID(), text("a"), nil)},
+		},
+		{
+			name:       "field id takes precedence over key",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Key: tagsField.Key().Ref(), Value: "a"}},
+			wantFields: Fields{NewField(titleField.ID(), text("a"), nil)},
+		},
+		{
+			name:       "group is kept on the parsed field",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: "a", Group: &ig}},
+			wantFields: Fields{NewField(titleField.ID(), text("a"), &ig)},
+		},
+		{
+			name:       "nil value gives an empty field without errors",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: nil}},
+			wantFields: Fields{NewField(titleField.ID(), empty, nil)},
+		},
+		{
+			name:       "empty string is a valid text value",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: ""}},
+			wantFields: Fields{NewField(titleField.ID(), text(""), nil)},
+		},
+		{
+			name:       "empty string that can't be converted is dropped without errors",
+			inputs:     FieldInputList{{Field: sectionField.ID().Ref(), Value: ""}},
+			wantFields: Fields{NewField(sectionField.ID(), value.NewMultiple(value.TypeGroup, nil), nil)},
+		},
+		{
+			name:       "multiple field with a list",
+			inputs:     FieldInputList{{Field: tagsField.ID().Ref(), Value: []any{"a", "b"}}},
+			wantFields: Fields{NewField(tagsField.ID(), text("a", "b"), nil)},
+		},
+		{
+			name: "unknown field id",
+			inputs: FieldInputList{
+				{Field: unknownFieldID.Ref(), Value: "a"},
+			},
+			wantErrs: schema.FieldValidationErrors{
+				{Field: unknownFieldID.Ref(), Code: schema.FieldValidationCodeNotFound, Detail: schema.ErrFieldNotFound},
+			},
+		},
+		{
+			name: "unknown key in a group",
+			inputs: FieldInputList{
+				{Key: unknownKey.Ref(), Value: "a", Group: &ig},
+			},
+			wantErrs: schema.FieldValidationErrors{
+				{Key: unknownKey.Ref(), Group: &ig, Code: schema.FieldValidationCodeNotFound, Detail: schema.ErrFieldNotFound},
+			},
+		},
+		{
+			name:     "input without field id or key",
+			inputs:   FieldInputList{{Value: "a"}},
+			wantErrs: schema.FieldValidationErrors{{Code: schema.FieldValidationCodeNotFound, Detail: schema.ErrFieldNotFound}},
+		},
+		{
+			name:       "type mismatch gives an empty field and an error",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: 1}},
+			wantFields: Fields{NewField(titleField.ID(), empty, nil)},
+			wantErrs: schema.FieldValidationErrors{
+				titleField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch),
+			},
+		},
+		{
+			name:       "list sent to a single field",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: []any{"a"}}},
+			wantFields: Fields{NewField(titleField.ID(), empty, nil)},
+			wantErrs: schema.FieldValidationErrors{
+				titleField.ValidationError(schema.ErrFieldValueMultiple, schema.FieldValidationCodeTypeMismatch),
+			},
+		},
+		{
+			name:       "single value sent to a multiple field",
+			inputs:     FieldInputList{{Field: tagsField.ID().Ref(), Value: "a"}},
+			wantFields: Fields{NewField(tagsField.ID(), empty, nil)},
+			wantErrs: schema.FieldValidationErrors{
+				tagsField.ValidationError(schema.ErrFieldValueNotMultiple, schema.FieldValidationCodeTypeMismatch),
+			},
+		},
+		{
+			name:       "multiple field keeps the convertible elements and reports the others by index",
+			inputs:     FieldInputList{{Field: tagsField.ID().Ref(), Value: []any{"a", 1, "b", 2}}},
+			wantFields: Fields{NewField(tagsField.ID(), text("a", "b"), nil)},
+			wantErrs: schema.FieldValidationErrors{
+				tagsField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch).WithIndex(1),
+				tagsField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch).WithIndex(3),
+			},
+		},
+		{
+			name:       "constraint violation keeps the value",
+			inputs:     FieldInputList{{Field: titleField.ID().Ref(), Value: "abcd"}},
+			wantFields: Fields{NewField(titleField.ID(), text("abcd"), nil)},
+			wantErrs: schema.FieldValidationErrors{
+				titleField.ValidationError(schema.ErrStringFieldMaxLengthExceeded(maxLength), schema.FieldValidationCodeConstraint),
+			},
+		},
+		{
+			name:       "constraint violation in a multiple field is reported by the raw index",
+			inputs:     FieldInputList{{Field: tagsField.ID().Ref(), Value: []any{1, "a", "abcd"}, Group: &ig}},
+			wantFields: Fields{NewField(tagsField.ID(), text("a", "abcd"), &ig)},
+			wantErrs: schema.FieldValidationErrors{
+				tagsField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch).WithIndex(0).WithGroup(&ig),
+				tagsField.ValidationError(schema.ErrStringFieldMaxLengthExceeded(maxLength), schema.FieldValidationCodeConstraint).WithIndex(2).WithGroup(&ig),
+			},
+		},
+		{
+			name: "every input is parsed even after an error",
+			inputs: FieldInputList{
+				{Key: unknownKey.Ref(), Value: "a"},
+				{Field: titleField.ID().Ref(), Value: 1},
+				{Field: tagsField.ID().Ref(), Value: []any{"a"}},
+			},
+			wantFields: Fields{
+				NewField(titleField.ID(), empty, nil),
+				NewField(tagsField.ID(), text("a"), nil),
+			},
+			wantErrs: schema.FieldValidationErrors{
+				{Key: unknownKey.Ref(), Code: schema.FieldValidationCodeNotFound, Detail: schema.ErrFieldNotFound},
+				titleField.ValidationError(schema.ErrInvalidValue, schema.FieldValidationCodeTypeMismatch),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			fields, errs := parseInputs(tt.inputs, s)
+			assert.Equal(t, tt.wantFields, fields)
+			assert.Equal(t, tt.wantErrs, errs)
 		})
 	}
 }

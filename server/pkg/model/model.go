@@ -120,6 +120,7 @@ func (p *Model) Clone() *Model {
 		id:             p.id.Clone(),
 		project:        p.project.Clone(),
 		schema:         p.schema.Clone(),
+		metadata:       p.metadata.CloneRef(),
 		name:           p.name,
 		description:    p.description,
 		key:            p.Key(),

@@ -7,6 +7,8 @@ import (
 )
 
 const TypeJson Type = "json"
+const TypeGeometryObject Type = "geometryObject"
+const TypeGeometryEditor Type = "geometryEditor"
 
 type propertyJson struct{}
 

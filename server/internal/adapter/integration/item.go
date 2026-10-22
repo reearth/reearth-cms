@@ -42,7 +42,7 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 
-	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), fromRef(request.Params.Ref))
 
 	if request.Params.Sort != nil {
 		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
@@ -105,7 +105,7 @@ func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostReque
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 
-	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), fromRef(request.Params.Ref))
 
 	if request.Params.Sort != nil {
 		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
@@ -181,6 +181,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		Format:  exporters.FormatGeoJSON,
 		Options: exporters.ExportOptions{
 			IncludeAssets: true,
+			Ref:           fromRef(request.Params.Ref),
 		},
 		SchemaPackage: *sp,
 	}
@@ -217,7 +218,7 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	}
 
 	pagination := fromPagination(request.Params.Page, request.Params.PerPage)
-	vl, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, pagination, op)
+	vl, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), fromRef(request.Params.Ref), nil, pagination, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsCSV404Response{}, err
@@ -266,7 +267,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 		return ItemUpdate400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		return ItemUpdate400Response{}, err
 	}
@@ -297,7 +298,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 				return ItemUpdate400Response{}, err
 			}
 		} else {
-			metaItem, err = uc.Item.FindByID(ctx, *i.Value().MetadataItem(), op)
+			metaItem, err = uc.Item.FindByID(ctx, *i.Value().MetadataItem(), nil, op)
 			if err != nil {
 				return ItemUpdate400Response{}, err
 			}
@@ -353,7 +354,7 @@ func (s *Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject
 		return ItemDelete400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemDelete400Response{}, err
@@ -394,7 +395,7 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 		return ItemGet400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, fromRef(request.Params.Ref), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemGet404Response{}, err
@@ -448,7 +449,7 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 		return ItemPublish400Response{}, err
 	}
 
-	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemPublish404Response{}, err
