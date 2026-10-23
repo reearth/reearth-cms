@@ -1,4 +1,4 @@
-# Geometry-Field-Unification
+# Geometry Field Unification
 
 Owner: Woody Chang
 Priority: Must
@@ -65,7 +65,7 @@ Users currently choose between two geometry field types when designing a model, 
 
 - Offer Geometry as the field type for new geometry fields, named “Geometry” with the description: *Draw points, lines or areas on a map, or enter them as coordinates or GeoJSON.*
 - Show no geometry-type options when creating the field.
-- Do not show multipart geometry types anywhere in field creation.
+- ~~Do not show multipart geometry types anywhere in field creation.~~
 
 **Depends on:** task 1
 
@@ -78,7 +78,7 @@ The unique setting prevents two items in a model from holding the same value. Fo
 
 **What to Do**
 
-- Define the comparison rule first, such as coordinate precision and vertex order, and get it agreed before implementation.
+- ~~Define the comparison rule first, such as coordinate precision and vertex order, and get it agreed before implementation.~~
 - Offer the unique setting when creating or editing a Geometry field.
 - Enforce uniqueness using the agreed rule, with an error that names the field.
 
@@ -98,6 +98,8 @@ Today a multi-value geometry field shows one map per value, drawing a new shape 
 - Multiple mode: drawing a new shape adds a new value.
 - For Point, LineString and Polygon: select, move, edit vertices and delete on the map.
 - For MultiPoint, MultiLineString, MultiPolygon and GeometryCollection: display them, allow deleting the whole value, and offer no editing on the map.
+  - Two different colours for editable and read-only geometries
+  - Add legend somewhere to explain the meaning of the colours. Or pop up the hint message when hovering read-only geometries if it’s possible to implement.
 - Never change the type of an existing value.
 
 **Depends on:** task 1
@@ -160,7 +162,7 @@ Users need to enter or fine-tune a point’s longitude and latitude precisely, w
 - Add a collapsible coordinates panel, collapsed by default.
 - Show the selected shape only. With nothing selected, show “Select a shape to edit its coordinates.”
 - Offer numeric editing for Point values only. For other types, point to the GeoJSON editor.
-- Enter or blur applies a change; Esc reverts.
+- Enter or blur applies a change (memory in frontend only, no HTTP requests); Esc reverts.
 - Keep the panel synchronised with the map and the GeoJSON panel.
 
 **Depends on:** tasks 5 and 8
@@ -175,12 +177,13 @@ Location search already exists but only moves the map; the result cannot be used
 **What to Do**
 
 - Set the selected point to the search result, or add a new point when nothing is selected.
+- Keep the current location search API until we have further direction from CTO office.
 
 **Depends on:** task 5; choice of geocoding provider
 
 ---
 
-### 11. Interoperability notice 🎨
+### 11. Interoperability notice 🎨🥞
 
 **Background**
 Nested GeometryCollections are valid and stored, but some GIS tools may not render them.
@@ -188,6 +191,7 @@ Nested GeometryCollections are valid and stored, but some GIS tools may not rend
 **What to Do**
 
 - Show a light, non-blocking notice in the editor when a value contains a nested GeometryCollection: *Nested GeometryCollection · may not render in some GIS tools.*
+- Implement in both frontend and backend
 
 **Depends on:** task 5
 
