@@ -70,6 +70,10 @@ func TestReadableProjects(t *testing.T) {
 			filter: repo.ProjectFilter{Writable: id.ProjectIDList{p1}},
 		},
 		{
+			name:   "must not restrict without a writable list, as every project is writable",
+			filter: repo.ProjectFilter{Readable: id.ProjectIDList{p1}},
+		},
+		{
 			name:   "must include writable projects",
 			filter: repo.ProjectFilter{Readable: id.ProjectIDList{p1}, Writable: id.ProjectIDList{p2}},
 			want:   id.ProjectIDList{p1, p2},

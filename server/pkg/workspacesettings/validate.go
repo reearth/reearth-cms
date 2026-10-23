@@ -49,19 +49,28 @@ func (r *Resource) Validate() error {
 }
 
 // Validate returns an error when the settings can not be stored: every
-// resource of the tiles and the terrains must be valid.
+// resource must be valid, and the tiles and the terrains must hold only
+// resources of their own type.
 func (ws *WorkspaceSettings) Validate() error {
 	if ws == nil {
 		return rerror.ErrInvalidParams
 	}
-	for _, l := range []*ResourceList{ws.tiles, ws.terrains} {
-		if l == nil {
-			continue
+	if err := ws.tiles.validate(ResourceTypeTile); err != nil {
+		return err
+	}
+	return ws.terrains.validate(ResourceTypeTerrain)
+}
+
+func (wr *ResourceList) validate(t ResourceType) error {
+	if wr == nil {
+		return nil
+	}
+	for _, r := range wr.resources {
+		if err := r.Validate(); err != nil {
+			return err
 		}
-		for _, r := range l.resources {
-			if err := r.Validate(); err != nil {
-				return err
-			}
+		if r.resourceType != t {
+			return ErrInvalidResource
 		}
 	}
 	return nil

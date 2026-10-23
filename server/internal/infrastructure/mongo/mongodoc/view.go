@@ -207,14 +207,12 @@ func NewFilter(i *view.Condition) *FilterDocument {
 	}
 }
 
-// newFilters skips empty conditions, which repositories reject on save
+// newFilters keeps an empty condition as an empty document instead of
+// dropping it, which would change what the filter matches. Repositories reject
+// empty conditions on save; one stored anyway makes the view fail to read.
 func newFilters(conditions []view.Condition) []FilterDocument {
-	return lo.FilterMap(conditions, func(c view.Condition, _ int) (FilterDocument, bool) {
-		f := NewFilter(&c)
-		if f == nil {
-			return FilterDocument{}, false
-		}
-		return *f, true
+	return lo.Map(conditions, func(c view.Condition, _ int) FilterDocument {
+		return lo.FromPtr(NewFilter(&c))
 	})
 }
 

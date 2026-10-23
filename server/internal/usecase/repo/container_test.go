@@ -41,6 +41,12 @@ func TestProjectFilter_CanRead(t *testing.T) {
 			want:   false,
 		},
 		{
+			name:   "must allow any project without a writable filter",
+			filter: ProjectFilter{Readable: project.IDList{p1}},
+			args:   project.IDList{p2},
+			want:   true,
+		},
+		{
 			name: "must allow no projects without a readable filter",
 			want: true,
 		},

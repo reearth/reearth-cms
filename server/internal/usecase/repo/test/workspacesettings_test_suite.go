@@ -605,6 +605,13 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			wantErr: workspacesettings.ErrInvalidResource,
 		},
 		{
+			name:    "must not save a terrain in the tiles",
+			seeds:   workspacesettings.List{w1s},
+			args:    withTiles(newWorkspaceSettingsTerrain(workspacesettings.TerrainTypeCesiumIon, "terrain")),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
 			name:    "must not save a terrain of an empty type",
 			seeds:   workspacesettings.List{w1s},
 			args:    withTiles(newWorkspaceSettingsTerrain("", "empty")),

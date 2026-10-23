@@ -120,9 +120,10 @@ func applyWorkspaceFilter(filter any, ids accountdomain.WorkspaceIDList) any {
 }
 
 // readableProjects returns the projects ProjectFilter.CanRead allows, writable
-// projects included, or nil when reads are not restricted
+// projects included, or nil when reads are not restricted: a nil readable or
+// writable list allows every project
 func readableProjects(f repo.ProjectFilter) id.ProjectIDList {
-	if f.Readable == nil {
+	if f.Readable == nil || f.Writable == nil {
 		return nil
 	}
 	// never nil, as nil would lift the restriction

@@ -62,6 +62,16 @@ func TestWorkspaceSettings_Validate(t *testing.T) {
 			want: ErrInvalidResource,
 		},
 		{
+			name: "must reject a terrain in the tiles",
+			args: settings([]*Resource{validTile, validTerrain}, nil),
+			want: ErrInvalidResource,
+		},
+		{
+			name: "must reject a tile in the terrains",
+			args: settings(nil, []*Resource{validTerrain, validTile}),
+			want: ErrInvalidResource,
+		},
+		{
 			name: "must reject a resource type that does not match",
 			args: settings([]*Resource{NewResource(ResourceTypeTerrain, tile(NewResourceID(), TileTypeURL), nil)}, nil),
 			want: ErrInvalidResource,
