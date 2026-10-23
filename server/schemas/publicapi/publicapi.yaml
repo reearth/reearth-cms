@@ -331,9 +331,7 @@ paths:
         how many seconds to wait before retrying.
       tags:
         - Items
-      security:
-        - { }
-        - apiKey: [ ]
+      security: []
       parameters:
         - $ref: '#/components/parameters/modelParam'
       requestBody:
@@ -395,6 +393,7 @@ paths:
       description: Handles the CORS preflight request for browser-based posting clients.
       tags:
         - Items
+      security: []
       parameters:
         - $ref: '#/components/parameters/modelParam'
       responses:
