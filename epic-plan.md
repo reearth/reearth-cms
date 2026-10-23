@@ -84,9 +84,9 @@ The method of uniqueness check might differ from other field types, due to the d
 - ~~Define the comparison rule first, such as coordinate precision and vertex order, and get it agreed before implementation.~~
 - Offer the unique setting when creating or editing a Geometry field.
 - ~~Enforce uniqueness using the agreed rule, with an error that names the field.~~
-- **Points:** User might want to save points very closed to each other on purpose, so we cannot see closed points as the same value.
-- **LineStrings and Polygons:** should check through all value of vertices WITHOUT order.
-- Validate geometries at backend, with exact match. Show (throw) error when it’s already existed in database, just like other field types.
+- **Points:** User might want to save points very close to each other on purpose, so we cannot see close points as the same value.
+- **LineStrings and Polygons:** should check through all vertex values WITHOUT order.
+- Validate geometries at backend, with exact match. Show (throw) error when it already exists in the database, just like other field types.
 
 **Depends on:** tasks 1, 2 and 3
 
@@ -104,7 +104,7 @@ Currently, a multi-value geometry field shows one map per value, drawing a new s
 - Multiple mode: drawing a new shape adds a new value.
 - For Point, LineString and Polygon: select, move, edit vertices and delete on the map.
 - For MultiPoint, MultiLineString, MultiPolygon and GeometryCollection: display them, allow deleting the whole value, and offer no editing on the map.
-  - Two different colours for editable (primary, blue) and read-only (secondary, gray, dashed lines, friendly for coloured-blind users) geometries
+  - Two different colours for editable (primary, blue) and read-only (secondary, gray, dashed lines, friendly for colour-blind users) geometries
   - Add legend somewhere to explain the meaning of the colours. Or pop up the hint message when hovering read-only geometries if it’s possible to implement.
 - Never change the type of an existing value.
 
