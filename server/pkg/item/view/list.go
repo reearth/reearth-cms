@@ -15,6 +15,16 @@ func (l List) Projects() id.ProjectIDList {
 	})
 }
 
+// Validate returns the first error of View.Validate in the list.
+func (l List) Validate() error {
+	for _, v := range l {
+		if err := v.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (l List) AreViewsInTheSameModel() bool {
 	if len(l) == 0 {
 		return true

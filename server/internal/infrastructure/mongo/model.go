@@ -107,7 +107,7 @@ func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 		return nil, rerror.ErrNotFound
 	}
 	if !r.f.CanRead(projectID) {
-		return nil, repo.ErrOperationDenied
+		return nil, rerror.ErrNotFound
 	}
 
 	return r.findOne(ctx, bson.M{
@@ -231,7 +231,7 @@ func normalize(ms *usecasex.Sort) *usecasex.Sort {
 }
 
 func (r *Model) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
 func (r *Model) writeFilter(filter any) any {

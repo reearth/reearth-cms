@@ -1,13 +1,17 @@
 package mongodoc
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type ViewDocument struct {
@@ -126,14 +130,14 @@ func NewFilter(i *view.Condition) *FilterDocument {
 		return &FilterDocument{
 			ConditionType: "AND",
 			AndCondition: &AndConditionDocument{
-				Conditions: lo.Map(i.AndCondition.Conditions, func(c view.Condition, _ int) FilterDocument { return *NewFilter(&c) }),
+				Conditions: newFilters(i.AndCondition.Conditions),
 			},
 		}
 	case i.OrCondition != nil:
 		return &FilterDocument{
 			ConditionType: "OR",
 			OrCondition: &OrConditionDocument{
-				Conditions: lo.Map(i.OrCondition.Conditions, func(c view.Condition, _ int) FilterDocument { return *NewFilter(&c) }),
+				Conditions: newFilters(i.OrCondition.Conditions),
 			},
 		}
 	case i.BasicCondition != nil:
@@ -203,6 +207,15 @@ func NewFilter(i *view.Condition) *FilterDocument {
 	}
 }
 
+// newFilters keeps an empty condition as an empty document instead of
+// dropping it, which would change what the filter matches. Repositories reject
+// empty conditions on save; one stored anyway makes the view fail to read.
+func newFilters(conditions []view.Condition) []FilterDocument {
+	return lo.Map(conditions, func(c view.Condition, _ int) FilterDocument {
+		return lo.FromPtr(NewFilter(&c))
+	})
+}
+
 func (d *FilterDocument) Model() *view.Condition {
 	if d == nil {
 		return nil
@@ -211,18 +224,21 @@ func (d *FilterDocument) Model() *view.Condition {
 	switch d.ConditionType {
 	case "AND":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeAnd,
 			AndCondition: &view.AndCondition{
-				Conditions: lo.Map(d.AndCondition.Conditions, func(c FilterDocument, _ int) view.Condition { return *c.Model() }),
+				Conditions: filterModels(d.AndCondition.Conditions),
 			},
 		}
 	case "OR":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeOr,
 			OrCondition: &view.OrCondition{
-				Conditions: lo.Map(d.OrCondition.Conditions, func(c FilterDocument, _ int) view.Condition { return *c.Model() }),
+				Conditions: filterModels(d.OrCondition.Conditions),
 			},
 		}
 	case "BASIC":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeBasic,
 			BasicCondition: &view.BasicCondition{
 				Field: d.BasicCondition.Field.Model(),
 				Op:    view.BasicOperator(d.BasicCondition.Op),
@@ -231,6 +247,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "NULLABLE":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeNullable,
 			NullableCondition: &view.NullableCondition{
 				Field: d.NullableCondition.Field.Model(),
 				Op:    view.NullableOperator(d.NullableCondition.Op),
@@ -238,6 +255,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "MULTIPLE":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeMultiple,
 			MultipleCondition: &view.MultipleCondition{
 				Field: d.MultipleCondition.Field.Model(),
 				Op:    view.MultipleOperator(d.MultipleCondition.Op),
@@ -246,6 +264,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "BOOL":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeBool,
 			BoolCondition: &view.BoolCondition{
 				Field: d.BoolCondition.Field.Model(),
 				Op:    view.BoolOperator(d.BoolCondition.Op),
@@ -254,6 +273,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "STRING":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeString,
 			StringCondition: &view.StringCondition{
 				Field: d.StringCondition.Field.Model(),
 				Op:    view.StringOperator(d.StringCondition.Op),
@@ -262,6 +282,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "NUMBER":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeNumber,
 			NumberCondition: &view.NumberCondition{
 				Field: d.NumberCondition.Field.Model(),
 				Op:    view.NumberOperator(d.NumberCondition.Op),
@@ -270,6 +291,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "TIME":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeTime,
 			TimeCondition: &view.TimeCondition{
 				Field: d.TimeCondition.Field.Model(),
 				Op:    view.TimeOperator(d.TimeCondition.Op),
@@ -278,6 +300,41 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	default:
 		return nil
+	}
+}
+
+// filterModels expects documents checked by valid
+func filterModels(docs []FilterDocument) []view.Condition {
+	return lo.Map(docs, func(d FilterDocument, _ int) view.Condition { return *d.Model() })
+}
+
+var ErrInvalidFilterDocument = errors.New("invalid view filter document")
+
+// valid reports whether the document and every nested one have a known type
+// and the matching condition. A view with an invalid filter is not read, as
+// dropping a condition and saving the view back would change what it matches.
+func (d *FilterDocument) valid() bool {
+	switch d.ConditionType {
+	case "AND":
+		return d.AndCondition != nil && lo.EveryBy(d.AndCondition.Conditions, func(c FilterDocument) bool { return c.valid() })
+	case "OR":
+		return d.OrCondition != nil && lo.EveryBy(d.OrCondition.Conditions, func(c FilterDocument) bool { return c.valid() })
+	case "BASIC":
+		return d.BasicCondition != nil
+	case "NULLABLE":
+		return d.NullableCondition != nil
+	case "MULTIPLE":
+		return d.MultipleCondition != nil
+	case "BOOL":
+		return d.BoolCondition != nil
+	case "STRING":
+		return d.StringCondition != nil
+	case "NUMBER":
+		return d.NumberCondition != nil
+	case "TIME":
+		return d.TimeCondition != nil
+	default:
+		return false
 	}
 }
 
@@ -383,6 +440,10 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		return nil, err
 	}
 
+	if d.Filter != nil && !d.Filter.valid() {
+		return nil, fmt.Errorf("%w: view %s", ErrInvalidFilterDocument, d.ID)
+	}
+
 	columns := lo.Map(d.Columns, func(c ColumnDocument, _ int) view.Column { return c.Model() })
 
 	return view.New().
@@ -404,4 +465,30 @@ type ViewConsumer = mongox.SliceFuncConsumer[*ViewDocument, *view.View]
 
 func NewViewConsumer() *ViewConsumer {
 	return NewConsumer[*ViewDocument, *view.View]()
+}
+
+// ViewListConsumer skips and logs the views whose stored filter can not be
+// read, so one broken view does not break listing the others. Such a view is
+// never loaded, so it is never saved back with a changed filter.
+type ViewListConsumer struct {
+	Result view.List
+}
+
+func NewViewListConsumer() *ViewListConsumer {
+	return &ViewListConsumer{}
+}
+
+func (c *ViewListConsumer) Consume(raw bson.Raw) error {
+	return mongox.SimpleConsumer[*ViewDocument](func(d *ViewDocument) error {
+		v, err := d.Model()
+		if errors.Is(err, ErrInvalidFilterDocument) {
+			log.Warnf("mongo view: skipping a view with an invalid filter: %v", err)
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		c.Result = append(c.Result, v)
+		return nil
+	}).Consume(raw)
 }

@@ -65,6 +65,15 @@ func newOrderedRequests(pid id.ProjectID, n int) []*request.Builder {
 	return lo.Map(ids, func(rid id.RequestID, _ int) *request.Builder { return newRequest(pid).ID(rid) })
 }
 
+// saveRequests seeds requests of any project one by one, as SaveAll takes
+// requests of a single project
+func saveRequests(t *testing.T, r repo.Request, l request.List) {
+	t.Helper()
+	for _, req := range l {
+		require.NoError(t, r.Save(context.Background(), req))
+	}
+}
+
 func requestIDs(l request.List) id.RequestIDList {
 	return lo.Map(l, func(r *request.Request, _ int) id.RequestID { return r.ID() })
 }
@@ -134,7 +143,7 @@ func testRequestFiltered(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			base := newRepo(t)
-			require.NoError(t, base.SaveAll(ctx, p1, seeds))
+			saveRequests(t, base, seeds)
 			r := tc.filter(base)
 
 			got, err := r.FindByIDs(ctx, requestIDs(seeds))
@@ -211,13 +220,12 @@ func testRequestFindByID(t *testing.T, newRepo requestFactory) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			// reads are scoped by the readable list alone, even though
-			// ProjectFilter.CanRead treats writable projects as readable
-			name:    "must not find a request of a writable-only project",
-			seeds:   seeds,
-			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
-			args:    p1r1.ID(),
-			wantErr: rerror.ErrNotFound,
+			// like ProjectFilter.CanRead, writable projects are readable
+			name:   "must find a request of a writable-only project",
+			seeds:  seeds,
+			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:   p1r1.ID(),
+			want:   p1r1,
 		},
 	}
 
@@ -226,7 +234,7 @@ func testRequestFindByID(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			require.NoError(t, r.SaveAll(ctx, p1, tc.seeds))
+			saveRequests(t, r, tc.seeds)
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
@@ -289,11 +297,12 @@ func testRequestFindByIDs(t *testing.T, newRepo requestFactory) {
 			want:   request.List{p1r1},
 		},
 		{
-			name:   "must skip requests of writable-only projects",
+			// like ProjectFilter.CanRead, writable projects are readable
+			name:   "must find requests of readable and writable-only projects",
 			seeds:  seeds,
 			filter: new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p1})),
 			args:   id.RequestIDList{p2r1.ID(), p1r1.ID()},
-			want:   request.List{p2r1},
+			want:   request.List{p2r1, p1r1},
 		},
 		{
 			name:   "must find an empty list with no readable projects",
@@ -309,7 +318,7 @@ func testRequestFindByIDs(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			require.NoError(t, r.SaveAll(ctx, p1, tc.seeds))
+			saveRequests(t, r, tc.seeds)
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
@@ -458,8 +467,7 @@ func testRequestFindByProject(t *testing.T, newRepo requestFactory) {
 			want:   request.List{p1r1, p1r2},
 		},
 		{
-			// unlike the ID-keyed reads, reads by project are gated by
-			// ProjectFilter.CanRead alone, which treats writable projects as readable
+			// like ProjectFilter.CanRead, writable projects are readable
 			name:   "must find requests of a writable-only project",
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
 			pid:    p1,
@@ -478,7 +486,7 @@ func testRequestFindByProject(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			require.NoError(t, r.SaveAll(ctx, p1, seeds))
+			saveRequests(t, r, seeds)
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
@@ -614,9 +622,25 @@ func testRequestFindByProjectPagination(t *testing.T, newRepo requestFactory) {
 			wantPage:  true,
 		},
 		{
-			// the key is used as a document field name as is; documents have
-			// no createdAt field, so the requests are sorted by ID alone,
-			// which follows the creation time
+			name:      "must sort by update time with a camel case key",
+			args:      args{sort: &usecasex.Sort{Key: "updatedAt"}, pagination: first(10)},
+			want:      request.List{p1r3, p1r1, p1r4, p1r2},
+			wantTotal: 4,
+			wantPage:  true,
+		},
+		{
+			name:      "must sort by ID for an unknown key",
+			args:      args{sort: &usecasex.Sort{Key: "unknown", Reverted: true}, pagination: first(10)},
+			want:      request.List{p1r4, p1r3, p1r2, p1r1},
+			wantTotal: 4,
+			wantPage:  true,
+		},
+		// TODO: a cursor on a sort by a nullable field (approvedat, closedat)
+		// finds only the documents with a value: reearthx mongox pageFilter
+		// compares the field with the cursor's null value ($gt: null), which
+		// matches nothing. Such cases are left out until mongox is fixed.
+		{
+			// the creation time is the ID order
 			name:      "must sort by creation time in reverse",
 			args:      args{sort: &usecasex.Sort{Key: "createdAt", Reverted: true}, pagination: first(10)},
 			want:      request.List{p1r4, p1r3, p1r2, p1r1},
@@ -700,7 +724,7 @@ func testRequestFindByProjectPagination(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			require.NoError(t, r.SaveAll(ctx, p1, request.List{p1r1, p1r2, p1r3, p1r4, p2r1}))
+			saveRequests(t, r, request.List{p1r1, p1r2, p1r3, p1r4, p2r1})
 
 			got, pi, err := r.FindByProject(ctx, p1, repo.RequestFilter{}, tc.args.sort, tc.args.pagination)
 			if tc.wantErr {
@@ -759,6 +783,10 @@ func testRequestFindByItems(t *testing.T, newRepo requestFactory) {
 			args: args{items: id.ItemIDList{}},
 		},
 		{
+			name: "must find nothing for a nil list",
+			args: args{items: nil},
+		},
+		{
 			name: "must find requests with an empty filter",
 			args: args{items: id.ItemIDList{i1, i2}, filter: &repo.RequestFilter{}},
 			want: request.List{p1r1, p1r2, p2r1},
@@ -809,11 +837,11 @@ func testRequestFindByItems(t *testing.T, newRepo requestFactory) {
 			args:   args{items: id.ItemIDList{i1, i3}},
 		},
 		{
-			// reads are scoped by the readable list alone, even though
-			// ProjectFilter.CanRead treats writable projects as readable
-			name:   "must find nothing in writable-only projects",
+			// like ProjectFilter.CanRead, writable projects are readable
+			name:   "must find requests of writable-only projects",
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:   args{items: id.ItemIDList{i1}},
+			want:   request.List{p1r1, p1r2},
 		},
 	}
 
@@ -822,7 +850,7 @@ func testRequestFindByItems(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			r := newRepo(t)
-			require.NoError(t, r.SaveAll(ctx, p1, seeds))
+			saveRequests(t, r, seeds)
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
@@ -861,6 +889,13 @@ func testRequestFields(t *testing.T, newRepo requestFactory) {
 				newRequestItem(id.NewItemID(), version.New().OrRef()),
 				newRequestItem(id.NewItemID(), version.Public.OrVersion()),
 				newRequestItem(id.NewItemID(), version.Ref("custom").OrVersion()),
+			}).MustBuild(),
+		},
+		{
+			name: "must keep an item without a version or a ref",
+			args: newRequest(pid).Items(request.ItemList{
+				newRequestItem(id.NewItemID(), version.VersionOrRef{}),
+				newRequestItem(id.NewItemID(), version.New().OrRef()),
 			}).MustBuild(),
 		},
 		{
@@ -966,6 +1001,8 @@ func testRequestSave(t *testing.T, newRepo requestFactory) {
 	p1r1Updated := newRequest(p1).ID(p1r1.ID()).Workspace(p1r1.Workspace()).CreatedBy(p1r1.CreatedBy()).
 		Title("after").Description("description").State(request.StateApproved).
 		ApprovedAt(new(newRequestTime(time.Hour))).UpdatedAt(newRequestTime(time.Hour)).MustBuild()
+	unknownState := newRequest(p1).MustBuild()
+	unknownState.SetState("unknown")
 
 	tests := []struct {
 		name    string
@@ -1012,6 +1049,15 @@ func testRequestSave(t *testing.T, newRepo requestFactory) {
 			want:    p1r1, // unchanged
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name:    "must not save a request with an unknown state",
+			args:    unknownState,
+			wantErr: request.ErrInvalidState,
+		},
+		{
+			name:    "must not save a nil request",
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -1019,13 +1065,16 @@ func testRequestSave(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			base := newRepo(t)
-			require.NoError(t, base.SaveAll(ctx, p1, tc.seeds))
+			saveRequests(t, base, tc.seeds)
 			r := base
 			if tc.filter != nil {
 				r = base.Filtered(*tc.filter)
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			got, err := base.FindByID(ctx, tc.args.ID())
@@ -1046,7 +1095,10 @@ func testRequestSaveAll(t *testing.T, newRepo requestFactory) {
 	p1r2 := newRequest(p1).MustBuild()
 	p1r1Updated := newRequest(p1).ID(p1r1.ID()).Workspace(p1r1.Workspace()).CreatedBy(p1r1.CreatedBy()).
 		Title("after").State(request.StateClosed).ClosedAt(new(newRequestTime(time.Hour))).MustBuild()
-	all := id.RequestIDList{p1r1.ID(), p1r2.ID()}
+	p2r1 := newRequest(p2).MustBuild()
+	unknownState := newRequest(p1).MustBuild()
+	unknownState.SetState("unknown")
+	all := id.RequestIDList{p1r1.ID(), p1r2.ID(), p2r1.ID(), unknownState.ID()}
 
 	type args struct {
 		pid      id.ProjectID
@@ -1078,9 +1130,10 @@ func testRequestSaveAll(t *testing.T, newRepo requestFactory) {
 			want: request.List{p1r1, p1r2},
 		},
 		{
-			name: "must skip nil requests",
-			args: args{pid: p1, requests: request.List{nil, p1r2}},
-			want: request.List{p1r2},
+			name:    "must not save a list that includes a nil request",
+			args:    args{pid: p1, requests: request.List{nil, p1r2}},
+			want:    request.List{},
+			wantErr: rerror.ErrInvalidParams,
 		},
 		{
 			name:  "must overwrite existing requests",
@@ -1101,9 +1154,25 @@ func testRequestSaveAll(t *testing.T, newRepo requestFactory) {
 			want:    request.List{},
 			wantErr: repo.ErrOperationDenied,
 		},
-		// TODO: SaveAll checks only the given project, so requests of a
-		// project that is not writable are saved when a writable project is
-		// given; such requests must be rejected
+		{
+			name:    "must not save requests of another project",
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:    args{pid: p1, requests: request.List{p1r1, p2r1}},
+			want:    request.List{},
+			wantErr: rerror.ErrInvalidParams,
+		},
+		{
+			name:    "must not save requests of another project without a filter",
+			args:    args{pid: p1, requests: request.List{p2r1}},
+			want:    request.List{},
+			wantErr: rerror.ErrInvalidParams,
+		},
+		{
+			name:    "must not save a request with an unknown state",
+			args:    args{pid: p1, requests: request.List{p1r1, unknownState}},
+			want:    request.List{},
+			wantErr: request.ErrInvalidState,
+		},
 	}
 
 	for _, tc := range tests {
@@ -1111,7 +1180,7 @@ func testRequestSaveAll(t *testing.T, newRepo requestFactory) {
 			t.Parallel()
 
 			base := newRepo(t)
-			require.NoError(t, base.SaveAll(ctx, p1, tc.seeds))
+			saveRequests(t, base, tc.seeds)
 			r := base
 			if tc.filter != nil {
 				r = base.Filtered(*tc.filter)

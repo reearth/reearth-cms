@@ -1,6 +1,12 @@
 package view
 
-import "github.com/samber/lo"
+import (
+	"errors"
+
+	"github.com/samber/lo"
+)
+
+var ErrEmptyCondition = errors.New("empty condition")
 
 type ConditionType string
 
@@ -27,6 +33,31 @@ type Condition struct {
 	StringCondition   *StringCondition
 	NumberCondition   *NumberCondition
 	TimeCondition     *TimeCondition
+}
+
+// Validate returns ErrEmptyCondition when the condition, or one of the
+// conditions nested in it, has no condition set.
+func (c Condition) Validate() error {
+	switch {
+	case c.AndCondition != nil:
+		return validateConditions(c.AndCondition.Conditions)
+	case c.OrCondition != nil:
+		return validateConditions(c.OrCondition.Conditions)
+	case c.BasicCondition != nil, c.NullableCondition != nil, c.MultipleCondition != nil,
+		c.BoolCondition != nil, c.StringCondition != nil, c.NumberCondition != nil, c.TimeCondition != nil:
+		return nil
+	default:
+		return ErrEmptyCondition
+	}
+}
+
+func validateConditions(conditions []Condition) error {
+	for _, c := range conditions {
+		if err := c.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c Condition) MetaFields() FieldSelectorList {

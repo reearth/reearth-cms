@@ -77,6 +77,9 @@ func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids accountdomain
 }
 
 func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspacesettings.WorkspaceSettings) error {
+	if err := ws.Validate(); err != nil {
+		return err
+	}
 	if !r.f.CanWrite(ws.ID()) {
 		return repo.ErrOperationDenied
 	}

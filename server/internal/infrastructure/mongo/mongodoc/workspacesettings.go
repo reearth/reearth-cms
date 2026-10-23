@@ -98,20 +98,6 @@ func FromResources(rd []*ResourceDocument) []*workspacesettings.Resource {
 	})
 }
 
-var validTileTypes = map[workspacesettings.TileType]bool{
-	workspacesettings.TileTypeDefault:             true,
-	workspacesettings.TileTypeRoadMap:             true,
-	workspacesettings.TileTypeOpenStreetMap:       true,
-	workspacesettings.TileTypeEarthAtNight:        true,
-	workspacesettings.TileTypeJapanGSIStandardMap: true,
-	workspacesettings.TileTypeURL:                 true,
-}
-
-var validTerrainTypes = map[workspacesettings.TerrainType]bool{
-	workspacesettings.TerrainTypeReearthTerrain: true,
-	workspacesettings.TerrainTypeCesiumIon:      true,
-}
-
 func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 	if r == nil {
 		return nil
@@ -119,7 +105,7 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 
 	if r.Tile != nil {
 		tileType := workspacesettings.TileType(r.Tile.Type)
-		if !validTileTypes[tileType] {
+		if !tileType.IsValid() {
 			return nil
 		}
 		rid, err := id.ResourceIDFrom(r.Tile.ID)
@@ -132,7 +118,7 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 
 	if r.Terrain != nil {
 		terrainType := workspacesettings.TerrainType(r.Terrain.Type)
-		if !validTerrainTypes[terrainType] {
+		if !terrainType.IsValid() {
 			return nil
 		}
 		rid, err := id.ResourceIDFrom(r.Terrain.ID)

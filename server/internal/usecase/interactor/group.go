@@ -214,9 +214,14 @@ func (i Group) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 			if k := id.NewKey(s); !k.IsValid() {
 				return false, id.ErrInvalidKey
 			}
+			// a project that can not be read must not report its keys as available
+			if _, err := i.repos.Project.FindByID(ctx, pId); err != nil {
+				return false, err
+			}
 
-			g, err := i.repos.Group.FindByKey(ctx, pId, s)
-			if g == nil && err == nil || err != nil && errors.Is(err, rerror.ErrNotFound) {
+			// FindByKey returns either a group or an error
+			_, err := i.repos.Group.FindByKey(ctx, pId, s)
+			if errors.Is(err, rerror.ErrNotFound) {
 				return true, nil
 			}
 

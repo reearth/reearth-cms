@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -66,6 +68,9 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 }
 
 func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList, uFilter *repo.RequestFilter) (request.List, error) {
+	if len(list) == 0 {
+		return nil, nil
+	}
 
 	filter := bson.M{
 		"items.item": bson.M{
@@ -139,10 +144,13 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			},
 		}
 	}
-	return r.paginate(ctx, &filter, sort, page)
+	return r.paginate(ctx, filter, normalizeRequestSort(sort), page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
+	if err := request.Validate(); err != nil {
+		return err
+	}
 	if !r.f.CanWrite(request.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -154,7 +162,9 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 	if len(requests) == 0 {
 		return nil
 	}
-
+	if err := validateRequests(pid, requests); err != nil {
+		return err
+	}
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied
 	}
@@ -165,11 +175,6 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 		docs2 = append(docs2, d)
 	}
 	return r.client.SaveAll(ctx, ids, docs2)
-}
-
-func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
-	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
-		"id": id.String()}))
 }
 
 func (r *Request) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
@@ -185,7 +190,7 @@ func (r *Request) paginate(ctx context.Context, filter any, sort *usecasex.Sort,
 func (r *Request) find(ctx context.Context, filter any) (request.List, error) {
 	c := mongodoc.NewRequestConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
-		return nil, rerror.ErrInternalBy(err)
+		return nil, err
 	}
 	return c.Result, nil
 }
@@ -212,9 +217,46 @@ func filterRequests(ids id.RequestIDList, rows request.List) request.List {
 }
 
 func (r *Request) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
-func (r *Request) writeFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Writable)
+// validateRequests checks that every request can be stored and belongs to the project
+func validateRequests(pid id.ProjectID, requests request.List) error {
+	for _, req := range requests {
+		if err := req.Validate(); err != nil {
+			return err
+		}
+		if req.Project() != pid {
+			return rerror.ErrInvalidParams
+		}
+	}
+	return nil
+}
+
+// normalizeRequestSort maps a sort key to a request document field; an
+// unknown key sorts by ID, which is also the creation order
+func normalizeRequestSort(s *usecasex.Sort) *usecasex.Sort {
+	if s == nil {
+		return nil
+	}
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(s.Key)),
+		Reverted: s.Reverted,
+	}
+	switch res.Key {
+	case "createdat", "created_at":
+		res.Key = "id"
+	case "updated_at":
+		res.Key = "updatedat"
+	case "approved_at":
+		res.Key = "approvedat"
+	case "closed_at":
+		res.Key = "closedat"
+	case "created_by":
+		res.Key = "createdby"
+	}
+	if !slices.Contains([]string{"id", "workspace", "project", "title", "description", "createdby", "state", "updatedat", "approvedat", "closedat"}, res.Key) {
+		res.Key = "id"
+	}
+	return res
 }

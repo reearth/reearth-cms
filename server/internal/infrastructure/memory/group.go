@@ -3,6 +3,7 @@ package memory
 import (
 	"cmp"
 	"context"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -114,7 +115,7 @@ func (r *Group) FindByKey(_ context.Context, pid id.ProjectID, key string) (*gro
 	}
 
 	if !r.f.CanRead(pid) {
-		return nil, repo.ErrOperationDenied
+		return nil, rerror.ErrNotFound
 	}
 
 	return r.findOne(func(g *group.Group) bool {
@@ -156,6 +157,9 @@ func (r *Group) SaveAll(_ context.Context, groups group.List) error {
 	if len(groups) == 0 {
 		return nil
 	}
+	if slices.Contains(groups, nil) {
+		return rerror.ErrInvalidParams
+	}
 
 	if !r.f.CanWrite(groups.Projects()...) {
 		return repo.ErrOperationDenied
@@ -170,6 +174,9 @@ func (r *Group) SaveAll(_ context.Context, groups group.List) error {
 func (r *Group) Save(_ context.Context, g *group.Group) error {
 	if r.err != nil {
 		return r.err
+	}
+	if g == nil {
+		return rerror.ErrInvalidParams
 	}
 
 	if !r.f.CanWrite(g.Project()) {
@@ -203,7 +210,7 @@ func (r *Group) findOne(f func(*group.Group) bool) (*group.Group, error) {
 }
 
 func (r *Group) canRead(g *group.Group) bool {
-	return r.f.Readable == nil || r.f.Readable.Has(g.Project())
+	return r.f.CanRead(g.Project())
 }
 
 func (r *Group) pager() pager[*group.Group] {

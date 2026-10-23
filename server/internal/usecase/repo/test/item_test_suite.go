@@ -937,6 +937,20 @@ func testItemFindByAssets(t *testing.T, newRepo itemFactory) {
 			seeds: seeds,
 			args:  id.AssetIDList{},
 			want:  0,
+		}, {
+			// like ProjectFilter.CanRead, writable projects are readable
+			name:   "must find items of a writable-only project",
+			seeds:  seeds,
+			filter: &repo.ProjectFilter{Readable: id.ProjectIDList{}, Writable: id.ProjectIDList{pid}},
+			args:   id.AssetIDList{aid1, aid2},
+			want:   2,
+		},
+		{
+			name:   "must not find items of an unreadable project",
+			seeds:  seeds,
+			filter: rwFilter(id.NewProjectID()),
+			args:   id.AssetIDList{aid1, aid2},
+			want:   0,
 		},
 	}
 

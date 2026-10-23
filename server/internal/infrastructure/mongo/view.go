@@ -8,13 +8,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
-	viewIndexes       = []string{"project", "model", "schema"}
+	viewIndexes       = []string{"project", "modelid"}
 	viewUniqueIndexes = []string{"id"}
 )
 
@@ -58,23 +57,20 @@ func (r *View) FindByIDs(ctx context.Context, ids id.ViewIDList) (view.List, err
 		return nil, err
 	}
 
-	// prepare filters the results and sorts them according to original ids list
-	return util.Map(ids, func(sid id.ViewID) *view.View {
-		s, ok := lo.Find(res, func(s *view.View) bool {
-			return s.ID() == sid
-		})
-		if !ok {
-			return nil
-		}
-		return s
-	}), nil
+	return prepareViews(ids, res), nil
 }
 
 func (r *View) FindByModel(ctx context.Context, modelID view.ModelID) (view.List, error) {
-	return r.find(ctx, bson.M{"modelid": modelID.String()})
+	return r.find(ctx, bson.M{"modelid": modelID.String()}, options.Find().SetSort(bson.D{{Key: "order", Value: 1}, {Key: "id", Value: 1}}))
 }
 
 func (r *View) Save(ctx context.Context, view *view.View) error {
+	if err := view.Validate(); err != nil {
+		return err
+	}
+	if !r.f.CanWrite(view.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, sId := mongodoc.NewView(view)
 	return r.client.SaveOne(ctx, sId, doc)
 }
@@ -82,6 +78,9 @@ func (r *View) Save(ctx context.Context, view *view.View) error {
 func (r *View) SaveAll(ctx context.Context, list view.List) error {
 	if len(list) == 0 {
 		return nil
+	}
+	if err := list.Validate(); err != nil {
+		return err
 	}
 	if !r.f.CanWrite(list.Projects()...) {
 		return repo.ErrOperationDenied
@@ -95,25 +94,47 @@ func (r *View) SaveAll(ctx context.Context, list view.List) error {
 }
 
 func (r *View) Remove(ctx context.Context, viewID id.ViewID) error {
-	return r.client.RemoveOne(ctx, bson.M{"id": viewID.String()})
+	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": viewID.String()}))
 }
 
 func (r *View) RemoveByModel(ctx context.Context, modelID id.ModelID) error {
-	return r.client.RemoveAll(ctx, bson.M{"modelid": modelID.String()})
+	return r.client.RemoveAll(ctx, r.writeFilter(bson.M{"modelid": modelID.String()}))
 }
 
 func (r *View) findOne(ctx context.Context, filter any) (*view.View, error) {
 	c := mongodoc.NewViewConsumer()
-	if err := r.client.FindOne(ctx, filter, c); err != nil {
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
 	return c.Result[0], nil
 }
 
-func (r *View) find(ctx context.Context, filter any) (view.List, error) {
-	c := mongodoc.NewViewConsumer()
-	if err := r.client.Find(ctx, filter, c); err != nil {
+func (r *View) find(ctx context.Context, filter any, opts ...*options.FindOptions) (view.List, error) {
+	c := mongodoc.NewViewListConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
+}
+
+func (r *View) readFilter(filter any) any {
+	return applyProjectFilter(filter, readableProjects(r.f))
+}
+
+func (r *View) writeFilter(filter any) any {
+	return applyProjectFilter(filter, r.f.Writable)
+}
+
+// prepareViews skips unknown IDs and sorts the results according to the given IDs
+func prepareViews(ids id.ViewIDList, rows view.List) view.List {
+	res := make(view.List, 0, len(ids))
+	for _, vid := range ids {
+		for _, r := range rows {
+			if r.ID() == vid {
+				res = append(res, r)
+				break
+			}
+		}
+	}
+	return res
 }

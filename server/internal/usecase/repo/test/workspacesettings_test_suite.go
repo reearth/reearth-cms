@@ -540,6 +540,12 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 		workspacesettings.NewResourceList([]*workspacesettings.Resource{newWorkspaceSettingsTile(workspacesettings.TileTypeOpenStreetMap, "osm")}, nil, new(false)),
 		nil,
 	)
+	// the builder rejects invalid resources, so valid settings are broken with SetTiles
+	withTiles := func(r *workspacesettings.Resource) *workspacesettings.WorkspaceSettings {
+		ws := newWorkspaceSettings(w1, nil, nil)
+		ws.SetTiles(workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, nil, nil))
+		return ws
+	}
 
 	tests := []struct {
 		name    string
@@ -580,6 +586,62 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			want:    w1s, // unchanged
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name:    "must not save nil settings",
+			wantErr: rerror.ErrInvalidParams,
+		},
+		{
+			name:    "must not save a nil resource",
+			seeds:   workspacesettings.List{w1s},
+			args:    withTiles(nil),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
+			name:    "must not save a tile of an unknown type",
+			seeds:   workspacesettings.List{w1s},
+			args:    withTiles(newWorkspaceSettingsTile("unknown", "unknown")),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
+			name:    "must not save a terrain in the tiles",
+			seeds:   workspacesettings.List{w1s},
+			args:    withTiles(newWorkspaceSettingsTerrain(workspacesettings.TerrainTypeCesiumIon, "terrain")),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
+			name:    "must not save a terrain of an empty type",
+			seeds:   workspacesettings.List{w1s},
+			args:    withTiles(newWorkspaceSettingsTerrain("", "empty")),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
+			name:  "must not save a resource with a zero ID",
+			seeds: workspacesettings.List{w1s},
+			args: withTiles(workspacesettings.NewResource(workspacesettings.ResourceTypeTile,
+				workspacesettings.NewTileResource(workspacesettings.ResourceID{}, workspacesettings.TileTypeURL, workspacesettings.UrlResourceProps{}), nil)),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
+			name:    "must not save a resource without a tile or a terrain",
+			seeds:   workspacesettings.List{w1s},
+			args:    withTiles(workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, nil)),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
+		{
+			name:  "must not save a resource with both a tile and a terrain",
+			seeds: workspacesettings.List{w1s},
+			args: withTiles(workspacesettings.NewResource(workspacesettings.ResourceTypeTile,
+				newWorkspaceSettingsTile(workspacesettings.TileTypeURL, "tile").Tile(),
+				newWorkspaceSettingsTerrain(workspacesettings.TerrainTypeCesiumIon, "terrain").Terrain())),
+			want:    w1s, // unchanged
+			wantErr: workspacesettings.ErrInvalidResource,
+		},
 	}
 
 	for _, tc := range tests {
@@ -594,6 +656,9 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			got, err := base.FindByID(ctx, tc.args.ID())

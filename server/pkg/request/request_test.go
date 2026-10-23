@@ -7,6 +7,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -133,4 +135,15 @@ func TestRequest_Clone(t *testing.T) {
 
 	assert.Equal(t, &Request{}, (&Request{}).Clone())
 	assert.Nil(t, (*Request)(nil).Clone())
+}
+
+func TestRequest_Validate(t *testing.T) {
+	r := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(NewProjectID()).
+		CreatedBy(accountdomain.NewUserID()).Items(ItemList{lo.Must(NewItem(NewItemID(), nil))}).Title("title").MustBuild()
+	assert.NoError(t, r.Validate())
+
+	r.SetState("unknown")
+	assert.Equal(t, ErrInvalidState, r.Validate())
+
+	assert.Equal(t, rerror.ErrInvalidParams, (*Request)(nil).Validate())
 }

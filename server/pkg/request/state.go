@@ -1,6 +1,11 @@
 package request
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
+
+var ErrInvalidState = errors.New("invalid state")
 
 type State string
 
@@ -26,5 +31,14 @@ func StateFrom(s string) State {
 		return StateClosed
 	default:
 		return State("")
+	}
+}
+
+func (s State) IsValid() bool {
+	switch s {
+	case StateDraft, StateWaiting, StateApproved, StateClosed:
+		return true
+	default:
+		return false
 	}
 }

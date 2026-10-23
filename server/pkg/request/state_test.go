@@ -22,3 +22,13 @@ func TestStateFrom(t *testing.T) {
 func TestState_String(t *testing.T) {
 	assert.Equal(t, "closed", StateClosed.String())
 }
+
+func TestState_IsValid(t *testing.T) {
+	assert.True(t, StateDraft.IsValid())
+	assert.True(t, StateWaiting.IsValid())
+	assert.True(t, StateApproved.IsValid())
+	assert.True(t, StateClosed.IsValid())
+	assert.False(t, State("").IsValid())
+	assert.False(t, State("Waiting").IsValid())
+	assert.False(t, State("unknown").IsValid())
+}

@@ -5,6 +5,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 func ToIntegration(i *integration.Integration, uId *accountdomain.UserID) *Integration {
@@ -23,7 +24,8 @@ func ToIntegration(i *integration.Integration, uId *accountdomain.UserID) *Integ
 		ID:          IDFrom(i.ID()),
 		Name:        i.Name(),
 		Description: new(i.Description()),
-		LogoURL:     *i.LogoUrl(),
+		// a missing logo is exposed as an empty URL, as the field is non-null
+		LogoURL:     lo.FromPtr(i.LogoUrl()),
 		IType:       ToIntegrationType(i.Type()),
 		DeveloperID: IDFrom(i.Developer()),
 		Developer:   nil,

@@ -2,16 +2,19 @@ package mongo
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
+	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -38,6 +41,10 @@ func (r *Integration) FindByID(ctx context.Context, integrationID id.Integration
 }
 
 func (r *Integration) FindByToken(ctx context.Context, token string) (*integration.Integration, error) {
+	// an integration without a token must not be found by an empty one
+	if token == "" {
+		return nil, rerror.ErrNotFound
+	}
 	return r.findOne(ctx, bson.M{
 		"token": token,
 	})
@@ -57,27 +64,41 @@ func (r *Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (
 		return nil, err
 	}
 
-	// prepare filters the results and sorts them according to original ids list
-	return util.Map(ids, func(sid id.IntegrationID) *integration.Integration {
-		s, ok := lo.Find(res, func(s *integration.Integration) bool {
-			return s.ID() == sid
-		})
-		if !ok {
-			return nil
-		}
-		return s
-	}), nil
+	return prepareIntegrations(ids, res), nil
 }
 
 func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserID) (integration.List, error) {
 	return r.find(ctx, bson.M{
 		"developer": userID.String(),
-	})
+	}, options.Find().SetSort(bson.D{{Key: "id", Value: 1}}))
 }
 
 func (r *Integration) Save(ctx context.Context, integration *integration.Integration) error {
+	if err := integration.Validate(); err != nil {
+		return err
+	}
 	doc, sId := mongodoc.NewIntegration(integration)
+	if malformed := r.malformedWebhooks(ctx, sId); len(malformed) > 0 {
+		log.Warnfc(ctx, "mongo integration: keeping %d malformed webhooks: integrationID=%s", len(malformed), sId)
+		doc.Webhook = append(doc.Webhook, malformed...)
+	}
 	return r.client.SaveOne(ctx, sId, doc)
+}
+
+// malformedWebhooks returns the stored webhooks that are skipped on read, as
+// the integration being saved can not contain them and would erase them. Only
+// the webhooks are read; if they can not be read, the save goes on and logs it.
+func (r *Integration) malformedWebhooks(ctx context.Context, iid string) []mongodoc.WebhookDocument {
+	var stored mongodoc.IntegrationDocument
+	err := r.client.Client().FindOne(ctx, bson.M{"id": iid}, options.FindOne().SetProjection(bson.M{"webhook": 1})).Decode(&stored)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil
+	}
+	if err != nil {
+		log.Warnfc(ctx, "mongo integration: could not read the stored webhooks to keep malformed ones: integrationID=%s err=%v", iid, err)
+		return nil
+	}
+	return stored.MalformedWebhooks()
 }
 
 func (r *Integration) Remove(ctx context.Context, integrationID id.IntegrationID) error {
@@ -104,10 +125,24 @@ func (r *Integration) findOne(ctx context.Context, filter any) (*integration.Int
 	return c.Result[0], nil
 }
 
-func (r *Integration) find(ctx context.Context, filter any) (integration.List, error) {
+func (r *Integration) find(ctx context.Context, filter any, opts ...*options.FindOptions) (integration.List, error) {
 	c := mongodoc.NewIntegrationConsumer()
-	if err := r.client.Find(ctx, filter, c); err != nil {
+	if err := r.client.Find(ctx, filter, c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
+}
+
+// prepareIntegrations skips unknown IDs and sorts the results according to the given IDs
+func prepareIntegrations(ids id.IntegrationIDList, rows integration.List) integration.List {
+	res := make(integration.List, 0, len(ids))
+	for _, iid := range ids {
+		for _, r := range rows {
+			if r.ID() == iid {
+				res = append(res, r)
+				break
+			}
+		}
+	}
+	return res
 }
