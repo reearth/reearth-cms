@@ -8,8 +8,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type ViewDocument struct {
@@ -465,4 +467,30 @@ type ViewConsumer = mongox.SliceFuncConsumer[*ViewDocument, *view.View]
 
 func NewViewConsumer() *ViewConsumer {
 	return NewConsumer[*ViewDocument, *view.View]()
+}
+
+// ViewListConsumer skips and logs the views whose stored filter can not be
+// read, so one broken view does not break listing the others. Such a view is
+// never loaded, so it is never saved back with a changed filter.
+type ViewListConsumer struct {
+	Result view.List
+}
+
+func NewViewListConsumer() *ViewListConsumer {
+	return &ViewListConsumer{}
+}
+
+func (c *ViewListConsumer) Consume(raw bson.Raw) error {
+	return mongox.SimpleConsumer[*ViewDocument](func(d *ViewDocument) error {
+		v, err := d.Model()
+		if errors.Is(err, ErrInvalidFilterDocument) {
+			log.Warnf("mongo view: skipping a view with an invalid filter: %v", err)
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		c.Result = append(c.Result, v)
+		return nil
+	}).Consume(raw)
 }

@@ -110,7 +110,7 @@ func (r *View) findOne(ctx context.Context, filter any) (*view.View, error) {
 }
 
 func (r *View) find(ctx context.Context, filter any, opts ...*options.FindOptions) (view.List, error) {
-	c := mongodoc.NewViewConsumer()
+	c := mongodoc.NewViewListConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
 		return nil, err
 	}

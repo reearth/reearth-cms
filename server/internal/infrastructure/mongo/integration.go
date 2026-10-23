@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
@@ -77,28 +78,27 @@ func (r *Integration) Save(ctx context.Context, integration *integration.Integra
 		return err
 	}
 	doc, sId := mongodoc.NewIntegration(integration)
-	malformed, err := r.malformedWebhooks(ctx, sId)
-	if err != nil {
-		return err
-	}
-	if len(malformed) > 0 {
+	if malformed := r.malformedWebhooks(ctx, sId); len(malformed) > 0 {
+		log.Warnfc(ctx, "mongo integration: keeping %d malformed webhooks: integrationID=%s", len(malformed), sId)
 		doc.Webhook = append(doc.Webhook, malformed...)
 	}
 	return r.client.SaveOne(ctx, sId, doc)
 }
 
 // malformedWebhooks returns the stored webhooks that are skipped on read, as
-// the integration being saved can not contain them and would erase them
-func (r *Integration) malformedWebhooks(ctx context.Context, iid string) ([]mongodoc.WebhookDocument, error) {
+// the integration being saved can not contain them and would erase them. Only
+// the webhooks are read; if they can not be read, the save goes on and logs it.
+func (r *Integration) malformedWebhooks(ctx context.Context, iid string) []mongodoc.WebhookDocument {
 	var stored mongodoc.IntegrationDocument
-	err := r.client.Client().FindOne(ctx, bson.M{"id": iid}).Decode(&stored)
+	err := r.client.Client().FindOne(ctx, bson.M{"id": iid}, options.FindOne().SetProjection(bson.M{"webhook": 1})).Decode(&stored)
 	if errors.Is(err, mongo.ErrNoDocuments) {
-		return nil, nil
+		return nil
 	}
 	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
+		log.Warnfc(ctx, "mongo integration: could not read the stored webhooks to keep malformed ones: integrationID=%s err=%v", iid, err)
+		return nil
 	}
-	return stored.MalformedWebhooks(), nil
+	return stored.MalformedWebhooks()
 }
 
 func (r *Integration) Remove(ctx context.Context, integrationID id.IntegrationID) error {
