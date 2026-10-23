@@ -126,14 +126,14 @@ func NewFilter(i *view.Condition) *FilterDocument {
 		return &FilterDocument{
 			ConditionType: "AND",
 			AndCondition: &AndConditionDocument{
-				Conditions: lo.Map(i.AndCondition.Conditions, func(c view.Condition, _ int) FilterDocument { return *NewFilter(&c) }),
+				Conditions: newFilters(i.AndCondition.Conditions),
 			},
 		}
 	case i.OrCondition != nil:
 		return &FilterDocument{
 			ConditionType: "OR",
 			OrCondition: &OrConditionDocument{
-				Conditions: lo.Map(i.OrCondition.Conditions, func(c view.Condition, _ int) FilterDocument { return *NewFilter(&c) }),
+				Conditions: newFilters(i.OrCondition.Conditions),
 			},
 		}
 	case i.BasicCondition != nil:
@@ -203,6 +203,17 @@ func NewFilter(i *view.Condition) *FilterDocument {
 	}
 }
 
+// newFilters skips empty conditions, which repositories reject on save
+func newFilters(conditions []view.Condition) []FilterDocument {
+	return lo.FilterMap(conditions, func(c view.Condition, _ int) (FilterDocument, bool) {
+		f := NewFilter(&c)
+		if f == nil {
+			return FilterDocument{}, false
+		}
+		return *f, true
+	})
+}
+
 func (d *FilterDocument) Model() *view.Condition {
 	if d == nil {
 		return nil
@@ -211,18 +222,21 @@ func (d *FilterDocument) Model() *view.Condition {
 	switch d.ConditionType {
 	case "AND":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeAnd,
 			AndCondition: &view.AndCondition{
-				Conditions: lo.Map(d.AndCondition.Conditions, func(c FilterDocument, _ int) view.Condition { return *c.Model() }),
+				Conditions: filterModels(d.AndCondition.Conditions),
 			},
 		}
 	case "OR":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeOr,
 			OrCondition: &view.OrCondition{
-				Conditions: lo.Map(d.OrCondition.Conditions, func(c FilterDocument, _ int) view.Condition { return *c.Model() }),
+				Conditions: filterModels(d.OrCondition.Conditions),
 			},
 		}
 	case "BASIC":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeBasic,
 			BasicCondition: &view.BasicCondition{
 				Field: d.BasicCondition.Field.Model(),
 				Op:    view.BasicOperator(d.BasicCondition.Op),
@@ -231,6 +245,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "NULLABLE":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeNullable,
 			NullableCondition: &view.NullableCondition{
 				Field: d.NullableCondition.Field.Model(),
 				Op:    view.NullableOperator(d.NullableCondition.Op),
@@ -238,6 +253,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "MULTIPLE":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeMultiple,
 			MultipleCondition: &view.MultipleCondition{
 				Field: d.MultipleCondition.Field.Model(),
 				Op:    view.MultipleOperator(d.MultipleCondition.Op),
@@ -246,6 +262,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "BOOL":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeBool,
 			BoolCondition: &view.BoolCondition{
 				Field: d.BoolCondition.Field.Model(),
 				Op:    view.BoolOperator(d.BoolCondition.Op),
@@ -254,6 +271,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "STRING":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeString,
 			StringCondition: &view.StringCondition{
 				Field: d.StringCondition.Field.Model(),
 				Op:    view.StringOperator(d.StringCondition.Op),
@@ -262,6 +280,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "NUMBER":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeNumber,
 			NumberCondition: &view.NumberCondition{
 				Field: d.NumberCondition.Field.Model(),
 				Op:    view.NumberOperator(d.NumberCondition.Op),
@@ -270,6 +289,7 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	case "TIME":
 		return &view.Condition{
+			ConditionType: view.ConditionTypeTime,
 			TimeCondition: &view.TimeCondition{
 				Field: d.TimeCondition.Field.Model(),
 				Op:    view.TimeOperator(d.TimeCondition.Op),
@@ -279,6 +299,16 @@ func (d *FilterDocument) Model() *view.Condition {
 	default:
 		return nil
 	}
+}
+
+func filterModels(docs []FilterDocument) []view.Condition {
+	return lo.FilterMap(docs, func(d FilterDocument, _ int) (view.Condition, bool) {
+		c := d.Model()
+		if c == nil {
+			return view.Condition{}, false
+		}
+		return *c, true
+	})
 }
 
 type AndConditionDocument struct {

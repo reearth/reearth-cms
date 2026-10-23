@@ -624,9 +624,12 @@ func testGroupFindByProject(t *testing.T, newRepo groupFactory) {
 
 			got, err := r.FindByProject(ctx, tc.args)
 			assert.NoError(t, err)
-			// the order of the result is not specified: mongo does not sort it
-			// and callers sort it by order themselves
-			assert.Equal(t, tc.want.SortByID(), got.SortByID())
+			// the result is sorted by ID; callers sort it by order themselves
+			if tc.want == nil {
+				assert.Empty(t, got)
+			} else {
+				assert.Equal(t, tc.want.SortByID(), got)
+			}
 		})
 	}
 }
@@ -756,9 +759,6 @@ func testGroupFindByIDOrKey(t *testing.T, newRepo groupFactory) {
 		idOrKey group.IDOrKey
 	}
 
-	// TODO: a group of an unreadable project must not be found; mongo finds
-	// it, as it neither checks the filter nor keeps its read filter
-	// (mongox.And drops it for queries keyed by project), so the case is left out
 	tests := []struct {
 		name    string
 		seeds   group.List
@@ -800,6 +800,20 @@ func testGroupFindByIDOrKey(t *testing.T, newRepo groupFactory) {
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:   args{p1, group.IDOrKey(p1g1.ID().String())},
 			want:   p1g1,
+		},
+		{
+			name:    "must not find a group of an unreadable project by ID",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
+			args:    args{p1, group.IDOrKey(p1g1.ID().String())},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "must not find a group of an unreadable project by key",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
+			args:    args{p1, group.IDOrKey(p1g1.Key().String())},
+			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name:    "must not find a group of another project by ID",
@@ -907,6 +921,9 @@ func testGroupSave(t *testing.T, newRepo groupFactory) {
 			args:    p1g1Updated,
 			want:    p1g1, // unchanged
 			wantErr: repo.ErrOperationDenied,
+		}, {
+			name:    "must not save a nil group",
+			wantErr: rerror.ErrInvalidParams,
 		},
 	}
 
@@ -922,6 +939,9 @@ func testGroupSave(t *testing.T, newRepo groupFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			got, err := base.FindByID(ctx, tc.args.ID())
@@ -945,11 +965,6 @@ func testGroupSaveAll(t *testing.T, newRepo groupFactory) {
 		Name("after").Order(1).MustBuild()
 	all := id.GroupIDList{p1g1.ID(), p1g2.ID(), p2g1.ID()}
 
-	// TODO: SaveAll must reject a list in which only some groups are in
-	// writable projects; ProjectFilter.CanWrite accepts it when any of them is,
-	// so groups of unwritable projects are saved. The case is left out.
-	// TODO: SaveAll must reject a nil group; both backends panic on it
-	// (group.List.Projects dereferences it), so the case is left out
 	tests := []struct {
 		name    string
 		seeds   group.List
@@ -990,6 +1005,19 @@ func testGroupSaveAll(t *testing.T, newRepo groupFactory) {
 			args:    group.List{p1g1, p2g1},
 			want:    group.List{},
 			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not save a list that includes an unwritable project",
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:    group.List{p1g1, p2g1},
+			want:    group.List{},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not save a list that includes a nil group",
+			args:    group.List{p1g1, nil},
+			want:    group.List{},
+			wantErr: rerror.ErrInvalidParams,
 		},
 	}
 

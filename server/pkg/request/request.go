@@ -113,6 +113,17 @@ func (r *Request) SetItems(items ItemList) error {
 	return nil
 }
 
+// Validate returns an error when the request can not be stored.
+func (r *Request) Validate() error {
+	if r == nil {
+		return rerror.ErrInvalidParams
+	}
+	if !r.state.IsValid() {
+		return ErrInvalidState
+	}
+	return nil
+}
+
 func (r *Request) SetState(state State) {
 	r.state = state
 	switch state {

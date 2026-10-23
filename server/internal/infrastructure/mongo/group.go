@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -11,6 +12,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -75,7 +77,7 @@ func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List
 	}
 	res, err := r.find(ctx, bson.M{
 		"project": pid.String(),
-	})
+	}, options.Find().SetSort(bson.D{{Key: "id", Value: 1}}))
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +104,10 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 	if gid == nil && (key == nil || *key == "") {
 		return nil, rerror.ErrNotFound
 	}
+	// the query is keyed by project, so mongox.And would drop the read filter
+	if !r.f.CanRead(pid) {
+		return nil, rerror.ErrNotFound
+	}
 
 	filter := bson.M{
 		"project": pid.String(),
@@ -117,6 +123,9 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 }
 
 func (r *Group) Save(ctx context.Context, group *group.Group) error {
+	if group == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(group.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -127,6 +136,9 @@ func (r *Group) Save(ctx context.Context, group *group.Group) error {
 func (r *Group) SaveAll(ctx context.Context, list group.List) error {
 	if len(list) == 0 {
 		return nil
+	}
+	if slices.Contains(list, nil) {
+		return rerror.ErrInvalidParams
 	}
 	if !r.f.CanWrite(list.Projects()...) {
 		return repo.ErrOperationDenied
@@ -151,9 +163,9 @@ func (r *Group) findOne(ctx context.Context, filter any) (*group.Group, error) {
 	return c.Result[0], nil
 }
 
-func (r *Group) find(ctx context.Context, filter any) (group.List, error) {
+func (r *Group) find(ctx context.Context, filter any, opts ...*options.FindOptions) (group.List, error) {
 	c := mongodoc.NewGroupConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil

@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Container struct {
@@ -185,10 +186,16 @@ func (f ProjectFilter) ReadableIDs() project.IDList {
 	return append(f.Readable, f.Writable...)
 }
 
+// CanRead reports whether every given project is readable or writable.
 func (f ProjectFilter) CanRead(ids ...project.ID) bool {
-	return f.Readable == nil || f.Readable.Has(ids...) || f.CanWrite(ids...)
+	return f.Readable == nil || lo.EveryBy(ids, func(id project.ID) bool {
+		return f.Readable.Has(id) || f.CanWrite(id)
+	})
 }
 
+// CanWrite reports whether every given project is writable.
 func (f ProjectFilter) CanWrite(ids ...project.ID) bool {
-	return f.Writable == nil || f.Writable.Has(ids...)
+	return f.Writable == nil || lo.EveryBy(ids, func(id project.ID) bool {
+		return f.Writable.Has(id)
+	})
 }

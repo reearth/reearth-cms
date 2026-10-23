@@ -27,7 +27,7 @@ func TestIntegrationDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Name:        "abc",
 				Description: "xyz",
-				LogoUrl:     "https://huho.com/xzy",
+				LogoUrl:     new("https://huho.com/xzy"),
 				Type:        "public",
 				Token:       "xxx123",
 				Developer:   uId.String(),
@@ -42,7 +42,6 @@ func TestIntegrationDocument_Model(t *testing.T) {
 				Token("xxx123").
 				Developer(uId).
 				UpdatedAt(now).
-				Webhook([]*integration.Webhook{}).
 				LogoUrl(lo.Must(url.Parse("https://huho.com/xzy"))).
 				MustBuild(),
 			wantErr: false,
@@ -89,7 +88,7 @@ func TestNewIntegration(t *testing.T) {
 				ID:          iId.String(),
 				Name:        "abc",
 				Description: "xyz",
-				LogoUrl:     "https://huho.com/xzy",
+				LogoUrl:     new("https://huho.com/xzy"),
 				Type:        "public",
 				Token:       "xxx123",
 				Developer:   uId.String(),

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -69,4 +71,48 @@ func TestView(t *testing.T) {
 	// Test Clone Function
 	cloned := v.Clone()
 	assert.EqualValues(t, v, cloned)
+}
+
+func TestView_Validate(t *testing.T) {
+	t.Parallel()
+	valid := func() *Buildr {
+		return New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).User(NewUserID())
+	}
+	leaf := Condition{ConditionType: ConditionTypeBool, BoolCondition: &BoolCondition{}}
+
+	tests := []struct {
+		name string
+		args *View
+		want error
+	}{
+		{name: "must accept a view without a filter", args: valid().MustBuild()},
+		{
+			name: "must accept nested conditions",
+			args: valid().Filter(&Condition{ConditionType: ConditionTypeAnd, AndCondition: &AndCondition{Conditions: []Condition{
+				leaf, {ConditionType: ConditionTypeOr, OrCondition: &OrCondition{Conditions: []Condition{leaf}}},
+			}}}).MustBuild(),
+		},
+		{name: "must reject a nil view", want: rerror.ErrInvalidParams},
+		{name: "must reject a view without an ID", args: valid().ID(ID{}).MustBuild(), want: id.ErrInvalidID},
+		{name: "must reject a view without a project", args: valid().Project(ProjectID{}).MustBuild(), want: id.ErrInvalidID},
+		{name: "must reject a view without a model", args: valid().Model(ModelID{}).MustBuild(), want: id.ErrInvalidID},
+		{name: "must reject a view without a schema", args: valid().Schema(SchemaID{}).MustBuild(), want: id.ErrInvalidID},
+		{name: "must reject a view without a user", args: New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).MustBuild(), want: id.ErrInvalidID},
+		{name: "must reject an empty filter", args: valid().Filter(&Condition{}).MustBuild(), want: ErrEmptyCondition},
+		{
+			name: "must reject an empty nested condition",
+			args: valid().Filter(&Condition{ConditionType: ConditionTypeOr, OrCondition: &OrCondition{Conditions: []Condition{
+				leaf, {ConditionType: ConditionTypeAnd, AndCondition: &AndCondition{Conditions: []Condition{{}}}},
+			}}}).MustBuild(),
+			want: ErrEmptyCondition,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.args.Validate())
+			assert.Equal(t, tc.want, List{valid().MustBuild(), tc.args}.Validate())
+		})
+	}
 }

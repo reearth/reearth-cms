@@ -8,6 +8,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -1294,4 +1295,36 @@ func TestIntegration_RandomToken(t *testing.T) {
 	assert.NotNil(t, i.token)
 	assert.True(t, strings.HasPrefix(i.token, "secret_"))
 	assert.Equal(t, 50, len(i.token))
+}
+
+func TestIntegration_Validate(t *testing.T) {
+	t.Parallel()
+	u := lo.Must(url.Parse("https://example.com"))
+	valid := func() *Builder {
+		return New().NewID().Developer(accountdomain.NewUserID()).Type(TypePrivate)
+	}
+	webhook := func(u *url.URL) *Webhook { return NewWebhookBuilder().NewID().Url(u).MustBuild() }
+
+	tests := []struct {
+		name string
+		args *Integration
+		want error
+	}{
+		{name: "must accept a private integration", args: valid().MustBuild()},
+		{name: "must accept a public integration with a webhook", args: valid().Type(TypePublic).Webhook([]*Webhook{webhook(u)}).MustBuild()},
+		{name: "must accept a nil logo URL", args: valid().LogoUrl(nil).MustBuild()},
+		{name: "must reject a nil integration", want: rerror.ErrInvalidParams},
+		{name: "must reject a zero developer", args: New().NewID().Type(TypePrivate).MustBuild(), want: ErrInvalidID},
+		{name: "must reject an empty type", args: valid().Type("").MustBuild(), want: ErrInvalidType},
+		{name: "must reject an unknown type", args: valid().Type("unknown").MustBuild(), want: ErrInvalidType},
+		{name: "must reject a nil webhook", args: valid().Webhook([]*Webhook{nil}).MustBuild(), want: ErrInvalidWebhook},
+		{name: "must reject a webhook without a URL", args: valid().Webhook([]*Webhook{webhook(u), webhook(nil)}).MustBuild(), want: ErrInvalidWebhook},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.args.Validate())
+		})
+	}
 }
