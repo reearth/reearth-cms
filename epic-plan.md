@@ -84,8 +84,21 @@ The method of uniqueness check might differ from other field types, due to the d
 - ~~Define the comparison rule first, such as coordinate precision and vertex order, and get it agreed before implementation.~~
 - Offer the unique setting when creating or editing a Geometry field.
 - ~~Enforce uniqueness using the agreed rule, with an error that names the field.~~
+- **Same vertex:** two vertices are the same when their longitude, latitude and altitude (if any) are exactly equal. A vertex with an altitude never equals one without.
+  - Same: `[139.7, 35.6]` and `[139.70, 35.60]` (same numbers, different formatting)
+  - Same: `[139.7, 35.6, 50]` and `[139.7, 35.6, 50]`
+  - Different: `[139.7, 35.6]` and `[139.7000001, 35.6]` (no rounding or tolerance)
+  - Different: `[139.7, 35.6]` and `[139.7, 35.6, 0]` (altitude 0 is not the same as no altitude)
+  - Different: `[139.7, 35.6, 50]` and `[139.7, 35.6, 51]`
 - **Points:** User might want to save points very close to each other on purpose, so we cannot see close points as the same value.
-- **LineStrings and Polygons:** should check through all vertex values WITHOUT order.
+- **LineStrings:** the same vertex sequence in either direction is the same value (A→B→C equals C→B→A).
+- **Polygons:** the same ring in either direction, from any starting vertex, is the same value (A→B→C equals A→C→B and B→C→A). The vertex sequence still matters otherwise, so a square and a bow-tie drawn from the same 4 corners are different values.
+- **Polygons with holes:** the outer ring and every hole follow the polygon ring rule. Holes can be in any order.
+- **MultiPoint, MultiLineString and MultiPolygon:** the same parts in any order are the same value (`[A, B]` equals `[B, A]`). Each part follows its own type's rule.
+- **GeometryCollection:** the same members in any order are the same value. Each member follows its own type's rule.
+- **Duplicate parts:** parts are compared as lists, so duplicates count (`[A, A]` does not equal `[A]`, and `[A, A, B]` does not equal `[A, B, B]`).
+- **Different types are never the same value:** a MultiPoint `[A, B]` does not equal two Point values `A` and `B`, and a Point `A` does not equal a MultiPoint `[A]`.
+- **Multiple mode:** uniqueness works the same as for other field types with multiple values.
 - Validate geometries at backend, with exact match. Show (throw) error when it already exists in the database, just like other field types.
 
 **Depends on:** tasks 1, 2 and 3
