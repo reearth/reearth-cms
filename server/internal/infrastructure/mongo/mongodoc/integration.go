@@ -8,8 +8,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -94,11 +94,18 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 		}
 	}
 
+	// a malformed webhook is skipped, so the integration can still be loaded
+	// and fixed, and webhook dispatch keeps working for the other webhooks
 	var w []*integration.Webhook
 	if d.Webhook != nil {
-		if w, err = util.TryMap(d.Webhook, WebhookDocument.Model); err != nil {
-			return nil, err
-		}
+		w = lo.FilterMap(d.Webhook, func(wd WebhookDocument, _ int) (*integration.Webhook, bool) {
+			m, err := wd.Model()
+			if err != nil {
+				log.Warnf("mongo integration: skipping malformed webhook: integrationID=%s webhookID=%s err=%v", d.ID, wd.ID, err)
+				return nil, false
+			}
+			return m, true
+		})
 	}
 
 	return integration.New().

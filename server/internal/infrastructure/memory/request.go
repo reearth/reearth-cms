@@ -159,7 +159,7 @@ func (r *Request) SaveAll(_ context.Context, pid id.ProjectID, requests request.
 }
 
 func (r *Request) canRead(req *request.Request) bool {
-	return r.f.Readable == nil || r.f.Readable.Has(req.Project())
+	return r.f.CanRead(req.Project())
 }
 
 func (r *Request) pager() pager[*request.Request] {

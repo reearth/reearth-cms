@@ -119,11 +119,28 @@ func applyWorkspaceFilter(filter any, ids accountdomain.WorkspaceIDList) any {
 	return mongox.And(filter, "workspace", bson.M{"$in": ids.Strings()})
 }
 
+// readableProjects returns the projects ProjectFilter.CanRead allows, writable
+// projects included, or nil when reads are not restricted
+func readableProjects(f repo.ProjectFilter) id.ProjectIDList {
+	if f.Readable == nil {
+		return nil
+	}
+	// never nil, as nil would lift the restriction
+	res := make(id.ProjectIDList, 0, len(f.Readable)+len(f.Writable))
+	return append(append(res, f.Readable...), f.Writable...)
+}
+
 func applyProjectFilter(filter any, ids id.ProjectIDList) any {
 	if ids == nil {
 		return filter
 	}
-	return mongox.And(filter, "project", bson.M{"$in": ids.Strings()})
+	in := bson.M{"$in": ids.Strings()}
+	// mongox.And keeps the filter as is when it already has the key, which
+	// would drop the restriction from queries keyed by project
+	if mongox.GetE(filter, "project") != nil {
+		return bson.M{"$and": []any{filter, bson.M{"project": in}}}
+	}
+	return mongox.And(filter, "project", in)
 }
 
 func applyProjectFilterToPipeline(pipeline []any, ids id.ProjectIDList) []any {

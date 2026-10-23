@@ -399,7 +399,7 @@ func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {
 }
 
 func (r *Item) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
 func (r *Item) writeFilter(filter any) any {

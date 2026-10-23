@@ -144,7 +144,6 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			},
 		}
 	}
-	// the query is scoped to the project, which CanRead above gates
 	return r.paginate(ctx, filter, normalizeRequestSort(sort), page)
 }
 
@@ -181,7 +180,7 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 func (r *Request) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewRequestConsumer()
 
-	pageInfo, err := r.client.Paginate(ctx, filter, sort, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -218,7 +217,7 @@ func filterRequests(ids id.RequestIDList, rows request.List) request.List {
 }
 
 func (r *Request) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
 // validateRequests checks that every request can be stored and belongs to the project

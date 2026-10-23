@@ -118,7 +118,7 @@ func (r *View) find(ctx context.Context, filter any, opts ...*options.FindOption
 }
 
 func (r *View) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
 func (r *View) writeFilter(filter any) any {

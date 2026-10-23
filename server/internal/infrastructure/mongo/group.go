@@ -89,7 +89,7 @@ func (r *Group) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 		return nil, rerror.ErrNotFound
 	}
 	if !r.f.CanRead(projectID) {
-		return nil, repo.ErrOperationDenied
+		return nil, rerror.ErrNotFound
 	}
 
 	return r.findOne(ctx, bson.M{
@@ -102,10 +102,6 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 	gid := g.ID()
 	key := g.Key()
 	if gid == nil && (key == nil || *key == "") {
-		return nil, rerror.ErrNotFound
-	}
-	// the query is keyed by project, so mongox.And would drop the read filter
-	if !r.f.CanRead(pid) {
 		return nil, rerror.ErrNotFound
 	}
 
@@ -172,7 +168,7 @@ func (r *Group) find(ctx context.Context, filter any, opts ...*options.FindOptio
 }
 
 func (r *Group) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
 func (r *Group) writeFilter(filter any) any {

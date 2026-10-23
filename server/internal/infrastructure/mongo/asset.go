@@ -198,7 +198,7 @@ func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
 }
 
 func (r *Asset) readFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Readable)
+	return applyProjectFilter(filter, readableProjects(r.f))
 }
 
 func (r *Asset) writeFilter(filter any) any {
