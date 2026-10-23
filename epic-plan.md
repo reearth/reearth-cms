@@ -6,8 +6,9 @@ Status: Planning
 
 **Legends**
 
-- 🎨: UI/UX, frontend
-- 🥞: server, backend
+- 🎨: frontend
+- 🥞: backend
+- 💅: design
 
 # Unified Geometry Field
 
@@ -47,7 +48,8 @@ Validation must be the same on the map, in the GeoJSON editor and through the AP
 - Check positions: finite numbers in longitude, latitude order, with optional altitude.
 - Check ranges: longitude within -180 to 180, latitude within -90 to 90.
 - Check that a LineString has at least 2 positions, and a polygon ring at least 4 positions with the first equal to the last.
-- Allow nested GeometryCollections.
+- ~~Allow nested GeometryCollections.~~
+- Reject nested GeometryCollections (a GeometryCollection inside another), in both frontend and backend. The integration API lets users write data without the UI, so the backend check is required.
 - Reject unknown properties inside a geometry.
 - Enforce the agreed size limit per value.
 - Return errors that name the field and the cause, including the two specified messages for reversed coordinates and unknown properties.
@@ -74,22 +76,26 @@ Users currently choose between two geometry field types when designing a model, 
 ### 4. Unique setting for Geometry 🥞
 
 **Background**
-The unique setting prevents two items in a model from holding the same value. For geometry, “the same value” is not obvious — for example, two points that differ only at a far decimal place, or the same polygon starting from a different vertex.
+
+The method of uniqueness check might differ from other field types, due to the data structure.
 
 **What to Do**
 
 - ~~Define the comparison rule first, such as coordinate precision and vertex order, and get it agreed before implementation.~~
 - Offer the unique setting when creating or editing a Geometry field.
-- Enforce uniqueness using the agreed rule, with an error that names the field.
+- ~~Enforce uniqueness using the agreed rule, with an error that names the field.~~
+- **Points:** User might want to save points very closed to each other on purpose, so we cannot see closed points as the same value.
+- **LineStrings and Polygons:** should check through all value of vertices WITHOUT order.
+- Validate geometries at backend, with exact match. Show (throw) error when it’s already existed in database, just like other field types.
 
 **Depends on:** tasks 1, 2 and 3
 
 ---
 
-### 5. One map for all shapes, with shape editing 🎨
+### 5. One map for all shapes, with shape editing 🎨 💅
 
 **Background**
-Today a multi-value geometry field shows one map per value, drawing a new shape replaces the existing one, and an existing shape cannot be moved or reshaped.
+Currently, a multi-value geometry field shows one map per value, drawing a new shape replaces the existing one, and an existing shape cannot be moved or reshaped.
 
 **What to Do**
 
@@ -98,7 +104,7 @@ Today a multi-value geometry field shows one map per value, drawing a new shape 
 - Multiple mode: drawing a new shape adds a new value.
 - For Point, LineString and Polygon: select, move, edit vertices and delete on the map.
 - For MultiPoint, MultiLineString, MultiPolygon and GeometryCollection: display them, allow deleting the whole value, and offer no editing on the map.
-  - Two different colours for editable and read-only geometries
+  - Two different colours for editable (primary, blue) and read-only (secondary, gray, dashed lines, friendly for coloured-blind users) geometries
   - Add legend somewhere to explain the meaning of the colours. Or pop up the hint message when hovering read-only geometries if it’s possible to implement.
 - Never change the type of an existing value.
 
@@ -106,7 +112,7 @@ Today a multi-value geometry field shows one map per value, drawing a new shape 
 
 ---
 
-### 6. Undo and redo 🎨
+### 6. Undo and redo 🎨 💅
 
 **Background**
 Once shapes can be edited on the map, mistakes need to be reversible.
@@ -119,7 +125,7 @@ Once shapes can be edited on the map, mistakes need to be reversible.
 
 ---
 
-### 7. Shape list 🎨
+### 7. Shape list 🎨 💅
 
 **Background**
 With several shapes on one map, small shapes, overlapping shapes and shapes outside the current view are hard to select.
@@ -134,7 +140,7 @@ With several shapes on one map, small shapes, overlapping shapes and shapes outs
 
 ---
 
-### 8. Editable GeoJSON panel 🎨
+### 8. Editable GeoJSON panel 🎨 💅
 
 **Background**
 The GeoJSON editor is read-only for Geometry Editor fields, so drawn values cannot be corrected by text.
@@ -152,7 +158,7 @@ The GeoJSON editor is read-only for Geometry Editor fields, so drawn values cann
 
 ## Phase 2
 
-### 9. Coordinates panel 🎨
+### 9. Coordinates panel 🎨 💅
 
 **Background**
 Users need to enter or fine-tune a point’s longitude and latitude precisely, which the map alone does not allow.
@@ -169,35 +175,7 @@ Users need to enter or fine-tune a point’s longitude and latitude precisely, w
 
 ---
 
-### 10. Apply location search results 🎨
-
-**Background**
-Location search already exists but only moves the map; the result cannot be used as a value.
-
-**What to Do**
-
-- Set the selected point to the search result, or add a new point when nothing is selected.
-- Keep the current location search API until we have further direction from CTO office.
-
-**Depends on:** task 5; choice of geocoding provider
-
----
-
-### 11. Interoperability notice 🎨🥞
-
-**Background**
-Nested GeometryCollections are valid and stored, but some GIS tools may not render them.
-
-**What to Do**
-
-- Show a light, non-blocking notice in the editor when a value contains a nested GeometryCollection: *Nested GeometryCollection · may not render in some GIS tools.*
-- Implement in both frontend and backend
-
-**Depends on:** task 5
-
----
-
-### 12. Large values in the editor 🎨
+### 10. Large values in the editor 🎨
 
 **Background**
 A field can hold many shapes; the shape list and the map must stay responsive.
@@ -211,10 +189,26 @@ A field can hold many shapes; the shape list and the map must stay responsive.
 
 ---
 
+## Deferred
+
+### 11. Apply location search results 🎨
+
+**Background**
+Location search already exists but only moves the map; the result cannot be used as a value.
+
+**What to Do**
+
+- Set the selected point to the search result, or add a new point when nothing is selected.
+- On hold until the CTO office decides the geocoding provider.
+
+**Depends on:** task 5; choice of geocoding provider
+
+---
+
 ## Before kickoff
 
 These RDD open questions affect the tasks above:
 
 - Phase split — confirms which tasks are in the first release.
-- Limits: value size and its basis of measurement, shapes per value, total coordinates and nesting depth — affects task 2.
-- Geocoding provider — blocks task 10.
+- Limits: value size and its basis of measurement, shapes per value and total coordinates — affects task 2.
+- Geocoding provider — blocks task 11 (deferred).
