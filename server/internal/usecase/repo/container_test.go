@@ -41,6 +41,15 @@ func TestProjectFilter_CanRead(t *testing.T) {
 			want:   false,
 		},
 		{
+			name: "must allow no projects without a readable filter",
+			want: true,
+		},
+		{
+			name:   "must deny no projects with a readable filter",
+			filter: ProjectFilter{Readable: project.IDList{p1}, Writable: project.IDList{p2}},
+			want:   false,
+		},
+		{
 			name:   "must deny an unreadable project",
 			filter: ProjectFilter{Readable: project.IDList{}, Writable: project.IDList{}},
 			args:   project.IDList{p1},
@@ -81,6 +90,15 @@ func TestProjectFilter_CanWrite(t *testing.T) {
 			name:   "must deny when only some projects are writable",
 			filter: ProjectFilter{Writable: project.IDList{p1, p2}},
 			args:   project.IDList{p1, p3},
+			want:   false,
+		},
+		{
+			name: "must allow no projects without a writable filter",
+			want: true,
+		},
+		{
+			name:   "must deny no projects with a writable filter",
+			filter: ProjectFilter{Writable: project.IDList{p1}},
 			want:   false,
 		},
 		{
