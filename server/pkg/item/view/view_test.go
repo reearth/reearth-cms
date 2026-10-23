@@ -75,35 +75,44 @@ func TestView(t *testing.T) {
 
 func TestView_Validate(t *testing.T) {
 	t.Parallel()
-	valid := func() *Buildr {
-		return New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).User(NewUserID())
-	}
 	leaf := Condition{ConditionType: ConditionTypeBool, BoolCondition: &BoolCondition{}}
+	// valid builds a valid view, then breaks it the way the builder would reject
+	valid := func(f func(*View)) *View {
+		v := New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).User(NewUserID()).MustBuild()
+		if f != nil {
+			f(v)
+		}
+		return v
+	}
 
 	tests := []struct {
 		name string
 		args *View
 		want error
 	}{
-		{name: "must accept a view without a filter", args: valid().MustBuild()},
+		{name: "must accept a view without a filter", args: valid(nil)},
 		{
 			name: "must accept nested conditions",
-			args: valid().Filter(&Condition{ConditionType: ConditionTypeAnd, AndCondition: &AndCondition{Conditions: []Condition{
-				leaf, {ConditionType: ConditionTypeOr, OrCondition: &OrCondition{Conditions: []Condition{leaf}}},
-			}}}).MustBuild(),
+			args: valid(func(v *View) {
+				v.filter = &Condition{ConditionType: ConditionTypeAnd, AndCondition: &AndCondition{Conditions: []Condition{
+					leaf, {ConditionType: ConditionTypeOr, OrCondition: &OrCondition{Conditions: []Condition{leaf}}},
+				}}}
+			}),
 		},
 		{name: "must reject a nil view", want: rerror.ErrInvalidParams},
-		{name: "must reject a view without an ID", args: valid().ID(ID{}).MustBuild(), want: id.ErrInvalidID},
-		{name: "must reject a view without a project", args: valid().Project(ProjectID{}).MustBuild(), want: id.ErrInvalidID},
-		{name: "must reject a view without a model", args: valid().Model(ModelID{}).MustBuild(), want: id.ErrInvalidID},
-		{name: "must reject a view without a schema", args: valid().Schema(SchemaID{}).MustBuild(), want: id.ErrInvalidID},
-		{name: "must reject a view without a user", args: New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).MustBuild(), want: id.ErrInvalidID},
-		{name: "must reject an empty filter", args: valid().Filter(&Condition{}).MustBuild(), want: ErrEmptyCondition},
+		{name: "must reject a view without an ID", args: valid(func(v *View) { v.id = ID{} }), want: id.ErrInvalidID},
+		{name: "must reject a view without a project", args: valid(func(v *View) { v.project = ProjectID{} }), want: id.ErrInvalidID},
+		{name: "must reject a view without a model", args: valid(func(v *View) { v.model = ModelID{} }), want: id.ErrInvalidID},
+		{name: "must reject a view without a schema", args: valid(func(v *View) { v.schema = SchemaID{} }), want: id.ErrInvalidID},
+		{name: "must reject a view without a user", args: valid(func(v *View) { v.user = UserID{} }), want: id.ErrInvalidID},
+		{name: "must reject an empty filter", args: valid(func(v *View) { v.filter = &Condition{} }), want: ErrEmptyCondition},
 		{
 			name: "must reject an empty nested condition",
-			args: valid().Filter(&Condition{ConditionType: ConditionTypeOr, OrCondition: &OrCondition{Conditions: []Condition{
-				leaf, {ConditionType: ConditionTypeAnd, AndCondition: &AndCondition{Conditions: []Condition{{}}}},
-			}}}).MustBuild(),
+			args: valid(func(v *View) {
+				v.filter = &Condition{ConditionType: ConditionTypeOr, OrCondition: &OrCondition{Conditions: []Condition{
+					leaf, {ConditionType: ConditionTypeAnd, AndCondition: &AndCondition{Conditions: []Condition{{}}}},
+				}}}
+			}),
 			want: ErrEmptyCondition,
 		},
 	}
@@ -112,7 +121,7 @@ func TestView_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, tc.args.Validate())
-			assert.Equal(t, tc.want, List{valid().MustBuild(), tc.args}.Validate())
+			assert.Equal(t, tc.want, List{valid(nil), tc.args}.Validate())
 		})
 	}
 }

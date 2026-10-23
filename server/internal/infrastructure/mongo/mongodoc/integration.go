@@ -121,6 +121,15 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 		Build()
 }
 
+// MalformedWebhooks returns the stored webhooks that Model skips, so a save can
+// keep them instead of erasing them
+func (d *IntegrationDocument) MalformedWebhooks() []WebhookDocument {
+	return lo.Filter(d.Webhook, func(wd WebhookDocument, _ int) bool {
+		_, err := wd.Model()
+		return err != nil
+	})
+}
+
 func (d WebhookDocument) Model() (*integration.Webhook, error) {
 	wId, err := id.WebhookIDFrom(d.ID)
 	if err != nil {

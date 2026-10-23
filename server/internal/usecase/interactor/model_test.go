@@ -271,87 +271,61 @@ func TestModel_FindBySchema(t *testing.T) {
 }
 
 func TestModel_CheckKey(t *testing.T) {
-	pId := id.NewProjectID()
+	t.Parallel()
+	p1 := project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+	p2 := project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+	m1 := model.New().NewID().Key(id.NewKey("test123")).Project(p1.ID()).Schema(id.NewSchemaID()).MustBuild()
 	type args struct {
 		pId id.ProjectID
 		s   string
 	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
 	tests := []struct {
 		name    string
-		seeds   seeds
+		seeds   model.List
+		filter  *repo.ProjectFilter
 		args    args
 		want    bool
 		mockErr bool
 		wantErr error
 	}{
 		{
-			name:  "in empty db",
-			seeds: seeds{},
-			args: args{
-				pId: id.NewProjectID(),
-				s:   "test123",
-			},
-			want:    true,
-			mockErr: false,
-			wantErr: nil,
+			name: "with no models",
+			args: args{pId: p1.ID(), s: "test123"},
+			want: true,
 		},
 		{
-			name: "with different key",
-			seeds: seeds{
-				model: []*model.Model{
-					model.New().NewID().Key(id.RandomKey()).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
-				},
-			},
-			args: args{
-				pId: pId,
-				s:   "test123",
-			},
-			want:    true,
-			mockErr: false,
-			wantErr: nil,
+			name:  "with different key",
+			seeds: model.List{model.New().NewID().Key(id.RandomKey()).Project(p1.ID()).Schema(id.NewSchemaID()).MustBuild()},
+			args:  args{pId: p1.ID(), s: "test123"},
+			want:  true,
 		},
 		{
-			name: "with same key",
-			seeds: seeds{
-				model: []*model.Model{
-					model.New().NewID().Key(id.NewKey("test123")).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
-				},
-			},
-			args: args{
-				pId: pId,
-				s:   "test123",
-			},
-			want:    false,
-			mockErr: false,
-			wantErr: nil,
+			name:  "with same key",
+			seeds: model.List{m1},
+			args:  args{pId: p1.ID(), s: "test123"},
+			want:  false,
 		},
 		{
-			name: "with same key different project",
-			seeds: seeds{
-				model: []*model.Model{
-					model.New().NewID().Key(id.NewKey("test123")).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
-				},
-			},
-			args: args{
-				pId: id.NewProjectID(),
-				s:   "test123",
-			},
-			want:    true,
-			mockErr: false,
-			wantErr: nil,
+			name:  "with same key different project",
+			seeds: model.List{m1},
+			args:  args{pId: p2.ID(), s: "test123"},
+			want:  true,
 		},
 		{
-			name:  "with invalid key",
-			seeds: seeds{},
-			args: args{
-				pId: id.NewProjectID(),
-				s:   "12",
-			},
-			want:    false,
+			name:    "with an unknown project",
+			args:    args{pId: id.NewProjectID(), s: "test123"},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "with an unreadable project",
+			seeds:   model.List{m1},
+			filter:  &repo.ProjectFilter{Readable: id.ProjectIDList{p2.ID()}, Writable: id.ProjectIDList{p2.ID()}},
+			args:    args{pId: p1.ID(), s: "test123"},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "with invalid key",
+			args:    args{pId: p1.ID(), s: "12"},
 			mockErr: true,
 			wantErr: model.ErrInvalidKey,
 		},
@@ -365,13 +339,14 @@ func TestModel_CheckKey(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
+			for _, m := range tt.seeds {
+				assert.NoError(t, db.Model.Save(ctx, m.Clone()))
 			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
+			for _, p := range (project.List{p1, p2}) {
+				assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+			}
+			if tt.filter != nil {
+				db = db.Filtered(repo.WorkspaceFilter{}, *tt.filter)
 			}
 			u := NewModel(db, nil)
 
@@ -381,6 +356,7 @@ func TestModel_CheckKey(t *testing.T) {
 				assert.False(t, got)
 				return
 			}
+			assert.NoError(t, err)
 			assert.Equal(t, tt.want, got)
 		})
 	}

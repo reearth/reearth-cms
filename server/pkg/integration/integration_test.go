@@ -1300,31 +1300,46 @@ func TestIntegration_RandomToken(t *testing.T) {
 func TestIntegration_Validate(t *testing.T) {
 	t.Parallel()
 	u := lo.Must(url.Parse("https://example.com"))
-	valid := func() *Builder {
-		return New().NewID().Developer(accountdomain.NewUserID()).Type(TypePrivate)
-	}
 	webhook := func(u *url.URL) *Webhook { return NewWebhookBuilder().NewID().Url(u).MustBuild() }
+	// valid builds a valid integration, then breaks it the builder would reject
+	valid := func(f func(*Integration)) *Integration {
+		i := New().NewID().Developer(accountdomain.NewUserID()).Type(TypePrivate).MustBuild()
+		if f != nil {
+			f(i)
+		}
+		return i
+	}
 
 	tests := []struct {
 		name string
 		args *Integration
 		want error
 	}{
-		{name: "must accept a private integration", args: valid().MustBuild()},
-		{name: "must accept a public integration with a webhook", args: valid().Type(TypePublic).Webhook([]*Webhook{webhook(u)}).MustBuild()},
-		{name: "must accept a nil logo URL", args: valid().LogoUrl(nil).MustBuild()},
+		{name: "must accept a private integration", args: valid(nil)},
+		{name: "must accept a public integration with a webhook", args: valid(func(i *Integration) {
+			i.iType = TypePublic
+			i.webhooks = []*Webhook{webhook(u)}
+		})},
+		{name: "must accept a nil logo URL", args: valid(func(i *Integration) { i.logoUrl = nil })},
 		{name: "must reject a nil integration", want: rerror.ErrInvalidParams},
-		{name: "must reject a zero developer", args: New().NewID().Type(TypePrivate).MustBuild(), want: ErrInvalidID},
-		{name: "must reject an empty type", args: valid().Type("").MustBuild(), want: ErrInvalidType},
-		{name: "must reject an unknown type", args: valid().Type("unknown").MustBuild(), want: ErrInvalidType},
-		{name: "must reject a nil webhook", args: valid().Webhook([]*Webhook{nil}).MustBuild(), want: ErrInvalidWebhook},
-		{name: "must reject a webhook without a URL", args: valid().Webhook([]*Webhook{webhook(u), webhook(nil)}).MustBuild(), want: ErrInvalidWebhook},
+		{name: "must reject a zero developer", args: valid(func(i *Integration) { i.developer = UserID{} }), want: ErrInvalidID},
+		{name: "must reject an empty type", args: valid(func(i *Integration) { i.iType = "" }), want: ErrInvalidType},
+		{name: "must reject an unknown type", args: valid(func(i *Integration) { i.iType = "unknown" }), want: ErrInvalidType},
+		{name: "must reject a nil webhook", args: valid(func(i *Integration) { i.webhooks = []*Webhook{nil} }), want: ErrInvalidWebhook},
+		{name: "must reject a webhook without a URL", args: valid(func(i *Integration) {
+			i.webhooks = []*Webhook{webhook(u), webhook(nil)}
+		}), want: ErrInvalidWebhook},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, tc.args.Validate())
+			if tc.args != nil {
+				// the builder applies the same rules
+				_, err := (&Builder{i: tc.args}).Build()
+				assert.Equal(t, tc.want, err)
+			}
 		})
 	}
 }

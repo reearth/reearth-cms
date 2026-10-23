@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestView_UpdateOrder_MissingViews(t *testing.T) {
+func TestView_UpdateOrder_InvalidIDs(t *testing.T) {
 	t.Parallel()
 	p1, p2 := id.NewProjectID(), id.NewProjectID()
 	newView := func(pid id.ProjectID) *view.View {
@@ -26,22 +26,31 @@ func TestView_UpdateOrder_MissingViews(t *testing.T) {
 	p1v1, p2v1 := newView(p1), newView(p2)
 
 	tests := []struct {
-		name   string
-		filter *repo.ProjectFilter
-		args   view.IDList
+		name    string
+		filter  *repo.ProjectFilter
+		args    view.IDList
+		wantErr error
 	}{
 		{
-			name: "must not find only unknown views",
-			args: view.IDList{id.NewViewID()},
+			name:    "must reject duplicated views",
+			args:    view.IDList{p1v1.ID(), p1v1.ID()},
+			wantErr: rerror.ErrInvalidParams,
 		},
 		{
-			name: "must not find a list that includes an unknown view",
-			args: view.IDList{p1v1.ID(), id.NewViewID()},
+			name:    "must not find only unknown views",
+			args:    view.IDList{id.NewViewID()},
+			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:   "must not find views of unreadable projects",
-			filter: &repo.ProjectFilter{Readable: id.ProjectIDList{p1}, Writable: id.ProjectIDList{p1}},
-			args:   view.IDList{p2v1.ID()},
+			name:    "must not find a list that includes an unknown view",
+			args:    view.IDList{p1v1.ID(), id.NewViewID()},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "must not find views of unreadable projects",
+			filter:  &repo.ProjectFilter{Readable: id.ProjectIDList{p1}, Writable: id.ProjectIDList{p1}},
+			args:    view.IDList{p2v1.ID()},
+			wantErr: rerror.ErrNotFound,
 		},
 	}
 
@@ -61,7 +70,7 @@ func TestView_UpdateOrder_MissingViews(t *testing.T) {
 			}
 
 			got, err := NewView(db, nil).UpdateOrder(ctx, tc.args, op)
-			assert.Equal(t, rerror.ErrNotFound, err)
+			assert.Equal(t, tc.wantErr, err)
 			assert.Nil(t, got)
 		})
 	}

@@ -598,12 +598,14 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 		User(p1v1.User()).Name("after").Order(1).Columns(&view.ColumnList{}).
 		Filter(new(viewStringCondition())).UpdatedAt(p1v1.UpdatedAt().Add(time.Hour)).MustBuild()
 
-	noUser := view.New().NewID().Project(p1).Model(id.NewModelID()).Schema(id.NewSchemaID()).MustBuild()
-	emptyNested := newView(p1, id.NewModelID()).Filter(&view.Condition{
+	// the builder rejects invalid views, so valid ones are broken with SetFilter
+	emptyNested := newView(p1, id.NewModelID()).MustBuild()
+	emptyNested.SetFilter(&view.Condition{
 		ConditionType: view.ConditionTypeAnd,
 		AndCondition:  &view.AndCondition{Conditions: []view.Condition{viewStringCondition(), {}}},
-	}).MustBuild()
-	emptyTop := newView(p1, id.NewModelID()).Filter(&view.Condition{}).MustBuild()
+	})
+	emptyTop := newView(p1, id.NewModelID()).MustBuild()
+	emptyTop.SetFilter(&view.Condition{})
 
 	tests := []struct {
 		name    string
@@ -631,11 +633,6 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			args:    p1v1Updated,
 			want:    p1v1, // unchanged
 			wantErr: repo.ErrOperationDenied,
-		},
-		{
-			name:    "must not save a view without a user",
-			args:    noUser,
-			wantErr: id.ErrInvalidID,
 		},
 		{
 			name:    "must not save a view with an empty nested condition",
@@ -697,6 +694,8 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 	p1v1Updated := view.New().ID(p1v1.ID()).Project(p1).Model(m1).Schema(p1v1.Schema()).User(p1v1.User()).
 		Name("after").Order(2).Columns(&view.ColumnList{}).UpdatedAt(p1v1.UpdatedAt()).MustBuild()
 	all := id.ViewIDList{p1v1.ID(), p1v2.ID(), p2v1.ID()}
+	emptyFilter := newView(p2, id.NewModelID()).MustBuild()
+	emptyFilter.SetFilter(&view.Condition{})
 
 	tests := []struct {
 		name    string
@@ -753,10 +752,9 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 			wantErr: rerror.ErrInvalidParams,
 		},
 		{
-			name: "must not save a list that includes an invalid view",
-			args: view.List{p1v1, view.New().ID(p2v1.ID()).Project(p2).Model(p2v1.Model()).
-				Schema(p2v1.Schema()).MustBuild()},
-			wantErr: id.ErrInvalidID,
+			name:    "must not save a list that includes an invalid view",
+			args:    view.List{p1v1, emptyFilter},
+			wantErr: view.ErrEmptyCondition,
 		},
 	}
 

@@ -549,7 +549,12 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 		UpdatedAt(integrationNow().Add(time.Hour)).
 		MustBuild()
 
-	invalid := func(b *integration.Builder) *integration.Integration { return b.ID(i1.ID()).MustBuild() }
+	// the builder rejects invalid integrations, so a valid one is broken with setters
+	invalid := func(f func(*integration.Integration)) *integration.Integration {
+		i := newIntegrationBuilder(u1).ID(i1.ID()).MustBuild()
+		f(i)
+		return i
+	}
 
 	tests := []struct {
 		name    string
@@ -590,36 +595,37 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 		{
 			name:    "must not save an integration without a developer",
 			seeds:   integration.List{i2},
-			args:    invalid(newIntegrationBuilder(accountdomain.UserID{})),
+			args:    invalid(func(i *integration.Integration) { i.SetDeveloper(accountdomain.UserID{}) }),
 			want:    integration.List{i2},
 			wantErr: integration.ErrInvalidID,
 		},
 		{
 			name:    "must not save an integration with an unknown type",
 			seeds:   integration.List{i2},
-			args:    invalid(newIntegrationBuilder(u1).Type("unknown")),
+			args:    invalid(func(i *integration.Integration) { i.SetType("unknown") }),
 			want:    integration.List{i2},
 			wantErr: integration.ErrInvalidType,
 		},
 		{
 			name:    "must not save an integration with an empty type",
 			seeds:   integration.List{i2},
-			args:    invalid(newIntegrationBuilder(u1).Type("")),
+			args:    invalid(func(i *integration.Integration) { i.SetType("") }),
 			want:    integration.List{i2},
 			wantErr: integration.ErrInvalidType,
 		},
 		{
 			name:  "must not save a webhook without a URL",
 			seeds: integration.List{i2},
-			args: invalid(newIntegrationBuilder(u1, integration.NewWebhookBuilder().NewID().
-				UpdatedAt(integrationNow()).MustBuild())),
+			args: invalid(func(i *integration.Integration) {
+				i.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().NewID().UpdatedAt(integrationNow()).MustBuild()})
+			}),
 			want:    integration.List{i2},
 			wantErr: integration.ErrInvalidWebhook,
 		},
 		{
 			name:    "must not save a nil webhook",
 			seeds:   integration.List{i2},
-			args:    invalid(newIntegrationBuilder(u1, nil)),
+			args:    invalid(func(i *integration.Integration) { i.SetWebhook([]*integration.Webhook{nil}) }),
 			want:    integration.List{i2},
 			wantErr: integration.ErrInvalidWebhook,
 		},

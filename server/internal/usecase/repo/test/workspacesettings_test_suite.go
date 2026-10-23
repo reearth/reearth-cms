@@ -540,8 +540,11 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 		workspacesettings.NewResourceList([]*workspacesettings.Resource{newWorkspaceSettingsTile(workspacesettings.TileTypeOpenStreetMap, "osm")}, nil, new(false)),
 		nil,
 	)
+	// the builder rejects invalid resources, so valid settings are broken with SetTiles
 	withTiles := func(r *workspacesettings.Resource) *workspacesettings.WorkspaceSettings {
-		return newWorkspaceSettings(w1, workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, nil, nil), nil)
+		ws := newWorkspaceSettings(w1, nil, nil)
+		ws.SetTiles(workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, nil, nil))
+		return ws
 	}
 
 	tests := []struct {

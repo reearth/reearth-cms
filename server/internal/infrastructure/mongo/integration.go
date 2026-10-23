@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -11,6 +12,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -75,7 +77,28 @@ func (r *Integration) Save(ctx context.Context, integration *integration.Integra
 		return err
 	}
 	doc, sId := mongodoc.NewIntegration(integration)
+	malformed, err := r.malformedWebhooks(ctx, sId)
+	if err != nil {
+		return err
+	}
+	if len(malformed) > 0 {
+		doc.Webhook = append(doc.Webhook, malformed...)
+	}
 	return r.client.SaveOne(ctx, sId, doc)
+}
+
+// malformedWebhooks returns the stored webhooks that are skipped on read, as
+// the integration being saved can not contain them and would erase them
+func (r *Integration) malformedWebhooks(ctx context.Context, iid string) ([]mongodoc.WebhookDocument, error) {
+	var stored mongodoc.IntegrationDocument
+	err := r.client.Client().FindOne(ctx, bson.M{"id": iid}).Decode(&stored)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return stored.MalformedWebhooks(), nil
 }
 
 func (r *Integration) Remove(ctx context.Context, integrationID id.IntegrationID) error {

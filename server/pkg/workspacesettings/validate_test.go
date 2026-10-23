@@ -18,9 +18,13 @@ func TestWorkspaceSettings_Validate(t *testing.T) {
 	}
 	validTile := NewResource(ResourceTypeTile, tile(NewResourceID(), TileTypeURL), nil)
 	validTerrain := NewResource(ResourceTypeTerrain, nil, terrain(NewResourceID(), TerrainTypeCesiumIon))
+	// settings bypasses the builder, which rejects invalid resources
 	settings := func(tiles, terrains []*Resource) *WorkspaceSettings {
-		return New().ID(accountdomain.NewWorkspaceID()).
-			Tiles(NewResourceList(tiles, nil, nil)).Terrains(NewResourceList(terrains, nil, nil)).MustBuild()
+		return &WorkspaceSettings{
+			id:       accountdomain.NewWorkspaceID(),
+			tiles:    NewResourceList(tiles, nil, nil),
+			terrains: NewResourceList(terrains, nil, nil),
+		}
 	}
 
 	tests := []struct {
@@ -68,6 +72,11 @@ func TestWorkspaceSettings_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, tc.args.Validate())
+			if tc.args != nil {
+				// the builder applies the same rules
+				_, err := (&Builder{ws: tc.args}).Build()
+				assert.Equal(t, tc.want, err)
+			}
 		})
 	}
 }

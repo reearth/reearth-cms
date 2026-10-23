@@ -167,6 +167,10 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 			if len(ids) == 0 {
 				return nil, nil
 			}
+			// a duplicated ID would give two orders to one view and none to another
+			if len(lo.Uniq(ids)) != len(ids) {
+				return nil, rerror.ErrInvalidParams
+			}
 			v, err := i.repos.View.FindByIDs(ctx, ids)
 			if err != nil {
 				return nil, err

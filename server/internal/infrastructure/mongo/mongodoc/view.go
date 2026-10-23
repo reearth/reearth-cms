@@ -1,6 +1,8 @@
 package mongodoc
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -301,14 +303,39 @@ func (d *FilterDocument) Model() *view.Condition {
 	}
 }
 
+// filterModels expects documents checked by valid
 func filterModels(docs []FilterDocument) []view.Condition {
-	return lo.FilterMap(docs, func(d FilterDocument, _ int) (view.Condition, bool) {
-		c := d.Model()
-		if c == nil {
-			return view.Condition{}, false
-		}
-		return *c, true
-	})
+	return lo.Map(docs, func(d FilterDocument, _ int) view.Condition { return *d.Model() })
+}
+
+var ErrInvalidFilterDocument = errors.New("invalid view filter document")
+
+// valid reports whether the document and every nested one have a known type
+// and the matching condition. A view with an invalid filter is not read, as
+// dropping a condition and saving the view back would change what it matches.
+func (d *FilterDocument) valid() bool {
+	switch d.ConditionType {
+	case "AND":
+		return d.AndCondition != nil && lo.EveryBy(d.AndCondition.Conditions, func(c FilterDocument) bool { return c.valid() })
+	case "OR":
+		return d.OrCondition != nil && lo.EveryBy(d.OrCondition.Conditions, func(c FilterDocument) bool { return c.valid() })
+	case "BASIC":
+		return d.BasicCondition != nil
+	case "NULLABLE":
+		return d.NullableCondition != nil
+	case "MULTIPLE":
+		return d.MultipleCondition != nil
+	case "BOOL":
+		return d.BoolCondition != nil
+	case "STRING":
+		return d.StringCondition != nil
+	case "NUMBER":
+		return d.NumberCondition != nil
+	case "TIME":
+		return d.TimeCondition != nil
+	default:
+		return false
+	}
 }
 
 type AndConditionDocument struct {
@@ -411,6 +438,10 @@ func (d *ViewDocument) Model() (*view.View, error) {
 	uID, err := accountdomain.UserIDFrom(d.User)
 	if err != nil {
 		return nil, err
+	}
+
+	if d.Filter != nil && !d.Filter.valid() {
+		return nil, fmt.Errorf("%w: view %s", ErrInvalidFilterDocument, d.ID)
 	}
 
 	columns := lo.Map(d.Columns, func(c ColumnDocument, _ int) view.Column { return c.Model() })
