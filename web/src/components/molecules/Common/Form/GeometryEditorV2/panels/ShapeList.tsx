@@ -24,8 +24,9 @@ type Props = {
 };
 
 /**
- * Shapes in the value, in stored order. Selecting a row selects the shape on the map
- * and the other way round; the selected row opens its coordinates in place. Shapes the
+ * Shapes in the value, in stored order. Selecting a row selects and zooms to the shape on
+ * the map, and selecting on the map selects the row; the selected row opens its
+ * coordinates in place. Shapes the
  * map can't edit say so in the row itself, selected or not.
  */
 const ShapeList: React.FC<Props> = ({
@@ -44,6 +45,11 @@ const ShapeList: React.FC<Props> = ({
   }, [selectedId]);
 
   const features = collection.features.filter((f): f is Feature<Geometry> => !!f.geometry);
+
+  const selectRow = (id: string, geometry: Geometry) => {
+    store.select(id);
+    store.focus({ kind: "geometry", geometry });
+  };
 
   if (features.length === 0) {
     return (
@@ -81,15 +87,11 @@ const ShapeList: React.FC<Props> = ({
               tabIndex={0}
               selected={selected}
               // Selecting is not a toggle: Esc or a click on empty map deselects.
-              onClick={() => {
-                store.select(id);
-                store.focus({ kind: "geometry", geometry: feature.geometry }, true);
-              }}
+              onClick={() => selectRow(id, feature.geometry)}
               onKeyDown={e => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  store.select(id);
-                  store.focus({ kind: "geometry", geometry: feature.geometry }, true);
+                  selectRow(id, feature.geometry);
                 }
               }}>
               <TypeIcon selected={selected}>

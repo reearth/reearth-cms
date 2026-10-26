@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
   collectionToText,
@@ -271,6 +271,95 @@ describe("geoStore", () => {
     const id = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
     store.setGeometry(id, { type: "Point", coordinates: [1, 1] }, EditOrigin.NUMERIC);
     expect(store.getSnapshot().undoDepth).toBe(1);
+  });
+
+  test("undo and redo cover editing a shape", () => {
+    const store = createGeoStore(empty);
+    const id = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    store.setGeometry(id, { type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
+    store.undo();
+    expect(store.getSnapshot().collection.features[0].geometry).toEqual({
+      type: "Point",
+      coordinates: [1, 1],
+    });
+    store.redo();
+    expect(store.getSnapshot().collection.features[0].geometry).toEqual({
+      type: "Point",
+      coordinates: [2, 2],
+    });
+  });
+
+  test("single mode: undoing a replacement brings back the previous shape", () => {
+    const store = createGeoStore(empty);
+    const first = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    store.replaceAll({ type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
+    store.undo();
+    const { collection, selectedId } = store.getSnapshot();
+    expect(collection.features.map(f => f.geometry)).toEqual([
+      { type: "Point", coordinates: [1, 1] },
+    ]);
+    expect(selectedId).toBe(first);
+  });
+
+  test("a new edit clears redo", () => {
+    const store = createGeoStore(empty);
+    store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    store.undo();
+    store.addFeature({ type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
+    expect(store.getSnapshot().redoDepth).toBe(0);
+  });
+
+  describe("coalescing", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const point = (x: number) => ({ type: "Point" as const, coordinates: [x, 0] });
+
+    test("a burst of typing is one undo step", () => {
+      vi.useFakeTimers();
+      const store = createGeoStore(empty);
+      const id = store.addFeature(point(0), EditOrigin.MAP);
+      for (const x of [1, 2, 3]) {
+        store.setGeometry(id, point(x), EditOrigin.NUMERIC);
+        vi.advanceTimersByTime(100);
+      }
+      expect(store.getSnapshot().undoDepth).toBe(2);
+      store.undo();
+      expect(store.getSnapshot().collection.features[0].geometry).toEqual(point(0));
+    });
+
+    test("a pause starts a new undo step", () => {
+      vi.useFakeTimers();
+      const store = createGeoStore(empty);
+      const id = store.addFeature(point(0), EditOrigin.MAP);
+      store.setGeometry(id, point(1), EditOrigin.NUMERIC);
+      vi.advanceTimersByTime(1000);
+      store.setGeometry(id, point(2), EditOrigin.NUMERIC);
+      expect(store.getSnapshot().undoDepth).toBe(3);
+    });
+
+    test("edits to different shapes and map gestures never merge", () => {
+      vi.useFakeTimers();
+      const store = createGeoStore(empty);
+      const a = store.addFeature(point(0), EditOrigin.MAP);
+      const b = store.addFeature(point(10), EditOrigin.MAP);
+      store.setGeometry(a, point(1), EditOrigin.NUMERIC);
+      store.setGeometry(b, point(11), EditOrigin.NUMERIC);
+      store.setGeometry(b, point(12), EditOrigin.MAP);
+      store.setGeometry(b, point(13), EditOrigin.MAP);
+      expect(store.getSnapshot().undoDepth).toBe(6);
+    });
+  });
+
+  test("repeated focus requests for the same shape are distinct", () => {
+    const store = createGeoStore(empty);
+    const geometry = { type: "Point" as const, coordinates: [1, 1] };
+    store.focus({ kind: "geometry", geometry });
+    const first = store.getSnapshot().focus;
+    store.focus({ kind: "geometry", geometry });
+    expect(store.getSnapshot().focus).not.toBe(first);
+    expect(store.getSnapshot().focus?.nonce).toBe((first?.nonce ?? 0) + 1);
   });
 
   test("history is blocked mid-gesture", () => {

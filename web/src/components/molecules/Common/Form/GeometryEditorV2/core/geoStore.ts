@@ -29,7 +29,7 @@ export type GeoStore = {
   replaceAll(geometry: Geometry, origin: EditOrigin): string;
   removeFeature(featureId: string, origin: EditOrigin): void;
   select(featureId: string | null): void;
-  focus(target: FocusTarget, onlyIfOffscreen?: boolean): void;
+  focus(target: FocusTarget): void;
   undo(): void;
   redo(): void;
   /** Map gestures commit on their end event, so history must not move mid-drag. */
@@ -204,9 +204,9 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
       emit();
     },
 
-    focus: (target, onlyIfOffscreen) => {
+    focus: target => {
       const nonce = (snapshot.focus?.nonce ?? 0) + 1;
-      snapshot = { ...snapshot, focus: { ...target, nonce, onlyIfOffscreen } };
+      snapshot = { ...snapshot, focus: { ...target, nonce } };
       emit();
     },
 

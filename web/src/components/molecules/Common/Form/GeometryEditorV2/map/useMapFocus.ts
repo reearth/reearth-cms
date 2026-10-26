@@ -1,5 +1,5 @@
 import type { Geometry } from "geojson";
-import { containsExtent, isEmpty } from "ol/extent";
+import { isEmpty } from "ol/extent";
 import type { Extent } from "ol/extent";
 import { fromLonLat, transformExtent } from "ol/proj";
 import { useEffect } from "react";
@@ -26,7 +26,6 @@ export function useMapFocus(handles: MapHandles | null, focus: FocusRequest | nu
   useEffect(() => {
     if (!handles || !focus) return;
     const view = handles.map.getView();
-    const size = handles.map.getSize();
 
     const target: Extent | null =
       focus.kind === "geometry"
@@ -35,14 +34,6 @@ export function useMapFocus(handles: MapHandles | null, focus: FocusRequest | nu
           ? transformExtent([...focus.extent], "EPSG:4326", "EPSG:3857")
           : null;
 
-    if (
-      focus.onlyIfOffscreen &&
-      size &&
-      target &&
-      containsExtent(view.calculateExtent(size), target)
-    ) {
-      return;
-    }
     if (target) {
       fitTo(handles, target);
       return;

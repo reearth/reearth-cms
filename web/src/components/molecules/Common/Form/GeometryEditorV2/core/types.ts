@@ -41,8 +41,6 @@ export type FocusTarget =
 export type FocusRequest = FocusTarget & {
   /** Makes repeated requests for the same target distinguishable. */
   readonly nonce: number;
-  /** Skip the move when the target is already visible. */
-  readonly onlyIfOffscreen?: boolean;
 };
 
 export type HistoryEntry = {
