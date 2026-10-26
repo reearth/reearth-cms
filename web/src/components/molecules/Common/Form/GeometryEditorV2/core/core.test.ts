@@ -10,7 +10,7 @@ import {
 import { createGeoStore } from "./geoStore";
 import { GeoUtils } from "./GeoUtils";
 import { EditOrigin, GeometryKind } from "./types";
-import { validateValue } from "./validation";
+import { GeometryLimits, validateValue } from "./validation";
 
 const POINT = '{"type":"Point","coordinates":[139.767125,35.681236]}';
 const LINE = '{ "type": "LineString", "coordinates": [[139.7, 35.6], [139.8, 35.7]] }';
@@ -119,11 +119,35 @@ describe("validateValue", () => {
       {
         type: "GeometryCollection",
         geometries: [
-          { type: "GeometryCollection", geometries: [{ type: "Point", coordinates: [0, 0] }] },
+          { type: "Point", coordinates: [0, 0] },
+          { type: "LineString", coordinates: ring.slice(0, 2) },
         ],
       },
     ];
     for (const value of values) expect(messages(value)).toEqual([]);
+  });
+
+  test("accepts an optional altitude and the range bounds", () => {
+    expect(messages({ type: "Point", coordinates: [139.7, 35.6, 50] })).toEqual([]);
+    expect(messages({ type: "Point", coordinates: [180, 90] })).toEqual([]);
+    expect(messages({ type: "Point", coordinates: [-180, -90] })).toEqual([]);
+  });
+
+  test("rejects malformed positions", () => {
+    const invalid = "A position is [longitude, latitude] with an optional altitude";
+    for (const coordinates of [[0], [0, 0, 0, 0], [0, "1"], [0, Infinity], [NaN, 0]]) {
+      expect(messages({ type: "Point", coordinates })).toEqual([invalid]);
+    }
+  });
+
+  test("rejects out-of-range positions", () => {
+    expect(messages({ type: "Point", coordinates: [180.1, 0] })).toEqual([
+      "Longitude must be between -180 and 180",
+    ]);
+    // A longitude beyond ±90 rules out a swapped pair.
+    expect(messages({ type: "Point", coordinates: [100, -90.1] })).toEqual([
+      "Latitude must be between -90 and 90",
+    ]);
   });
 
   test("names reversed coordinates", () => {
@@ -158,10 +182,39 @@ describe("validateValue", () => {
     );
   });
 
-  test("limits GeometryCollection nesting depth", () => {
-    let value: unknown = { type: "Point", coordinates: [0, 0] };
-    for (let i = 0; i < 7; i++) value = { type: "GeometryCollection", geometries: [value] };
-    expect(messages(value).some(m => m.includes("nesting"))).toBe(true);
+  test("rejects a GeometryCollection inside another", () => {
+    const issues = validateValue(
+      {
+        type: "GeometryCollection",
+        geometries: [
+          { type: "Point", coordinates: [0, 0] },
+          { type: "GeometryCollection", geometries: [{ type: "Point", coordinates: [0, 0] }] },
+        ],
+      },
+      false,
+    );
+    expect(issues).toEqual([
+      {
+        path: "geometries[1]",
+        message: "A GeometryCollection can't contain another GeometryCollection",
+      },
+    ]);
+  });
+
+  test("limits the size of each value, not of the whole field", () => {
+    // Each position serializes to 25 bytes, so this passes the byte limit while staying
+    // under the coordinate limit.
+    const count = Math.ceil(GeometryLimits.VALUE_BYTES / 20);
+    const big = {
+      type: "MultiPoint",
+      coordinates: Array.from({ length: count }, () => [139.7671251, 35.6812361]),
+    };
+    const issues = validateValue([{ type: "Point", coordinates: [0, 0] }, big], true);
+    expect(issues.map(issue => issue.path)).toContain("[1]");
+    expect(issues.some(issue => issue.message.startsWith("This geometry is too large"))).toBe(
+      true,
+    );
+    expect(issues.some(issue => issue.path === "[0]")).toBe(false);
   });
 
   test("respects a legacy field's supported types", () => {

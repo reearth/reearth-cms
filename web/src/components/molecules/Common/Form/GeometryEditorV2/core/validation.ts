@@ -18,11 +18,14 @@ export type ValidateOptions = {
   readonly allowedKinds?: readonly GeometryKind[];
 };
 
-export const LIMITS = {
-  SHAPES: 1000,
-  COORDINATES: 100_000,
-  COLLECTION_DEPTH: 5,
-} as const;
+/** Placeholders until the backend confirms the agreed limits. */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export abstract class GeometryLimits {
+  public static readonly SHAPES = 1000;
+  public static readonly COORDINATES = 100_000;
+  /** UTF-8 bytes of one geometry serialized as compact JSON, whatever the input formatting. */
+  public static readonly VALUE_BYTES = 1024 * 1024;
+}
 
 const MAX_ISSUES = 20;
 const raw = { interpolation: { escapeValue: false } };
@@ -34,6 +37,8 @@ const COORDINATE_MEMBERS = ["type", "coordinates", "bbox"];
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
+
+const encoder = new TextEncoder();
 
 class Collector {
   readonly issues: GeometryIssue[] = [];
@@ -112,7 +117,7 @@ function checkList(
   value.forEach((entry, i) => !out.full && each(entry, `${path}[${i}]`));
 }
 
-function checkGeometry(value: unknown, path: string, depth: number, out: Collector) {
+function checkGeometry(value: unknown, path: string, inCollection: boolean, out: Collector) {
   if (!isObject(value)) {
     out.add(path, t("Expected a GeoJSON geometry object"));
     return;
@@ -172,17 +177,12 @@ function checkGeometry(value: unknown, path: string, depth: number, out: Collect
       );
       break;
     case GeometryKind.GEOMETRY_COLLECTION:
-      if (depth >= LIMITS.COLLECTION_DEPTH) {
-        out.add(
-          path,
-          t("GeometryCollection nesting is limited to {{max}} levels", {
-            max: LIMITS.COLLECTION_DEPTH,
-          }),
-        );
+      if (inCollection) {
+        out.add(path, t("A GeometryCollection can't contain another GeometryCollection"));
         return;
       }
       checkList(value.geometries, at("geometries"), out, (g, gp) =>
-        checkGeometry(g, gp, depth + 1, out),
+        checkGeometry(g, gp, true, out),
       );
       break;
   }
@@ -206,18 +206,18 @@ export function validateValue(
       out.add("", t("Expected a list of geometries, e.g. [ { ... }, { ... } ]"));
       return out.issues;
     }
-    if (value.length > LIMITS.SHAPES) {
+    if (value.length > GeometryLimits.SHAPES) {
       out.add(
         "",
         t("Too many shapes: {{count}} (limit {{max}})", {
           count: value.length,
-          max: LIMITS.SHAPES,
+          max: GeometryLimits.SHAPES,
         }),
       );
     }
     value.forEach((geometry, i) => {
       shapes.push(geometry);
-      if (!out.full) checkGeometry(geometry, `[${i}]`, 0, out);
+      if (!out.full) checkGeometry(geometry, `[${i}]`, false, out);
     });
   } else {
     if (Array.isArray(value)) {
@@ -225,18 +225,31 @@ export function validateValue(
       return out.issues;
     }
     shapes.push(value);
-    checkGeometry(value, "", 0, out);
+    checkGeometry(value, "", false, out);
   }
 
-  if (out.coordinates > LIMITS.COORDINATES) {
+  if (out.coordinates > GeometryLimits.COORDINATES) {
     out.add(
       "",
       t("Too many coordinates: {{count}} (limit {{max}})", {
         count: out.coordinates,
-        max: LIMITS.COORDINATES,
+        max: GeometryLimits.COORDINATES,
       }),
     );
   }
+
+  shapes.forEach((shape, i) => {
+    const bytes = encoder.encode(JSON.stringify(shape)).length;
+    if (bytes > GeometryLimits.VALUE_BYTES) {
+      out.add(
+        multiple ? `[${i}]` : "",
+        t("This geometry is too large: {{size}} KB (limit {{max}} KB)", {
+          size: Math.ceil(bytes / 1024),
+          max: GeometryLimits.VALUE_BYTES / 1024,
+        }),
+      );
+    }
+  });
 
   const allowed = options.allowedKinds;
   if (allowed && allowed.length < ALL_KINDS.length) {
