@@ -103,14 +103,8 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 }
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
-func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	// The file is read twice (count, then import), so the reader must be rewindable
-	seeker, ok := param.Reader.(io.ReadSeeker)
-	if !ok {
-		return res.Into(), fmt.Errorf("import reader does not support being read twice")
-	}
-
-	reader, lr := newCSVReader(seeker)
+func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, src io.ReadSeeker, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
+	reader, lr := newCSVReader(src)
 
 	// Read header row
 	headers, err := reader.Read()
@@ -145,16 +139,23 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	}
 
 	// Second pass: rewind and save rows chunk by chunk
-	if _, err := seeker.Seek(0, io.SeekStart); err != nil {
-		return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
+	if err := rewind(src); err != nil {
+		return res.Into(), err
 	}
-	reader, _ = newCSVReader(seeker)
+	reader, _ = newCSVReader(src)
 	if _, err := reader.Read(); err != nil { // re-consume the header row
 		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
 	}
 
 	processed, csvChunk, chunkStart := 0, make([]map[string]any, 0), reader.InputOffset()
 	for {
+		// Check for cancellation before reading a new chunk
+		if len(csvChunk) == 0 {
+			if _, err := i.activeImportJob(ctx, j.ID()); err != nil {
+				return res.Into(), err
+			}
+		}
+
 		record, err := reader.Read()
 		if err == io.EOF {
 			break
@@ -165,7 +166,7 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		csvChunk = append(csvChunk, csvRowToMap(headers, record, fieldMap))
 
 		if len(csvChunk) == chunkSize || reader.InputOffset()-chunkStart >= chunkByteLimit {
-			if err := i.saveChunkWithProgress(ctx, j, prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
+			if err := i.saveChunkWithProgress(ctx, j.ID(), prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
 				return res.Into(), err
 			}
 			processed += len(csvChunk)
@@ -175,7 +176,7 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 
 	// Process remaining records
 	if len(csvChunk) > 0 {
-		if err := i.saveChunkWithProgress(ctx, j, prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
+		if err := i.saveChunkWithProgress(ctx, j.ID(), prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
 			return res.Into(), err
 		}
 	}

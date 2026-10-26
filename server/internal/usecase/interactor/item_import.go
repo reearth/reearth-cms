@@ -446,43 +446,22 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		return res.Into(), err
 	}
 
-	// Handle CSV format separately
-	if param.Format == interfaces.ImportFormatTypeCSV {
-		return i.importCSVWithProgress(ctx, j, prj, m, s, param, &res, operator)
-	}
-
 	// The file is read twice (count, then import), so the reader must be rewindable
-	seeker, ok := param.Reader.(io.ReadSeeker)
+	src, ok := param.Reader.(io.ReadSeeker)
 	if !ok {
 		return res.Into(), fmt.Errorf("import reader does not support being read twice")
 	}
 
-	// guess schema fields from first object
-	if param.MutateSchema {
-		rr := utils.NewReplyReader(param.Reader)
-		guessedFields, err := s.GuessSchemaFieldFromJson(rr.Partial, param.Format == interfaces.ImportFormatTypeGeoJSON, false)
-		if err != nil {
-			return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
-		}
-		// Rewind instead of using rr.Full, which is not seekable
-		if _, err := seeker.Seek(0, io.SeekStart); err != nil {
-			return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
-		}
-
-		fields, err := i.updateSchema(ctx, s, createFieldParamsFrom(guessedFields, s.ID()))
-		if err != nil {
-			return res.Into(), fmt.Errorf("error saving schema fields: %v", err)
-		}
-
-		for _, f := range fields {
-			res.FieldAdded(f)
-		}
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSVWithProgress(ctx, j, prj, m, s, param, src, &res, operator)
 	}
 
 	isGeoJSON := param.Format == interfaces.ImportFormatTypeGeoJSON
 
-	// First pass: count items without keeping them in memory
-	decoder, err := openJSONArray(seeker, isGeoJSON)
+	// First pass: count items without keeping them in memory.
+	// Runs before the schema is mutated so a rejected file leaves the schema untouched.
+	decoder, err := openJSONArray(src, isGeoJSON)
 	if err != nil {
 		return res.Into(), err
 	}
@@ -503,17 +482,44 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 	}
 
-	// Second pass: re-read the file and save items chunk by chunk
-	if _, err := seeker.Seek(0, io.SeekStart); err != nil {
-		return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
+	// guess schema fields from first object
+	if param.MutateSchema {
+		if err := rewind(src); err != nil {
+			return res.Into(), err
+		}
+		guessedFields, err := s.GuessSchemaFieldFromJson(src, isGeoJSON, false)
+		if err != nil {
+			return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
+		}
+
+		fields, err := i.updateSchema(ctx, s, createFieldParamsFrom(guessedFields, s.ID()))
+		if err != nil {
+			return res.Into(), fmt.Errorf("error saving schema fields: %v", err)
+		}
+
+		for _, f := range fields {
+			res.FieldAdded(f)
+		}
 	}
-	decoder, err = openJSONArray(seeker, isGeoJSON)
+
+	// Second pass: re-read the file and save items chunk by chunk
+	if err := rewind(src); err != nil {
+		return res.Into(), err
+	}
+	decoder, err = openJSONArray(src, isGeoJSON)
 	if err != nil {
 		return res.Into(), err
 	}
 
 	processed, jsonChunk, chunkStart := 0, make([]map[string]any, 0), decoder.InputOffset()
 	for decoder.More() {
+		// Check for cancellation before decoding a new chunk
+		if len(jsonChunk) == 0 {
+			if _, err := i.activeImportJob(ctx, j.ID()); err != nil {
+				return res.Into(), err
+			}
+		}
+
 		var obj map[string]any
 		if err := decoder.Decode(&obj); err != nil {
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
@@ -521,7 +527,7 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		jsonChunk = append(jsonChunk, obj)
 
 		if len(jsonChunk) == chunkSize || decoder.InputOffset()-chunkStart >= chunkByteLimit || !decoder.More() {
-			if err := i.saveChunkWithProgress(ctx, j, prj, m, s, param, jsonChunk, processed, totalCount, &res, operator); err != nil {
+			if err := i.saveChunkWithProgress(ctx, j.ID(), prj, m, s, param, jsonChunk, processed, totalCount, &res, operator); err != nil {
 				return res.Into(), err
 			}
 			processed += len(jsonChunk)
@@ -531,18 +537,29 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	return res.Into(), nil
 }
 
+func rewind(r io.ReadSeeker) error {
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return fmt.Errorf("error rewinding import data: %v", err)
+	}
+	return nil
+}
+
+// activeImportJob reloads the import job, returning an error if it has been cancelled
+func (i Item) activeImportJob(ctx context.Context, jID id.JobID) (*job.Job, error) {
+	j, err := i.repos.Job.FindByID(ctx, jID)
+	if err != nil {
+		log.Warnf("item: import job %s failed to check cancellation status: %v", jID, err)
+		return nil, nil
+	}
+	if j != nil && j.IsCancelled() {
+		return nil, fmt.Errorf("job cancelled")
+	}
+	return j, nil
+}
+
 // saveChunkWithProgress saves one chunk of an async import and records the job's progress.
 // processed is the number of records saved before this chunk.
-func (i Item) saveChunkWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, chunk []map[string]any, processed, totalCount int, res *ImportRes, operator *usecase.Operator) error {
-	// Check if job was cancelled
-	currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
-	if err != nil {
-		log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
-	}
-	if currentJob != nil && currentJob.IsCancelled() {
-		return fmt.Errorf("job cancelled")
-	}
-
+func (i Item) saveChunkWithProgress(ctx context.Context, jID id.JobID, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, chunk []map[string]any, processed, totalCount int, res *ImportRes, operator *usecase.Operator) error {
 	items, err := itemsParamsFrom(chunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
 	if err != nil {
 		return err
@@ -555,15 +572,22 @@ func (i Item) saveChunkWithProgress(ctx context.Context, j *job.Job, prj *projec
 	progress := job.NewProgress(processed+len(chunk), totalCount)
 	state := job.NewState(job.StatusInProgress, &progress, "")
 	if i.gateways.JobPubSub != nil {
-		if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-			log.Warnf("item: failed to publish job %s progress: %v", j.ID(), err)
+		if err := i.gateways.JobPubSub.Publish(ctx, jID, state); err != nil {
+			log.Warnf("item: failed to publish job %s progress: %v", jID, err)
 		}
 	}
 
-	// Update job progress
-	j.SetProgress(progress)
-	if err := i.repos.Job.Save(ctx, j); err != nil {
-		log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
+	// Update job progress on a freshly loaded job, so a cancellation made while
+	// the chunk was being saved is not overwritten
+	j, err := i.activeImportJob(ctx, jID)
+	if err != nil {
+		return err
+	}
+	if j != nil {
+		j.SetProgress(progress)
+		if err := i.repos.Job.Save(ctx, j); err != nil {
+			log.Errorf("item: import job %s failed to update progress: %v", jID, err)
+		}
 	}
 
 	log.Printf("chunk with %d items saved.", len(chunk))
