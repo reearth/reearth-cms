@@ -499,8 +499,10 @@ func TestIntegration_DeleteMany(t *testing.T) {
 			}
 			assert.NoError(t, err)
 
-			got, _ := db.Integration.FindByIDs(ctx, tt.args)
-			assert.Nil(t, got)
+			for _, iid := range tt.args {
+				_, err := db.Integration.FindByID(ctx, iid)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
 		})
 	}
 }

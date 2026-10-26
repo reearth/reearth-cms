@@ -319,27 +319,36 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 	if err != nil {
 		return err
 	}
+	// checked up front, since the items are deleted in their own transactions before the one below
+	if err := doCheckPermission(ctx, i.gateways, rbac.ResourceModel, rbac.ActionDelete, wid); err != nil {
+		return err
+	}
+	if !operator.IsWritableProject(m.Project()) {
+		return interfaces.ErrOperationDenied
+	}
+
+	prj, err := i.repos.Project.FindByID(ctx, m.Project())
+	if err != nil {
+		return err
+	}
+
+	// delete all items for this model. the model is kept until they are gone, so a failed deletion can be retried.
+	if err := i.deleteItemsByModel(ctx, prj, m, sp, operator); err != nil {
+		return err
+	}
+
 	return Run0(ctx, operator, i.repos,
 		Usecase().
-			WithPermission(i.authz(), rbac.ResourceModel, rbac.ActionDelete, wid).
 			Transaction(),
 		func(ctx context.Context) error {
-			if !operator.IsWritableProject(m.Project()) {
-				return interfaces.ErrOperationDenied
-			}
-
 			// delete all views for this model
 			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
 				return err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, m.Project())
-			if err != nil {
-				return err
-			}
-
-			// delete all items for this model
-			if err := i.deleteItemsByModel(ctx, prj, m, sp, operator); err != nil {
+			// delete items created after the last page above was read.
+			// this is only a safety net for that short window: their threads are not removed and no item.delete events are sent.
+			if err := i.repos.Item.RemoveByModel(ctx, modelID); err != nil {
 				return err
 			}
 
@@ -423,30 +432,34 @@ func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *mod
 
 func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {
 	const pageSize = int64(100)
-	var cursor *usecasex.Cursor
 
 	itemInteractor := NewItem(i.repos, i.gateways)
 
-	var allThreadIDs id.ThreadIDList
-	var allEvents []Event
-
-	// collect thread IDs, events, and clean up cross-model references
+	// delete the items page by page, each page in its own transaction, so that neither the transaction
+	// duration nor the memory usage grows with the number of items.
+	// the first page is always read, since the previous pages are already deleted.
 	for {
-		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, m.ID(), nil, nil,
-			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
-		if err != nil {
-			return err
-		}
+		n, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (int, error) {
+			vList, _, err := i.repos.Item.FindByModel(ctx, m.ID(), nil, nil,
+				usecasex.CursorPagination{First: lo.ToPtr(pageSize)}.Wrap())
+			if err != nil {
+				return 0, err
+			}
 
-		items := vList.Unwrap()
-		if len(items) > 0 {
+			items := vList.Unwrap()
+			if len(items) == 0 {
+				return 0, nil
+			}
+
+			var threadIDs id.ThreadIDList
+			events := make([]Event, 0, len(items))
 			for idx, itm := range items {
 				if itm.Thread() != nil {
-					allThreadIDs = append(allThreadIDs, *itm.Thread())
+					threadIDs = append(threadIDs, *itm.Thread())
 				}
-				allEvents = append(allEvents, Event{
+				events = append(events, Event{
 					Project:   prj,
-					Workspace: sp.Schema().Workspace(),
+					Workspace: prj.Workspace(),
 					Type:      event.ItemDelete,
 					Object:    vList[idx],
 					WebhookObject: item.ItemModelSchema{
@@ -458,37 +471,37 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 				})
 			}
 
+			// clean up cross-model references
 			if err := itemInteractor.handleRelatedReferenceFields(ctx, items.IDs(), sp); err != nil {
-				return err
+				return 0, err
 			}
-		}
 
-		if pageInfo == nil || !pageInfo.HasNextPage {
-			break
-		}
-		cursor = pageInfo.EndCursor
-	}
+			// delete the page's items (metadata items belong to the same model)
+			if err := i.repos.Item.BatchRemove(ctx, items.IDs()); err != nil {
+				return 0, err
+			}
 
-	// delete all items and metadata items for this model in one query
-	if err := i.repos.Item.RemoveByModel(ctx, m.ID()); err != nil {
-		return err
-	}
+			// delete threads that belonged to the deleted items
+			if len(threadIDs) > 0 {
+				if err := i.repos.Thread.RemoveByIDs(ctx, threadIDs); err != nil {
+					return 0, err
+				}
+			}
 
-	// delete threads that belonged to the deleted items
-	if len(allThreadIDs) > 0 {
-		if err := i.repos.Thread.RemoveByIDs(ctx, allThreadIDs); err != nil {
+			// publish item.delete events
+			if _, err := createEvents(ctx, i.repos, i.gateways, events); err != nil {
+				return 0, err
+			}
+
+			return len(items), nil
+		})
+		if err != nil {
 			return err
 		}
-	}
-
-	// publish item.delete events
-	if len(allEvents) > 0 {
-		if _, err := createEvents(ctx, i.repos, i.gateways, allEvents); err != nil {
-			return err
+		if n == 0 {
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {

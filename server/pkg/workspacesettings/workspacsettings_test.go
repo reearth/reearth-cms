@@ -74,5 +74,11 @@ func TestWorkspaceSettings_Clone(t *testing.T) {
 	assert.NotSame(t, ws, got)
 	assert.NotSame(t, ws.tiles, got.tiles)
 	assert.NotSame(t, ws.terrains, got.terrains)
+	assert.NotSame(t, ws.tiles.resources[0], got.tiles.resources[0])
+	assert.NotSame(t, ws.terrains.resources[0], got.terrains.resources[0])
 	assert.Nil(t, (*WorkspaceSettings)(nil).Clone())
+
+	// changing a resource of the clone must not change the original
+	got.tiles.resources[0].SetTile(nil)
+	assert.Same(t, tt, ws.tiles.resources[0].Tile())
 }

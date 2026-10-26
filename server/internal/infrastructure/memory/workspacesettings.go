@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type WorkspaceSettingsRepo struct {
@@ -26,38 +27,48 @@ func (r *WorkspaceSettingsRepo) Filtered(f repo.WorkspaceFilter) repo.WorkspaceS
 	return &WorkspaceSettingsRepo{
 		data: r.data,
 		f:    r.f.Merge(f),
+		err:  r.err,
 	}
 }
 
-func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, wid accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
+func (r *WorkspaceSettingsRepo) FindByID(_ context.Context, wid accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	ws := r.data.Find(func(k accountdomain.WorkspaceID, v *workspacesettings.WorkspaceSettings) bool {
-		return k == wid && r.f.CanRead(v.ID())
-	})
+	if !r.f.CanRead(wid) {
+		return nil, repo.ErrOperationDenied
+	}
 
-	if ws != nil {
-		return ws, nil
+	if ws, ok := r.data.Load(wid); ok {
+		return ws.Clone(), nil
 	}
 	return nil, rerror.ErrNotFound
 }
 
-func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids accountdomain.WorkspaceIDList) (workspacesettings.List, error) {
+func (r *WorkspaceSettingsRepo) FindByIDs(_ context.Context, ids accountdomain.WorkspaceIDList) (workspacesettings.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	result := r.data.FindAll(func(k accountdomain.WorkspaceID, i *workspacesettings.WorkspaceSettings) bool {
-		return ids.Has(k) && r.f.CanRead(i.ID())
-	})
+	if !lo.EveryBy(ids, r.f.CanRead) {
+		return nil, repo.ErrOperationDenied
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
 
-	return workspacesettings.List(result).SortByID(), nil
-
+	// keep the order of the given IDs and skip unknown ones, like mongo
+	res := make(workspacesettings.List, 0, len(ids))
+	for _, wid := range ids {
+		if ws, ok := r.data.Load(wid); ok {
+			res = append(res, ws.Clone())
+		}
+	}
+	return res, nil
 }
 
-func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspacesettings.WorkspaceSettings) error {
+func (r *WorkspaceSettingsRepo) Save(_ context.Context, ws *workspacesettings.WorkspaceSettings) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -66,19 +77,26 @@ func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspacesettings.
 		return repo.ErrOperationDenied
 	}
 
-	r.data.Store(ws.ID(), ws)
+	r.data.Store(ws.ID(), ws.Clone())
 	return nil
 }
 
-func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, wid accountdomain.WorkspaceID) error {
+func (r *WorkspaceSettingsRepo) Remove(_ context.Context, wid accountdomain.WorkspaceID) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	if i, ok := r.data.Load(wid); ok && r.f.CanWrite(i.ID()) {
-		r.data.Delete(wid)
-		return nil
+	if !r.f.CanWrite(wid) {
+		return repo.ErrOperationDenied
 	}
-	return rerror.ErrNotFound
 
+	if _, ok := r.data.Load(wid); !ok {
+		return rerror.ErrNotFound
+	}
+	r.data.Delete(wid)
+	return nil
+}
+
+func SetWorkspaceSettingsError(r repo.WorkspaceSettings, err error) {
+	r.(*WorkspaceSettingsRepo).err = err
 }

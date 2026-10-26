@@ -448,6 +448,10 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	}
 
 	// The import payload is always a seekable reader in the async path
+	// (ImportAsync buffers the upload into a *bytes.Reader before the
+	// background job starts), so the file can be scanned twice - once to
+	// count records, once to decode and save them - by rewinding instead
+	// of holding every record in memory at once.
 	seeker, ok := param.Reader.(io.ReadSeeker)
 	if !ok {
 		return res.Into(), fmt.Errorf("import reader does not support being read twice")
@@ -460,7 +464,9 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		if err != nil {
 			return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
 		}
-		// Rewind the original seekable reader instead of keeping rr.Full
+		// Rewind the original seekable reader instead of keeping rr.Full:
+		// rr.Full is a MultiReader replaying the peeked prefix, which would
+		// no longer satisfy io.ReadSeeker for the two-pass decode below.
 		if _, err := seeker.Seek(0, io.SeekStart); err != nil {
 			return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
 		}
@@ -477,42 +483,28 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 
 	isGeoJSON := param.Format == interfaces.ImportFormatTypeGeoJSON
 
-	// First pass: count records only.
-	decoder := json.NewDecoder(seeker)
-
-	// For FeatureCollection, skip to the features array
-	if isGeoJSON {
-		for {
-			token, err := decoder.Token()
-			if err != nil {
-				return res.Into(), fmt.Errorf("error reading token: %v", err)
-			}
-			if str, ok := token.(string); ok && str == "features" {
-				break
-			}
-		}
-	}
-
-	// Read the opening bracket of array
-	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
-		if err != nil {
-			return res.Into(), fmt.Errorf("error reading array start: %v", err)
-		}
-		return res.Into(), fmt.Errorf("expected array start, got %v", t)
+	// First pass: count records only, without keeping them in memory. Each
+	// record is decoded as json.RawMessage - its raw bytes are captured and
+	// immediately discarded rather than parsed into a map - and rejected
+	// early if it isn't an object, so a malformed file fails before any
+	// chunk is saved.
+	decoder, err := openJSONArray(seeker, isGeoJSON)
+	if err != nil {
+		return res.Into(), err
 	}
 
 	totalCount := 0
 	for decoder.More() {
 		totalCount++
-
-		// Check max record limit
 		if totalCount > interfaces.MaxImportRecordCount {
 			return res.Into(), interfaces.ErrImportTooManyRecords
 		}
-
-		var obj map[string]any
+		var obj json.RawMessage
 		if err := decoder.Decode(&obj); err != nil {
 			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+		if len(obj) == 0 || (obj[0] != '{' && obj[0] != 'n') {
+			return res.Into(), fmt.Errorf("error decoding JSON object: record %d is not an object", totalCount)
 		}
 	}
 
@@ -521,27 +513,9 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	if _, err := seeker.Seek(0, io.SeekStart); err != nil {
 		return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
 	}
-	decoder = json.NewDecoder(seeker)
-
-	// For FeatureCollection, skip to the features array
-	if isGeoJSON {
-		for {
-			token, err := decoder.Token()
-			if err != nil {
-				return res.Into(), fmt.Errorf("error reading token: %v", err)
-			}
-			if str, ok := token.(string); ok && str == "features" {
-				break
-			}
-		}
-	}
-
-	// Read the opening bracket of array
-	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
-		if err != nil {
-			return res.Into(), fmt.Errorf("error reading array start: %v", err)
-		}
-		return res.Into(), fmt.Errorf("expected array start, got %v", t)
+	decoder, err = openJSONArray(seeker, isGeoJSON)
+	if err != nil {
+		return res.Into(), err
 	}
 
 	count, processed, jsonChunk := 0, 0, make([]map[string]any, 0)
@@ -591,6 +565,34 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		}
 	}
 	return res.Into(), nil
+}
+
+// openJSONArray returns a decoder positioned just inside the array of records
+// (the top-level array for JSON, the "features" array for GeoJSON).
+func openJSONArray(r io.Reader, isGeoJSON bool) (*json.Decoder, error) {
+	decoder := json.NewDecoder(r)
+
+	// For FeatureCollection, skip to the features array
+	if isGeoJSON {
+		for {
+			token, err := decoder.Token()
+			if err != nil {
+				return nil, fmt.Errorf("error reading token: %v", err)
+			}
+			if str, ok := token.(string); ok && str == "features" {
+				break
+			}
+		}
+	}
+
+	// Read the opening bracket of array
+	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
+		if err != nil {
+			return nil, fmt.Errorf("error reading array start: %v", err)
+		}
+		return nil, fmt.Errorf("expected array start, got %v", t)
+	}
+	return decoder, nil
 }
 
 func (i Item) saveChunk(ctx context.Context, _ *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
