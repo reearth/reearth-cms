@@ -4,6 +4,7 @@ import Feature from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
 import Point from "ol/geom/Point";
 import type Draw from "ol/interaction/Draw";
+import type MapBrowserEvent from "ol/MapBrowserEvent";
 import { fromLonLat } from "ol/proj";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
@@ -24,6 +25,7 @@ import type { GeocodeResult } from "../search/providers";
 import SearchBox from "../search/SearchBox";
 
 import { BaseMapId, baseMapOptions } from "./baseMaps";
+import MapLegend from "./MapLegend";
 import { MapTool, TOOL_KIND } from "./mapTools";
 import { useMapFocus, extentOf, fitTo } from "./useMapFocus";
 import { useMapInteractions } from "./useMapInteractions";
@@ -86,6 +88,7 @@ const EditorMap: React.FC<Props> = ({
   const selectedIdRef = useRef<string | null>(selectedId);
   const handles = useOlMap(containerRef, { preview: false, selectedIdRef });
   const [baseMap, setBaseMap] = useState<BaseMapId>(BaseMapId.OSM);
+  const [hoveringReadOnly, setHoveringReadOnly] = useState<boolean>(false);
 
   useMapSync(handles?.source ?? null, collection);
   useMapFocus(handles, focus);
@@ -128,6 +131,25 @@ const EditorMap: React.FC<Props> = ({
     if (!handles) return;
     handles.bases.forEach((layer, id) => layer.setVisible(id === baseMap));
   }, [handles, baseMap]);
+
+  useEffect(() => {
+    if (!handles) return;
+    const { map, layer } = handles;
+    const onPointerMove = (event: MapBrowserEvent) => {
+      if (event.dragging) return;
+      const feature = map.forEachFeatureAtPixel(event.pixel, f => f, {
+        layerFilter: l => l === layer,
+      });
+      const id = feature ? String(feature.getId()) : null;
+      const geometry = GeoUtils.findFeature(collection, id)?.geometry;
+      setHoveringReadOnly(!!geometry && !GeoUtils.isEditableKind(geometry));
+    };
+    map.on("pointermove", onPointerMove);
+    return () => {
+      map.un("pointermove", onPointerMove);
+      setHoveringReadOnly(false);
+    };
+  }, [handles, collection]);
 
   useEffect(() => {
     if (!handles) return;
@@ -176,10 +198,17 @@ const EditorMap: React.FC<Props> = ({
         : selectedType === "Point"
           ? t("Drag the point to move it")
           : null;
+  const hoverHint =
+    hoveringReadOnly && tool === MapTool.SELECT
+      ? t("Can't be edited on the map. Change it in GeoJSON.")
+      : null;
   const drawHint =
     toolHint && replaceWarning
       ? `${t("Replaces the current shape")} · ${toolHint}`
-      : (toolHint ?? editHint);
+      : (toolHint ?? hoverHint ?? editHint);
+  const hasReadOnly = collection.features.some(
+    feature => feature.geometry && !GeoUtils.isEditableKind(feature.geometry),
+  );
 
   // Controls live in a bar above the map, so nothing on the map can be mistaken for data.
   return (
@@ -245,6 +274,7 @@ const EditorMap: React.FC<Props> = ({
       </TopBar>
       <MapArea>
         <MapContainer ref={containerRef} />
+        {hasReadOnly && <MapLegend />}
         {drawHint && <Hint role="status">{drawHint}</Hint>}
       </MapArea>
     </Wrapper>

@@ -20,7 +20,7 @@ import type { GeoStore, GeometryUpdate } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
 
 import { handleAt, isNearHandle } from "./handles";
-import { HANDLE_COLOUR } from "./mapStyle";
+import { ShapeStyle } from "./mapStyle";
 import type { MapTool } from "./mapTools";
 import { drawType } from "./mapTools";
 import { GEOJSON_FORMAT } from "./useMapSync";
@@ -30,8 +30,8 @@ import type { MapHandles } from "./useOlMap";
 const GRAB_STYLE = new Style({
   image: new CircleStyle({
     radius: 7,
-    fill: new Fill({ color: HANDLE_COLOUR }),
-    stroke: new Stroke({ color: "#ffffff", width: 2 }),
+    fill: new Fill({ color: ShapeStyle.HANDLE }),
+    stroke: new Stroke({ color: ShapeStyle.WHITE, width: 2 }),
   }),
   zIndex: 200,
 });
