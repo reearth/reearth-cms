@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestViewRepo(t *testing.T) {
@@ -23,10 +24,11 @@ func TestViewRepo(t *testing.T) {
 	})
 }
 
-func TestView_SkipsViewsWithInvalidFilters(t *testing.T) {
+func TestView_UnreadableFilters(t *testing.T) {
 	init := mongotest.Connect(t)
 	ctx := context.Background()
 	client := mongox.NewClientWithDatabase(init(t))
+	coll := client.WithCollection("view").Client()
 	r := NewView(client)
 
 	pid, mid := id.NewProjectID(), id.NewModelID()
@@ -35,24 +37,38 @@ func TestView_SkipsViewsWithInvalidFilters(t *testing.T) {
 	require.NoError(t, r.Save(ctx, valid))
 
 	brokenID := id.NewViewID()
-	_, err := client.WithCollection("view").Client().InsertOne(ctx, mongodoc.ViewDocument{
+	unreadable := &mongodoc.FilterDocument{ConditionType: "UNKNOWN"}
+	_, err := coll.InsertOne(ctx, mongodoc.ViewDocument{
 		ID: brokenID.String(), Project: pid.String(), ModelId: mid.String(), Schema: id.NewSchemaID().String(),
-		User: accountdomain.NewUserID().String(), Order: 1,
-		Filter: &mongodoc.FilterDocument{ConditionType: "UNKNOWN"},
+		User: accountdomain.NewUserID().String(), Order: 1, Filter: unreadable,
 	})
 	require.NoError(t, err)
+	stored := func() *mongodoc.FilterDocument {
+		var d mongodoc.ViewDocument
+		require.NoError(t, coll.FindOne(ctx, bson.M{"id": brokenID.String()}).Decode(&d))
+		return d.Filter
+	}
 
-	// listings skip the broken view
+	// the view is loaded without its filter, so it is still listed and counted
 	got, err := r.FindByModel(ctx, mid)
 	require.NoError(t, err)
-	require.Len(t, got, 1)
-	assert.Equal(t, valid.ID(), got[0].ID())
+	assert.Equal(t, id.ViewIDList{valid.ID(), brokenID}, id.ViewIDList{got[0].ID(), got[1].ID()})
+	broken, err := r.FindByID(ctx, brokenID)
+	require.NoError(t, err)
+	assert.Nil(t, broken.Filter())
 
-	got, err = r.FindByIDs(ctx, id.ViewIDList{brokenID, valid.ID()})
-	assert.NoError(t, err)
-	assert.Len(t, got, 1)
+	// saving it unchanged keeps the stored filter
+	broken.SetName("renamed")
+	require.NoError(t, r.Save(ctx, broken))
+	require.NoError(t, r.SaveAll(ctx, view.List{valid, broken}))
+	assert.Equal(t, unreadable, stored())
 
-	// a direct read reports it
-	_, err = r.FindByID(ctx, brokenID)
-	assert.ErrorIs(t, err, mongodoc.ErrInvalidFilterDocument)
+	// a new filter replaces it
+	f := view.Condition{ConditionType: view.ConditionTypeBool, BoolCondition: &view.BoolCondition{Value: true}}
+	broken.SetFilter(&f)
+	require.NoError(t, r.Save(ctx, broken))
+	assert.Equal(t, "BOOL", stored().ConditionType)
+
+	// and the view can be removed
+	assert.NoError(t, r.Remove(ctx, brokenID))
 }

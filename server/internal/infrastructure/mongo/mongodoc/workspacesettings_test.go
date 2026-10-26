@@ -3,7 +3,9 @@ package mongodoc
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -214,4 +216,27 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestWorkspaceSettingsDocument_Model_SkipsResourcesInTheWrongList(t *testing.T) {
+	t.Parallel()
+	wid := accountdomain.NewWorkspaceID()
+	tile := &ResourceDocument{
+		ResourceType: string(workspacesettings.ResourceTypeTile),
+		Tile:         &TileResourceDocument{ID: id.NewResourceID().String(), Type: string(workspacesettings.TileTypeURL)},
+	}
+	terrain := &ResourceDocument{
+		ResourceType: string(workspacesettings.ResourceTypeTerrain),
+		Terrain:      &TerrainResourceDocument{ID: id.NewResourceID().String(), Type: string(workspacesettings.TerrainTypeCesiumIon)},
+	}
+	doc := &WorkspaceSettingsDocument{
+		ID:       wid.String(),
+		Tiles:    &ResourceListDocument{Resources: []*ResourceDocument{tile, terrain}},
+		Terrains: &ResourceListDocument{Resources: []*ResourceDocument{tile, terrain}},
+	}
+
+	got, err := doc.Model()
+	assert.NoError(t, err)
+	assert.Equal(t, []string{tile.Tile.ID}, lo.Map(got.Tiles().Resources(), func(r *workspacesettings.Resource, _ int) string { return r.Tile().ID().String() }))
+	assert.Equal(t, []string{terrain.Terrain.ID}, lo.Map(got.Terrains().Resources(), func(r *workspacesettings.Resource, _ int) string { return r.Terrain().ID().String() }))
 }

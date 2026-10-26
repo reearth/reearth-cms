@@ -86,17 +86,17 @@ func TestViewDocument_Model_Filter(t *testing.T) {
 	tests := []struct {
 		name    string
 		filter  *FilterDocument
-		wantErr bool
+		wantErr bool // the filter is unreadable
 	}{
 		{name: "must read a view without a filter"},
 		{name: "must read a valid nested filter", filter: &FilterDocument{ConditionType: "AND", AndCondition: &AndConditionDocument{Conditions: []FilterDocument{
 			str, {ConditionType: "OR", OrCondition: &OrConditionDocument{Conditions: []FilterDocument{str}}},
 		}}}},
-		{name: "must not read an unknown top-level condition", filter: &unknown, wantErr: true},
-		{name: "must not read an unknown nested condition", filter: &FilterDocument{ConditionType: "OR", OrCondition: &OrConditionDocument{Conditions: []FilterDocument{
+		{name: "must leave out an unknown top-level condition", filter: &unknown, wantErr: true},
+		{name: "must leave out an unknown nested condition", filter: &FilterDocument{ConditionType: "OR", OrCondition: &OrConditionDocument{Conditions: []FilterDocument{
 			str, {ConditionType: "AND", AndCondition: &AndConditionDocument{Conditions: []FilterDocument{unknown}}},
 		}}}, wantErr: true},
-		{name: "must not read a condition without its body", filter: &FilterDocument{ConditionType: "AND"}, wantErr: true},
+		{name: "must leave out a condition without its body", filter: &FilterDocument{ConditionType: "AND"}, wantErr: true},
 	}
 
 	for _, tc := range tests {
@@ -107,12 +107,10 @@ func TestViewDocument_Model_Filter(t *testing.T) {
 				ModelId: model.NewID().String(), Schema: schema.NewID().String(), Filter: tc.filter,
 			}
 			got, err := doc.Model()
-			if tc.wantErr {
-				assert.ErrorIs(t, err, ErrInvalidFilterDocument)
-				assert.Nil(t, got)
-				return
-			}
 			assert.NoError(t, err)
+			// an unreadable filter is left out instead of read partially
+			assert.Equal(t, tc.wantErr, doc.HasUnreadableFilter())
+			assert.Equal(t, tc.wantErr || tc.filter == nil, got.Filter() == nil)
 		})
 	}
 }
@@ -128,11 +126,13 @@ func TestNewFilter_KeepsEmptyConditions(t *testing.T) {
 	assert.Len(t, doc.OrCondition.Conditions, 2)
 	assert.Equal(t, FilterDocument{}, doc.OrCondition.Conditions[1])
 
-	// and the view fails to read instead of loading a changed filter
+	// and the filter is unreadable instead of loaded changed
 	vDoc := &ViewDocument{
 		ID: view.NewID().String(), User: user.NewID().String(), Project: project.NewID().String(),
 		ModelId: model.NewID().String(), Schema: schema.NewID().String(), Filter: doc,
 	}
-	_, err := vDoc.Model()
-	assert.ErrorIs(t, err, ErrInvalidFilterDocument)
+	assert.True(t, vDoc.HasUnreadableFilter())
+	got, err := vDoc.Model()
+	assert.NoError(t, err)
+	assert.Nil(t, got.Filter())
 }

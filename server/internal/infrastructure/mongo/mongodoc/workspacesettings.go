@@ -4,6 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -75,25 +76,33 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSetti
 
 	return workspacesettings.New().
 		ID(wid).
-		Tiles(FromResourceListDocument(wsd.Tiles)).
-		Terrains(FromResourceListDocument(wsd.Terrains)).
+		Tiles(FromResourceListDocument(wsd.Tiles, workspacesettings.ResourceTypeTile)).
+		Terrains(FromResourceListDocument(wsd.Terrains, workspacesettings.ResourceTypeTerrain)).
 		Build()
 }
 
-func FromResourceListDocument(wr *ResourceListDocument) *workspacesettings.ResourceList {
+// FromResourceListDocument reads a list that holds resources of type t. Like
+// resources of an unknown type, resources of another type are skipped, as
+// settings stored before this was checked would otherwise fail to load and
+// could not be fixed.
+func FromResourceListDocument(wr *ResourceListDocument, t workspacesettings.ResourceType) *workspacesettings.ResourceList {
 	if wr == nil {
 		return nil
 	}
 
-	return workspacesettings.NewResourceList(FromResources(wr.Resources), id.ResourceIDFromRef(wr.SelectedResource), wr.Enabled)
+	return workspacesettings.NewResourceList(FromResources(wr.Resources, t), id.ResourceIDFromRef(wr.SelectedResource), wr.Enabled)
 }
 
-func FromResources(rd []*ResourceDocument) []*workspacesettings.Resource {
+func FromResources(rd []*ResourceDocument, t workspacesettings.ResourceType) []*workspacesettings.Resource {
 	if rd == nil {
 		return nil
 	}
 	return lo.FilterMap(rd, func(r *ResourceDocument, _ int) (*workspacesettings.Resource, bool) {
 		res := FromResourceDocument(r)
+		if res != nil && res.ResourceType() != t {
+			log.Warnf("mongo workspace settings: skipping a %s resource stored with the %s resources", res.ResourceType(), t)
+			return nil, false
+		}
 		return res, res != nil
 	})
 }

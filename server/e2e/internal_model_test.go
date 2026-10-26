@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
-	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,15 +16,10 @@ import (
 
 // GRPC List Models in Project
 func TestInternalListModelsInProjectAPI(t *testing.T) {
-	StartServer(t, &app.Config{
-		InternalApi: app.InternalApiConfig{
-			Active: true,
-			Port:   "52050",
-			Token:  "TestToken",
-		},
-	}, true, baseSeeder)
+	cfg := internalAPIConfig()
+	StartServer(t, cfg, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050",
+	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -121,14 +115,9 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 
 // GRPC Get Model
 func TestInternalGetModelAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{
-		InternalApi: app.InternalApiConfig{
-			Active: true,
-			Port:   "52050",
-			Token:  "TestToken",
-		},
-	}, true, baseSeeder)
-	clientConn, err := grpc.NewClient("localhost:52050",
+	cfg := internalAPIConfig()
+	e := StartServer(t, cfg, true, baseSeeder)
+	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	require.NoError(t, err)
@@ -223,15 +212,10 @@ func TestInternalGetModelAPI(t *testing.T) {
 
 // GRPC List Items in Model
 func TestInternalListItemsInModelAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{
-		InternalApi: app.InternalApiConfig{
-			Active: true,
-			Port:   "52050",
-			Token:  "TestToken",
-		},
-	}, true, baseSeeder)
+	cfg := internalAPIConfig()
+	e := StartServer(t, cfg, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050",
+	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)

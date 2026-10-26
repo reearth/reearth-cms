@@ -1,8 +1,6 @@
 package mongodoc
 
 import (
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,7 +9,6 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type ViewDocument struct {
@@ -209,7 +206,7 @@ func NewFilter(i *view.Condition) *FilterDocument {
 
 // newFilters keeps an empty condition as an empty document instead of
 // dropping it, which would change what the filter matches. Repositories reject
-// empty conditions on save; one stored anyway makes the view fail to read.
+// empty conditions on save; one stored anyway makes the filter unreadable.
 func newFilters(conditions []view.Condition) []FilterDocument {
 	return lo.Map(conditions, func(c view.Condition, _ int) FilterDocument {
 		return lo.FromPtr(NewFilter(&c))
@@ -308,11 +305,14 @@ func filterModels(docs []FilterDocument) []view.Condition {
 	return lo.Map(docs, func(d FilterDocument, _ int) view.Condition { return *d.Model() })
 }
 
-var ErrInvalidFilterDocument = errors.New("invalid view filter document")
+// HasUnreadableFilter reports whether the stored filter can not be read, so
+// the view is loaded without it
+func (d *ViewDocument) HasUnreadableFilter() bool {
+	return d.Filter != nil && !d.Filter.valid()
+}
 
 // valid reports whether the document and every nested one have a known type
-// and the matching condition. A view with an invalid filter is not read, as
-// dropping a condition and saving the view back would change what it matches.
+// and the matching condition.
 func (d *FilterDocument) valid() bool {
 	switch d.ConditionType {
 	case "AND":
@@ -440,8 +440,12 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		return nil, err
 	}
 
-	if d.Filter != nil && !d.Filter.valid() {
-		return nil, fmt.Errorf("%w: view %s", ErrInvalidFilterDocument, d.ID)
+	// a filter that can not be read is left out rather than read partially,
+	// which would change what it matches; saving the view keeps it stored
+	filter := d.Filter
+	if d.HasUnreadableFilter() {
+		log.Warnf("mongo view: loading a view without its unreadable filter: viewID=%s", d.ID)
+		filter = nil
 	}
 
 	columns := lo.Map(d.Columns, func(c ColumnDocument, _ int) view.Column { return c.Model() })
@@ -453,7 +457,7 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		Model(mID).
 		Schema(sID).
 		Sort(d.Sort.Model()).
-		Filter(d.Filter.Model()).
+		Filter(filter.Model()).
 		Columns((*view.ColumnList)(&columns)).
 		User(uID).
 		Order(d.Order).
@@ -465,30 +469,4 @@ type ViewConsumer = mongox.SliceFuncConsumer[*ViewDocument, *view.View]
 
 func NewViewConsumer() *ViewConsumer {
 	return NewConsumer[*ViewDocument, *view.View]()
-}
-
-// ViewListConsumer skips and logs the views whose stored filter can not be
-// read, so one broken view does not break listing the others. Such a view is
-// never loaded, so it is never saved back with a changed filter.
-type ViewListConsumer struct {
-	Result view.List
-}
-
-func NewViewListConsumer() *ViewListConsumer {
-	return &ViewListConsumer{}
-}
-
-func (c *ViewListConsumer) Consume(raw bson.Raw) error {
-	return mongox.SimpleConsumer[*ViewDocument](func(d *ViewDocument) error {
-		v, err := d.Model()
-		if errors.Is(err, ErrInvalidFilterDocument) {
-			log.Warnf("mongo view: skipping a view with an invalid filter: %v", err)
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		c.Result = append(c.Result, v)
-		return nil
-	}).Consume(raw)
 }

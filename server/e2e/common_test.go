@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
@@ -82,10 +83,12 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 	})
 
 	if cfg.InternalApi.Active {
-		l2, err := net.Listen("tcp", ":"+cfg.InternalApi.Port)
+		l2, err := net.Listen("tcp", "127.0.0.1:"+cfg.InternalApi.Port)
 		if err != nil {
 			t.Fatalf("grpc server failed to listen: %v", err)
 		}
+		// a port of "0" lets the OS pick a free one; tests read it back from cfg
+		cfg.InternalApi.Port = strconv.Itoa(l2.Addr().(*net.TCPAddr).Port)
 
 		ch2 := make(chan error)
 		go func() {
@@ -107,6 +110,23 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 	}
 
 	return httpexpect.Default(t, "http://"+l1.Addr().String())
+}
+
+// internalAPIConfig enables the internal API on a port picked by the OS, as a
+// fixed port can be taken by another test package's outgoing connections
+func internalAPIConfig() *app.Config {
+	return &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "0",
+			Token:  "TestToken",
+		},
+	}
+}
+
+// internalAPIAddr is the address of the internal API started with cfg
+func internalAPIAddr(cfg *app.Config) string {
+	return "127.0.0.1:" + cfg.InternalApi.Port
 }
 
 func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *repo.Container, *accountrepo.Container) {
