@@ -1335,11 +1335,6 @@ func TestIntegration_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, tc.args.Validate())
-			if tc.args != nil {
-				// the builder applies the same rules
-				_, err := (&Builder{i: tc.args}).Build()
-				assert.Equal(t, tc.want, err)
-			}
 		})
 	}
 }

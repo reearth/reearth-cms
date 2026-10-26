@@ -181,12 +181,13 @@ func testGroupFindByID(t *testing.T, newRepo groupFactory) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
-			name:   "must find a group of a writable-only project",
-			seeds:  seeds,
-			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
-			args:   p1g1.ID(),
-			want:   p1g1,
+			// reads are scoped by the readable list alone, even though
+			// ProjectFilter.CanRead treats writable projects as readable
+			name:    "must not find a group of a writable-only project",
+			seeds:   seeds,
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:    p1g1.ID(),
+			wantErr: rerror.ErrNotFound,
 		},
 	}
 
@@ -258,12 +259,12 @@ func testGroupFindByIDs(t *testing.T, newRepo groupFactory) {
 			want:   group.List{p1g1},
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
-			name:   "must find groups of readable and writable-only projects",
+			// reads are scoped by the readable list alone
+			name:   "must skip groups of writable-only projects",
 			seeds:  seeds,
 			filter: new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p1})),
 			args:   id.GroupIDList{p1g1.ID(), p2g1.ID()},
-			want:   group.List{p1g1, p2g1},
+			want:   group.List{p2g1},
 		},
 		{
 			name:   "must find an empty list with no readable projects",
@@ -484,7 +485,8 @@ func testGroupFilter(t *testing.T, newRepo groupFactory) {
 			wantPage:  true,
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
 			name:      "must find groups of a writable-only project",
 			filter:    new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:      args{pagination: first(10)},
@@ -594,7 +596,8 @@ func testGroupFindByProject(t *testing.T, newRepo groupFactory) {
 			want:   group.List{p2g1},
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
 			name:   "must find groups of a writable-only project",
 			seeds:  seeds,
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
@@ -621,12 +624,9 @@ func testGroupFindByProject(t *testing.T, newRepo groupFactory) {
 
 			got, err := r.FindByProject(ctx, tc.args)
 			assert.NoError(t, err)
-			// the result is sorted by ID; callers sort it by order themselves
-			if tc.want == nil {
-				assert.Empty(t, got)
-			} else {
-				assert.Equal(t, tc.want.SortByID(), got)
-			}
+			// the order of the result is not specified: mongo does not sort it
+			// and callers sort it by order themselves
+			assert.Equal(t, tc.want.SortByID(), got.SortByID())
 		})
 	}
 }
@@ -672,7 +672,8 @@ func testGroupFindByKey(t *testing.T, newRepo groupFactory) {
 			want:   p1g1,
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
 			name:   "must find a group of a writable-only project",
 			seeds:  seeds,
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
@@ -710,12 +711,11 @@ func testGroupFindByKey(t *testing.T, newRepo groupFactory) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			// like FindByIDOrKey, an unreadable project hides its groups
-			name:    "must not find a group of an unreadable project",
+			name:    "must deny finding a group of an unreadable project",
 			seeds:   seeds,
 			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
 			args:    args{p1, p1g1.Key().String()},
-			wantErr: rerror.ErrNotFound,
+			wantErr: repo.ErrOperationDenied,
 		},
 		{
 			name:    "must not find anything for an empty key in an unreadable project",
@@ -790,7 +790,8 @@ func testGroupFindByIDOrKey(t *testing.T, newRepo groupFactory) {
 			want:   p1g1,
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
 			name:   "must find a group of a writable-only project",
 			seeds:  seeds,
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
@@ -917,7 +918,8 @@ func testGroupSave(t *testing.T, newRepo groupFactory) {
 			args:    p1g1Updated,
 			want:    p1g1, // unchanged
 			wantErr: repo.ErrOperationDenied,
-		}, {
+		},
+		{
 			name:    "must not save a nil group",
 			wantErr: rerror.ErrInvalidParams,
 		},

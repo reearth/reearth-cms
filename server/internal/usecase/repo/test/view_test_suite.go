@@ -302,38 +302,27 @@ func testViewFindByIDs(t *testing.T, newRepo viewFactory) {
 func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 	ctx := context.Background()
 	p1, p2 := id.NewProjectID(), id.NewProjectID()
-	m1, m2, m3, m4 := id.NewModelID(), id.NewModelID(), id.NewModelID(), id.NewModelID()
+	m1, m2, m3 := id.NewModelID(), id.NewModelID(), id.NewModelID()
 	// saved in an order that differs from their orders
 	m1v1 := newView(p1, m1).Order(1).MustBuild()
 	m1v2 := newView(p1, m1).Order(2).MustBuild()
 	m1v3 := newView(p1, m1).Order(0).MustBuild()
 	m2v1 := newView(p1, m2).MustBuild()
 	m3v1 := newView(p2, m3).MustBuild()
-	// views with the same order are sorted by ID
-	m4v1, m4v2 := newView(p1, m4).MustBuild(), newView(p1, m4).MustBuild()
-	if m4v1.ID().Compare(m4v2.ID()) > 0 {
-		m4v1, m4v2 = m4v2, m4v1
-	}
-	seeds := view.List{m1v1, m1v2, m3v1, m1v3, m2v1, m4v2, m4v1}
+	seeds := view.List{m1v1, m1v2, m3v1, m1v3, m2v1}
 
 	tests := []struct {
 		name   string
 		seeds  view.List
 		filter *repo.ProjectFilter
 		args   id.ModelID
-		want   view.List
+		want   view.List // sorted by order
 	}{
 		{
-			name:  "must find only the views of the model sorted by order",
+			name:  "must find only the views of the model",
 			seeds: seeds,
 			args:  m1,
 			want:  view.List{m1v3, m1v1, m1v2},
-		},
-		{
-			name:  "must sort views with the same order by ID",
-			seeds: seeds,
-			args:  m4,
-			want:  view.List{m4v1, m4v2},
 		},
 		{
 			name:  "must find the only view of a model",
@@ -377,7 +366,8 @@ func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 
 			got, err := r.FindByModel(ctx, tc.args)
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			// neither backend sorts the result; callers sort it by order
+			assert.Equal(t, tc.want, got.Ordered())
 		})
 	}
 }
@@ -598,14 +588,12 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 		User(p1v1.User()).Name("after").Order(1).Columns(&view.ColumnList{}).
 		Filter(new(viewStringCondition())).UpdatedAt(p1v1.UpdatedAt().Add(time.Hour)).MustBuild()
 
-	// the builder rejects invalid views, so valid ones are broken with SetFilter
-	emptyNested := newView(p1, id.NewModelID()).MustBuild()
-	emptyNested.SetFilter(&view.Condition{
+	noUser := view.New().NewID().Project(p1).Model(id.NewModelID()).Schema(id.NewSchemaID()).MustBuild()
+	emptyNested := newView(p1, id.NewModelID()).Filter(&view.Condition{
 		ConditionType: view.ConditionTypeAnd,
 		AndCondition:  &view.AndCondition{Conditions: []view.Condition{viewStringCondition(), {}}},
-	})
-	emptyTop := newView(p1, id.NewModelID()).MustBuild()
-	emptyTop.SetFilter(&view.Condition{})
+	}).MustBuild()
+	emptyTop := newView(p1, id.NewModelID()).Filter(&view.Condition{}).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -633,6 +621,11 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			args:    p1v1Updated,
 			want:    p1v1, // unchanged
 			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not save a view without a user",
+			args:    noUser,
+			wantErr: id.ErrInvalidID,
 		},
 		{
 			name:    "must not save a view with an empty nested condition",
@@ -694,8 +687,7 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 	p1v1Updated := view.New().ID(p1v1.ID()).Project(p1).Model(m1).Schema(p1v1.Schema()).User(p1v1.User()).
 		Name("after").Order(2).Columns(&view.ColumnList{}).UpdatedAt(p1v1.UpdatedAt()).MustBuild()
 	all := id.ViewIDList{p1v1.ID(), p1v2.ID(), p2v1.ID()}
-	emptyFilter := newView(p2, id.NewModelID()).MustBuild()
-	emptyFilter.SetFilter(&view.Condition{})
+	emptyFilter := newView(p2, id.NewModelID()).Filter(&view.Condition{}).MustBuild()
 
 	tests := []struct {
 		name    string

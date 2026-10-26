@@ -138,12 +138,28 @@ func TestRequest_Clone(t *testing.T) {
 }
 
 func TestRequest_Validate(t *testing.T) {
-	r := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(NewProjectID()).
-		CreatedBy(accountdomain.NewUserID()).Items(ItemList{lo.Must(NewItem(NewItemID(), nil))}).Title("title").MustBuild()
-	assert.NoError(t, r.Validate())
+	t.Parallel()
+	valid := func(state State) *Request {
+		r := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(NewProjectID()).
+			CreatedBy(accountdomain.NewUserID()).Items(ItemList{lo.Must(NewItem(NewItemID(), nil))}).Title("title").MustBuild()
+		r.SetState(state)
+		return r
+	}
 
-	r.SetState("unknown")
-	assert.Equal(t, ErrInvalidState, r.Validate())
+	tests := []struct {
+		name string
+		args *Request
+		want error
+	}{
+		{name: "must accept a valid request", args: valid(StateWaiting)},
+		{name: "must reject an unknown state", args: valid("unknown"), want: ErrInvalidState},
+		{name: "must reject a nil request", want: rerror.ErrInvalidParams},
+	}
 
-	assert.Equal(t, rerror.ErrInvalidParams, (*Request)(nil).Validate())
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.args.Validate())
+		})
+	}
 }

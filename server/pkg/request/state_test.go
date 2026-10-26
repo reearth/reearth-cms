@@ -24,11 +24,24 @@ func TestState_String(t *testing.T) {
 }
 
 func TestState_IsValid(t *testing.T) {
-	assert.True(t, StateDraft.IsValid())
-	assert.True(t, StateWaiting.IsValid())
-	assert.True(t, StateApproved.IsValid())
-	assert.True(t, StateClosed.IsValid())
-	assert.False(t, State("").IsValid())
-	assert.False(t, State("Waiting").IsValid())
-	assert.False(t, State("unknown").IsValid())
+	t.Parallel()
+	tests := []struct {
+		state State
+		want  bool
+	}{
+		{state: StateDraft, want: true},
+		{state: StateWaiting, want: true},
+		{state: StateApproved, want: true},
+		{state: StateClosed, want: true},
+		{state: ""},
+		{state: "Waiting"},
+		{state: "unknown"},
+	}
+
+	for _, tc := range tests {
+		t.Run(string(tc.state), func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.state.IsValid())
+		})
+	}
 }

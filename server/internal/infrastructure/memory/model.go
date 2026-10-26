@@ -95,7 +95,7 @@ func (r *Model) FindByKey(_ context.Context, pid id.ProjectID, key string) (*mod
 	}
 
 	if !r.f.CanRead(pid) {
-		return nil, rerror.ErrNotFound
+		return nil, repo.ErrOperationDenied
 	}
 
 	return r.findOne(func(m *model.Model) bool {
@@ -223,7 +223,7 @@ func (r *Model) findOne(f func(*model.Model) bool) (*model.Model, error) {
 }
 
 func (r *Model) canRead(m *model.Model) bool {
-	return r.f.CanRead(m.Project())
+	return r.f.Readable == nil || r.f.Readable.Has(m.Project())
 }
 
 func (r *Model) pager() pager[*model.Model] {

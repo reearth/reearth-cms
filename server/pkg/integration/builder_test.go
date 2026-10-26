@@ -33,7 +33,6 @@ func TestNew(t *testing.T) {
 
 func TestBuilder_Build(t *testing.T) {
 	iId := id.NewIntegrationID()
-	uId := accountdomain.NewUserID()
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -53,14 +52,10 @@ func TestBuilder_Build(t *testing.T) {
 		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
-				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
+				id: iId,
 			}},
 			want: &Integration{
 				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -69,22 +64,13 @@ func TestBuilder_Build(t *testing.T) {
 			name: "full",
 			fields: fields{i: &Integration{
 				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
 				updatedAt: now,
 			},
 			wantErr: nil,
-		},
-		{
-			name:    "invalid integration",
-			fields:  fields{i: &Integration{id: iId, developer: uId}},
-			wantErr: ErrInvalidType,
 		},
 	}
 	for _, tt := range tests {
@@ -108,7 +94,6 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	iId := id.NewIntegrationID()
-	uId := accountdomain.NewUserID()
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -128,14 +113,10 @@ func TestBuilder_MustBuild(t *testing.T) {
 		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
-				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
+				id: iId,
 			}},
 			want: &Integration{
 				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -144,14 +125,10 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "full",
 			fields: fields{i: &Integration{
 				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
-				developer: uId,
-				iType:     TypePrivate,
 				updatedAt: now,
 			},
 			wantErr: nil,

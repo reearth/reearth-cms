@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -17,7 +16,7 @@ type IntegrationDocument struct {
 	ID          string
 	Name        string
 	Description string
-	LogoUrl     *string
+	LogoUrl     string
 	Type        string
 	Token       string
 	Developer   string
@@ -37,15 +36,23 @@ type WebhookDocument struct {
 
 func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 	iId := i.ID().String()
-	var w []WebhookDocument
-	if i.Webhooks() != nil {
-		w = lo.Map(i.Webhooks(), func(w *integration.Webhook, _ int) WebhookDocument {
-			return newWebhook(w)
+	w := lo.Map(i.Webhooks(), func(w *integration.Webhook, _ int) WebhookDocument {
+		trigger := lo.MapKeys(w.Trigger(), func(_ bool, t event.Type) string {
+			return string(t)
 		})
-	}
-	var logoUrl *string
+		return WebhookDocument{
+			ID:        w.ID().String(),
+			Name:      w.Name(),
+			Url:       w.URL().String(),
+			Active:    w.Active(),
+			Trigger:   trigger,
+			UpdatedAt: w.UpdatedAt(),
+			Secret:    w.Secret(),
+		}
+	})
+	var logoUrl string
 	if i.LogoUrl() != nil {
-		logoUrl = new(i.LogoUrl().String())
+		logoUrl = i.LogoUrl().String()
 	}
 	return &IntegrationDocument{
 		ID:          iId,
@@ -60,24 +67,6 @@ func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 	}, iId
 }
 
-func newWebhook(w *integration.Webhook) WebhookDocument {
-	var trigger map[string]bool
-	if w.Trigger() != nil {
-		trigger = lo.MapKeys(w.Trigger(), func(_ bool, t event.Type) string {
-			return string(t)
-		})
-	}
-	return WebhookDocument{
-		ID:        w.ID().String(),
-		Name:      w.Name(),
-		Url:       w.URL().String(),
-		Active:    w.Active(),
-		Trigger:   trigger,
-		UpdatedAt: w.UpdatedAt(),
-		Secret:    w.Secret(),
-	}
-}
-
 func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	iId, err := id.IntegrationIDFrom(d.ID)
 	if err != nil {
@@ -87,26 +76,40 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	if err != nil {
 		return nil, err
 	}
+	// a nil logo URL is stored as an empty one
 	var u *url.URL
-	if d.LogoUrl != nil {
-		if u, err = url.Parse(*d.LogoUrl); err != nil {
+	if d.LogoUrl != "" {
+		if u, err = url.Parse(d.LogoUrl); err != nil {
 			return nil, err
 		}
 	}
 
-	// a malformed webhook is skipped, so the integration can still be loaded
-	// and fixed, and webhook dispatch keeps working for the other webhooks
-	var w []*integration.Webhook
-	if d.Webhook != nil {
-		w = lo.FilterMap(d.Webhook, func(wd WebhookDocument, _ int) (*integration.Webhook, bool) {
-			m, err := wd.Model()
-			if err != nil {
-				log.Warnf("mongo integration: skipping malformed webhook: integrationID=%s webhookID=%s err=%v", d.ID, wd.ID, err)
-				return nil, false
-			}
-			return m, true
+	// a webhook that can not be read is skipped, as a nil entry breaks callers
+	w := lo.FilterMap(d.Webhook, func(d WebhookDocument, _ int) (*integration.Webhook, bool) {
+		wId, err := id.WebhookIDFrom(d.ID)
+		if err != nil {
+			return nil, false
+		}
+
+		u, err := url.Parse(d.Url)
+		if err != nil {
+			return nil, false
+		}
+
+		trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
+			return event.Type(t)
 		})
-	}
+		m, err := integration.NewWebhookBuilder().
+			ID(wId).
+			Name(d.Name).
+			Active(d.Active).
+			Url(u).
+			UpdatedAt(d.UpdatedAt).
+			Trigger(trigger).
+			Secret(d.Secret).
+			Build()
+		return m, err == nil
+	})
 
 	return integration.New().
 		ID(iId).
@@ -118,43 +121,6 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 		LogoUrl(u).
 		UpdatedAt(d.UpdatedAt).
 		Webhook(w).
-		Build()
-}
-
-// MalformedWebhooks returns the stored webhooks that Model skips, so a save can
-// keep them instead of erasing them
-func (d *IntegrationDocument) MalformedWebhooks() []WebhookDocument {
-	return lo.Filter(d.Webhook, func(wd WebhookDocument, _ int) bool {
-		_, err := wd.Model()
-		return err != nil
-	})
-}
-
-func (d WebhookDocument) Model() (*integration.Webhook, error) {
-	wId, err := id.WebhookIDFrom(d.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	u, err := url.Parse(d.Url)
-	if err != nil {
-		return nil, err
-	}
-
-	var trigger integration.WebhookTrigger
-	if d.Trigger != nil {
-		trigger = lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
-			return event.Type(t)
-		})
-	}
-	return integration.NewWebhookBuilder().
-		ID(wId).
-		Name(d.Name).
-		Active(d.Active).
-		Url(u).
-		UpdatedAt(d.UpdatedAt).
-		Trigger(trigger).
-		Secret(d.Secret).
 		Build()
 }
 

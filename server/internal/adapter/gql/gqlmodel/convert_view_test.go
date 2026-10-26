@@ -25,7 +25,7 @@ func TestToView(t *testing.T) {
 		},
 		{
 			name: "success",
-			view: view.New().ID(vId).Project(pId).Model(mId).Schema(view.NewSchemaID()).User(view.NewUserID()).
+			view: view.New().ID(vId).Project(pId).Model(mId).
 				Name("N1").Order(1).MustBuild(),
 			want: &View{
 				ID:        IDFrom(vId),

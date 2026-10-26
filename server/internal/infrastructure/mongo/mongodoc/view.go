@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -127,14 +126,14 @@ func NewFilter(i *view.Condition) *FilterDocument {
 		return &FilterDocument{
 			ConditionType: "AND",
 			AndCondition: &AndConditionDocument{
-				Conditions: newFilters(i.AndCondition.Conditions),
+				Conditions: lo.Map(i.AndCondition.Conditions, func(c view.Condition, _ int) FilterDocument { return *NewFilter(&c) }),
 			},
 		}
 	case i.OrCondition != nil:
 		return &FilterDocument{
 			ConditionType: "OR",
 			OrCondition: &OrConditionDocument{
-				Conditions: newFilters(i.OrCondition.Conditions),
+				Conditions: lo.Map(i.OrCondition.Conditions, func(c view.Condition, _ int) FilterDocument { return *NewFilter(&c) }),
 			},
 		}
 	case i.BasicCondition != nil:
@@ -204,15 +203,6 @@ func NewFilter(i *view.Condition) *FilterDocument {
 	}
 }
 
-// newFilters keeps an empty condition as an empty document instead of
-// dropping it, which would change what the filter matches. Repositories reject
-// empty conditions on save; one stored anyway makes the filter unreadable.
-func newFilters(conditions []view.Condition) []FilterDocument {
-	return lo.Map(conditions, func(c view.Condition, _ int) FilterDocument {
-		return lo.FromPtr(NewFilter(&c))
-	})
-}
-
 func (d *FilterDocument) Model() *view.Condition {
 	if d == nil {
 		return nil
@@ -223,14 +213,14 @@ func (d *FilterDocument) Model() *view.Condition {
 		return &view.Condition{
 			ConditionType: view.ConditionTypeAnd,
 			AndCondition: &view.AndCondition{
-				Conditions: filterModels(d.AndCondition.Conditions),
+				Conditions: lo.Map(d.AndCondition.Conditions, func(c FilterDocument, _ int) view.Condition { return *c.Model() }),
 			},
 		}
 	case "OR":
 		return &view.Condition{
 			ConditionType: view.ConditionTypeOr,
 			OrCondition: &view.OrCondition{
-				Conditions: filterModels(d.OrCondition.Conditions),
+				Conditions: lo.Map(d.OrCondition.Conditions, func(c FilterDocument, _ int) view.Condition { return *c.Model() }),
 			},
 		}
 	case "BASIC":
@@ -297,44 +287,6 @@ func (d *FilterDocument) Model() *view.Condition {
 		}
 	default:
 		return nil
-	}
-}
-
-// filterModels expects documents checked by valid
-func filterModels(docs []FilterDocument) []view.Condition {
-	return lo.Map(docs, func(d FilterDocument, _ int) view.Condition { return *d.Model() })
-}
-
-// HasUnreadableFilter reports whether the stored filter can not be read, so
-// the view is loaded without it
-func (d *ViewDocument) HasUnreadableFilter() bool {
-	return d.Filter != nil && !d.Filter.valid()
-}
-
-// valid reports whether the document and every nested one have a known type
-// and the matching condition.
-func (d *FilterDocument) valid() bool {
-	switch d.ConditionType {
-	case "AND":
-		return d.AndCondition != nil && lo.EveryBy(d.AndCondition.Conditions, func(c FilterDocument) bool { return c.valid() })
-	case "OR":
-		return d.OrCondition != nil && lo.EveryBy(d.OrCondition.Conditions, func(c FilterDocument) bool { return c.valid() })
-	case "BASIC":
-		return d.BasicCondition != nil
-	case "NULLABLE":
-		return d.NullableCondition != nil
-	case "MULTIPLE":
-		return d.MultipleCondition != nil
-	case "BOOL":
-		return d.BoolCondition != nil
-	case "STRING":
-		return d.StringCondition != nil
-	case "NUMBER":
-		return d.NumberCondition != nil
-	case "TIME":
-		return d.TimeCondition != nil
-	default:
-		return false
 	}
 }
 
@@ -440,14 +392,6 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		return nil, err
 	}
 
-	// a filter that can not be read is left out rather than read partially,
-	// which would change what it matches; saving the view keeps it stored
-	filter := d.Filter
-	if d.HasUnreadableFilter() {
-		log.Warnf("mongo view: loading a view without its unreadable filter: viewID=%s", d.ID)
-		filter = nil
-	}
-
 	columns := lo.Map(d.Columns, func(c ColumnDocument, _ int) view.Column { return c.Model() })
 
 	return view.New().
@@ -457,7 +401,7 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		Model(mID).
 		Schema(sID).
 		Sort(d.Sort.Model()).
-		Filter(filter.Model()).
+		Filter(d.Filter.Model()).
 		Columns((*view.ColumnList)(&columns)).
 		User(uID).
 		Order(d.Order).

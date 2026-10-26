@@ -52,12 +52,12 @@ func TestBuilder_Build(t *testing.T) {
 	pp := NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt := NewTerrainResource(rid, TerrainTypeCesiumIon, pp)
 	r := NewResource(ResourceTypeTerrain, nil, tt)
-	terrains := NewResourceList([]*Resource{r}, rid.Ref(), nil)
+	tiles := NewResourceList([]*Resource{r}, rid.Ref(), nil)
 	rid2 := NewResourceID()
 	pp2 := NewURLResourceProps("foo", "bar", "baz")
 	tt2 := NewTileResource(rid, TileTypeDefault, pp2)
 	r2 := NewResource(ResourceTypeTile, tt2, nil)
-	tiles := NewResourceList([]*Resource{r2}, rid2.Ref(), nil)
+	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), nil)
 	ws, err := New().ID(wid).Tiles(tiles).Terrains(terrains).Build()
 	expected := &WorkspaceSettings{
 		id:       wid,
@@ -79,12 +79,12 @@ func TestBuilder_MustBuild(t *testing.T) {
 	pp := NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt := NewTerrainResource(rid, TerrainTypeCesiumIon, pp)
 	r := NewResource(ResourceTypeTerrain, nil, tt)
-	terrains := NewResourceList([]*Resource{r}, rid.Ref(), nil)
+	tiles := NewResourceList([]*Resource{r}, rid.Ref(), nil)
 	rid2 := NewResourceID()
 	pp2 := NewURLResourceProps("foo", "bar", "baz")
 	tt2 := NewTileResource(rid, TileTypeDefault, pp2)
 	r2 := NewResource(ResourceTypeTile, tt2, nil)
-	tiles := NewResourceList([]*Resource{r2}, rid2.Ref(), nil)
+	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), nil)
 	build := func() *WorkspaceSettings {
 		return New().
 			ID(wid).

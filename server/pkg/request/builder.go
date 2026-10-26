@@ -40,9 +40,6 @@ func (b *Builder) Build() (*Request, error) {
 	if b.r.state == "" {
 		b.r.state = StateWaiting
 	}
-	if !b.r.state.IsValid() {
-		return nil, ErrInvalidState
-	}
 	if b.r.updatedAt.IsZero() {
 		b.r.updatedAt = b.r.id.Timestamp()
 	}

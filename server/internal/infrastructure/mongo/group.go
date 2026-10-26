@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -77,7 +76,7 @@ func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List
 	}
 	res, err := r.find(ctx, bson.M{
 		"project": pid.String(),
-	}, options.Find().SetSort(bson.D{{Key: "id", Value: 1}}))
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +88,7 @@ func (r *Group) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 		return nil, rerror.ErrNotFound
 	}
 	if !r.f.CanRead(projectID) {
-		return nil, rerror.ErrNotFound
+		return nil, repo.ErrOperationDenied
 	}
 
 	return r.findOne(ctx, bson.M{
@@ -102,6 +101,9 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 	gid := g.ID()
 	key := g.Key()
 	if gid == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+	if !r.f.CanRead(pid) {
 		return nil, rerror.ErrNotFound
 	}
 
@@ -159,16 +161,16 @@ func (r *Group) findOne(ctx context.Context, filter any) (*group.Group, error) {
 	return c.Result[0], nil
 }
 
-func (r *Group) find(ctx context.Context, filter any, opts ...*options.FindOptions) (group.List, error) {
+func (r *Group) find(ctx context.Context, filter any) (group.List, error) {
 	c := mongodoc.NewGroupConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
 }
 
 func (r *Group) readFilter(filter any) any {
-	return applyProjectFilter(filter, readableProjects(r.f))
+	return applyProjectFilter(filter, r.f.Readable)
 }
 
 func (r *Group) writeFilter(filter any) any {

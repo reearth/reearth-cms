@@ -220,12 +220,13 @@ func testRequestFindByID(t *testing.T, newRepo requestFactory) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
-			name:   "must find a request of a writable-only project",
-			seeds:  seeds,
-			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
-			args:   p1r1.ID(),
-			want:   p1r1,
+			// reads are scoped by the readable list alone, even though
+			// ProjectFilter.CanRead treats writable projects as readable
+			name:    "must not find a request of a writable-only project",
+			seeds:   seeds,
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:    p1r1.ID(),
+			wantErr: rerror.ErrNotFound,
 		},
 	}
 
@@ -297,12 +298,11 @@ func testRequestFindByIDs(t *testing.T, newRepo requestFactory) {
 			want:   request.List{p1r1},
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
-			name:   "must find requests of readable and writable-only projects",
+			name:   "must skip requests of writable-only projects",
 			seeds:  seeds,
 			filter: new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p1})),
 			args:   id.RequestIDList{p2r1.ID(), p1r1.ID()},
-			want:   request.List{p2r1, p1r1},
+			want:   request.List{p2r1},
 		},
 		{
 			name:   "must find an empty list with no readable projects",
@@ -467,7 +467,8 @@ func testRequestFindByProject(t *testing.T, newRepo requestFactory) {
 			want:   request.List{p1r1, p1r2},
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
+			// unlike the ID-keyed reads, reads by project are gated by
+			// ProjectFilter.CanRead alone, which treats writable projects as readable
 			name:   "must find requests of a writable-only project",
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
 			pid:    p1,
@@ -837,11 +838,11 @@ func testRequestFindByItems(t *testing.T, newRepo requestFactory) {
 			args:   args{items: id.ItemIDList{i1, i3}},
 		},
 		{
-			// like ProjectFilter.CanRead, writable projects are readable
-			name:   "must find requests of writable-only projects",
+			// reads are scoped by the readable list alone, even though
+			// ProjectFilter.CanRead treats writable projects as readable
+			name:   "must find nothing in writable-only projects",
 			filter: new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:   args{items: id.ItemIDList{i1}},
-			want:   request.List{p1r1, p1r2},
 		},
 	}
 

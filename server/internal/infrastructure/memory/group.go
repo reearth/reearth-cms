@@ -115,7 +115,7 @@ func (r *Group) FindByKey(_ context.Context, pid id.ProjectID, key string) (*gro
 	}
 
 	if !r.f.CanRead(pid) {
-		return nil, rerror.ErrNotFound
+		return nil, repo.ErrOperationDenied
 	}
 
 	return r.findOne(func(g *group.Group) bool {
@@ -210,7 +210,7 @@ func (r *Group) findOne(f func(*group.Group) bool) (*group.Group, error) {
 }
 
 func (r *Group) canRead(g *group.Group) bool {
-	return r.f.CanRead(g.Project())
+	return r.f.Readable == nil || r.f.Readable.Has(g.Project())
 }
 
 func (r *Group) pager() pager[*group.Group] {

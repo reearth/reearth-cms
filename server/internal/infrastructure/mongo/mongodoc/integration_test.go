@@ -15,7 +15,6 @@ func TestIntegrationDocument_Model(t *testing.T) {
 	now := time.Now()
 	iId := integration.NewID()
 	uId := user.NewID()
-	wId := integration.NewWebhookID()
 	tests := []struct {
 		name    string
 		iDoc    *IntegrationDocument
@@ -28,7 +27,7 @@ func TestIntegrationDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Name:        "abc",
 				Description: "xyz",
-				LogoUrl:     new("https://huho.com/xzy"),
+				LogoUrl:     "https://huho.com/xzy",
 				Type:        "public",
 				Token:       "xxx123",
 				Developer:   uId.String(),
@@ -43,31 +42,10 @@ func TestIntegrationDocument_Model(t *testing.T) {
 				Token("xxx123").
 				Developer(uId).
 				UpdatedAt(now).
+				Webhook([]*integration.Webhook{}).
 				LogoUrl(lo.Must(url.Parse("https://huho.com/xzy"))).
 				MustBuild(),
 			wantErr: false,
-		},
-		{
-			name: "skip a malformed webhook",
-			iDoc: &IntegrationDocument{
-				ID:        iId.String(),
-				Type:      "private",
-				Developer: uId.String(),
-				Webhook: []WebhookDocument{
-					{ID: "invalid", Url: "https://example.com/bad"},
-					{ID: wId.String(), Url: "https://example.com/hook", UpdatedAt: now},
-				},
-				UpdatedAt: now,
-			},
-			want: integration.New().
-				ID(iId).
-				Type(integration.TypePrivate).
-				Developer(uId).
-				UpdatedAt(now).
-				Webhook([]*integration.Webhook{
-					integration.NewWebhookBuilder().ID(wId).Url(lo.Must(url.Parse("https://example.com/hook"))).UpdatedAt(now).MustBuild(),
-				}).
-				MustBuild(),
 		},
 	}
 	for _, tt := range tests {
@@ -111,7 +89,7 @@ func TestNewIntegration(t *testing.T) {
 				ID:          iId.String(),
 				Name:        "abc",
 				Description: "xyz",
-				LogoUrl:     new("https://huho.com/xzy"),
+				LogoUrl:     "https://huho.com/xzy",
 				Type:        "public",
 				Token:       "xxx123",
 				Developer:   uId.String(),

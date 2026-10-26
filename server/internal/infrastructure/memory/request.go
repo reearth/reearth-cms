@@ -79,7 +79,7 @@ func (r *Request) FindByProject(_ context.Context, pid id.ProjectID, filter repo
 		return v.Project() == pid && matchRequest(v, filter, matchRequestKeyword)
 	})
 
-	res, pi, err := r.pager().paginate(result, normalizeRequestSort(sort), page)
+	res, pi, err := r.pager().paginate(result, repo.NormalizeRequestSort(sort), page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -138,13 +138,8 @@ func (r *Request) SaveAll(_ context.Context, pid id.ProjectID, requests request.
 		return nil
 	}
 
-	for _, req := range requests {
-		if err := req.Validate(); err != nil {
-			return err
-		}
-		if req.Project() != pid {
-			return rerror.ErrInvalidParams
-		}
+	if err := requests.Validate(pid); err != nil {
+		return err
 	}
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied
@@ -159,7 +154,7 @@ func (r *Request) SaveAll(_ context.Context, pid id.ProjectID, requests request.
 }
 
 func (r *Request) canRead(req *request.Request) bool {
-	return r.f.CanRead(req.Project())
+	return r.f.Readable == nil || r.f.Readable.Has(req.Project())
 }
 
 func (r *Request) pager() pager[*request.Request] {
@@ -177,8 +172,8 @@ func (r *Request) pager() pager[*request.Request] {
 			return cmp.Compare(ta.UnixMilli(), tb.UnixMilli())
 		}
 	}
-	// the sort key is the name of a mongo document field; any other key,
-	// "id" included, sorts by ID alone
+	// the sort key is the name of a mongo document field; any other key
+	// sorts by ID alone, as mongo does for a missing field
 	return pager[*request.Request]{
 		id: func(v *request.Request) string { return v.ID().String() },
 		keys: map[string]compareFunc[*request.Request]{
@@ -202,31 +197,6 @@ func (r *Request) pager() pager[*request.Request] {
 			return r.data.Load(rid)
 		},
 	}
-}
-
-// normalizeRequestSort maps a sort key to a field like mongo; an unknown key
-// sorts by ID
-func normalizeRequestSort(s *usecasex.Sort) *usecasex.Sort {
-	if s == nil {
-		return nil
-	}
-	res := &usecasex.Sort{
-		Key:      strings.TrimSpace(strings.ToLower(s.Key)),
-		Reverted: s.Reverted,
-	}
-	switch res.Key {
-	case "createdat", "created_at":
-		res.Key = "id"
-	case "updated_at":
-		res.Key = "updatedat"
-	case "approved_at":
-		res.Key = "approvedat"
-	case "closed_at":
-		res.Key = "closedat"
-	case "created_by":
-		res.Key = "createdby"
-	}
-	return res
 }
 
 func matchRequest(v *request.Request, f repo.RequestFilter, matchKeyword func(*request.Request, string) bool) bool {

@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -112,6 +113,15 @@ func logIndexResult(name string, r mongox.IndexResult) {
 	log.Infof("mongo: %s: index deleted: %v, updated: %v, created: %v", name, d, u, a)
 }
 
+// filterByIDs skips unknown IDs and orders the rows like the given IDs
+func filterByIDs[K comparable, T interface{ ID() K }](ids []K, rows []T) []T {
+	byID := lo.KeyBy(rows, func(r T) K { return r.ID() })
+	return lo.FilterMap(ids, func(id K, _ int) (T, bool) {
+		r, ok := byID[id]
+		return r, ok
+	})
+}
+
 func applyWorkspaceFilter(filter any, ids accountdomain.WorkspaceIDList) any {
 	if ids == nil {
 		return filter
@@ -119,29 +129,11 @@ func applyWorkspaceFilter(filter any, ids accountdomain.WorkspaceIDList) any {
 	return mongox.And(filter, "workspace", bson.M{"$in": ids.Strings()})
 }
 
-// readableProjects returns the projects ProjectFilter.CanRead allows, writable
-// projects included, or nil when reads are not restricted: a nil readable or
-// writable list allows every project
-func readableProjects(f repo.ProjectFilter) id.ProjectIDList {
-	if f.Readable == nil || f.Writable == nil {
-		return nil
-	}
-	// never nil, as nil would lift the restriction
-	res := make(id.ProjectIDList, 0, len(f.Readable)+len(f.Writable))
-	return append(append(res, f.Readable...), f.Writable...)
-}
-
 func applyProjectFilter(filter any, ids id.ProjectIDList) any {
 	if ids == nil {
 		return filter
 	}
-	in := bson.M{"$in": ids.Strings()}
-	// mongox.And keeps the filter as is when it already has the key, which
-	// would drop the restriction from queries keyed by project
-	if mongox.GetE(filter, "project") != nil {
-		return bson.M{"$and": []any{filter, bson.M{"project": in}}}
-	}
-	return mongox.And(filter, "project", in)
+	return mongox.And(filter, "project", bson.M{"$in": ids.Strings()})
 }
 
 func applyProjectFilterToPipeline(pipeline []any, ids id.ProjectIDList) []any {

@@ -17,9 +17,6 @@ func New() *Buildr {
 }
 
 func (b *Buildr) Build() (*View, error) {
-	if err := b.v.Validate(); err != nil {
-		return nil, err
-	}
 	return b.v, nil
 }
 
