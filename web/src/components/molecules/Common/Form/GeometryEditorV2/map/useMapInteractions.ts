@@ -92,9 +92,8 @@ export function useMapInteractions({
     if (type === null) {
       // Select first, then: drag a white dot to move a vertex, drag a small dot to add one,
       // drag anywhere else on the shape to move it, Alt-click a white dot to remove it.
-      // The same for points, lines and polygons. (The PoC reshaped on any edge-drag, so a
-      // line could never be moved.) Multi* and GeometryCollection are never selectable
-      // for editing (proposal §3.4).
+      // The same for points, lines and polygons. Multi* and GeometryCollection are never
+      // selectable for editing.
       // ol dispatches to the most recently added interaction first: Modify goes after
       // Translate and only takes the drag when it starts on a handle.
       const translate = new Translate({ features: selected, hitTolerance: 6 });

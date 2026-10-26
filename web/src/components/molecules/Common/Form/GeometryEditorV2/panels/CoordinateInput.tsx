@@ -18,8 +18,7 @@ type Props = {
 };
 
 /**
- * Enter or blur applies, Esc reverts — and Esc really reverts: the PoC committed the
- * draft on the blur that its own Esc handler triggered.
+ * Enter or blur applies, Esc reverts.
  */
 const CoordinateInput: React.FC<Props> = ({
   label,

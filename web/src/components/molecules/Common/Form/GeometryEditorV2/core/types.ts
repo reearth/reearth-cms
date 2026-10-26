@@ -25,7 +25,7 @@ export enum GeometryKind {
 
 export const ALL_KINDS: readonly GeometryKind[] = Object.values(GeometryKind);
 
-/** The map edits only what the map can draw (proposal §3.4). */
+/** The map edits only what the map can draw. */
 export const EDITABLE_KINDS: readonly GeometryKind[] = [
   GeometryKind.POINT,
   GeometryKind.LINE_STRING,

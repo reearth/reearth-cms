@@ -5,8 +5,8 @@ import { EDITABLE_KINDS, GeometryKind } from "./types";
 import type { VertexRef } from "./types";
 
 /**
- * Geometry helpers ported from the geo-editor PoC. Everything entering the store goes
- * through `normalize`, so comparisons can be structural and cheap.
+ * Everything entering the store goes through `normalize`, so comparisons can be
+ * structural and cheap.
  */
 export abstract class GeoUtils {
   /** ~1cm. Without a fixed precision the EPSG:3857 round-trip never settles. */
@@ -196,7 +196,7 @@ export abstract class GeoUtils {
   }
 
   /**
-   * Inserts a position after `index`, midway to its successor (PoC behaviour). A polygon
+   * Inserts a position after `index`, midway to its successor. A polygon
    * vertex always has a successor because the closing position repeats the first.
    */
   public static insertVertex(geometry: Geometry, index: number): Geometry {

@@ -3,7 +3,7 @@ import { t } from "@reearth-cms/i18n";
 import { ALL_KINDS, GeometryKind } from "./types";
 
 /**
- * Field-value validation, following proposal §3.9: a value is an RFC 7946 geometry, with
+ * Field-value validation: a value is an RFC 7946 geometry, with
  * the same rules whichever surface (map, text, API) produced it.
  */
 

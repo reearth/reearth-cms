@@ -22,10 +22,8 @@ type Props = {
 };
 
 /**
- * The one place coordinates are edited. It replaces both the PoC's Form card and its
- * Inspector, which showed the same numbers twice in opposite orders. Only shown for
- * shapes the map can edit. Vertex insert/remove
- * works as in the PoC; to change a shape's type, draw a new one.
+ * The one place coordinates are edited. Only shown for shapes the map can edit; to change
+ * a shape's type, draw a new one.
  */
 const ShapeDetails: React.FC<Props> = ({ feature, readOnly }) => {
   const t = useT();

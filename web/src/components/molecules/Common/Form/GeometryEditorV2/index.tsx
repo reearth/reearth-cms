@@ -33,8 +33,8 @@ type Props = {
 };
 
 /**
- * Unified Geometry field prototype (see 04-geometry-field-proposal.md): one compact map in
- * the form, one full-screen editor for drawing, coordinates, search and GeoJSON.
+ * Unified Geometry field: one compact map in the form, one full-screen editor for drawing,
+ * coordinates, search and GeoJSON.
  */
 const GeometryEditorV2: React.FC<Props> = ({
   value,

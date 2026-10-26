@@ -32,7 +32,6 @@ import type { GeocodeResult } from "./search/providers";
 
 /** Shared with the legacy field so "Do not show this again" means the same thing. */
 const REPLACE_WARNING_KEY = "disableGeometryWarning";
-const JSON_OPEN_KEY = "reearth-cms:geometry-v2:json-open";
 /** Height of the collapsed GeoJSON panel: just its header. */
 const GEOJSON_HEADER_HEIGHT = 41;
 
@@ -133,7 +132,7 @@ const EditorBody: React.FC<BodyProps> = ({
   const snapshot = useGeoSnapshot();
   const [tool, setTool] = useState<MapTool>(MapTool.SELECT);
   const [searchPin, setSearchPin] = useState<SearchPin | null>(null);
-  const [jsonOpen, setJsonOpen] = useState(() => !initial.ok || storedFlag(JSON_OPEN_KEY));
+  const [jsonOpen, setJsonOpen] = useState(() => !initial.ok);
   const [jsonSize, setJsonSize] = useState<number | string>("45%");
   const [issues, setIssues] = useState<GeometryIssue[]>([]);
   const drawRef = useRef<Draw | null>(null);
@@ -150,10 +149,7 @@ const EditorBody: React.FC<BodyProps> = ({
   const validateOptions = useMemo(() => ({ allowedKinds }), [allowedKinds]);
 
   const toggleJson = useCallback(() => {
-    setJsonOpen(open => {
-      setStoredFlag(JSON_OPEN_KEY, !open);
-      return !open;
-    });
+    setJsonOpen(open => !open);
   }, []);
 
   /** Single-value fields replace their value; warn once, as the legacy field does. */

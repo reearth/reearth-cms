@@ -42,15 +42,7 @@ const GeometryField: React.FC<FieldProps> = ({
 
   // Prototype: the unified Geometry field (a Geometry Object accepting every type) uses the
   // new editor; restricted Geometry Object and Geometry Editor fields keep the old one.
-  // localStorage["reearth-cms:geometry-v2"] = "off" shows the old editor everywhere.
-  const useV2 = useMemo(() => {
-    if (!isUnifiedGeometryField(field)) return false;
-    try {
-      return localStorage.getItem("reearth-cms:geometry-v2") !== "off";
-    } catch {
-      return true;
-    }
-  }, [field]);
+  const useV2 = useMemo(() => isUnifiedGeometryField(field), [field]);
 
   const handleValidityChange = useCallback(
     (valid: boolean) => (valid ? errorDelete(0) : errorAdd(0)),

@@ -30,8 +30,6 @@ import { useMapInteractions } from "./useMapInteractions";
 import { useMapSync } from "./useMapSync";
 import { useOlMap } from "./useOlMap";
 
-const BASEMAP_KEY = "reearth-cms:geometry-v2:basemap";
-
 export type SearchPin = {
   readonly id: string;
   readonly label: string;
@@ -87,13 +85,7 @@ const EditorMap: React.FC<Props> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedIdRef = useRef<string | null>(selectedId);
   const handles = useOlMap(containerRef, { preview: false, selectedIdRef });
-  const [baseMap, setBaseMap] = useState<BaseMapId>(() => {
-    try {
-      return (localStorage.getItem(BASEMAP_KEY) as BaseMapId) || BaseMapId.OSM;
-    } catch {
-      return BaseMapId.OSM;
-    }
-  });
+  const [baseMap, setBaseMap] = useState<BaseMapId>(BaseMapId.OSM);
 
   useMapSync(handles?.source ?? null, collection);
   useMapFocus(handles, focus);
@@ -230,14 +222,7 @@ const EditorMap: React.FC<Props> = ({
             options={baseMapOptions()}
             aria-label={t("Base map")}
             popupMatchSelectWidth={false}
-            onChange={value => {
-              setBaseMap(value);
-              try {
-                localStorage.setItem(BASEMAP_KEY, value);
-              } catch {
-                // Not remembering the base map is acceptable.
-              }
-            }}
+            onChange={setBaseMap}
             style={{ width: 180 }}
           />
           <Space.Compact>

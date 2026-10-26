@@ -30,7 +30,7 @@ export function useMapSync(source: VectorSource | null, collection: FeatureColle
 
     for (const feature of collection.features) {
       // A feature without geometry has nothing to draw; treating it as absent also
-      // removes whatever was drawn for it before (the PoC left a ghost behind).
+      // removes whatever was drawn for it before.
       if (!feature.geometry) continue;
       const id = String(feature.id);
       present.add(id);

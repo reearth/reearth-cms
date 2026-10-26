@@ -39,8 +39,8 @@ type NominatimEntry = {
 };
 
 /**
- * Public Nominatim: 1 req/s, no autocomplete, not for production (see the PoC's
- * comparison). Searches therefore run on Enter only.
+ * Public Nominatim: 1 req/s, no autocomplete, not for production. Searches therefore run
+ * on Enter only.
  */
 const nominatim: GeocodeProvider = {
   id: GeocoderId.NOMINATIM,

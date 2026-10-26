@@ -48,8 +48,8 @@ const registerSchemas = () => {
 };
 
 /**
- * The value exactly as it is stored — a bare geometry, or a list of them — rather than
- * the PoC's FeatureCollection with internal ids and properties.
+ * The value exactly as it is stored — a bare geometry, or a list of them — never the
+ * internal FeatureCollection with its ids.
  */
 const GeoJsonPanel: React.FC<Props> = ({
   multiple,

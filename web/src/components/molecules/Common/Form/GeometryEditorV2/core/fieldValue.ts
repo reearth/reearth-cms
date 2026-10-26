@@ -10,7 +10,7 @@ import type { GeometryIssue, ValidateOptions } from "./validation";
  * The boundary between the CMS field value and the editor's internal document.
  *
  * The field stores what it always has: one GeoJSON geometry serialized to a string, or a
- * list of such strings when `multiple` is on (proposal §3.3). The editor works on a
+ * list of such strings when `multiple` is on. The editor works on a
  * FeatureCollection because the map diffs on feature ids — those ids are internal and
  * never reach the stored value.
  */

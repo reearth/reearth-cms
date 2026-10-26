@@ -132,7 +132,7 @@ describe("validateValue", () => {
     ]);
   });
 
-  test("rejects unknown members with the proposal's wording", () => {
+  test("rejects unknown members", () => {
     expect(messages({ type: "Point", coordinates: [0, 0], hello: 1 })[0]).toBe(
       'Unknown property "hello" is not allowed in a geometry. Store extra information in a separate field.',
     );
@@ -230,7 +230,7 @@ describe("geoStore", () => {
   });
 });
 
-describe("PoC vertex editing", () => {
+describe("vertex editing", () => {
   const square = {
     type: "Polygon" as const,
     coordinates: [
