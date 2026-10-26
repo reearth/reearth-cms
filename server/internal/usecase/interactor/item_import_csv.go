@@ -104,10 +104,7 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
 func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	// The import payload is always a seekable reader in the async path
-	// (ImportAsync buffers the upload into a *bytes.Reader before the
-	// background job starts), so the same reader can be rewound and read a
-	// second time instead of being held in memory up front.
+	// The file is read twice (count, then import), so the reader must be rewindable
 	seeker, ok := param.Reader.(io.ReadSeeker)
 	if !ok {
 		return res.Into(), fmt.Errorf("import reader does not support being read twice")
@@ -128,8 +125,7 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	fieldMap, columns := buildFieldMap(headers, param.SP)
 	res.SetColumns(columns)
 
-	// First pass: count records only. Each row is discarded immediately
-	// instead of being kept, so nothing from the file is held in memory here.
+	// First pass: count rows without keeping them in memory
 	totalCount := 0
 	for {
 		_, err := reader.Read()
@@ -148,19 +144,16 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		}
 	}
 
-	// Second pass: rewind and read-and-save one row at a time, in chunks of
-	// chunkSize, same as the synchronous importCSV path.
+	// Second pass: rewind and save rows chunk by chunk
 	if _, err := seeker.Seek(0, io.SeekStart); err != nil {
 		return res.Into(), fmt.Errorf("error rewinding import data: %v", err)
 	}
-	reader, lr = newCSVReader(seeker)
+	reader, _ = newCSVReader(seeker)
 	if _, err := reader.Read(); err != nil { // re-consume the header row
 		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
 	}
 
-	count, processed := 0, 0
-	csvChunk := make([]map[string]any, 0)
-
+	processed, csvChunk, chunkStart := 0, make([]map[string]any, 0), reader.InputOffset()
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -169,94 +162,22 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		if err != nil {
 			return res.Into(), fmt.Errorf("error reading CSV row: %v", err)
 		}
-		if lr.N == 0 {
-			return res.Into(), interfaces.ErrImportFileTooLarge
-		}
+		csvChunk = append(csvChunk, csvRowToMap(headers, record, fieldMap))
 
-		count++
-		row := csvRowToMap(headers, record, fieldMap)
-		csvChunk = append(csvChunk, row)
-
-		if count == chunkSize {
-			// Check if job was cancelled
-			currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
-			if err != nil {
-				log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
-			}
-			if currentJob != nil && currentJob.IsCancelled() {
-				return res.Into(), fmt.Errorf("job cancelled")
-			}
-
-			items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
-			if err != nil {
+		if len(csvChunk) == chunkSize || reader.InputOffset()-chunkStart >= chunkByteLimit {
+			if err := i.saveChunkWithProgress(ctx, j, prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
 				return res.Into(), err
 			}
-			err = i.saveChunk(ctx, prj, m, s, param, items, res, operator)
-			if err != nil {
-				return res.Into(), err
-			}
-
-			processed += count
-
-			// Publish progress
-			progress := job.NewProgress(processed, totalCount)
-			state := job.NewState(job.StatusInProgress, &progress, "")
-			if i.gateways.JobPubSub != nil {
-				if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-					log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
-				}
-			}
-
-			// Update job progress
-			j.SetProgress(progress)
-			if err := i.repos.Job.Save(ctx, j); err != nil {
-				log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
-			}
-
-			log.Printf("chunk with %d items saved.", count)
-			count = 0
-			csvChunk = nil
+			processed += len(csvChunk)
+			csvChunk, chunkStart = nil, reader.InputOffset()
 		}
 	}
 
 	// Process remaining records
 	if len(csvChunk) > 0 {
-		// Check if job was cancelled
-		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
-		if err != nil {
-			log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
-		}
-		if currentJob != nil && currentJob.IsCancelled() {
-			return res.Into(), fmt.Errorf("job cancelled")
-		}
-
-		items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
-		if err != nil {
+		if err := i.saveChunkWithProgress(ctx, j, prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
 			return res.Into(), err
 		}
-		err = i.saveChunk(ctx, prj, m, s, param, items, res, operator)
-		if err != nil {
-			return res.Into(), err
-		}
-
-		processed += len(csvChunk)
-
-		// Publish progress
-		progress := job.NewProgress(processed, totalCount)
-		state := job.NewState(job.StatusInProgress, &progress, "")
-		if i.gateways.JobPubSub != nil {
-			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
-			}
-		}
-
-		// Update job progress
-		j.SetProgress(progress)
-		if err := i.repos.Job.Save(ctx, j); err != nil {
-			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
-		}
-
-		log.Printf("chunk with %d items saved.", len(csvChunk))
 	}
 
 	return res.Into(), nil
