@@ -32,10 +32,19 @@ export const DEFAULT_VIEW = { center: fromLonLat([137.5, 37.5]), zoom: 4.6 };
 
 export function useOlMap(
   containerRef: RefObject<HTMLDivElement | null>,
-  { preview, selectedIdRef }: { preview: boolean; selectedIdRef: RefObject<string | null> },
+  {
+    preview,
+    selectedIdRef,
+    selectedVertexRef,
+  }: {
+    preview: boolean;
+    selectedIdRef: RefObject<string | null>;
+    selectedVertexRef?: RefObject<number | null>;
+  },
 ): MapHandles | null {
   const [handles, setHandles] = useState<MapHandles | null>(null);
   const selectedRef = useRef(selectedIdRef);
+  const vertexRef = useRef(selectedVertexRef);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -44,7 +53,8 @@ export function useOlMap(
     const source = new VectorSource();
     const layer = new VectorLayer({
       source,
-      style: feature => featureStyle(feature, selectedRef.current.current),
+      style: feature =>
+        featureStyle(feature, selectedRef.current.current, vertexRef.current?.current ?? null),
     });
     const pinSource = new VectorSource();
     const pinLayer = new VectorLayer({ source: pinSource, style: searchPinStyle });

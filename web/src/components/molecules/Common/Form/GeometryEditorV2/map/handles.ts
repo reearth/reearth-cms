@@ -38,6 +38,18 @@ export function midpointHandles(geometry: Geometry): Coordinate[] {
   return [];
 }
 
+/**
+ * The vertex of `geometry` under `pixel`, as an index into `GeoUtils.listVertices`: both
+ * list a line's positions and a polygon's rings in order, without each ring's closing one.
+ */
+export function vertexIndexAt(map: OlMap, geometry: Geometry, pixel: Pixel): number | null {
+  const index = vertexHandles(geometry).findIndex(coordinate => {
+    const at = map.getPixelFromCoordinate(coordinate);
+    return !!at && Math.hypot(at[0] - pixel[0], at[1] - pixel[1]) <= HANDLE_TOLERANCE_PX;
+  });
+  return index === -1 ? null : index;
+}
+
 /** Which handle of `geometry`, if any, is under `pixel`. */
 export function handleAt(map: OlMap, geometry: Geometry, pixel: Pixel): HandleKind | null {
   const near = (coordinate: Coordinate) => {

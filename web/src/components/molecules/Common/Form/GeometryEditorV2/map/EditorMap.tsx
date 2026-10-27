@@ -83,10 +83,11 @@ const EditorMap: React.FC<Props> = ({
 }) => {
   const t = useT();
   const store = useGeoStore();
-  const { collection, selectedId, focus } = useGeoSnapshot();
+  const { collection, selectedId, selectedVertex, focus } = useGeoSnapshot();
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedIdRef = useRef<string | null>(selectedId);
-  const handles = useOlMap(containerRef, { preview: false, selectedIdRef });
+  const selectedVertexRef = useRef<number | null>(selectedVertex);
+  const handles = useOlMap(containerRef, { preview: false, selectedIdRef, selectedVertexRef });
   const [baseMap, setBaseMap] = useState<BaseMapId>(BaseMapId.OSM);
   const [hoveringReadOnly, setHoveringReadOnly] = useState<boolean>(false);
 
@@ -112,9 +113,10 @@ const EditorMap: React.FC<Props> = ({
     fitTo(handles, extentOf(geometries), 16, 0);
   }, [handles, collection]);
 
-  // Selection drives styling and which shape Translate may move.
+  // Selection (shape and vertex) drives styling and which shape Translate may move.
   useEffect(() => {
     selectedIdRef.current = selectedId;
+    selectedVertexRef.current = selectedVertex;
     if (!handles) return;
     handles.selected.clear();
     const feature = selectedId ? handles.source.getFeatureById(selectedId) : null;
@@ -123,7 +125,7 @@ const EditorMap: React.FC<Props> = ({
       handles.selected.push(feature as Feature<Geometry>);
     }
     handles.layer.changed();
-  }, [handles, selectedId, collection]);
+  }, [handles, selectedId, selectedVertex, collection]);
 
   useEffect(() => {
     if (!handles) return;

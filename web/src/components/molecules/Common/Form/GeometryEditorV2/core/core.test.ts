@@ -211,9 +211,7 @@ describe("validateValue", () => {
     };
     const issues = validateValue([{ type: "Point", coordinates: [0, 0] }, big], true);
     expect(issues.map(issue => issue.path)).toContain("[1]");
-    expect(issues.some(issue => issue.message.startsWith("This geometry is too large"))).toBe(
-      true,
-    );
+    expect(issues.some(issue => issue.message.startsWith("This geometry is too large"))).toBe(true);
     expect(issues.some(issue => issue.path === "[0]")).toBe(false);
   });
 
@@ -362,6 +360,53 @@ describe("geoStore", () => {
     expect(store.getSnapshot().focus?.nonce).toBe((first?.nonce ?? 0) + 1);
   });
 
+  describe("vertex selection", () => {
+    const line = (x: number) => ({
+      type: "LineString" as const,
+      coordinates: [
+        [x, 0],
+        [x + 1, 1],
+        [x + 2, 2],
+      ],
+    });
+
+    test("selecting another shape clears the vertex", () => {
+      const store = createGeoStore(empty);
+      const a = store.addFeature(line(0), EditOrigin.MAP);
+      const b = store.addFeature(line(10), EditOrigin.MAP);
+      store.select(a);
+      store.selectVertex(2);
+      store.select(b);
+      expect(store.getSnapshot().selectedVertex).toBeNull();
+    });
+
+    test("moving a vertex keeps it selected", () => {
+      const store = createGeoStore(empty);
+      const id = store.addFeature(line(0), EditOrigin.MAP);
+      store.selectVertex(1);
+      store.setGeometry(id, line(5), EditOrigin.MAP);
+      expect(store.getSnapshot().selectedVertex).toBe(1);
+    });
+
+    test("adding or removing a vertex clears it, since indices shift", () => {
+      const store = createGeoStore(empty);
+      const id = store.addFeature(line(0), EditOrigin.MAP);
+      store.selectVertex(1);
+      store.setGeometry(
+        id,
+        {
+          type: "LineString",
+          coordinates: [
+            [0, 0],
+            [2, 2],
+          ],
+        },
+        EditOrigin.MAP,
+      );
+      expect(store.getSnapshot().selectedVertex).toBeNull();
+    });
+  });
+
   test("history is blocked mid-gesture", () => {
     const store = createGeoStore(empty);
     store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
@@ -372,7 +417,7 @@ describe("geoStore", () => {
   });
 });
 
-describe("vertex editing", () => {
+describe("setVertex", () => {
   const square = {
     type: "Polygon" as const,
     coordinates: [
@@ -386,11 +431,32 @@ describe("vertex editing", () => {
     ],
   };
 
-  test("inserting after a vertex adds the midpoint and keeps the ring closed", () => {
-    const next = GeoUtils.insertVertex(square, 1);
+  test("moving a ring's first vertex moves its closing position too", () => {
+    const next = GeoUtils.setVertex(square, 0, [0.5, -0.5]);
     if (next.type !== "Polygon") throw new Error("expected Polygon");
-    expect(next.coordinates[0]).toHaveLength(6);
-    expect(next.coordinates[0][2]).toEqual([1, 0.5]);
-    expect(next.coordinates[0][0]).toEqual(next.coordinates[0][5]);
+    expect(next.coordinates[0][0]).toEqual([0.5, -0.5]);
+    expect(next.coordinates[0][4]).toEqual([0.5, -0.5]);
+  });
+
+  test("indices run across rings without the closing positions", () => {
+    const withHole = {
+      type: "Polygon" as const,
+      coordinates: [
+        square.coordinates[0],
+        [
+          [0.2, 0.2],
+          [0.4, 0.2],
+          [0.4, 0.4],
+          [0.2, 0.2],
+        ],
+      ],
+    };
+    const vertices = GeoUtils.listVertices(withHole);
+    expect(vertices).toHaveLength(7);
+    expect(vertices[4]).toMatchObject({ ring: 2, number: 1, position: [0.2, 0.2] });
+    const next = GeoUtils.setVertex(withHole, 5, [0.5, 0.2]);
+    if (next.type !== "Polygon") throw new Error("expected Polygon");
+    expect(next.coordinates[1][1]).toEqual([0.5, 0.2]);
+    expect(next.coordinates[0]).toEqual(square.coordinates[0]);
   });
 });

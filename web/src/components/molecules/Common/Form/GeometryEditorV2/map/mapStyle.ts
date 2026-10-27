@@ -1,6 +1,7 @@
 import type { FeatureLike } from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
 import MultiPoint from "ol/geom/MultiPoint";
+import Point from "ol/geom/Point";
 import CircleStyle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
@@ -44,7 +45,11 @@ const zIndexOf = (geometry: Geometry | undefined) => {
   return 1;
 };
 
-export function featureStyle(feature: FeatureLike, selectedId: string | null): Style[] {
+export function featureStyle(
+  feature: FeatureLike,
+  selectedId: string | null,
+  selectedVertex: number | null = null,
+): Style[] {
   const geometry = feature.getGeometry() as Geometry | undefined;
   const selected = selectedId !== null && String(feature.getId()) === selectedId;
   // Multi* and GeometryCollection are display-only.
@@ -99,6 +104,20 @@ export function featureStyle(feature: FeatureLike, selectedId: string | null): S
         geometry: () => new MultiPoint(vertexHandles(geometry)),
       }),
     );
+    const vertex = selectedVertex === null ? undefined : vertexHandles(geometry)[selectedVertex];
+    if (vertex) {
+      styles.push(
+        new Style({
+          zIndex: zIndex + 3,
+          image: new CircleStyle({
+            radius: 7,
+            fill: new Fill({ color: colour }),
+            stroke: new Stroke({ color: WHITE, width: 2 }),
+          }),
+          geometry: () => new Point(vertex),
+        }),
+      );
+    }
   }
   return styles;
 }

@@ -28,7 +28,10 @@ export type GeoStore = {
   /** Single-value fields: the new geometry replaces whatever was there. */
   replaceAll(geometry: Geometry, origin: EditOrigin): string;
   removeFeature(featureId: string, origin: EditOrigin): void;
+  /** Selecting a shape clears the selected vertex. */
   select(featureId: string | null): void;
+  /** A vertex of the selected line or polygon, by `GeoUtils.listVertices` index. */
+  selectVertex(index: number | null): void;
   focus(target: FocusTarget): void;
   undo(): void;
   redo(): void;
@@ -45,6 +48,7 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
     revision: 1,
     origin: EditOrigin.INITIAL,
     selectedId: null,
+    selectedVertex: null,
     focus: null,
     undoDepth: 0,
     redoDepth: 0,
@@ -87,16 +91,32 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
     origin: EditOrigin,
     selectedId: string | null,
   ) => {
+    const nextSelectedId = GeoUtils.findFeature(normalized, selectedId) ? selectedId : null;
     snapshot = {
       ...snapshot,
       collection: normalized,
       revision: snapshot.revision + 1,
       origin,
-      selectedId: GeoUtils.findFeature(normalized, selectedId) ? selectedId : null,
+      selectedId: nextSelectedId,
+      selectedVertex: keptVertex(normalized, nextSelectedId),
       undoDepth: past.length,
       redoDepth: future.length,
     };
     emit();
+  };
+
+  /**
+   * The selected vertex survives an edit only when it still means the same vertex: same
+   * shape, same vertex count. Adding or removing a vertex shifts the indices after it.
+   */
+  const keptVertex = (next: FeatureCollection, nextSelectedId: string | null): number | null => {
+    const index = snapshot.selectedVertex;
+    if (index === null || nextSelectedId !== snapshot.selectedId) return null;
+    const before = GeoUtils.findFeature(snapshot.collection, nextSelectedId)?.geometry;
+    const after = GeoUtils.findFeature(next, nextSelectedId)?.geometry;
+    if (!before || !after) return null;
+    const count = GeoUtils.listVertices(after).length;
+    return count === GeoUtils.listVertices(before).length && index < count ? index : null;
   };
 
   const publish = (
@@ -161,6 +181,7 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
         revision: snapshot.revision + 1,
         origin: EditOrigin.INITIAL,
         selectedId: null,
+        selectedVertex: null,
         focus: null,
         undoDepth: 0,
         redoDepth: 0,
@@ -200,7 +221,13 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
     // Selection is view state, so it does not bump `revision`.
     select: featureId => {
       if (snapshot.selectedId === featureId) return;
-      snapshot = { ...snapshot, selectedId: featureId };
+      snapshot = { ...snapshot, selectedId: featureId, selectedVertex: null };
+      emit();
+    },
+
+    selectVertex: index => {
+      if (snapshot.selectedVertex === index) return;
+      snapshot = { ...snapshot, selectedVertex: index };
       emit();
     },
 

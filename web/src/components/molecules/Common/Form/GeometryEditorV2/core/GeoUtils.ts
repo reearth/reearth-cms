@@ -12,9 +12,6 @@ export abstract class GeoUtils {
   /** ~1cm. Without a fixed precision the EPSG:3857 round-trip never settles. */
   public static readonly COORDINATE_PRECISION = 7;
 
-  /** Degrees moved when an insert needs a position it cannot derive. */
-  public static readonly VERTEX_STEP = 0.002;
-
   private static readonly ID_PATTERN = /^s(\d+)$/;
 
   public static round(value: number): number {
@@ -160,71 +157,6 @@ export abstract class GeoUtils {
     return geometry;
   }
 
-  public static removeVertex(geometry: Geometry, index: number): Geometry {
-    if (!GeoUtils.canRemoveVertex(geometry, index)) return geometry;
-    if (geometry.type === GeometryKind.LINE_STRING) {
-      return { ...geometry, coordinates: geometry.coordinates.filter((_, i) => i !== index) };
-    }
-    if (geometry.type === GeometryKind.POLYGON) {
-      let cursor = 0;
-      const coordinates = geometry.coordinates.map(ring => {
-        const editable = ring.length - 1;
-        const local = index - cursor;
-        cursor += editable;
-        if (local < 0 || local >= editable) return ring;
-        const next = ring.filter((_, i) => i !== local);
-        if (local === 0) next[next.length - 1] = next[0];
-        return next;
-      });
-      return { ...geometry, coordinates };
-    }
-    return geometry;
-  }
-
-  /** A LineString needs two positions and a ring three distinct ones. */
-  public static canRemoveVertex(geometry: Geometry, index: number): boolean {
-    if (geometry.type === GeometryKind.LINE_STRING) return geometry.coordinates.length > 2;
-    if (geometry.type === GeometryKind.POLYGON) {
-      let cursor = 0;
-      for (const ring of geometry.coordinates) {
-        const editable = ring.length - 1;
-        if (index < cursor + editable) return editable > 3;
-        cursor += editable;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Inserts a position after `index`, midway to its successor. A polygon
-   * vertex always has a successor because the closing position repeats the first.
-   */
-  public static insertVertex(geometry: Geometry, index: number): Geometry {
-    if (geometry.type === GeometryKind.LINE_STRING) {
-      const coordinates = [...geometry.coordinates];
-      coordinates.splice(
-        index + 1,
-        0,
-        GeoUtils.between(coordinates[index], coordinates[index + 1]),
-      );
-      return { ...geometry, coordinates };
-    }
-    if (geometry.type === GeometryKind.POLYGON) {
-      let cursor = 0;
-      const coordinates = geometry.coordinates.map(ring => {
-        const editable = ring.length - 1;
-        const local = index - cursor;
-        cursor += editable;
-        if (local < 0 || local >= editable) return ring;
-        const next = [...ring];
-        next.splice(local + 1, 0, GeoUtils.between(ring[local], ring[local + 1]));
-        return next;
-      });
-      return { ...geometry, coordinates };
-    }
-    return geometry;
-  }
-
   /** [west, south, east, north] in WGS84, or null for an empty geometry. */
   public static bbox(geometries: readonly Geometry[]): [number, number, number, number] | null {
     let west = Infinity;
@@ -249,19 +181,6 @@ export abstract class GeoUtils {
     };
     geometries.forEach(walk);
     return Number.isFinite(west) ? [west, south, east, north] : null;
-  }
-
-  private static between(a: Position, b: Position | undefined): Position {
-    if (!b) return [GeoUtils.step(a[0], 180), a[1]];
-    const midpoint: Position = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    if (a.length > 2 && b.length > 2) midpoint.push((a[2] + b[2]) / 2);
-    return midpoint;
-  }
-
-  /** One step along an axis, turning back rather than crossing the axis limit. */
-  private static step(value: number, limit: number): number {
-    const next = value + GeoUtils.VERTEX_STEP;
-    return next <= limit ? next : value - GeoUtils.VERTEX_STEP;
   }
 
   private static highestIdSuffix(collection: FeatureCollection): number {

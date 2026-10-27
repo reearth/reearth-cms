@@ -26,6 +26,7 @@ import type { GeometryIssue } from "./core/validation";
 import EditorMap from "./map/EditorMap";
 import type { SearchPin } from "./map/EditorMap";
 import { abortSketch, MapTool, TOOL_KIND } from "./map/mapTools";
+import CoordinatesPanel from "./panels/CoordinatesPanel";
 import GeoJsonPanel from "./panels/GeoJsonPanel";
 import type { GeoJsonPanelHandle } from "./panels/GeoJsonPanel";
 import ShapeList from "./panels/ShapeList";
@@ -140,6 +141,7 @@ const EditorBody: React.FC<BodyProps> = ({
   const [tool, setTool] = useState<MapTool>(MapTool.SELECT);
   const [searchPin, setSearchPin] = useState<SearchPin | null>(null);
   const [jsonOpen, setJsonOpen] = useState(() => !initial.ok);
+  const [coordinatesOpen, setCoordinatesOpen] = useState<boolean>(false);
   // Both panels are sized explicitly: antd fills an unsized panel from the size it kept
   // from the last drag, which skews any size set here.
   const [jsonSizes, setJsonSizes] = useState<PanelSizes>(["55%", "45%"]);
@@ -206,6 +208,8 @@ const EditorBody: React.FC<BodyProps> = ({
   const sideSizes: readonly [PanelSize | undefined, PanelSize] = jsonOpen
     ? jsonSizes
     : [sideHeight ? sideHeight - GEOJSON_HEADER_HEIGHT : undefined, GEOJSON_HEADER_HEIGHT];
+
+  const toggleCoordinates = useCallback(() => setCoordinatesOpen(open => !open), []);
 
   const toggleJson = useCallback(() => {
     setJsonOpen(open => !open);
@@ -509,6 +513,11 @@ const EditorBody: React.FC<BodyProps> = ({
                       onDelete={deleteShape}
                     />
                   </ListScroll>
+                  <CoordinatesPanel
+                    open={coordinatesOpen}
+                    readOnly={readOnly}
+                    onToggle={toggleCoordinates}
+                  />
                 </SidePane>
               </Splitter.Panel>
               <Splitter.Panel

@@ -12,23 +12,13 @@ type Props = {
   min: number;
   max: number;
   disabled?: boolean;
-  /** Visually hide the label (vertex tables label their columns instead). */
-  hideLabel?: boolean;
   onCommit: (value: number) => void;
 };
 
 /**
  * Enter or blur applies, Esc reverts.
  */
-const CoordinateInput: React.FC<Props> = ({
-  label,
-  value,
-  min,
-  max,
-  disabled,
-  hideLabel,
-  onCommit,
-}) => {
+const CoordinateInput: React.FC<Props> = ({ label, value, min, max, disabled, onCommit }) => {
   const t = useT();
   const [draft, setDraft] = useState<number | null>(value);
   const focusedRef = useRef(false);
@@ -46,9 +36,7 @@ const CoordinateInput: React.FC<Props> = ({
 
   return (
     <Field>
-      <Typography.Text type="secondary" style={hideLabel ? HIDDEN : LABEL}>
-        {label}
-      </Typography.Text>
+      <SmallText type="secondary">{label}</SmallText>
       <InputNumber<number>
         aria-label={label}
         value={draft ?? undefined}
@@ -73,9 +61,9 @@ const CoordinateInput: React.FC<Props> = ({
         }}
       />
       {!valid && (
-        <Typography.Text type="danger" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
+        <SmallText type="danger">
           {t("Enter a number between {{min}} and {{max}}", { min, max })}
-        </Typography.Text>
+        </SmallText>
       )}
     </Field>
   );
@@ -83,19 +71,14 @@ const CoordinateInput: React.FC<Props> = ({
 
 export default CoordinateInput;
 
-const LABEL = { fontSize: AntdToken.FONT.SIZE_SM };
-const HIDDEN = {
-  position: "absolute",
-  width: 1,
-  height: 1,
-  overflow: "hidden",
-  clip: "rect(0 0 0 0)",
-} as const;
-
 const Field = styled.label`
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
   flex: 1;
+`;
+
+const SmallText = styled(Typography.Text)`
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
 `;

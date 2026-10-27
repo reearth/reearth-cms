@@ -14,8 +14,6 @@ import { GeoUtils } from "../core/GeoUtils";
 import { kindIcon, kindName, shapeDetail } from "../core/labels";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
 
-import ShapeDetails from "./ShapeDetails";
-
 type Props = {
   multiple: boolean;
   readOnly: boolean;
@@ -25,8 +23,7 @@ type Props = {
 
 /**
  * Shapes in the value, in stored order. Selecting a row selects and zooms to the shape on
- * the map, and selecting on the map selects the row; the selected row opens its
- * coordinates in place. Shapes the
+ * the map, and selecting on the map selects the row. Shapes the
  * map can't edit say so in the row itself, selected or not.
  */
 const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) => {
@@ -137,7 +134,6 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                 )}
               </Actions>
             </Row>
-            {selected && !locked && <ShapeDetails feature={feature} readOnly={readOnly} />}
           </div>
         );
       })}

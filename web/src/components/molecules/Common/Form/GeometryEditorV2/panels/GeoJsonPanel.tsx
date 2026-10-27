@@ -10,17 +10,18 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import Typography from "@reearth-cms/components/atoms/Typography";
 import geometrySchema from "@reearth-cms/components/molecules/Common/Form/GeometryItem/schema";
 import { useT } from "@reearth-cms/i18n";
 import { registerJsonSchema } from "@reearth-cms/utils/monacoJsonSchemas";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import { collectionToText, parseText, withStableIds } from "../core/fieldValue";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
 import { EditOrigin } from "../core/types";
 import { formatIssue } from "../core/validation";
 import type { GeometryIssue, ValidateOptions } from "../core/validation";
+
+import PanelHeader from "./PanelHeader";
 
 const COMMIT_DEBOUNCE_MS = 400;
 
@@ -171,22 +172,23 @@ const GeoJsonPanel: React.FC<Props> = ({
 
   return (
     <Panel open={open}>
-      <Header>
-        <HeaderToggle type="button" onClick={onToggle} aria-expanded={open}>
-          <Icon icon={open ? "caretDown" : "caretRight"} size={12} />
-          <Typography.Text strong>GeoJSON</Typography.Text>
-          {status}
-        </HeaderToggle>
-        <Tooltip title={t("Copy GeoJSON")}>
-          <Button
-            size="small"
-            type="text"
-            aria-label={t("Copy GeoJSON")}
-            icon={<Icon icon="editorCopy" size={14} />}
-            onClick={() => void navigator.clipboard?.writeText(text)}
-          />
-        </Tooltip>
-      </Header>
+      <PanelHeader
+        title="GeoJSON"
+        open={open}
+        status={status}
+        actions={
+          <Tooltip title={t("Copy GeoJSON")}>
+            <Button
+              size="small"
+              type="text"
+              aria-label={t("Copy GeoJSON")}
+              icon={<Icon icon="editorCopy" size={14} />}
+              onClick={() => void navigator.clipboard?.writeText(text)}
+            />
+          </Tooltip>
+        }
+        onToggle={onToggle}
+      />
       {open && (
         <Body>
           {outOfSync && (
@@ -249,32 +251,6 @@ const Panel = styled.div<{ open: boolean }>`
   height: 100%;
   min-height: 0;
   border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${AntdToken.SPACING.XS}px 0 0;
-  height: 40px;
-  flex-shrink: 0;
-`;
-
-const HeaderToggle = styled.button`
-  display: flex;
-  align-items: center;
-  gap: ${AntdToken.SPACING.XS}px;
-  height: 100%;
-  flex: 1;
-  padding: 0 ${AntdToken.SPACING.SM}px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  text-align: left;
-  &:focus-visible {
-    outline: 2px solid ${AntdColor.BLUE.BLUE_5};
-    outline-offset: -2px;
-  }
 `;
 
 const Body = styled.div`

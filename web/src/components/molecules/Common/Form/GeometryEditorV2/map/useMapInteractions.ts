@@ -19,7 +19,7 @@ import type { RefObject } from "react";
 import type { GeoStore, GeometryUpdate } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
 
-import { handleAt, isNearHandle } from "./handles";
+import { handleAt, isNearHandle, vertexIndexAt } from "./handles";
 import { ShapeStyle } from "./mapStyle";
 import type { MapTool } from "./mapTools";
 import { drawType } from "./mapTools";
@@ -119,7 +119,15 @@ export function useMapInteractions({
           return isNearHandle(geometry, coordinate, resolution) ? GRAB_STYLE : undefined;
         },
       });
-      modify.on("modifystart", () => store.beginGesture());
+      modify.on("modifystart", event => {
+        store.beginGesture();
+        // Dragging a vertex selects it, so its numbers show while it moves.
+        const geometry = selectedGeometry();
+        if (geometry && geometry.getType() !== "Point") {
+          const index = vertexIndexAt(map, geometry, event.mapBrowserEvent.pixel);
+          if (index !== null) store.selectVertex(index);
+        }
+      });
       modify.on("modifyend", event => {
         store.endGesture();
         commit(event.features.getArray());
@@ -168,8 +176,21 @@ export function useMapInteractions({
       });
 
     const handleClick = (event: MapBrowserEvent) => {
+      // A vertex of the selected line or polygon; Alt-click is Modify's "remove vertex".
+      const geometry = handles.selected.item(0)?.getGeometry();
+      const pointerEvent = event.originalEvent as PointerEvent;
+      if (geometry && geometry.getType() !== "Point" && !pointerEvent.altKey) {
+        const index = vertexIndexAt(map, geometry, event.pixel);
+        if (index !== null) {
+          store.selectVertex(index);
+          return;
+        }
+      }
       const hit = hitAt(event);
-      store.select(hit ? String(hit.getId()) : null);
+      const id = hit ? String(hit.getId()) : null;
+      // Clicking the selected shape away from its vertices keeps the shape, drops the vertex.
+      if (id !== null && id === store.getSnapshot().selectedId) store.selectVertex(null);
+      else store.select(id);
     };
     const handleMove = (event: MapBrowserEvent) => {
       if (event.dragging || !element) return;

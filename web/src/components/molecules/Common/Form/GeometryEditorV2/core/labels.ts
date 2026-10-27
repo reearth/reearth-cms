@@ -58,8 +58,8 @@ export const shapeDetail = (geometry: Geometry): string => {
 
 export const vertexLabel = (vertex: VertexRef): string =>
   vertex.ring
-    ? t("Ring {{ring}} · {{number}}", { ring: vertex.ring, number: vertex.number })
-    : String(vertex.number);
+    ? t("Ring {{ring}} · Vertex {{number}}", { ring: vertex.ring, number: vertex.number })
+    : t("Vertex {{number}}", { number: vertex.number });
 
 /** One line for the inline field footer. */
 export const summarize = (collection: FeatureCollection): string => {

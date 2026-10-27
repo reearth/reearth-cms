@@ -54,6 +54,8 @@ export type GeoSnapshot = {
   readonly revision: number;
   readonly origin: EditOrigin;
   readonly selectedId: string | null;
+  /** Index into `GeoUtils.listVertices` of the selected shape, for a line or polygon. */
+  readonly selectedVertex: number | null;
   readonly focus: FocusRequest | null;
   readonly undoDepth: number;
   readonly redoDepth: number;
