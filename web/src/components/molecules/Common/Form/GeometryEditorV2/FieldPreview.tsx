@@ -13,8 +13,10 @@ import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { kindIcon, summarize } from "./core/labels";
+import { Platform } from "./core/platform";
 import type { GeometryIssue } from "./core/validation";
 import { formatIssue } from "./core/validation";
+import { alpha } from "./map/mapStyle";
 import { extentOf, fitTo } from "./map/useMapFocus";
 import { useMapSync } from "./map/useMapSync";
 import { DEFAULT_VIEW, useOlMap } from "./map/useOlMap";
@@ -29,8 +31,6 @@ type Props = {
   onCopy: () => void;
   onClear: () => void;
 };
-
-const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 
 /**
  * The field as it sits in the item form: a map you can look at, a one-line summary, and
@@ -188,7 +188,7 @@ const FieldPreview: React.FC<Props> = ({
         )}
         {!empty && (
           <ZoomHint className="zoom-hint">
-            {isMac ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
+            {Platform.IS_MAC ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
           </ZoomHint>
         )}
       </MapArea>
@@ -242,7 +242,7 @@ const EmptyOverlay = styled.div`
   align-items: center;
   justify-content: center;
   gap: ${AntdToken.SPACING.XS}px;
-  background: rgba(255, 255, 255, 0.6);
+  background: ${alpha(AntdColor.NEUTRAL.BG_WHITE, 0.6)};
   pointer-events: none;
   z-index: 1;
   .ant-btn {
@@ -256,7 +256,7 @@ const ZoomHint = styled.div`
   bottom: ${AntdToken.SPACING.XS}px;
   padding: 2px ${AntdToken.SPACING.XS}px;
   border-radius: ${AntdToken.RADIUS.SM}px;
-  background: rgba(255, 255, 255, 0.85);
+  background: ${alpha(AntdColor.NEUTRAL.BG_WHITE, 0.85)};
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-size: 11px;
   pointer-events: none;

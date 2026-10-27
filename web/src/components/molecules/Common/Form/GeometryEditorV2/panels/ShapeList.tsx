@@ -13,6 +13,7 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import { GeoUtils } from "../core/GeoUtils";
 import { kindIcon, kindName, shapeDetail } from "../core/labels";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
+import { FocusKind } from "../core/types";
 
 type Props = {
   multiple: boolean;
@@ -40,7 +41,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
 
   const selectRow = (id: string, geometry: Geometry) => {
     store.select(id);
-    store.focus({ kind: "geometry", geometry });
+    store.focus({ kind: FocusKind.GEOMETRY, geometry });
   };
 
   if (features.length === 0) {
@@ -51,11 +52,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
           description={
             <>
               <Typography.Text>{t("No shapes yet")}</Typography.Text>
-              {!readOnly && (
-                <Typography.Paragraph type="secondary" style={{ marginTop: 4 }}>
-                  {drawHint}
-                </Typography.Paragraph>
-              )}
+              {!readOnly && <EmptyHint type="secondary">{drawHint}</EmptyHint>}
             </>
           }
         />
@@ -95,13 +92,11 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                   {kindName(feature.geometry.type)}
                   {locked && <LockIcon icon="lock" size={12} />}
                 </Typography.Text>
-                <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
-                  {shapeDetail(feature.geometry)}
-                </Typography.Text>
+                <SmallText type="secondary">{shapeDetail(feature.geometry)}</SmallText>
                 {locked && !readOnly && (
-                  <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
+                  <SmallText type="secondary">
                     {t("Can't be edited on the map. Change it in GeoJSON.")}
-                  </Typography.Text>
+                  </SmallText>
                 )}
               </RowText>
               <Actions className="row-actions" visible={selected}>
@@ -113,7 +108,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                     icon={<Icon icon="aim" />}
                     onClick={e => {
                       e.stopPropagation();
-                      store.focus({ kind: "geometry", geometry: feature.geometry });
+                      store.focus({ kind: FocusKind.GEOMETRY, geometry: feature.geometry });
                     }}
                   />
                 </Tooltip>
@@ -198,6 +193,16 @@ const Index = styled.span`
   min-width: 18px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-variant-numeric: tabular-nums;
+`;
+
+const EmptyHint = styled(Typography.Paragraph)`
+  &.ant-typography {
+    margin-top: ${AntdToken.SPACING.XXS}px;
+  }
+`;
+
+const SmallText = styled(Typography.Text)`
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
 `;
 
 const LockIcon = styled(Icon)`

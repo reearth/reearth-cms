@@ -25,6 +25,9 @@ export enum GeometryKind {
 
 export const ALL_KINDS: readonly GeometryKind[] = Object.values(GeometryKind);
 
+export const isGeometryKind = (value: unknown): value is GeometryKind =>
+  ALL_KINDS.some(kind => kind === value);
+
 /** The map edits only what the map can draw. */
 export const EDITABLE_KINDS: readonly GeometryKind[] = [
   GeometryKind.POINT,
@@ -32,11 +35,26 @@ export const EDITABLE_KINDS: readonly GeometryKind[] = [
   GeometryKind.POLYGON,
 ];
 
+/** Whether a GeoJSON or OpenLayers geometry type string is one the map can edit. */
+export const isEditableType = (type: string | undefined): boolean =>
+  EDITABLE_KINDS.some(kind => kind === type);
+
+/** What a focus request moves the map to. */
+export enum FocusKind {
+  GEOMETRY = "geometry",
+  EXTENT = "extent",
+  POSITION = "position",
+}
+
 /** Where the map should move. A geometry is fitted; a position is centred at `zoom`. */
 export type FocusTarget =
-  | { readonly kind: "geometry"; readonly geometry: Geometry }
-  | { readonly kind: "extent"; readonly extent: readonly [number, number, number, number] }
-  | { readonly kind: "position"; readonly position: Position; readonly zoom?: number };
+  | { readonly kind: FocusKind.GEOMETRY; readonly geometry: Geometry }
+  | { readonly kind: FocusKind.EXTENT; readonly extent: readonly [number, number, number, number] }
+  | {
+      readonly kind: FocusKind.POSITION;
+      readonly position: Position;
+      readonly zoom?: number;
+    };
 
 export type FocusRequest = FocusTarget & {
   /** Makes repeated requests for the same target distinguishable. */

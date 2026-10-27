@@ -5,6 +5,7 @@ import { fromLonLat, transformExtent } from "ol/proj";
 import { useEffect } from "react";
 
 import { GeoUtils } from "../core/GeoUtils";
+import { FocusKind } from "../core/types";
 import type { FocusRequest } from "../core/types";
 
 import type { MapHandles } from "./useOlMap";
@@ -28,9 +29,9 @@ export function useMapFocus(handles: MapHandles | null, focus: FocusRequest | nu
     const view = handles.map.getView();
 
     const target: Extent | null =
-      focus.kind === "geometry"
+      focus.kind === FocusKind.GEOMETRY
         ? extentOf([focus.geometry])
-        : focus.kind === "extent"
+        : focus.kind === FocusKind.EXTENT
           ? transformExtent([...focus.extent], "EPSG:4326", "EPSG:3857")
           : null;
 
@@ -38,7 +39,7 @@ export function useMapFocus(handles: MapHandles | null, focus: FocusRequest | nu
       fitTo(handles, target);
       return;
     }
-    if (focus.kind === "position") {
+    if (focus.kind === FocusKind.POSITION) {
       view.animate({
         center: fromLonLat(focus.position),
         zoom: focus.zoom ?? Math.max(view.getZoom() ?? 0, 16),

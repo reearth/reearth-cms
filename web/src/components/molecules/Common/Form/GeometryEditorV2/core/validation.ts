@@ -1,6 +1,6 @@
 import { t } from "@reearth-cms/i18n";
 
-import { ALL_KINDS, GeometryKind } from "./types";
+import { ALL_KINDS, GeometryKind, isGeometryKind } from "./types";
 
 /**
  * Field-value validation: a value is an RFC 7946 geometry, with
@@ -97,8 +97,8 @@ function checkPositions(value: unknown, path: string, min: number, out: Collecto
 }
 
 function checkRing(value: unknown, path: string, out: Collector) {
-  if (!checkPositions(value, path, 4, out)) return;
-  const ring = value as unknown[];
+  if (!checkPositions(value, path, 4, out) || !Array.isArray(value)) return;
+  const ring = value;
   if (ring.length >= 4 && JSON.stringify(ring[0]) !== JSON.stringify(ring[ring.length - 1])) {
     out.add(path, t("A polygon ring must end where it starts"));
   }
@@ -130,7 +130,7 @@ function checkGeometry(value: unknown, path: string, inCollection: boolean, out:
     );
     return;
   }
-  if (typeof type !== "string" || !ALL_KINDS.includes(type as GeometryKind)) {
+  if (!isGeometryKind(type)) {
     out.add(
       path ? `${path}.type` : "type",
       typeof type === "string"
@@ -155,7 +155,7 @@ function checkGeometry(value: unknown, path: string, inCollection: boolean, out:
 
   const at = (member: string) => (path ? `${path}.${member}` : member);
   const coordinates = value.coordinates;
-  switch (type as GeometryKind) {
+  switch (type) {
     case GeometryKind.POINT:
       checkPosition(coordinates, at("coordinates"), out);
       break;
@@ -255,8 +255,8 @@ export function validateValue(
   if (allowed && allowed.length < ALL_KINDS.length) {
     shapes.forEach((shape, i) => {
       const type = isObject(shape) ? shape.type : undefined;
-      if (typeof type === "string" && ALL_KINDS.includes(type as GeometryKind)) {
-        if (!allowed.includes(type as GeometryKind)) {
+      if (isGeometryKind(type)) {
+        if (!allowed.includes(type)) {
           out.add(
             multiple ? `[${i}]` : "",
             t("This field accepts only: {{types}}", { types: allowed.join(", "), ...raw }),

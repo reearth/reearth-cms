@@ -1,8 +1,7 @@
 import { renderHook } from "@testing-library/react";
-import { Modal } from "antd";
 import type { FeatureCollection } from "geojson";
 import type { RefObject } from "react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { createGeoStore } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
@@ -22,6 +21,7 @@ const setup = ({ flush = true, readOnly = false } = {}) => {
   const jsonPanelRef: RefObject<GeoJsonPanelHandle> = { current: { flush: () => flush } };
   const onApply = vi.fn();
   const onClose = vi.fn();
+  const confirm = vi.fn();
   const { result } = renderHook(() =>
     useDraft({
       store,
@@ -30,18 +30,15 @@ const setup = ({ flush = true, readOnly = false } = {}) => {
       multiple: false,
       readOnly,
       jsonPanelRef,
+      confirm,
       onApply,
       onClose,
     }),
   );
-  return { store, result, onApply, onClose };
+  return { store, result, onApply, onClose, confirm };
 };
 
 describe("useDraft", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   test("Apply without changes just closes", () => {
     const { result, onApply, onClose } = setup();
     result.current.apply();
@@ -65,8 +62,7 @@ describe("useDraft", () => {
   });
 
   test("Cancel asks before discarding changes", () => {
-    const confirm = vi.spyOn(Modal, "confirm");
-    const { store, result, onClose } = setup();
+    const { store, result, onClose, confirm } = setup();
     store.setGeometry("s1", { type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
     result.current.requestClose();
     expect(confirm).toHaveBeenCalled();
@@ -74,7 +70,6 @@ describe("useDraft", () => {
   });
 
   test("Cancel closes at once with no changes, or when read-only", () => {
-    const confirm = vi.spyOn(Modal, "confirm");
     const plain = setup();
     plain.result.current.requestClose();
     expect(plain.onClose).toHaveBeenCalled();
@@ -82,6 +77,7 @@ describe("useDraft", () => {
     const readOnly = setup({ readOnly: true, flush: false });
     readOnly.result.current.requestClose();
     expect(readOnly.onClose).toHaveBeenCalled();
-    expect(confirm).not.toHaveBeenCalled();
+    expect(plain.confirm).not.toHaveBeenCalled();
+    expect(readOnly.confirm).not.toHaveBeenCalled();
   });
 });

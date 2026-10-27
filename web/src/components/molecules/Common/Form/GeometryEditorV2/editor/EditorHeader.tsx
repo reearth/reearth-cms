@@ -8,8 +8,7 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
-const MOD = isMac ? "⌘" : "Ctrl";
+import { Platform } from "../core/platform";
 
 type Props = {
   title: string;
@@ -44,9 +43,7 @@ const EditorHeader: React.FC<Props> = ({
   return (
     <Header>
       <Title>
-        <Typography.Title level={5} style={{ margin: 0 }}>
-          {title}
-        </Typography.Title>
+        <TitleText level={5}>{title}</TitleText>
         <Tooltip
           title={
             multiple
@@ -64,7 +61,7 @@ const EditorHeader: React.FC<Props> = ({
       <HeaderActions>
         {!readOnly && (
           <>
-            <Tooltip title={`${t("Undo")} (${MOD}+Z)`}>
+            <Tooltip title={`${t("Undo")} (${Platform.MOD_KEY}+Z)`}>
               <Button
                 type="text"
                 aria-label={t("Undo")}
@@ -73,7 +70,7 @@ const EditorHeader: React.FC<Props> = ({
                 onClick={onUndo}
               />
             </Tooltip>
-            <Tooltip title={`${t("Redo")} (${MOD}+Shift+Z)`}>
+            <Tooltip title={`${t("Redo")} (${Platform.MOD_KEY}+Shift+Z)`}>
               <Button
                 type="text"
                 aria-label={t("Redo")}
@@ -115,6 +112,12 @@ const Title = styled.div`
   align-items: center;
   gap: ${AntdToken.SPACING.XS}px;
   min-width: 0;
+`;
+
+const TitleText = styled(Typography.Title)`
+  &.ant-typography {
+    margin: 0;
+  }
 `;
 
 const ModeTag = styled(Tag)`

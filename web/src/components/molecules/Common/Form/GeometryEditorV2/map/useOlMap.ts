@@ -19,7 +19,7 @@ import { featureStyle, searchPinStyle } from "./mapStyle";
 
 export type MapHandles = {
   readonly map: OlMap;
-  readonly source: VectorSource;
+  readonly source: VectorSource<Feature<Geometry>>;
   readonly layer: VectorLayer;
   readonly pinSource: VectorSource;
   readonly bases: ReadonlyMap<BaseMapId, TileLayer>;
@@ -50,7 +50,7 @@ export function useOlMap(
     const container = containerRef.current;
     if (!container) return;
 
-    const source = new VectorSource();
+    const source = new VectorSource<Feature<Geometry>>();
     const layer = new VectorLayer({
       source,
       style: feature =>

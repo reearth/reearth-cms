@@ -1,11 +1,11 @@
 import { useCallback } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
 import type { GeoStore } from "../core/geoStore";
 
+import type { EditorConfirm } from "./useEditorConfirm";
 import { useUndoNotice } from "./useUndoNotice";
 
 /** Shared with the legacy field so "Do not show this again" means the same thing. */
@@ -40,9 +40,9 @@ export function useReplaceGuard(
   store: GeoStore,
   multiple: boolean,
   hasValue: boolean,
+  confirm: EditorConfirm,
 ): ReplaceGuard {
   const t = useT();
-  const { confirm } = useModal();
   const showUndoNotice = useUndoNotice(store);
 
   const confirmReplace = useCallback(

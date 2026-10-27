@@ -37,7 +37,7 @@ export function useMapSync(source: VectorSource | null, collection: FeatureColle
       const signature = JSON.stringify(feature.geometry);
       if (applied.get(id) === signature) continue;
 
-      const geometry = GEOJSON_FORMAT.readGeometry(feature.geometry) as Geometry;
+      const geometry = GEOJSON_FORMAT.readGeometry(feature.geometry);
       const existing = source.getFeatureById(id);
       if (existing) {
         existing.setGeometry(geometry);

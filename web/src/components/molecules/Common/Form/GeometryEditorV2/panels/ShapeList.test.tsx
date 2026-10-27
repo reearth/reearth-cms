@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 
 import { createGeoStore } from "../core/geoStore";
 import { GeoStoreProvider } from "../core/StoreContext";
-import { EditOrigin } from "../core/types";
+import { EditOrigin, FocusKind } from "../core/types";
 
 import ShapeList from "./ShapeList";
 
@@ -63,7 +63,7 @@ describe("ShapeList", () => {
     await user.click(rows()[1]);
     expect(store.getSnapshot().selectedId).toBe(lineId);
     const focus = store.getSnapshot().focus;
-    expect(focus).toMatchObject({ kind: "geometry", geometry: LINE });
+    expect(focus).toMatchObject({ kind: FocusKind.GEOMETRY, geometry: LINE });
 
     await user.click(rows()[1]);
     expect(store.getSnapshot().focus?.nonce).toBe((focus?.nonce ?? 0) + 1);

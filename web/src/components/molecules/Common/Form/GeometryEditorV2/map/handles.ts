@@ -15,7 +15,10 @@ import type { Pixel } from "ol/pixel";
 
 export const HANDLE_TOLERANCE_PX = 10;
 
-export type HandleKind = "vertex" | "midpoint";
+export enum HandleKind {
+  VERTEX = "vertex",
+  MIDPOINT = "midpoint",
+}
 
 const midpoints = (coordinates: Coordinate[]): Coordinate[] =>
   coordinates
@@ -56,8 +59,8 @@ export function handleAt(map: OlMap, geometry: Geometry, pixel: Pixel): HandleKi
     const at = map.getPixelFromCoordinate(coordinate);
     return !!at && Math.hypot(at[0] - pixel[0], at[1] - pixel[1]) <= HANDLE_TOLERANCE_PX;
   };
-  if (vertexHandles(geometry).some(near)) return "vertex";
-  if (midpointHandles(geometry).some(near)) return "midpoint";
+  if (vertexHandles(geometry).some(near)) return HandleKind.VERTEX;
+  if (midpointHandles(geometry).some(near)) return HandleKind.MIDPOINT;
   return null;
 }
 

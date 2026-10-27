@@ -13,6 +13,8 @@ type Options = {
   readOnly: boolean;
   requestClose: () => void;
   deleteShape: (id: string) => void;
+  /** While a confirm dialog is open, its own keys (Esc, Enter) belong to it. */
+  isDialogOpen: () => boolean;
 };
 
 /** Shortcuts only while this editor is open, and never while typing in a field. */
@@ -24,12 +26,14 @@ export function useEditorShortcuts({
   readOnly,
   requestClose,
   deleteShape,
+  isDialogOpen,
 }: Options) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (document.querySelector(".ant-modal-confirm")) return;
-      const target = e.target as HTMLElement | null;
-      const typing = !!target?.closest("input, textarea, [contenteditable='true'], .monaco-editor");
+      if (isDialogOpen()) return;
+      const typing =
+        e.target instanceof Element &&
+        !!e.target.closest("input, textarea, [contenteditable='true'], .monaco-editor");
       const mod = e.metaKey || e.ctrlKey;
 
       if (e.key === "Escape") {
@@ -68,5 +72,5 @@ export function useEditorShortcuts({
     // Capture phase: runs even though the editor stops keys from bubbling to modals below.
     document.addEventListener("keydown", handler, true);
     return () => document.removeEventListener("keydown", handler, true);
-  }, [deleteShape, drawRef, readOnly, requestClose, setTool, store, tool]);
+  }, [deleteShape, drawRef, isDialogOpen, readOnly, requestClose, setTool, store, tool]);
 }

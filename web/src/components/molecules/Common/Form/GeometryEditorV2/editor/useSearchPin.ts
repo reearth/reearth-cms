@@ -2,7 +2,7 @@ import type { Point } from "geojson";
 import { useCallback, useState } from "react";
 
 import type { GeoStore } from "../core/geoStore";
-import { EditOrigin } from "../core/types";
+import { EditOrigin, FocusKind } from "../core/types";
 import type { SearchPin } from "../map/EditorMap";
 import type { GeocodeResult } from "../search/providers";
 
@@ -33,8 +33,8 @@ export function useSearchPin({
   const flyTo = useCallback(
     (result: GeocodeResult) => {
       setSearchPin({ id: result.id, label: result.label, position: result.position });
-      if (result.bbox) store.focus({ kind: "extent", extent: result.bbox });
-      else store.focus({ kind: "position", position: result.position, zoom: 16 });
+      if (result.bbox) store.focus({ kind: FocusKind.EXTENT, extent: result.bbox });
+      else store.focus({ kind: FocusKind.POSITION, position: result.position, zoom: 16 });
     },
     [store],
   );
@@ -50,7 +50,7 @@ export function useSearchPin({
           store.replaceAll(geometry, EditOrigin.SEARCH);
           if (replacing) notifyReplaced();
         }
-        store.focus({ kind: "position", position: result.position, zoom: 16 });
+        store.focus({ kind: FocusKind.POSITION, position: result.position, zoom: 16 });
         setSearchPin(null);
       });
     },

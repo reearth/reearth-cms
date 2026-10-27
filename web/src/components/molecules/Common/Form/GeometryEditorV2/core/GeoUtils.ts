@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import type { Feature, FeatureCollection, Geometry, Position } from "geojson";
 
-import { EDITABLE_KINDS, GeometryKind } from "./types";
+import { GeometryKind, isEditableType } from "./types";
 import type { VertexRef } from "./types";
 
 /**
@@ -55,7 +55,7 @@ export abstract class GeoUtils {
   }
 
   public static isEditableKind(geometry: Geometry | null | undefined): boolean {
-    return !!geometry && EDITABLE_KINDS.includes(geometry.type as GeometryKind);
+    return !!geometry && isEditableType(geometry.type);
   }
 
   /** First coordinate of any geometry. */
@@ -199,15 +199,12 @@ export abstract class GeoUtils {
   private static countNested(value: unknown): number {
     if (!Array.isArray(value) || value.length === 0) return 0;
     if (typeof value[0] === "number") return 1;
-    return (value as unknown[]).reduce<number>(
-      (total, entry) => total + GeoUtils.countNested(entry),
-      0,
-    );
+    return value.reduce<number>((total, entry) => total + GeoUtils.countNested(entry), 0);
   }
 
   private static firstNested(value: unknown): Position | null {
     if (!Array.isArray(value) || value.length === 0) return null;
-    if (typeof value[0] === "number") return value as Position;
+    if (typeof value[0] === "number") return value;
     return GeoUtils.firstNested(value[0]);
   }
 }

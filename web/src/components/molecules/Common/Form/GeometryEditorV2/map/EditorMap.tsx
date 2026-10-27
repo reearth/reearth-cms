@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import type { Position } from "geojson";
 import Feature from "ol/Feature";
-import type Geometry from "ol/geom/Geometry";
 import Point from "ol/geom/Point";
 import type Draw from "ol/interaction/Draw";
 import type MapBrowserEvent from "ol/MapBrowserEvent";
@@ -20,7 +19,7 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { GeoUtils } from "../core/GeoUtils";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
-import type { GeometryKind } from "../core/types";
+import { GeometryKind } from "../core/types";
 import type { GeocodeResult } from "../search/providers";
 import SearchBox from "../search/SearchBox";
 
@@ -124,7 +123,7 @@ const EditorMap: React.FC<Props> = ({
     const feature = selectedId ? handles.source.getFeatureById(selectedId) : null;
     const data = GeoUtils.findFeature(collection, selectedId);
     if (feature && GeoUtils.isEditableKind(data?.geometry)) {
-      handles.selected.push(feature as Feature<Geometry>);
+      handles.selected.push(feature);
     }
     handles.layer.changed();
   }, [handles, selectedId, selectedVertex, collection]);
@@ -193,11 +192,11 @@ const EditorMap: React.FC<Props> = ({
   const editHint =
     readOnly || tool !== MapTool.SELECT
       ? null
-      : selectedType === "LineString" || selectedType === "Polygon"
+      : selectedType === GeometryKind.LINE_STRING || selectedType === GeometryKind.POLYGON
         ? t(
             "Drag a white dot to move a vertex · Drag a small dot to add one · Drag the shape to move it · Alt-click a white dot to remove it",
           )
-        : selectedType === "Point"
+        : selectedType === GeometryKind.POINT
           ? t("Drag the point to move it")
           : null;
   const hoverHint =
@@ -230,11 +229,7 @@ const EditorMap: React.FC<Props> = ({
         <BarCenter>
           {!readOnly && (
             <>
-              <Segmented
-                value={tool}
-                options={toolOptions}
-                onChange={value => onToolRequest(value as MapTool)}
-              />
+              <Segmented<MapTool> value={tool} options={toolOptions} onChange={onToolRequest} />
               <Tooltip title={t("Delete selected shape (Delete)")} placement="bottom">
                 <Button
                   danger
@@ -255,7 +250,6 @@ const EditorMap: React.FC<Props> = ({
             aria-label={t("Base map")}
             popupMatchSelectWidth={false}
             onChange={setBaseMap}
-            style={{ width: 180 }}
           />
           <Space.Compact>
             <Tooltip title={t("Zoom out")} placement="bottom">
@@ -339,6 +333,9 @@ const BarRight = styled.div`
   justify-content: flex-end;
   gap: ${AntdToken.SPACING.XS}px;
   min-width: 0;
+  > .ant-select {
+    width: 180px;
+  }
 `;
 
 const ToolLabel = styled.span`
@@ -372,7 +369,7 @@ const Hint = styled.div`
   transform: translateX(-50%);
   padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
   border-radius: ${AntdToken.RADIUS.LG}px;
-  background: rgba(0, 0, 0, 0.75);
+  background: ${AntdColor.NEUTRAL.BG_SPOTLIGHT};
   color: ${AntdColor.NEUTRAL.BG_WHITE};
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   white-space: nowrap;

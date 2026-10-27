@@ -29,10 +29,18 @@ type Props = {
   onClear: () => void;
 };
 
+type SearchOutcome = {
+  readonly query: string;
+  readonly results: GeocodeResult[];
+  readonly error: string | null;
+};
+
+const isGeocoderId = (value: string): value is GeocoderId => value in PROVIDERS;
+
 const readProvider = (): GeocoderId => {
   try {
     const stored = localStorage.getItem(PROVIDER_KEY);
-    if (stored && stored in PROVIDERS) return stored as GeocoderId;
+    if (stored && isGeocoderId(stored)) return stored;
   } catch {
     // Storage can be unavailable; the default is fine.
   }
@@ -57,7 +65,8 @@ const SearchBox: React.FC<Props> = ({
   const [query, setQuery] = useState(initialQuery ?? "");
   const [searchedQuery, setSearchedQuery] = useState<string | null>(null);
   const [results, setResults] = useState<GeocodeResult[]>([]);
-  const [loading, setLoading] = useState(false);
+  // A query handed over from the inline field is searched as soon as the box mounts.
+  const [loading, setLoading] = useState<boolean>(() => !!initialQuery?.trim());
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -72,38 +81,53 @@ const SearchBox: React.FC<Props> = ({
     onClear();
   }, [onClear]);
 
+  /**
+   * The request itself, without touching state, so an effect can start it and apply the
+   * outcome when it arrives. Resolves to null when a newer search aborted this one.
+   */
+  const fetchResults = useCallback(
+    async (query: string, provider: GeocoderId): Promise<SearchOutcome | null> => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      try {
+        const found = await PROVIDERS[provider].search(query, lang, controller.signal);
+        return { query, results: found, error: null };
+      } catch (e) {
+        if (controller.signal.aborted) return null;
+        return { query, results: [], error: e instanceof Error ? e.message : String(e) };
+      }
+    },
+    [lang],
+  );
+
+  const applyOutcome = useCallback((outcome: SearchOutcome | null) => {
+    if (!outcome) return;
+    setResults(outcome.results);
+    setSearchedQuery(outcome.query);
+    setError(outcome.error);
+    setLoading(false);
+  }, []);
+
   const runSearch = useCallback(
-    async (text: string, provider: GeocoderId) => {
+    (text: string, provider: GeocoderId) => {
       const trimmed = text.trim();
       if (!trimmed) {
         clear();
         return;
       }
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
       setLoading(true);
       setError(null);
-      try {
-        const found = await PROVIDERS[provider].search(trimmed, lang, controller.signal);
-        setResults(found);
-        setSearchedQuery(trimmed);
-      } catch (e) {
-        if (controller.signal.aborted) return;
-        setResults([]);
-        setSearchedQuery(trimmed);
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
+      void fetchResults(trimmed, provider).then(applyOutcome);
     },
-    [clear, lang],
+    [applyOutcome, clear, fetchResults],
   );
 
   // Run the search handed over from the inline field when the editor opens. No "once"
   // guard: React's dev double-mount aborts the first request, so it must run again.
   useEffect(() => {
-    if (initialQuery) void runSearch(initialQuery, providerId);
+    const trimmed = initialQuery?.trim();
+    if (trimmed) void fetchResults(trimmed, providerId).then(applyOutcome);
     // Only on open; provider changes re-run the search in handleProviderChange.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery]);
@@ -116,7 +140,7 @@ const SearchBox: React.FC<Props> = ({
       } catch {
         // Not remembering the choice is acceptable.
       }
-      if (searchedQuery) void runSearch(query, next);
+      if (searchedQuery) runSearch(query, next);
     },
     [query, runSearch, searchedQuery],
   );
@@ -133,7 +157,6 @@ const SearchBox: React.FC<Props> = ({
           popupMatchSelectWidth={false}
           aria-label={t("Search provider")}
           options={Object.values(PROVIDERS).map(p => ({ value: p.id, label: p.label() }))}
-          style={{ width: 132, flexShrink: 0 }}
         />
         <Search
           value={query}
@@ -145,7 +168,7 @@ const SearchBox: React.FC<Props> = ({
             setQuery(e.target.value);
             if (!e.target.value) clear();
           }}
-          onSearch={value => void runSearch(value, providerId)}
+          onSearch={value => runSearch(value, providerId)}
         />
       </Space.Compact>
       {open && (
@@ -191,9 +214,9 @@ const SearchBox: React.FC<Props> = ({
                       {result.label}
                     </Typography.Text>
                     {result.detail && (
-                      <Typography.Text type="secondary" ellipsis style={{ fontSize: 12 }}>
+                      <DetailText type="secondary" ellipsis>
                         {result.detail}
-                      </Typography.Text>
+                      </DetailText>
                     )}
                     {result.kind && <KindTag bordered={false}>{result.kind}</KindTag>}
                   </ResultText>
@@ -239,6 +262,10 @@ const Wrapper = styled.div`
   position: relative;
   width: 100%;
   max-width: 420px;
+  .ant-space-compact > .ant-select {
+    width: 132px;
+    flex-shrink: 0;
+  }
 `;
 
 const Results = styled.div`
@@ -302,6 +329,10 @@ const ResultActions = styled.div`
 const KindTag = styled(Tag)`
   margin-top: 2px;
   font-size: 11px;
+`;
+
+const DetailText = styled(Typography.Text)`
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
 `;
 
 const EmptyText = styled(Typography.Text)`

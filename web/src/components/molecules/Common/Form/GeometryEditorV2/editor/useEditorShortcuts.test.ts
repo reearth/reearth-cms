@@ -9,7 +9,7 @@ import { MapTool } from "../map/mapTools";
 
 import { useEditorShortcuts } from "./useEditorShortcuts";
 
-const setup = ({ tool = MapTool.SELECT, readOnly = false } = {}) => {
+const setup = ({ tool = MapTool.SELECT, readOnly = false, dialogOpen = false } = {}) => {
   const store = createGeoStore({ type: "FeatureCollection", features: [] });
   const id = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
   const options = {
@@ -20,6 +20,7 @@ const setup = ({ tool = MapTool.SELECT, readOnly = false } = {}) => {
     readOnly,
     requestClose: vi.fn(),
     deleteShape: vi.fn(),
+    isDialogOpen: () => dialogOpen,
   };
   renderHook(() => useEditorShortcuts(options));
   return { ...options, id };
@@ -75,5 +76,14 @@ describe("useEditorShortcuts", () => {
     press("Delete");
     expect(store.getSnapshot().collection.features).toHaveLength(1);
     expect(deleteShape).not.toHaveBeenCalled();
+  });
+
+  test("an open confirm dialog keeps its keys", () => {
+    const { store, requestClose } = setup({ dialogOpen: true });
+    press("Escape");
+    press("z", { ctrlKey: true });
+    expect(store.getSnapshot().selectedId).not.toBeNull();
+    expect(store.getSnapshot().collection.features).toHaveLength(1);
+    expect(requestClose).not.toHaveBeenCalled();
   });
 });

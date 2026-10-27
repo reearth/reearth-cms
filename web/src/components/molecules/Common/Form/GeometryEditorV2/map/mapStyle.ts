@@ -1,5 +1,5 @@
 import type { FeatureLike } from "ol/Feature";
-import type Geometry from "ol/geom/Geometry";
+import Geometry from "ol/geom/Geometry";
 import MultiPoint from "ol/geom/MultiPoint";
 import Point from "ol/geom/Point";
 import CircleStyle from "ol/style/Circle";
@@ -9,8 +9,7 @@ import Style from "ol/style/Style";
 
 import { AntdColor } from "@reearth-cms/utils/style";
 
-import { EDITABLE_KINDS } from "../core/types";
-import type { GeometryKind } from "../core/types";
+import { GeometryKind, isEditableType } from "../core/types";
 
 import { midpointHandles, vertexHandles } from "./handles";
 
@@ -32,7 +31,8 @@ export abstract class ShapeStyle {
 
 const WHITE = ShapeStyle.WHITE;
 
-const alpha = (hex: string, a: number) =>
+/** A `#rrggbb` colour with an alpha channel. */
+export const alpha = (hex: string, a: number) =>
   `${hex}${Math.round(a * 255)
     .toString(16)
     .padStart(2, "0")}`;
@@ -40,8 +40,8 @@ const alpha = (hex: string, a: number) =>
 /** Points sit above lines, lines above areas, so small shapes stay clickable. */
 const zIndexOf = (geometry: Geometry | undefined) => {
   const type = geometry?.getType();
-  if (type === "Point" || type === "MultiPoint") return 3;
-  if (type === "LineString" || type === "MultiLineString") return 2;
+  if (type === GeometryKind.POINT || type === GeometryKind.MULTI_POINT) return 3;
+  if (type === GeometryKind.LINE_STRING || type === GeometryKind.MULTI_LINE_STRING) return 2;
   return 1;
 };
 
@@ -50,10 +50,12 @@ export function featureStyle(
   selectedId: string | null,
   selectedVertex: number | null = null,
 ): Style[] {
-  const geometry = feature.getGeometry() as Geometry | undefined;
+  const olGeometry = feature.getGeometry();
+  // A RenderFeature only appears with vector tiles, which this map does not use.
+  const geometry = olGeometry instanceof Geometry ? olGeometry : undefined;
   const selected = selectedId !== null && String(feature.getId()) === selectedId;
   // Multi* and GeometryCollection are display-only.
-  const locked = !EDITABLE_KINDS.includes(geometry?.getType() as GeometryKind);
+  const locked = !isEditableType(geometry?.getType());
   const colour = locked
     ? selected
       ? ShapeStyle.READ_ONLY_SELECTED
@@ -83,7 +85,7 @@ export function featureStyle(
 
   // Editing handles only on the selected shape: white dots on vertices, small dots
   // halfway along each edge (see handles.ts).
-  if (selected && !locked && geometry && geometry.getType() !== "Point") {
+  if (selected && !locked && geometry && geometry.getType() !== GeometryKind.POINT) {
     styles.push(
       new Style({
         zIndex: zIndex + 1,

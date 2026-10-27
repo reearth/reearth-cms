@@ -18,6 +18,7 @@ import type { GeometryIssue } from "./core/validation";
 import EditorHeader from "./editor/EditorHeader";
 import SideSplit from "./editor/SideSplit";
 import { useDraft } from "./editor/useDraft";
+import { useEditorConfirm } from "./editor/useEditorConfirm";
 import { useEditorShortcuts } from "./editor/useEditorShortcuts";
 import { useReplaceGuard } from "./editor/useReplaceGuard";
 import { useSearchPin } from "./editor/useSearchPin";
@@ -73,8 +74,6 @@ const EditorModal: React.FC<Props> = props => {
       maskClosable={false}
       destroyOnHidden
       width="calc(100vw - 32px)"
-      style={{ top: 16, paddingBottom: 0 }}
-      styles={{ body: { padding: 0, height: "calc(100vh - 32px)" } }}
       onCancel={props.onClose}>
       {store && initial && (
         <GeoStoreProvider value={store}>
@@ -118,7 +117,8 @@ const EditorBody: React.FC<BodyProps> = ({
   const validateOptions = useMemo(() => ({ allowedKinds }), [allowedKinds]);
 
   const showUndoNotice = useUndoNotice(store);
-  const { confirmReplace, notifyReplaced } = useReplaceGuard(store, multiple, hasValue);
+  const { confirm, isDialogOpen } = useEditorConfirm();
+  const { confirmReplace, notifyReplaced } = useReplaceGuard(store, multiple, hasValue, confirm);
   const search = useSearchPin({ store, multiple, confirmReplace, notifyReplaced });
   const { requestClose, apply } = useDraft({
     store,
@@ -127,6 +127,7 @@ const EditorBody: React.FC<BodyProps> = ({
     multiple,
     readOnly,
     jsonPanelRef,
+    confirm,
     onApply,
     onClose,
   });
@@ -151,7 +152,16 @@ const EditorBody: React.FC<BodyProps> = ({
     [confirmReplace, store, tool],
   );
 
-  useEditorShortcuts({ store, tool, setTool, drawRef, readOnly, requestClose, deleteShape });
+  useEditorShortcuts({
+    store,
+    tool,
+    setTool,
+    drawRef,
+    readOnly,
+    requestClose,
+    deleteShape,
+    isDialogOpen,
+  });
 
   const toggleCoordinates = useCallback(() => setCoordinatesOpen(open => !open), []);
   const toggleJson = useCallback(() => setJsonOpen(open => !open), []);
@@ -258,10 +268,18 @@ const EditorBody: React.FC<BodyProps> = ({
 export default EditorModal;
 
 const StyledModal = styled(Modal)`
-  max-width: none;
+  &.ant-modal {
+    top: ${AntdToken.SPACING.BASE}px;
+    max-width: none;
+    padding-bottom: 0;
+  }
   .ant-modal-content {
     padding: 0;
     overflow: hidden;
+  }
+  .ant-modal-body {
+    padding: 0;
+    height: calc(100vh - ${AntdToken.SPACING.BASE * 2}px);
   }
 `;
 

@@ -3,6 +3,7 @@ import { primaryAction } from "ol/events/condition";
 import type Feature from "ol/Feature";
 import type { FeatureLike } from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
+import Point from "ol/geom/Point";
 import Draw from "ol/interaction/Draw";
 import type Interaction from "ol/interaction/Interaction";
 import Modify from "ol/interaction/Modify";
@@ -17,7 +18,7 @@ import { useEffect } from "react";
 import type { RefObject } from "react";
 
 import type { GeoStore, GeometryUpdate } from "../core/geoStore";
-import { EditOrigin } from "../core/types";
+import { EditOrigin, GeometryKind } from "../core/types";
 
 import { handleAt, isNearHandle, vertexIndexAt } from "./handles";
 import { ShapeStyle } from "./mapStyle";
@@ -114,16 +115,17 @@ export function useMapInteractions({
         style: (feature: FeatureLike, resolution: number) => {
           const geometry = selectedGeometry();
           const point = feature.getGeometry();
-          if (!geometry || !point || point.getType() !== "Point") return undefined;
-          const coordinate = (point as unknown as { getCoordinates(): number[] }).getCoordinates();
-          return isNearHandle(geometry, coordinate, resolution) ? GRAB_STYLE : undefined;
+          if (!geometry || !(point instanceof Point)) return undefined;
+          return isNearHandle(geometry, point.getCoordinates(), resolution)
+            ? GRAB_STYLE
+            : undefined;
         },
       });
       modify.on("modifystart", event => {
         store.beginGesture();
         // Dragging a vertex selects it, so its numbers show while it moves.
         const geometry = selectedGeometry();
-        if (geometry && geometry.getType() !== "Point") {
+        if (geometry && geometry.getType() !== GeometryKind.POINT) {
           const index = vertexIndexAt(map, geometry, event.mapBrowserEvent.pixel);
           if (index !== null) store.selectVertex(index);
         }
@@ -178,8 +180,8 @@ export function useMapInteractions({
     const handleClick = (event: MapBrowserEvent) => {
       // A vertex of the selected line or polygon; Alt-click is Modify's "remove vertex".
       const geometry = handles.selected.item(0)?.getGeometry();
-      const pointerEvent = event.originalEvent as PointerEvent;
-      if (geometry && geometry.getType() !== "Point" && !pointerEvent.altKey) {
+      const altKey = event.originalEvent instanceof MouseEvent && event.originalEvent.altKey;
+      if (geometry && geometry.getType() !== GeometryKind.POINT && !altKey) {
         const index = vertexIndexAt(map, geometry, event.pixel);
         if (index !== null) {
           store.selectVertex(index);

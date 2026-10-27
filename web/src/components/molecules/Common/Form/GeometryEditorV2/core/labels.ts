@@ -63,7 +63,9 @@ export const vertexLabel = (vertex: VertexRef): string =>
 
 /** One line for the inline field footer. */
 export const summarize = (collection: FeatureCollection): string => {
-  const geometries = collection.features.map(f => f.geometry).filter(Boolean) as Geometry[];
+  const geometries = collection.features
+    .map(f => f.geometry)
+    .filter((geometry): geometry is Geometry => !!geometry);
   if (geometries.length === 0) return t("No geometry");
   if (geometries.length === 1) {
     return `${kindName(geometries[0].type)} · ${shapeDetail(geometries[0])}`;

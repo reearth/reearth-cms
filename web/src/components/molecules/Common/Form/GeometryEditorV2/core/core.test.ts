@@ -9,7 +9,7 @@ import {
 } from "./fieldValue";
 import { createGeoStore } from "./geoStore";
 import { GeoUtils } from "./GeoUtils";
-import { EditOrigin, GeometryKind } from "./types";
+import { EditOrigin, FocusKind, GeometryKind } from "./types";
 import { GeometryLimits, validateValue } from "./validation";
 
 const POINT = '{"type":"Point","coordinates":[139.767125,35.681236]}';
@@ -353,9 +353,9 @@ describe("geoStore", () => {
   test("repeated focus requests for the same shape are distinct", () => {
     const store = createGeoStore(empty);
     const geometry = { type: "Point" as const, coordinates: [1, 1] };
-    store.focus({ kind: "geometry", geometry });
+    store.focus({ kind: FocusKind.GEOMETRY, geometry });
     const first = store.getSnapshot().focus;
-    store.focus({ kind: "geometry", geometry });
+    store.focus({ kind: FocusKind.GEOMETRY, geometry });
     expect(store.getSnapshot().focus).not.toBe(first);
     expect(store.getSnapshot().focus?.nonce).toBe((first?.nonce ?? 0) + 1);
   });

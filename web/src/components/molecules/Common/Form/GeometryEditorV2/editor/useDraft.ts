@@ -2,7 +2,6 @@ import type { FeatureCollection } from "geojson";
 import { useCallback } from "react";
 import type { RefObject } from "react";
 
-import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
 import { writeFieldValue } from "../core/fieldValue";
@@ -10,6 +9,8 @@ import type { Originals } from "../core/fieldValue";
 import type { GeoStore } from "../core/geoStore";
 import { GeoUtils } from "../core/GeoUtils";
 import type { GeoJsonPanelHandle } from "../panels/GeoJsonPanel";
+
+import type { EditorConfirm } from "./useEditorConfirm";
 
 type Options = {
   store: GeoStore;
@@ -20,6 +21,7 @@ type Options = {
   multiple: boolean;
   readOnly: boolean;
   jsonPanelRef: RefObject<GeoJsonPanelHandle | null>;
+  confirm: EditorConfirm;
   onApply: (value: string | string[]) => void;
   onClose: () => void;
 };
@@ -42,11 +44,11 @@ export function useDraft({
   multiple,
   readOnly,
   jsonPanelRef,
+  confirm,
   onApply,
   onClose,
 }: Options): Draft {
   const t = useT();
-  const { confirm } = useModal();
 
   /** Flushes typed text first, so edits from the last moments count. */
   const hasChanges = useCallback((): boolean => {
