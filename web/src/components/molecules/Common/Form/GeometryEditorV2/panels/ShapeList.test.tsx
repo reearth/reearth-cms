@@ -32,6 +32,18 @@ const setup = () => {
 
 const rows = () => screen.getAllByRole("option");
 
+const renderReadOnlyShape = (readOnly: boolean) => {
+  const store = createGeoStore({ type: "FeatureCollection", features: [] });
+  store.addFeature({ type: "MultiPoint", coordinates: [[139.7, 35.6]] }, EditOrigin.MAP);
+  render(
+    <GeoStoreProvider value={store}>
+      <ShapeList multiple readOnly={readOnly} drawHint="" onDelete={vi.fn()} />
+    </GeoStoreProvider>,
+  );
+};
+
+const GEOJSON_NOTE = "Can't be edited on the map. Change it in GeoJSON.";
+
 describe("ShapeList", () => {
   beforeAll(() => {
     Element.prototype.scrollIntoView = vi.fn();
@@ -62,6 +74,16 @@ describe("ShapeList", () => {
     act(() => store.select(pointId));
     expect(rows()[0]).toHaveAttribute("aria-selected", "true");
     expect(rows()[1]).toHaveAttribute("aria-selected", "false");
+  });
+
+  test("points a read-only shape to GeoJSON only for someone who can edit", () => {
+    renderReadOnlyShape(false);
+    expect(screen.getByText(GEOJSON_NOTE)).toBeInTheDocument();
+  });
+
+  test("says nothing about GeoJSON when the whole editor is read-only", () => {
+    renderReadOnlyShape(true);
+    expect(screen.queryByText(GEOJSON_NOTE)).not.toBeInTheDocument();
   });
 
   test("keyboard selection works like a click", async () => {

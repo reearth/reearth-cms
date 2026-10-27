@@ -197,7 +197,8 @@ const EditorMap: React.FC<Props> = ({
           ? t("Drag the point to move it")
           : null;
   const hoverHint =
-    hoveringReadOnly && tool === MapTool.SELECT
+    // Pointing at GeoJSON is only useful to someone who can edit there.
+    !readOnly && hoveringReadOnly && tool === MapTool.SELECT
       ? t("Can't be edited on the map. Change it in GeoJSON.")
       : null;
   const drawHint =
@@ -272,7 +273,7 @@ const EditorMap: React.FC<Props> = ({
       </TopBar>
       <MapArea>
         <MapContainer ref={containerRef} />
-        {hasReadOnly && <MapLegend />}
+        {!readOnly && hasReadOnly && <MapLegend />}
         {drawHint && <Hint role="status">{drawHint}</Hint>}
       </MapArea>
     </Wrapper>

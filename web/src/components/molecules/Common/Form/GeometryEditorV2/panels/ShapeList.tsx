@@ -101,7 +101,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                 <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
                   {shapeDetail(feature.geometry)}
                 </Typography.Text>
-                {locked && (
+                {locked && !readOnly && (
                   <Typography.Text type="secondary" style={{ fontSize: AntdToken.FONT.SIZE_SM }}>
                     {t("Can't be edited on the map. Change it in GeoJSON.")}
                   </Typography.Text>
