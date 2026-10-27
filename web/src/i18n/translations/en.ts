@@ -217,6 +217,7 @@ export default {
   "doesn't contain": "",
   "doesn't end with": "",
   "doesn't start with": "",
+  "Double-click to move back to the middle": "Double-click to move back to the middle",
   "Download": "",
   "Download error log": "Download error log",
   "Download failed": "",

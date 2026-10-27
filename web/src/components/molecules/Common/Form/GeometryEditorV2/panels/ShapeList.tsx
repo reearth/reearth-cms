@@ -29,12 +29,7 @@ type Props = {
  * coordinates in place. Shapes the
  * map can't edit say so in the row itself, selected or not.
  */
-const ShapeList: React.FC<Props> = ({
-  multiple,
-  readOnly,
-  drawHint,
-  onDelete,
-}) => {
+const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) => {
   const t = useT();
   const store = useGeoStore();
   const { collection, selectedId } = useGeoSnapshot();

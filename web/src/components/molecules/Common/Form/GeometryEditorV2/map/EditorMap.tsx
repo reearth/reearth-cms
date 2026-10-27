@@ -6,7 +6,7 @@ import Point from "ol/geom/Point";
 import type Draw from "ol/interaction/Draw";
 import type MapBrowserEvent from "ol/MapBrowserEvent";
 import { fromLonLat } from "ol/proj";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -93,7 +93,6 @@ const EditorMap: React.FC<Props> = ({
   useMapSync(handles?.source ?? null, collection);
   useMapFocus(handles, focus);
 
-  const handleDrawEnd = useCallback(() => onToolRequest(MapTool.SELECT), [onToolRequest]);
   useMapInteractions({
     handles,
     store,
@@ -101,7 +100,6 @@ const EditorMap: React.FC<Props> = ({
     multiple,
     readOnly,
     drawRef,
-    onDrawEnd: handleDrawEnd,
     onReplaced,
   });
 

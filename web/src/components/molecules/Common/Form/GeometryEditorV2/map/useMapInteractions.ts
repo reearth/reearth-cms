@@ -47,7 +47,6 @@ type Options = {
   readOnly: boolean;
   /** Lets the keyboard handler abort a sketch or drop its last vertex. */
   drawRef: RefObject<Draw | null>;
-  onDrawEnd: () => void;
   /** Single field: a drawing replaced an existing shape. */
   onReplaced?: () => void;
 };
@@ -63,7 +62,6 @@ export function useMapInteractions({
   multiple,
   readOnly,
   drawRef,
-  onDrawEnd,
   onReplaced,
 }: Options) {
   useEffect(() => {
@@ -142,7 +140,9 @@ export function useMapInteractions({
           store.replaceAll(toGeoJson(geometry), EditOrigin.MAP);
           if (replacing) onReplaced?.();
         }
-        onDrawEnd();
+        // The tool stays active for the next shape; as when picking a tool, nothing is
+        // selected, so no edit handles show while drawing.
+        store.select(null);
       });
       register(draw);
       drawRef.current = draw;
@@ -154,7 +154,7 @@ export function useMapInteractions({
       drawRef.current = null;
       store.endGesture();
     };
-  }, [handles, store, tool, multiple, readOnly, drawRef, onDrawEnd, onReplaced]);
+  }, [handles, store, tool, multiple, readOnly, drawRef, onReplaced]);
 
   useEffect(() => {
     if (!handles || drawType(tool) !== null) return;

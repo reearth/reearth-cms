@@ -36,6 +36,12 @@ const REPLACE_WARNING_KEY = "disableGeometryWarning";
 /** Height of the collapsed GeoJSON panel: just its header. */
 const GEOJSON_HEADER_HEIGHT = 41;
 
+type PanelSize = number | string;
+type PanelSizes = readonly [PanelSize, PanelSize];
+
+const splitterBarOf = (target: EventTarget): Element | null =>
+  target instanceof Element ? target.closest(".ant-splitter-bar") : null;
+
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 const MOD = isMac ? "⌘" : "Ctrl";
 
@@ -134,7 +140,13 @@ const EditorBody: React.FC<BodyProps> = ({
   const [tool, setTool] = useState<MapTool>(MapTool.SELECT);
   const [searchPin, setSearchPin] = useState<SearchPin | null>(null);
   const [jsonOpen, setJsonOpen] = useState(() => !initial.ok);
-  const [jsonSize, setJsonSize] = useState<number | string>("45%");
+  // Both panels are sized explicitly: antd fills an unsized panel from the size it kept
+  // from the last drag, which skews any size set here.
+  const [jsonSizes, setJsonSizes] = useState<PanelSizes>(["55%", "45%"]);
+  const sideAreaRef = useRef<HTMLDivElement>(null);
+  const [sideHeight, setSideHeight] = useState<number>(0);
+  /** Where the hovered splitter bar sits within the side pane; null hides the hint. */
+  const [barHintTop, setBarHintTop] = useState<number | null>(null);
   const [issues, setIssues] = useState<GeometryIssue[]>([]);
   const drawRef = useRef<Draw | null>(null);
   const jsonPanelRef = useRef<GeoJsonPanelHandle>(null);
@@ -146,6 +158,54 @@ const EditorBody: React.FC<BodyProps> = ({
   const initialCollection = initial.ok ? initial.collection : null;
   const hasValue = snapshot.collection.features.length > 0;
   const validateOptions = useMemo(() => ({ allowedKinds }), [allowedKinds]);
+
+  /**
+   * Double-clicking the bar between the shape list and GeoJSON splits them evenly. This
+   * listens for the second press rather than `dblclick`: antd covers the splitter with a
+   * drag mask on press, so `dblclick` never targets the bar.
+   */
+  const handleSideBarMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!splitterBarOf(e.target)) return;
+      setBarHintTop(null);
+      if (e.detail !== 2 || !jsonOpen) return;
+      // Keep this press from starting a drag that would report the old size back.
+      e.stopPropagation();
+      setJsonSizes(["50%", "50%"]);
+    },
+    [jsonOpen],
+  );
+
+  // antd renders the bar itself, so the hint is anchored to a marker placed over it.
+  const handleSideBarMouseOver = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const bar = splitterBarOf(e.target);
+      if (!bar || !jsonOpen) return;
+      const area = e.currentTarget.getBoundingClientRect();
+      const rect = bar.getBoundingClientRect();
+      setBarHintTop(rect.top - area.top + rect.height / 2);
+    },
+    [jsonOpen],
+  );
+
+  const handleSideBarMouseOut = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const bar = splitterBarOf(e.target);
+    if (bar && !(e.relatedTarget instanceof Node && bar.contains(e.relatedTarget))) {
+      setBarHintTop(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    const area = sideAreaRef.current;
+    if (!area) return;
+    const observer = new ResizeObserver(() => setSideHeight(area.clientHeight));
+    observer.observe(area);
+    return () => observer.disconnect();
+  }, []);
+
+  const sideSizes: readonly [PanelSize | undefined, PanelSize] = jsonOpen
+    ? jsonSizes
+    : [sideHeight ? sideHeight - GEOJSON_HEADER_HEIGHT : undefined, GEOJSON_HEADER_HEIGHT];
 
   const toggleJson = useCallback(() => {
     setJsonOpen(open => !open);
@@ -418,46 +478,58 @@ const EditorBody: React.FC<BodyProps> = ({
       </Header>
       <StyledSplitter>
         <Splitter.Panel defaultSize={360} min={280} max="50%">
-          <SideSplitter
-            layout="vertical"
-            onResize={sizes => {
-              if (jsonOpen) setJsonSize(sizes[1]);
-            }}>
-            <Splitter.Panel min={120}>
-              <SidePane>
-                <SideHeader>
-                  <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
-                  {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
-                </SideHeader>
-                <ListScroll>
-                  <ShapeList
-                    multiple={multiple}
-                    readOnly={readOnly}
-                    drawHint={drawHint}
-                    onDelete={deleteShape}
-                  />
-                </ListScroll>
-              </SidePane>
-            </Splitter.Panel>
-            <Splitter.Panel
-              size={jsonOpen ? jsonSize : GEOJSON_HEADER_HEIGHT}
-              min={jsonOpen ? 160 : GEOJSON_HEADER_HEIGHT}
-              max={jsonOpen ? "85%" : GEOJSON_HEADER_HEIGHT}
-              resizable={jsonOpen}>
-              <GeoJsonPanel
-                ref={jsonPanelRef}
-                multiple={multiple}
-                readOnly={readOnly}
-                open={jsonOpen}
-                validateOptions={validateOptions}
-                initialInvalid={
-                  initial.ok ? undefined : { text: initial.text, issues: initial.issues }
-                }
-                onToggle={toggleJson}
-                onIssuesChange={setIssues}
-              />
-            </Splitter.Panel>
-          </SideSplitter>
+          <SideArea
+            ref={sideAreaRef}
+            onMouseDownCapture={handleSideBarMouseDown}
+            onMouseOver={handleSideBarMouseOver}
+            onMouseOut={handleSideBarMouseOut}>
+            <Tooltip
+              open={barHintTop !== null}
+              title={t("Double-click to move back to the middle")}
+              placement="right">
+              <BarHintAnchor offset={barHintTop ?? 0} />
+            </Tooltip>
+            <SideSplitter
+              layout="vertical"
+              onResize={sizes => {
+                if (jsonOpen) setJsonSizes([sizes[0], sizes[1]]);
+              }}>
+              <Splitter.Panel size={sideSizes[0]} min={120}>
+                <SidePane>
+                  <SideHeader>
+                    <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
+                    {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
+                  </SideHeader>
+                  <ListScroll>
+                    <ShapeList
+                      multiple={multiple}
+                      readOnly={readOnly}
+                      drawHint={drawHint}
+                      onDelete={deleteShape}
+                    />
+                  </ListScroll>
+                </SidePane>
+              </Splitter.Panel>
+              <Splitter.Panel
+                size={sideSizes[1]}
+                min={jsonOpen ? 160 : GEOJSON_HEADER_HEIGHT}
+                max={jsonOpen ? "85%" : GEOJSON_HEADER_HEIGHT}
+                resizable={jsonOpen}>
+                <GeoJsonPanel
+                  ref={jsonPanelRef}
+                  multiple={multiple}
+                  readOnly={readOnly}
+                  open={jsonOpen}
+                  validateOptions={validateOptions}
+                  initialInvalid={
+                    initial.ok ? undefined : { text: initial.text, issues: initial.issues }
+                  }
+                  onToggle={toggleJson}
+                  onIssuesChange={setIssues}
+                />
+              </Splitter.Panel>
+            </SideSplitter>
+          </SideArea>
         </Splitter.Panel>
         <Splitter.Panel>
           <EditorMap
@@ -536,6 +608,20 @@ const Divider = styled.span`
 const StyledSplitter = styled(Splitter)`
   flex: 1;
   min-height: 0;
+`;
+
+const SideArea = styled.div`
+  position: relative;
+  height: 100%;
+`;
+
+const BarHintAnchor = styled.span<{ offset: number }>`
+  position: absolute;
+  top: ${({ offset }) => offset}px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 `;
 
 const SideSplitter = styled(Splitter)`

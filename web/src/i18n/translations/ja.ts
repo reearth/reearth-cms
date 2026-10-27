@@ -205,6 +205,7 @@ export default {
   "doesn't contain": "含まない",
   "doesn't end with": "終わらない",
   "doesn't start with": "始まらない",
+  "Double-click to move back to the middle": "ダブルクリックで中央に戻す",
   "Download": "ダウンロード",
   "Download error log": "エラーログをダウンロード",
   "Download failed": "ダウンロードに失敗しました。",

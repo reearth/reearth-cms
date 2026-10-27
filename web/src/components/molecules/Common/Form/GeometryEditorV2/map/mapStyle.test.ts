@@ -51,9 +51,7 @@ describe("featureStyle", () => {
 
   test("a read-only point is hollow, an editable one is filled", () => {
     const fillOf = (geometry: Geometry) =>
-      (featureStyle(featureOf(geometry), null)[0].getImage() as CircleStyle)
-        .getFill()
-        ?.getColor();
+      (featureStyle(featureOf(geometry), null)[0].getImage() as CircleStyle).getFill()?.getColor();
     expect(fillOf(new Point([0, 0]))).toBe(ShapeStyle.EDITABLE);
     expect(fillOf(new MultiPoint([[0, 0]]))).toBe(ShapeStyle.WHITE);
   });
