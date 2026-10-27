@@ -99,7 +99,7 @@ const FieldPreview: React.FC<Props> = ({
                 type="text"
                 size="small"
                 aria-label={t("Fly to shapes")}
-                icon={<Icon icon="aim" size={14} />}
+                icon={<Icon icon="send" size={14} />}
                 onClick={() => fit(400)}
               />
             </Tooltip>

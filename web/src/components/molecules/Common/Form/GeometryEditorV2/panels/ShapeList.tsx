@@ -100,12 +100,12 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                 )}
               </RowText>
               <Actions className="row-actions" visible={selected}>
-                <Tooltip title={t("Zoom to shape")}>
+                <Tooltip title={t("Fly to shape")}>
                   <Button
                     size="small"
                     type="text"
-                    aria-label={t("Zoom to shape")}
-                    icon={<Icon icon="aim" />}
+                    aria-label={t("Fly to shape")}
+                    icon={<Icon icon="send" />}
                     onClick={e => {
                       e.stopPropagation();
                       store.focus({ kind: FocusKind.GEOMETRY, geometry: feature.geometry });

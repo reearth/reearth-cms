@@ -140,12 +140,54 @@ export function rippleStyle(progress: number): Style {
   });
 }
 
-/** A search result being previewed: not part of the value yet. */
-export const searchPinStyle = new Style({
-  zIndex: 100,
-  image: new CircleStyle({
-    radius: 9,
-    fill: new Fill({ color: alpha(AntdColor.GOLD.GOLD_6, 0.35) }),
-    stroke: new Stroke({ color: AntdColor.GOLD.GOLD_7, width: 2, lineDash: [3, 3] }),
+/**
+ * "You are here", in the blue that map apps use for it. It is told apart from the value's
+ * points by size, a thick white ring and a wide halo, which no shape has.
+ */
+export const myLocationStyle = [
+  new Style({
+    zIndex: 100,
+    image: new CircleStyle({
+      radius: 28,
+      fill: new Fill({ color: alpha(ShapeStyle.EDITABLE, 0.15) }),
+    }),
   }),
-});
+  // OpenLayers has no shadow, so a faint dark disc just outside the ring stands in for one.
+  new Style({
+    zIndex: 101,
+    image: new CircleStyle({
+      radius: 13,
+      fill: new Fill({ color: alpha(AntdColor.GREY.GREY_8, 0.2) }),
+    }),
+  }),
+  new Style({
+    zIndex: 102,
+    image: new CircleStyle({
+      radius: 10,
+      fill: new Fill({ color: ShapeStyle.EDITABLE }),
+      stroke: new Stroke({ color: ShapeStyle.WHITE, width: 3 }),
+    }),
+  }),
+];
+
+/**
+ * A search result being previewed: not part of the value yet. A solid orange dot stands out
+ * on both base maps and away from the shapes' blue; the dashed ring says "not saved".
+ */
+export const searchPinStyle = [
+  new Style({
+    zIndex: 100,
+    image: new CircleStyle({
+      radius: 14,
+      stroke: new Stroke({ color: AntdColor.ORANGE.ORANGE_5, width: 2, lineDash: [4, 3] }),
+    }),
+  }),
+  new Style({
+    zIndex: 101,
+    image: new CircleStyle({
+      radius: 7,
+      fill: new Fill({ color: AntdColor.ORANGE.ORANGE_5 }),
+      stroke: new Stroke({ color: ShapeStyle.WHITE, width: 2 }),
+    }),
+  }),
+];

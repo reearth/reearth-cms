@@ -29,6 +29,7 @@ import { MapTool, TOOL_KIND } from "./mapTools";
 import { useMapFocus, extentOf, fitTo } from "./useMapFocus";
 import { useMapInteractions } from "./useMapInteractions";
 import { useMapSync } from "./useMapSync";
+import { useMyLocation } from "./useMyLocation";
 import { useOlMap } from "./useOlMap";
 import { useRipple } from "./useRipple";
 
@@ -94,6 +95,7 @@ const EditorMap: React.FC<Props> = ({
   useMapSync(handles?.source ?? null, collection);
   useMapFocus(handles, focus);
   useRipple(handles, collection, selectedId, selectedVertex);
+  const myLocation = useMyLocation(handles, store);
 
   useMapInteractions({
     handles,
@@ -266,6 +268,16 @@ const EditorMap: React.FC<Props> = ({
                 onClick={() => zoomBy(1)}
               />
             </Tooltip>
+            {myLocation.supported && (
+              <Tooltip title={t("My location")} placement="bottom">
+                <Button
+                  aria-label={t("My location")}
+                  icon={<Icon icon="aim" />}
+                  loading={myLocation.locating}
+                  onClick={myLocation.locate}
+                />
+              </Tooltip>
+            )}
           </Space.Compact>
         </BarRight>
       </TopBar>

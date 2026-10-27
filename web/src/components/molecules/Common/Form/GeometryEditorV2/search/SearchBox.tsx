@@ -221,10 +221,10 @@ const SearchBox: React.FC<Props> = ({
                     {result.kind && <KindTag bordered={false}>{result.kind}</KindTag>}
                   </ResultText>
                   <ResultActions>
-                    <Tooltip title={t("Show on the map without changing the value")}>
+                    <Tooltip title={t("Fly here without changing the value")}>
                       <Button
                         size="small"
-                        icon={<Icon icon="aim" />}
+                        icon={<Icon icon="send" />}
                         onClick={e => {
                           e.stopPropagation();
                           onFlyTo(result);

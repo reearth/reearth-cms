@@ -15,13 +15,15 @@ import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 
 import { BaseMapId, createBaseLayer } from "./baseMaps";
-import { featureStyle, searchPinStyle } from "./mapStyle";
+import { featureStyle, myLocationStyle, searchPinStyle } from "./mapStyle";
 
 export type MapHandles = {
   readonly map: OlMap;
   readonly source: VectorSource<Feature<Geometry>>;
   readonly layer: VectorLayer;
   readonly pinSource: VectorSource;
+  /** The user's location from "My location"; never part of the value. */
+  readonly locationSource: VectorSource;
   readonly bases: ReadonlyMap<BaseMapId, TileLayer>;
   /** The selected shape, when editable; Modify reshapes and Translate moves it. */
   readonly selected: Collection<Feature<Geometry>>;
@@ -58,6 +60,8 @@ export function useOlMap(
     });
     const pinSource = new VectorSource();
     const pinLayer = new VectorLayer({ source: pinSource, style: searchPinStyle });
+    const locationSource = new VectorSource();
+    const locationLayer = new VectorLayer({ source: locationSource, style: myLocationStyle });
     const bases = new Map(
       [BaseMapId.OSM, BaseMapId.GSI_PALE].map(id => {
         const base = createBaseLayer(id);
@@ -68,7 +72,7 @@ export function useOlMap(
 
     const map = new OlMap({
       target: container,
-      layers: [...bases.values(), layer, pinLayer],
+      layers: [...bases.values(), locationLayer, layer, pinLayer],
       view: new View(DEFAULT_VIEW),
       controls: defaultControls({ zoom: false, rotate: false, attribution: false }).extend([
         new Attribution({ collapsible: false }),
@@ -89,6 +93,7 @@ export function useOlMap(
       source,
       layer,
       pinSource,
+      locationSource,
       bases,
       selected: new Collection<Feature<Geometry>>(),
     });
