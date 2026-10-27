@@ -31,6 +31,7 @@ import { useMapFocus, extentOf, fitTo } from "./useMapFocus";
 import { useMapInteractions } from "./useMapInteractions";
 import { useMapSync } from "./useMapSync";
 import { useOlMap } from "./useOlMap";
+import { useRipple } from "./useRipple";
 
 export type SearchPin = {
   readonly id: string;
@@ -93,6 +94,7 @@ const EditorMap: React.FC<Props> = ({
 
   useMapSync(handles?.source ?? null, collection);
   useMapFocus(handles, focus);
+  useRipple(handles, collection, selectedId, selectedVertex);
 
   useMapInteractions({
     handles,

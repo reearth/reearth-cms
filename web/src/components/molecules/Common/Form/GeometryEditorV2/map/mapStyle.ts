@@ -122,6 +122,22 @@ export function featureStyle(
   return styles;
 }
 
+const RIPPLE_START_RADIUS = 7;
+const RIPPLE_GROWTH = 18;
+
+/** One frame of the ring that grows and fades around a newly selected point or vertex. */
+export function rippleStyle(progress: number): Style {
+  return new Style({
+    image: new CircleStyle({
+      radius: RIPPLE_START_RADIUS + progress * RIPPLE_GROWTH,
+      stroke: new Stroke({
+        color: alpha(ShapeStyle.EDITABLE_SELECTED, 1 - progress),
+        width: 1 + (1 - progress) * 2,
+      }),
+    }),
+  });
+}
+
 /** A search result being previewed: not part of the value yet. */
 export const searchPinStyle = new Style({
   zIndex: 100,
