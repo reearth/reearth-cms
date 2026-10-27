@@ -27,6 +27,7 @@ import EditorMap from "./map/EditorMap";
 import type { SearchPin } from "./map/EditorMap";
 import { MapTool, TOOL_KIND } from "./map/mapTools";
 import GeoJsonPanel from "./panels/GeoJsonPanel";
+import type { GeoJsonPanelHandle } from "./panels/GeoJsonPanel";
 import ShapeList from "./panels/ShapeList";
 import type { GeocodeResult } from "./search/providers";
 
@@ -136,15 +137,13 @@ const EditorBody: React.FC<BodyProps> = ({
   const [jsonSize, setJsonSize] = useState<number | string>("45%");
   const [issues, setIssues] = useState<GeometryIssue[]>([]);
   const drawRef = useRef<Draw | null>(null);
+  const jsonPanelRef = useRef<GeoJsonPanelHandle>(null);
 
   const originals = useMemo(
     () => (initial.ok ? initial.originals : new Map<string, string>()),
     [initial],
   );
   const initialCollection = initial.ok ? initial.collection : null;
-  const dirty =
-    !initialCollection ||
-    !GeoUtils.isEqual(GeoUtils.normalize(initialCollection), snapshot.collection);
   const hasValue = snapshot.collection.features.length > 0;
   const validateOptions = useMemo(() => ({ allowedKinds }), [allowedKinds]);
 
@@ -275,8 +274,17 @@ const EditorBody: React.FC<BodyProps> = ({
 
   const handleSearchClear = useCallback(() => setSearchPin(null), []);
 
+  /** Flushes typed text first, so edits from the last moments count. */
+  const hasChanges = useCallback((): boolean => {
+    if (jsonPanelRef.current?.flush() === false) return true;
+    return (
+      !initialCollection ||
+      !GeoUtils.isEqual(GeoUtils.normalize(initialCollection), store.getSnapshot().collection)
+    );
+  }, [initialCollection, store]);
+
   const requestClose = useCallback(() => {
-    if (!dirty || readOnly) {
+    if (readOnly || !hasChanges()) {
       onClose();
       return;
     }
@@ -287,12 +295,16 @@ const EditorBody: React.FC<BodyProps> = ({
       okButtonProps: { danger: true },
       onOk: onClose,
     });
-  }, [confirm, dirty, onClose, readOnly, t]);
+  }, [confirm, hasChanges, onClose, readOnly, t]);
 
   const apply = useCallback(() => {
-    if (dirty) onApply(writeFieldValue(snapshot.collection, multiple, originals));
+    // Text typed just before Apply may not have reached the store yet.
+    if (jsonPanelRef.current?.flush() === false) return;
+    if (hasChanges()) {
+      onApply(writeFieldValue(store.getSnapshot().collection, multiple, originals));
+    }
     onClose();
-  }, [dirty, multiple, onApply, onClose, originals, snapshot.collection]);
+  }, [hasChanges, multiple, onApply, onClose, originals, store]);
 
   // Shortcuts only while this editor is open, and never while typing in a field.
   useEffect(() => {
@@ -433,6 +445,7 @@ const EditorBody: React.FC<BodyProps> = ({
               max={jsonOpen ? "85%" : GEOJSON_HEADER_HEIGHT}
               resizable={jsonOpen}>
               <GeoJsonPanel
+                ref={jsonPanelRef}
                 multiple={multiple}
                 readOnly={readOnly}
                 open={jsonOpen}

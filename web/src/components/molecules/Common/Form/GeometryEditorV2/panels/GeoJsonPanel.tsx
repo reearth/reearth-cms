@@ -2,7 +2,8 @@ import styled from "@emotion/styled";
 import MonacoEditor from "@monaco-editor/react";
 import type { OnMount } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useImperativeHandle, useRef, useState } from "react";
+import type { Ref } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -23,7 +24,13 @@ import type { GeometryIssue, ValidateOptions } from "../core/validation";
 
 const COMMIT_DEBOUNCE_MS = 400;
 
+export type GeoJsonPanelHandle = {
+  /** Applies text still waiting for the debounce. False when that text is invalid. */
+  flush(): boolean;
+};
+
 type Props = {
+  ref?: Ref<GeoJsonPanelHandle>;
   multiple: boolean;
   readOnly: boolean;
   open: boolean;
@@ -52,6 +59,7 @@ const registerSchemas = () => {
  * internal FeatureCollection with its ids.
  */
 const GeoJsonPanel: React.FC<Props> = ({
+  ref,
   multiple,
   readOnly,
   open,
@@ -72,6 +80,7 @@ const GeoJsonPanel: React.FC<Props> = ({
   const [outOfSync, setOutOfSync] = useState(false);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const timerRef = useRef<number | null>(null);
+  const pendingTextRef = useRef<string | null>(null);
   const appliedRevisionRef = useRef(snapshot.revision);
   const dirtyRef = useRef(false);
 
@@ -79,6 +88,7 @@ const GeoJsonPanel: React.FC<Props> = ({
 
   const reloadFromStore = useCallback(() => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    pendingTextRef.current = null;
     const current = store.getSnapshot();
     setText(collectionToText(current.collection, multiple));
     appliedRevisionRef.current = current.revision;
@@ -104,16 +114,13 @@ const GeoJsonPanel: React.FC<Props> = ({
     [],
   );
 
-  const handleChange = (value: string | undefined) => {
-    const next = value ?? "";
-    setText(next);
-    dirtyRef.current = true;
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
+  const commitText = useCallback(
+    (next: string): boolean => {
+      pendingTextRef.current = null;
       const result = parseText(next, multiple, validateOptions);
       if (!result.ok) {
         setIssues(result.issues);
-        return;
+        return false;
       }
       setIssues([]);
       setOutOfSync(false);
@@ -121,7 +128,30 @@ const GeoJsonPanel: React.FC<Props> = ({
       store.commit(withStableIds(result.geometries, current.collection), EditOrigin.TEXT);
       appliedRevisionRef.current = store.getSnapshot().revision;
       dirtyRef.current = false;
-    }, COMMIT_DEBOUNCE_MS);
+      return true;
+    },
+    [multiple, store, validateOptions],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      flush: () => {
+        if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+        const pending = pendingTextRef.current;
+        return pending === null ? true : commitText(pending);
+      },
+    }),
+    [commitText],
+  );
+
+  const handleChange = (value: string | undefined) => {
+    const next = value ?? "";
+    setText(next);
+    dirtyRef.current = true;
+    pendingTextRef.current = next;
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => commitText(next), COMMIT_DEBOUNCE_MS);
   };
 
   const handleMount: OnMount = instance => {
