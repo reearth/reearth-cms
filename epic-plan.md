@@ -32,7 +32,12 @@ Geometry Editor and Geometry Object store the same data but require users to cho
     - Apply text edits only once valid; retain the last valid map state and show errors otherwise. Prevent saving invalid values.
 6. **Coordinates panel (task 9)**
     - Collapsible and collapsed by default. Show only the selected shape; otherwise show “Select a shape to edit its coordinates.”
-    - Numeric editing is for Point values only; direct other types to GeoJSON.
+    - Numeric editing covers Point, LineString and Polygon, one position at a time:
+        - Point: its position.
+        - LineString and Polygon: only the selected vertex, never the full vertex list. Clicking or dragging a vertex on the map selects it, and the map highlights it. With no vertex selected, show “Select a vertex on the map to edit its coordinates.”
+        - Adding and removing vertices stays on the map and in GeoJSON.
+    - Direct MultiPoint, MultiLineString, MultiPolygon and GeometryCollection to GeoJSON.
+    - Moving a polygon ring's first vertex also moves its closing position.
     - Enter or blur applies changes in frontend memory only, without HTTP requests; Esc reverts. Synchronise with map and GeoJSON.
 
 ## Acceptance Criteria
@@ -42,7 +47,7 @@ Geometry Editor and Geometry Object store the same data but require users to cho
 - [ ]  Single/multiple map workflows, editable/read-only behaviour and shape-list selection work as specified.
 - [ ]  Undo/redo covers add, edit and delete operations.
 - [ ]  GeoJSON edits preserve the last valid state and invalid data cannot be saved.
-- [ ]  Point-coordinate editing applies/reverts correctly and all three input surfaces stay synchronised.
+- [ ]  Coordinate editing of a Point or the selected vertex of a LineString/Polygon applies/reverts correctly and all three input surfaces stay synchronised.
 - [ ]  Unit tests cover new coding behaviour and all new UI text has Japanese translations.
 
 ## Dependencies and open decisions
