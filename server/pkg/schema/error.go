@@ -85,7 +85,7 @@ func (f *Field) ValidationError(err error, fallback FieldValidationCode) FieldVa
 		code = FieldValidationCodeMaxLengthExceeded
 	case errors.Is(err, ErrGeoFieldMaxSizeExceeded):
 		code = FieldValidationCodeMaxSizeExceeded
-	case errors.Is(err, ErrGeoFieldInvalidGeoStructure):
+	case isGeometryStructureError(err):
 		code = FieldValidationCodeInvalidGeoStructure
 	}
 	return FieldValidationError{

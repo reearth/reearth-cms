@@ -1168,6 +1168,12 @@ type SchemaFieldDateInput struct {
 	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
+type SchemaFieldGeometry struct {
+	DefaultValue any `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldGeometry) IsSchemaFieldTypeProperty() {}
+
 type SchemaFieldGeometryEditor struct {
 	DefaultValue   any                           `json:"defaultValue,omitempty"`
 	SupportedTypes []GeometryEditorSupportedType `json:"supportedTypes"`
@@ -1178,6 +1184,10 @@ func (SchemaFieldGeometryEditor) IsSchemaFieldTypeProperty() {}
 type SchemaFieldGeometryEditorInput struct {
 	DefaultValue   any                           `json:"defaultValue,omitempty"`
 	SupportedTypes []GeometryEditorSupportedType `json:"supportedTypes"`
+}
+
+type SchemaFieldGeometryInput struct {
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldGeometryObject struct {
@@ -1347,6 +1357,7 @@ type SchemaFieldTypePropertyInput struct {
 	Group          *SchemaFieldGroupInput          `json:"group,omitempty"`
 	GeometryObject *SchemaFieldGeometryObjectInput `json:"geometryObject,omitempty"`
 	GeometryEditor *SchemaFieldGeometryEditorInput `json:"geometryEditor,omitempty"`
+	Geometry       *SchemaFieldGeometryInput       `json:"geometry,omitempty"`
 }
 
 type SchemaFieldURL struct {
@@ -3296,6 +3307,7 @@ const (
 	SchemaFieldTypeGroup          SchemaFieldType = "Group"
 	SchemaFieldTypeGeometryObject SchemaFieldType = "GeometryObject"
 	SchemaFieldTypeGeometryEditor SchemaFieldType = "GeometryEditor"
+	SchemaFieldTypeGeometry       SchemaFieldType = "Geometry"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -3316,11 +3328,12 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeGroup,
 	SchemaFieldTypeGeometryObject,
 	SchemaFieldTypeGeometryEditor,
+	SchemaFieldTypeGeometry,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeNumber, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypeGeometryObject, SchemaFieldTypeGeometryEditor:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeNumber, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypeGeometryObject, SchemaFieldTypeGeometryEditor, SchemaFieldTypeGeometry:
 		return true
 	}
 	return false

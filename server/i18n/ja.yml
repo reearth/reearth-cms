@@ -5,6 +5,10 @@ File is missing: ファイルがありません
 Geo field max size exceeded: ジオメトリフィールドの最大サイズを超えています。
 Options could not be empty!: 選択フィールドは空にできません
 URL field max length exceeded: URLフィールドの最大文字数を超えています。
+a GeometryCollection must not contain another GeometryCollection: GeometryCollectionの中に別のGeometryCollectionを含めることはできません。
+a LineString must have at least 2 positions: LineStringには少なくとも2つの座標が必要です。
+a polygon ring must have at least 4 positions: ポリゴンのリングには少なくとも4つの座標が必要です。
+"a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude": 座標は経度、緯度、任意の高度からなる2つまたは3つの有限の数値である必要があります。
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
@@ -17,6 +21,7 @@ can't update by approve: このメソッドで承認することはできませ�
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
+coordinates seem to be in latitude, longitude order; positions must be in longitude, latitude order: 座標が緯度、経度の順になっているようです。経度、緯度の順で指定してください。
 createdBy is required: createdByは必須です。
 data transfer upload size limit exceeded: ""
 data type mismatch: データ型が一致しません。
@@ -41,6 +46,9 @@ file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
 format is incompatible with export type: 形式がエクスポートタイプと互換性がありません
+geometry contains an unknown property: ジオメトリに不明なプロパティが含まれています。
+geometry coordinates are invalid: ジオメトリの座標が無効です。
+geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection: ジオメトリタイプはPoint、MultiPoint、LineString、MultiLineString、Polygon、MultiPolygon、GeometryCollectionのいずれかである必要があります。
 import file contains too many records (max 50,000): レコード数が上限（50,000件）を超えています
 import file is too large (max 100MB): ファイルサイズが上限（100MB）を超えています
 internal: 内部
@@ -79,6 +87,8 @@ items are required for export: ""
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 job not found: ジョブが見つかりません
+latitude must be between -90 and 90: 緯度は-90から90の範囲で指定してください。
+longitude must be between -180 and 180: 経度は-180から180の範囲で指定してください。
 max must be larger then min: 最大値は最小値より大きい必要があります。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 metadata schema not found: メタデータのスキーマが見つかりません。
@@ -108,6 +118,7 @@ reference field model can not be changed: 参照フィールドのモデルは�
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
 schema is required for export: ""
+the first and last positions of a polygon ring must be equal: ポリゴンのリングの最初と最後の座標は同じである必要があります。
 the number of models in a project has exceeded the limit: プロジェクト内のモデル数が上限を超えています。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。

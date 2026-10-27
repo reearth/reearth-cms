@@ -342,6 +342,19 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				}),
 			}
 		},
+		Geometry: func(f *schema.FieldGeometry) {
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesGeometry()
+				} else {
+					v, _ = dv.First().ValueGeometry()
+				}
+			}
+			res = &SchemaFieldGeometry{
+				DefaultValue: v,
+			}
+		},
 	})
 	return
 }
@@ -646,6 +659,17 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		tpRes = schema.NewGeometryEditor(lo.Map(x.SupportedTypes, func(v GeometryEditorSupportedType, _ int) schema.GeometryEditorSupportedType {
 			return FromGeometryEditorSupportedType(v)
 		})).TypeProperty()
+	case SchemaFieldTypeGeometry:
+		x := tp.Geometry
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeGeometry, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeGeometry, x.DefaultValue).AsMultiple()
+		}
+		tpRes = schema.NewGeometry().TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}

@@ -45,6 +45,8 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeGeometryObject
 	case ValueTypeGeometryEditor:
 		return value.TypeGeometryEditor
+	case ValueTypeGeometry:
+		return value.TypeGeometry
 	default:
 		return value.TypeUnknown
 	}
@@ -86,6 +88,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeGeometryObject
 	case value.TypeGeometryEditor:
 		return ValueTypeGeometryEditor
+	case value.TypeGeometry:
+		return ValueTypeGeometry
 	default:
 		return ""
 	}
