@@ -25,7 +25,7 @@ import { EditOrigin, GeometryKind } from "./core/types";
 import type { GeometryIssue } from "./core/validation";
 import EditorMap from "./map/EditorMap";
 import type { SearchPin } from "./map/EditorMap";
-import { MapTool, TOOL_KIND } from "./map/mapTools";
+import { abortSketch, MapTool, TOOL_KIND } from "./map/mapTools";
 import GeoJsonPanel from "./panels/GeoJsonPanel";
 import type { GeoJsonPanelHandle } from "./panels/GeoJsonPanel";
 import ShapeList from "./panels/ShapeList";
@@ -378,8 +378,9 @@ const EditorBody: React.FC<BodyProps> = ({
         if (typing) return;
         e.preventDefault();
         if (tool !== MapTool.SELECT) {
-          drawRef.current?.abortDrawing();
-          setTool(MapTool.SELECT);
+          // First Esc drops an unfinished line or area; the next one leaves the tool. A
+          // point never has an unfinished sketch, so its first Esc leaves at once.
+          if (!abortSketch(drawRef.current)) setTool(MapTool.SELECT);
         } else if (store.getSnapshot().selectedId) {
           store.select(null);
         } else {
