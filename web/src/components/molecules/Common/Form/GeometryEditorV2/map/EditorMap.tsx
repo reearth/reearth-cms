@@ -43,7 +43,6 @@ type Props = {
   /** Single field that already has a shape: drawing replaces it. */
   replaceWarning?: boolean;
   onReplaced?: () => void;
-  initialSearch?: string;
   multiple: boolean;
   readOnly: boolean;
   allowedKinds: readonly GeometryKind[];
@@ -68,7 +67,6 @@ const TOOL_ICON = {
 const EditorMap: React.FC<Props> = ({
   replaceWarning,
   onReplaced,
-  initialSearch,
   multiple,
   readOnly,
   allowedKinds,
@@ -220,7 +218,6 @@ const EditorMap: React.FC<Props> = ({
       <TopBar>
         <BarLeft>
           <SearchBox
-            initialQuery={initialSearch}
             activeResultId={searchPin?.id ?? null}
             addLabel={readOnly ? undefined : searchAddLabel}
             onFlyTo={onSearchFlyTo}

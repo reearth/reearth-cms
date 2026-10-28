@@ -19,20 +19,12 @@ import type { GeocodeResult } from "./providers";
 const PROVIDER_KEY = "reearth-cms:geometry-v2:geocoder";
 
 type Props = {
-  /** Searched immediately on mount, e.g. when typed into the inline field. */
-  initialQuery?: string;
   activeResultId: string | null;
   /** "Add point" / "Replace point"; undefined when the field cannot hold a point. */
   addLabel?: string;
   onFlyTo: (result: GeocodeResult) => void;
   onAdd: (result: GeocodeResult) => void;
   onClear: () => void;
-};
-
-type SearchOutcome = {
-  readonly query: string;
-  readonly results: GeocodeResult[];
-  readonly error: string | null;
 };
 
 const isGeocoderId = (value: string): value is GeocoderId => value in PROVIDERS;
@@ -51,22 +43,14 @@ const readProvider = (): GeocoderId => {
  * Searching never changes the value by itself: a result is first flown to and shown as a
  * pin, and only "Add point" writes it into the field.
  */
-const SearchBox: React.FC<Props> = ({
-  initialQuery,
-  activeResultId,
-  addLabel,
-  onFlyTo,
-  onAdd,
-  onClear,
-}) => {
+const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, onClear }) => {
   const t = useT();
   const lang = useLang();
   const [providerId, setProviderId] = useState<GeocoderId>(readProvider);
-  const [query, setQuery] = useState(initialQuery ?? "");
+  const [query, setQuery] = useState<string>("");
   const [searchedQuery, setSearchedQuery] = useState<string | null>(null);
   const [results, setResults] = useState<GeocodeResult[]>([]);
-  // A query handed over from the inline field is searched as soon as the box mounts.
-  const [loading, setLoading] = useState<boolean>(() => !!initialQuery?.trim());
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -81,56 +65,33 @@ const SearchBox: React.FC<Props> = ({
     onClear();
   }, [onClear]);
 
-  /**
-   * The request itself, without touching state, so an effect can start it and apply the
-   * outcome when it arrives. Resolves to null when a newer search aborted this one.
-   */
-  const fetchResults = useCallback(
-    async (query: string, provider: GeocoderId): Promise<SearchOutcome | null> => {
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-      try {
-        const found = await PROVIDERS[provider].search(query, lang, controller.signal);
-        return { query, results: found, error: null };
-      } catch (e) {
-        if (controller.signal.aborted) return null;
-        return { query, results: [], error: e instanceof Error ? e.message : String(e) };
-      }
-    },
-    [lang],
-  );
-
-  const applyOutcome = useCallback((outcome: SearchOutcome | null) => {
-    if (!outcome) return;
-    setResults(outcome.results);
-    setSearchedQuery(outcome.query);
-    setError(outcome.error);
-    setLoading(false);
-  }, []);
-
   const runSearch = useCallback(
-    (text: string, provider: GeocoderId) => {
+    async (text: string, provider: GeocoderId) => {
       const trimmed = text.trim();
       if (!trimmed) {
         clear();
         return;
       }
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
       setLoading(true);
       setError(null);
-      void fetchResults(trimmed, provider).then(applyOutcome);
+      try {
+        const found = await PROVIDERS[provider].search(trimmed, lang, controller.signal);
+        setResults(found);
+        setSearchedQuery(trimmed);
+      } catch (e) {
+        if (controller.signal.aborted) return;
+        setResults([]);
+        setSearchedQuery(trimmed);
+        setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
     },
-    [applyOutcome, clear, fetchResults],
+    [clear, lang],
   );
-
-  // Run the search handed over from the inline field when the editor opens. No "once"
-  // guard: React's dev double-mount aborts the first request, so it must run again.
-  useEffect(() => {
-    const trimmed = initialQuery?.trim();
-    if (trimmed) void fetchResults(trimmed, providerId).then(applyOutcome);
-    // Only on open; provider changes re-run the search in handleProviderChange.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQuery]);
 
   const handleProviderChange = useCallback(
     (next: GeocoderId) => {
@@ -140,7 +101,7 @@ const SearchBox: React.FC<Props> = ({
       } catch {
         // Not remembering the choice is acceptable.
       }
-      if (searchedQuery) runSearch(query, next);
+      if (searchedQuery) void runSearch(query, next);
     },
     [query, runSearch, searchedQuery],
   );
@@ -168,7 +129,7 @@ const SearchBox: React.FC<Props> = ({
             setQuery(e.target.value);
             if (!e.target.value) clear();
           }}
-          onSearch={value => runSearch(value, providerId)}
+          onSearch={value => void runSearch(value, providerId)}
         />
       </Space.Compact>
       {open && (
