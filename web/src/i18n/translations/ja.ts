@@ -144,6 +144,7 @@ export default {
   "Copied": "コピーしました",
   "Copy": "コピー",
   "Copy GeoJSON": "GeoJSON をコピー",
+  "Format GeoJSON": "GeoJSON をフォーマット",
   "Copy URL": "URLをコピー",
   "Corresponding field": "対応フィールド",
   "Could not display SVG": "SVGを表示できませんでした。",

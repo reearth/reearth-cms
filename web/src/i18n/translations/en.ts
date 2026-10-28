@@ -156,6 +156,7 @@ export default {
   "Copied": "",
   "Copy": "",
   "Copy GeoJSON": "Copy GeoJSON",
+  "Format GeoJSON": "Format GeoJSON",
   "Copy URL": "",
   "Corresponding field": "",
   "Could not display SVG": "",

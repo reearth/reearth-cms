@@ -177,15 +177,31 @@ const GeoJsonPanel: React.FC<Props> = ({
         open={open}
         status={status}
         actions={
-          <Tooltip title={t("Copy GeoJSON")}>
-            <Button
-              size="small"
-              type="text"
-              aria-label={t("Copy GeoJSON")}
-              icon={<Icon icon="editorCopy" size={14} />}
-              onClick={() => void navigator.clipboard?.writeText(text)}
-            />
-          </Tooltip>
+          <>
+            {/* The editor only exists while the panel is open. */}
+            {open && !readOnly && (
+              <Tooltip title={t("Format GeoJSON")}>
+                <Button
+                  size="small"
+                  type="text"
+                  aria-label={t("Format GeoJSON")}
+                  icon={<Icon icon="textAlignLeft" size={14} />}
+                  onClick={() =>
+                    void editorRef.current?.getAction("editor.action.formatDocument")?.run()
+                  }
+                />
+              </Tooltip>
+            )}
+            <Tooltip title={t("Copy GeoJSON")}>
+              <Button
+                size="small"
+                type="text"
+                aria-label={t("Copy GeoJSON")}
+                icon={<Icon icon="editorCopy" size={14} />}
+                onClick={() => void navigator.clipboard?.writeText(text)}
+              />
+            </Tooltip>
+          </>
         }
         onToggle={onToggle}
       />
