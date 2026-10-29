@@ -37,7 +37,7 @@ func TestCommon_createEvent(t *testing.T) {
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").
 		Url(lo.Must(url.Parse("https://example.com"))).Active(true).
 		Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
-	integration := integration.New().NewID().Developer(uID).Type(integration.TypePrivate).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
+	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
 	iid, err := accountdomain.IntegrationIDFrom(integration.ID().String())
 	assert.NoError(t, err)
 	lo.Must0(ws.Members().AddIntegration(iid, workspace.RoleOwner, uID))
@@ -85,7 +85,7 @@ func TestCommon_webhook(t *testing.T) {
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").
 		Url(lo.Must(url.Parse("https://example.com"))).Active(true).
 		Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
-	integration := integration.New().NewID().Developer(uID).Type(integration.TypePrivate).Name("xxx").
+	integration := integration.New().NewID().Developer(uID).Name("xxx").
 		Webhook([]*integration.Webhook{wh}).MustBuild()
 	iid, err := accountdomain.IntegrationIDFrom(integration.ID().String())
 	assert.NoError(t, err)

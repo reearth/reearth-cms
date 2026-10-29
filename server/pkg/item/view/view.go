@@ -3,8 +3,6 @@ package view
 import (
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -55,21 +53,6 @@ func (v *View) Clone() *View {
 		user:      v.user.Clone(),
 		updatedAt: lo.FromPtr(&v.updatedAt),
 	}
-}
-
-// Validate returns an error when the view can not be stored: every ID must be
-// set and the filter must not contain an empty condition.
-func (v *View) Validate() error {
-	if v == nil {
-		return rerror.ErrInvalidParams
-	}
-	if v.id.IsNil() || v.project.IsNil() || v.model.IsNil() || v.schema.IsNil() || v.user.IsNil() {
-		return id.ErrInvalidID
-	}
-	if v.filter != nil {
-		return v.filter.Validate()
-	}
-	return nil
 }
 
 func (v *View) Project() ProjectID {

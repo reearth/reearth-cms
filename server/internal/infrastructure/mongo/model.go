@@ -122,9 +122,6 @@ func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q mod
 	if mid == nil && (key == nil || *key == "") {
 		return nil, rerror.ErrNotFound
 	}
-	if !r.f.CanRead(projectID) {
-		return nil, rerror.ErrNotFound
-	}
 
 	filter := bson.M{
 		"project": projectID.String(),

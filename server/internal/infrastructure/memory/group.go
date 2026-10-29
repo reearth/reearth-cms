@@ -3,7 +3,6 @@ package memory
 import (
 	"cmp"
 	"context"
-	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -157,9 +156,6 @@ func (r *Group) SaveAll(_ context.Context, groups group.List) error {
 	if len(groups) == 0 {
 		return nil
 	}
-	if slices.Contains(groups, nil) {
-		return rerror.ErrInvalidParams
-	}
 
 	if !r.f.CanWrite(groups.Projects()...) {
 		return repo.ErrOperationDenied
@@ -174,9 +170,6 @@ func (r *Group) SaveAll(_ context.Context, groups group.List) error {
 func (r *Group) Save(_ context.Context, g *group.Group) error {
 	if r.err != nil {
 		return r.err
-	}
-	if g == nil {
-		return rerror.ErrInvalidParams
 	}
 
 	if !r.f.CanWrite(g.Project()) {

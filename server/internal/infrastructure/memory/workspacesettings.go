@@ -73,9 +73,6 @@ func (r *WorkspaceSettingsRepo) Save(_ context.Context, ws *workspacesettings.Wo
 		return r.err
 	}
 
-	if err := ws.Validate(); err != nil {
-		return err
-	}
 	if !r.f.CanWrite(ws.ID()) {
 		return repo.ErrOperationDenied
 	}

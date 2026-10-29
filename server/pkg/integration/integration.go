@@ -1,19 +1,12 @@
 package integration
 
 import (
-	"errors"
 	"net/url"
 	"slices"
 	"time"
 
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-)
-
-var (
-	ErrInvalidType    = errors.New("invalid integration type")
-	ErrInvalidWebhook = errors.New("invalid webhook")
 )
 
 const charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -28,26 +21,6 @@ type Integration struct {
 	developer   UserID
 	webhooks    []*Webhook
 	updatedAt   time.Time
-}
-
-// Validate returns an error when the integration can not be stored: it needs a
-// developer and a known type, and every webhook needs a URL.
-func (i *Integration) Validate() error {
-	if i == nil {
-		return rerror.ErrInvalidParams
-	}
-	if i.developer.IsNil() {
-		return ErrInvalidID
-	}
-	if i.iType != TypePublic && i.iType != TypePrivate {
-		return ErrInvalidType
-	}
-	for _, w := range i.webhooks {
-		if w == nil || w.url == nil {
-			return ErrInvalidWebhook
-		}
-	}
-	return nil
 }
 
 func (i *Integration) ID() ID {

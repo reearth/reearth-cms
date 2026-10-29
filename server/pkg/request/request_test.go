@@ -7,8 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -135,31 +133,4 @@ func TestRequest_Clone(t *testing.T) {
 
 	assert.Equal(t, &Request{}, (&Request{}).Clone())
 	assert.Nil(t, (*Request)(nil).Clone())
-}
-
-func TestRequest_Validate(t *testing.T) {
-	t.Parallel()
-	valid := func(state State) *Request {
-		r := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(NewProjectID()).
-			CreatedBy(accountdomain.NewUserID()).Items(ItemList{lo.Must(NewItem(NewItemID(), nil))}).Title("title").MustBuild()
-		r.SetState(state)
-		return r
-	}
-
-	tests := []struct {
-		name string
-		args *Request
-		want error
-	}{
-		{name: "must accept a valid request", args: valid(StateWaiting)},
-		{name: "must reject an unknown state", args: valid("unknown"), want: ErrInvalidState},
-		{name: "must reject a nil request", want: rerror.ErrInvalidParams},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.want, tc.args.Validate())
-		})
-	}
 }

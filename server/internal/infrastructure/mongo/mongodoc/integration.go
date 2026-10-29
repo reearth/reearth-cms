@@ -50,15 +50,11 @@ func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 			Secret:    w.Secret(),
 		}
 	})
-	var logoUrl string
-	if i.LogoUrl() != nil {
-		logoUrl = i.LogoUrl().String()
-	}
 	return &IntegrationDocument{
 		ID:          iId,
 		Name:        i.Name(),
 		Description: i.Description(),
-		LogoUrl:     logoUrl,
+		LogoUrl:     i.LogoUrl().String(),
 		Type:        string(i.Type()),
 		Token:       i.Token(),
 		Developer:   i.Developer().String(),
@@ -76,24 +72,20 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	if err != nil {
 		return nil, err
 	}
-	// a nil logo URL is stored as an empty one
-	var u *url.URL
-	if d.LogoUrl != "" {
-		if u, err = url.Parse(d.LogoUrl); err != nil {
-			return nil, err
-		}
+	u, err := url.Parse(d.LogoUrl)
+	if err != nil {
+		return nil, err
 	}
 
-	// a webhook that can not be read is skipped, as a nil entry breaks callers
-	w := lo.FilterMap(d.Webhook, func(d WebhookDocument, _ int) (*integration.Webhook, bool) {
+	w := lo.Map(d.Webhook, func(d WebhookDocument, _ int) *integration.Webhook {
 		wId, err := id.WebhookIDFrom(d.ID)
 		if err != nil {
-			return nil, false
+			return nil
 		}
 
 		u, err := url.Parse(d.Url)
 		if err != nil {
-			return nil, false
+			return nil
 		}
 
 		trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
@@ -108,7 +100,11 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 			Trigger(trigger).
 			Secret(d.Secret).
 			Build()
-		return m, err == nil
+		if err != nil {
+			return nil
+		}
+
+		return m
 	})
 
 	return integration.New().

@@ -9,9 +9,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -38,9 +38,6 @@ func (r *Integration) FindByID(ctx context.Context, integrationID id.Integration
 }
 
 func (r *Integration) FindByToken(ctx context.Context, token string) (*integration.Integration, error) {
-	if token == "" {
-		return nil, rerror.ErrNotFound
-	}
 	return r.findOne(ctx, bson.M{
 		"token": token,
 	})
@@ -60,19 +57,25 @@ func (r *Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (
 		return nil, err
 	}
 
-	return filterByIDs(ids, res), nil
+	// prepare filters the results and sorts them according to original ids list
+	return util.Map(ids, func(sid id.IntegrationID) *integration.Integration {
+		s, ok := lo.Find(res, func(s *integration.Integration) bool {
+			return s.ID() == sid
+		})
+		if !ok {
+			return nil
+		}
+		return s
+	}), nil
 }
 
 func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserID) (integration.List, error) {
 	return r.find(ctx, bson.M{
 		"developer": userID.String(),
-	}, options.Find().SetSort(bson.D{{Key: "id", Value: 1}}))
+	})
 }
 
 func (r *Integration) Save(ctx context.Context, integration *integration.Integration) error {
-	if err := integration.Validate(); err != nil {
-		return err
-	}
 	doc, sId := mongodoc.NewIntegration(integration)
 	return r.client.SaveOne(ctx, sId, doc)
 }
@@ -101,9 +104,9 @@ func (r *Integration) findOne(ctx context.Context, filter any) (*integration.Int
 	return c.Result[0], nil
 }
 
-func (r *Integration) find(ctx context.Context, filter any, opts ...*options.FindOptions) (integration.List, error) {
+func (r *Integration) find(ctx context.Context, filter any) (integration.List, error) {
 	c := mongodoc.NewIntegrationConsumer()
-	if err := r.client.Find(ctx, filter, c, opts...); err != nil {
+	if err := r.client.Find(ctx, filter, c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil

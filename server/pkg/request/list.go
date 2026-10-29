@@ -2,7 +2,6 @@ package request
 
 import (
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -28,17 +27,4 @@ func (l List) UpdateStatus(state State) {
 	for _, request := range l {
 		request.SetState(state)
 	}
-}
-
-// Validate returns an error unless every request can be stored and belongs to the project.
-func (l List) Validate(pid ProjectID) error {
-	for _, r := range l {
-		if err := r.Validate(); err != nil {
-			return err
-		}
-		if r.Project() != pid {
-			return rerror.ErrInvalidParams
-		}
-	}
-	return nil
 }

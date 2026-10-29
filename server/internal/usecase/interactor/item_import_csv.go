@@ -103,8 +103,8 @@ func (i Item) importCSV(ctx context.Context, prj *project.Project, m *model.Mode
 }
 
 // importCSVWithProgress handles CSV format import with progress tracking (async)
-func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
-	reader, lr := newCSVReader(param.Reader)
+func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, src io.ReadSeeker, res *ImportRes, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
+	reader, lr := newCSVReader(src)
 
 	// Read header row
 	headers, err := reader.Read()
@@ -119,10 +119,10 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	fieldMap, columns := buildFieldMap(headers, param.SP)
 	res.SetColumns(columns)
 
-	// First pass: read all records to get total count
-	allRows := make([][]string, 0)
+	// First pass: count rows without keeping them in memory
+	totalCount := 0
 	for {
-		record, err := reader.Read()
+		_, err := reader.Read()
 		if err == io.EOF {
 			break
 		}
@@ -132,65 +132,53 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		if lr.N == 0 {
 			return res.Into(), interfaces.ErrImportFileTooLarge
 		}
-		allRows = append(allRows, record)
-	}
-	totalCount := len(allRows)
-
-	// Second pass: process in chunks with progress tracking
-	processed := 0
-	for start := 0; start < totalCount; start += chunkSize {
-		// Check if job was cancelled
-		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
-		if err != nil {
-			log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
-		}
-		if currentJob != nil && currentJob.IsCancelled() {
-			return res.Into(), fmt.Errorf("job cancelled")
-		}
-
-		end := min(start+chunkSize, totalCount)
-		rows := allRows[start:end]
-		chunkLen := len(rows)
-
-		// Check max record limit
-		if start+chunkLen > interfaces.MaxImportRecordCount {
+		totalCount++
+		if totalCount > interfaces.MaxImportRecordCount {
 			return res.Into(), interfaces.ErrImportTooManyRecords
 		}
+	}
 
-		// Convert rows to maps
-		csvChunk := make([]map[string]any, 0, chunkLen)
-		for _, record := range rows {
-			row := csvRowToMap(headers, record, fieldMap)
-			csvChunk = append(csvChunk, row)
-		}
+	// Second pass: rewind and save rows chunk by chunk
+	if err := rewind(src); err != nil {
+		return res.Into(), err
+	}
+	reader, _ = newCSVReader(src)
+	if _, err := reader.Read(); err != nil { // re-consume the header row
+		return res.Into(), fmt.Errorf("error reading CSV header: %v", err)
+	}
 
-		items, err := itemsParamsFrom(csvChunk, false, nil, param.SP)
-		if err != nil {
-			return res.Into(), err
-		}
-		err = i.saveChunk(ctx, prj, m, s, param, items, res, operator)
-		if err != nil {
-			return res.Into(), err
-		}
-
-		processed += chunkLen
-
-		// Publish progress
-		progress := job.NewProgress(processed, totalCount)
-		state := job.NewState(job.StatusInProgress, &progress, "")
-		if i.gateways.JobPubSub != nil {
-			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
-				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
+	processed, csvChunk, chunkStart := 0, make([]map[string]any, 0), reader.InputOffset()
+	for {
+		// Check for cancellation before reading a new chunk
+		if len(csvChunk) == 0 {
+			if _, err := i.activeImportJob(ctx, j.ID()); err != nil {
+				return res.Into(), err
 			}
 		}
 
-		// Update job progress
-		j.SetProgress(progress)
-		if err := i.repos.Job.Save(ctx, j); err != nil {
-			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
+		record, err := reader.Read()
+		if err == io.EOF {
+			break
 		}
+		if err != nil {
+			return res.Into(), fmt.Errorf("error reading CSV row: %v", err)
+		}
+		csvChunk = append(csvChunk, csvRowToMap(headers, record, fieldMap))
 
-		log.Printf("chunk with %d items saved.", chunkLen)
+		if len(csvChunk) == chunkSize || reader.InputOffset()-chunkStart >= chunkByteLimit {
+			if err := i.saveChunkWithProgress(ctx, j.ID(), prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
+				return res.Into(), err
+			}
+			processed += len(csvChunk)
+			csvChunk, chunkStart = nil, reader.InputOffset()
+		}
+	}
+
+	// Process remaining records
+	if len(csvChunk) > 0 {
+		if err := i.saveChunkWithProgress(ctx, j.ID(), prj, m, s, param, csvChunk, processed, totalCount, res, operator); err != nil {
+			return res.Into(), err
+		}
 	}
 
 	return res.Into(), nil

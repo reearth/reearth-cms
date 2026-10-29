@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -103,9 +102,6 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 	if gid == nil && (key == nil || *key == "") {
 		return nil, rerror.ErrNotFound
 	}
-	if !r.f.CanRead(pid) {
-		return nil, rerror.ErrNotFound
-	}
 
 	filter := bson.M{
 		"project": pid.String(),
@@ -121,9 +117,6 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 }
 
 func (r *Group) Save(ctx context.Context, group *group.Group) error {
-	if group == nil {
-		return rerror.ErrInvalidParams
-	}
 	if !r.f.CanWrite(group.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -134,9 +127,6 @@ func (r *Group) Save(ctx context.Context, group *group.Group) error {
 func (r *Group) SaveAll(ctx context.Context, list group.List) error {
 	if len(list) == 0 {
 		return nil
-	}
-	if slices.Contains(list, nil) {
-		return rerror.ErrInvalidParams
 	}
 	if !r.f.CanWrite(list.Projects()...) {
 		return repo.ErrOperationDenied

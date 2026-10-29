@@ -9,7 +9,6 @@ import (
 	repotest "github.com/reearth/reearth-cms/server/internal/usecase/repo/test"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,8 +21,7 @@ func TestViewRepo(t *testing.T) {
 func TestView_MemorySpecific_Errors(t *testing.T) {
 	ctx := context.Background()
 	wantErr := errors.New("test")
-	v := view.New().NewID().Project(id.NewProjectID()).Model(id.NewModelID()).Schema(id.NewSchemaID()).
-		User(accountdomain.NewUserID()).MustBuild()
+	v := view.New().NewID().Project(id.NewProjectID()).Model(id.NewModelID()).MustBuild()
 
 	r := NewView()
 	assert.NoError(t, r.Save(ctx, v))

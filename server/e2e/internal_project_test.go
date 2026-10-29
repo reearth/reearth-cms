@@ -8,6 +8,7 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
+	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/stretchr/testify/assert"
@@ -36,10 +37,15 @@ func assertGrpcError(t *testing.T, want, got error) {
 
 // GRPC List Projects
 func TestInternalListProjectsAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	e := StartServer(t, cfg, true, baseSeeder)
+	e := StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -191,10 +197,15 @@ func TestInternalListProjectsAPI(t *testing.T) {
 
 // GRPC Get Project
 func TestInternalGetProjectsAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -290,10 +301,15 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 
 // GRPC Check Alias
 func TestInternalCheckAliasAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -317,10 +333,15 @@ func TestInternalCheckAliasAPI(t *testing.T) {
 
 // GRPC Create Project
 func TestInternalCreateProjectAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -429,9 +450,14 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 
 // GRPC Update Project
 func TestInternalUpdateProjectAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -559,9 +585,14 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 
 // GRPC Delete Project
 func TestInternalDeleteProjectAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -633,10 +664,15 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 
 // GRPC Star Project
 func TestInternalStarProjectAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)

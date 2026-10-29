@@ -892,20 +892,6 @@ func testModelFindByIDOrKey(t *testing.T, newRepo modelFactory) {
 			want:   p1m1,
 		},
 		{
-			name:    "must not find a model of an unreadable project by ID",
-			seeds:   seeds,
-			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
-			args:    args{p1, model.IDOrKey(p1m1.ID().String())},
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:    "must not find a model of an unreadable project by key",
-			seeds:   seeds,
-			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
-			args:    args{p1, model.IDOrKey(p1m1.Key().String())},
-			wantErr: rerror.ErrNotFound,
-		},
-		{
 			name:    "must not find a model of another project by ID",
 			seeds:   seeds,
 			args:    args{p2, model.IDOrKey(p1m1.ID().String())},

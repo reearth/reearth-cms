@@ -79,7 +79,7 @@ func (r *Request) FindByProject(_ context.Context, pid id.ProjectID, filter repo
 		return v.Project() == pid && matchRequest(v, filter, matchRequestKeyword)
 	})
 
-	res, pi, err := r.pager().paginate(result, repo.NormalizeRequestSort(sort), page)
+	res, pi, err := r.pager().paginate(result, sort, page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,10 +89,6 @@ func (r *Request) FindByProject(_ context.Context, pid id.ProjectID, filter repo
 func (r *Request) FindByItems(_ context.Context, list id.ItemIDList, filter *repo.RequestFilter) (request.List, error) {
 	if r.err != nil {
 		return nil, r.err
-	}
-
-	if len(list) == 0 {
-		return nil, nil
 	}
 
 	f := lo.FromPtr(filter)
@@ -118,9 +114,6 @@ func (r *Request) Save(_ context.Context, a *request.Request) error {
 		return r.err
 	}
 
-	if err := a.Validate(); err != nil {
-		return err
-	}
 	if !r.f.CanWrite(a.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -138,16 +131,15 @@ func (r *Request) SaveAll(_ context.Context, pid id.ProjectID, requests request.
 		return nil
 	}
 
-	if err := requests.Validate(pid); err != nil {
-		return err
-	}
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied
 	}
 
 	entries := map[id.RequestID]*request.Request{}
 	for _, req := range requests {
-		entries[req.ID()] = req.Clone()
+		if req != nil {
+			entries[req.ID()] = req.Clone()
+		}
 	}
 	r.data.StoreAll(entries)
 	return nil

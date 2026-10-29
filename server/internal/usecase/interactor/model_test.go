@@ -694,7 +694,7 @@ func TestModel_Delete(t *testing.T) {
 		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
 
 		// seed a view for the model
-		v := view.New().NewID().Model(m.ID()).Project(p.ID()).Schema(s.ID()).User(accountdomain.NewUserID()).MustBuild()
+		v := view.New().NewID().Model(m.ID()).Project(p.ID()).MustBuild()
 		assert.NoError(t, db.View.Save(ctx, v))
 
 		// seed an item for the model

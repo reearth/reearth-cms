@@ -22,7 +22,7 @@ func TestIntegrationRepo(t *testing.T) {
 func TestIntegration_MemorySpecific_Errors(t *testing.T) {
 	ctx := context.Background()
 	wantErr := errors.New("test")
-	i := integration.New().NewID().Developer(accountdomain.NewUserID()).Type(integration.TypePrivate).Token("token").MustBuild()
+	i := integration.New().NewID().Developer(accountdomain.NewUserID()).Token("token").MustBuild()
 
 	r := NewIntegration()
 	assert.NoError(t, r.Save(ctx, i))

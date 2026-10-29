@@ -42,7 +42,7 @@ func (r *Item) FindByAssets(_ context.Context, list id.AssetIDList, ref *version
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
-		if it.AssetIDs().Has(list...) && r.f.CanRead(it.Project()) {
+		if it.AssetIDs().Has(list...) {
 			res = append(res, itv)
 		}
 		return true

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
+	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,10 +17,15 @@ import (
 
 // GRPC List Assets in Project
 func TestInternalListAssetsInProjectAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -136,10 +142,15 @@ func TestInternalListAssetsInProjectAPI(t *testing.T) {
 
 // GRPC Get Asset
 func TestInternalGetAssetAPI(t *testing.T) {
-	cfg := internalAPIConfig()
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient(internalAPIAddr(cfg),
+	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)

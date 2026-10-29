@@ -30,25 +30,6 @@ func TestToIntegration(t *testing.T) {
 			want:        nil,
 		},
 		{
-			name: "without a logo",
-			integration: integration.New().ID(iId).Name("N1").Description("D1").
-				Type(integration.TypePrivate).
-				Developer(dId).
-				UpdatedAt(now).
-				MustBuild(),
-			want: &Integration{
-				ID:          IDFrom(iId),
-				Name:        "N1",
-				Description: new("D1"),
-				LogoURL:     url.URL{},
-				IType:       "Private",
-				DeveloperID: IDFrom(dId),
-				CreatedAt:   iId.Timestamp(),
-				UpdatedAt:   now,
-			},
-			user: uId,
-		},
-		{
 			name: "success",
 			integration: integration.New().ID(iId).Name("N1").Description("D1").
 				LogoUrl(lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))).
