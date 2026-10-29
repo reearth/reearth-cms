@@ -115,7 +115,7 @@ func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Gr
 
 	// Protected routes
 	protected := integrationAPIGroup.Group("")
-	protected.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	protected.Use(integrationJWTParseMiddleware(appCtx), authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
 	integration.RegisterHandlers(protected, integration.NewStrictHandler(integration.NewServer(), nil))
 }
 
@@ -134,6 +134,21 @@ func jwtParseMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	return echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(appCtx.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
+}
+
+// integrationJWTParseMiddleware lets users call the integration API with their own JWT.
+// Integration tokens (secret_*) are not JWTs, so they skip parsing and are resolved by authMiddleware.
+func integrationJWTParseMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
+	jwtParse := jwtParseMiddleware(appCtx)
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		withJWT := jwtParse(next)
+		return func(c *echo.Context) error {
+			if getKey(c.Request()) != "" {
+				return next(c)
+			}
+			return withJWT(c)
+		}
+	}
 }
 
 func allowedOrigins(appCtx *ApplicationContext) []string {
