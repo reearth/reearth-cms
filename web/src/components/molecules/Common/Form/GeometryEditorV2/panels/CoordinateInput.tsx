@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Typography from "@reearth-cms/components/atoms/Typography";
@@ -27,12 +27,15 @@ const CoordinateInput: React.FC<Props> = ({ label, value, min, max, disabled, on
     if (!focusedRef.current) setDraft(value);
   }, [value]);
 
-  const valid = draft !== null && Number.isFinite(draft) && draft >= min && draft <= max;
+  const valid = useMemo<boolean>(
+    () => draft !== null && Number.isFinite(draft) && draft >= min && draft <= max,
+    [draft, max, min],
+  );
 
-  const apply = () => {
-    if (valid && draft !== value) onCommit(draft);
+  const apply = useCallback<() => void>(() => {
+    if (valid && draft && draft !== value) onCommit(draft);
     if (!valid) setDraft(value);
-  };
+  }, [draft, onCommit, valid, value]);
 
   return (
     <Field>

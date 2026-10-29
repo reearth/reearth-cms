@@ -65,7 +65,7 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const geometry: FieldListItem = useMemo(
+  const geometry = useMemo<FieldListItem>(
     () => ({
       title: t("GeoJSON Geometry"),
       fields: ["Geometry", "GeometryObject", "GeometryEditor"],

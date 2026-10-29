@@ -65,6 +65,7 @@ const SelectedCoordinates: React.FC<{ readOnly: boolean }> = ({ readOnly }) => {
 
   const isPoint = geometry.type === GeometryKind.POINT;
   const vertex = GeoUtils.listVertices(geometry)[isPoint ? 0 : (selectedVertex ?? -1)];
+
   if (!vertex) {
     return <Hint type="secondary">{t("Select a vertex on the map to edit its coordinates.")}</Hint>;
   }

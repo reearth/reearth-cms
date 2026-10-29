@@ -79,6 +79,7 @@ const GeometryEditorV2: React.FC<Props> = ({
       : typeof value === "string"
         ? value
         : "";
+
     void navigator.clipboard
       ?.writeText(text)
       .then(() => Notification.success({ message: t("Value copied!!") }));

@@ -42,7 +42,7 @@ const GeometryField: React.FC<FieldProps> = ({
 
   // Prototype: the unified Geometry field (a Geometry Object accepting every type) uses the
   // new editor; restricted Geometry Object and Geometry Editor fields keep the old one.
-  const useV2 = useMemo(() => isUnifiedGeometryField(field), [field]);
+  const useV2 = useMemo<boolean>(() => isUnifiedGeometryField(field), [field]);
 
   const handleValidityChange = useCallback(
     (valid: boolean) => (valid ? errorDelete(0) : errorAdd(0)),

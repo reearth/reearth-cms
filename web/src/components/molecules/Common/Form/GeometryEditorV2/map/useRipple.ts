@@ -43,6 +43,7 @@ const prefersReducedMotion = (): boolean =>
  */
 function playRipple(handles: MapHandles, position: () => Coordinate): () => void {
   if (prefersReducedMotion()) return () => undefined;
+
   const { map, layer } = handles;
   let start: number | null = null;
 
@@ -50,16 +51,19 @@ function playRipple(handles: MapHandles, position: () => Coordinate): () => void
     const time = event.frameState?.time ?? Date.now();
     start ??= time;
     const elapsed = time - start;
+
     if (elapsed >= RIPPLE_MS) {
       unByKey(key);
       return;
     }
+
     const context = getVectorContext(event);
     context.setStyle(rippleStyle(easeOut(elapsed / RIPPLE_MS)));
     context.drawGeometry(new Point(position()));
     // Ask for the next frame until the ripple has played out.
     map.render();
   });
+
   map.render();
 
   return () => {
@@ -80,14 +84,19 @@ export function useRipple(
 ) {
   useEffect(() => {
     if (!handles) return;
+
     const position = rippleTarget(collection, selectedId, selectedVertex);
+
     if (!position) return;
+
     const stored = fromLonLat(position);
+
     // Follows a vertex being dragged: the map's copy moves before the store's does.
     return playRipple(handles, () => {
       const geometry = handles.selected.item(0)?.getGeometry();
       return (geometry && vertexHandles(geometry)[selectedVertex ?? 0]) ?? stored;
     });
+
     // Only a new selection starts a ripple; `collection` is read, not watched.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handles, selectedId, selectedVertex]);

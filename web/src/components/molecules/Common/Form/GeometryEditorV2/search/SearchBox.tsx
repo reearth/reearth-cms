@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -14,7 +14,7 @@ import { useLang, useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { GeocoderId, PROVIDERS } from "./providers";
-import type { GeocodeResult } from "./providers";
+import type { GeocodeResult, GeocodeProvider } from "./providers";
 
 const PROVIDER_KEY = "reearth-cms:geometry-v2:geocoder";
 
@@ -93,8 +93,8 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
     [clear, lang],
   );
 
-  const handleProviderChange = useCallback(
-    (next: GeocoderId) => {
+  const handleProviderChange = useCallback<(next: GeocoderId) => void>(
+    next => {
       setProviderId(next);
       try {
         localStorage.setItem(PROVIDER_KEY, next);
@@ -106,8 +106,8 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
     [query, runSearch, searchedQuery],
   );
 
-  const provider = PROVIDERS[providerId];
-  const open = searchedQuery !== null;
+  const provider = useMemo<GeocodeProvider>(() => PROVIDERS[providerId], [providerId]);
+  const open = useMemo<boolean>(() => searchedQuery !== null, [searchedQuery]);
 
   return (
     <Wrapper>

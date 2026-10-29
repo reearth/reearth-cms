@@ -29,8 +29,6 @@ export abstract class ShapeStyle {
   public static readonly READ_ONLY_DASH = [6, 4];
 }
 
-const WHITE = ShapeStyle.WHITE;
-
 /** A `#rrggbb` colour with an alpha channel. */
 export const alpha = (hex: string, a: number) =>
   `${hex}${Math.round(a * 255)
@@ -56,7 +54,7 @@ export function featureStyle(
   const selected = selectedId !== null && String(feature.getId()) === selectedId;
   // Multi* and GeometryCollection are display-only.
   const locked = !isEditableType(geometry?.getType());
-  const colour = locked
+  const color = locked
     ? selected
       ? ShapeStyle.READ_ONLY_SELECTED
       : ShapeStyle.READ_ONLY
@@ -69,16 +67,16 @@ export function featureStyle(
     new Style({
       zIndex,
       stroke: new Stroke({
-        color: colour,
+        color,
         width: selected ? 3 : 2,
         lineDash: locked ? ShapeStyle.READ_ONLY_DASH : undefined,
       }),
-      fill: new Fill({ color: alpha(colour, selected ? 0.25 : 0.12) }),
+      fill: new Fill({ color: alpha(color, selected ? 0.25 : 0.12) }),
       // A read-only point is hollow: a dash pattern doesn't show on a small circle.
       image: new CircleStyle({
         radius: selected ? 8 : 6,
-        fill: new Fill({ color: locked ? WHITE : colour }),
-        stroke: new Stroke({ color: locked ? colour : WHITE, width: 2 }),
+        fill: new Fill({ color: locked ? ShapeStyle.WHITE : color }),
+        stroke: new Stroke({ color: locked ? color : ShapeStyle.WHITE, width: 2 }),
       }),
     }),
   ];
@@ -91,8 +89,8 @@ export function featureStyle(
         zIndex: zIndex + 1,
         image: new CircleStyle({
           radius: 3.5,
-          fill: new Fill({ color: alpha(WHITE, 0.9) }),
-          stroke: new Stroke({ color: alpha(colour, 0.8), width: 1.5 }),
+          fill: new Fill({ color: alpha(ShapeStyle.WHITE, 0.9) }),
+          stroke: new Stroke({ color: alpha(color, 0.8), width: 1.5 }),
         }),
         geometry: () => new MultiPoint(midpointHandles(geometry)),
       }),
@@ -100,8 +98,8 @@ export function featureStyle(
         zIndex: zIndex + 2,
         image: new CircleStyle({
           radius: 5,
-          fill: new Fill({ color: WHITE }),
-          stroke: new Stroke({ color: colour, width: 2 }),
+          fill: new Fill({ color: ShapeStyle.WHITE }),
+          stroke: new Stroke({ color: color, width: 2 }),
         }),
         geometry: () => new MultiPoint(vertexHandles(geometry)),
       }),
@@ -113,8 +111,8 @@ export function featureStyle(
           zIndex: zIndex + 3,
           image: new CircleStyle({
             radius: 7,
-            fill: new Fill({ color: colour }),
-            stroke: new Stroke({ color: WHITE, width: 2 }),
+            fill: new Fill({ color }),
+            stroke: new Stroke({ color: ShapeStyle.WHITE, width: 2 }),
           }),
           geometry: () => new Point(vertex),
         }),

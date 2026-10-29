@@ -13,8 +13,8 @@ import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
-import { displayFieldType } from "./unifiedGeometry";
 import type { Field } from "./types";
+import { displayFieldType } from "./unifiedGeometry";
 
 type Props = {
   isMeta?: boolean;

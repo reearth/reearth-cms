@@ -9,7 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 import { AntdToken } from "@reearth-cms/utils/style";
 
 import { readFieldValue } from "./core/fieldValue";
-import type { FieldValue } from "./core/fieldValue";
+import type { FieldValue, Originals } from "./core/fieldValue";
 import { createGeoStore } from "./core/geoStore";
 import type { GeoStore } from "./core/geoStore";
 import { GeoStoreProvider, useGeoSnapshot } from "./core/StoreContext";
@@ -100,13 +100,13 @@ const EditorBody: React.FC<BodyProps> = ({
   const t = useT();
   const snapshot = useGeoSnapshot();
   const [tool, setTool] = useState<MapTool>(MapTool.SELECT);
-  const [jsonOpen, setJsonOpen] = useState(() => !initial.ok);
+  const [jsonOpen, setJsonOpen] = useState<boolean>(() => !initial.ok);
   const [coordinatesOpen, setCoordinatesOpen] = useState<boolean>(false);
   const [issues, setIssues] = useState<GeometryIssue[]>([]);
   const drawRef = useRef<Draw | null>(null);
-  const jsonPanelRef = useRef<GeoJsonPanelHandle>(null);
+  const jsonPanelRef = useRef<GeoJsonPanelHandle | null>(null);
 
-  const originals = useMemo(
+  const originals = useMemo<Originals>(
     () => (initial.ok ? initial.originals : new Map<string, string>()),
     [initial],
   );
@@ -129,16 +129,16 @@ const EditorBody: React.FC<BodyProps> = ({
     onClose,
   });
 
-  const deleteShape = useCallback(
-    (id: string) => {
+  const deleteShape = useCallback<(id: string) => void>(
+    id => {
       store.removeFeature(id, EditOrigin.LIST);
       showUndoNotice({ message: t("Shape deleted"), duration: 4 });
     },
     [showUndoNotice, store, t],
   );
 
-  const requestTool = useCallback(
-    (next: MapTool) => {
+  const requestTool = useCallback<(next: MapTool) => void>(
+    next => {
       if (next === MapTool.SELECT || next === tool) {
         setTool(MapTool.SELECT);
         return;
@@ -160,23 +160,39 @@ const EditorBody: React.FC<BodyProps> = ({
     isDialogOpen,
   });
 
-  const toggleCoordinates = useCallback(() => setCoordinatesOpen(open => !open), []);
-  const toggleJson = useCallback(() => setJsonOpen(open => !open), []);
+  const toggleCoordinates = useCallback<() => void>(() => setCoordinatesOpen(open => !open), []);
+  const toggleJson = useCallback<() => void>(() => setJsonOpen(open => !open), []);
 
-  const pointAllowed = allowedKinds.includes(GeometryKind.POINT);
-  const searchAddLabel = !pointAllowed
-    ? undefined
-    : !multiple && hasValue
-      ? t("Replace point")
-      : t("Add point");
+  const pointAllowed = useMemo<boolean>(
+    () => allowedKinds.includes(GeometryKind.POINT),
+    [allowedKinds],
+  );
+  const searchAddLabel = useMemo<string | undefined>(
+    () => (!pointAllowed ? undefined : !multiple && hasValue ? t("Replace point") : t("Add point")),
+    [hasValue, multiple, pointAllowed, t],
+  );
 
-  const drawableKinds = allowedKinds.filter(kind => Object.values(TOOL_KIND).includes(kind));
-  const drawHint =
-    drawableKinds.length > 0
-      ? t("Pick a tool on the map, search for a place, or paste GeoJSON below.")
-      : t("Paste GeoJSON below.");
+  const drawableKinds = useMemo<GeometryKind[]>(
+    () => allowedKinds.filter(kind => Object.values(TOOL_KIND).includes(kind)),
+    [allowedKinds],
+  );
+  const drawHint = useMemo<string>(
+    () =>
+      drawableKinds.length > 0
+        ? t("Pick a tool on the map, search for a place, or paste GeoJSON below.")
+        : t("Paste GeoJSON below."),
+    [drawableKinds.length, t],
+  );
 
-  const count = snapshot.collection.features.length;
+  const count = useMemo<number>(
+    () => snapshot.collection.features.length,
+    [snapshot.collection.features.length],
+  );
+
+  const handleDeleteSelected = useCallback<() => void>(() => {
+    const selected = store.getSnapshot().selectedId;
+    if (selected) deleteShape(selected);
+  }, [deleteShape, store]);
 
   return (
     // Keys typed here must not reach a modal underneath (e.g. the schema field dialog's Esc).
@@ -247,10 +263,7 @@ const EditorBody: React.FC<BodyProps> = ({
             replaceWarning={!multiple && hasValue}
             onReplaced={notifyReplaced}
             onToolRequest={requestTool}
-            onDeleteSelected={() => {
-              const selected = store.getSnapshot().selectedId;
-              if (selected) deleteShape(selected);
-            }}
+            onDeleteSelected={handleDeleteSelected}
             onSearchFlyTo={search.flyTo}
             onSearchAdd={search.add}
             onSearchClear={search.clear}

@@ -66,6 +66,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
         const id = String(feature.id);
         const selected = id === selectedId;
         const locked = !GeoUtils.isEditableKind(feature.geometry);
+
         return (
           <div
             key={id}
