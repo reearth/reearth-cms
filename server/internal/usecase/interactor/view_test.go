@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestView_UpdateOrder_MissingViews(t *testing.T) {
+func TestView_UpdateOrder(t *testing.T) {
 	t.Parallel()
 	p1, p2 := id.NewProjectID(), id.NewProjectID()
 	newView := func(pid id.ProjectID) *view.View {
