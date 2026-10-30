@@ -9,8 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -57,16 +55,7 @@ func (r *Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (
 		return nil, err
 	}
 
-	// prepare filters the results and sorts them according to original ids list
-	return util.Map(ids, func(sid id.IntegrationID) *integration.Integration {
-		s, ok := lo.Find(res, func(s *integration.Integration) bool {
-			return s.ID() == sid
-		})
-		if !ok {
-			return nil
-		}
-		return s
-	}), nil
+	return filterByIDs(ids, res), nil
 }
 
 func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserID) (integration.List, error) {
