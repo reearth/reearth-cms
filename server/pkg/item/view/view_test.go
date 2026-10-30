@@ -73,30 +73,48 @@ func TestView(t *testing.T) {
 
 func TestView_Validate(t *testing.T) {
 	t.Parallel()
-	valid := func() *View {
-		return &View{id: NewID(), project: NewProjectID(), model: NewModelID(), schema: NewSchemaID(), user: NewUserID()}
-	}
+	pid, mid, sid, uid := NewProjectID(), NewModelID(), NewSchemaID(), NewUserID()
 
 	tests := []struct {
 		name    string
-		mutate  func(v *View)
+		view    *View
 		wantErr error
 	}{
-		{name: "must accept a view with every ID", mutate: func(*View) {}},
-		{name: "must reject a view without an ID", mutate: func(v *View) { v.id = ID{} }, wantErr: ErrInvalidID},
-		{name: "must reject a view without a project", mutate: func(v *View) { v.project = ProjectID{} }, wantErr: ErrInvalidID},
-		{name: "must reject a view without a model", mutate: func(v *View) { v.model = ModelID{} }, wantErr: ErrInvalidID},
-		{name: "must reject a view without a schema", mutate: func(v *View) { v.schema = SchemaID{} }, wantErr: ErrInvalidID},
-		{name: "must reject a view without a user", mutate: func(v *View) { v.user = UserID{} }, wantErr: ErrInvalidID},
+		{
+			name: "must accept a view with every ID",
+			view: &View{id: NewID(), project: pid, model: mid, schema: sid, user: uid},
+		},
+		{
+			name:    "must reject a view without an ID",
+			view:    &View{project: pid, model: mid, schema: sid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a project",
+			view:    &View{id: NewID(), model: mid, schema: sid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a model",
+			view:    &View{id: NewID(), project: pid, schema: sid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a schema",
+			view:    &View{id: NewID(), project: pid, model: mid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a user",
+			view:    &View{id: NewID(), project: pid, model: mid, schema: sid},
+			wantErr: ErrInvalidID,
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			v := valid()
-			tc.mutate(v)
-			assert.Equal(t, tc.wantErr, v.Validate())
-			assert.Equal(t, tc.wantErr, List{valid(), v}.Validate())
+			assert.Equal(t, tc.wantErr, tc.view.Validate())
 		})
 	}
 }

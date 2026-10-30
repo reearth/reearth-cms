@@ -33,6 +33,7 @@ func TestNew(t *testing.T) {
 
 func TestBuilder_Build(t *testing.T) {
 	iId := id.NewIntegrationID()
+	uId := accountdomain.NewUserID()
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -50,12 +51,20 @@ func TestBuilder_Build(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
+			name:    "no developer",
+			fields:  fields{i: &Integration{id: iId}},
+			want:    nil,
+			wantErr: ErrInvalidID,
+		},
+		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
-				id: iId,
+				id:        iId,
+				developer: uId,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -64,10 +73,12 @@ func TestBuilder_Build(t *testing.T) {
 			name: "full",
 			fields: fields{i: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			},
 			wantErr: nil,
@@ -94,6 +105,7 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	iId := id.NewIntegrationID()
+	uId := accountdomain.NewUserID()
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -111,12 +123,20 @@ func TestBuilder_MustBuild(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
+			name:    "no developer",
+			fields:  fields{i: &Integration{id: iId}},
+			want:    nil,
+			wantErr: ErrInvalidID,
+		},
+		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
-				id: iId,
+				id:        iId,
+				developer: uId,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -125,10 +145,12 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "full",
 			fields: fields{i: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			},
 			wantErr: nil,

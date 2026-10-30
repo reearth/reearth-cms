@@ -23,7 +23,6 @@ type Integration struct {
 	updatedAt   time.Time
 }
 
-// Validate returns an error when the integration could not be read back once stored.
 func (i *Integration) Validate() error {
 	if i.id.IsNil() || i.developer.IsNil() {
 		return ErrInvalidID

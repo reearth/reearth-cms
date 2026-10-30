@@ -9,15 +9,6 @@ import (
 
 type List []*View
 
-func (l List) Validate() error {
-	for _, v := range l {
-		if err := v.Validate(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (l List) Projects() id.ProjectIDList {
 	return util.Map(l, func(v *View) id.ProjectID {
 		return v.Project()

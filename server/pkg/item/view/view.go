@@ -55,7 +55,6 @@ func (v *View) Clone() *View {
 	}
 }
 
-// Validate returns an error when the view could not be read back once stored.
 func (v *View) Validate() error {
 	if v.id.IsNil() || v.project.IsNil() || v.model.IsNil() || v.schema.IsNil() || v.user.IsNil() {
 		return ErrInvalidID

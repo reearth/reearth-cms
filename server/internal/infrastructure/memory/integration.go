@@ -84,9 +84,6 @@ func (r *Integration) Save(_ context.Context, i *integration.Integration) error 
 		return r.err
 	}
 
-	if err := i.Validate(); err != nil {
-		return err
-	}
 	r.data.Store(i.ID(), i.Clone())
 	return nil
 }
