@@ -4,6 +4,7 @@ import type { Extent } from "ol/extent";
 import { fromLonLat, transformExtent } from "ol/proj";
 import { useEffect } from "react";
 
+import { isJapanese } from "@reearth-cms/i18n";
 import { GeoUtils } from "@reearth-cms/utils/geoUtils";
 
 import { FocusKind } from "../core/types";
@@ -12,6 +13,16 @@ import type { FocusRequest } from "../core/types";
 import type { MapHandles } from "./useOlMap";
 
 const PADDING = [64, 64, 64, 64];
+
+/** Every continent but Antarctica. */
+const WORLD_EXTENT: Extent = transformExtent([-180, -60, 180, 75], "EPSG:4326", "EPSG:3857");
+/** Yonaguni to eastern Hokkaido; the remote islands would leave the main ones tiny. */
+const JAPAN_EXTENT: Extent = transformExtent([122, 24, 146, 46], "EPSG:4326", "EPSG:3857");
+
+/** Where an empty value opens: Japan for Japanese users, the world for everyone else. */
+export function defaultExtent(lang: string): Extent {
+  return isJapanese(lang) ? JAPAN_EXTENT : WORLD_EXTENT;
+}
 
 export function extentOf(geometries: readonly Geometry[]): Extent | null {
   const bbox = GeoUtils.bbox(geometries);

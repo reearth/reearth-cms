@@ -5,18 +5,14 @@ import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Search from "@reearth-cms/components/atoms/Search";
-import Select from "@reearth-cms/components/atoms/Select";
-import Space from "@reearth-cms/components/atoms/Space";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useLang, useT } from "@reearth-cms/i18n";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { GeocoderId, PROVIDERS } from "./providers";
-import type { GeocodeResult, GeocodeProvider } from "./providers";
-
-const PROVIDER_KEY = "reearth-cms:geometry-v2:geocoder";
+import { NOMINATIM } from "./providers";
+import type { GeocodeResult } from "./providers";
 
 type Props = {
   activeResultId: string | null;
@@ -27,18 +23,6 @@ type Props = {
   onClear: () => void;
 };
 
-const isGeocoderId = (value: string): value is GeocoderId => value in PROVIDERS;
-
-const readProvider = (): GeocoderId => {
-  try {
-    const stored = localStorage.getItem(PROVIDER_KEY);
-    if (stored && isGeocoderId(stored)) return stored;
-  } catch {
-    // Storage can be unavailable; the default is fine.
-  }
-  return GeocoderId.NOMINATIM;
-};
-
 /**
  * Searching never changes the value by itself: a result is first flown to and shown as a
  * pin, and only "Add point" writes it into the field.
@@ -46,7 +30,6 @@ const readProvider = (): GeocoderId => {
 const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, onClear }) => {
   const t = useT();
   const lang = useLang();
-  const [providerId, setProviderId] = useState<GeocoderId>(readProvider);
   const [query, setQuery] = useState<string>("");
   const [searchedQuery, setSearchedQuery] = useState<string | null>(null);
   const [results, setResults] = useState<GeocodeResult[]>([]);
@@ -66,7 +49,7 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
   }, [onClear]);
 
   const runSearch = useCallback(
-    async (text: string, provider: GeocoderId) => {
+    async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed) {
         clear();
@@ -78,7 +61,7 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
       setLoading(true);
       setError(null);
       try {
-        const found = await PROVIDERS[provider].search(trimmed, lang, controller.signal);
+        const found = await NOMINATIM.search(trimmed, lang, controller.signal);
         setResults(found);
         setSearchedQuery(trimmed);
       } catch (e) {
@@ -93,45 +76,22 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
     [clear, lang],
   );
 
-  const handleProviderChange = useCallback<(next: GeocoderId) => void>(
-    next => {
-      setProviderId(next);
-      try {
-        localStorage.setItem(PROVIDER_KEY, next);
-      } catch {
-        // Not remembering the choice is acceptable.
-      }
-      if (searchedQuery) void runSearch(query, next);
-    },
-    [query, runSearch, searchedQuery],
-  );
-
-  const provider = useMemo<GeocodeProvider>(() => PROVIDERS[providerId], [providerId]);
   const open = useMemo<boolean>(() => searchedQuery !== null, [searchedQuery]);
 
   return (
     <Wrapper>
-      <Space.Compact block>
-        <Select
-          value={providerId}
-          onChange={handleProviderChange}
-          popupMatchSelectWidth={false}
-          aria-label={t("Search provider")}
-          options={Object.values(PROVIDERS).map(p => ({ value: p.id, label: p.label() }))}
-        />
-        <Search
-          value={query}
-          allowClear
-          loading={loading}
-          aria-label={t("Search for a place")}
-          placeholder={t("Search for a place")}
-          onChange={e => {
-            setQuery(e.target.value);
-            if (!e.target.value) clear();
-          }}
-          onSearch={value => void runSearch(value, providerId)}
-        />
-      </Space.Compact>
+      <Search
+        value={query}
+        allowClear
+        loading={loading}
+        aria-label={t("Search for a place")}
+        placeholder={t("Search for a place")}
+        onChange={e => {
+          setQuery(e.target.value);
+          if (!e.target.value) clear();
+        }}
+        onSearch={value => void runSearch(value)}
+      />
       {open && (
         <Results role="listbox" aria-label={t("Search results")}>
           <ResultsHeader>
@@ -152,9 +112,7 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
             />
           )}
           {!error && !loading && results.length === 0 && (
-            <EmptyText type="secondary">
-              {t("No places found. Try another spelling, or the other search source.")}
-            </EmptyText>
+            <EmptyText type="secondary">{t("No places found. Try another spelling.")}</EmptyText>
           )}
           <ResultList>
             {results.map(result => {
@@ -210,7 +168,7 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
               );
             })}
           </ResultList>
-          <Attribution type="secondary">{provider.attribution}</Attribution>
+          <Attribution type="secondary">{NOMINATIM.attribution}</Attribution>
         </Results>
       )}
     </Wrapper>
@@ -223,10 +181,6 @@ const Wrapper = styled.div`
   position: relative;
   width: 100%;
   max-width: 420px;
-  .ant-space-compact > .ant-select {
-    width: 132px;
-    flex-shrink: 0;
-  }
 `;
 
 const Results = styled.div`

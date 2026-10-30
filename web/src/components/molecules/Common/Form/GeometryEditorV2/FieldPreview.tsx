@@ -8,7 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import PopConfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import { useT } from "@reearth-cms/i18n";
+import { useLang, useT } from "@reearth-cms/i18n";
 import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -16,9 +16,9 @@ import { kindIcon, summarize } from "./core/labels";
 import type { GeometryIssue } from "./core/validation";
 import { formatIssue } from "./core/validation";
 import { alpha } from "./map/mapStyle";
-import { extentOf, fitTo } from "./map/useMapFocus";
+import { defaultExtent, extentOf, fitTo } from "./map/useMapFocus";
 import { useMapSync } from "./map/useMapSync";
-import { DEFAULT_VIEW, useOlMap } from "./map/useOlMap";
+import { useOlMap } from "./map/useOlMap";
 
 type Props = {
   collection: FeatureCollection;
@@ -43,6 +43,7 @@ const FieldPreview: React.FC<Props> = ({
   onClear,
 }) => {
   const t = useT();
+  const lang = useLang();
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedIdRef = useRef<string | null>(null);
   const handles = useOlMap(containerRef, { preview: true, selectedIdRef });
@@ -54,18 +55,14 @@ const FieldPreview: React.FC<Props> = ({
   const fit = (duration = 0) => {
     if (!handles) return;
     const geometries = collection.features.flatMap(f => (f.geometry ? [f.geometry] : []));
-    if (geometries.length === 0) {
-      handles.map.getView().animate({ ...DEFAULT_VIEW, duration });
-      return;
-    }
-    fitTo(handles, extentOf(geometries), 16, duration);
+    fitTo(handles, extentOf(geometries) ?? defaultExtent(lang), 16, duration);
   };
 
   // The preview always frames the whole value; it is not a place to wander around.
   useEffect(() => {
     fit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handles, collection]);
+  }, [handles, collection, lang]);
 
   useEffect(() => {
     if (!handles) return;

@@ -1,12 +1,5 @@
 import type { Position } from "geojson";
 
-import { t } from "@reearth-cms/i18n";
-
-export enum GeocoderId {
-  GSI = "GSI",
-  NOMINATIM = "NOMINATIM",
-}
-
 export type GeocodeResult = {
   readonly id: string;
   readonly label: string;
@@ -20,8 +13,6 @@ export type GeocodeResult = {
 };
 
 export type GeocodeProvider = {
-  readonly id: GeocoderId;
-  readonly label: () => string;
   readonly attribution: string;
   search(query: string, lang: string, signal: AbortSignal): Promise<GeocodeResult[]>;
 };
@@ -42,9 +33,7 @@ type NominatimEntry = {
  * Public Nominatim: 1 req/s, no autocomplete, not for production. Searches therefore run
  * on Enter only.
  */
-const nominatim: GeocodeProvider = {
-  id: GeocoderId.NOMINATIM,
-  label: () => t("Places (OSM)"),
+export const NOMINATIM: GeocodeProvider = {
   attribution: "© OpenStreetMap contributors",
   async search(query, lang, signal) {
     const url = new URL("https://nominatim.openstreetmap.org/search");
@@ -68,35 +57,4 @@ const nominatim: GeocodeProvider = {
       };
     });
   },
-};
-
-type GsiEntry = {
-  geometry: { coordinates: Position };
-  properties: { title: string };
-};
-
-/** 国土地理院 address search: precise on 住所, poor on landmark names. */
-const gsi: GeocodeProvider = {
-  id: GeocoderId.GSI,
-  label: () => t("JP addresses (GSI)"),
-  attribution: "国土地理院",
-  async search(query, _lang, signal) {
-    const url = new URL("https://msearch.gsi.go.jp/address-search/AddressSearch");
-    url.searchParams.set("q", query);
-    const response = await fetch(url, { signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const entries = (await response.json()) as GsiEntry[];
-    return entries.slice(0, MAX_RESULTS).map((entry, index) => ({
-      id: `${entry.properties.title}-${index}`,
-      label: entry.properties.title,
-      detail: null,
-      kind: t("address"),
-      position: entry.geometry.coordinates,
-    }));
-  },
-};
-
-export const PROVIDERS: Record<GeocoderId, GeocodeProvider> = {
-  [GeocoderId.GSI]: gsi,
-  [GeocoderId.NOMINATIM]: nominatim,
 };

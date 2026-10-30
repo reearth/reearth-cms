@@ -4,17 +4,17 @@ import { platformModifierKeyOnly } from "ol/events/condition";
 import type Feature from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
 import { defaults as defaultInteractions, MouseWheelZoom } from "ol/interaction";
-import type TileLayer from "ol/layer/Tile";
+import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
 import OlMap from "ol/Map";
 import { fromLonLat } from "ol/proj";
+import OSM from "ol/source/OSM";
 import VectorSource from "ol/source/Vector";
 import View from "ol/View";
 import "ol/ol.css";
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 
-import { BaseMapId, createBaseLayer } from "./baseMaps";
 import { featureStyle, myLocationStyle, searchPinStyle } from "./mapStyle";
 
 export type MapHandles = {
@@ -24,13 +24,12 @@ export type MapHandles = {
   readonly pinSource: VectorSource;
   /** The user's location from "My location"; never part of the value. */
   readonly locationSource: VectorSource;
-  readonly bases: ReadonlyMap<BaseMapId, TileLayer>;
   /** The selected shape, when editable; Modify reshapes and Translate moves it. */
   readonly selected: Collection<Feature<Geometry>>;
 };
 
-/** Japan, as the existing field opens. */
-export const DEFAULT_VIEW = { center: fromLonLat([137.5, 37.5]), zoom: 4.6 };
+/** Until the map is fitted to the value, or to the world when there is none. */
+const INITIAL_VIEW = { center: fromLonLat([0, 20]), zoom: 2 };
 
 export function useOlMap(
   containerRef: RefObject<HTMLDivElement | null>,
@@ -62,18 +61,10 @@ export function useOlMap(
     const pinLayer = new VectorLayer({ source: pinSource, style: searchPinStyle });
     const locationSource = new VectorSource();
     const locationLayer = new VectorLayer({ source: locationSource, style: myLocationStyle });
-    const bases = new Map(
-      [BaseMapId.OSM, BaseMapId.GSI_PALE].map(id => {
-        const base = createBaseLayer(id);
-        base.setVisible(id === BaseMapId.OSM);
-        return [id, base] as const;
-      }),
-    );
-
     const map = new OlMap({
       target: container,
-      layers: [...bases.values(), locationLayer, layer, pinLayer],
-      view: new View(DEFAULT_VIEW),
+      layers: [new TileLayer({ source: new OSM() }), locationLayer, layer, pinLayer],
+      view: new View(INITIAL_VIEW),
       controls: defaultControls({ zoom: false, rotate: false, attribution: false }).extend([
         new Attribution({ collapsible: false }),
       ]),
@@ -94,7 +85,6 @@ export function useOlMap(
       layer,
       pinSource,
       locationSource,
-      bases,
       selected: new Collection<Feature<Geometry>>(),
     });
 

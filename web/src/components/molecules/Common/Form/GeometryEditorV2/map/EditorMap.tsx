@@ -11,10 +11,9 @@ import type { RefObject } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Segmented from "@reearth-cms/components/atoms/Segmented";
-import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { useT } from "@reearth-cms/i18n";
+import { useLang, useT } from "@reearth-cms/i18n";
 import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -22,10 +21,9 @@ import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
 import type { GeocodeResult } from "../search/providers";
 import SearchBox from "../search/SearchBox";
 
-import { BaseMapId, baseMapOptions } from "./baseMaps";
 import MapLegend from "./MapLegend";
 import { MapTool, TOOL_KIND } from "./mapTools";
-import { useMapFocus, extentOf, fitTo } from "./useMapFocus";
+import { useMapFocus, defaultExtent, extentOf, fitTo } from "./useMapFocus";
 import { useMapInteractions } from "./useMapInteractions";
 import { useMapSync } from "./useMapSync";
 import { useMyLocation } from "./useMyLocation";
@@ -80,13 +78,13 @@ const EditorMap: React.FC<Props> = ({
   onSearchClear,
 }) => {
   const t = useT();
+  const lang = useLang();
   const store = useGeoStore();
   const { collection, selectedId, selectedVertex, focus } = useGeoSnapshot();
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedIdRef = useRef<string | null>(selectedId);
   const selectedVertexRef = useRef<number | null>(selectedVertex);
   const handles = useOlMap(containerRef, { preview: false, selectedIdRef, selectedVertexRef });
-  const [baseMap, setBaseMap] = useState<BaseMapId>(BaseMapId.OSM);
   const [hoveringReadOnly, setHoveringReadOnly] = useState<boolean>(false);
 
   useMapSync(handles?.source ?? null, collection);
@@ -110,8 +108,8 @@ const EditorMap: React.FC<Props> = ({
     if (!handles || fittedRef.current) return;
     fittedRef.current = true;
     const geometries = collection.features.flatMap(f => (f.geometry ? [f.geometry] : []));
-    fitTo(handles, extentOf(geometries), 16, 0);
-  }, [handles, collection]);
+    fitTo(handles, extentOf(geometries) ?? defaultExtent(lang), 16, 0);
+  }, [handles, collection, lang]);
 
   // Selection (shape and vertex) drives styling and which shape Translate may move.
   useEffect(() => {
@@ -128,11 +126,6 @@ const EditorMap: React.FC<Props> = ({
     }
     handles.layer.changed();
   }, [handles, selectedId, selectedVertex, collection]);
-
-  useEffect(() => {
-    if (!handles) return;
-    handles.bases.forEach((layer, id) => layer.setVisible(id === baseMap));
-  }, [handles, baseMap]);
 
   useEffect(() => {
     if (!handles) return;
@@ -244,13 +237,6 @@ const EditorMap: React.FC<Props> = ({
           )}
         </BarCenter>
         <BarRight>
-          <Select
-            value={baseMap}
-            options={baseMapOptions()}
-            aria-label={t("Base map")}
-            popupMatchSelectWidth={false}
-            onChange={setBaseMap}
-          />
           <Space.Compact>
             <Tooltip title={t("Zoom out")} placement="bottom">
               <Button
