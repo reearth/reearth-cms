@@ -2,10 +2,8 @@ import type { FeatureCollection, Geometry, Position } from "geojson";
 
 import type { IconName } from "@reearth-cms/components/atoms/Icon";
 import { t } from "@reearth-cms/i18n";
-
-import { GeoUtils } from "./GeoUtils";
-import { GeometryKind } from "./types";
-import type { VertexRef } from "./types";
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
+import type { VertexRef } from "@reearth-cms/utils/geoUtils";
 
 /** Human-readable copy for shapes. Internal ids never appear in the UI. */
 

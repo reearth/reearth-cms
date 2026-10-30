@@ -6,9 +6,8 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
-
-import { Platform } from "../core/platform";
 
 type Props = {
   title: string;
@@ -61,7 +60,7 @@ const EditorHeader: React.FC<Props> = ({
       <HeaderActions>
         {!readOnly && (
           <>
-            <Tooltip title={`${t("Undo")} (${Platform.MOD_KEY}+Z)`}>
+            <Tooltip title={`${t("Undo")} (${BrowserUtils.MOD_KEY}+Z)`}>
               <Button
                 type="text"
                 aria-label={t("Undo")}
@@ -70,7 +69,7 @@ const EditorHeader: React.FC<Props> = ({
                 onClick={onUndo}
               />
             </Tooltip>
-            <Tooltip title={`${t("Redo")} (${Platform.MOD_KEY}+Shift+Z)`}>
+            <Tooltip title={`${t("Redo")} (${BrowserUtils.MOD_KEY}+Shift+Z)`}>
               <Button
                 type="text"
                 aria-label={t("Redo")}

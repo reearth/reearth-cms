@@ -19,10 +19,10 @@ import type { RefObject } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { useT } from "@reearth-cms/i18n";
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 
 import type { GeoStore, GeometryUpdate } from "../core/geoStore";
-import { GeoUtils } from "../core/GeoUtils";
-import { EditOrigin, GeometryKind } from "../core/types";
+import { EditOrigin } from "../core/types";
 
 import { handleAt, isNearHandle, vertexIndexAt } from "./handles";
 import { ShapeStyle } from "./mapStyle";

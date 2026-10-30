@@ -12,33 +12,6 @@ export enum EditOrigin {
   HISTORY = "HISTORY",
 }
 
-/** Values match the GeoJSON `type` strings so they compare directly. */
-export enum GeometryKind {
-  POINT = "Point",
-  LINE_STRING = "LineString",
-  POLYGON = "Polygon",
-  MULTI_POINT = "MultiPoint",
-  MULTI_LINE_STRING = "MultiLineString",
-  MULTI_POLYGON = "MultiPolygon",
-  GEOMETRY_COLLECTION = "GeometryCollection",
-}
-
-export const ALL_KINDS: readonly GeometryKind[] = Object.values(GeometryKind);
-
-export const isGeometryKind = (value: unknown): value is GeometryKind =>
-  ALL_KINDS.some(kind => kind === value);
-
-/** The map edits only what the map can draw. */
-export const EDITABLE_KINDS: readonly GeometryKind[] = [
-  GeometryKind.POINT,
-  GeometryKind.LINE_STRING,
-  GeometryKind.POLYGON,
-];
-
-/** Whether a GeoJSON or OpenLayers geometry type string is one the map can edit. */
-export const isEditableType = (type: string | undefined): boolean =>
-  EDITABLE_KINDS.some(kind => kind === type);
-
 /** What a focus request moves the map to. */
 export enum FocusKind {
   GEOMETRY = "geometry",
@@ -77,14 +50,4 @@ export type GeoSnapshot = {
   readonly focus: FocusRequest | null;
   readonly undoDepth: number;
   readonly redoDepth: number;
-};
-
-/** One numerically editable position within a geometry, addressed by flat index. */
-export type VertexRef = {
-  readonly index: number;
-  readonly position: Position;
-  /** 1-based ring number for polygons with holes. */
-  readonly ring?: number;
-  /** 1-based vertex number within its ring/line. */
-  readonly number: number;
 };

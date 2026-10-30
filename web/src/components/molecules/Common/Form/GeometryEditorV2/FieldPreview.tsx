@@ -9,10 +9,10 @@ import PopConfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { kindIcon, summarize } from "./core/labels";
-import { Platform } from "./core/platform";
 import type { GeometryIssue } from "./core/validation";
 import { formatIssue } from "./core/validation";
 import { alpha } from "./map/mapStyle";
@@ -170,7 +170,7 @@ const FieldPreview: React.FC<Props> = ({
         )}
         {!empty && (
           <ZoomHint className="zoom-hint">
-            {Platform.IS_MAC ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
+            {BrowserUtils.IS_MAC ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
           </ZoomHint>
         )}
       </MapArea>

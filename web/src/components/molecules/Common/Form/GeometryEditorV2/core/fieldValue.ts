@@ -1,8 +1,9 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
 import { t } from "@reearth-cms/i18n";
+import { GeoUtils } from "@reearth-cms/utils/geoUtils";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
-import { GeoUtils } from "./GeoUtils";
 import { validateValue } from "./validation";
 import type { GeometryIssue, ValidateOptions } from "./validation";
 
@@ -26,24 +27,6 @@ export type ReadResult =
 
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 
-const parseJson = (text: string): { ok: true; value: unknown } | { ok: false; message: string } => {
-  try {
-    return { ok: true, value: JSON.parse(text) };
-  } catch (error) {
-    return { ok: false, message: error instanceof Error ? error.message : String(error) };
-  }
-};
-
-const toCollection = (geometries: readonly Geometry[]): FeatureCollection => ({
-  type: "FeatureCollection",
-  features: geometries.map((geometry, i): Feature => ({
-    type: "Feature",
-    id: `s${i + 1}`,
-    geometry,
-    properties: {},
-  })),
-});
-
 export function readFieldValue(
   value: FieldValue,
   multiple: boolean,
@@ -59,16 +42,16 @@ export function readFieldValue(
   const parsed: unknown[] = [];
   const issues: GeometryIssue[] = [];
   entries.forEach((entry, i) => {
-    const result = parseJson(entry);
-    if (result.ok) {
-      parsed.push(result.value);
+    const result = ObjectUtils.parseJSONSync<unknown>(entry);
+    if (result.isValid) {
+      parsed.push(result.data);
     } else {
       // Kept as a string so the text panel still shows it and validation points at it.
       parsed.push(entry);
       issues.push({
         path: multiple ? `[${i}]` : "",
         message: t("Invalid JSON: {{message}}", {
-          message: result.message,
+          message: result.error,
           interpolation: { escapeValue: false },
         }),
       });
@@ -83,7 +66,7 @@ export function readFieldValue(
     return { ok: false, text: JSON.stringify(candidate, null, 2), issues };
   }
 
-  const collection = toCollection(parsed as Geometry[]);
+  const collection = GeoUtils.toCollection(parsed as Geometry[]);
   const originals = new Map(collection.features.map((f, i) => [String(f.id), entries[i]]));
   return { ok: true, collection, originals };
 }
@@ -99,11 +82,11 @@ export function writeFieldValue(
     .map(feature => {
       const original = originals.get(String(feature.id));
       if (original !== undefined) {
-        const before = parseJson(original);
+        const before = ObjectUtils.parseJSONSync<Geometry>(original);
         // Unchanged shapes keep their exact stored text so version history stays quiet.
         if (
-          before.ok &&
-          GeoUtils.isEqual(GeoUtils.roundGeometry(before.value as Geometry), feature.geometry)
+          before.isValid &&
+          ObjectUtils.isDeepEqual(GeoUtils.roundGeometry(before.data), feature.geometry)
         ) {
           return original;
         }
@@ -130,27 +113,27 @@ export function parseText(
   options: ValidateOptions = {},
 ): TextParseResult {
   if (text.trim() === "") return { ok: true, geometries: [] };
-  const result = parseJson(text);
-  if (!result.ok) {
+  const result = ObjectUtils.parseJSONSync<unknown>(text);
+  if (!result.isValid) {
     return {
       ok: false,
       issues: [
         {
           path: "",
           message: t("Invalid JSON: {{message}}", {
-            message: result.message,
+            message: result.error,
             interpolation: { escapeValue: false },
           }),
         },
       ],
     };
   }
-  if (result.value === null) return { ok: true, geometries: [] };
-  const issues = validateValue(result.value, multiple, options);
+  if (result.data === null) return { ok: true, geometries: [] };
+  const issues = validateValue(result.data, multiple, options);
   if (issues.length > 0) return { ok: false, issues };
   return {
     ok: true,
-    geometries: multiple ? (result.value as Geometry[]) : [result.value as Geometry],
+    geometries: multiple ? (result.data as Geometry[]) : [result.data as Geometry],
   };
 }
 

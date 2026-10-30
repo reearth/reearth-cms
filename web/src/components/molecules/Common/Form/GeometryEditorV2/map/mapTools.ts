@@ -2,7 +2,7 @@ import type { Type as OlGeometryType } from "ol/geom/Geometry";
 import type Draw from "ol/interaction/Draw";
 import { unByKey } from "ol/Observable";
 
-import { GeometryKind } from "../core/types";
+import { GeometryKind } from "@reearth-cms/utils/geoUtils";
 
 export enum MapTool {
   SELECT = "SELECT",

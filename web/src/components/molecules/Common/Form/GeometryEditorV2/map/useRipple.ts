@@ -8,8 +8,8 @@ import { getVectorContext } from "ol/render";
 import type RenderEvent from "ol/render/Event";
 import { useEffect } from "react";
 
-import { GeoUtils } from "../core/GeoUtils";
-import { GeometryKind } from "../core/types";
+import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 
 import { vertexHandles } from "./handles";
 import { rippleStyle } from "./mapStyle";
@@ -33,16 +33,13 @@ export function rippleTarget(
   return GeoUtils.listVertices(geometry)[selectedVertex]?.position ?? null;
 }
 
-const prefersReducedMotion = (): boolean =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 /**
  * Plays the ripple once around `position`, a map coordinate read on every frame so the ring
  * can follow something that moves. Returns a function that stops it early. Does nothing
  * when the user prefers reduced motion.
  */
 function playRipple(handles: MapHandles, position: () => Coordinate): () => void {
-  if (prefersReducedMotion()) return () => undefined;
+  if (BrowserUtils.prefersReducedMotion()) return () => undefined;
 
   const { map, layer } = handles;
   let start: number | null = null;

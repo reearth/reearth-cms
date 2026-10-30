@@ -2,12 +2,12 @@ import styled from "@emotion/styled";
 
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { GeoUtils } from "../core/GeoUtils";
 import { vertexLabel } from "../core/labels";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
-import { EditOrigin, GeometryKind } from "../core/types";
+import { EditOrigin } from "../core/types";
 
 import CoordinateInput from "./CoordinateInput";
 import PanelHeader from "./PanelHeader";

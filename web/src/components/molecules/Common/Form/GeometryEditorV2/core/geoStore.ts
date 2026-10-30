@@ -1,6 +1,8 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-import { GeoUtils } from "./GeoUtils";
+import { GeoUtils } from "@reearth-cms/utils/geoUtils";
+import { ObjectUtils } from "@reearth-cms/utils/object";
+
 import { EditOrigin } from "./types";
 import type { FocusTarget, GeoSnapshot, HistoryEntry } from "./types";
 
@@ -127,7 +129,7 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
   ): boolean => {
     const normalized = GeoUtils.normalize(collection);
     // Drop no-op commits so an edit that round-trips to identical data dies here.
-    if (GeoUtils.isEqual(normalized, snapshot.collection)) return false;
+    if (ObjectUtils.isDeepEqual(normalized, snapshot.collection)) return false;
     pushHistory(origin, coalesceKey);
     commitState(normalized, origin, selectedId);
     return true;

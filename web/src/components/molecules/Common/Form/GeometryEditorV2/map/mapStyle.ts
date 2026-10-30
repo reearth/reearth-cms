@@ -7,9 +7,8 @@ import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdColor } from "@reearth-cms/utils/style";
-
-import { GeometryKind, isEditableType } from "../core/types";
 
 import { midpointHandles, vertexHandles } from "./handles";
 
@@ -53,7 +52,7 @@ export function featureStyle(
   const geometry = olGeometry instanceof Geometry ? olGeometry : undefined;
   const selected = selectedId !== null && String(feature.getId()) === selectedId;
   // Multi* and GeometryCollection are display-only.
-  const locked = !isEditableType(geometry?.getType());
+  const locked = !GeoUtils.isEditableType(geometry?.getType());
   const color = locked
     ? selected
       ? ShapeStyle.READ_ONLY_SELECTED

@@ -3,11 +3,12 @@ import { useCallback } from "react";
 import type { RefObject } from "react";
 
 import { useT } from "@reearth-cms/i18n";
+import { GeoUtils } from "@reearth-cms/utils/geoUtils";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { writeFieldValue } from "../core/fieldValue";
 import type { Originals } from "../core/fieldValue";
 import type { GeoStore } from "../core/geoStore";
-import { GeoUtils } from "../core/GeoUtils";
 import type { GeoJsonPanelHandle } from "../panels/GeoJsonPanel";
 
 import type { EditorConfirm } from "./useEditorConfirm";
@@ -55,7 +56,10 @@ export function useDraft({
     if (jsonPanelRef.current?.flush() === false) return true;
     return (
       !initialCollection ||
-      !GeoUtils.isEqual(GeoUtils.normalize(initialCollection), store.getSnapshot().collection)
+      !ObjectUtils.isDeepEqual(
+        GeoUtils.normalize(initialCollection),
+        store.getSnapshot().collection,
+      )
     );
   }, [initialCollection, jsonPanelRef, store]);
 

@@ -1,6 +1,6 @@
 import { t } from "@reearth-cms/i18n";
-
-import { ALL_KINDS, GeometryKind, isGeometryKind } from "./types";
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 /**
  * Field-value validation: a value is an RFC 7946 geometry, with
@@ -34,9 +34,6 @@ const MEMBERS: Record<string, readonly string[]> = {
   [GeometryKind.GEOMETRY_COLLECTION]: ["type", "geometries", "bbox"],
 };
 const COORDINATE_MEMBERS = ["type", "coordinates", "bbox"];
-
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 const encoder = new TextEncoder();
 
@@ -118,7 +115,7 @@ function checkList(
 }
 
 function checkGeometry(value: unknown, path: string, inCollection: boolean, out: Collector) {
-  if (!isObject(value)) {
+  if (!ObjectUtils.isPlainObject(value)) {
     out.add(path, t("Expected a GeoJSON geometry object"));
     return;
   }
@@ -130,7 +127,7 @@ function checkGeometry(value: unknown, path: string, inCollection: boolean, out:
     );
     return;
   }
-  if (!isGeometryKind(type)) {
+  if (!GeoUtils.isGeometryKind(type)) {
     out.add(
       path ? `${path}.type` : "type",
       typeof type === "string"
@@ -252,10 +249,10 @@ export function validateValue(
   });
 
   const allowed = options.allowedKinds;
-  if (allowed && allowed.length < ALL_KINDS.length) {
+  if (allowed && allowed.length < GeoUtils.ALL_KINDS.length) {
     shapes.forEach((shape, i) => {
-      const type = isObject(shape) ? shape.type : undefined;
-      if (isGeometryKind(type)) {
+      const type = ObjectUtils.isPlainObject(shape) ? shape.type : undefined;
+      if (GeoUtils.isGeometryKind(type)) {
         if (!allowed.includes(type)) {
           out.add(
             multiple ? `[${i}]` : "",

@@ -15,11 +15,10 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
+import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { GeoUtils } from "../core/GeoUtils";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
-import { GeometryKind } from "../core/types";
 import type { GeocodeResult } from "../search/providers";
 import SearchBox from "../search/SearchBox";
 

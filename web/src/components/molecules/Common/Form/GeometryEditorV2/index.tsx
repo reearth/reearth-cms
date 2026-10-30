@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import type { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { GeometryKind, GeoUtils } from "@reearth-cms/utils/geoUtils";
 
 import { readFieldValue } from "./core/fieldValue";
 import type { FieldValue } from "./core/fieldValue";
-import { ALL_KINDS, GeometryKind } from "./core/types";
 import EditorModal from "./EditorModal";
 import FieldPreview from "./FieldPreview";
 
@@ -52,7 +52,7 @@ const GeometryEditorV2: React.FC<Props> = ({
     () =>
       supportedTypes?.length
         ? supportedTypes.map(type => KIND_BY_SUPPORTED_TYPE[type])
-        : [...ALL_KINDS],
+        : [...GeoUtils.ALL_KINDS],
     [supportedTypes],
   );
 

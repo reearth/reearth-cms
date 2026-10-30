@@ -6,6 +6,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Splitter from "@reearth-cms/components/atoms/Splitter";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdToken } from "@reearth-cms/utils/style";
 
 import { readFieldValue } from "./core/fieldValue";
@@ -13,7 +14,7 @@ import type { FieldValue, Originals } from "./core/fieldValue";
 import { createGeoStore } from "./core/geoStore";
 import type { GeoStore } from "./core/geoStore";
 import { GeoStoreProvider, useGeoSnapshot } from "./core/StoreContext";
-import { EditOrigin, GeometryKind } from "./core/types";
+import { EditOrigin } from "./core/types";
 import type { GeometryIssue } from "./core/validation";
 import EditorHeader from "./editor/EditorHeader";
 import SideSplit from "./editor/SideSplit";

@@ -8,9 +8,9 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { GeoUtils } from "@reearth-cms/utils/geoUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-import { GeoUtils } from "../core/GeoUtils";
 import { kindIcon, kindName, shapeDetail } from "../core/labels";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
 import { FocusKind } from "../core/types";

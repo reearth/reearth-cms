@@ -4,7 +4,8 @@ import type { Extent } from "ol/extent";
 import { fromLonLat, transformExtent } from "ol/proj";
 import { useEffect } from "react";
 
-import { GeoUtils } from "../core/GeoUtils";
+import { GeoUtils } from "@reearth-cms/utils/geoUtils";
+
 import { FocusKind } from "../core/types";
 import type { FocusRequest } from "../core/types";
 
