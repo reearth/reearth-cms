@@ -158,6 +158,9 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied
 	}
+	if lo.ContainsBy(requests, func(req *request.Request) bool { return req != nil && req.Project() != pid }) {
+		return rerror.ErrInvalidParams
+	}
 
 	docs, ids := mongodoc.NewRequests(requests)
 	docs2 := make([]any, 0, len(requests))
