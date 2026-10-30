@@ -33,7 +33,7 @@ const CoordinateInput: React.FC<Props> = ({ label, value, min, max, disabled, on
   );
 
   const apply = useCallback<() => void>(() => {
-    if (valid && draft && draft !== value) onCommit(draft);
+    if (valid && draft !== null && draft !== value) onCommit(draft);
     if (!valid) setDraft(value);
   }, [draft, onCommit, valid, value]);
 

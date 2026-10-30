@@ -1,5 +1,5 @@
 import type { Geometry as GeoJsonGeometry } from "geojson";
-import { primaryAction } from "ol/events/condition";
+import { never, primaryAction } from "ol/events/condition";
 import type Feature from "ol/Feature";
 import type { FeatureLike } from "ol/Feature";
 import type Geometry from "ol/geom/Geometry";
@@ -17,7 +17,11 @@ import Style from "ol/style/Style";
 import { useEffect } from "react";
 import type { RefObject } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
+import { useT } from "@reearth-cms/i18n";
+
 import type { GeoStore, GeometryUpdate } from "../core/geoStore";
+import { GeoUtils } from "../core/GeoUtils";
 import { EditOrigin, GeometryKind } from "../core/types";
 
 import { handleAt, isNearHandle, vertexIndexAt } from "./handles";
@@ -65,6 +69,8 @@ export function useMapInteractions({
   drawRef,
   onReplaced,
 }: Options) {
+  const t = useT();
+
   useEffect(() => {
     if (!handles || readOnly) return;
     const { map, source, selected } = handles;
@@ -90,7 +96,7 @@ export function useMapInteractions({
     const type = drawType(tool);
     if (type === null) {
       // Select first, then: drag a white dot to move a vertex, drag a small dot to add one,
-      // drag anywhere else on the shape to move it, Alt-click a white dot to remove it.
+      // drag anywhere else on the shape to move it, Alt/Opt + click a white dot to remove it.
       // The same for points, lines and polygons. Multi* and GeometryCollection are never
       // selectable for editing.
       // ol dispatches to the most recently added interaction first: Modify goes after
@@ -105,6 +111,8 @@ export function useMapInteractions({
 
       const modify = new Modify({
         features: selected,
+        // Alt-click removal is done in the click handler below, through the store.
+        deleteCondition: never,
         condition: event => {
           const geometry = selectedGeometry();
           return (
@@ -177,14 +185,34 @@ export function useMapInteractions({
         hitTolerance: 6,
       });
 
+    const removeVertex = (index: number) => {
+      if (readOnly) return;
+      const { collection, selectedId } = store.getSnapshot();
+      const shape = GeoUtils.findFeature(collection, selectedId)?.geometry;
+      if (!selectedId || !shape) return;
+      const next = GeoUtils.removeVertex(shape, index);
+      if (next) {
+        store.setGeometry(selectedId, next, EditOrigin.MAP);
+        return;
+      }
+      Notification.warning({
+        message:
+          shape.type === GeometryKind.POLYGON
+            ? t("A polygon needs at least 3 vertices.")
+            : t("A line needs at least 2 vertices."),
+        placement: "bottomLeft",
+      });
+    };
+
     const handleClick = (event: MapBrowserEvent) => {
-      // A vertex of the selected line or polygon; Alt-click is Modify's "remove vertex".
+      // A vertex of the selected line or polygon: a click selects it, an Alt-click removes it.
       const geometry = handles.selected.item(0)?.getGeometry();
       const altKey = event.originalEvent instanceof MouseEvent && event.originalEvent.altKey;
-      if (geometry && geometry.getType() !== GeometryKind.POINT && !altKey) {
+      if (geometry && geometry.getType() !== GeometryKind.POINT) {
         const index = vertexIndexAt(map, geometry, event.pixel);
         if (index !== null) {
-          store.selectVertex(index);
+          if (altKey) removeVertex(index);
+          else store.selectVertex(index);
           return;
         }
       }
@@ -212,7 +240,7 @@ export function useMapInteractions({
       map.un("pointermove", handleMove);
       if (element) element.style.cursor = "";
     };
-  }, [handles, store, tool]);
+  }, [handles, readOnly, store, t, tool]);
 
   useEffect(() => {
     if (!handles || drawType(tool) === null) return;

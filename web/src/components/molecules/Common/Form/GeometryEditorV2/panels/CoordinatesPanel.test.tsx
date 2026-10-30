@@ -60,6 +60,15 @@ describe("CoordinatesPanel", () => {
     expect(point()).toEqual({ type: "Point", coordinates: [139.7, 36.1] });
   });
 
+  test("zero is a coordinate like any other", async () => {
+    const user = userEvent.setup();
+    const { store, pointId, point } = setup();
+    act(() => store.select(pointId));
+    await user.clear(latitude());
+    await user.type(latitude(), "0{Enter}");
+    expect(point()).toEqual({ type: "Point", coordinates: [139.7, 0] });
+  });
+
   test("blur applies, Esc reverts", async () => {
     const user = userEvent.setup();
     const { store, pointId, point } = setup();

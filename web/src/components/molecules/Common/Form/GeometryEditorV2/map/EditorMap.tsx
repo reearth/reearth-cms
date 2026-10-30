@@ -119,11 +119,13 @@ const EditorMap: React.FC<Props> = ({
     selectedIdRef.current = selectedId;
     selectedVertexRef.current = selectedVertex;
     if (!handles) return;
-    handles.selected.clear();
     const feature = selectedId ? handles.source.getFeatureById(selectedId) : null;
     const data = GeoUtils.findFeature(collection, selectedId);
-    if (feature && GeoUtils.isEditableKind(data?.geometry)) {
-      handles.selected.push(feature);
+    const editable = feature && GeoUtils.isEditableKind(data?.geometry) ? feature : null;
+    // Re-adding the same feature resets Modify, which then loses the vertex an Alt-click removes.
+    if ((handles.selected.item(0) ?? null) !== editable) {
+      handles.selected.clear();
+      if (editable) handles.selected.push(editable);
     }
     handles.layer.changed();
   }, [handles, selectedId, selectedVertex, collection]);
@@ -194,7 +196,7 @@ const EditorMap: React.FC<Props> = ({
       ? null
       : selectedType === GeometryKind.LINE_STRING || selectedType === GeometryKind.POLYGON
         ? t(
-            "Drag a white dot to move a vertex · Drag a small dot to add one · Drag the shape to move it · Alt-click a white dot to remove it",
+            "Drag a white dot to move a vertex · Drag a small dot to add one · Drag the shape to move it · Alt/Opt + click a white dot to remove it",
           )
         : selectedType === GeometryKind.POINT
           ? t("Drag the point to move it")

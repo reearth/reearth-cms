@@ -157,6 +157,40 @@ export abstract class GeoUtils {
     return geometry;
   }
 
+  /**
+   * The geometry without one vertex, or null when that would leave a line under 2 vertices
+   * or a ring under 3.
+   */
+  public static removeVertex(geometry: Geometry, index: number): Geometry | null {
+    // condition 2: LineString
+    if (geometry.type === GeometryKind.LINE_STRING) {
+      if (geometry.coordinates.length <= 2) return null;
+      return { ...geometry, coordinates: geometry.coordinates.filter((_, i) => i !== index) };
+    }
+
+    // condition 2: Polygon
+    if (geometry.type === GeometryKind.POLYGON) {
+      let cursor = 0;
+      let removed = false;
+
+      const coordinates = geometry.coordinates.map(ring => {
+        const editable = ring.length - 1;
+        const local = index - cursor;
+        cursor += editable;
+        if (local < 0 || local >= editable) return ring;
+        if (editable <= 3) return ring;
+        removed = true;
+        const open = ring.slice(0, -1).filter((_, i) => i !== local);
+        // The closing position always repeats the (possibly new) first one.
+        return [...open, open[0]];
+      });
+      return removed ? { ...geometry, coordinates } : null;
+    }
+
+    // other conditions
+    return null;
+  }
+
   /** [west, south, east, north] in WGS84, or null for an empty geometry. */
   public static bbox(geometries: readonly Geometry[]): [number, number, number, number] | null {
     let west = Infinity;
