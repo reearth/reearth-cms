@@ -1122,6 +1122,13 @@ func testModelSaveAll(t *testing.T, newRepo modelFactory) {
 			want:    model.List{},
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name:    "must not save a list that includes an unwritable project",
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:    model.List{p1m1, p2m1},
+			want:    model.List{},
+			wantErr: repo.ErrOperationDenied,
+		},
 	}
 
 	for _, tc := range tests {

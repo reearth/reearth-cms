@@ -945,9 +945,6 @@ func testGroupSaveAll(t *testing.T, newRepo groupFactory) {
 		Name("after").Order(1).MustBuild()
 	all := id.GroupIDList{p1g1.ID(), p1g2.ID(), p2g1.ID()}
 
-	// TODO: SaveAll must reject a list in which only some groups are in
-	// writable projects; ProjectFilter.CanWrite accepts it when any of them is,
-	// so groups of unwritable projects are saved. The case is left out.
 	// TODO: SaveAll must reject a nil group; both backends panic on it
 	// (group.List.Projects dereferences it), so the case is left out
 	tests := []struct {
@@ -987,6 +984,13 @@ func testGroupSaveAll(t *testing.T, newRepo groupFactory) {
 		{
 			name:    "must not save groups in readable-only projects",
 			filter:  new(pjFilter(id.ProjectIDList{p1, p2}, nil)),
+			args:    group.List{p1g1, p2g1},
+			want:    group.List{},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not save a list that includes an unwritable project",
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:    group.List{p1g1, p2g1},
 			want:    group.List{},
 			wantErr: repo.ErrOperationDenied,

@@ -679,6 +679,12 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 			wantErr: repo.ErrOperationDenied,
 		},
 		{
+			name:    "must not save a list that includes an unwritable project",
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
+			args:    view.List{p1v1, p2v1},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
 			name:    "must not overwrite views outside writable projects",
 			seeds:   view.List{p1v1},
 			filter:  new(pjFilter(nil, id.ProjectIDList{p2})),
