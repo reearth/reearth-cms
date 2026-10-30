@@ -134,6 +134,9 @@ func (r *Request) SaveAll(_ context.Context, pid id.ProjectID, requests request.
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied
 	}
+	if lo.ContainsBy(requests, func(req *request.Request) bool { return req != nil && req.Project() != pid }) {
+		return rerror.ErrInvalidParams
+	}
 
 	entries := map[id.RequestID]*request.Request{}
 	for _, req := range requests {

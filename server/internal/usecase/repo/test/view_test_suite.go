@@ -19,10 +19,6 @@ import (
 
 type viewFactory = func(t *testing.T) repo.View
 
-// The mongo repository applies the project filter only in SaveAll: reads,
-// Save, Remove and RemoveByModel ignore it. Cases where the filter must deny
-// an operation are therefore left out of this suite, except for SaveAll.
-
 func TestViewRepo(t *testing.T, newRepo viewFactory) {
 	t.Run("Filtered", func(t *testing.T) { testViewFiltered(t, newRepo) })
 	t.Run("FindByID", func(t *testing.T) { testViewFindByID(t, newRepo) })
@@ -185,6 +181,20 @@ func testViewFindByID(t *testing.T, newRepo viewFactory) {
 			want:   p2v1,
 		},
 		{
+			name:    "must not find a view of an unreadable project",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{p2}, nil)),
+			args:    p1v1.ID(),
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "must not find a view with an empty filter",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{}, id.ProjectIDList{})),
+			args:    p1v1.ID(),
+			wantErr: rerror.ErrNotFound,
+		},
+		{
 			name:    "must not find an unknown view",
 			seeds:   seeds,
 			args:    id.NewViewID(),
@@ -330,6 +340,12 @@ func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 			filter: new(pjFilter(id.ProjectIDList{p2}, nil)),
 			args:   m3,
 			want:   view.List{m3v1},
+		},
+		{
+			name:   "must find nothing in an unreadable project",
+			seeds:  seeds,
+			filter: new(pjFilter(id.ProjectIDList{p2}, nil)),
+			args:   m1,
 		},
 	}
 
@@ -568,16 +584,31 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 		Filter(new(viewStringCondition())).UpdatedAt(p1v1.UpdatedAt().Add(time.Hour)).MustBuild()
 
 	tests := []struct {
-		name   string
-		seeds  view.List
-		filter *repo.ProjectFilter
-		args   *view.View
-		want   *view.View // the stored view afterwards
+		name    string
+		seeds   view.List
+		filter  *repo.ProjectFilter
+		args    *view.View
+		want    *view.View // the stored view afterwards
+		wantErr error
 	}{
 		{
 			name: "must save a new view",
 			args: p1v1,
 			want: p1v1,
+		},
+		{
+			name:    "must not save a view in a readable-only project",
+			filter:  new(pjFilter(id.ProjectIDList{p1}, nil)),
+			args:    p1v1,
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not overwrite a view outside writable projects",
+			seeds:   view.List{p1v1},
+			filter:  new(pjFilter(nil, id.ProjectIDList{id.NewProjectID()})),
+			args:    p1v1Updated,
+			want:    p1v1, // unchanged
+			wantErr: repo.ErrOperationDenied,
 		},
 		{
 			name:  "must overwrite an existing view",
@@ -604,12 +635,10 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 				r = base.Filtered(*tc.filter)
 			}
 
-			assert.NoError(t, r.Save(ctx, tc.args))
+			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
 
 			// the stored state is checked unfiltered
-			got, err := base.FindByID(ctx, tc.args.ID())
-			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, lo.FirstOrEmpty(storedViews(t, base, id.ViewIDList{tc.args.ID()})))
 		})
 	}
 }
@@ -737,6 +766,14 @@ func testViewRemove(t *testing.T, newRepo viewFactory) {
 			args:   p2v1.ID(),
 			want:   view.List{p1v1, p1v2},
 		},
+		{
+			name:    "must not remove a view outside writable projects",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{p1, p2}, id.ProjectIDList{p2})),
+			args:    p1v1.ID(),
+			want:    seeds,
+			wantErr: rerror.ErrNotFound,
+		},
 	}
 
 	for _, tc := range tests {
@@ -804,6 +841,13 @@ func testViewRemoveByModel(t *testing.T, newRepo viewFactory) {
 			filter: new(pjFilter(nil, id.ProjectIDList{p2})),
 			args:   m3,
 			want:   view.List{m1v1, m1v2, m2v1},
+		},
+		{
+			name:   "must not remove views of a model outside writable projects",
+			seeds:  seeds,
+			filter: new(pjFilter(id.ProjectIDList{p1, p2}, id.ProjectIDList{p2})),
+			args:   m1,
+			want:   seeds,
 		},
 	}
 

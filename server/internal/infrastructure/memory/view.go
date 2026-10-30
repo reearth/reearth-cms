@@ -123,7 +123,7 @@ func (r *View) RemoveByModel(_ context.Context, mid id.ModelID) error {
 	}
 
 	r.data.Range(func(k id.ViewID, v *view.View) bool {
-		if v.Model() == mid {
+		if v.Model() == mid && r.f.CanWrite(v.Project()) {
 			r.data.Delete(k)
 		}
 		return true
