@@ -319,11 +319,20 @@ const FieldModal: React.FC<Props> = ({
                 </Radio.Group>
               </Form.Item>
             )}
+            {selectedType === "Geometry" && (
+              <TypeHint>
+                {t("Accepts any GeoJSON geometry: points, lines, areas and more.")}
+              </TypeHint>
+            )}
             <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"
-              extra={t("Stores a list of values instead of a single value")}>
+              extra={
+                selectedType === "Geometry"
+                  ? t("Lets an item hold several geometries, for example a polygon and two points")
+                  : t("Stores a list of values instead of a single value")
+              }>
               <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
@@ -399,6 +408,11 @@ const Required = styled.span`
 const Optional = styled.span`
   color: ${AntdColor.GREY.GREY_2};
   margin-left: ${AntdToken.SPACING.XXS}px;
+`;
+
+const TypeHint = styled.p`
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  margin-bottom: ${AntdToken.SPACING.BASE}px;
 `;
 
 const OptionTitle = styled.p`

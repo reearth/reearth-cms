@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
+import GeometryEditorV2 from "@reearth-cms/components/molecules/Common/Form/GeometryEditorV2";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import type {
@@ -13,9 +14,11 @@ type Props = {
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   isEditor: boolean;
   multiple: boolean;
+  /** The unified Geometry field: default value set with the new editor. */
+  unified?: boolean;
 };
 
-const GeometryField: React.FC<Props> = ({ supportedTypes, isEditor, multiple }) => {
+const GeometryField: React.FC<Props> = ({ supportedTypes, isEditor, multiple, unified }) => {
   const t = useT();
   const errorSet = useRef(new Set<number>());
 
@@ -38,7 +41,13 @@ const GeometryField: React.FC<Props> = ({ supportedTypes, isEditor, multiple }) 
           },
         },
       ]}>
-      {multiple ? (
+      {unified ? (
+        <GeometryEditorV2
+          title={t("Set default value")}
+          multiple={multiple}
+          onValidityChange={valid => (valid ? errorDelete(0) : errorAdd(0))}
+        />
+      ) : multiple ? (
         <MultiValueGeometry
           supportedTypes={supportedTypes}
           isEditor={isEditor}

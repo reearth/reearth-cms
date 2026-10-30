@@ -1,10 +1,15 @@
 import { useMemo, useRef, useCallback } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
+import GeometryEditorV2 from "@reearth-cms/components/molecules/Common/Form/GeometryEditorV2";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
-import type { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import type {
+  FieldProps,
+  ObjectSupportedType,
+} from "@reearth-cms/components/molecules/Schema/types";
+import { isUnifiedGeometryField } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
@@ -35,6 +40,15 @@ const GeometryField: React.FC<FieldProps> = ({
 
   const isEditor = useMemo(() => field.type === "GeometryEditor", [field.type]);
 
+  // Prototype: the unified Geometry field (a Geometry Object accepting every type) uses the
+  // new editor; restricted Geometry Object and Geometry Editor fields keep the old one.
+  const useV2 = useMemo<boolean>(() => isUnifiedGeometryField(field), [field]);
+
+  const handleValidityChange = useCallback(
+    (valid: boolean) => (valid ? errorDelete(0) : errorAdd(0)),
+    [errorAdd, errorDelete],
+  );
+
   return (
     <Form.Item
       extra={field.description}
@@ -52,7 +66,27 @@ const GeometryField: React.FC<FieldProps> = ({
       ]}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
-      {field.multiple ? (
+      {useV2 ? (
+        field.multiple ? (
+          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+            <GeometryEditorV2
+              title={field.title}
+              multiple
+              supportedTypes={field.typeProperty?.objectSupportedTypes as ObjectSupportedType[]}
+              disabled={disabled}
+              onValidityChange={handleValidityChange}
+            />
+          </ResponsiveHeight>
+        ) : (
+          <GeometryEditorV2
+            title={field.title}
+            multiple={false}
+            supportedTypes={field.typeProperty?.objectSupportedTypes as ObjectSupportedType[]}
+            disabled={disabled}
+            onValidityChange={handleValidityChange}
+          />
+        )
+      ) : field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueGeometry
             supportedTypes={supportedTypes}

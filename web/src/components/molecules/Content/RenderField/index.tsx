@@ -5,8 +5,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import GeometryMiniMap from "@reearth-cms/components/molecules/Common/Form/GeometryEditorV2/GeometryMiniMap";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { displayFieldType } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -67,7 +69,7 @@ export const renderField = (
     field.type === "GeometryObject" ||
     field.type === "GeometryEditor"
   ) {
-    const content = (
+    const text = (
       <>
         {items.map((item, index) => {
           return (
@@ -78,9 +80,19 @@ export const renderField = (
         })}
       </>
     );
+    const geometry = field.type === "GeometryObject" || field.type === "GeometryEditor";
+    const content = geometry ? (
+      <GeometryMiniMap
+        value={value}
+        multiple={field.multiple}
+        fallback={<GeometryFallback>{text}</GeometryFallback>}
+      />
+    ) : (
+      text
+    );
     return (
       <Popover
-        rootClassName="contentPopover"
+        rootClassName={geometry ? "contentPopover geometryPopover" : "contentPopover"}
         content={
           <div data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverContent}>{content}</div>
         }
@@ -88,7 +100,7 @@ export const renderField = (
         trigger="click"
         placement="bottom">
         <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
-          <Icon icon={fieldTypes[field.type].icon} size={AntdToken.FONT.SIZE_LG} />
+          <Icon icon={fieldTypes[displayFieldType(field)].icon} size={AntdToken.FONT.SIZE_LG} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
       </Popover>
@@ -97,6 +109,12 @@ export const renderField = (
     return <ItemFormat item={items[0]} field={field} update={update} />;
   }
 };
+
+const GeometryFallback = styled.div`
+  max-width: 20vw;
+  max-height: 20vh;
+  overflow: auto;
+`;
 
 const StyledButton = styled(Button)`
   align-items: center;
