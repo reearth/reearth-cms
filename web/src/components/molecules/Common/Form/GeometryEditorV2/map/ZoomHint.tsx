@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 
 import { useT } from "@reearth-cms/i18n";
-import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { alpha } from "./mapStyle";
@@ -9,11 +8,7 @@ import { alpha } from "./mapStyle";
 /** Hidden until the map is hovered; the parent shows it with `&:hover .zoom-hint`. */
 const ZoomHint: React.FC = () => {
   const t = useT();
-  return (
-    <Hint className="zoom-hint">
-      {BrowserUtils.IS_MAC ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
-    </Hint>
-  );
+  return <Hint className="zoom-hint">{t("Ctrl/Cmd + scroll to zoom")}</Hint>;
 };
 
 export default ZoomHint;

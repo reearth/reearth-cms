@@ -51,7 +51,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
             <>
-              <Typography.Text>{t("No shapes yet")}</Typography.Text>
+              <Typography.Text>{t("No geometries yet")}</Typography.Text>
               {!readOnly && <EmptyHint type="secondary">{drawHint}</EmptyHint>}
             </>
           }
@@ -61,7 +61,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
   }
 
   return (
-    <List role="listbox" aria-label={t("Shapes")}>
+    <List role="listbox" aria-label={t("Geometries")}>
       {features.map((feature, index) => {
         const id = String(feature.id);
         const selected = id === selectedId;
@@ -101,11 +101,11 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                 )}
               </RowText>
               <Actions className="row-actions" visible={selected}>
-                <Tooltip title={t("Fly to shape")}>
+                <Tooltip title={t("Fly to geometry")}>
                   <Button
                     size="small"
                     type="text"
-                    aria-label={t("Fly to shape")}
+                    aria-label={t("Fly to geometry")}
                     icon={<Icon icon="send" />}
                     onClick={e => {
                       e.stopPropagation();
@@ -114,12 +114,12 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
                   />
                 </Tooltip>
                 {!readOnly && (
-                  <Tooltip title={t("Delete shape")}>
+                  <Tooltip title={t("Delete geometry")}>
                     <Button
                       size="small"
                       type="text"
                       danger
-                      aria-label={t("Delete shape")}
+                      aria-label={t("Delete geometry")}
                       icon={<Icon icon="delete" />}
                       onClick={e => {
                         e.stopPropagation();

@@ -206,7 +206,7 @@ export function validateValue(
     if (value.length > GeometryLimits.SHAPES) {
       out.add(
         "",
-        t("Too many shapes: {{count}} (limit {{max}})", {
+        t("Too many geometries: {{count}} (limit {{max}})", {
           count: value.length,
           max: GeometryLimits.SHAPES,
         }),

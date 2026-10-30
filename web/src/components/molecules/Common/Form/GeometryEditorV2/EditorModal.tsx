@@ -140,7 +140,7 @@ const EditorBody: React.FC<BodyProps> = ({
   const deleteShape = useCallback<(id: string) => void>(
     id => {
       store.removeFeature(id, EditOrigin.LIST);
-      showUndoNotice({ message: t("Shape deleted"), duration: 4 });
+      showUndoNotice({ message: t("Geometry deleted"), duration: 4 });
     },
     [showUndoNotice, store, t],
   );
@@ -254,7 +254,9 @@ const EditorBody: React.FC<BodyProps> = ({
               top={
                 <SidePane>
                   <SideHeader>
-                    <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
+                    <Typography.Text strong>
+                      {multiple ? t("Geometries") : t("Geometry")}
+                    </Typography.Text>
                     {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
                   </SideHeader>
                   <ListScroll>

@@ -84,8 +84,8 @@ const SearchBox: React.FC<Props> = ({ activeResultId, addLabel, onFlyTo, onAdd, 
         value={query}
         allowClear
         loading={loading}
-        aria-label={t("Search for a place")}
-        placeholder={t("Search for a place")}
+        aria-label={t("Search location")}
+        placeholder={t("Search location")}
         onChange={e => {
           setQuery(e.target.value);
           if (!e.target.value) clear();

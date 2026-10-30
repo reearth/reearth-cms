@@ -60,13 +60,15 @@ const EditorHeader: React.FC<Props> = ({
           title={
             multiple
               ? t(
-                  "This field holds several shapes. Each new drawing or search result is added as another shape.",
+                  "This field holds several geometries. Each new drawing or search result is added as another geometry.",
                 )
               : t(
-                  "This field holds one shape. Drawing a shape or adding a search result replaces the current one.",
+                  "This field holds one geometry. Drawing a geometry or adding a search result replaces the current one.",
                 )
           }>
-          <ModeTag bordered={false}>{multiple ? t("Multiple shapes") : t("Single shape")}</ModeTag>
+          <ModeTag bordered={false}>
+            {multiple ? t("Multiple geometries") : t("Single geometry")}
+          </ModeTag>
         </Tooltip>
         {readOnly && <Tag color="default">{t("Read only")}</Tag>}
       </Title>

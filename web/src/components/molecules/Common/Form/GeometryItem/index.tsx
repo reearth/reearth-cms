@@ -540,7 +540,7 @@ const GeometryItem: React.FC<Props> = ({
             <StyledSearch
               allowClear
               size="small"
-              placeholder={t("Search Location")}
+              placeholder={t("Search location")}
               onSearch={handleSearch}
               loading={isSearching}
             />

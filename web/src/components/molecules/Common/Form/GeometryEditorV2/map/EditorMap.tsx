@@ -188,7 +188,7 @@ const EditorMap: React.FC<Props> = ({
       ? null
       : selectedType === GeometryKind.LINE_STRING || selectedType === GeometryKind.POLYGON
         ? t(
-            "Drag a white dot to move a vertex · Drag a small dot to add one · Drag the shape to move it · Alt/Opt + click a white dot to remove it",
+            "Drag a white dot to move a vertex · Drag a small dot to add one · Drag the geometry to move it · Alt/Opt + click a white dot to remove it",
           )
         : selectedType === GeometryKind.POINT
           ? t("Drag the point to move it")
@@ -200,7 +200,7 @@ const EditorMap: React.FC<Props> = ({
       : null;
   const drawHint =
     toolHint && replaceWarning
-      ? `${t("Replaces the current shape")} · ${toolHint}`
+      ? `${t("Replaces the current geometry")} · ${toolHint}`
       : (toolHint ?? hoverHint ?? editHint);
   const hasReadOnly = collection.features.some(
     feature => feature.geometry && !GeoUtils.isEditableKind(feature.geometry),
@@ -223,13 +223,13 @@ const EditorMap: React.FC<Props> = ({
           {!readOnly && (
             <>
               <Segmented<MapTool> value={tool} options={toolOptions} onChange={onToolRequest} />
-              <Tooltip title={t("Delete selected shape (Delete)")} placement="bottom">
+              <Tooltip title={`${t("Delete selected geometry")} (Delete)`} placement="bottom">
                 <Button
                   danger
                   type="text"
                   disabled={!selectedId}
                   icon={<Icon icon="delete" />}
-                  aria-label={t("Delete selected shape")}
+                  aria-label={t("Delete selected geometry")}
                   onClick={onDeleteSelected}
                 />
               </Tooltip>
@@ -282,7 +282,7 @@ const TOOL_LABELS: Record<MapTool, (t: T) => string> = {
   [MapTool.POLYGON]: t => t("Polygon"),
 };
 const TOOL_TIPS: Record<MapTool, (t: T) => string> = {
-  [MapTool.SELECT]: t => t("Select, move and reshape shapes"),
+  [MapTool.SELECT]: t => t("Select, move and reshape geometries"),
   [MapTool.POINT]: t => t("Draw a point"),
   [MapTool.LINE]: t => t("Draw a line"),
   [MapTool.POLYGON]: t => t("Draw an area"),

@@ -50,7 +50,7 @@ const SelectedCoordinates: React.FC<{ readOnly: boolean }> = ({ readOnly }) => {
   const geometry = GeoUtils.findFeature(collection, selectedId)?.geometry;
 
   if (!selectedId || !geometry) {
-    return <Hint type="secondary">{t("Select a shape to edit its coordinates.")}</Hint>;
+    return <Hint type="secondary">{t("Select a geometry to edit its coordinates.")}</Hint>;
   }
 
   if (!GeoUtils.isEditableKind(geometry)) {
@@ -58,7 +58,7 @@ const SelectedCoordinates: React.FC<{ readOnly: boolean }> = ({ readOnly }) => {
       <Hint type="secondary">
         {readOnly
           ? t("Coordinates are shown here for points, lines and polygons only.")
-          : t("This shape can't be edited here. Edit it in GeoJSON.")}
+          : t("This geometry can't be edited here. Edit it in GeoJSON.")}
       </Hint>
     );
   }

@@ -320,7 +320,9 @@ const FieldModal: React.FC<Props> = ({
               </Form.Item>
             )}
             {selectedType === "Geometry" && (
-              <TypeHint>{t("Accepts any GeoJSON geometry: points, lines, areas and more.")}</TypeHint>
+              <TypeHint>
+                {t("Accepts any GeoJSON geometry: points, lines, areas and more.")}
+              </TypeHint>
             )}
             <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
@@ -328,7 +330,7 @@ const FieldModal: React.FC<Props> = ({
               valuePropName="checked"
               extra={
                 selectedType === "Geometry"
-                  ? t("Lets an item hold several shapes, for example a polygon and two points")
+                  ? t("Lets an item hold several geometries, for example a polygon and two points")
                   : t("Stores a list of values instead of a single value")
               }>
               <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>

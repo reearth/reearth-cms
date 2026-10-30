@@ -74,8 +74,8 @@ export function useReplaceGuard(
   const notifyReplaced = useCallback(
     () =>
       showUndoNotice({
-        message: t("Replaced the previous shape"),
-        description: t("This field holds one shape."),
+        message: t("Replaced the previous geometry"),
+        description: t("This field holds one geometry."),
         duration: 5,
       }),
     [showUndoNotice, t],

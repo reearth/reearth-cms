@@ -71,7 +71,7 @@ export const summarize = (collection: FeatureCollection): string => {
   const counts = new Map<string, number>();
   geometries.forEach(g => counts.set(g.type, (counts.get(g.type) ?? 0) + 1));
   const parts = [...counts.entries()].map(([kind, count]) => kindCount(kind, count)).join(", ");
-  return `${t("{{count}} shapes", { count: geometries.length })} · ${parts}`;
+  return `${t("{{count}} geometries", { count: geometries.length })} · ${parts}`;
 };
 
 const kindCount = (kind: string, count: number): string => {

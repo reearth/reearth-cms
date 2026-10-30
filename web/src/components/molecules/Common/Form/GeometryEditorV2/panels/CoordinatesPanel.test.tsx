@@ -39,7 +39,9 @@ describe("CoordinatesPanel", () => {
   test("collapsed shows only the header, which toggles it", async () => {
     const user = userEvent.setup();
     const { onToggle } = setup({ open: false });
-    expect(screen.queryByText("Select a shape to edit its coordinates.")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Select a geometry to edit its coordinates."),
+    ).not.toBeInTheDocument();
     const header = screen.getByRole("button", { name: /Coordinates/ });
     expect(header).toHaveAttribute("aria-expanded", "false");
     await user.click(header);
@@ -48,7 +50,7 @@ describe("CoordinatesPanel", () => {
 
   test("asks for a selection when nothing is selected", () => {
     setup();
-    expect(screen.getByText("Select a shape to edit its coordinates.")).toBeInTheDocument();
+    expect(screen.getByText("Select a geometry to edit its coordinates.")).toBeInTheDocument();
   });
 
   test("Enter applies a point's new coordinate", async () => {
@@ -144,7 +146,7 @@ describe("CoordinatesPanel", () => {
     });
     expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
     expect(
-      screen.getByText("This shape can't be edited here. Edit it in GeoJSON."),
+      screen.getByText("This geometry can't be edited here. Edit it in GeoJSON."),
     ).toBeInTheDocument();
   });
 

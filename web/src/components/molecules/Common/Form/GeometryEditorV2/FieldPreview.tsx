@@ -87,11 +87,11 @@ const FieldPreview: React.FC<Props> = ({
         </Summary>
         <BarActions>
           {!empty && (
-            <Tooltip title={t("Fly to shapes")}>
+            <Tooltip title={t("Fly to geometries")}>
               <Button
                 type="text"
                 size="small"
-                aria-label={t("Fly to shapes")}
+                aria-label={t("Fly to geometries")}
                 icon={<Icon icon="send" size={14} />}
                 onClick={() => fit(400)}
               />
