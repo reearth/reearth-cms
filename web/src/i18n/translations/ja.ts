@@ -1,5 +1,5 @@
 export default {
-  "... and {{count}} more errors_other": "⋯⋯および{{count}}件のエラー",
+  "... and {{count}} more errors_other": "⋯⋯ほか{{count}}件のエラー",
   "{{count}} configured_other": "{{count}}件を設定しました",
   "{{count}} errors_other": "{{count}}件のエラー",
   "{{count}} geometries_other": "{{count}}個のジオメトリ",
