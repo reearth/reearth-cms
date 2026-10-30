@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import { Test } from "@reearth-cms/test/utils";
+
 import { createGeoStore } from "../core/geoStore";
 import { GeoStoreProvider } from "../core/StoreContext";
 import { EditOrigin } from "../core/types";
@@ -28,11 +30,9 @@ vi.mock("@monaco-editor/react", () => ({
 
 vi.mock("@reearth-cms/utils/monacoJsonSchemas", () => ({ registerJsonSchema: vi.fn() }));
 
-const POINT = { type: "Point" as const, coordinates: [1, 1] };
-
 const setup = (open = true) => {
   const store = createGeoStore({ type: "FeatureCollection", features: [] });
-  store.addFeature(POINT, EditOrigin.MAP);
+  store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
   const ref = createRef<GeoJsonPanelHandle>();
   const onIssuesChange = vi.fn();
   render(
@@ -70,7 +70,7 @@ describe("GeoJsonPanel", () => {
   test("valid text reaches the map after the debounce", () => {
     const { type, geometry } = setup();
     type('{"type":"Point","coordinates":[2,2]}');
-    expect(geometry()).toEqual(POINT);
+    expect(geometry()).toEqual(Test.GEO_JSON_POINT);
     act(() => vi.advanceTimersByTime(500));
     expect(geometry()).toEqual({ type: "Point", coordinates: [2, 2] });
   });
@@ -79,7 +79,7 @@ describe("GeoJsonPanel", () => {
     const { type, geometry, onIssuesChange } = setup();
     type('{"type":"Point","coordinates":[200,0]}');
     act(() => vi.advanceTimersByTime(500));
-    expect(geometry()).toEqual(POINT);
+    expect(geometry()).toEqual(Test.GEO_JSON_POINT);
     expect(screen.getByRole("alert")).toHaveTextContent("Longitude must be between -180 and 180");
     expect(onIssuesChange).toHaveBeenLastCalledWith([
       expect.objectContaining({ path: "coordinates" }),
@@ -105,7 +105,7 @@ describe("GeoJsonPanel", () => {
       flushed = ref.current?.flush() ?? true;
     });
     expect(flushed).toBe(false);
-    expect(geometry()).toEqual(POINT);
+    expect(geometry()).toEqual(Test.GEO_JSON_POINT);
   });
 
   test("flush with nothing pending is a no-op", () => {

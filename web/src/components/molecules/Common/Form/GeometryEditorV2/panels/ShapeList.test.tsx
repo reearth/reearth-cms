@@ -2,25 +2,18 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 
+import { Test } from "@reearth-cms/test/utils";
+
 import { createGeoStore } from "../core/geoStore";
 import { GeoStoreProvider } from "../core/StoreContext";
 import { EditOrigin, FocusKind } from "../core/types";
 
 import ShapeList from "./ShapeList";
 
-const POINT = { type: "Point" as const, coordinates: [139.7, 35.6] };
-const LINE = {
-  type: "LineString" as const,
-  coordinates: [
-    [139.7, 35.6],
-    [139.8, 35.7],
-  ],
-};
-
 const setup = () => {
   const store = createGeoStore({ type: "FeatureCollection", features: [] });
-  const pointId = store.addFeature(POINT, EditOrigin.MAP);
-  const lineId = store.addFeature(LINE, EditOrigin.MAP);
+  const pointId = store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
+  const lineId = store.addFeature(Test.GEO_JSON_LINE_STRING, EditOrigin.MAP);
   store.select(null);
   render(
     <GeoStoreProvider value={store}>
@@ -34,7 +27,7 @@ const rows = () => screen.getAllByRole("option");
 
 const renderReadOnlyShape = (readOnly: boolean) => {
   const store = createGeoStore({ type: "FeatureCollection", features: [] });
-  store.addFeature({ type: "MultiPoint", coordinates: [[139.7, 35.6]] }, EditOrigin.MAP);
+  store.addFeature(Test.GEO_JSON_MULTI_POINT, EditOrigin.MAP);
   render(
     <GeoStoreProvider value={store}>
       <ShapeList multiple readOnly={readOnly} drawHint="" onDelete={vi.fn()} />
@@ -63,7 +56,7 @@ describe("ShapeList", () => {
     await user.click(rows()[1]);
     expect(store.getSnapshot().selectedId).toBe(lineId);
     const focus = store.getSnapshot().focus;
-    expect(focus).toMatchObject({ kind: FocusKind.GEOMETRY, geometry: LINE });
+    expect(focus).toMatchObject({ kind: FocusKind.GEOMETRY, geometry: Test.GEO_JSON_LINE_STRING });
 
     await user.click(rows()[1]);
     expect(store.getSnapshot().focus?.nonce).toBe((focus?.nonce ?? 0) + 1);

@@ -3,6 +3,8 @@ import type Draw from "ol/interaction/Draw";
 import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 
+import { Test } from "@reearth-cms/test/utils";
+
 import { createGeoStore } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
 import { MapTool } from "../map/mapTools";
@@ -11,7 +13,7 @@ import { useEditorShortcuts } from "./useEditorShortcuts";
 
 const setup = ({ tool = MapTool.SELECT, readOnly = false, dialogOpen = false } = {}) => {
   const store = createGeoStore({ type: "FeatureCollection", features: [] });
-  const id = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+  const id = store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
   const options = {
     store,
     tool,

@@ -3,6 +3,8 @@ import type { FeatureCollection } from "geojson";
 import type { RefObject } from "react";
 import { describe, expect, test, vi } from "vitest";
 
+import { Test } from "@reearth-cms/test/utils";
+
 import { createGeoStore } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
 import type { GeoJsonPanelHandle } from "../panels/GeoJsonPanel";
@@ -11,9 +13,7 @@ import { useDraft } from "./useDraft";
 
 const INITIAL: FeatureCollection = {
   type: "FeatureCollection",
-  features: [
-    { type: "Feature", id: "s1", geometry: { type: "Point", coordinates: [1, 1] }, properties: {} },
-  ],
+  features: [{ type: "Feature", id: "s1", geometry: Test.GEO_JSON_POINT, properties: {} }],
 };
 
 const setup = ({ flush = true, readOnly = false } = {}) => {
@@ -26,7 +26,7 @@ const setup = ({ flush = true, readOnly = false } = {}) => {
     useDraft({
       store,
       initialCollection: INITIAL,
-      originals: new Map([["s1", '{"type":"Point","coordinates":[1,1]}']]),
+      originals: new Map([["s1", JSON.stringify(Test.GEO_JSON_POINT)]]),
       multiple: false,
       readOnly,
       jsonPanelRef,
