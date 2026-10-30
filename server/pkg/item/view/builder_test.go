@@ -82,15 +82,23 @@ func TestBuilder_Timestamp(t *testing.T) {
 }
 
 func TestBuilder_Build(t *testing.T) {
-	b := New()
-	assert.NotNil(t, b)
-	v := b.MustBuild()
+	t.Parallel()
+	valid := func() *Buildr {
+		return New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).User(NewUserID())
+	}
+
+	v, err := valid().Build()
+	assert.NoError(t, err)
 	assert.NotNil(t, v)
+
+	v, err = valid().User(UserID{}).Build()
+	assert.Equal(t, ErrInvalidID, err)
+	assert.Nil(t, v)
 }
 
 func TestBuilder_MustBuild(t *testing.T) {
-	b := New()
-	assert.NotNil(t, b)
-	v := b.MustBuild()
-	assert.NotNil(t, v)
+	t.Parallel()
+
+	assert.NotNil(t, New().NewID().Project(NewProjectID()).Model(NewModelID()).Schema(NewSchemaID()).User(NewUserID()).MustBuild())
+	assert.Panics(t, func() { New().MustBuild() })
 }

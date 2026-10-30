@@ -358,7 +358,6 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 //   - a nil webhook list and a nil trigger are read back as empty ones
 //   - an empty or unknown type is read back as private
 //   - an empty logo URL is read back as an empty, non-nil URL
-//   - a zero developer is saved, but the integration can no longer be read
 //   - a time that is not in UTC (e.g. the default UpdatedAt) is read back in UTC
 func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 	ctx := context.Background()

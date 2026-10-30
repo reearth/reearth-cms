@@ -70,3 +70,51 @@ func TestView(t *testing.T) {
 	cloned := v.Clone()
 	assert.EqualValues(t, v, cloned)
 }
+
+func TestView_Validate(t *testing.T) {
+	t.Parallel()
+	pid, mid, sid, uid := NewProjectID(), NewModelID(), NewSchemaID(), NewUserID()
+
+	tests := []struct {
+		name    string
+		view    *View
+		wantErr error
+	}{
+		{
+			name: "must accept a view with every ID",
+			view: &View{id: NewID(), project: pid, model: mid, schema: sid, user: uid},
+		},
+		{
+			name:    "must reject a view without an ID",
+			view:    &View{project: pid, model: mid, schema: sid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a project",
+			view:    &View{id: NewID(), model: mid, schema: sid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a model",
+			view:    &View{id: NewID(), project: pid, schema: sid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a schema",
+			view:    &View{id: NewID(), project: pid, model: mid, user: uid},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject a view without a user",
+			view:    &View{id: NewID(), project: pid, model: mid, schema: sid},
+			wantErr: ErrInvalidID,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantErr, tc.view.Validate())
+		})
+	}
+}
