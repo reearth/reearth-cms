@@ -9,7 +9,6 @@ import PopConfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useLang, useT } from "@reearth-cms/i18n";
-import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { kindIcon, summarize } from "./core/labels";
@@ -19,6 +18,7 @@ import { alpha } from "./map/mapStyle";
 import { defaultExtent, extentOf, fitTo } from "./map/useMapFocus";
 import { useMapSync } from "./map/useMapSync";
 import { useOlMap } from "./map/useOlMap";
+import ZoomHint from "./map/ZoomHint";
 
 type Props = {
   collection: FeatureCollection;
@@ -165,11 +165,7 @@ const FieldPreview: React.FC<Props> = ({
             )}
           </EmptyOverlay>
         )}
-        {!empty && (
-          <ZoomHint className="zoom-hint">
-            {BrowserUtils.IS_MAC ? t("⌘ + scroll to zoom") : t("Ctrl + scroll to zoom")}
-          </ZoomHint>
-        )}
+        {!empty && <ZoomHint />}
       </MapArea>
     </Wrapper>
   );
@@ -216,20 +212,6 @@ const EmptyOverlay = styled.div`
   .ant-btn {
     pointer-events: auto;
   }
-`;
-
-const ZoomHint = styled.div`
-  position: absolute;
-  left: ${AntdToken.SPACING.XS}px;
-  bottom: ${AntdToken.SPACING.XS}px;
-  padding: 2px ${AntdToken.SPACING.XS}px;
-  border-radius: ${AntdToken.RADIUS.SM}px;
-  background: ${alpha(AntdColor.NEUTRAL.BG_WHITE, 0.85)};
-  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  font-size: 11px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
 `;
 
 const Bar = styled.div`
