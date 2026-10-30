@@ -8,8 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -58,16 +56,7 @@ func (r *View) FindByIDs(ctx context.Context, ids id.ViewIDList) (view.List, err
 		return nil, err
 	}
 
-	// prepare filters the results and sorts them according to original ids list
-	return util.Map(ids, func(sid id.ViewID) *view.View {
-		s, ok := lo.Find(res, func(s *view.View) bool {
-			return s.ID() == sid
-		})
-		if !ok {
-			return nil
-		}
-		return s
-	}), nil
+	return filterByIDs(ids, res), nil
 }
 
 func (r *View) FindByModel(ctx context.Context, modelID view.ModelID) (view.List, error) {
