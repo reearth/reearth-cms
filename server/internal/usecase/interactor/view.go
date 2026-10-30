@@ -171,6 +171,10 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 			if err != nil {
 				return nil, err
 			}
+			// FindByIDs skips unknown and unreadable views
+			if len(v) != len(ids) {
+				return nil, rerror.ErrNotFound
+			}
 			if !v.AreViewsInTheSameModel() {
 				return nil, interfaces.ErrViewsAreNotInTheSameModel
 			}

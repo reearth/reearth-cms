@@ -264,6 +264,17 @@ func testViewFindByIDs(t *testing.T, newRepo viewFactory) {
 			args:   id.ViewIDList{p2v1.ID(), p1v1.ID()},
 			want:   view.List{p2v1, p1v1},
 		},
+		{
+			name:  "must skip unknown IDs",
+			seeds: seeds,
+			args:  id.ViewIDList{id.NewViewID(), p1v2.ID(), id.NewViewID(), p1v1.ID()},
+			want:  view.List{p1v2, p1v1},
+		},
+		{
+			name: "must find nothing for an unknown ID in an empty repository",
+			args: id.ViewIDList{id.NewViewID()},
+			want: view.List{},
+		},
 	}
 
 	for _, tc := range tests {
