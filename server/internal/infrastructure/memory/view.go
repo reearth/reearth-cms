@@ -80,6 +80,9 @@ func (r *View) Save(_ context.Context, v *view.View) error {
 		return r.err
 	}
 
+	if err := v.Validate(); err != nil {
+		return err
+	}
 	if !r.f.CanWrite(v.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -96,6 +99,9 @@ func (r *View) SaveAll(_ context.Context, views view.List) error {
 		return nil
 	}
 
+	if err := views.Validate(); err != nil {
+		return err
+	}
 	if !r.f.CanWrite(views.Projects()...) {
 		return repo.ErrOperationDenied
 	}

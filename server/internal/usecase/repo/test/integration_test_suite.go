@@ -349,7 +349,6 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 //   - a nil webhook list and a nil trigger are read back as empty ones
 //   - an empty or unknown type is read back as private
 //   - an empty logo URL is read back as an empty, non-nil URL
-//   - a zero developer is saved, but the integration can no longer be read
 //   - a time that is not in UTC (e.g. the default UpdatedAt) is read back in UTC
 func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 	ctx := context.Background()
@@ -523,11 +522,16 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 		UpdatedAt(integrationNow().Add(time.Hour)).
 		MustBuild()
 
+	noDeveloper := integration.New().NewID().Type(integration.TypePrivate).
+		Webhook([]*integration.Webhook{}).UpdatedAt(integrationNow()).MustBuild()
+	all := id.IntegrationIDList{i1.ID(), i2.ID(), noDeveloper.ID()}
+
 	tests := []struct {
-		name  string
-		seeds integration.List
-		args  *integration.Integration
-		want  integration.List // the stored integrations afterwards
+		name    string
+		seeds   integration.List
+		args    *integration.Integration
+		want    integration.List // the stored integrations afterwards
+		wantErr error
 	}{
 		{
 			name: "must save a new integration",
@@ -552,6 +556,13 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 			args:  i1,
 			want:  integration.List{i1, i2},
 		},
+		{
+			name:    "must not save an integration without a developer",
+			seeds:   integration.List{i2},
+			args:    noDeveloper,
+			want:    integration.List{i2},
+			wantErr: integration.ErrInvalidID,
+		},
 	}
 
 	for _, tc := range tests {
@@ -561,8 +572,8 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 			r := newRepo(t)
 			seedIntegrations(t, r, tc.seeds)
 
-			assert.NoError(t, r.Save(ctx, tc.args))
-			assert.Equal(t, tc.want, storedIntegrations(t, r, id.IntegrationIDList{i1.ID(), i2.ID()}))
+			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			assert.Equal(t, tc.want, storedIntegrations(t, r, all))
 		})
 	}
 }

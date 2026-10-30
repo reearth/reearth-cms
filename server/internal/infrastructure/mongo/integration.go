@@ -76,6 +76,9 @@ func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserI
 }
 
 func (r *Integration) Save(ctx context.Context, integration *integration.Integration) error {
+	if err := integration.Validate(); err != nil {
+		return err
+	}
 	doc, sId := mongodoc.NewIntegration(integration)
 	return r.client.SaveOne(ctx, sId, doc)
 }

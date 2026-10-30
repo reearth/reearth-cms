@@ -75,6 +75,9 @@ func (r *View) FindByModel(ctx context.Context, modelID view.ModelID) (view.List
 }
 
 func (r *View) Save(ctx context.Context, view *view.View) error {
+	if err := view.Validate(); err != nil {
+		return err
+	}
 	if !r.f.CanWrite(view.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -85,6 +88,9 @@ func (r *View) Save(ctx context.Context, view *view.View) error {
 func (r *View) SaveAll(ctx context.Context, list view.List) error {
 	if len(list) == 0 {
 		return nil
+	}
+	if err := list.Validate(); err != nil {
+		return err
 	}
 	if !r.f.CanWrite(list.Projects()...) {
 		return repo.ErrOperationDenied

@@ -571,6 +571,7 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 	p1v1Updated := view.New().ID(p1v1.ID()).Project(p1).Model(p1v1.Model()).Schema(p1v1.Schema()).
 		User(p1v1.User()).Name("after").Order(1).Columns(&view.ColumnList{}).
 		Filter(new(viewStringCondition())).UpdatedAt(p1v1.UpdatedAt().Add(time.Hour)).MustBuild()
+	noUser := view.New().NewID().Project(p1).Model(id.NewModelID()).Schema(id.NewSchemaID()).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -584,6 +585,11 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			name: "must save a new view",
 			args: p1v1,
 			want: p1v1,
+		},
+		{
+			name:    "must not save a view without a user",
+			args:    noUser,
+			wantErr: view.ErrInvalidID,
 		},
 		{
 			name:    "must not save a view in a readable-only project",
@@ -642,6 +648,7 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 	p1v1Updated := view.New().ID(p1v1.ID()).Project(p1).Model(m1).Schema(p1v1.Schema()).User(p1v1.User()).
 		Name("after").Order(2).Columns(&view.ColumnList{}).UpdatedAt(p1v1.UpdatedAt()).MustBuild()
 	all := id.ViewIDList{p1v1.ID(), p1v2.ID(), p2v1.ID()}
+	noUser := view.New().NewID().Project(p1).Model(m1).Schema(id.NewSchemaID()).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -691,6 +698,11 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 			args:    view.List{p1v1Updated},
 			want:    view.List{p1v1}, // unchanged
 			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not save a list that includes a view without a user",
+			args:    view.List{p1v1, noUser},
+			wantErr: view.ErrInvalidID,
 		},
 	}
 

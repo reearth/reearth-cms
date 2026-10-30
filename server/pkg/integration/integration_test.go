@@ -1295,3 +1295,35 @@ func TestIntegration_RandomToken(t *testing.T) {
 	assert.True(t, strings.HasPrefix(i.token, "secret_"))
 	assert.Equal(t, 50, len(i.token))
 }
+
+func TestIntegration_Validate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		args    *Integration
+		wantErr error
+	}{
+		{
+			name: "must accept an integration with an ID and a developer",
+			args: &Integration{id: NewID(), developer: accountdomain.NewUserID()},
+		},
+		{
+			name:    "must reject an integration without an ID",
+			args:    &Integration{developer: accountdomain.NewUserID()},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject an integration without a developer",
+			args:    &Integration{id: NewID()},
+			wantErr: ErrInvalidID,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantErr, tc.args.Validate())
+		})
+	}
+}

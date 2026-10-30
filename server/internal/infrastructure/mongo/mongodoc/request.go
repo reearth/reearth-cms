@@ -44,21 +44,14 @@ func NewRequestConsumer() *RequestConsumer {
 func NewRequest(r *request.Request) (*RequestDocument, string) {
 	rid := r.ID().String()
 	items := lo.Map(r.Items(), func(i *request.Item, _ int) RequestItem {
-		return version.MatchVersionOrRef(
+		res := version.MatchVersionOrRef(
 			i.Pointer(),
-			func(v version.Version) RequestItem {
-				return RequestItem{
-					Item:    i.Item().String(),
-					Version: new(v.String()),
-				}
-			},
-			func(r version.Ref) RequestItem {
-				return RequestItem{
-					Item: i.Item().String(),
-					Ref:  new(r.String()),
-				}
-			},
+			func(v version.Version) RequestItem { return RequestItem{Version: new(v.String())} },
+			func(r version.Ref) RequestItem { return RequestItem{Ref: new(r.String())} },
 		)
+		// set outside the match, which returns a zero value for a zero pointer
+		res.Item = i.Item().String()
+		return res
 	})
 
 	doc, id := &RequestDocument{

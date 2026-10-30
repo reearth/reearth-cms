@@ -864,6 +864,12 @@ func testRequestFields(t *testing.T, newRepo requestFactory) {
 			}).MustBuild(),
 		},
 		{
+			name: "must keep an item with a zero pointer",
+			args: newRequest(pid).Items(request.ItemList{
+				newRequestItem(id.NewItemID(), version.VersionOrRef{}),
+			}).MustBuild(),
+		},
+		{
 			name: "must keep a draft request",
 			args: newRequest(pid).State(request.StateDraft).MustBuild(),
 		},
