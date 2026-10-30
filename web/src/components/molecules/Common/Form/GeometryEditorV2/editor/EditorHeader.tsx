@@ -13,10 +13,12 @@ type Props = {
   title: string;
   multiple: boolean;
   readOnly: boolean;
+  sideOpen: boolean;
   canUndo: boolean;
   canRedo: boolean;
   /** Apply is blocked while the GeoJSON text has problems. */
   applyBlocked: boolean;
+  onToggleSide: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onCancel: () => void;
@@ -28,9 +30,11 @@ const EditorHeader: React.FC<Props> = ({
   title,
   multiple,
   readOnly,
+  sideOpen,
   canUndo,
   canRedo,
   applyBlocked,
+  onToggleSide,
   onUndo,
   onRedo,
   onCancel,
@@ -42,6 +46,15 @@ const EditorHeader: React.FC<Props> = ({
   return (
     <Header>
       <Title>
+        <Tooltip title={sideOpen ? t("Hide panel") : t("Show panel")}>
+          <Button
+            type="text"
+            aria-label={sideOpen ? t("Hide panel") : t("Show panel")}
+            aria-expanded={sideOpen}
+            icon={<Icon icon={sideOpen ? "panelToggleLeft" : "panelToggleRight"} />}
+            onClick={onToggleSide}
+          />
+        </Tooltip>
         <TitleText level={5}>{title}</TitleText>
         <Tooltip
           title={
@@ -102,7 +115,7 @@ const Header = styled.div`
   gap: ${AntdToken.SPACING.BASE}px;
   height: 56px;
   flex-shrink: 0;
-  padding: 0 ${AntdToken.SPACING.BASE}px 0 ${AntdToken.SPACING.LG}px;
+  padding: 0 ${AntdToken.SPACING.BASE}px 0 ${AntdToken.SPACING.SM}px;
   border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 

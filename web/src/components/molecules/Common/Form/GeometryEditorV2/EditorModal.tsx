@@ -23,6 +23,7 @@ import { useEditorConfirm } from "./editor/useEditorConfirm";
 import { useEditorShortcuts } from "./editor/useEditorShortcuts";
 import { useReplaceGuard } from "./editor/useReplaceGuard";
 import { useSearchPin } from "./editor/useSearchPin";
+import { SplitLayout, useSplitterReset } from "./editor/useSplitterReset";
 import { useUndoNotice } from "./editor/useUndoNotice";
 import EditorMap from "./map/EditorMap";
 import { MapTool, TOOL_KIND } from "./map/mapTools";
@@ -30,6 +31,9 @@ import CoordinatesPanel from "./panels/CoordinatesPanel";
 import GeoJsonPanel from "./panels/GeoJsonPanel";
 import type { GeoJsonPanelHandle } from "./panels/GeoJsonPanel";
 import ShapeList from "./panels/ShapeList";
+
+/** The side pane's width when the editor opens and after a double-click on its bar. */
+const SIDE_WIDTH = 360;
 
 type Props = {
   open: boolean;
@@ -103,6 +107,9 @@ const EditorBody: React.FC<BodyProps> = ({
   const [tool, setTool] = useState<MapTool>(MapTool.SELECT);
   const [jsonOpen, setJsonOpen] = useState<boolean>(() => !initial.ok);
   const [coordinatesOpen, setCoordinatesOpen] = useState<boolean>(false);
+  // Folded unless the stored value is broken: its problems show in the side pane.
+  const [sideOpen, setSideOpen] = useState<boolean>(() => !initial.ok);
+  const [sideWidth, setSideWidth] = useState<number>(SIDE_WIDTH);
   const [issues, setIssues] = useState<GeometryIssue[]>([]);
   const drawRef = useRef<Draw | null>(null);
   const jsonPanelRef = useRef<GeoJsonPanelHandle | null>(null);
@@ -163,6 +170,24 @@ const EditorBody: React.FC<BodyProps> = ({
 
   const toggleCoordinates = useCallback<() => void>(() => setCoordinatesOpen(open => !open), []);
   const toggleJson = useCallback<() => void>(() => setJsonOpen(open => !open), []);
+  const toggleSide = useCallback<() => void>(() => setSideOpen(open => !open), []);
+  const resetSideWidth = useCallback<() => void>(() => setSideWidth(SIDE_WIDTH), []);
+
+  const {
+    areaRef: splitAreaRef,
+    areaSize: splitAreaWidth,
+    areaProps: splitAreaProps,
+    hintNode: splitHintNode,
+  } = useSplitterReset({
+    layout: SplitLayout.HORIZONTAL,
+    enabled: sideOpen,
+    hint: t("Double-click to reset the width"),
+    onReset: resetSideWidth,
+  });
+  // Both panels are sized explicitly: antd fills an unsized panel from the size it kept
+  // from the last drag, which skews any size set here.
+  const sideSize = sideOpen ? sideWidth : 0;
+  const mapSize = splitAreaWidth ? splitAreaWidth - sideSize : undefined;
 
   const pointAllowed = useMemo<boolean>(
     () => allowedKinds.includes(GeometryKind.POINT),
@@ -201,76 +226,88 @@ const EditorBody: React.FC<BodyProps> = ({
       <EditorHeader
         title={title}
         multiple={multiple}
+        sideOpen={sideOpen}
         readOnly={readOnly}
         canUndo={snapshot.undoDepth > 0}
         canRedo={snapshot.redoDepth > 0}
         applyBlocked={issues.length > 0}
+        onToggleSide={toggleSide}
         onUndo={() => store.undo()}
         onRedo={() => store.redo()}
         onCancel={requestClose}
         onApply={apply}
         onClose={onClose}
       />
-      <StyledSplitter>
-        <Splitter.Panel defaultSize={360} min={280} max="50%">
-          <SideSplit
-            bottomOpen={jsonOpen}
-            top={
-              <SidePane>
-                <SideHeader>
-                  <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
-                  {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
-                </SideHeader>
-                <ListScroll>
-                  <ShapeList
-                    multiple={multiple}
+      <SplitArea ref={splitAreaRef} {...splitAreaProps}>
+        {splitHintNode}
+        <StyledSplitter
+          onResize={next => {
+            if (sideOpen) setSideWidth(next[0]);
+          }}>
+          <Splitter.Panel
+            size={sideSize}
+            min={sideOpen ? 280 : 0}
+            max={sideOpen ? "50%" : 0}
+            resizable={sideOpen}>
+            <SideSplit
+              bottomOpen={jsonOpen}
+              top={
+                <SidePane>
+                  <SideHeader>
+                    <Typography.Text strong>{multiple ? t("Shapes") : t("Shape")}</Typography.Text>
+                    {multiple && <Typography.Text type="secondary">{count}</Typography.Text>}
+                  </SideHeader>
+                  <ListScroll>
+                    <ShapeList
+                      multiple={multiple}
+                      readOnly={readOnly}
+                      drawHint={drawHint}
+                      onDelete={deleteShape}
+                    />
+                  </ListScroll>
+                  <CoordinatesPanel
+                    open={coordinatesOpen}
                     readOnly={readOnly}
-                    drawHint={drawHint}
-                    onDelete={deleteShape}
+                    onToggle={toggleCoordinates}
                   />
-                </ListScroll>
-                <CoordinatesPanel
-                  open={coordinatesOpen}
+                </SidePane>
+              }
+              bottom={
+                <GeoJsonPanel
+                  ref={jsonPanelRef}
+                  multiple={multiple}
                   readOnly={readOnly}
-                  onToggle={toggleCoordinates}
+                  open={jsonOpen}
+                  validateOptions={validateOptions}
+                  initialInvalid={
+                    initial.ok ? undefined : { text: initial.text, issues: initial.issues }
+                  }
+                  onToggle={toggleJson}
+                  onIssuesChange={setIssues}
                 />
-              </SidePane>
-            }
-            bottom={
-              <GeoJsonPanel
-                ref={jsonPanelRef}
-                multiple={multiple}
-                readOnly={readOnly}
-                open={jsonOpen}
-                validateOptions={validateOptions}
-                initialInvalid={
-                  initial.ok ? undefined : { text: initial.text, issues: initial.issues }
-                }
-                onToggle={toggleJson}
-                onIssuesChange={setIssues}
-              />
-            }
-          />
-        </Splitter.Panel>
-        <Splitter.Panel>
-          <EditorMap
-            multiple={multiple}
-            readOnly={readOnly}
-            allowedKinds={allowedKinds}
-            tool={tool}
-            drawRef={drawRef}
-            searchPin={search.searchPin}
-            searchAddLabel={searchAddLabel}
-            replaceWarning={!multiple && hasValue}
-            onReplaced={notifyReplaced}
-            onToolRequest={requestTool}
-            onDeleteSelected={handleDeleteSelected}
-            onSearchFlyTo={search.flyTo}
-            onSearchAdd={search.add}
-            onSearchClear={search.clear}
-          />
-        </Splitter.Panel>
-      </StyledSplitter>
+              }
+            />
+          </Splitter.Panel>
+          <Splitter.Panel size={mapSize}>
+            <EditorMap
+              multiple={multiple}
+              readOnly={readOnly}
+              allowedKinds={allowedKinds}
+              tool={tool}
+              drawRef={drawRef}
+              searchPin={search.searchPin}
+              searchAddLabel={searchAddLabel}
+              replaceWarning={!multiple && hasValue}
+              onReplaced={notifyReplaced}
+              onToolRequest={requestTool}
+              onDeleteSelected={handleDeleteSelected}
+              onSearchFlyTo={search.flyTo}
+              onSearchAdd={search.add}
+              onSearchClear={search.clear}
+            />
+          </Splitter.Panel>
+        </StyledSplitter>
+      </SplitArea>
     </Layout>
   );
 };
@@ -299,9 +336,14 @@ const Layout = styled.div`
   height: 100%;
 `;
 
-const StyledSplitter = styled(Splitter)`
+const SplitArea = styled.div`
+  position: relative;
   flex: 1;
   min-height: 0;
+`;
+
+const StyledSplitter = styled(Splitter)`
+  height: 100%;
 `;
 
 const SidePane = styled.div`
