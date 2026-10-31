@@ -30,8 +30,15 @@ func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, useca
 		publicAPIGroup.OPTIONS("/*", func(ctx *echo.Context) error { return nil })
 	}
 
-	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware, AnonymousOperatorMiddleware())
-	publicapi.Echo(publicAPIGroup, publicApiRateLimit(appCtx))
+	readGroup := publicAPIGroup.Group("")
+	readGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware, AnonymousOperatorMiddleware())
+
+	// Posting is intentionally anonymous and must not be affected by Public API
+	// authentication, even when an Authorization header is present.
+	postingGroup := publicAPIGroup.Group("")
+	postingGroup.Use(usecaseMiddleware, AnonymousOperatorMiddleware())
+
+	publicapi.Echo(readGroup, postingGroup, publicApiRateLimit(appCtx))
 }
 
 func publicApiRateLimit(appCtx *ApplicationContext) publicapi.RateLimitConfig {
