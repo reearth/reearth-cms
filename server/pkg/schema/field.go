@@ -227,7 +227,7 @@ func (f *Field) validate(m *value.Multiple, rawIndexes []int) FieldValidationErr
 }
 
 func (f *Field) IsGeometryField() bool {
-	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
+	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor || f.Type() == value.TypeGeometry
 }
 
 func (f *Field) SupportsPointField() bool {
@@ -238,6 +238,9 @@ func (f *Field) SupportsPointField() bool {
 		},
 		GeometryEditor: func(f *FieldGeometryEditor) {
 			supported = f.SupportedTypes().Has(GeometryEditorSupportedTypePoint)
+		},
+		Geometry: func(_ *FieldGeometry) {
+			supported = true
 		},
 	})
 	return supported

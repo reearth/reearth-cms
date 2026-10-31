@@ -802,6 +802,10 @@ type ComplexityRoot struct {
 		DefaultValue func(childComplexity int) int
 	}
 
+	SchemaFieldGeometry struct {
+		DefaultValue func(childComplexity int) int
+	}
+
 	SchemaFieldGeometryEditor struct {
 		DefaultValue   func(childComplexity int) int
 		SupportedTypes func(childComplexity int) int
@@ -4454,6 +4458,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.SchemaFieldDate.DefaultValue(childComplexity), true
 
+	case "SchemaFieldGeometry.defaultValue":
+		if e.ComplexityRoot.SchemaFieldGeometry.DefaultValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SchemaFieldGeometry.DefaultValue(childComplexity), true
+
 	case "SchemaFieldGeometryEditor.defaultValue":
 		if e.ComplexityRoot.SchemaFieldGeometryEditor.DefaultValue == nil {
 			break
@@ -5260,6 +5271,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldCheckboxInput,
 		ec.unmarshalInputSchemaFieldDateInput,
 		ec.unmarshalInputSchemaFieldGeometryEditorInput,
+		ec.unmarshalInputSchemaFieldGeometryInput,
 		ec.unmarshalInputSchemaFieldGeometryObjectInput,
 		ec.unmarshalInputSchemaFieldGroupInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
@@ -5717,6 +5729,7 @@ extend type Mutation {
   Group
   GeometryObject
   GeometryEditor
+  Geometry
 }
 
 enum SchemaFieldTagColor {
@@ -5790,6 +5803,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldGroup
   | SchemaFieldGeometryObject
   | SchemaFieldGeometryEditor
+  | SchemaFieldGeometry
 
 type SchemaFieldText {
   defaultValue: Any
@@ -5879,6 +5893,10 @@ type SchemaFieldGeometryObject {
 type SchemaFieldGeometryEditor {
   defaultValue: Any
   supportedTypes: [GeometryEditorSupportedType!]!
+}
+
+type SchemaFieldGeometry {
+  defaultValue: Any
 }
 
 # Inputs
@@ -5979,6 +5997,10 @@ input SchemaFieldGeometryEditorInput {
   supportedTypes: [GeometryEditorSupportedType!]!
 }
 
+input SchemaFieldGeometryInput {
+  defaultValue: Any
+}
+
 input SchemaFieldLineStringInput {
   defaultValue: Any
 }
@@ -6001,6 +6023,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   group: SchemaFieldGroupInput
   geometryObject: SchemaFieldGeometryObjectInput
   geometryEditor: SchemaFieldGeometryEditorInput
+  geometry: SchemaFieldGeometryInput
 }
 
 input CreateFieldInput {
@@ -23833,6 +23856,29 @@ func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(_ context.
 	return graphql.NewScalarFieldContext("SchemaFieldDate", field, false, false, errors.New("field of type Any does not have child fields"))
 }
 
+func (ec *executionContext) _SchemaFieldGeometry_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldGeometry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SchemaFieldGeometry_defaultValue(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DefaultValue, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v any) graphql.Marshaler {
+			return ec.marshalOAny2interface(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_SchemaFieldGeometry_defaultValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SchemaFieldGeometry", field, false, false, errors.New("field of type Any does not have child fields"))
+}
+
 func (ec *executionContext) _SchemaFieldGeometryEditor_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldGeometryEditor) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -30983,6 +31029,36 @@ func (ec *executionContext) unmarshalInputSchemaFieldGeometryEditorInput(ctx con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldGeometryInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGeometryInput, error) {
+	var it gqlmodel.SchemaFieldGeometryInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"defaultValue"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "defaultValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
+			data, err := ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultValue = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldGeometryObjectInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGeometryObjectInput, error) {
 	var it gqlmodel.SchemaFieldGeometryObjectInput
 	if obj == nil {
@@ -31452,7 +31528,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "number", "reference", "url", "group", "geometryObject", "geometryEditor"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "number", "reference", "url", "group", "geometryObject", "geometryEditor", "geometry"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -31578,6 +31654,13 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				return it, err
 			}
 			it.GeometryEditor = data
+		case "geometry":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geometry"))
+			data, err := ec.unmarshalOSchemaFieldGeometryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Geometry = data
 		}
 	}
 	// Execute INPUT_OBJECT level directives (e.g., @oneOf, @directive3)
@@ -33672,6 +33755,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldGeometryEditor(ctx, sel, obj)
+	case gqlmodel.SchemaFieldGeometry:
+		return ec._SchemaFieldGeometry(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldGeometry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldGeometry(ctx, sel, obj)
 	case gqlmodel.SchemaFieldDate:
 		return ec._SchemaFieldDate(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldDate:
@@ -41029,6 +41119,44 @@ func (ec *executionContext) _SchemaFieldDate(ctx context.Context, sel ast.Select
 	return out
 }
 
+var schemaFieldGeometryImplementors = []string{"SchemaFieldGeometry", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldGeometry(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldGeometry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldGeometryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldGeometry")
+		case "defaultValue":
+			out.Values[i] = ec._SchemaFieldGeometry_defaultValue(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var schemaFieldGeometryEditorImplementors = []string{"SchemaFieldGeometryEditor", "SchemaFieldTypeProperty"}
 
 func (ec *executionContext) _SchemaFieldGeometryEditor(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldGeometryEditor) graphql.Marshaler {
@@ -46999,6 +47127,14 @@ func (ec *executionContext) unmarshalOSchemaFieldGeometryEditorInput2ᚖgithub�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldGeometryEditorInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldGeometryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldGeometryInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldGeometryInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

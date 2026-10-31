@@ -225,6 +225,8 @@ func FromSchemaTypeProperty(t integrationapi.ValueType, multiple bool) (tpRes *s
 		tpRes = schema.NewGeometryObject(schema.GeometryAllSupportedTypes()).TypeProperty()
 	case integrationapi.ValueTypeGeometryEditor:
 		tpRes = schema.NewGeometryEditor(nil).TypeProperty()
+	case integrationapi.ValueTypeGeometry:
+		tpRes = schema.NewGeometry().TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}

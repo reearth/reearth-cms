@@ -86,6 +86,11 @@ func TestValueType(t *testing.T) {
 			want: SchemaFieldTypeGeometryEditor,
 		},
 		{
+			name: "TypeGeometry",
+			t:    value.TypeGeometry,
+			want: SchemaFieldTypeGeometry,
+		},
+		{
 			name: "invalid",
 			t:    "some value",
 			want: "",
@@ -191,6 +196,14 @@ func TestToValue(t *testing.T) {
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`,
+		},
+		{
+			name: "TypeGeometry",
+			v: value.TypeGeometry.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
+			want: value.Geometry{"type": "Point", "coordinates": []any{102.0, 0.5}},
 		},
 		{
 			name: "nil",
@@ -308,6 +321,12 @@ func TestFromValue(t *testing.T) {
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`),
+		},
+		{
+			name: "TypeGeometry",
+			t:    SchemaFieldTypeGeometry,
+			v:    map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
+			want: value.TypeGeometry.Value(`{"type":"Point","coordinates":[102.0,0.5]}`),
 		},
 		{
 			name: "nil",

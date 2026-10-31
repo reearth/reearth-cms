@@ -216,6 +216,19 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			args: args{tp: schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{"POINT"}).TypeProperty()},
 			want: &SchemaFieldGeometryEditor{SupportedTypes: []GeometryEditorSupportedType{"POINT"}, DefaultValue: nil},
 		},
+		{
+			name: "geometry",
+			args: args{tp: schema.NewGeometry().TypeProperty()},
+			want: &SchemaFieldGeometry{DefaultValue: nil},
+		},
+		{
+			name: "geometry with default value",
+			args: args{
+				tp: schema.NewGeometry().TypeProperty(),
+				dv: value.TypeGeometry.Value(`{"type":"Point","coordinates":[1,2]}`).AsMultiple(),
+			},
+			want: &SchemaFieldGeometry{DefaultValue: value.Geometry{"type": "Point", "coordinates": []any{1.0, 2.0}}},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -27,6 +27,7 @@ var unsupportedTypes = []value.Type{
 	value.TypeGroup,
 	value.TypeGeometryEditor,
 	value.TypeGeometryObject,
+	value.TypeGeometry,
 }
 
 func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i string) (Item, error) {
