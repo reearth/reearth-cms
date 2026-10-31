@@ -3,15 +3,15 @@ module github.com/reearth/reearth-cms/server
 go 1.27.2
 
 require (
-	cloud.google.com/go/pubsub/v2 v2.7.0
-	cloud.google.com/go/storage v1.69.0
-	github.com/99designs/gqlgen v0.17.95
+	cloud.google.com/go/pubsub/v2 v2.8.0
+	cloud.google.com/go/storage v1.70.0
+	github.com/99designs/gqlgen v0.17.98
 	github.com/avast/retry-go/v5 v5.0.0
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/coder/websocket v1.8.15
 	github.com/gavv/httpexpect/v2 v2.17.0
-	github.com/getkin/kin-openapi v0.150.0
-	github.com/go-jose/go-jose/v4 v4.1.5
+	github.com/getkin/kin-openapi v0.152.0
+	github.com/go-jose/go-jose/v4 v4.1.6
 	github.com/google/uuid v1.6.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/gorilla/websocket v1.5.3
@@ -19,11 +19,11 @@ require (
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/jarcoal/httpmock v1.4.2
 	github.com/joho/godotenv v1.5.1
-	github.com/k0kubun/pp/v3 v3.5.3
+	github.com/k0kubun/pp/v3 v3.5.4
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo-opentelemetry v0.0.4
-	github.com/labstack/echo/v5 v5.4.0
-	github.com/oapi-codegen/runtime v1.7.0
+	github.com/labstack/echo/v5 v5.4.2
+	github.com/oapi-codegen/runtime v1.8.0
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/reearth/reearth-accounts/server v0.0.0-20261013054957-a545c2083d8b
@@ -33,7 +33,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0
 	github.com/stretchr/testify v1.12.1
-	github.com/vektah/gqlparser/v2 v2.5.62
+	github.com/vektah/gqlparser/v2 v2.5.64
 	github.com/vikstrous/dataloadgen v0.0.10
 	go.mongodb.org/mongo-driver v1.17.10
 	go.opencensus.io v0.24.0
@@ -47,7 +47,7 @@ require (
 	go.uber.org/mock v0.6.0
 	golang.org/x/sync v0.24.0
 	golang.org/x/text v0.43.0
-	google.golang.org/api v0.303.0
+	google.golang.org/api v0.308.0
 	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 )
@@ -55,7 +55,7 @@ require (
 require (
 	cel.dev/expr v0.25.2 // indirect
 	cloud.google.com/go v0.123.0 // indirect
-	cloud.google.com/go/auth v0.24.1-0.20261001053825-dbc26066f70a // indirect
+	cloud.google.com/go/auth v0.24.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.3.0 // indirect
 	cloud.google.com/go/compute/metadata v0.10.0 // indirect
 	cloud.google.com/go/iam v1.12.0 // indirect
@@ -65,7 +65,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.35.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.59.0 // indirect
 	github.com/TylerBrock/colorjson v0.0.0-20200706003622-8a50f05110d2 // indirect
-	github.com/agnivade/levenshtein v1.2.1 // indirect
+	github.com/agnivade/levenshtein v1.2.2 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
@@ -125,12 +125,12 @@ require (
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/maruel/panicparse/v2 v2.5.0 // indirect
-	github.com/mattn/go-colorable v0.1.15 // indirect
+	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/montanaflynn/stats v0.12.7 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.6.0 // indirect
-	github.com/oapi-codegen/oapi-codegen/v2 v2.8.0 // indirect
+	github.com/oapi-codegen/oapi-codegen/v2 v2.8.1 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
 	github.com/oasdiff/yaml3 v0.0.14 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
@@ -148,7 +148,7 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	github.com/urfave/cli/v3 v3.11.0 // indirect
+	github.com/urfave/cli/v3 v3.14.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.68.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -182,10 +182,10 @@ require (
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
-	golang.org/x/tools v0.51.0 // indirect
+	golang.org/x/tools v0.52.0 // indirect
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260928230214-8a89bd6388cc // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
