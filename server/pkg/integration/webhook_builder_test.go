@@ -72,6 +72,7 @@ func TestWebhookBuilder_Active(t *testing.T) {
 
 func TestWebhookBuilder_Build(t *testing.T) {
 	wId := id.NewWebhookID()
+	u := lo.Must(url.Parse("https://example.com/hook"))
 	now := time.Now()
 	type fields struct {
 		w *Webhook
@@ -89,15 +90,21 @@ func TestWebhookBuilder_Build(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
-			name:    "no update at",
+			name:    "no URL",
 			fields:  fields{w: &Webhook{id: wId}},
-			want:    &Webhook{id: wId, updatedAt: wId.Timestamp()},
+			want:    nil,
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "no update at",
+			fields:  fields{w: &Webhook{id: wId, url: u}},
+			want:    &Webhook{id: wId, url: u, updatedAt: wId.Timestamp()},
 			wantErr: nil,
 		},
 		{
 			name:    "full",
-			fields:  fields{w: &Webhook{id: wId, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}}},
-			want:    &Webhook{id: wId, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}},
+			fields:  fields{w: &Webhook{id: wId, url: u, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}}},
+			want:    &Webhook{id: wId, url: u, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}},
 			wantErr: nil,
 		},
 	}
@@ -155,6 +162,7 @@ func TestWebhookBuilder_ID(t *testing.T) {
 
 func TestWebhookBuilder_MustBuild(t *testing.T) {
 	wId := id.NewWebhookID()
+	u := lo.Must(url.Parse("https://example.com/hook"))
 	now := time.Now()
 	type fields struct {
 		w *Webhook
@@ -172,15 +180,21 @@ func TestWebhookBuilder_MustBuild(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
-			name:    "no update at",
+			name:    "no URL",
 			fields:  fields{w: &Webhook{id: wId}},
-			want:    &Webhook{id: wId, updatedAt: wId.Timestamp()},
+			want:    nil,
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "no update at",
+			fields:  fields{w: &Webhook{id: wId, url: u}},
+			want:    &Webhook{id: wId, url: u, updatedAt: wId.Timestamp()},
 			wantErr: nil,
 		},
 		{
 			name:    "full",
-			fields:  fields{w: &Webhook{id: wId, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}}},
-			want:    &Webhook{id: wId, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}},
+			fields:  fields{w: &Webhook{id: wId, url: u, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}}},
+			want:    &Webhook{id: wId, url: u, updatedAt: now, active: true, name: "xyz", trigger: WebhookTrigger{}},
 			wantErr: nil,
 		},
 	}

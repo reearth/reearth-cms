@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type View struct {
@@ -92,6 +93,7 @@ func (r *View) SaveAll(_ context.Context, views view.List) error {
 	if r.err != nil {
 		return r.err
 	}
+	views = lo.Compact(views)
 	if len(views) == 0 {
 		return nil
 	}

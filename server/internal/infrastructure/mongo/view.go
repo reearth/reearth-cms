@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -72,6 +73,7 @@ func (r *View) Save(ctx context.Context, view *view.View) error {
 }
 
 func (r *View) SaveAll(ctx context.Context, list view.List) error {
+	list = lo.Compact(list)
 	if len(list) == 0 {
 		return nil
 	}

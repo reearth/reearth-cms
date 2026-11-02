@@ -34,6 +34,7 @@ func TestNew(t *testing.T) {
 func TestBuilder_Build(t *testing.T) {
 	iId := id.NewIntegrationID()
 	uId := accountdomain.NewUserID()
+	logo := lo.Must(url.Parse("https://example.com/logo.png"))
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -57,14 +58,22 @@ func TestBuilder_Build(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
+			name:    "no logo URL",
+			fields:  fields{i: &Integration{id: iId, developer: uId}},
+			want:    nil,
+			wantErr: ErrInvalidURL,
+		},
+		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 			}},
 			want: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -74,11 +83,13 @@ func TestBuilder_Build(t *testing.T) {
 			fields: fields{i: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 				updatedAt: now,
 			},
 			wantErr: nil,
@@ -106,6 +117,7 @@ func TestBuilder_Build(t *testing.T) {
 func TestBuilder_MustBuild(t *testing.T) {
 	iId := id.NewIntegrationID()
 	uId := accountdomain.NewUserID()
+	logo := lo.Must(url.Parse("https://example.com/logo.png"))
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -129,14 +141,22 @@ func TestBuilder_MustBuild(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
+			name:    "no logo URL",
+			fields:  fields{i: &Integration{id: iId, developer: uId}},
+			want:    nil,
+			wantErr: ErrInvalidURL,
+		},
+		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 			}},
 			want: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -146,11 +166,13 @@ func TestBuilder_MustBuild(t *testing.T) {
 			fields: fields{i: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
 				developer: uId,
+				logoUrl:   logo,
 				updatedAt: now,
 			},
 			wantErr: nil,

@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"errors"
 	"net/url"
 	"slices"
 	"time"
@@ -23,9 +24,14 @@ type Integration struct {
 	updatedAt   time.Time
 }
 
+var ErrInvalidURL = errors.New("invalid URL")
+
 func (i *Integration) Validate() error {
 	if i.id.IsNil() || i.developer.IsNil() {
 		return ErrInvalidID
+	}
+	if i.logoUrl == nil {
+		return ErrInvalidURL
 	}
 	return nil
 }

@@ -1298,6 +1298,7 @@ func TestIntegration_RandomToken(t *testing.T) {
 
 func TestIntegration_Validate(t *testing.T) {
 	t.Parallel()
+	logo := lo.Must(url.Parse("https://example.com/logo.png"))
 
 	tests := []struct {
 		name    string
@@ -1305,18 +1306,23 @@ func TestIntegration_Validate(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "must accept an integration with an ID and a developer",
-			args: &Integration{id: NewID(), developer: accountdomain.NewUserID()},
+			name: "must accept an integration with an ID, a developer and a logo URL",
+			args: &Integration{id: NewID(), developer: accountdomain.NewUserID(), logoUrl: logo},
 		},
 		{
 			name:    "must reject an integration without an ID",
-			args:    &Integration{developer: accountdomain.NewUserID()},
+			args:    &Integration{developer: accountdomain.NewUserID(), logoUrl: logo},
 			wantErr: ErrInvalidID,
 		},
 		{
 			name:    "must reject an integration without a developer",
-			args:    &Integration{id: NewID()},
+			args:    &Integration{id: NewID(), logoUrl: logo},
 			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject an integration without a logo URL",
+			args:    &Integration{id: NewID(), developer: accountdomain.NewUserID()},
+			wantErr: ErrInvalidURL,
 		},
 	}
 

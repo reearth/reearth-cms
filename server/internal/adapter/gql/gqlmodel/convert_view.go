@@ -291,7 +291,8 @@ func (i *ConditionInput) Into() *view.Condition {
 			ConditionType: view.ConditionTypeAnd,
 			AndCondition: &view.AndCondition{
 				Conditions: lo.Map(i.And.Conditions, func(c *ConditionInput, _ int) view.Condition {
-					return *c.Into()
+					// an empty input is kept so that validation rejects it
+					return lo.FromPtr(c.Into())
 				}),
 			},
 		}
@@ -301,7 +302,8 @@ func (i *ConditionInput) Into() *view.Condition {
 			ConditionType: view.ConditionTypeOr,
 			OrCondition: &view.OrCondition{
 				Conditions: lo.Map(i.Or.Conditions, func(c *ConditionInput, _ int) view.Condition {
-					return *c.Into()
+					// an empty input is kept so that validation rejects it
+					return lo.FromPtr(c.Into())
 				}),
 			},
 		}

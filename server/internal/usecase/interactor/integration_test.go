@@ -732,7 +732,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	wId := id.NewWebhookID()
-	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).Url(ts.Uri).MustBuild()})
 	type args struct {
 		iId    integration.ID
 		wId    integration.WebhookID
@@ -873,7 +873,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	wId := id.NewWebhookID()
-	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).Url(ts.Uri).MustBuild()})
 	type args struct {
 		iId    integration.ID
 		wId    integration.WebhookID

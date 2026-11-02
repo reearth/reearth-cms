@@ -354,7 +354,6 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 // webhooks survives a save and find round trip.
 //
 // TODO: these are left out as mongo does not keep them:
-//   - a nil logo URL or a webhook with a nil URL makes Save panic
 //   - a nil webhook list and a nil trigger are read back as empty ones
 //   - an empty or unknown type is read back as private
 //   - an empty logo URL is read back as an empty, non-nil URL

@@ -59,6 +59,9 @@ func (v *View) Validate() error {
 	if v.id.IsNil() || v.project.IsNil() || v.model.IsNil() || v.schema.IsNil() || v.user.IsNil() {
 		return ErrInvalidID
 	}
+	if v.filter != nil {
+		return v.filter.Validate()
+	}
 	return nil
 }
 

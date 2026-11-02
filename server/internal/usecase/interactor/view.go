@@ -153,6 +153,10 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 			v.SetSort(param.Sort)
 			v.SetColumns(param.Columns)
 			v.SetUpdatedAt(time.Now())
+			// the setters bypass the builder's validation
+			if err := v.Validate(); err != nil {
+				return nil, err
+			}
 
 			if err := i.repos.View.Save(ctx, v); err != nil {
 				return nil, err

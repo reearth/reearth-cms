@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
@@ -65,4 +66,30 @@ func TestView_UpdateOrder(t *testing.T) {
 			assert.Nil(t, got)
 		})
 	}
+}
+
+func TestView_Update_EmptyCondition(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	pid := id.NewProjectID()
+	v := view.New().NewID().Project(pid).Model(id.NewModelID()).Schema(id.NewSchemaID()).
+		User(accountdomain.NewUserID()).MustBuild()
+
+	db := memory.New()
+	require.NoError(t, db.View.Save(ctx, v))
+	op := &usecase.Operator{
+		OwningProjects: id.ProjectIDList{pid},
+		AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+	}
+	filter := &view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{
+		Conditions: []view.Condition{{}},
+	}}
+
+	got, err := NewView(db, nil).Update(ctx, v.ID(), interfaces.UpdateViewParam{Filter: filter}, op)
+	assert.Equal(t, view.ErrEmptyCondition, err)
+	assert.Nil(t, got)
+
+	stored, err := db.View.FindByID(ctx, v.ID())
+	require.NoError(t, err)
+	assert.Nil(t, stored.Filter())
 }

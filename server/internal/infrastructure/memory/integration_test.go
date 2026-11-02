@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"errors"
+	"net/url"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +24,8 @@ func TestIntegrationRepo(t *testing.T) {
 func TestIntegration_MemorySpecific_Errors(t *testing.T) {
 	ctx := context.Background()
 	wantErr := errors.New("test")
-	i := integration.New().NewID().Developer(accountdomain.NewUserID()).Token("token").MustBuild()
+	i := integration.New().NewID().Developer(accountdomain.NewUserID()).Token("token").
+		LogoUrl(lo.Must(url.Parse("https://example.com/logo.png"))).MustBuild()
 
 	r := NewIntegration()
 	assert.NoError(t, r.Save(ctx, i))

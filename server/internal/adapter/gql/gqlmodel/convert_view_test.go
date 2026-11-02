@@ -44,3 +44,11 @@ func TestToView(t *testing.T) {
 		})
 	}
 }
+
+func TestConditionInput_Into_EmptyNested(t *testing.T) {
+	t.Parallel()
+
+	// an empty nested input must not panic; it is kept for validation to reject
+	got := (&ConditionInput{And: &AndConditionInput{Conditions: []*ConditionInput{{}}}}).Into()
+	assert.Equal(t, view.ErrEmptyCondition, got.Validate())
+}

@@ -703,6 +703,16 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 			want:    view.List{p1v1}, // unchanged
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name: "must skip nil views",
+			args: view.List{nil, p1v1, nil},
+			want: view.List{p1v1},
+		},
+		{
+			name:   "must save nothing for a list of nil views even in a project that is not writable",
+			filter: new(pjFilter(nil, id.ProjectIDList{})),
+			args:   view.List{nil},
+		},
 	}
 
 	for _, tc := range tests {
