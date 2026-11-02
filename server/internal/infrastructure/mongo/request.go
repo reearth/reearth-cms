@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -142,7 +144,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			},
 		}
 	}
-	return r.paginate(ctx, &filter, sort, page)
+	return r.paginate(ctx, &filter, normalizeRequestSort(sort), page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
@@ -214,4 +216,26 @@ func filterRequests(ids id.RequestIDList, rows request.List) request.List {
 
 func (r *Request) readFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Readable)
+}
+
+// normalizeRequestSort maps a sort key to a request document field; an unknown
+// key sorts by ID, which follows the creation time
+func normalizeRequestSort(s *usecasex.Sort) *usecasex.Sort {
+	if s == nil {
+		return nil
+	}
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(s.Key)),
+		Reverted: s.Reverted,
+	}
+	switch res.Key {
+	case "createdat", "created_at":
+		res.Key = "id"
+	case "updated_at":
+		res.Key = "updatedat"
+	}
+	if !slices.Contains([]string{"id", "workspace", "project", "title", "description", "createdby", "state", "updatedat", "approvedat", "closedat"}, res.Key) {
+		res.Key = "id"
+	}
+	return res
 }

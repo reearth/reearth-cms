@@ -79,7 +79,7 @@ func (r *Request) FindByProject(_ context.Context, pid id.ProjectID, filter repo
 		return v.Project() == pid && matchRequest(v, filter, matchRequestKeyword)
 	})
 
-	res, pi, err := r.pager().paginate(result, sort, page)
+	res, pi, err := r.pager().paginate(result, normalizeRequestSort(sort), page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -167,8 +167,7 @@ func (r *Request) pager() pager[*request.Request] {
 			return cmp.Compare(ta.UnixMilli(), tb.UnixMilli())
 		}
 	}
-	// the sort key is the name of a mongo document field; any other key
-	// sorts by ID alone, as mongo does for a missing field
+	// the sort key is the name of a mongo document field, see normalizeRequestSort
 	return pager[*request.Request]{
 		id: func(v *request.Request) string { return v.ID().String() },
 		keys: map[string]compareFunc[*request.Request]{
@@ -220,4 +219,26 @@ func requestContainsFold(s, substr string) bool {
 
 func SetRequestError(r repo.Request, err error) {
 	r.(*Request).err = err
+}
+
+// normalizeRequestSort maps a sort key to a request document field; an unknown
+// key sorts by ID, which follows the creation time
+func normalizeRequestSort(s *usecasex.Sort) *usecasex.Sort {
+	if s == nil {
+		return nil
+	}
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(s.Key)),
+		Reverted: s.Reverted,
+	}
+	switch res.Key {
+	case "createdat", "created_at":
+		res.Key = "id"
+	case "updated_at":
+		res.Key = "updatedat"
+	}
+	if !slices.Contains([]string{"id", "workspace", "project", "title", "description", "createdby", "state", "updatedat", "approvedat", "closedat"}, res.Key) {
+		res.Key = "id"
+	}
+	return res
 }

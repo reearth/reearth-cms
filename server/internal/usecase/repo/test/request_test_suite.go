@@ -621,11 +621,30 @@ func testRequestFindByProjectPagination(t *testing.T, newRepo requestFactory) {
 			wantPage:  true,
 		},
 		{
-			// the key is used as a document field name as is; documents have
-			// no createdAt field, so the requests are sorted by ID alone,
-			// which follows the creation time
+			name:      "must sort by update time with a camelCase key",
+			args:      args{sort: &usecasex.Sort{Key: "updatedAt"}, pagination: first(10)},
+			want:      request.List{p1r3, p1r1, p1r4, p1r2},
+			wantTotal: 4,
+			wantPage:  true,
+		},
+		{
+			name:      "must sort by approval time with a camelCase key",
+			args:      args{sort: &usecasex.Sort{Key: "approvedAt", Reverted: true}, pagination: first(10)},
+			want:      request.List{p1r2, p1r4, p1r3, p1r1},
+			wantTotal: 4,
+			wantPage:  true,
+		},
+		{
+			// creation time is sorted by ID, which follows it
 			name:      "must sort by creation time in reverse",
 			args:      args{sort: &usecasex.Sort{Key: "createdAt", Reverted: true}, pagination: first(10)},
+			want:      request.List{p1r4, p1r3, p1r2, p1r1},
+			wantTotal: 4,
+			wantPage:  true,
+		},
+		{
+			name:      "must sort by ID in reverse for an unknown key",
+			args:      args{sort: &usecasex.Sort{Key: "unknown", Reverted: true}, pagination: first(10)},
 			want:      request.List{p1r4, p1r3, p1r2, p1r1},
 			wantTotal: 4,
 			wantPage:  true,

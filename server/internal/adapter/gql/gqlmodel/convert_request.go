@@ -4,7 +4,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
@@ -61,22 +60,4 @@ func ToRequestState(s request.State) RequestState {
 	default:
 		return ""
 	}
-}
-
-// requestSortKeys maps the sort keys clients send to request document fields;
-// other keys are passed as they are
-var requestSortKeys = map[string]string{
-	"createdAt": "id", // IDs follow the creation time
-	"updatedAt": "updatedat",
-}
-
-func ToRequestSort(s *Sort) *usecasex.Sort {
-	res := s.Into()
-	if res == nil {
-		return nil
-	}
-	if k, ok := requestSortKeys[res.Key]; ok {
-		res.Key = k
-	}
-	return res
 }

@@ -60,7 +60,7 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 	f.Reviewer = gqlmodel.ToIDRef[accountdomain.User](reviewer)
 	f.CreatedBy = gqlmodel.ToIDRef[accountdomain.User](createdBy)
 
-	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, gqlmodel.ToRequestSort(sort), p.Into(), getOperator(ctx))
+	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, sort.Into(), p.Into(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

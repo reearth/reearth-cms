@@ -170,6 +170,8 @@ func TestPagination_Into(t *testing.T) {
 }
 
 func TestSort_Into(t *testing.T) {
+	t.Parallel()
+
 	assert.Nil(t, (*Sort)(nil).Into())
 	assert.Equal(t, &usecasex.Sort{Key: "title", Reverted: true}, (&Sort{Key: "title", Reverted: new(true)}).Into())
 	// reverted is optional in the schema
