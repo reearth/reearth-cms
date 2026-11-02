@@ -36,6 +36,16 @@ func (ws *WorkspaceSettings) SetTerrains(wl *ResourceList) {
 	ws.terrains = util.CloneRef(wl)
 }
 
+func (ws *WorkspaceSettings) Validate() error {
+	if ws.id.IsNil() {
+		return ErrInvalidID
+	}
+	if err := ws.tiles.Validate(); err != nil {
+		return err
+	}
+	return ws.terrains.Validate()
+}
+
 func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 	if ws == nil {
 		return nil

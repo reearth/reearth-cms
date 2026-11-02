@@ -77,15 +77,16 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 		return nil, err
 	}
 
-	w := lo.Map(d.Webhook, func(d WebhookDocument, _ int) *integration.Webhook {
+	// a webhook that can't be decoded is skipped rather than kept as a nil entry
+	w := lo.FilterMap(d.Webhook, func(d WebhookDocument, _ int) (*integration.Webhook, bool) {
 		wId, err := id.WebhookIDFrom(d.ID)
 		if err != nil {
-			return nil
+			return nil, false
 		}
 
 		u, err := url.Parse(d.Url)
 		if err != nil {
-			return nil
+			return nil, false
 		}
 
 		trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
@@ -100,11 +101,7 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 			Trigger(trigger).
 			Secret(d.Secret).
 			Build()
-		if err != nil {
-			return nil
-		}
-
-		return m
+		return m, err == nil
 	})
 
 	return integration.New().

@@ -113,3 +113,24 @@ func TestNewIntegrationConsumer(t *testing.T) {
 	c := NewIntegrationConsumer()
 	assert.NotNil(t, c)
 }
+
+func TestIntegrationDocument_Model_SkipsInvalidWebhooks(t *testing.T) {
+	t.Parallel()
+	wId := integration.NewWebhookID()
+	doc := &IntegrationDocument{
+		ID:        integration.NewID().String(),
+		Type:      "private",
+		LogoUrl:   "https://example.com/logo.png",
+		Developer: user.NewID().String(),
+		Webhook: []WebhookDocument{
+			{ID: "invalid", Url: "https://example.com/a"},
+			{ID: wId.String(), Url: "https://example.com/b"},
+			{ID: integration.NewWebhookID().String(), Url: "%zz"},
+		},
+	}
+
+	got, err := doc.Model()
+	assert.NoError(t, err)
+	assert.Len(t, got.Webhooks(), 1)
+	assert.Equal(t, wId, got.Webhooks()[0].ID())
+}

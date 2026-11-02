@@ -61,24 +61,22 @@ func viewSelector(t view.FieldType) view.FieldSelector {
 	return view.FieldSelector{Type: t, ID: new(id.NewFieldID())}
 }
 
-// TODO: the conditions here are built without ConditionType, because mongo
-// drops it on save (mongodoc.FilterDocument.Model never sets it). The
-// adapters always set it, and Condition.FieldsByType and the item search
-// depend on it, so it must survive a round trip.
+// ConditionType is set like the adapters do, as Condition.FieldsByType and the
+// item search depend on it
 func viewBasicCondition(value any) view.Condition {
-	return view.Condition{BasicCondition: &view.BasicCondition{
+	return view.Condition{ConditionType: view.ConditionTypeBasic, BasicCondition: &view.BasicCondition{
 		Field: viewSelector(view.FieldTypeField), Op: view.BasicOperatorEquals, Value: value,
 	}}
 }
 
 func viewStringCondition() view.Condition {
-	return view.Condition{StringCondition: &view.StringCondition{
+	return view.Condition{ConditionType: view.ConditionTypeString, StringCondition: &view.StringCondition{
 		Field: viewSelector(view.FieldTypeField), Op: view.StringOperatorContains, Value: "文字列",
 	}}
 }
 
 func viewNumberCondition() view.Condition {
-	return view.Condition{NumberCondition: &view.NumberCondition{
+	return view.Condition{ConditionType: view.ConditionTypeNumber, NumberCondition: &view.NumberCondition{
 		Field: viewSelector(view.FieldTypeMetaField), Op: view.NumberOperatorGreaterThan, Value: 1.5,
 	}}
 }
@@ -393,7 +391,7 @@ func testViewFields(t *testing.T, newRepo viewFactory) {
 			name: "must keep a view with all its fields",
 			args: b().Name("一覧 view").Order(5).
 				Sort(&view.Sort{Field: viewSelector(view.FieldTypeMetaField), Direction: view.DirectionAsc}).
-				Filter(&view.Condition{AndCondition: &view.AndCondition{Conditions: []view.Condition{viewStringCondition(), viewNumberCondition()}}}).
+				Filter(&view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{viewStringCondition(), viewNumberCondition()}}}).
 				Columns(&view.ColumnList{
 					{Field: viewSelector(view.FieldTypeField), Visible: true},
 					{Field: view.FieldSelector{Type: view.FieldTypeStatus}, Visible: false},
@@ -459,19 +457,19 @@ func testViewConditions(t *testing.T, newRepo viewFactory) {
 		},
 		{
 			name: "must keep a nullable condition",
-			args: view.Condition{NullableCondition: &view.NullableCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeNullable, NullableCondition: &view.NullableCondition{
 				Field: view.FieldSelector{Type: view.FieldTypeModificationUser}, Op: view.NullableOperatorEmpty,
 			}},
 		},
 		{
 			name: "must keep a multiple condition",
-			args: view.Condition{MultipleCondition: &view.MultipleCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeMultiple, MultipleCondition: &view.MultipleCondition{
 				Field: viewSelector(view.FieldTypeField), Op: view.MultipleOperatorIncludesAny, Value: []any{"a", "b", 2.5},
 			}},
 		},
 		{
 			name: "must keep a bool condition",
-			args: view.Condition{BoolCondition: &view.BoolCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeBool, BoolCondition: &view.BoolCondition{
 				Field: viewSelector(view.FieldTypeMetaField), Op: view.BoolOperatorEquals, Value: true,
 			}},
 		},
@@ -485,29 +483,29 @@ func testViewConditions(t *testing.T, newRepo viewFactory) {
 		},
 		{
 			name: "must keep a time condition",
-			args: view.Condition{TimeCondition: &view.TimeCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeTime, TimeCondition: &view.TimeCondition{
 				Field: view.FieldSelector{Type: view.FieldTypeCreationDate}, Op: view.TimeOperatorBefore, Value: now,
 			}},
 		},
 		{
 			name: "must keep an and condition",
-			args: view.Condition{AndCondition: &view.AndCondition{Conditions: []view.Condition{
+			args: view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{
 				viewStringCondition(), viewNumberCondition(),
 			}}},
 		},
 		{
 			name: "must keep an or condition",
-			args: view.Condition{OrCondition: &view.OrCondition{Conditions: []view.Condition{
+			args: view.Condition{ConditionType: view.ConditionTypeOr, OrCondition: &view.OrCondition{Conditions: []view.Condition{
 				viewBasicCondition("a"), viewBasicCondition("b"),
 			}}},
 		},
 		{
 			name: "must keep nested conditions",
-			args: view.Condition{AndCondition: &view.AndCondition{Conditions: []view.Condition{
+			args: view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{
 				viewStringCondition(),
-				{OrCondition: &view.OrCondition{Conditions: []view.Condition{
+				{ConditionType: view.ConditionTypeOr, OrCondition: &view.OrCondition{Conditions: []view.Condition{
 					viewNumberCondition(),
-					{AndCondition: &view.AndCondition{Conditions: []view.Condition{viewBasicCondition("deep")}}},
+					{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{viewBasicCondition("deep")}}},
 				}}},
 			}}},
 		},

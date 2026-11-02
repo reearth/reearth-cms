@@ -9,8 +9,8 @@ func New() *Builder {
 }
 
 func (b *Builder) Build() (*WorkspaceSettings, error) {
-	if b.ws.id.IsNil() {
-		return nil, ErrInvalidID
+	if err := b.ws.Validate(); err != nil {
+		return nil, err
 	}
 
 	return b.ws, nil
