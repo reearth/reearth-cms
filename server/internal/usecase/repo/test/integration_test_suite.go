@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -227,7 +228,9 @@ func testIntegrationFindByUser(t *testing.T, newRepo integrationFactory) {
 	u1i2 := newIntegration(u1)
 	u1i3 := newIntegration(u1)
 	u2i1 := newIntegration(u2)
-	seeds := integration.List{u1i3, u2i1, u1i1, u1i2}
+	// saved in reverse ID order, so the result must be sorted to match
+	seeds := integration.List{u1i1, u1i2, u1i3, u2i1}.SortByID()
+	mutable.Reverse(seeds)
 
 	tests := []struct {
 		name    string
@@ -268,10 +271,7 @@ func testIntegrationFindByUser(t *testing.T, newRepo integrationFactory) {
 
 			got, err := r.FindByUser(ctx, tc.args)
 			assert.Equal(t, tc.wantErr, err)
-			// TODO: mongo applies no sort (it returns the natural order, in
-			// practice the insertion order) while memory sorts by ID, so the
-			// order is not part of the contract yet.
-			assert.Equal(t, tc.want.SortByID(), got.SortByID())
+			assert.Equal(t, tc.want.SortByID(), got)
 		})
 	}
 }
@@ -282,10 +282,9 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 	i1 := newIntegration(u1)
 	i2 := newIntegration(u1)
 	custom := newIntegrationBuilder(u1).Token("secret_custom").MustBuild()
-	seeds := integration.List{i1, i2, custom}
+	noToken := newIntegrationBuilder(u1).Token("").MustBuild()
+	seeds := integration.List{i1, i2, custom, noToken}
 
-	// TODO: an integration with an empty token is found by an empty token;
-	// left out as the auth middleware never looks up an empty token.
 	tests := []struct {
 		name    string
 		seeds   integration.List
@@ -312,7 +311,7 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:    "must not find an empty token",
+			name:    "must not find an integration without a token by an empty token",
 			seeds:   seeds,
 			args:    "",
 			wantErr: rerror.ErrNotFound,

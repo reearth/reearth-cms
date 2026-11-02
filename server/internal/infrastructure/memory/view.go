@@ -46,7 +46,7 @@ func (r *View) FindByModel(_ context.Context, mid id.ModelID) (view.List, error)
 		return nil, r.err
 	}
 
-	// like mongo, no views is not an error and the result is not sorted
+	// like mongo, no views is not an error
 	var res view.List
 	r.data.Range(func(_ id.ViewID, v *view.View) bool {
 		if v.Model() == mid && r.f.CanRead(v.Project()) {
@@ -54,7 +54,7 @@ func (r *View) FindByModel(_ context.Context, mid id.ModelID) (view.List, error)
 		}
 		return true
 	})
-	return res, nil
+	return res.SortByID(), nil
 }
 
 func (r *View) FindByIDs(_ context.Context, ids id.ViewIDList) (view.List, error) {

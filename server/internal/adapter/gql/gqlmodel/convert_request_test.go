@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -56,4 +57,40 @@ func TestToRequestState(t *testing.T) {
 	assert.Equal(t, RequestStateApproved, ToRequestState(request.StateApproved))
 	assert.Equal(t, RequestStateDraft, ToRequestState(request.StateDraft))
 	assert.Equal(t, RequestState(""), ToRequestState("xxx"))
+}
+
+func TestToRequestSort(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args *Sort
+		want *usecasex.Sort
+	}{
+		{
+			name: "nil",
+		},
+		{
+			name: "creation time is sorted by ID",
+			args: &Sort{Key: "createdAt", Reverted: new(true)},
+			want: &usecasex.Sort{Key: "id", Reverted: true},
+		},
+		{
+			name: "update time",
+			args: &Sort{Key: "updatedAt"},
+			want: &usecasex.Sort{Key: "updatedat"},
+		},
+		{
+			name: "other keys are passed as they are",
+			args: &Sort{Key: "title", Reverted: new(false)},
+			want: &usecasex.Sort{Key: "title"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, ToRequestSort(tc.args))
+		})
+	}
 }

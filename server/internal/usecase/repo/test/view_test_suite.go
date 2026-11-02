@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -298,20 +299,21 @@ func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 	ctx := context.Background()
 	p1, p2 := id.NewProjectID(), id.NewProjectID()
 	m1, m2, m3 := id.NewModelID(), id.NewModelID(), id.NewModelID()
-	// saved in an order that differs from their orders
 	m1v1 := newView(p1, m1).Order(1).MustBuild()
 	m1v2 := newView(p1, m1).Order(2).MustBuild()
 	m1v3 := newView(p1, m1).Order(0).MustBuild()
 	m2v1 := newView(p1, m2).MustBuild()
 	m3v1 := newView(p2, m3).MustBuild()
-	seeds := view.List{m1v1, m1v2, m3v1, m1v3, m2v1}
+	// saved in reverse ID order, so the result must be sorted to match
+	seeds := view.List{m1v1, m1v2, m3v1, m1v3, m2v1}.SortByID()
+	mutable.Reverse(seeds)
 
 	tests := []struct {
 		name   string
 		seeds  view.List
 		filter *repo.ProjectFilter
 		args   id.ModelID
-		want   view.List // sorted by order
+		want   view.List // in any order; the result is sorted by ID
 	}{
 		{
 			name:  "must find only the views of the model",
@@ -361,8 +363,8 @@ func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 
 			got, err := r.FindByModel(ctx, tc.args)
 			assert.NoError(t, err)
-			// neither backend sorts the result; callers sort it by order
-			assert.Equal(t, tc.want, got.Ordered())
+			// callers sort the result by order themselves
+			assert.Equal(t, tc.want.SortByID(), got)
 		})
 	}
 }

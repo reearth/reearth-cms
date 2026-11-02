@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -75,7 +76,7 @@ func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List
 	}
 	res, err := r.find(ctx, bson.M{
 		"project": pid.String(),
-	})
+	}, sortByID())
 	if err != nil {
 		return nil, err
 	}
@@ -154,9 +155,9 @@ func (r *Group) findOne(ctx context.Context, filter any) (*group.Group, error) {
 	return c.Result[0], nil
 }
 
-func (r *Group) find(ctx context.Context, filter any) (group.List, error) {
+func (r *Group) find(ctx context.Context, filter any, opts ...*options.FindOptions) (group.List, error) {
 	c := mongodoc.NewGroupConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
