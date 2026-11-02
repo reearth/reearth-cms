@@ -1,11 +1,12 @@
 package integration
 
 import (
-	"errors"
 	"net/url"
 	"slices"
 	"time"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -24,7 +25,7 @@ type Integration struct {
 	updatedAt   time.Time
 }
 
-var ErrInvalidURL = errors.New("invalid URL")
+var ErrInvalidURL = rerror.NewE(i18n.T("invalid URL"))
 
 func (i *Integration) Validate() error {
 	if i.id.IsNil() || i.developer.IsNil() {

@@ -68,28 +68,90 @@ func TestView_UpdateOrder(t *testing.T) {
 	}
 }
 
-func TestView_Update_EmptyCondition(t *testing.T) {
+func TestView_Update(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+
 	pid := id.NewProjectID()
-	v := view.New().NewID().Project(pid).Model(id.NewModelID()).Schema(id.NewSchemaID()).
-		User(accountdomain.NewUserID()).MustBuild()
-
-	db := memory.New()
-	require.NoError(t, db.View.Save(ctx, v))
-	op := &usecase.Operator{
-		OwningProjects: id.ProjectIDList{pid},
-		AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+	basic := func(v any) *view.Condition {
+		return &view.Condition{ConditionType: view.ConditionTypeBasic, BasicCondition: &view.BasicCondition{Value: v}}
 	}
-	filter := &view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{
-		Conditions: []view.Condition{{}},
-	}}
+	v := view.New().NewID().Project(pid).Model(id.NewModelID()).Schema(id.NewSchemaID()).
+		User(accountdomain.NewUserID()).Name("view").Filter(basic("old")).MustBuild()
+	sort := &view.Sort{Field: view.FieldSelector{Type: view.FieldTypeId}, Direction: view.DirectionDesc}
 
-	got, err := NewView(db, nil).Update(ctx, v.ID(), interfaces.UpdateViewParam{Filter: filter}, op)
-	assert.Equal(t, view.ErrEmptyCondition, err)
-	assert.Nil(t, got)
+	tests := []struct {
+		name       string
+		args       interfaces.UpdateViewParam
+		operator   *usecase.Operator
+		wantName   string
+		wantFilter *view.Condition
+		wantSort   *view.Sort
+		wantErr    error
+	}{
+		{
+			name:       "must update the name, filter and sort",
+			args:       interfaces.UpdateViewParam{ID: v.ID(), Name: new("renamed"), Filter: basic("new"), Sort: sort},
+			wantName:   "renamed",
+			wantFilter: basic("new"),
+			wantSort:   sort,
+		},
+		{
+			name:     "must clear the filter",
+			args:     interfaces.UpdateViewParam{ID: v.ID()},
+			wantName: "view",
+		},
+		{
+			name: "must reject an invalid condition in the filter",
+			args: interfaces.UpdateViewParam{ID: v.ID(), Filter: &view.Condition{
+				ConditionType: view.ConditionTypeAnd,
+				AndCondition:  &view.AndCondition{Conditions: []view.Condition{*basic("new"), {}}},
+			}},
+			wantErr: view.ErrInvalidCondition,
+		},
+		{
+			name:    "must not update an unknown view",
+			args:    interfaces.UpdateViewParam{ID: id.NewViewID(), Name: new("renamed")},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:     "must not update a view of a project the operator doesn't maintain",
+			args:     interfaces.UpdateViewParam{ID: v.ID(), Name: new("renamed")},
+			operator: &usecase.Operator{AcOperator: &accountusecase.Operator{User: accountdomain.NewUserID().Ref()}},
+			wantErr:  interfaces.ErrOperationDenied,
+		},
+	}
 
-	stored, err := db.View.FindByID(ctx, v.ID())
-	require.NoError(t, err)
-	assert.Nil(t, stored.Filter())
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+
+			db := memory.New()
+			require.NoError(t, db.View.Save(ctx, v))
+			op := tc.operator
+			if op == nil {
+				op = &usecase.Operator{
+					OwningProjects: id.ProjectIDList{pid},
+					AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+				}
+			}
+
+			got, err := NewView(db, nil).Update(ctx, tc.args.ID, tc.args, op)
+			stored, serr := db.View.FindByID(ctx, v.ID())
+			require.NoError(t, serr)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				assert.Nil(t, got)
+				// the stored view is unchanged
+				assert.Equal(t, v, stored)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantName, got.Name())
+			assert.Equal(t, tc.wantFilter, got.Filter())
+			assert.Equal(t, tc.wantSort, got.Sort())
+			assert.Equal(t, got, stored)
+		})
+	}
 }

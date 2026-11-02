@@ -546,7 +546,7 @@ func testViewIsolation(t *testing.T, newRepo viewFactory) {
 		{
 			name: "must not keep a filter, sort or columns replaced on a found view",
 			mutate: func(_, found *view.View) {
-				found.SetFilter(new(viewBasicCondition("changed")))
+				lo.Must0(found.SetFilter(new(viewBasicCondition("changed"))))
 				found.SetSort(&view.Sort{Field: view.FieldSelector{Type: view.FieldTypeId}, Direction: view.DirectionDesc})
 				found.SetColumns(nil)
 			},

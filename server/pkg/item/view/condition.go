@@ -1,12 +1,12 @@
 package view
 
 import (
-	"errors"
-
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
-var ErrEmptyCondition = errors.New("empty condition")
+var ErrInvalidCondition = rerror.NewE(i18n.T("invalid condition"))
 
 type ConditionType string
 
@@ -35,18 +35,36 @@ type Condition struct {
 	TimeCondition     *TimeCondition
 }
 
-// Validate returns ErrEmptyCondition when the condition, or one nested in it, has no condition set.
 func (c Condition) Validate() error {
-	switch {
-	case c.AndCondition != nil:
-		return validateConditions(c.AndCondition.Conditions)
-	case c.OrCondition != nil:
-		return validateConditions(c.OrCondition.Conditions)
-	case c.BasicCondition != nil, c.NullableCondition != nil, c.MultipleCondition != nil, c.BoolCondition != nil,
-		c.StringCondition != nil, c.NumberCondition != nil, c.TimeCondition != nil:
-		return nil
+	ok := false
+	switch c.ConditionType {
+	case ConditionTypeAnd:
+		if c.AndCondition != nil {
+			return validateConditions(c.AndCondition.Conditions)
+		}
+	case ConditionTypeOr:
+		if c.OrCondition != nil {
+			return validateConditions(c.OrCondition.Conditions)
+		}
+	case ConditionTypeBasic:
+		ok = c.BasicCondition != nil
+	case ConditionTypeNullable:
+		ok = c.NullableCondition != nil
+	case ConditionTypeMultiple:
+		ok = c.MultipleCondition != nil
+	case ConditionTypeBool:
+		ok = c.BoolCondition != nil
+	case ConditionTypeString:
+		ok = c.StringCondition != nil
+	case ConditionTypeNumber:
+		ok = c.NumberCondition != nil
+	case ConditionTypeTime:
+		ok = c.TimeCondition != nil
 	}
-	return ErrEmptyCondition
+	if !ok {
+		return ErrInvalidCondition
+	}
+	return nil
 }
 
 func validateConditions(l []Condition) error {

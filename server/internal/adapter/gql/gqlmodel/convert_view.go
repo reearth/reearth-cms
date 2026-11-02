@@ -307,7 +307,7 @@ func (i *ConditionInput) Into() *view.Condition {
 		}
 	}
 
-	return nil
+	return &view.Condition{}
 }
 
 func (e BoolOperator) Into() view.BoolOperator {
