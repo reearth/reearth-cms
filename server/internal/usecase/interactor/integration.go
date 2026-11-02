@@ -282,6 +282,10 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			if err := integration.ValidateWebhookURL(&param.URL); err != nil {
+				return nil, err
+			}
+
 			w, err := integration.NewWebhookBuilder().
 				NewID().
 				Name(param.Name).
@@ -334,6 +338,9 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 			}
 
 			if param.URL != nil {
+				if err := integration.ValidateWebhookURL(param.URL); err != nil {
+					return nil, err
+				}
 				w.SetURL(param.URL)
 			}
 

@@ -20,6 +20,13 @@ type Webhook struct {
 
 type WebhookTrigger map[event.Type]bool
 
+func ValidateWebhookURL(u *url.URL) error {
+	if u == nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+		return ErrInvalidURL
+	}
+	return nil
+}
+
 func (w *Webhook) ID() WebhookID {
 	return w.id
 }

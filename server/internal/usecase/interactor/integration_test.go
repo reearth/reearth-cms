@@ -698,6 +698,35 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:     "empty URL",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.CreateWebhookParam{
+					Name:    "w1",
+					Active:  true,
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			wantErr: integration.ErrInvalidURL,
+		},
+		{
+			name:     "URL without a scheme",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.CreateWebhookParam{
+					Name:    "w1",
+					URL:     *lo.Must(url.Parse("example.com/hook")),
+					Active:  true,
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			wantErr: integration.ErrInvalidURL,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -806,6 +835,19 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:     "empty URL",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I2},
+			args: args{
+				iId: ts.IId2,
+				wId: wId,
+				params: interfaces.UpdateWebhookParam{
+					URL: &url.URL{},
+				},
+			},
+			wantErr: integration.ErrInvalidURL,
 		},
 		{
 			name:     "update item not found",
