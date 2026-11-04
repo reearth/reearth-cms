@@ -9,8 +9,8 @@ func New() *Builder {
 }
 
 func (b *Builder) Build() (*WorkspaceSettings, error) {
-	if b.ws.id.IsNil() {
-		return nil, ErrInvalidID
+	if err := b.ws.Validate(); err != nil {
+		return nil, err
 	}
 
 	return b.ws, nil
@@ -35,11 +35,11 @@ func (b *Builder) NewID() *Builder {
 }
 
 func (b *Builder) Tiles(wr *ResourceList) *Builder {
-	b.ws.tiles = wr
+	b.ws.tiles = wr.Clone()
 	return b
 }
 
 func (b *Builder) Terrains(wr *ResourceList) *Builder {
-	b.ws.terrains = wr
+	b.ws.terrains = wr.Clone()
 	return b
 }
