@@ -23,6 +23,13 @@ type Integration struct {
 	updatedAt   time.Time
 }
 
+func (i *Integration) Validate() error {
+	if i.id.IsNil() || i.developer.IsNil() {
+		return ErrInvalidID
+	}
+	return nil
+}
+
 func (i *Integration) ID() ID {
 	return i.id
 }

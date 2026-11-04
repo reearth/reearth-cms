@@ -55,6 +55,13 @@ func (v *View) Clone() *View {
 	}
 }
 
+func (v *View) Validate() error {
+	if v.id.IsNil() || v.project.IsNil() || v.model.IsNil() || v.schema.IsNil() || v.user.IsNil() {
+		return ErrInvalidID
+	}
+	return nil
+}
+
 func (v *View) Project() ProjectID {
 	return v.project
 }

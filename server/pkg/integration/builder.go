@@ -14,8 +14,8 @@ func New() *Builder {
 }
 
 func (b *Builder) Build() (*Integration, error) {
-	if b.i.id.IsNil() {
-		return nil, ErrInvalidID
+	if err := b.i.Validate(); err != nil {
+		return nil, err
 	}
 	if b.i.updatedAt.IsZero() {
 		b.i.updatedAt = b.i.CreatedAt()

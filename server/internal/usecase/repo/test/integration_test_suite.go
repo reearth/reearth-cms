@@ -159,8 +159,6 @@ func testIntegrationFindByIDs(t *testing.T, newRepo integrationFactory) {
 	u2i1 := newIntegration(u2)
 	seeds := integration.List{u1i1, u1i2, u2i1}
 
-	// TODO: mongo returns a nil entry for every unknown ID (memory skips
-	// them); unknown IDs are left out until the expected behavior is decided.
 	tests := []struct {
 		name    string
 		seeds   integration.List
@@ -194,6 +192,17 @@ func testIntegrationFindByIDs(t *testing.T, newRepo integrationFactory) {
 			seeds: seeds,
 			args:  id.IntegrationIDList{u2i1.ID(), u1i2.ID(), u1i1.ID()},
 			want:  integration.List{u2i1, u1i2, u1i1},
+		},
+		{
+			name:  "must skip unknown IDs",
+			seeds: seeds,
+			args:  id.IntegrationIDList{id.NewIntegrationID(), u1i2.ID(), id.NewIntegrationID(), u1i1.ID()},
+			want:  integration.List{u1i2, u1i1},
+		},
+		{
+			name: "must find nothing for an unknown ID in an empty repository",
+			args: id.IntegrationIDList{id.NewIntegrationID()},
+			want: integration.List{},
 		},
 	}
 
@@ -349,7 +358,6 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 //   - a nil webhook list and a nil trigger are read back as empty ones
 //   - an empty or unknown type is read back as private
 //   - an empty logo URL is read back as an empty, non-nil URL
-//   - a zero developer is saved, but the integration can no longer be read
 //   - a time that is not in UTC (e.g. the default UpdatedAt) is read back in UTC
 func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 	ctx := context.Background()
