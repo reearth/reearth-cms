@@ -108,3 +108,14 @@ func TestBuilder_MustBuild(t *testing.T) {
 	}
 	assert.PanicsWithValue(t, ErrInvalidID, func() { _ = build1() })
 }
+
+func TestBuilder_ResourceListsCopy(t *testing.T) {
+	t.Parallel()
+	r := NewResource(ResourceTypeTile, NewTileResource(NewResourceID(), TileTypeDefault, UrlResourceProps{}), nil)
+	l := NewResourceList([]*Resource{r}, nil, nil)
+	ws := New().NewID().Tiles(l).Terrains(l).MustBuild()
+
+	// changing the list after building must not reach the settings
+	l.Resources()[0].SetTile(nil)
+	assert.NoError(t, ws.Validate())
+}
