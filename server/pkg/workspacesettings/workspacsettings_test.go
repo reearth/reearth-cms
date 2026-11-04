@@ -13,9 +13,9 @@ func TestWorkspaceSettings_SetTiles(t *testing.T) {
 	r := NewResource(ResourceTypeTile, tt, nil)
 	tiles := NewResourceList([]*Resource{r}, rid.Ref(), new(true))
 	ws := &WorkspaceSettings{}
-	ws.SetTiles(tiles)
+	assert.NoError(t, ws.SetTiles(tiles))
 	assert.Equal(t, tiles, ws.Tiles())
-	ws.SetTiles(nil)
+	assert.NoError(t, ws.SetTiles(nil))
 	assert.Nil(t, ws.Tiles())
 }
 
@@ -26,9 +26,9 @@ func TestWorkspaceSettings_SetTerrains(t *testing.T) {
 	r := NewResource(ResourceTypeTile, tt, nil)
 	terrains := NewResourceList([]*Resource{r}, rid.Ref(), new(true))
 	ws := &WorkspaceSettings{}
-	ws.SetTerrains(terrains)
+	assert.NoError(t, ws.SetTerrains(terrains))
 	assert.Equal(t, terrains, ws.Terrains())
-	ws.SetTerrains(nil)
+	assert.NoError(t, ws.SetTerrains(nil))
 	assert.Nil(t, ws.Terrains())
 }
 
@@ -81,4 +81,17 @@ func TestWorkspaceSettings_Clone(t *testing.T) {
 	// changing a resource of the clone must not change the original
 	got.tiles.resources[0].SetTile(nil)
 	assert.Same(t, tt, ws.tiles.resources[0].Tile())
+}
+
+func TestWorkspaceSettings_SetResourceLists_Invalid(t *testing.T) {
+	t.Parallel()
+	valid := NewResourceList([]*Resource{NewResource(ResourceTypeTile, NewTileResource(NewResourceID(), TileTypeDefault, UrlResourceProps{}), nil)}, nil, nil)
+	invalid := NewResourceList([]*Resource{NewResource(ResourceTypeTile, nil, nil)}, nil, nil)
+	ws := &WorkspaceSettings{tiles: valid, terrains: valid}
+
+	// an invalid list is rejected and the current one is kept
+	assert.Equal(t, ErrInvalidResource, ws.SetTiles(invalid))
+	assert.Equal(t, valid, ws.Tiles())
+	assert.Equal(t, ErrInvalidResource, ws.SetTerrains(invalid))
+	assert.Equal(t, valid, ws.Terrains())
 }

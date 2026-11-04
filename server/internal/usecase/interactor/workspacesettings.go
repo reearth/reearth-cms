@@ -62,14 +62,14 @@ func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.
 				}
 			}
 			if inp.Tiles != nil {
-				wss.SetTiles(inp.Tiles)
+				if err := wss.SetTiles(inp.Tiles); err != nil {
+					return nil, err
+				}
 			}
 			if inp.Terrains != nil {
-				wss.SetTerrains(inp.Terrains)
-			}
-			// the setters bypass the builder's validation
-			if err := wss.Validate(); err != nil {
-				return nil, err
+				if err := wss.SetTerrains(inp.Terrains); err != nil {
+					return nil, err
+				}
 			}
 			if err := ws.repos.WorkspaceSettings.Save(ctx, wss); err != nil {
 				return nil, err

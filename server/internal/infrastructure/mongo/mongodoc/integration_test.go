@@ -15,6 +15,7 @@ func TestIntegrationDocument_Model(t *testing.T) {
 	now := time.Now()
 	iId := integration.NewID()
 	uId := user.NewID()
+	wId := integration.NewWebhookID()
 	tests := []struct {
 		name    string
 		iDoc    *IntegrationDocument
@@ -46,6 +47,32 @@ func TestIntegrationDocument_Model(t *testing.T) {
 				LogoUrl(lo.Must(url.Parse("https://huho.com/xzy"))).
 				MustBuild(),
 			wantErr: false,
+		},
+		{
+			name: "webhooks that can't be decoded are skipped",
+			iDoc: &IntegrationDocument{
+				ID:        iId.String(),
+				Type:      "private",
+				LogoUrl:   "https://huho.com/xzy",
+				Developer: uId.String(),
+				Webhook: []WebhookDocument{
+					{ID: "invalid", Url: "https://example.com/a"},
+					{ID: wId.String(), Url: "https://example.com/b", UpdatedAt: now},
+					{ID: integration.NewWebhookID().String(), Url: "%zz"},
+				},
+				UpdatedAt: now,
+			},
+			want: integration.New().
+				ID(iId).
+				Type(integration.TypePrivate).
+				Developer(uId).
+				UpdatedAt(now).
+				Webhook([]*integration.Webhook{
+					integration.NewWebhookBuilder().ID(wId).Url(lo.Must(url.Parse("https://example.com/b"))).
+						Trigger(integration.WebhookTrigger{}).UpdatedAt(now).MustBuild(),
+				}).
+				LogoUrl(lo.Must(url.Parse("https://huho.com/xzy"))).
+				MustBuild(),
 		},
 	}
 	for _, tt := range tests {
@@ -112,25 +139,4 @@ func TestNewIntegration(t *testing.T) {
 func TestNewIntegrationConsumer(t *testing.T) {
 	c := NewIntegrationConsumer()
 	assert.NotNil(t, c)
-}
-
-func TestIntegrationDocument_Model_SkipsInvalidWebhooks(t *testing.T) {
-	t.Parallel()
-	wId := integration.NewWebhookID()
-	doc := &IntegrationDocument{
-		ID:        integration.NewID().String(),
-		Type:      "private",
-		LogoUrl:   "https://example.com/logo.png",
-		Developer: user.NewID().String(),
-		Webhook: []WebhookDocument{
-			{ID: "invalid", Url: "https://example.com/a"},
-			{ID: wId.String(), Url: "https://example.com/b"},
-			{ID: integration.NewWebhookID().String(), Url: "%zz"},
-		},
-	}
-
-	got, err := doc.Model()
-	assert.NoError(t, err)
-	assert.Len(t, got.Webhooks(), 1)
-	assert.Equal(t, wId, got.Webhooks()[0].ID())
 }

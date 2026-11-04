@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -78,30 +79,13 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	}
 
 	// a webhook that can't be decoded is skipped rather than kept as a nil entry
-	w := lo.FilterMap(d.Webhook, func(d WebhookDocument, _ int) (*integration.Webhook, bool) {
-		wId, err := id.WebhookIDFrom(d.ID)
+	w := lo.FilterMap(d.Webhook, func(wd WebhookDocument, _ int) (*integration.Webhook, bool) {
+		m, err := wd.model()
 		if err != nil {
+			log.Warnf("mongodoc: skipped webhook %q of integration %q: %v", wd.ID, d.ID, err)
 			return nil, false
 		}
-
-		u, err := url.Parse(d.Url)
-		if err != nil {
-			return nil, false
-		}
-
-		trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
-			return event.Type(t)
-		})
-		m, err := integration.NewWebhookBuilder().
-			ID(wId).
-			Name(d.Name).
-			Active(d.Active).
-			Url(u).
-			UpdatedAt(d.UpdatedAt).
-			Trigger(trigger).
-			Secret(d.Secret).
-			Build()
-		return m, err == nil
+		return m, true
 	})
 
 	return integration.New().
@@ -114,6 +98,29 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 		LogoUrl(u).
 		UpdatedAt(d.UpdatedAt).
 		Webhook(w).
+		Build()
+}
+
+func (d WebhookDocument) model() (*integration.Webhook, error) {
+	wId, err := id.WebhookIDFrom(d.ID)
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(d.Url)
+	if err != nil {
+		return nil, err
+	}
+	trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
+		return event.Type(t)
+	})
+	return integration.NewWebhookBuilder().
+		ID(wId).
+		Name(d.Name).
+		Active(d.Active).
+		Url(u).
+		UpdatedAt(d.UpdatedAt).
+		Trigger(trigger).
+		Secret(d.Secret).
 		Build()
 }
 

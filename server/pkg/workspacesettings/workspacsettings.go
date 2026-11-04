@@ -21,8 +21,12 @@ func (ws *WorkspaceSettings) Tiles() *ResourceList {
 	return ws.tiles
 }
 
-func (ws *WorkspaceSettings) SetTiles(wl *ResourceList) {
+func (ws *WorkspaceSettings) SetTiles(wl *ResourceList) error {
+	if err := wl.Validate(); err != nil {
+		return err
+	}
 	ws.tiles = util.CloneRef(wl)
+	return nil
 }
 
 func (ws *WorkspaceSettings) Terrains() *ResourceList {
@@ -32,8 +36,12 @@ func (ws *WorkspaceSettings) Terrains() *ResourceList {
 	return ws.terrains
 }
 
-func (ws *WorkspaceSettings) SetTerrains(wl *ResourceList) {
+func (ws *WorkspaceSettings) SetTerrains(wl *ResourceList) error {
+	if err := wl.Validate(); err != nil {
+		return err
+	}
 	ws.terrains = util.CloneRef(wl)
+	return nil
 }
 
 func (ws *WorkspaceSettings) Validate() error {

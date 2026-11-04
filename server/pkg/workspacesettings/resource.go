@@ -1,8 +1,11 @@
 package workspacesettings
 
-import "errors"
+import (
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
+)
 
-var ErrInvalidResource = errors.New("invalid resource")
+var ErrInvalidResource = rerror.NewE(i18n.T("invalid resource"))
 
 type ResourceType string
 
@@ -29,8 +32,6 @@ func (r *Resource) Terrain() *TerrainResource {
 	return r.terrain
 }
 
-// Validate returns ErrInvalidResource unless the resource holds exactly the tile or terrain its type names,
-// with a known type and an ID, as only such resources are read back once stored.
 func (r *Resource) Validate() error {
 	if r == nil {
 		return ErrInvalidResource

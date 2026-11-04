@@ -4,6 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -106,10 +107,12 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 	if r.Tile != nil {
 		tileType := workspacesettings.TileType(r.Tile.Type)
 		if !tileType.IsValid() {
+			log.Warnf("mongodoc: skipped tile resource %q with an unknown type %q", r.Tile.ID, r.Tile.Type)
 			return nil
 		}
 		rid, err := id.ResourceIDFrom(r.Tile.ID)
 		if err != nil {
+			log.Warnf("mongodoc: skipped tile resource with an invalid ID %q: %v", r.Tile.ID, err)
 			return nil
 		}
 		tile := workspacesettings.NewTileResource(rid, tileType, FromUrlResourcePropsDocument(r.Tile.Props))
@@ -119,16 +122,19 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 	if r.Terrain != nil {
 		terrainType := workspacesettings.TerrainType(r.Terrain.Type)
 		if !terrainType.IsValid() {
+			log.Warnf("mongodoc: skipped terrain resource %q with an unknown type %q", r.Terrain.ID, r.Terrain.Type)
 			return nil
 		}
 		rid, err := id.ResourceIDFrom(r.Terrain.ID)
 		if err != nil {
+			log.Warnf("mongodoc: skipped terrain resource with an invalid ID %q: %v", r.Terrain.ID, err)
 			return nil
 		}
 		terrain := workspacesettings.NewTerrainResource(rid, terrainType, FromCesiumResourcePropsDocument(r.Terrain.Props))
 		return workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrain)
 	}
 
+	log.Warnf("mongodoc: skipped a resource with neither a tile nor a terrain")
 	return nil
 }
 
