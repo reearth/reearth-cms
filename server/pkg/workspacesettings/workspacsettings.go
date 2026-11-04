@@ -1,9 +1,5 @@
 package workspacesettings
 
-import (
-	"github.com/reearth/reearthx/util"
-)
-
 type WorkspaceSettings struct {
 	id       ID
 	tiles    *ResourceList
@@ -25,7 +21,7 @@ func (ws *WorkspaceSettings) SetTiles(wl *ResourceList) error {
 	if err := wl.Validate(); err != nil {
 		return err
 	}
-	ws.tiles = util.CloneRef(wl)
+	ws.tiles = wl.Clone()
 	return nil
 }
 
@@ -40,7 +36,7 @@ func (ws *WorkspaceSettings) SetTerrains(wl *ResourceList) error {
 	if err := wl.Validate(); err != nil {
 		return err
 	}
-	ws.terrains = util.CloneRef(wl)
+	ws.terrains = wl.Clone()
 	return nil
 }
 

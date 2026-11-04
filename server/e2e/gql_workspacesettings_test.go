@@ -291,7 +291,7 @@ func TestUpdateWorkspaceSettings_InvalidResourceIDRejected(t *testing.T) {
 	res := updateWorkspaceSettingsRaw(e, wId.String(), tiles, terrains).
 		Status(http.StatusOK).
 		JSON().Object()
-	res.Value("errors").Array().NotEmpty()
+	res.Path("$.errors[0].message").String().IsEqual("invalid ID")
 	res.Value("data").Object().Value("updateWorkspaceSettings").IsNull()
 }
 

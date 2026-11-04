@@ -95,3 +95,17 @@ func TestWorkspaceSettings_SetResourceLists_Invalid(t *testing.T) {
 	assert.Equal(t, ErrInvalidResource, ws.SetTerrains(invalid))
 	assert.Equal(t, valid, ws.Terrains())
 }
+
+func TestWorkspaceSettings_SetResourceLists_Copy(t *testing.T) {
+	t.Parallel()
+	r := NewResource(ResourceTypeTile, NewTileResource(NewResourceID(), TileTypeDefault, UrlResourceProps{}), nil)
+	l := NewResourceList([]*Resource{r}, nil, nil)
+	ws := &WorkspaceSettings{}
+	assert.NoError(t, ws.SetTiles(l))
+	assert.NoError(t, ws.SetTerrains(l))
+
+	// changing the list after it was set must not reach the settings
+	l.Resources()[0].SetTile(nil)
+	assert.NoError(t, ws.Tiles().Validate())
+	assert.NoError(t, ws.Terrains().Validate())
+}

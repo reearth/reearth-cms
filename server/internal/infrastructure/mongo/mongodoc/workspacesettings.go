@@ -104,38 +104,34 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 		return nil
 	}
 
-	if r.Tile != nil {
-		tileType := workspacesettings.TileType(r.Tile.Type)
-		if !tileType.IsValid() {
-			log.Warnf("mongodoc: skipped tile resource %q with an unknown type %q", r.Tile.ID, r.Tile.Type)
-			return nil
+	var res *workspacesettings.Resource
+	var rid, rtype string
+	var err error
+	switch {
+	case r.Tile != nil:
+		rid, rtype = r.Tile.ID, r.Tile.Type
+		var resID id.ResourceID
+		if resID, err = id.ResourceIDFrom(rid); err == nil {
+			tile := workspacesettings.NewTileResource(resID, workspacesettings.TileType(rtype), FromUrlResourcePropsDocument(r.Tile.Props))
+			res = workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tile, nil)
 		}
-		rid, err := id.ResourceIDFrom(r.Tile.ID)
-		if err != nil {
-			log.Warnf("mongodoc: skipped tile resource with an invalid ID %q: %v", r.Tile.ID, err)
-			return nil
+	case r.Terrain != nil:
+		rid, rtype = r.Terrain.ID, r.Terrain.Type
+		var resID id.ResourceID
+		if resID, err = id.ResourceIDFrom(rid); err == nil {
+			terrain := workspacesettings.NewTerrainResource(resID, workspacesettings.TerrainType(rtype), FromCesiumResourcePropsDocument(r.Terrain.Props))
+			res = workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrain)
 		}
-		tile := workspacesettings.NewTileResource(rid, tileType, FromUrlResourcePropsDocument(r.Tile.Props))
-		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tile, nil)
+	}
+	if err == nil {
+		err = res.Validate()
 	}
 
-	if r.Terrain != nil {
-		terrainType := workspacesettings.TerrainType(r.Terrain.Type)
-		if !terrainType.IsValid() {
-			log.Warnf("mongodoc: skipped terrain resource %q with an unknown type %q", r.Terrain.ID, r.Terrain.Type)
-			return nil
-		}
-		rid, err := id.ResourceIDFrom(r.Terrain.ID)
-		if err != nil {
-			log.Warnf("mongodoc: skipped terrain resource with an invalid ID %q: %v", r.Terrain.ID, err)
-			return nil
-		}
-		terrain := workspacesettings.NewTerrainResource(rid, terrainType, FromCesiumResourcePropsDocument(r.Terrain.Props))
-		return workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrain)
+	if err != nil {
+		log.Warnf("mongodoc: skipped resource %q of type %q: %v", rid, rtype, err)
+		return nil
 	}
-
-	log.Warnf("mongodoc: skipped a resource with neither a tile nor a terrain")
-	return nil
+	return res
 }
 
 func FromUrlResourcePropsDocument(r UrlResourcePropsDocument) workspacesettings.UrlResourceProps {
