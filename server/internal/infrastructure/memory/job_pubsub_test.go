@@ -191,8 +191,8 @@ func TestJobPubSub_DifferentJobs(t *testing.T) {
 
 	// ch2 should not receive anything
 	select {
-	case <-ch2:
-		t.Fatal("ch2 should not receive state from job1")
+	case s := <-ch2:
+		t.Fatalf("ch2 should not receive state from job1, got %s", s.Status())
 	case <-time.After(100 * time.Millisecond):
 		// Expected - no state received
 	}
@@ -410,8 +410,8 @@ func TestJobPubSub_ZeroCacheDisablesCaching(t *testing.T) {
 
 	// Should not receive any cached messages
 	select {
-	case <-ch:
-		t.Fatal("should not receive cached messages when cache is disabled")
+	case s := <-ch:
+		t.Fatalf("should not receive cached messages when cache is disabled, got %s", s.Status())
 	case <-time.After(100 * time.Millisecond):
 		// Expected - no cached messages
 	}
@@ -442,8 +442,8 @@ func TestJobPubSub_UnsubscribeClearsCache(t *testing.T) {
 	assert.NoError(t, err)
 
 	select {
-	case <-ch:
-		t.Fatal("should not receive cached messages after unsubscribe cleared cache")
+	case s := <-ch:
+		t.Fatalf("should not receive cached messages after unsubscribe cleared cache, got %s", s.Status())
 	case <-time.After(100 * time.Millisecond):
 		// Expected - cache was cleared
 	}
