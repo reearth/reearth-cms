@@ -102,6 +102,9 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 	if gid == nil && (key == nil || *key == "") {
 		return nil, rerror.ErrNotFound
 	}
+	if !r.f.CanRead(pid) {
+		return nil, rerror.ErrNotFound
+	}
 
 	filter := bson.M{
 		"project": pid.String(),

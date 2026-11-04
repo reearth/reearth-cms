@@ -21,7 +21,7 @@ services:
   reearth-cms-mongo:
     image: mongo:6-focal
     ports:
-      - 27017:27017
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
   reearth-cms-jaeger:
