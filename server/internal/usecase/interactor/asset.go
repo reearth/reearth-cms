@@ -899,16 +899,20 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
+// TODO: add a test for this function
 func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
 	if op.AcOperator.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
+
+	log.Debugfc(ctx, "asset.UpdateFiles: begin: assetID=%s status=%s", aid, s)
 
 	a, skip, err := i.checkUpdateFilesPreconditions(ctx, aid, s, op)
 	if err != nil {
 		return nil, err
 	}
 	if skip {
+		log.Debugfc(ctx, "asset.UpdateFiles: skipped, status already %s: assetID=%s", a.ArchiveExtractionStatus(), aid)
 		return a, nil
 	}
 
@@ -917,6 +921,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, fmt.Errorf("failed to find an asset file: %w", err)
 	}
 
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
 	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
 	if err != nil {
 		if err == gateway.ErrFileNotFound {
@@ -941,6 +946,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			ContentEncoding(f.ContentEncoding).
 			Build(), true
 	})
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files done: assetID=%s fileCount=%d", aid, len(assetFiles))
 
 	log.Debugfc(ctx, "asset.UpdateFiles: saving asset files begin: assetID=%s fileCount=%d", aid, len(assetFiles))
 	if err := i.repos.AssetFile.SaveFlat(ctx, aid, srcfile, assetFiles); err != nil {
@@ -983,40 +989,21 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	}); err != nil {
 		return nil, fmt.Errorf("failed to create an event: %w", err)
 	}
+	log.Debugfc(ctx, "asset.UpdateFiles: done: assetID=%s", aid)
 
 	return res, nil
 }
 
 func (i *Asset) markUpdateFilesFailed(ctx context.Context, aid id.AssetID) {
-	// Detach from ctx's cancellation so this best-effort update still runs even if the
-	// triggering request context is already canceled or expired; the logger is carried
-	// over so log output still reflects the original request.
-	detached := log.ContextWith(context.Background(), log.GetLoggerFromContext(ctx))
-	var lastErr error
-	for attempt := 0; attempt <= markUpdateFilesFailedRetries; attempt++ {
-		attemptCtx, cancel := context.WithTimeout(detached, markUpdateFilesFailedTimeout)
-		lastErr = i.trySetUpdateFilesFailed(attemptCtx, aid)
-		cancel()
-		if lastErr == nil {
-			return
-		}
-	}
-	log.Errorfc(ctx, "asset.UpdateFiles: giving up marking asset %s as failed after %d attempts: %v", aid, markUpdateFilesFailedRetries+1, lastErr)
-}
-
-const markUpdateFilesFailedTimeout = 10 * time.Second
-const markUpdateFilesFailedRetries = 2
-
-func (i *Asset) trySetUpdateFilesFailed(ctx context.Context, aid id.AssetID) error {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
-		return fmt.Errorf("failed to load asset: %w", err)
+		log.Errorfc(ctx, "asset.UpdateFiles: failed to load asset %s to mark it failed: %v", aid, err)
+		return
 	}
 	a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusFailed))
 	if err := i.repos.Asset.Save(ctx, a); err != nil {
-		return fmt.Errorf("failed to save asset: %w", err)
+		log.Errorfc(ctx, "asset.UpdateFiles: failed to mark asset %s as failed: %v", aid, err)
 	}
-	return nil
 }
 
 func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, bool, error) {

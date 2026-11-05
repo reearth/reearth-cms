@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	viewIndexes       = []string{"project", "modelid", "schema"}
+	viewIndexes       = []string{"project", "model", "schema"}
 	viewUniqueIndexes = []string{"id"}
 )
 

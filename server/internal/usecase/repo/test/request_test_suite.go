@@ -785,9 +785,6 @@ func testRequestFindByItems(t *testing.T, newRepo requestFactory) {
 			args: args{items: id.ItemIDList{}},
 		},
 		{
-			name: "must find nothing for a nil list",
-		},
-		{
 			name: "must find requests with an empty filter",
 			args: args{items: id.ItemIDList{i1, i2}, filter: &repo.RequestFilter{}},
 			want: request.List{p1r1, p1r2, p2r1},

@@ -215,13 +215,12 @@ func (i Group) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 				return false, id.ErrInvalidKey
 			}
 
-			if _, err := i.repos.Group.FindByKey(ctx, pId, s); err != nil {
-				if errors.Is(err, rerror.ErrNotFound) {
-					return true, nil
-				}
-				return false, err
+			g, err := i.repos.Group.FindByKey(ctx, pId, s)
+			if g == nil && err == nil || err != nil && errors.Is(err, rerror.ErrNotFound) {
+				return true, nil
 			}
-			return false, nil
+
+			return false, err
 		})
 }
 

@@ -301,13 +301,12 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 				return false, model.ErrInvalidKey
 			}
 
-			if _, err := i.repos.Model.FindByKey(ctx, pId, s); err != nil {
-				if errors.Is(err, rerror.ErrNotFound) {
-					return true, nil
-				}
-				return false, err
+			m, err := i.repos.Model.FindByKey(ctx, pId, s)
+			if m == nil && err == nil || err != nil && errors.Is(err, rerror.ErrNotFound) {
+				return true, nil
 			}
-			return false, nil
+
+			return false, err
 		})
 }
 

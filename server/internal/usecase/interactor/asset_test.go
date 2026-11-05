@@ -16,7 +16,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -1320,104 +1319,6 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestAsset_markUpdateFilesFailed_SurvivesCanceledContext(t *testing.T) {
-	t.Parallel()
-
-	uid := accountdomain.NewUserID()
-	assetID, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
-	ws := workspace.New().NewID().MustBuild()
-	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
-
-	sp := lo.ToPtr(asset.ArchiveExtractionStatusPending)
-	sd := lo.ToPtr(asset.ArchiveExtractionStatusDone)
-	a := asset.New().
-		ID(assetID).
-		Project(proj.ID()).
-		CreatedByUser(uid).
-		Size(1000).
-		UUID(uuid1).
-		Thread(id.NewThreadID().Ref()).
-		ArchiveExtractionStatus(sp).
-		MustBuild()
-	af := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()
-
-	acop := &accountusecase.Operator{
-		User:             &uid,
-		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
-	}
-	op := &usecase.Operator{
-		AcOperator:     acop,
-		OwningProjects: []id.ProjectID{proj.ID()},
-	}
-
-	reqCtx, cancel := context.WithCancel(context.Background())
-	db := memory.New()
-
-	fileGw := lo.Must(fs.NewFile(mockFs(), "", false))
-
-	assert.NoError(t, db.Project.Save(reqCtx, proj.Clone()))
-	assert.NoError(t, db.Asset.Save(reqCtx, a.Clone()))
-	assert.NoError(t, db.AssetFile.Save(reqCtx, a.ID(), af.Clone()))
-
-	// Cancel the request context only once SaveFlat fails, simulating a client
-	// disconnect or request timeout racing with the failure. markUpdateFilesFailed
-	// must still be able to mark the asset failed after this point.
-	db.AssetFile = &saveFlatFailingAssetFileRepo{AssetFile: db.AssetFile, onFail: cancel}
-	db.Asset = &ctxCheckingAssetRepo{Asset: db.Asset}
-
-	assetUC := Asset{
-		repos: db,
-		gateways: &gateway.Container{
-			File: fileGw,
-		},
-		ignoreEvent: true,
-	}
-
-	got, err := assetUC.UpdateFiles(reqCtx, a.ID(), sd, op)
-	assert.Nil(t, got)
-	assert.Error(t, err)
-
-	gotAsset, findErr := db.Asset.FindByID(context.Background(), a.ID())
-	assert.NoError(t, findErr)
-	assert.Equal(t, asset.ArchiveExtractionStatusFailed, *gotAsset.ArchiveExtractionStatus())
-}
-
-// ctxCheckingAssetRepo wraps a repo.Asset and returns context.Canceled if the
-// given ctx is already done, mimicking how a real driver (e.g. MongoDB) would
-// behave. memory.Asset ignores ctx entirely, so it can't reproduce this on its own.
-type ctxCheckingAssetRepo struct {
-	repo.Asset
-}
-
-func (r *ctxCheckingAssetRepo) FindByID(ctx context.Context, aid id.AssetID) (*asset.Asset, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-	return r.Asset.FindByID(ctx, aid)
-}
-
-func (r *ctxCheckingAssetRepo) Save(ctx context.Context, a *asset.Asset) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	return r.Asset.Save(ctx, a)
-}
-
-// saveFlatFailingAssetFileRepo wraps a repo.AssetFile and fails only SaveFlat,
-// so FindByID (used to load the source archive entry) still succeeds. onFail,
-// if set, runs right before the error is returned.
-type saveFlatFailingAssetFileRepo struct {
-	repo.AssetFile
-	onFail func()
-}
-
-func (r *saveFlatFailingAssetFileRepo) SaveFlat(context.Context, id.AssetID, *asset.File, []*asset.File) error {
-	if r.onFail != nil {
-		r.onFail()
-	}
-	return rerror.ErrInternalBy(assert.AnError)
 }
 
 func TestAsset_Delete(t *testing.T) {

@@ -37,9 +37,6 @@ func (r *Integration) FindByToken(_ context.Context, token string) (*integration
 	if r.err != nil {
 		return nil, r.err
 	}
-	if token == "" {
-		return nil, rerror.ErrNotFound
-	}
 
 	i := r.data.Find(func(_ id.IntegrationID, i *integration.Integration) bool {
 		return i.Token() == token
