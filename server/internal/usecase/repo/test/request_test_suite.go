@@ -607,20 +607,6 @@ func testRequestFindByProjectPagination(t *testing.T, newRepo requestFactory) {
 			wantPage:  true,
 		},
 		{
-			name:      "must sort by approval time with unapproved requests first",
-			args:      args{sort: &usecasex.Sort{Key: "approvedat"}, pagination: first(10)},
-			want:      request.List{p1r1, p1r3, p1r4, p1r2},
-			wantTotal: 4,
-			wantPage:  true,
-		},
-		{
-			name:      "must sort by approval time in reverse with unapproved requests last",
-			args:      args{sort: &usecasex.Sort{Key: "approvedat", Reverted: true}, pagination: first(10)},
-			want:      request.List{p1r2, p1r4, p1r3, p1r1},
-			wantTotal: 4,
-			wantPage:  true,
-		},
-		{
 			name:      "must sort by update time with a camelCase key",
 			args:      args{sort: &usecasex.Sort{Key: "updatedAt"}, pagination: first(10)},
 			want:      request.List{p1r3, p1r1, p1r4, p1r2},
@@ -628,9 +614,11 @@ func testRequestFindByProjectPagination(t *testing.T, newRepo requestFactory) {
 			wantPage:  true,
 		},
 		{
-			name:      "must sort by approval time with a camelCase key",
+			// approval time can't be sorted by as it is null until approval,
+			// see repo.NormalizeRequestSort
+			name:      "must sort by ID for approval time",
 			args:      args{sort: &usecasex.Sort{Key: "approvedAt", Reverted: true}, pagination: first(10)},
-			want:      request.List{p1r2, p1r4, p1r3, p1r1},
+			want:      request.List{p1r4, p1r3, p1r2, p1r1},
 			wantTotal: 4,
 			wantPage:  true,
 		},
