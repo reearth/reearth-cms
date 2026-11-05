@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -36,6 +37,9 @@ func (r *Integration) FindByID(ctx context.Context, integrationID id.Integration
 }
 
 func (r *Integration) FindByToken(ctx context.Context, token string) (*integration.Integration, error) {
+	if token == "" {
+		return nil, rerror.ErrNotFound
+	}
 	return r.findOne(ctx, bson.M{
 		"token": token,
 	})
