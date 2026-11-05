@@ -84,7 +84,7 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 				Name(param.Name).
 				Description(lo.FromPtr(param.Description)).
 				GenerateToken().
-				LogoUrl(&param.Logo).
+				LogoUrl(param.Logo).
 				Build()
 			if err != nil {
 				return nil, err

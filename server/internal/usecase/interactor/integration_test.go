@@ -116,10 +116,19 @@ func TestIntegration_Create(t *testing.T) {
 				Name:        "i1",
 				Description: nil,
 				Type:        integration.TypePrivate,
-				Logo:        *ts.Uri,
+				Logo:        ts.Uri,
 			},
 			want:    ts.I1,
 			wantErr: nil,
+		},
+		{
+			name:  "create without a logo",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "i1",
+				Type: integration.TypePrivate,
+			},
+			want: integration.New().NewID().Name("i1").Developer(ts.UId).Type(integration.TypePrivate).MustBuild(),
 		},
 	}
 	for _, tt := range tests {

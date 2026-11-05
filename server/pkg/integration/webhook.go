@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type Webhook struct {
@@ -19,6 +21,8 @@ type Webhook struct {
 }
 
 type WebhookTrigger map[event.Type]bool
+
+var ErrInvalidURL = rerror.NewE(i18n.T("invalid URL"))
 
 func ValidateWebhookURL(u *url.URL) error {
 	if u == nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {

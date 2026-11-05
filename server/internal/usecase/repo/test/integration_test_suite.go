@@ -356,7 +356,7 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 // TODO: these are left out as mongo does not keep them:
 //   - a nil webhook list and a nil trigger are read back as empty ones
 //   - an empty or unknown type is read back as private
-//   - an empty logo URL is read back as an empty, non-nil URL
+//   - an empty logo URL is read back as nil
 //   - a time that is not in UTC (e.g. the default UpdatedAt) is read back in UTC
 func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 	ctx := context.Background()
@@ -396,6 +396,10 @@ func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 		{
 			name: "must keep a logo URL with user info, query and fragment",
 			args: newIntegrationBuilder(u).LogoUrl(lo.Must(url.Parse("https://user:pass@example.com:8080/a/logo.png?size=1&v=2#top"))).MustBuild(),
+		},
+		{
+			name: "must keep an integration without a logo URL",
+			args: newIntegrationBuilder(u).LogoUrl(nil).MustBuild(),
 		},
 		{
 			name: "must keep the updated time",
