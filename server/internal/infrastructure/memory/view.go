@@ -81,6 +81,9 @@ func (r *View) Save(_ context.Context, v *view.View) error {
 		return r.err
 	}
 
+	if v == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(v.Project()) {
 		return repo.ErrOperationDenied
 	}

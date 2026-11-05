@@ -535,10 +535,11 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 		MustBuild()
 
 	tests := []struct {
-		name  string
-		seeds integration.List
-		args  *integration.Integration
-		want  integration.List // the stored integrations afterwards
+		name    string
+		seeds   integration.List
+		args    *integration.Integration
+		want    integration.List // the stored integrations afterwards
+		wantErr error
 	}{
 		{
 			name: "must save a new integration",
@@ -563,6 +564,12 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 			args:  i1,
 			want:  integration.List{i1, i2},
 		},
+		{
+			name:    "must not save a nil integration",
+			seeds:   integration.List{i2},
+			want:    integration.List{i2},
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -572,7 +579,7 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 			r := newRepo(t)
 			seedIntegrations(t, r, tc.seeds)
 
-			assert.NoError(t, r.Save(ctx, tc.args))
+			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
 			assert.Equal(t, tc.want, storedIntegrations(t, r, id.IntegrationIDList{i1.ID(), i2.ID()}))
 		})
 	}

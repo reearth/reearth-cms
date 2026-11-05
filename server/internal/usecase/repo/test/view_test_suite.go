@@ -620,6 +620,10 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			args:   p1v1,
 			want:   p1v1,
 		},
+		{
+			name:    "must not save a nil view",
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -634,6 +638,9 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			assert.Equal(t, tc.want, lo.FirstOrEmpty(storedViews(t, base, id.ViewIDList{tc.args.ID()})))
