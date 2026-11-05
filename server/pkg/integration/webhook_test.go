@@ -531,6 +531,11 @@ func TestValidateWebhookURL(t *testing.T) {
 			args:    lo.Must(url.Parse("https:///hook")),
 			wantErr: ErrInvalidURL,
 		},
+		{
+			name:    "a port but no hostname",
+			args:    lo.Must(url.Parse("http://:8080/hook")),
+			wantErr: ErrInvalidURL,
+		},
 	}
 
 	for _, tc := range tests {

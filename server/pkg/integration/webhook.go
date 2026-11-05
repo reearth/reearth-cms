@@ -25,7 +25,7 @@ type WebhookTrigger map[event.Type]bool
 var ErrInvalidURL = rerror.NewE(i18n.T("invalid URL"))
 
 func ValidateWebhookURL(u *url.URL) error {
-	if u == nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+	if u == nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" {
 		return ErrInvalidURL
 	}
 	return nil

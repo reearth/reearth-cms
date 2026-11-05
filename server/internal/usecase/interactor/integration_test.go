@@ -130,6 +130,16 @@ func TestIntegration_Create(t *testing.T) {
 			},
 			want: integration.New().NewID().Name("i1").Developer(ts.UId).Type(integration.TypePrivate).MustBuild(),
 		},
+		{
+			name:  "create with an empty logo URL",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "i1",
+				Type: integration.TypePrivate,
+				Logo: &url.URL{},
+			},
+			want: integration.New().NewID().Name("i1").Developer(ts.UId).Type(integration.TypePrivate).MustBuild(),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -201,6 +211,20 @@ func TestIntegration_Update(t *testing.T) {
 				return i
 			}(),
 			wantErr: nil,
+		},
+		{
+			name:     "an empty logo URL removes the logo",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id:     ts.IId1,
+				params: interfaces.UpdateIntegrationParam{Logo: &url.URL{}},
+			},
+			want: func() *integration.Integration {
+				i := ts.I1.Clone()
+				i.SetLogoUrl(nil)
+				return i
+			}(),
 		},
 		{
 			name: "invalid operator",

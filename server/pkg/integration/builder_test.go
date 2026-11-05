@@ -349,9 +349,15 @@ func TestBuilder_LogoUrl(t *testing.T) {
 			want:   &Builder{i: &Integration{logoUrl: lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))}},
 		},
 		{
-			name:   "set",
+			name:   "nil",
 			fields: fields{i: &Integration{}},
 			args:   args{logoURL: nil},
+			want:   &Builder{i: &Integration{logoUrl: nil}},
+		},
+		{
+			name:   "an empty URL is no logo",
+			fields: fields{i: &Integration{}},
+			args:   args{logoURL: &url.URL{}},
 			want:   &Builder{i: &Integration{logoUrl: nil}},
 		},
 	}
