@@ -23,10 +23,10 @@ export type ValidateOptions = {
 /** Placeholders until the backend confirms the agreed limits. */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export abstract class GeometryLimits {
-  public static readonly SHAPES = 1000;
+  public static readonly SHAPES = 1_000;
   public static readonly COORDINATES = 100_000;
   /** UTF-8 bytes of one geometry serialized as compact JSON, whatever the input formatting. */
-  public static readonly VALUE_BYTES = 1024 * 1024;
+  public static readonly VALUE_BYTES = 1_024 * 1_024;
 }
 
 const MAX_ISSUES = 20;

@@ -1,3 +1,4 @@
+import type { Geometry } from "geojson";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { Test } from "@reearth-cms/test/utils";
@@ -12,7 +13,7 @@ describe("geoStore", () => {
 
   test("undo and redo restore document and selection", () => {
     const store = createGeoStore(empty);
-    const id = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    const id = store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
     expect(store.getSnapshot().selectedId).toBe(id);
     store.removeFeature(id, EditOrigin.MAP);
     expect(store.getSnapshot().collection.features).toHaveLength(0);
@@ -28,15 +29,15 @@ describe("geoStore", () => {
 
   test("replaceAll leaves exactly one shape", () => {
     const store = createGeoStore(empty);
-    store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
     store.replaceAll({ type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
     expect(store.getSnapshot().collection.features).toHaveLength(1);
   });
 
   test("no-op commits do not create history", () => {
     const store = createGeoStore(empty);
-    const id = store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
-    store.setGeometry(id, { type: "Point", coordinates: [1, 1] }, EditOrigin.NUMERIC);
+    const id = store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
+    store.setGeometry(id, Test.GEO_JSON_POINT, EditOrigin.NUMERIC);
     expect(store.getSnapshot().undoDepth).toBe(1);
   });
 
@@ -70,7 +71,7 @@ describe("geoStore", () => {
 
   test("a new edit clears redo", () => {
     const store = createGeoStore(empty);
-    store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
     store.undo();
     store.addFeature({ type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
     expect(store.getSnapshot().redoDepth).toBe(0);
@@ -121,7 +122,7 @@ describe("geoStore", () => {
 
   test("repeated focus requests for the same shape are distinct", () => {
     const store = createGeoStore(empty);
-    const geometry = { type: "Point" as const, coordinates: [1, 1] };
+    const geometry = Test.GEO_JSON_POINT;
     store.focus({ kind: FocusKind.GEOMETRY, geometry });
     const first = store.getSnapshot().focus;
     store.focus({ kind: FocusKind.GEOMETRY, geometry });
@@ -176,13 +177,63 @@ describe("geoStore", () => {
     });
   });
 
-  test("history is blocked mid-gesture", () => {
+  test("history is blocked mid-gesture, and back once it ends", () => {
     const store = createGeoStore(empty);
-    store.addFeature({ type: "Point", coordinates: [1, 1] }, EditOrigin.MAP);
+    store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
     store.beginGesture();
     store.undo();
     expect(store.getSnapshot().collection.features).toHaveLength(1);
     store.endGesture();
+    store.undo();
+    expect(store.getSnapshot().collection.features).toHaveLength(0);
+  });
+
+  test.each<[string, Geometry[]]>([
+    ["nothing", []],
+    ["one geometry", [Test.GEO_JSON_LINE_STRING]],
+    ["several geometries", [Test.GEO_JSON_POINT, Test.GEO_JSON_POLYGON]],
+  ])("reset to %s replaces the document and forgets history and selection", (_, geometries) => {
+    const store = createGeoStore(empty);
+    store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
+    store.reset(GeoUtils.toCollection(geometries));
+    const snapshot = store.getSnapshot();
+    expect(snapshot.collection.features.map(f => f.geometry)).toEqual(geometries);
+    expect(snapshot).toMatchObject({ selectedId: null, undoDepth: 0, redoDepth: 0 });
+    store.undo();
+    expect(store.getSnapshot().collection.features).toHaveLength(geometries.length);
+  });
+
+  test("history keeps only the latest 100 steps", () => {
+    const store = createGeoStore(empty);
+    const id = store.addFeature({ type: "Point", coordinates: [0, 0] }, EditOrigin.MAP);
+    for (let x = 1; x <= 100; x++) {
+      store.setGeometry(id, { type: "Point", coordinates: [x, 0] }, EditOrigin.MAP);
+    }
+    expect(store.getSnapshot().undoDepth).toBe(100);
+    for (let i = 0; i < 100; i++) store.undo();
+    // The oldest step (adding the point) fell off, so the first edit is as far back as it goes.
+    expect(store.getSnapshot().collection.features[0].geometry).toEqual({
+      type: "Point",
+      coordinates: [0, 0],
+    });
+    expect(store.getSnapshot().undoDepth).toBe(0);
+  });
+
+  test("removing the selected shape clears the selection", () => {
+    const store = createGeoStore(empty);
+    const id = store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
+    store.removeFeature(id, EditOrigin.LIST);
+    expect(store.getSnapshot().selectedId).toBeNull();
+  });
+
+  test("selection is view state and leaves the revision alone", () => {
+    const store = createGeoStore(empty);
+    const id = store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
+    store.select(null);
+    const { revision } = store.getSnapshot();
+    store.select(id);
+    store.selectVertex(0);
+    expect(store.getSnapshot().revision).toBe(revision);
   });
 
   describe("bbox", () => {

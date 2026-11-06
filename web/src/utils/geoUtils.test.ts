@@ -1,4 +1,4 @@
-import type { GeometryCollection, LineString } from "geojson";
+import type { BBox, FeatureCollection, Geometry, LineString, MultiLineString } from "geojson";
 import { describe, expect, test } from "vitest";
 
 import { Test } from "@reearth-cms/test/utils";
@@ -6,22 +6,34 @@ import { Test } from "@reearth-cms/test/utils";
 import { GeoUtils, GeometryKind } from "./geoUtils";
 
 describe("kinds", () => {
-  test("isGeometryKind accepts the seven GeoJSON geometry types only", () => {
-    expect(GeoUtils.ALL_KINDS.every(kind => GeoUtils.isGeometryKind(kind))).toBe(true);
-    expect(GeoUtils.isGeometryKind("Feature")).toBe(false);
-    expect(GeoUtils.isGeometryKind(undefined)).toBe(false);
+  test.each([...GeoUtils.ALL_KINDS])("isGeometryKind is true for %s", kind => {
+    expect(GeoUtils.isGeometryKind(kind)).toBe(true);
   });
 
-  test("isEditableType is true for Point, LineString and Polygon", () => {
-    expect(GeoUtils.isEditableType(GeometryKind.POLYGON)).toBe(true);
-    expect(GeoUtils.isEditableType(GeometryKind.MULTI_POINT)).toBe(false);
-    expect(GeoUtils.isEditableType(undefined)).toBe(false);
+  test.each(["Feature", undefined])("isGeometryKind is false for %s", value => {
+    expect(GeoUtils.isGeometryKind(value)).toBe(false);
+  });
+
+  test.each([GeometryKind.POINT, GeometryKind.LINE_STRING, GeometryKind.POLYGON])(
+    "isEditableType is true for %s",
+    kind => {
+      expect(GeoUtils.isEditableType(kind)).toBe(true);
+    },
+  );
+
+  test.each([
+    GeometryKind.MULTI_POINT,
+    GeometryKind.MULTI_LINE_STRING,
+    GeometryKind.MULTI_POLYGON,
+    undefined,
+  ])("isEditableType is false for %s", kind => {
+    expect(GeoUtils.isEditableType(kind)).toBe(false);
   });
 });
 
 describe("toCollection", () => {
   test("wraps each geometry in a feature with an internal id", () => {
-    const point = { type: "Point" as const, coordinates: [0, 0] };
+    const point = Test.GEO_JSON_POINT;
     expect(GeoUtils.toCollection([point, point]).features.map(f => f.id)).toEqual(["s1", "s2"]);
   });
 });
@@ -71,8 +83,8 @@ describe("setVertex", () => {
 });
 
 describe("removeVertex", () => {
-  const square = {
-    type: "Polygon" as const,
+  const square: Geometry = {
+    type: "Polygon",
     coordinates: [
       [
         [0, 0],
@@ -84,65 +96,51 @@ describe("removeVertex", () => {
     ],
   };
 
-  test("removes a line's vertex", () => {
-    const line = {
-      type: "LineString" as const,
-      coordinates: [
+  const triangle: Geometry = {
+    type: "Polygon",
+    coordinates: [
+      [
         [0, 0],
         [1, 0],
-        [2, 0],
-      ],
-    };
-    expect(GeoUtils.removeVertex(line, 1)).toEqual({
-      type: "LineString",
-      coordinates: [
+        [1, 1],
         [0, 0],
-        [2, 0],
       ],
-    });
+    ],
+  };
+
+  const line = (...xs: number[]): Geometry => ({
+    type: "LineString",
+    coordinates: xs.map(x => [x, 0]),
   });
 
-  test("removing a ring's first vertex re-closes the ring on the new first one", () => {
-    expect(GeoUtils.removeVertex(square, 0)).toEqual({
-      type: "Polygon",
-      coordinates: [
-        [
-          [1, 0],
-          [1, 1],
-          [0, 1],
-          [1, 0],
+  test.each<[string, Geometry, number, Geometry | null]>([
+    ["removes a line's vertex", line(0, 1, 2), 1, line(0, 2)],
+    [
+      "re-closes a ring on its new first vertex",
+      square,
+      0,
+      {
+        type: "Polygon",
+        coordinates: [
+          [
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [1, 0],
+          ],
         ],
-      ],
-    });
-  });
-
-  test("refuses to go below 2 line vertices or 3 ring vertices", () => {
-    const line = {
-      type: "LineString" as const,
-      coordinates: [
-        [0, 0],
-        [1, 0],
-      ],
-    };
-    const triangle = {
-      type: "Polygon" as const,
-      coordinates: [
-        [
-          [0, 0],
-          [1, 0],
-          [1, 1],
-          [0, 0],
-        ],
-      ],
-    };
-    expect(GeoUtils.removeVertex(line, 0)).toBeNull();
-    expect(GeoUtils.removeVertex(triangle, 0)).toBeNull();
+      },
+    ],
+    ["won't leave a line under 2 vertices", line(0, 1), 0, null],
+    ["won't leave a ring under 3 vertices", triangle, 0, null],
+  ])("%s", (_, geometry, index, expected) => {
+    expect(GeoUtils.removeVertex(geometry, index)).toEqual(expected);
   });
 });
 
 describe("bbox", () => {
-  const cutLine = {
-    type: "MultiLineString" as const,
+  const cutLine: MultiLineString = {
+    type: "MultiLineString",
     coordinates: [
       [
         [170, 45],
@@ -155,19 +153,20 @@ describe("bbox", () => {
     ],
   };
 
-  test("frames ordinary shapes from the westmost to the eastmost position", () => {
-    expect(GeoUtils.bbox([Test.GEO_JSON_POLYGON_WITH_HOLE, Test.GEO_JSON_POINT])).toEqual([
-      139.69, 35.65, 139.78, 35.71,
-    ]);
-  });
-
-  test("a shape cut at the antimeridian gets a box across it, with west > east", () => {
-    expect(GeoUtils.bbox([cutLine])).toEqual([170, 45, -170, 50]);
-  });
-
-  test("points on both sides of the antimeridian are framed the short way", () => {
-    expect(
-      GeoUtils.bbox([
+  test.each<[string, Geometry[], BBox | null]>([
+    [
+      "frames ordinary shapes from the westmost to the eastmost position",
+      [Test.GEO_JSON_POLYGON_WITH_HOLE, Test.GEO_JSON_POINT],
+      [139.69, 35.65, 139.78, 35.71],
+    ],
+    [
+      "gives a shape cut at the antimeridian a box across it, with west > east",
+      [cutLine],
+      [170, 45, -170, 50],
+    ],
+    [
+      "frames points on both sides of the antimeridian the short way",
+      [
         {
           type: "MultiPoint",
           coordinates: [
@@ -175,13 +174,12 @@ describe("bbox", () => {
             [-175, 1],
           ],
         },
-      ]),
-    ).toEqual([175, 0, -175, 1]);
-  });
-
-  test("an uncut line from -170 to 170 is framed the long way, as it is drawn", () => {
-    expect(
-      GeoUtils.bbox([
+      ],
+      [175, 0, -175, 1],
+    ],
+    [
+      "frames an uncut line from -170 to 170 the long way, as it is drawn",
+      [
         {
           type: "LineString",
           coordinates: [
@@ -189,103 +187,192 @@ describe("bbox", () => {
             [170, 1],
           ],
         },
-      ]),
-    ).toEqual([-170, 0, 170, 1]);
-  });
-
-  test("looks inside GeometryCollections", () => {
-    expect(GeoUtils.bbox([{ type: "GeometryCollection", geometries: [cutLine] }])).toEqual([
-      170, 45, -170, 50,
-    ]);
-  });
-
-  test("is null for nothing", () => {
-    expect(GeoUtils.bbox([])).toBeNull();
-    expect(GeoUtils.bbox([{ type: "MultiPoint", coordinates: [] }])).toBeNull();
+      ],
+      [-170, 0, 170, 1],
+    ],
+    [
+      "looks inside GeometryCollections",
+      [{ type: "GeometryCollection", geometries: [cutLine] }],
+      [170, 45, -170, 50],
+    ],
+    ["is null for no geometries", [], null],
+    ["is null for a geometry without positions", [{ type: "MultiPoint", coordinates: [] }], null],
+  ])("%s", (_, geometries, expected) => {
+    expect(GeoUtils.bbox(geometries)).toEqual(expected);
   });
 });
 
 describe("carryBbox", () => {
   const line = Test.GEO_JSON_LINE_STRING_WITH_BBOX;
-  const moved = {
-    type: "LineString" as const,
+  const moved: LineString = {
+    type: "LineString",
     coordinates: [
       [139.6, 35.6],
       [139.7673, 35.6812],
     ],
   };
-
-  test("recomputes the bbox of a shape that had one", () => {
-    expect(GeoUtils.carryBbox(moved, line).bbox).toEqual([139.6, 35.6, 139.7673, 35.6812]);
-  });
-
-  test("never adds a bbox to a shape that had none", () => {
-    expect(GeoUtils.carryBbox(moved, Test.GEO_JSON_LINE_STRING)).not.toHaveProperty("bbox");
-  });
-
-  test("drops a bbox that only came along through a spread", () => {
-    const spread = { ...Test.GEO_JSON_LINE_STRING, ...moved, bbox: line.bbox };
-    expect(GeoUtils.carryBbox(spread, Test.GEO_JSON_LINE_STRING)).not.toHaveProperty("bbox");
-  });
-
-  test("a shape cut at the antimeridian gets a box across it", () => {
-    const cut = {
-      type: "MultiLineString" as const,
-      coordinates: [
-        [
-          [170, 45],
-          [180, 48],
-        ],
-        [
-          [-180, 48],
-          [-170, 50],
-        ],
+  const cut: MultiLineString = {
+    type: "MultiLineString",
+    coordinates: [
+      [
+        [170, 45],
+        [180, 48],
       ],
-    };
-    expect(GeoUtils.carryBbox(cut, { ...cut, bbox: [0, 0, 1, 1] }).bbox).toEqual([
-      170, 45, -170, 50,
-    ]);
+      [
+        [-180, 48],
+        [-170, 50],
+      ],
+    ],
+  };
+
+  test.each<[string, Geometry, Geometry, BBox]>([
+    ["the bbox of a shape that had one", moved, line, [139.6, 35.6, 139.7673, 35.6812]],
+    [
+      "a box across the antimeridian for a cut shape",
+      cut,
+      { ...cut, bbox: [0, 0, 1, 1] },
+      [170, 45, -170, 50],
+    ],
+  ])("recomputes %s", (_, next, previous, expected) => {
+    expect(GeoUtils.carryBbox(next, previous).bbox).toEqual(expected);
+  });
+
+  test.each<[string, Geometry, Geometry]>([
+    ["on a shape that had none", moved, Test.GEO_JSON_LINE_STRING],
+    [
+      "that only came along through a spread",
+      { ...Test.GEO_JSON_LINE_STRING, ...moved, bbox: line.bbox },
+      Test.GEO_JSON_LINE_STRING,
+    ],
+  ])("never leaves a bbox %s", (_, next, previous) => {
+    expect(GeoUtils.carryBbox(next, previous)).not.toHaveProperty("bbox");
   });
 
   describe("with altitude", () => {
     const line3d = Test.GEO_JSON_LINE_STRING_WITH_ALTITUDE_AND_BBOX;
+    const collection: Geometry = {
+      type: "GeometryCollection",
+      geometries: [Test.GEO_JSON_POINT_WITH_ALTITUDE, line3d],
+      bbox: [0, 0, 0, 1, 1, 1],
+    };
 
-    test("recomputes the altitude range too", () => {
-      const next = GeoUtils.setVertex(line3d, 0, [139.6, 35.5, 5]);
-      expect(GeoUtils.carryBbox(next, line3d).bbox).toEqual([
-        139.6, 35.5, 5, 139.7673, 35.6812, 40,
-      ]);
+    test.each<[string, Geometry, Geometry, BBox]>([
+      [
+        "recomputes the altitude range too",
+        GeoUtils.setVertex(line3d, 0, [139.6, 35.5, 5]),
+        line3d,
+        [139.6, 35.5, 5, 139.7673, 35.6812, 40],
+      ],
+      [
+        "reads the range from the positions that still have an altitude",
+        { type: "LineString", coordinates: [[139.6, 35.5], ...line3d.coordinates] },
+        line3d,
+        [139.6, 35.5, 10, 139.7673, 35.6895, 40],
+      ],
+      [
+        "falls back to a flat bbox once no position has an altitude",
+        moved,
+        line3d,
+        [139.6, 35.6, 139.7673, 35.6812],
+      ],
+      [
+        "keeps a flat bbox flat even when positions have an altitude",
+        line3d,
+        { ...line3d, bbox: [139.6917, 35.6812, 139.7673, 35.6895] },
+        [139.6917, 35.6812, 139.7673, 35.6895],
+      ],
+      [
+        // The point's altitude (50) lies outside the line's range, so it must be counted.
+        "looks inside GeometryCollections",
+        collection,
+        collection,
+        [139.6917, 35.6812, 10, 139.7673, 35.6895, 50],
+      ],
+    ])("%s", (_, next, previous, expected) => {
+      expect(GeoUtils.carryBbox(next, previous).bbox).toEqual(expected);
     });
+  });
+});
 
-    test("reads the range from the positions that still have an altitude", () => {
-      const next: LineString = {
-        type: "LineString",
-        coordinates: [[139.6, 35.5], ...line3d.coordinates],
-      };
-      expect(GeoUtils.carryBbox(next, line3d).bbox).toEqual([
-        139.6, 35.5, 10, 139.7673, 35.6895, 40,
-      ]);
+describe("normalize", () => {
+  test("keeps existing ids and numbers new ones after the highest", () => {
+    const collection = GeoUtils.normalize({
+      type: "FeatureCollection",
+      features: [
+        { type: "Feature", id: "s3", geometry: Test.GEO_JSON_POINT, properties: {} },
+        { type: "Feature", id: 7, geometry: Test.GEO_JSON_POINT, properties: null },
+        { type: "Feature", geometry: Test.GEO_JSON_POINT, properties: {} },
+      ],
     });
+    expect(collection.features.map(f => f.id)).toEqual(["s3", "7", "s4"]);
+    expect(collection.features[1].properties).toEqual({});
+  });
 
-    test("falls back to a flat bbox once no position has an altitude", () => {
-      expect(GeoUtils.carryBbox(moved, line3d).bbox).toEqual([139.6, 35.6, 139.7673, 35.6812]);
+  test("rounds coordinates to about a centimetre", () => {
+    const collection = GeoUtils.normalize(
+      GeoUtils.toCollection([{ type: "Point", coordinates: [139.123456789, 35.987654321] }]),
+    );
+    expect(collection.features[0].geometry).toEqual({
+      type: "Point",
+      coordinates: [139.1234568, 35.9876543],
     });
+  });
+});
 
-    test("a flat bbox stays flat even when positions have an altitude", () => {
-      const flat: LineString = { ...line3d, bbox: [139.6917, 35.6812, 139.7673, 35.6895] };
-      expect(GeoUtils.carryBbox(line3d, flat).bbox).toEqual([139.6917, 35.6812, 139.7673, 35.6895]);
-    });
+describe("nextFeatureId", () => {
+  test.each<[string, FeatureCollection, string]>([
+    ["starts at s1 in an empty document", GeoUtils.toCollection([]), "s1"],
+    [
+      "follows the highest id",
+      {
+        type: "FeatureCollection",
+        features: [
+          { type: "Feature", id: "s5", geometry: Test.GEO_JSON_POINT, properties: {} },
+          { type: "Feature", id: "s2", geometry: Test.GEO_JSON_POINT, properties: {} },
+        ],
+      },
+      "s6",
+    ],
+  ])("%s", (_, collection, expected) => {
+    expect(GeoUtils.nextFeatureId(collection)).toBe(expected);
+  });
+});
 
-    test("looks inside GeometryCollections", () => {
-      const collection: GeometryCollection = {
-        type: "GeometryCollection",
-        geometries: [Test.GEO_JSON_POINT_WITH_ALTITUDE, line3d],
-        bbox: [0, 0, 0, 1, 1, 1],
-      };
-      // The point's altitude (50) lies outside the line's range, so it must be counted.
-      expect(GeoUtils.carryBbox(collection, collection).bbox).toEqual([
-        139.6917, 35.6812, 10, 139.7673, 35.6895, 50,
-      ]);
+describe("partCount", () => {
+  test.each<[string, Geometry, number]>([
+    ["MultiPoint", Test.GEO_JSON_MULTI_POINT, 3],
+    ["MultiPolygon", Test.GEO_JSON_MULTI_POLYGON, 2],
+    ["GeometryCollection", Test.GEO_JSON_GEO_COLLECTION, 2],
+    ["Point", Test.GEO_JSON_POINT, 1],
+  ])("a %s has %i part(s)", (_, geometry, count) => {
+    expect(GeoUtils.partCount(geometry)).toBe(count);
+  });
+});
+
+describe("countVertices", () => {
+  // A ring's closing position repeats its first, so it isn't counted.
+  test.each<[string, Geometry, number]>([
+    ["Point", Test.GEO_JSON_POINT, 1],
+    ["LineString", Test.GEO_JSON_LINE_STRING, 4],
+    ["Polygon with a hole", Test.GEO_JSON_POLYGON_WITH_HOLE, 8],
+    ["MultiPoint", Test.GEO_JSON_MULTI_POINT, 0],
+  ])("a %s has %i editable vertices", (_, geometry, count) => {
+    expect(GeoUtils.countVertices(geometry)).toBe(count);
+  });
+});
+
+describe("validateGeoJson", () => {
+  test.each<[string, string | Geometry, Geometry]>([
+    ["text", JSON.stringify(Test.GEO_JSON_POINT), Test.GEO_JSON_POINT],
+    ["an object", Test.GEO_JSON_POLYGON, Test.GEO_JSON_POLYGON],
+  ])("accepts valid GeoJSON given as %s", async (_, raw, geometry) => {
+    expect(await GeoUtils.validateGeoJson(raw)).toEqual({ isValid: true, data: geometry });
+  });
+
+  test("rejects invalid GeoJSON with a message", async () => {
+    expect(await GeoUtils.validateGeoJson('{"type":"Point","coordinates":"nope"}')).toEqual({
+      isValid: false,
+      error: expect.stringMatching(/\S/),
     });
   });
 });

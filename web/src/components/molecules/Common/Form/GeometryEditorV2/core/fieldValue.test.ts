@@ -63,6 +63,28 @@ describe("readFieldValue / writeFieldValue", () => {
     ]);
   });
 
+  test("an untouched shape keeps its text even after the store rounds its coordinates", () => {
+    const precise = '{"type":"Point","coordinates":[139.76712512345,35.68123612345]}';
+    const result = readFieldValue(precise, false);
+    if (!result.ok) throw new Error("expected ok");
+    const store = createGeoStore(result.collection);
+    expect(store.getSnapshot().collection.features[0].geometry).toEqual({
+      type: "Point",
+      coordinates: [139.7671251, 35.6812361],
+    });
+    expect(writeFieldValue(store.getSnapshot().collection, false, result.originals)).toBe(precise);
+  });
+
+  test("single: a stored null reads as an empty document", () => {
+    const result = readFieldValue("null", false);
+    expect(result.ok && result.collection.features).toEqual([]);
+  });
+
+  test("multiple: a value that isn't a list reads as an empty document", () => {
+    const result = readFieldValue(POINT, true);
+    expect(result.ok && result.collection.features).toEqual([]);
+  });
+
   test("invalid stored values are reported with the raw text kept", () => {
     const result = readFieldValue('{"type":"Point","coordinates":[35.68,139.76]}', false);
     expect(result.ok).toBe(false);

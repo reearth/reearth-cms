@@ -2,6 +2,8 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
+import { Test } from "@reearth-cms/test/utils";
+
 import { createGeoStore } from "../core/geoStore";
 import { GeoStoreProvider } from "../core/StoreContext";
 import { EditOrigin } from "../core/types";
@@ -142,7 +144,7 @@ describe("CoordinatesPanel", () => {
   test("points multipart shapes to GeoJSON", () => {
     const { store } = setup();
     act(() => {
-      store.addFeature({ type: "MultiPoint", coordinates: [[1, 1]] }, EditOrigin.MAP);
+      store.addFeature(Test.GEO_JSON_MULTI_POINT, EditOrigin.MAP);
     });
     expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
     expect(
