@@ -28,6 +28,7 @@ var (
 
 	geoExpTopGeo   = `{"type":"Point","coordinates":[139.7671,35.6812]}`
 	geoExpTopGeo2  = `{"type":"Point","coordinates":[135.5023,34.6937]}`
+	geoExpTopGeo3  = `{"type":"Point","coordinates":[130.4017,33.5902]}`
 	geoExpGroupGeo = `{"type":"LineString","coordinates":[[-0.1276,51.5072],[2.3522,48.8566]]}`
 
 	geoExpObjIncidentKey = "geo-object-incident"
@@ -69,14 +70,15 @@ func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 // seedGeoExportModels seeds two models whose schema has a group field (containing a geometry field)
 // ordered before the top-level geometry field:
 //   - incidentKey: one item with only the group geometry populated
-//   - mixedKey: i1 with an empty top-level geometry, i2 with both populated, i3 with only the top-level populated
-func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Project, uid accountdomain.UserID, gt value.Type, tp *schema.TypeProperty, incidentKey, mixedKey string, i1, i2, i3 id.ItemID) {
+//   - mixedKey: one item with an empty top-level geometry, i2 with both populated (group fields first),
+//     i3 with only the top-level populated, and i4 with both populated (top-level field first)
+func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Project, uid accountdomain.UserID, gt value.Type, tp *schema.TypeProperty, incidentKey, mixedKey string, i2, i3, i4 id.ItemID) {
 	/// Group
 	gTextId := id.NewFieldID()
 	gGeoId := id.NewFieldID()
 	gs := schema.New().NewID().Project(p.ID()).Workspace(p.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gTextId).Name("label").Key(id.NewKey("label")).MustBuild(),
-		schema.NewField(tp).ID(gGeoId).Name("nested-location").Key(id.NewKey("nested-location")).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gTextId).Name("label").Key(id.NewKey("label")).Order(0).MustBuild(),
+		schema.NewField(tp).ID(gGeoId).Name("nested-location").Key(id.NewKey("nested-location")).Order(1).MustBuild(),
 	}).MustBuild()
 	lo.Must0(r.Schema.Save(ctx, gs))
 
@@ -88,8 +90,8 @@ func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Proj
 	geoId := id.NewFieldID()
 	newModel := func(key string) *model.Model {
 		s := schema.New().NewID().Project(p.ID()).Workspace(p.Workspace()).Fields(schema.FieldList{
-			schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).ID(groupId).Name("detail").Key(id.NewKey("detail")).MustBuild(),
-			schema.NewField(tp).ID(geoId).Name("location").Key(id.NewKey("location")).MustBuild(),
+			schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).ID(groupId).Name("detail").Key(id.NewKey("detail")).Order(0).MustBuild(),
+			schema.NewField(tp).ID(geoId).Name("location").Key(id.NewKey("location")).Order(1).MustBuild(),
 		}).MustBuild()
 		lo.Must0(r.Schema.Save(ctx, s))
 
@@ -101,7 +103,7 @@ func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Proj
 	m2 := newModel(mixedKey)
 
 	/// Items
-	// group geometry is placed before the top-level geometry in the item fields
+	// group geometry is placed before the group's other fields in the item fields
 	groupFields := func(label string) []*item.Field {
 		ig := id.NewItemGroupID()
 		return []*item.Field{
@@ -109,6 +111,12 @@ func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Proj
 			item.NewField(gTextId, value.TypeText.Value(label).AsMultiple(), ig.Ref()),
 			item.NewField(groupId, value.TypeGroup.Value(ig).AsMultiple(), nil),
 		}
+	}
+	topField := func(geo string) *item.Field {
+		if geo == "" {
+			return item.NewField(geoId, value.NewMultiple(gt, nil), nil)
+		}
+		return item.NewField(geoId, gt.Value(geo).AsMultiple(), nil)
 	}
 
 	save := func(iid id.ItemID, m *model.Model, fields []*item.Field) {
@@ -126,12 +134,26 @@ func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Proj
 	}
 
 	save(id.NewItemID(), m1, groupFields("incident"))
-	save(i1, m2, append(groupFields("empty"), item.NewField(geoId, value.NewMultiple(gt, nil), nil)))
-	save(i2, m2, append(groupFields("both"), item.NewField(geoId, gt.Value(geoExpTopGeo).AsMultiple(), nil)))
-	save(i3, m2, []*item.Field{item.NewField(geoId, gt.Value(geoExpTopGeo2).AsMultiple(), nil)})
+	save(id.NewItemID(), m2, append(groupFields("empty"), topField("")))
+	save(i2, m2, append(groupFields("both"), topField(geoExpTopGeo)))
+	save(i3, m2, []*item.Field{topField(geoExpTopGeo2)})
+	// same as i2 but with the top-level geometry before the group geometry in the item fields
+	save(i4, m2, append([]*item.Field{topField(geoExpTopGeo3)}, groupFields("top-first")...))
+}
+
+// getGeoJSON reports assertion failures to the subtest's t rather than the parent test's.
+func getGeoJSON(t *testing.T, e *httpexpect.Expect, modelKey string) *httpexpect.Value {
+	t.Helper()
+	return e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, modelKey).
+		WithReporter(httpexpect.NewAssertReporter(t)).
+		Expect().
+		Status(http.StatusOK).
+		JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"})
 }
 
 func TestPublicAPI_ExportGeoJSON_GroupGeometry(t *testing.T) {
+	t.Parallel()
+
 	e, _, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, geoExportSeeder)
@@ -142,29 +164,31 @@ func TestPublicAPI_ExportGeoJSON_GroupGeometry(t *testing.T) {
 		mixedKey    string
 		i2Id        id.ItemID
 		i3Id        id.ItemID
+		i4Id        id.ItemID
 	}{
 		{
 			name:        "geometry object",
 			incidentKey: geoExpObjIncidentKey,
 			mixedKey:    geoExpObjMixedKey,
-			i2Id:        geoExpObjI2Id,
-			i3Id:        geoExpObjI3Id,
+			i2Id:        geoExpObjI1Id,
+			i3Id:        geoExpObjI2Id,
+			i4Id:        geoExpObjI3Id,
 		},
 		{
 			name:        "geometry editor",
 			incidentKey: geoExpEdIncidentKey,
 			mixedKey:    geoExpEdMixedKey,
-			i2Id:        geoExpEdI2Id,
-			i3Id:        geoExpEdI3Id,
+			i2Id:        geoExpEdI1Id,
+			i3Id:        geoExpEdI2Id,
+			i4Id:        geoExpEdI3Id,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name+": empty top-level geometry does not fall back to group geometry", func(t *testing.T) {
-			e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, tt.incidentKey).
-				Expect().
-				Status(http.StatusOK).
-				JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			t.Parallel()
+
+			getGeoJSON(t, e, tt.incidentKey).
 				IsEqual(map[string]any{
 					"type":     "FeatureCollection",
 					"features": []any{},
@@ -172,10 +196,9 @@ func TestPublicAPI_ExportGeoJSON_GroupGeometry(t *testing.T) {
 		})
 
 		t.Run(tt.name+": top-level geometry is selected regardless of group geometry", func(t *testing.T) {
-			e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, tt.mixedKey).
-				Expect().
-				Status(http.StatusOK).
-				JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			t.Parallel()
+
+			getGeoJSON(t, e, tt.mixedKey).
 				IsEqual(map[string]any{
 					"type": "FeatureCollection",
 					"features": []map[string]any{
@@ -200,6 +223,19 @@ func TestPublicAPI_ExportGeoJSON_GroupGeometry(t *testing.T) {
 								"coordinates": []any{135.5023, 34.6937},
 							},
 							"properties": map[string]any{},
+						},
+						{
+							"type": "Feature",
+							"id":   tt.i4Id.String(),
+							"geometry": map[string]any{
+								"type":        "Point",
+								"coordinates": []any{130.4017, 33.5902},
+							},
+							"properties": map[string]any{
+								"detail": map[string]any{
+									"label": "top-first",
+								},
+							},
 						},
 					},
 				})
