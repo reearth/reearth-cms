@@ -7,6 +7,7 @@ import { Test } from "@reearth-cms/test/utils";
 import { createGeoStore } from "../core/geoStore";
 import { GeoStoreProvider } from "../core/StoreContext";
 import { EditOrigin } from "../core/types";
+import type { GeometryIssue } from "../core/validation";
 
 import GeoJsonPanel from "./GeoJsonPanel";
 import type { GeoJsonPanelHandle } from "./GeoJsonPanel";
@@ -30,7 +31,19 @@ vi.mock("@monaco-editor/react", () => ({
 
 vi.mock("@reearth-cms/utils/monacoJsonSchemas", () => ({ registerJsonSchema: vi.fn() }));
 
-const setup = (open = true) => {
+type SetupOptions = {
+  open?: boolean;
+  multiple?: boolean;
+  readOnly?: boolean;
+  initialInvalid?: { text: string; issues: GeometryIssue[] };
+};
+
+const setup = ({
+  open = true,
+  multiple = false,
+  readOnly = false,
+  initialInvalid,
+}: SetupOptions = {}) => {
   const store = createGeoStore({ type: "FeatureCollection", features: [] });
   store.addFeature(Test.GEO_JSON_POINT, EditOrigin.MAP);
   const ref = createRef<GeoJsonPanelHandle>();
@@ -39,10 +52,11 @@ const setup = (open = true) => {
     <GeoStoreProvider value={store}>
       <GeoJsonPanel
         ref={ref}
-        multiple={false}
-        readOnly={false}
+        multiple={multiple}
+        readOnly={readOnly}
         open={open}
         validateOptions={{}}
+        initialInvalid={initialInvalid}
         onToggle={vi.fn()}
         onIssuesChange={onIssuesChange}
       />
@@ -63,7 +77,7 @@ describe("GeoJsonPanel", () => {
   });
 
   test("shows only the header when collapsed", () => {
-    setup(false);
+    setup({ open: false });
     expect(screen.queryByLabelText("GeoJSON text")).not.toBeInTheDocument();
   });
 
@@ -113,6 +127,46 @@ describe("GeoJsonPanel", () => {
     const revision = store.getSnapshot().revision;
     expect(ref.current?.flush()).toBe(true);
     expect(store.getSnapshot().revision).toBe(revision);
+  });
+
+  test("a map edit shows up in the text while the text isn't being edited", () => {
+    const { store } = setup();
+    act(() => store.setGeometry("s1", Test.GEO_JSON_LINE_STRING, EditOrigin.MAP));
+    expect(
+      JSON.parse((screen.getByLabelText("GeoJSON text") as HTMLTextAreaElement).value),
+    ).toEqual(Test.GEO_JSON_LINE_STRING);
+  });
+
+  test("a multiple field shows a list, and a typed list commits every geometry", () => {
+    const { store, type } = setup({ multiple: true });
+    expect(
+      JSON.parse((screen.getByLabelText("GeoJSON text") as HTMLTextAreaElement).value),
+    ).toEqual([Test.GEO_JSON_POINT]);
+    type(JSON.stringify([Test.GEO_JSON_POINT, Test.GEO_JSON_POLYGON]));
+    act(() => vi.advanceTimersByTime(500));
+    expect(store.getSnapshot().collection.features.map(f => f.geometry)).toEqual([
+      Test.GEO_JSON_POINT,
+      Test.GEO_JSON_POLYGON,
+    ]);
+  });
+
+  test.each<[string, boolean, number]>([
+    ["an editable panel offers Format and Copy", false, 1],
+    ["a read-only panel offers only Copy", true, 0],
+  ])("%s", (_, readOnly, formatButtons) => {
+    setup({ readOnly });
+    expect(screen.queryAllByRole("button", { name: "Format GeoJSON" })).toHaveLength(formatButtons);
+    expect(screen.getByRole("button", { name: "Copy GeoJSON" })).toBeInTheDocument();
+  });
+
+  test("a stored value that can't be read opens with its raw text and its problem", () => {
+    const text = '{"type":"Point","coordinates":[200,0]}';
+    const issues = [{ path: "coordinates", message: "Longitude must be between -180 and 180" }];
+    setup({ initialInvalid: { text, issues } });
+    expect(screen.getByLabelText("GeoJSON text")).toHaveValue(text);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "coordinates: Longitude must be between -180 and 180",
+    );
   });
 
   describe("stale bbox", () => {

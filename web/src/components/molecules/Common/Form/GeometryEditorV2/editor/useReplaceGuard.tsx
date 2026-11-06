@@ -9,7 +9,7 @@ import type { EditorConfirm } from "./useEditorConfirm";
 import { useUndoNotice } from "./useUndoNotice";
 
 /** Shared with the legacy field so "Do not show this again" means the same thing. */
-const REPLACE_WARNING_KEY = "disableGeometryWarning";
+export const REPLACE_WARNING_KEY = "disableGeometryWarning";
 
 const isWarningDisabled = (): boolean => {
   try {
