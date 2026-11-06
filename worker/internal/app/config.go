@@ -39,6 +39,10 @@ type GCPConfig struct {
 
 type PubSubConfig struct {
 	Topic string `default:"decompress"`
+	// Audience is the expected "aud" claim of the OIDC token attached to Pub/Sub push requests.
+	Audience string
+	// ServiceAccount is the email of the service account that the push subscription uses to sign tokens.
+	ServiceAccount string
 }
 
 func ReadConfig(debug bool) (*Config, error) {

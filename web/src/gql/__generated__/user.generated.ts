@@ -12,14 +12,6 @@ export type Role = "MAINTAINER" | "OWNER" | "READER" | "WRITER";
 
 export type Theme = "DARK" | "DEFAULT" | "LIGHT";
 
-export type GetUserByNameOrEmailQueryVariables = Exact<{
-  nameOrEmail: string;
-}>;
-
-export type GetUserByNameOrEmailQuery = {
-  userByNameOrEmail: { __typename: "User"; id: string; name: string; email: string } | null;
-};
-
 export type GetUsersQueryVariables = Exact<{
   keyword: string;
 }>;
@@ -199,50 +191,6 @@ export type DeleteMeMutation = {
   deleteMe: { __typename: "DeleteMePayload"; userId: string } | null;
 };
 
-export const GetUserByNameOrEmailDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "GetUserByNameOrEmail" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "nameOrEmail" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "userByNameOrEmail" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "nameOrEmail" },
-                value: { kind: "Variable", name: { kind: "Name", value: "nameOrEmail" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>;
 export const GetUsersDocument = {
   kind: "Document",
   definitions: [

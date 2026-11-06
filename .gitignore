@@ -13,6 +13,8 @@ node_modules
 /web/dist
 /web/storybook-static
 
+/mongo
+/data
 /server/mongo
 /server/data
 /server/web
