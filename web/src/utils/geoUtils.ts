@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import type { HintIssue } from "@placemarkio/check-geojson";
 import { check, getIssues } from "@placemarkio/check-geojson";
-import type { Feature, FeatureCollection, GeoJSON, Geometry, Position } from "geojson";
+import type { BBox, Feature, FeatureCollection, GeoJSON, Geometry, Position } from "geojson";
 
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
@@ -242,30 +242,102 @@ export abstract class GeoUtils {
     return null;
   }
 
-  /** [west, south, east, north] in WGS84, or null for an empty geometry. */
+  /**
+   * [west, south, east, north] in WGS84, or null for an empty geometry. When the shapes sit
+   * on both sides of the antimeridian, west > east (RFC 7946 §5.2).
+   */
   public static bbox(geometries: readonly Geometry[]): [number, number, number, number] | null {
-    let west = Infinity;
+    // Longitude spans of each line, ring and point. A line's span is exact: its edges never
+    // cross ±180, since data that does is cut into parts (RFC 7946 §3.1.9).
+    const spans: [number, number][] = [];
     let south = Infinity;
-    let east = -Infinity;
     let north = -Infinity;
-    const visit = (value: unknown) => {
-      if (!Array.isArray(value) || value.length === 0) return;
-      if (typeof value[0] === "number") {
-        const [lng, lat] = value as number[];
+    const addSpan = (positions: readonly Position[]) => {
+      let west = Infinity;
+      let east = -Infinity;
+      for (const [lng, lat] of positions) {
         west = Math.min(west, lng);
         east = Math.max(east, lng);
         south = Math.min(south, lat);
         north = Math.max(north, lat);
-        return;
       }
-      value.forEach(visit);
+      spans.push([west, east]);
+    };
+    const visit = (value: unknown) => {
+      if (!Array.isArray(value) || value.length === 0) return;
+      if (typeof value[0] === "number") addSpan([value as Position]);
+      else if (Array.isArray(value[0]) && typeof value[0][0] === "number") {
+        addSpan(value as Position[]);
+      } else value.forEach(visit);
     };
     const walk = (geometry: Geometry) => {
       if (geometry.type === GeometryKind.GEOMETRY_COLLECTION) geometry.geometries.forEach(walk);
+      // Each point stands alone, so points on both sides of ±180 frame the short way.
+      else if (geometry.type === GeometryKind.MULTI_POINT) geometry.coordinates.forEach(visit);
       else visit(geometry.coordinates);
     };
     geometries.forEach(walk);
-    return Number.isFinite(west) ? [west, south, east, north] : null;
+    if (spans.length === 0) return null;
+
+    const merged: [number, number][] = [];
+    for (const [west, east] of [...spans].sort((a, b) => a[0] - b[0])) {
+      const last = merged[merged.length - 1];
+      if (last && west <= last[1]) last[1] = Math.max(last[1], east);
+      else merged.push([west, east]);
+    }
+    // The box leaves out the widest stretch of longitude that no shape covers. Ties keep the
+    // stretch across the antimeridian out, so ordinary data gets an ordinary box.
+    let gapAfter = merged.length - 1;
+    let widest = merged[0][0] + 360 - merged[gapAfter][1];
+    for (let i = 0; i < merged.length - 1; i++) {
+      const gap = merged[i + 1][0] - merged[i][1];
+      if (gap > widest) {
+        widest = gap;
+        gapAfter = i;
+      }
+    }
+    return [merged[(gapAfter + 1) % merged.length][0], south, merged[gapAfter][1], north];
+  }
+
+  /**
+   * `next` with a bbox only where `previous` had one, recomputed so it can't go stale. A
+   * bbox is optional, so an edit never adds one. A bbox with altitude keeps it while any
+   * position still has one.
+   */
+  public static carryBbox(next: Geometry, previous: Geometry | null | undefined): Geometry {
+    const flat = previous?.bbox ? this.bbox([next]) : null;
+    const altitude = previous?.bbox?.length === 6 ? this.altitudeRange(next) : null;
+    const bbox: BBox | null =
+      flat && altitude ? [flat[0], flat[1], altitude[0], flat[2], flat[3], altitude[1]] : flat;
+    if (bbox) return { ...next, bbox };
+    if (!next.bbox) return next;
+    // Edits that spread the old geometry still carry its bbox.
+    const withoutBbox = { ...next };
+    delete withoutBbox.bbox;
+    return withoutBbox;
+  }
+
+  /** [lowest, highest] altitude among positions that have one, or null when none do. */
+  private static altitudeRange(geometry: Geometry): [number, number] | null {
+    let low = Infinity;
+    let high = -Infinity;
+    const visit = (value: unknown) => {
+      if (!Array.isArray(value)) return;
+      if (typeof value[0] !== "number") {
+        value.forEach(visit);
+        return;
+      }
+      const altitude: unknown = value[2];
+      if (typeof altitude !== "number") return;
+      low = Math.min(low, altitude);
+      high = Math.max(high, altitude);
+    };
+    const walk = (g: Geometry) => {
+      if (g.type === GeometryKind.GEOMETRY_COLLECTION) g.geometries.forEach(walk);
+      else visit(g.coordinates);
+    };
+    walk(geometry);
+    return Number.isFinite(low) ? [low, high] : null;
   }
 
   private static highestIdSuffix(collection: FeatureCollection): number {

@@ -1,8 +1,17 @@
 import styled from "@emotion/styled";
 import MonacoEditor from "@monaco-editor/react";
 import type { OnMount } from "@monaco-editor/react";
+import type { Geometry } from "geojson";
 import type { editor } from "monaco-editor";
-import { useCallback, useEffect, useId, useImperativeHandle, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { Ref } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
@@ -18,7 +27,7 @@ import { AntdColor } from "@reearth-cms/utils/style";
 import { collectionToText, parseText, withStableIds } from "../core/fieldValue";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
 import { EditOrigin } from "../core/types";
-import { formatIssue } from "../core/validation";
+import { findStaleBboxes, formatIssue } from "../core/validation";
 import type { GeometryIssue, ValidateOptions } from "../core/validation";
 
 import PanelHeader from "./PanelHeader";
@@ -86,6 +95,17 @@ const GeoJsonPanel: React.FC<Props> = ({
   const dirtyRef = useRef(false);
 
   useEffect(() => onIssuesChange(issues), [issues, onIssuesChange]);
+
+  // Read from the store, so a stored value, committed text and a map edit (which
+  // recomputes the bbox) all count. Warnings never block Apply.
+  const warnings = useMemo<GeometryIssue[]>(
+    () =>
+      findStaleBboxes(
+        snapshot.collection.features.flatMap((f): Geometry[] => (f.geometry ? [f.geometry] : [])),
+        multiple,
+      ),
+    [snapshot.collection, multiple],
+  );
 
   const reloadFromStore = useCallback(() => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -250,6 +270,18 @@ const GeoJsonPanel: React.FC<Props> = ({
                 issues.length > 1
                   ? t("... and {{count}} more errors", { count: issues.length - 1 })
                   : t("The map keeps showing the last valid value until this is fixed.")
+              }
+            />
+          )}
+          {issues.length === 0 && warnings.length > 0 && (
+            <Alert
+              banner
+              type="warning"
+              message={formatIssue(warnings[0])}
+              description={
+                warnings.length > 1
+                  ? t("... and {{count}} more warnings", { count: warnings.length - 1 })
+                  : undefined
               }
             />
           )}

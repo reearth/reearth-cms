@@ -9,6 +9,7 @@ import GeometryMiniMap from "./GeometryMiniMap";
 vi.mock("./map/useOlMap", () => ({ useOlMap: () => null }));
 
 const FALLBACK = "raw value";
+const ZOOM_HINT = "Ctrl/Cmd + scroll to zoom";
 
 describe("GeometryMiniMap", () => {
   test("shows a map for a valid value", () => {
@@ -19,6 +20,7 @@ describe("GeometryMiniMap", () => {
         fallback={FALLBACK}
       />,
     );
+    expect(screen.getByText(ZOOM_HINT)).toBeInTheDocument();
     expect(screen.queryByText(FALLBACK)).not.toBeInTheDocument();
   });
 
@@ -30,12 +32,14 @@ describe("GeometryMiniMap", () => {
         fallback={FALLBACK}
       />,
     );
+    expect(screen.getByText(ZOOM_HINT)).toBeInTheDocument();
     expect(screen.queryByText(FALLBACK)).not.toBeInTheDocument();
   });
 
   test("falls back for a value that can't be read", () => {
     render(<GeometryMiniMap value="{not json" multiple={false} fallback={FALLBACK} />);
     expect(screen.getByText(FALLBACK)).toBeInTheDocument();
+    expect(screen.queryByText(ZOOM_HINT)).not.toBeInTheDocument();
   });
 
   test("falls back for a value that isn't a valid geometry", () => {
@@ -47,5 +51,6 @@ describe("GeometryMiniMap", () => {
       />,
     );
     expect(screen.getByText(FALLBACK)).toBeInTheDocument();
+    expect(screen.queryByText(ZOOM_HINT)).not.toBeInTheDocument();
   });
 });

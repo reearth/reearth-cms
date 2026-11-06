@@ -114,4 +114,47 @@ describe("GeoJsonPanel", () => {
     expect(ref.current?.flush()).toBe(true);
     expect(store.getSnapshot().revision).toBe(revision);
   });
+
+  describe("stale bbox", () => {
+    const STALE = "The bbox doesn't contain this geometry. It will be saved as is.";
+    const staleLine = { ...Test.GEO_JSON_LINE_STRING_WITH_BBOX, bbox: [0, 0, 1, 1] };
+
+    test("is saved as written, with a warning", () => {
+      const { type, geometry, onIssuesChange } = setup();
+      type(JSON.stringify(staleLine));
+      act(() => vi.advanceTimersByTime(500));
+      expect(geometry()).toEqual(staleLine);
+      expect(screen.getByRole("alert")).toHaveTextContent(`bbox: ${STALE}`);
+      // A warning doesn't block Apply.
+      expect(onIssuesChange).toHaveBeenLastCalledWith([]);
+    });
+
+    test("the warning clears once the bbox is fixed", () => {
+      const { type } = setup();
+      type(JSON.stringify(staleLine));
+      act(() => vi.advanceTimersByTime(500));
+      type(JSON.stringify(Test.GEO_JSON_LINE_STRING_WITH_BBOX));
+      act(() => vi.advanceTimersByTime(500));
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+
+    test("the warning clears once a map edit recomputes the bbox", () => {
+      const { store, type } = setup();
+      type(JSON.stringify(staleLine));
+      act(() => vi.advanceTimersByTime(500));
+      act(() => store.setGeometry("s1", Test.GEO_JSON_LINE_STRING_WITH_BBOX, EditOrigin.MAP));
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+
+    test("an error takes the place of the warning", () => {
+      const { type } = setup();
+      type(JSON.stringify(staleLine));
+      act(() => vi.advanceTimersByTime(500));
+      type('{"type":"Point","coordinates":[200,0]}');
+      act(() => vi.advanceTimersByTime(500));
+      const alerts = screen.getAllByRole("alert");
+      expect(alerts).toHaveLength(1);
+      expect(alerts[0]).toHaveTextContent("Longitude must be between -180 and 180");
+    });
+  });
 });

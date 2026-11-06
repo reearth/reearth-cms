@@ -16,7 +16,17 @@ const INITIAL: FeatureCollection = {
   features: [{ type: "Feature", id: "s1", geometry: Test.GEO_JSON_POINT, properties: {} }],
 };
 
-const setup = ({ flush = true, readOnly = false } = {}) => {
+type SetupOptions = {
+  flush?: boolean;
+  readOnly?: boolean;
+  initialCollection?: FeatureCollection | null;
+};
+
+const setup = ({
+  flush = true,
+  readOnly = false,
+  initialCollection = INITIAL,
+}: SetupOptions = {}) => {
   const store = createGeoStore(INITIAL);
   const jsonPanelRef: RefObject<GeoJsonPanelHandle> = { current: { flush: () => flush } };
   const onApply = vi.fn();
@@ -25,7 +35,7 @@ const setup = ({ flush = true, readOnly = false } = {}) => {
   const { result } = renderHook(() =>
     useDraft({
       store,
-      initialCollection: INITIAL,
+      initialCollection,
       originals: new Map([["s1", JSON.stringify(Test.GEO_JSON_POINT)]]),
       multiple: false,
       readOnly,
@@ -67,6 +77,15 @@ describe("useDraft", () => {
     result.current.requestClose();
     expect(confirm).toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
+
+    confirm.mock.calls[0][0].onOk();
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  test("an unreadable stored value counts as changed, so Apply writes", () => {
+    const { result, onApply } = setup({ initialCollection: null });
+    result.current.apply();
+    expect(onApply).toHaveBeenCalledWith(JSON.stringify(Test.GEO_JSON_POINT));
   });
 
   test("Cancel closes at once with no changes, or when read-only", () => {

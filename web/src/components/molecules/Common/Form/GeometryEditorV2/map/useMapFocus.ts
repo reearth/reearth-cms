@@ -24,9 +24,21 @@ export function defaultExtent(lang: string): Extent {
   return isJapanese(lang) ? JAPAN_EXTENT : WORLD_EXTENT;
 }
 
+/**
+ * A WGS84 [west, south, east, north] box as a map extent. A box across the antimeridian
+ * (west > east) runs past 180° into the next world copy, which the map wraps to.
+ */
+export function toMapExtent([west, south, east, north]: readonly number[]): Extent {
+  return transformExtent(
+    [west, south, west > east ? east + 360 : east, north],
+    "EPSG:4326",
+    "EPSG:3857",
+  );
+}
+
 export function extentOf(geometries: readonly Geometry[]): Extent | null {
   const bbox = GeoUtils.bbox(geometries);
-  return bbox ? transformExtent(bbox, "EPSG:4326", "EPSG:3857") : null;
+  return bbox ? toMapExtent(bbox) : null;
 }
 
 export function fitTo(handles: MapHandles, extent: Extent | null, maxZoom = 17, duration = 300) {
@@ -44,7 +56,7 @@ export function useMapFocus(handles: MapHandles | null, focus: FocusRequest | nu
       focus.kind === FocusKind.GEOMETRY
         ? extentOf([focus.geometry])
         : focus.kind === FocusKind.EXTENT
-          ? transformExtent([...focus.extent], "EPSG:4326", "EPSG:3857")
+          ? toMapExtent(focus.extent)
           : null;
 
     if (target) {

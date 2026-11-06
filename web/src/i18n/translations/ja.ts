@@ -1,5 +1,6 @@
 export default {
   "... and {{count}} more errors_other": "⋯⋯ほか{{count}}件のエラー",
+  "... and {{count}} more warnings_other": "⋯⋯ほか{{count}}件の警告",
   "{{count}} configured_other": "{{count}}件を設定しました",
   "{{count}} errors_other": "{{count}}件のエラー",
   "{{count}} geometries_other": "{{count}}個のジオメトリ",
@@ -777,6 +778,7 @@ export default {
   "Text": "テキスト",
   "TextArea": "テキストエリア",
   "The attempt to re-generate the integration token has failed.": "インテグレーショントークンの再生成に失敗しました。",
+  "The bbox doesn't contain this geometry. It will be saved as is.": "bbox がこのジオメトリを囲んでいません。このまま保存されます。",
   "The first one in the list will be the default Terrain.": "リストの最初の地形がデフォルトになります。",
   "The first one in the list will be the default Tile.": "リストの最初のタイルがデフォルトになります。",
   "The item is currently under request review and cannot be published.": "このアイテムは現在リクエストレビュー中のため公開できません。",

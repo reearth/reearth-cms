@@ -140,7 +140,9 @@ export function createGeoStore(initial: FeatureCollection): GeoStore {
     const byId = new Map(updates.map(update => [update.featureId, update.geometry]));
     const features: Feature[] = snapshot.collection.features.map(feature => {
       const geometry = byId.get(String(feature.id));
-      return geometry ? { ...feature, geometry } : feature;
+      return geometry
+        ? { ...feature, geometry: GeoUtils.carryBbox(geometry, feature.geometry) }
+        : feature;
     });
     publish(
       { type: "FeatureCollection", features },

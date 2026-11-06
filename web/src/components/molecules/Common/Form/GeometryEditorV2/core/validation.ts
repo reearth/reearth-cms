@@ -1,3 +1,5 @@
+import type { Geometry, Position } from "geojson";
+
 import { t } from "@reearth-cms/i18n";
 import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { ObjectUtils } from "@reearth-cms/utils/object";
@@ -264,6 +266,67 @@ export function validateValue(
   }
 
   return out.issues;
+}
+
+/** Positions are rounded to 7 decimals, so one may sit this far outside a bbox made before. */
+const BBOX_TOLERANCE = 1e-7;
+
+/** [west, south, east, north] of a well-formed bbox, altitude left out; null otherwise. */
+function flatBbox(bbox: unknown): [number, number, number, number] | null {
+  if (!Array.isArray(bbox) || !bbox.every(n => typeof n === "number" && Number.isFinite(n))) {
+    return null;
+  }
+  const box = bbox as number[];
+  if (box.length === 4) return [box[0], box[1], box[2], box[3]];
+  if (box.length === 6) return [box[0], box[1], box[3], box[4]];
+  return null;
+}
+
+function containsPosition(
+  [west, south, east, north]: [number, number, number, number],
+  [lng, lat]: Position,
+): boolean {
+  if (lat < south - BBOX_TOLERANCE || lat > north + BBOX_TOLERANCE) return false;
+  // west > east is a box across the antimeridian (RFC 7946 §5.2).
+  return west <= east
+    ? lng >= west - BBOX_TOLERANCE && lng <= east + BBOX_TOLERANCE
+    : lng >= west - BBOX_TOLERANCE || lng <= east + BBOX_TOLERANCE;
+}
+
+function everyPosition(geometry: Geometry, test: (position: Position) => boolean): boolean {
+  const visit = (value: unknown): boolean =>
+    Array.isArray(value) &&
+    (typeof value[0] === "number" ? test(value as Position) : value.every(visit));
+  return geometry.type === GeometryKind.GEOMETRY_COLLECTION
+    ? geometry.geometries.every(g => everyPosition(g, test))
+    : geometry.coordinates.length === 0 || visit(geometry.coordinates);
+}
+
+function checkBbox(geometry: Geometry, path: string, out: GeometryIssue[]) {
+  const at = (member: string) => (path ? `${path}.${member}` : member);
+  const box = flatBbox(geometry.bbox);
+  if (box && !everyPosition(geometry, position => containsPosition(box, position))) {
+    out.push({
+      path: at("bbox"),
+      message: t("The bbox doesn't contain this geometry. It will be saved as is."),
+    });
+  }
+  if (geometry.type === GeometryKind.GEOMETRY_COLLECTION) {
+    geometry.geometries.forEach((g, i) => checkBbox(g, at(`geometries[${i}]`), out));
+  }
+}
+
+/**
+ * A bbox is optional and is stored as written, so a stale one is a warning, not an error.
+ * A bbox larger than its geometry is fine: RFC 7946 doesn't require the smallest one.
+ */
+export function findStaleBboxes(
+  geometries: readonly Geometry[],
+  multiple: boolean,
+): GeometryIssue[] {
+  const out: GeometryIssue[] = [];
+  geometries.forEach((geometry, i) => checkBbox(geometry, multiple ? `[${i}]` : "", out));
+  return out;
 }
 
 export function formatIssue(issue: GeometryIssue): string {

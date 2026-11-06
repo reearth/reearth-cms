@@ -1,6 +1,8 @@
 export default {
   "... and {{count}} more errors_one": "... and {{count}} more error",
   "... and {{count}} more errors_other": "... and {{count}} more errors",
+  "... and {{count}} more warnings_one": "... and {{count}} more warning",
+  "... and {{count}} more warnings_other": "... and {{count}} more warnings",
   "{{count}} configured_one": "{{count}} configured",
   "{{count}} configured_other": "{{count}} configured",
   "{{count}} errors_one": "{{count}} error",
@@ -790,6 +792,7 @@ export default {
   "Text": "",
   "TextArea": "",
   "The attempt to re-generate the integration token has failed.": "",
+  "The bbox doesn't contain this geometry. It will be saved as is.": "",
   "The first one in the list will be the default Terrain.": "",
   "The first one in the list will be the default Tile.": "",
   "The item is currently under request review and cannot be published.": "",
