@@ -28,7 +28,7 @@ func main() {
 	}
 
 	dbURI := mustGetEnv("REEARTH_CMS_DB")
-	dbName := cmp.Or(os.Getenv("REEARTH_CMS_WORKER_DB_CMS"), os.Getenv("REEARTH_CMS_DB_CMS"), "reearth_cms")
+	dbName := getDBName()
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
@@ -43,6 +43,10 @@ func main() {
 	if err := ctrl.Copy(ctx, http.CopyInput{Filter: filter, Changes: changes}); err != nil {
 		log.Fatalf("copy operation failed: %v", err)
 	}
+}
+
+func getDBName() string {
+	return cmp.Or(os.Getenv("REEARTH_CMS_WORKER_DB_CMS"), os.Getenv("REEARTH_CMS_DB_CMS"), "reearth_cms")
 }
 
 func mustGetEnv(key string) string {
