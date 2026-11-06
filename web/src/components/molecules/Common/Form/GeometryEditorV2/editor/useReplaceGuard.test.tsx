@@ -7,11 +7,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Test } from "@reearth-cms/test/utils";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import { createGeoStore } from "../core/geoStore";
 import { EditOrigin } from "../core/types";
 
-import { REPLACE_WARNING_KEY, useReplaceGuard } from "./useReplaceGuard";
+import { useReplaceGuard } from "./useReplaceGuard";
+
+const { DISABLE_GEOMETRY_WARNING } = Constant.LOCAL_STORAGE_KEY;
 
 type SetupOptions = {
   multiple?: boolean;
@@ -39,7 +42,7 @@ describe("useReplaceGuard", () => {
     ["the field has no value yet", { hasValue: false }, false],
     ["the warning has been turned off", {}, true],
   ])("replaces at once when %s", (_, options, warningOff) => {
-    localStorage.setItem(REPLACE_WARNING_KEY, String(warningOff));
+    localStorage.setItem(DISABLE_GEOMETRY_WARNING, String(warningOff));
     const { guard, confirm, proceed } = setup(options);
     guard.confirmReplace(proceed);
     expect(proceed).toHaveBeenCalled();
@@ -62,9 +65,9 @@ describe("useReplaceGuard", () => {
     const checkbox = screen.getByRole("checkbox", { name: "Do not show this again" });
 
     await user.click(checkbox);
-    expect(localStorage.getItem(REPLACE_WARNING_KEY)).toBe("true");
+    expect(localStorage.getItem(DISABLE_GEOMETRY_WARNING)).toBe("true");
     await user.click(checkbox);
-    expect(localStorage.getItem(REPLACE_WARNING_KEY)).toBeNull();
+    expect(localStorage.getItem(DISABLE_GEOMETRY_WARNING)).toBeNull();
   });
 
   test("the replaced notice's Undo brings the previous geometry back", async () => {

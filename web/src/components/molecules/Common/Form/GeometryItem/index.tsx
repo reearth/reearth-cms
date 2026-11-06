@@ -33,6 +33,7 @@ import type {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 import { registerJsonSchema } from "@reearth-cms/utils/monacoJsonSchemas";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
@@ -43,7 +44,7 @@ const { Text } = Typography;
 const ajv = new Ajv();
 const validate = ajv.compile(schema);
 
-const LOCALSTORAGE_KEY = "disableGeometryWarning";
+const { DISABLE_GEOMETRY_WARNING } = Constant.LOCAL_STORAGE_KEY;
 
 const GEO_TYPE_MAP = {
   POINT: "Point",
@@ -355,9 +356,9 @@ const GeometryItem: React.FC<Props> = ({
             <Checkbox
               onChange={e => {
                 if (e.target.checked) {
-                  localStorage.setItem(LOCALSTORAGE_KEY, "true");
+                  localStorage.setItem(DISABLE_GEOMETRY_WARNING, "true");
                 } else {
-                  localStorage.removeItem(LOCALSTORAGE_KEY);
+                  localStorage.removeItem(DISABLE_GEOMETRY_WARNING);
                 }
               }}>
               {t("Do not show this again")}
@@ -377,7 +378,7 @@ const GeometryItem: React.FC<Props> = ({
     (newSketchType: DrawType) => {
       if (sketchType === newSketchType) {
         setType();
-      } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
+      } else if (value && !localStorage.getItem(DISABLE_GEOMETRY_WARNING)) {
         handleConfirm(newSketchType);
       } else {
         setType(newSketchType);

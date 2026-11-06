@@ -2,18 +2,18 @@ import { useCallback } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import type { GeoStore } from "../core/geoStore";
 
 import type { EditorConfirm } from "./useEditorConfirm";
 import { useUndoNotice } from "./useUndoNotice";
 
-/** Shared with the legacy field so "Do not show this again" means the same thing. */
-export const REPLACE_WARNING_KEY = "disableGeometryWarning";
+const { DISABLE_GEOMETRY_WARNING } = Constant.LOCAL_STORAGE_KEY;
 
 const isWarningDisabled = (): boolean => {
   try {
-    return localStorage.getItem(REPLACE_WARNING_KEY) === "true";
+    return localStorage.getItem(DISABLE_GEOMETRY_WARNING) === "true";
   } catch {
     return false;
   }
@@ -21,8 +21,8 @@ const isWarningDisabled = (): boolean => {
 
 const setWarningDisabled = (disabled: boolean) => {
   try {
-    if (disabled) localStorage.setItem(REPLACE_WARNING_KEY, "true");
-    else localStorage.removeItem(REPLACE_WARNING_KEY);
+    if (disabled) localStorage.setItem(DISABLE_GEOMETRY_WARNING, "true");
+    else localStorage.removeItem(DISABLE_GEOMETRY_WARNING);
   } catch {
     // Preferences are a convenience; ignore storage failures.
   }

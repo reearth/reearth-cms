@@ -62,6 +62,11 @@ export abstract class Constant {
     IMPORT_SCHEMA_JSON: "/templates/import-schema-template.json",
   };
 
+  public static readonly LOCAL_STORAGE_KEY = {
+    // Both geometry editors read it, so "Do not show this again" applies to either.
+    DISABLE_GEOMETRY_WARNING: "disableGeometryWarning",
+  };
+
   public static readonly IS_DEV: boolean =
     !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
