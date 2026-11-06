@@ -137,6 +137,12 @@ func TestExtractGeometry(t *testing.T) {
 	geometry2, ok2 := extractGeometry(fi2)
 	assert.False(t, ok2)
 	assert.Nil(t, geometry2)
+
+	// Test with a unified geometry field stored as an object
+	fi3 := item.NewField(id.NewFieldID(), value.TypeGeometry.Value(`{"type":"Point","coordinates":[139.7,35.6]}`).AsMultiple(), nil)
+	geometry3, ok3 := extractGeometry(fi3)
+	assert.True(t, ok3)
+	assert.Equal(t, types.GeometryTypePoint, *geometry3.Type)
 }
 
 func TestExtractProperties(t *testing.T) {

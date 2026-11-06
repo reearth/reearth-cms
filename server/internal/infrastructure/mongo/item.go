@@ -112,6 +112,21 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 			continue
 		}
 
+		// values that are compared by equivalence (e.g. geometries) are matched by their keys instead of their raw data
+		if v.K != nil {
+			filters = append(filters, bson.M{
+				"modelid": modelID.String(),
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"f":   f.Field.String(),
+						"v.t": v.T,
+						"v.k": v.K,
+					},
+				},
+			})
+			continue
+		}
+
 		filters = append(
 			filters,
 			bson.M{

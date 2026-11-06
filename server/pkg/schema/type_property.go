@@ -29,6 +29,7 @@ type TypeProperty struct {
 	group          *FieldGroup
 	geometryObject *FieldGeometryObject
 	geometryEditor *FieldGeometryEditor
+	geometry       *FieldGeometry
 }
 
 type TypePropertyMatch struct {
@@ -49,6 +50,7 @@ type TypePropertyMatch struct {
 	Group          func(*FieldGroup)
 	GeometryObject func(*FieldGeometryObject)
 	GeometryEditor func(*FieldGeometryEditor)
+	Geometry       func(*FieldGeometry)
 	Default        func()
 }
 
@@ -70,6 +72,7 @@ type TypePropertyMatch1[T any] struct {
 	Group          func(*FieldGroup) T
 	GeometryObject func(*FieldGeometryObject) T
 	GeometryEditor func(*FieldGeometryEditor) T
+	Geometry       func(*FieldGeometry) T
 	Default        func() T
 }
 
@@ -130,6 +133,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		GeometryEditor: func(f *FieldGeometryEditor) error {
 			return f.Validate(v)
 		},
+		Geometry: func(f *FieldGeometry) error {
+			return f.Validate(v)
+		},
 	})
 }
 
@@ -184,6 +190,9 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 			return f.ValidateMultiple(v)
 		},
 		GeometryEditor: func(f *FieldGeometryEditor) error {
+			return f.ValidateMultiple(v)
+		},
+		Geometry: func(f *FieldGeometry) error {
 			return f.ValidateMultiple(v)
 		},
 	})
@@ -283,6 +292,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.GeometryEditor(t.geometryEditor)
 			return
 		}
+	case value.TypeGeometry:
+		if m.Geometry != nil {
+			m.Geometry(t.geometry)
+			return
+		}
 	}
 
 	if m.Default != nil {
@@ -314,6 +328,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		url:            t.url.Clone(),
 		geometryObject: t.geometryObject.Clone(),
 		geometryEditor: t.geometryEditor.Clone(),
+		geometry:       t.geometry.Clone(),
 	}
 }
 
@@ -393,6 +408,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeGeometryEditor:
 		if m.GeometryEditor != nil {
 			return m.GeometryEditor(t.geometryEditor)
+		}
+	case value.TypeGeometry:
+		if m.Geometry != nil {
+			return m.Geometry(t.geometry)
 		}
 	}
 
