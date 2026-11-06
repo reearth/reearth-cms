@@ -6157,7 +6157,7 @@ type Integration implements Node {
   id: ID!
   name: String!
   description: String
-  logoUrl: URL!
+  logoUrl: URL
   iType: IntegrationType!
   developerId: ID!
   developer: User!
@@ -6171,7 +6171,7 @@ type Integration implements Node {
 input CreateIntegrationInput {
   name: String!
   description: String
-  logoUrl: URL!
+  logoUrl: URL
   type: IntegrationType!
 }
 
@@ -14038,11 +14038,11 @@ func (ec *executionContext) _Integration_logoUrl(ctx context.Context, field grap
 			return obj.LogoURL, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v url.URL) graphql.Marshaler {
-			return ec.marshalNURL2netᚋurlᚐURL(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *url.URL) graphql.Marshaler {
+			return ec.marshalOURL2ᚖnetᚋurlᚐURL(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_Integration_logoUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28725,7 +28725,7 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 			it.Description = data
 		case "logoUrl":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logoUrl"))
-			data, err := ec.unmarshalNURL2netᚋurlᚐURL(ctx, v)
+			data, err := ec.unmarshalOURL2ᚖnetᚋurlᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -36257,7 +36257,7 @@ func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionS
 			}
 		case "logoUrl":
 			out.Values[i] = ec._Integration_logoUrl(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
+			if out.Values[i] == graphql.RequiredNull {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "iType":

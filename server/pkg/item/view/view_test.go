@@ -45,7 +45,7 @@ func TestView(t *testing.T) {
 	assert.Equal(t, v.order, v.Order())
 
 	// Create new settings for Setters
-	newCondition := Condition{} // assuming Condition struct or type exists
+	newCondition := Condition{ConditionType: ConditionTypeBasic, BasicCondition: &BasicCondition{}}
 	newSort := Sort{}           // assuming Sort struct or type exists
 	columns := ColumnList{}     // assuming FieldSelectorList struct or type exists
 	updateTime := time.Now()
@@ -53,7 +53,7 @@ func TestView(t *testing.T) {
 	// Update fields using Setters
 	v.SetName("updatedName")   // Assuming name is "updatedName"
 	v.SetSort(&newSort)        // Assuming newSort has been set
-	v.SetFilter(&newCondition) // Assuming newCondition has been set
+	assert.NoError(t, v.SetFilter(&newCondition))
 	v.SetColumns(&columns)     // Assuming newFields has been set
 	v.SetUpdatedAt(updateTime) // Assuming updateTime has been set
 	v.SetOrder(2)
@@ -115,6 +115,43 @@ func TestView_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.wantErr, tc.view.Validate())
+		})
+	}
+}
+
+func TestView_SetFilter(t *testing.T) {
+	t.Parallel()
+	old := &Condition{ConditionType: ConditionTypeBasic, BasicCondition: &BasicCondition{Value: "old"}}
+	valid := &Condition{ConditionType: ConditionTypeBasic, BasicCondition: &BasicCondition{Value: "new"}}
+
+	tests := []struct {
+		name    string
+		args    *Condition
+		want    *Condition
+		wantErr error
+	}{
+		{
+			name: "must set a valid condition",
+			args: valid,
+			want: valid,
+		},
+		{
+			name: "must clear the filter",
+		},
+		{
+			name:    "must reject an invalid condition and keep the filter",
+			args:    &Condition{},
+			want:    old,
+			wantErr: ErrInvalidCondition,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			v := &View{filter: old}
+			assert.Equal(t, tc.wantErr, v.SetFilter(tc.args))
+			assert.Equal(t, tc.want, v.Filter())
 		})
 	}
 }

@@ -459,13 +459,25 @@ func TestIntegration_SetLogoUrl(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   string
+		want   *url.URL
 	}{
 		{
 			name:   "set",
 			fields: fields{},
 			args:   args{logoUrl: lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))},
-			want:   "https://sub.hugo.com/dir?p=1#test",
+			want:   lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
+		},
+		{
+			name:   "nil removes the logo",
+			fields: fields{logoUrl: lo.Must(url.Parse("https://sub.hugo.com"))},
+			args:   args{logoUrl: nil},
+			want:   nil,
+		},
+		{
+			name:   "an empty URL removes the logo",
+			fields: fields{logoUrl: lo.Must(url.Parse("https://sub.hugo.com"))},
+			args:   args{logoUrl: &url.URL{}},
+			want:   nil,
 		},
 	}
 	for _, tt := range tests {
@@ -484,7 +496,7 @@ func TestIntegration_SetLogoUrl(t *testing.T) {
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetLogoUrl(tt.args.logoUrl)
-			assert.Equal(t, tt.want, i.logoUrl.String())
+			assert.Equal(t, tt.want, i.logoUrl)
 		})
 	}
 }

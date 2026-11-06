@@ -921,6 +921,10 @@ func testGroupSave(t *testing.T, newRepo groupFactory) {
 			want:    p1g1, // unchanged
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name:    "must not save a nil group",
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -935,6 +939,9 @@ func testGroupSave(t *testing.T, newRepo groupFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			got, err := base.FindByID(ctx, tc.args.ID())
@@ -958,8 +965,6 @@ func testGroupSaveAll(t *testing.T, newRepo groupFactory) {
 		Name("after").Order(1).MustBuild()
 	all := id.GroupIDList{p1g1.ID(), p1g2.ID(), p2g1.ID()}
 
-	// TODO: SaveAll must reject a nil group; both backends panic on it
-	// (group.List.Projects dereferences it), so the case is left out
 	tests := []struct {
 		name    string
 		seeds   group.List
@@ -1007,6 +1012,17 @@ func testGroupSaveAll(t *testing.T, newRepo groupFactory) {
 			args:    group.List{p1g1, p2g1},
 			want:    group.List{},
 			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "must skip nil groups",
+			args: group.List{nil, p1g1, nil},
+			want: group.List{p1g1},
+		},
+		{
+			name:   "must save nothing for a list of nil groups even in a project that is not writable",
+			filter: new(pjFilter(nil, id.ProjectIDList{})),
+			args:   group.List{nil},
+			want:   group.List{},
 		},
 	}
 

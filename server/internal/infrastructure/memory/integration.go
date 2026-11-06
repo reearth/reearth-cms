@@ -84,6 +84,9 @@ func (r *Integration) Save(_ context.Context, i *integration.Integration) error 
 		return r.err
 	}
 
+	if i == nil {
+		return rerror.ErrInvalidParams
+	}
 	r.data.Store(i.ID(), i.Clone())
 	return nil
 }

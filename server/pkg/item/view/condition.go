@@ -1,6 +1,12 @@
 package view
 
-import "github.com/samber/lo"
+import (
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
+)
+
+var ErrInvalidCondition = rerror.NewE(i18n.T("invalid condition"))
 
 type ConditionType string
 
@@ -27,6 +33,47 @@ type Condition struct {
 	StringCondition   *StringCondition
 	NumberCondition   *NumberCondition
 	TimeCondition     *TimeCondition
+}
+
+func (c Condition) Validate() error {
+	ok := false
+	switch c.ConditionType {
+	case ConditionTypeAnd:
+		if c.AndCondition != nil {
+			return validateConditions(c.AndCondition.Conditions)
+		}
+	case ConditionTypeOr:
+		if c.OrCondition != nil {
+			return validateConditions(c.OrCondition.Conditions)
+		}
+	case ConditionTypeBasic:
+		ok = c.BasicCondition != nil
+	case ConditionTypeNullable:
+		ok = c.NullableCondition != nil
+	case ConditionTypeMultiple:
+		ok = c.MultipleCondition != nil
+	case ConditionTypeBool:
+		ok = c.BoolCondition != nil
+	case ConditionTypeString:
+		ok = c.StringCondition != nil
+	case ConditionTypeNumber:
+		ok = c.NumberCondition != nil
+	case ConditionTypeTime:
+		ok = c.TimeCondition != nil
+	}
+	if !ok {
+		return ErrInvalidCondition
+	}
+	return nil
+}
+
+func validateConditions(l []Condition) error {
+	for _, c := range l {
+		if err := c.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c Condition) MetaFields() FieldSelectorList {

@@ -8,6 +8,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -65,6 +67,9 @@ func (r *View) FindByModel(ctx context.Context, modelID view.ModelID) (view.List
 }
 
 func (r *View) Save(ctx context.Context, view *view.View) error {
+	if view == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(view.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -73,6 +78,7 @@ func (r *View) Save(ctx context.Context, view *view.View) error {
 }
 
 func (r *View) SaveAll(ctx context.Context, list view.List) error {
+	list = lo.Compact(list)
 	if len(list) == 0 {
 		return nil
 	}

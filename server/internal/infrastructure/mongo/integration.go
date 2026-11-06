@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -66,6 +67,9 @@ func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserI
 }
 
 func (r *Integration) Save(ctx context.Context, integration *integration.Integration) error {
+	if integration == nil {
+		return rerror.ErrInvalidParams
+	}
 	doc, sId := mongodoc.NewIntegration(integration)
 	return r.client.SaveOne(ctx, sId, doc)
 }
