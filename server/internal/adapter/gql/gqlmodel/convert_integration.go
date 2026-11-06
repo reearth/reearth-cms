@@ -23,7 +23,7 @@ func ToIntegration(i *integration.Integration, uId *accountdomain.UserID) *Integ
 		ID:          IDFrom(i.ID()),
 		Name:        i.Name(),
 		Description: new(i.Description()),
-		LogoURL:     *i.LogoUrl(),
+		LogoURL:     i.LogoUrl(),
 		IType:       ToIntegrationType(i.Type()),
 		DeveloperID: IDFrom(i.Developer()),
 		Developer:   nil,

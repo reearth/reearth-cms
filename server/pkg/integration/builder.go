@@ -62,7 +62,7 @@ func (b *Builder) Type(t Type) *Builder {
 }
 
 func (b *Builder) LogoUrl(logoURL *url.URL) *Builder {
-	if logoURL == nil {
+	if isEmptyURL(logoURL) {
 		b.i.logoUrl = nil
 	} else {
 		b.i.logoUrl, _ = url.Parse(logoURL.String())

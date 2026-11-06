@@ -43,7 +43,7 @@ func TestToIntegration(t *testing.T) {
 				ID:          IDFrom(iId),
 				Name:        "N1",
 				Description: new("D1"),
-				LogoURL:     *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
+				LogoURL:     lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				IType:       "Private",
 				DeveloperID: IDFrom(dId),
 				Developer:   nil,
@@ -67,7 +67,7 @@ func TestToIntegration(t *testing.T) {
 				ID:          IDFrom(iId),
 				Name:        "N1",
 				Description: new("D1"),
-				LogoURL:     *lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
+				LogoURL:     lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				IType:       "Private",
 				DeveloperID: IDFrom(dId),
 				Developer:   nil,
@@ -79,6 +79,24 @@ func TestToIntegration(t *testing.T) {
 				UpdatedAt: now,
 			},
 			user: dId,
+		},
+		{
+			name: "no logo",
+			integration: integration.New().ID(iId).Name("N1").
+				Type(integration.TypePrivate).
+				Developer(dId).
+				UpdatedAt(now).
+				MustBuild(),
+			want: &Integration{
+				ID:          IDFrom(iId),
+				Name:        "N1",
+				Description: new(""),
+				IType:       "Private",
+				DeveloperID: IDFrom(dId),
+				CreatedAt:   iId.Timestamp(),
+				UpdatedAt:   now,
+			},
+			user: uId,
 		},
 	}
 	for _, tt := range tests {

@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -120,6 +121,9 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 }
 
 func (r *Group) Save(ctx context.Context, group *group.Group) error {
+	if group == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(group.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -128,6 +132,7 @@ func (r *Group) Save(ctx context.Context, group *group.Group) error {
 }
 
 func (r *Group) SaveAll(ctx context.Context, list group.List) error {
+	list = lo.Compact(list)
 	if len(list) == 0 {
 		return nil
 	}
