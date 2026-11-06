@@ -153,6 +153,7 @@ func (r *Group) SaveAll(_ context.Context, groups group.List) error {
 		return r.err
 	}
 
+	groups = lo.Compact(groups)
 	if len(groups) == 0 {
 		return nil
 	}
@@ -172,6 +173,9 @@ func (r *Group) Save(_ context.Context, g *group.Group) error {
 		return r.err
 	}
 
+	if g == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(g.Project()) {
 		return repo.ErrOperationDenied
 	}

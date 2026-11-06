@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -227,7 +228,9 @@ func testIntegrationFindByUser(t *testing.T, newRepo integrationFactory) {
 	u1i2 := newIntegration(u1)
 	u1i3 := newIntegration(u1)
 	u2i1 := newIntegration(u2)
-	seeds := integration.List{u1i3, u2i1, u1i1, u1i2}
+	// saved in reverse ID order, so the result must be sorted to match
+	seeds := integration.List{u1i1, u1i2, u1i3, u2i1}.SortByID()
+	mutable.Reverse(seeds)
 
 	tests := []struct {
 		name    string
@@ -268,10 +271,7 @@ func testIntegrationFindByUser(t *testing.T, newRepo integrationFactory) {
 
 			got, err := r.FindByUser(ctx, tc.args)
 			assert.Equal(t, tc.wantErr, err)
-			// TODO: mongo applies no sort (it returns the natural order, in
-			// practice the insertion order) while memory sorts by ID, so the
-			// order is not part of the contract yet.
-			assert.Equal(t, tc.want.SortByID(), got.SortByID())
+			assert.Equal(t, tc.want.SortByID(), got)
 		})
 	}
 }
@@ -282,10 +282,9 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 	i1 := newIntegration(u1)
 	i2 := newIntegration(u1)
 	custom := newIntegrationBuilder(u1).Token("secret_custom").MustBuild()
-	seeds := integration.List{i1, i2, custom}
+	noToken := newIntegrationBuilder(u1).Token("").MustBuild()
+	seeds := integration.List{i1, i2, custom, noToken}
 
-	// TODO: an integration with an empty token is found by an empty token;
-	// left out as the auth middleware never looks up an empty token.
 	tests := []struct {
 		name    string
 		seeds   integration.List
@@ -312,7 +311,7 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:    "must not find an empty token",
+			name:    "must not find an integration without a token by an empty token",
 			seeds:   seeds,
 			args:    "",
 			wantErr: rerror.ErrNotFound,
@@ -354,10 +353,9 @@ func testIntegrationFindByToken(t *testing.T, newRepo integrationFactory) {
 // webhooks survives a save and find round trip.
 //
 // TODO: these are left out as mongo does not keep them:
-//   - a nil logo URL or a webhook with a nil URL makes Save panic
 //   - a nil webhook list and a nil trigger are read back as empty ones
 //   - an empty or unknown type is read back as private
-//   - an empty logo URL is read back as an empty, non-nil URL
+//   - an empty logo URL is read back as nil
 //   - a time that is not in UTC (e.g. the default UpdatedAt) is read back in UTC
 func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 	ctx := context.Background()
@@ -397,6 +395,10 @@ func testIntegrationRoundTrip(t *testing.T, newRepo integrationFactory) {
 		{
 			name: "must keep a logo URL with user info, query and fragment",
 			args: newIntegrationBuilder(u).LogoUrl(lo.Must(url.Parse("https://user:pass@example.com:8080/a/logo.png?size=1&v=2#top"))).MustBuild(),
+		},
+		{
+			name: "must keep an integration without a logo URL",
+			args: newIntegrationBuilder(u).LogoUrl(nil).MustBuild(),
 		},
 		{
 			name: "must keep the updated time",
@@ -532,10 +534,11 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 		MustBuild()
 
 	tests := []struct {
-		name  string
-		seeds integration.List
-		args  *integration.Integration
-		want  integration.List // the stored integrations afterwards
+		name    string
+		seeds   integration.List
+		args    *integration.Integration
+		want    integration.List // the stored integrations afterwards
+		wantErr error
 	}{
 		{
 			name: "must save a new integration",
@@ -560,6 +563,12 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 			args:  i1,
 			want:  integration.List{i1, i2},
 		},
+		{
+			name:    "must not save a nil integration",
+			seeds:   integration.List{i2},
+			want:    integration.List{i2},
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -569,7 +578,7 @@ func testIntegrationSave(t *testing.T, newRepo integrationFactory) {
 			r := newRepo(t)
 			seedIntegrations(t, r, tc.seeds)
 
-			assert.NoError(t, r.Save(ctx, tc.args))
+			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
 			assert.Equal(t, tc.want, storedIntegrations(t, r, id.IntegrationIDList{i1.ID(), i2.ID()}))
 		})
 	}

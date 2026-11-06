@@ -50,3 +50,62 @@ func TestResource_Clone(t *testing.T) {
 
 	assert.Nil(t, (*Resource)(nil).Clone())
 }
+
+func TestResource_Validate(t *testing.T) {
+	t.Parallel()
+	tile := NewTileResource(NewResourceID(), TileTypeDefault, NewURLResourceProps("n", "u", "i"))
+	terrain := NewTerrainResource(NewResourceID(), TerrainTypeCesiumIon, NewCesiumResourceProps("n", "u", "i", "a", "t"))
+
+	tests := []struct {
+		name    string
+		args    *Resource
+		wantErr error
+	}{
+		{name: "must accept a tile", args: NewResource(ResourceTypeTile, tile, nil)},
+		{name: "must accept a terrain", args: NewResource(ResourceTypeTerrain, nil, terrain)},
+		{name: "must reject a nil resource", args: nil, wantErr: ErrInvalidResource},
+		{name: "must reject a resource without a tile or a terrain", args: NewResource(ResourceTypeTile, nil, nil), wantErr: ErrInvalidResource},
+		{name: "must reject a resource with both a tile and a terrain", args: NewResource(ResourceTypeTile, tile, terrain), wantErr: ErrInvalidResource},
+		{name: "must reject a resource whose type does not match its content", args: NewResource(ResourceTypeTerrain, tile, nil), wantErr: ErrInvalidResource},
+		{name: "must reject a resource without a type", args: NewResource("", tile, nil), wantErr: ErrInvalidResource},
+		{
+			name:    "must reject a tile of an unknown type",
+			args:    NewResource(ResourceTypeTile, NewTileResource(NewResourceID(), "LABELLED", UrlResourceProps{}), nil),
+			wantErr: ErrInvalidResource,
+		},
+		{
+			name:    "must reject a tile of an empty type",
+			args:    NewResource(ResourceTypeTile, NewTileResource(NewResourceID(), "", UrlResourceProps{}), nil),
+			wantErr: ErrInvalidResource,
+		},
+		{
+			name:    "must reject a terrain of an unknown type",
+			args:    NewResource(ResourceTypeTerrain, nil, NewTerrainResource(NewResourceID(), "ARC_GIS_TERRAIN", CesiumResourceProps{})),
+			wantErr: ErrInvalidResource,
+		},
+		{
+			name:    "must reject a tile without an ID",
+			args:    NewResource(ResourceTypeTile, NewTileResource(ResourceID{}, TileTypeDefault, UrlResourceProps{}), nil),
+			wantErr: ErrInvalidResource,
+		},
+		{
+			name:    "must reject a terrain without an ID",
+			args:    NewResource(ResourceTypeTerrain, nil, NewTerrainResource(ResourceID{}, TerrainTypeCesiumIon, CesiumResourceProps{})),
+			wantErr: ErrInvalidResource,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantErr, tc.args.Validate())
+
+			// the builder rejects settings that hold the resource in either list
+			valid := NewResource(ResourceTypeTile, tile, nil)
+			_, err := New().NewID().Tiles(NewResourceList([]*Resource{valid, tc.args}, nil, nil)).Build()
+			assert.Equal(t, tc.wantErr, err)
+			_, err = New().NewID().Terrains(NewResourceList([]*Resource{tc.args}, nil, nil)).Build()
+			assert.Equal(t, tc.wantErr, err)
+		})
+	}
+}

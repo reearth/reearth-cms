@@ -3,15 +3,15 @@ package mongo
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var (
@@ -77,6 +77,9 @@ func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids accountdomain
 }
 
 func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspacesettings.WorkspaceSettings) error {
+	if ws == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(ws.ID()) {
 		return repo.ErrOperationDenied
 	}

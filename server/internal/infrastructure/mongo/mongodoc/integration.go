@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -50,11 +51,15 @@ func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 			Secret:    w.Secret(),
 		}
 	})
+	logo := ""
+	if i.LogoUrl() != nil {
+		logo = i.LogoUrl().String()
+	}
 	return &IntegrationDocument{
 		ID:          iId,
 		Name:        i.Name(),
 		Description: i.Description(),
-		LogoUrl:     i.LogoUrl().String(),
+		LogoUrl:     logo,
 		Type:        string(i.Type()),
 		Token:       i.Token(),
 		Developer:   i.Developer().String(),
@@ -72,39 +77,22 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	if err != nil {
 		return nil, err
 	}
-	u, err := url.Parse(d.LogoUrl)
-	if err != nil {
-		return nil, err
+	// the logo is optional and an empty one is read back as nil
+	var u *url.URL
+	if d.LogoUrl != "" {
+		if u, err = url.Parse(d.LogoUrl); err != nil {
+			return nil, err
+		}
 	}
 
-	w := lo.Map(d.Webhook, func(d WebhookDocument, _ int) *integration.Webhook {
-		wId, err := id.WebhookIDFrom(d.ID)
+	// a webhook that can't be decoded is skipped rather than kept as a nil entry
+	w := lo.FilterMap(d.Webhook, func(wd WebhookDocument, _ int) (*integration.Webhook, bool) {
+		m, err := wd.model()
 		if err != nil {
-			return nil
+			log.Warnf("mongodoc: skipped webhook %q of integration %q: %v", wd.ID, d.ID, err)
+			return nil, false
 		}
-
-		u, err := url.Parse(d.Url)
-		if err != nil {
-			return nil
-		}
-
-		trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
-			return event.Type(t)
-		})
-		m, err := integration.NewWebhookBuilder().
-			ID(wId).
-			Name(d.Name).
-			Active(d.Active).
-			Url(u).
-			UpdatedAt(d.UpdatedAt).
-			Trigger(trigger).
-			Secret(d.Secret).
-			Build()
-		if err != nil {
-			return nil
-		}
-
-		return m
+		return m, true
 	})
 
 	return integration.New().
@@ -117,6 +105,29 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 		LogoUrl(u).
 		UpdatedAt(d.UpdatedAt).
 		Webhook(w).
+		Build()
+}
+
+func (d WebhookDocument) model() (*integration.Webhook, error) {
+	wId, err := id.WebhookIDFrom(d.ID)
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(d.Url)
+	if err != nil {
+		return nil, err
+	}
+	trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
+		return event.Type(t)
+	})
+	return integration.NewWebhookBuilder().
+		ID(wId).
+		Name(d.Name).
+		Active(d.Active).
+		Url(u).
+		UpdatedAt(d.UpdatedAt).
+		Trigger(trigger).
+		Secret(d.Secret).
 		Build()
 }
 

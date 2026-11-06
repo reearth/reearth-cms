@@ -48,6 +48,7 @@ invalid Geo field structure: ジオメトリフィールドの構造が無効で
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
+invalid condition: 無効な条件です。
 invalid content type: 無効なコンテンツタイプです。
 invalid content type for schema conversion: スキーマ変換のための無効なコンテンツタイプです。
 invalid cursor: 無効なカーソルです。
@@ -65,6 +66,7 @@ invalid object: 無効なオブジェクトです。
 invalid operator: 無効なオペレーターです。
 invalid params: 無効なパラメーターです。
 invalid project: 無効なプロジェクトです。
+invalid resource: 無効なリソースです。
 invalid selected geometry field in this model: ""
 invalid smtp url: 無効なSMTP URLです。
 invalid type: 無効な型です。

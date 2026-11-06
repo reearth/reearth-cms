@@ -5,7 +5,6 @@ import (
 	"context"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -79,7 +78,7 @@ func (r *Request) FindByProject(_ context.Context, pid id.ProjectID, filter repo
 		return v.Project() == pid && matchRequest(v, filter, matchRequestKeyword)
 	})
 
-	res, pi, err := r.pager().paginate(result, sort, page)
+	res, pi, err := r.pager().paginate(result, repo.NormalizeRequestSort(sort), page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -156,19 +155,7 @@ func (r *Request) pager() pager[*request.Request] {
 	text := func(f func(*request.Request) string) compareFunc[*request.Request] {
 		return func(a, b *request.Request) int { return strings.Compare(f(a), f(b)) }
 	}
-	// mongo stores times in milliseconds, so finer differences tie, and a
-	// missing time sorts first
-	timeRef := func(f func(*request.Request) *time.Time) compareFunc[*request.Request] {
-		return func(a, b *request.Request) int {
-			ta, tb := f(a), f(b)
-			if ta == nil || tb == nil {
-				return cmp.Compare(lo.Ternary(ta == nil, 0, 1), lo.Ternary(tb == nil, 0, 1))
-			}
-			return cmp.Compare(ta.UnixMilli(), tb.UnixMilli())
-		}
-	}
-	// the sort key is the name of a mongo document field; any other key
-	// sorts by ID alone, as mongo does for a missing field
+	// the sort key is the name of a mongo document field, see repo.NormalizeRequestSort
 	return pager[*request.Request]{
 		id: func(v *request.Request) string { return v.ID().String() },
 		keys: map[string]compareFunc[*request.Request]{
@@ -178,11 +165,10 @@ func (r *Request) pager() pager[*request.Request] {
 			"description": text((*request.Request).Description),
 			"createdby":   text(func(v *request.Request) string { return v.CreatedBy().String() }),
 			"state":       text(func(v *request.Request) string { return v.State().String() }),
-			"updatedat": timeRef(func(v *request.Request) *time.Time {
-				return new(v.UpdatedAt())
-			}),
-			"approvedat": timeRef((*request.Request).ApprovedAt),
-			"closedat":   timeRef((*request.Request).ClosedAt),
+			// mongo stores times in milliseconds, so finer differences tie
+			"updatedat": func(a, b *request.Request) int {
+				return cmp.Compare(a.UpdatedAt().UnixMilli(), b.UpdatedAt().UnixMilli())
+			},
 		},
 		find: func(c usecasex.Cursor) (*request.Request, bool) {
 			rid, err := id.RequestIDFrom(string(c))
