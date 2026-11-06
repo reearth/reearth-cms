@@ -57,7 +57,7 @@ func Start(debug bool, version string) {
 	// usecase
 	uc := interactor.NewUsecase(gateways, repos)
 	ctrl := rhttp.NewController(uc)
-	handler := NewHandler(ctrl)
+	handler := NewHandler(ctrl, NewPubSubAuthenticator(conf.PubSub, conf.Dev))
 
 	// start web server
 	NewServer(ctx, &ServerConfig{

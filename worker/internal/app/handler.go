@@ -3,7 +3,6 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 
@@ -16,10 +15,11 @@ import (
 
 type Handler struct {
 	Controller *rhttp.Controller
+	PubSubAuth *PubSubAuthenticator
 }
 
-func NewHandler(c *rhttp.Controller) *Handler {
-	return &Handler{Controller: c}
+func NewHandler(c *rhttp.Controller, pubSubAuth *PubSubAuthenticator) *Handler {
+	return &Handler{Controller: c, PubSubAuth: pubSubAuth}
 }
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
@@ -29,10 +29,10 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 
 		if h.isAWS(c.Request()) {
 			input, err = parseSNSDecompressMessage(c.Request().Body)
-		} else if h.isGCP(c.Request()) {
-			input, err = parsePubSubDecompressMessage(c, c.Request().Body)
+		} else if err = h.PubSubAuth.Authenticate(c.Request()); err != nil {
+			return err
 		} else {
-			err = errors.New("unsupported request source")
+			input, err = parsePubSubDecompressMessage(c, c.Request().Body)
 		}
 
 		if err != nil {
@@ -56,10 +56,10 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 
 		if h.isAWS(c.Request()) {
 			webhook, err = parseSNSWebhookMessage(c.Request().Body)
-		} else if h.isGCP(c.Request()) {
-			webhook, err = parsePubSubWebhookMessage(c, c.Request().Body)
+		} else if err = h.PubSubAuth.Authenticate(c.Request()); err != nil {
+			return err
 		} else {
-			err = errors.New("unsupported request source")
+			webhook, err = parsePubSubWebhookMessage(c, c.Request().Body)
 		}
 
 		if err != nil {
@@ -79,11 +79,6 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 
 func (h Handler) isAWS(r *http.Request) bool {
 	return r.Header.Get("X-Amz-Sns-Message-Type") == "Notification"
-}
-
-func (h Handler) isGCP(r *http.Request) bool {
-	// TODO: need to find a way to detect GCP requests
-	return true
 }
 
 func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {

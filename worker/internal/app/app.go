@@ -99,6 +99,12 @@ func handleSubscriptionConfirmation(c *echo.Context) error {
 		return err
 	}
 
+	// Verify the signature before following SubscribeURL, so a forged confirmation cannot make the worker fetch arbitrary URLs.
+	if err := payload.VerifyPayload(); err != nil {
+		log.Errorf("failed to verify subscription confirmation: %s", err.Error())
+		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+	}
+
 	_, err := payload.Subscribe()
 	if err != nil {
 		log.Errorf("failed to subscribe confirmation: %s", err.Error())
