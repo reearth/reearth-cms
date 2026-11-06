@@ -1156,7 +1156,7 @@ func TestPublicAPI_Model_Schema(t *testing.T) {
 }
 
 func TestPublicAPI_PostItem(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	e, r, _ := StartServerWithRepos(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "posting-api-test", "posting-api-test", "posting-api-test")
 	mId, mRes := createModel(e, pId, "post-model", "post-model", "post-model")
@@ -1213,6 +1213,30 @@ func TestPublicAPI_PostItem(t *testing.T) {
 			Expect().
 			Status(http.StatusAccepted).
 			JSON().Object().ContainsKey("id").ContainsKey("$createdAt")
+	})
+
+	t.Run("invalid Public API key does not affect posting when a key is enabled", func(t *testing.T) {
+		ctx := context.Background()
+		projectID := lo.Must(id.ProjectIDFrom(pId))
+		modelID := lo.Must(id.ModelIDFrom(mId))
+		prj := lo.Must(r.Project.FindByID(ctx, projectID))
+		prj.Accessibility().SetAPIKeys(project.APIKeys{
+			project.NewAPIKeyBuilder().NewID().GenerateKey().Name("posting-key").
+				Publication(project.NewPublicationSettings(id.ModelIDList{modelID}, false)).Build(),
+		})
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pId, mKey).
+			WithHeader("Origin", "https://allowed.com").
+			WithHeader("Authorization", "Bearer secret_invalid").
+			Expect().
+			Status(http.StatusAccepted)
+
+		// Read endpoints remain protected by the Public API authentication middleware.
+		e.GET("/api/p/{workspace}/{project}/{model}", wId.String(), pId, mKey).
+			WithHeader("Authorization", "Bearer secret_invalid").
+			Expect().
+			Status(http.StatusUnauthorized)
 	})
 
 	// --- schema-based validation ---
