@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"os"
 	"time"
@@ -27,11 +28,12 @@ func main() {
 	}
 
 	dbURI := mustGetEnv("REEARTH_CMS_DB")
+	dbName := cmp.Or(os.Getenv("REEARTH_CMS_WORKER_DB_CMS"), os.Getenv("REEARTH_CMS_DB_CMS"), "reearth_cms")
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
 
-	repos, err := initReposWithCollection(ctx, dbURI, collection)
+	repos, err := initReposWithCollection(ctx, dbURI, dbName, collection)
 	if err != nil {
 		log.Fatalf("failed to initialize repositories with DB URI %s: %v", dbURI, err)
 	}
@@ -51,7 +53,7 @@ func mustGetEnv(key string) string {
 	return value
 }
 
-func initReposWithCollection(ctx context.Context, dbURI, collection string) (*repo.Container, error) {
+func initReposWithCollection(ctx context.Context, dbURI, dbName, collection string) (*repo.Container, error) {
 	client, err := mongo.Connect(
 		ctx,
 		options.Client().
@@ -63,7 +65,7 @@ func initReposWithCollection(ctx context.Context, dbURI, collection string) (*re
 		return nil, err
 	}
 
-	db := client.Database("reearth_cms")
+	db := client.Database(dbName)
 	mongoCopier := rmongo.NewCopier(db)
 	mongoCopier.SetCollection(db.Collection(collection))
 	return rmongo.New(ctx, nil, mongoCopier)
