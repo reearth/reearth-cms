@@ -38,6 +38,9 @@ func (r *Integration) FindByID(ctx context.Context, integrationID id.Integration
 }
 
 func (r *Integration) FindByToken(ctx context.Context, token string) (*integration.Integration, error) {
+	if token == "" {
+		return nil, rerror.ErrNotFound
+	}
 	return r.findOne(ctx, bson.M{
 		"token": token,
 	})
