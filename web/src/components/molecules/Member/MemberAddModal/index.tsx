@@ -103,7 +103,7 @@ const MemberAddModal: React.FC<Props> = ({
           <UserWrapper>
             <UserInfo>
               <UserName>{user.name}</UserName>
-              <Email>{user.email}</Email>
+              {user.email && <Email>{user.email}</Email>}
             </UserInfo>
           </UserWrapper>
         ),
@@ -211,7 +211,7 @@ const MemberAddModal: React.FC<Props> = ({
               <SelectedUser key={user.id}>
                 <UserInfo>
                   <UserName title={user.name}>{user.name}</UserName>
-                  <Email title={user.email}>{user.email}</Email>
+                  {user.email && <Email title={user.email}>{user.email}</Email>}
                 </UserInfo>
                 <Actions>
                   <FormItemRole name={[user.id]}>
