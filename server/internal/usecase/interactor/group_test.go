@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGroup_CheckKey(t *testing.T) {
@@ -67,7 +68,7 @@ func TestGroup_CheckKey(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			for _, s := range tc.seeds {
-				assert.NoError(t, db.Group.Save(ctx, s.Clone()))
+				require.NoError(t, db.Group.Save(ctx, s.Clone()))
 			}
 			if tc.repoErr != nil {
 				memory.SetGroupError(db.Group, tc.repoErr)
