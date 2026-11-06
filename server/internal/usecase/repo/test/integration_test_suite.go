@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -227,7 +228,9 @@ func testIntegrationFindByUser(t *testing.T, newRepo integrationFactory) {
 	u1i2 := newIntegration(u1)
 	u1i3 := newIntegration(u1)
 	u2i1 := newIntegration(u2)
-	seeds := integration.List{u1i3, u2i1, u1i1, u1i2}
+	// saved in reverse ID order, so the result must be sorted to match
+	seeds := integration.List{u1i1, u1i2, u1i3, u2i1}.SortByID()
+	mutable.Reverse(seeds)
 
 	tests := []struct {
 		name    string
@@ -268,10 +271,7 @@ func testIntegrationFindByUser(t *testing.T, newRepo integrationFactory) {
 
 			got, err := r.FindByUser(ctx, tc.args)
 			assert.Equal(t, tc.wantErr, err)
-			// TODO: mongo applies no sort (it returns the natural order, in
-			// practice the insertion order) while memory sorts by ID, so the
-			// order is not part of the contract yet.
-			assert.Equal(t, tc.want.SortByID(), got.SortByID())
+			assert.Equal(t, tc.want.SortByID(), got)
 		})
 	}
 }

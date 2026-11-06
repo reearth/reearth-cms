@@ -139,7 +139,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			},
 		}
 	}
-	return r.paginate(ctx, &filter, sort, page)
+	return r.paginate(ctx, &filter, repo.NormalizeRequestSort(sort), page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {

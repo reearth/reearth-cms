@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -62,7 +63,7 @@ func (r *View) FindByIDs(ctx context.Context, ids id.ViewIDList) (view.List, err
 }
 
 func (r *View) FindByModel(ctx context.Context, modelID view.ModelID) (view.List, error) {
-	return r.find(ctx, bson.M{"modelid": modelID.String()})
+	return r.find(ctx, bson.M{"modelid": modelID.String()}, sortByID())
 }
 
 func (r *View) Save(ctx context.Context, view *view.View) error {
@@ -108,9 +109,9 @@ func (r *View) findOne(ctx context.Context, filter any) (*view.View, error) {
 	return c.Result[0], nil
 }
 
-func (r *View) find(ctx context.Context, filter any) (view.List, error) {
+func (r *View) find(ctx context.Context, filter any, opts ...*options.FindOptions) (view.List, error) {
 	c := mongodoc.NewViewConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil

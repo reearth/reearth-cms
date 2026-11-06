@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -564,7 +565,9 @@ func testGroupFindByProject(t *testing.T, newRepo groupFactory) {
 	p1g1 := newGroup(p1).Order(1).MustBuild()
 	p1g2 := newGroup(p1).Order(0).MustBuild()
 	p2g1 := newGroup(p2).MustBuild()
-	seeds := group.List{p1g1, p2g1, p1g2}
+	// saved in reverse ID order, so the result must be sorted to match
+	seeds := group.List{p1g1, p2g1, p1g2}.SortByID()
+	mutable.Reverse(seeds)
 
 	tests := []struct {
 		name   string
@@ -624,9 +627,8 @@ func testGroupFindByProject(t *testing.T, newRepo groupFactory) {
 
 			got, err := r.FindByProject(ctx, tc.args)
 			assert.NoError(t, err)
-			// the order of the result is not specified: mongo does not sort it
-			// and callers sort it by order themselves
-			assert.Equal(t, tc.want.SortByID(), got.SortByID())
+			// the result is sorted by ID; callers sort it by order themselves
+			assert.Equal(t, tc.want.SortByID(), got)
 		})
 	}
 }
