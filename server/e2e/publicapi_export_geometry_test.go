@@ -33,15 +33,15 @@ var (
 
 	geoExpObjIncidentKey = "geo-object-incident"
 	geoExpObjMixedKey    = "geo-object-mixed"
-	geoExpObjI1Id        = id.NewItemID()
 	geoExpObjI2Id        = id.NewItemID()
 	geoExpObjI3Id        = id.NewItemID()
+	geoExpObjI4Id        = id.NewItemID()
 
 	geoExpEdIncidentKey = "geo-editor-incident"
 	geoExpEdMixedKey    = "geo-editor-mixed"
-	geoExpEdI1Id        = id.NewItemID()
 	geoExpEdI2Id        = id.NewItemID()
 	geoExpEdI3Id        = id.NewItemID()
+	geoExpEdI4Id        = id.NewItemID()
 )
 
 func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
@@ -61,17 +61,12 @@ func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	gotp := schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}).TypeProperty()
 	getp := schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}).TypeProperty()
 
-	seedGeoExportModels(ctx, r, p1, uid, value.TypeGeometryObject, gotp, geoExpObjIncidentKey, geoExpObjMixedKey, geoExpObjI1Id, geoExpObjI2Id, geoExpObjI3Id)
-	seedGeoExportModels(ctx, r, p1, uid, value.TypeGeometryEditor, getp, geoExpEdIncidentKey, geoExpEdMixedKey, geoExpEdI1Id, geoExpEdI2Id, geoExpEdI3Id)
+	seedGeoExportModels(ctx, r, p1, uid, value.TypeGeometryObject, gotp, geoExpObjIncidentKey, geoExpObjMixedKey, geoExpObjI2Id, geoExpObjI3Id, geoExpObjI4Id)
+	seedGeoExportModels(ctx, r, p1, uid, value.TypeGeometryEditor, getp, geoExpEdIncidentKey, geoExpEdMixedKey, geoExpEdI2Id, geoExpEdI3Id, geoExpEdI4Id)
 
 	return nil
 }
 
-// seedGeoExportModels seeds two models whose schema has a group field (containing a geometry field)
-// ordered before the top-level geometry field:
-//   - incidentKey: one item with only the group geometry populated
-//   - mixedKey: one item with an empty top-level geometry, i2 with both populated (group fields first),
-//     i3 with only the top-level populated, and i4 with both populated (top-level field first)
 func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Project, uid accountdomain.UserID, gt value.Type, tp *schema.TypeProperty, incidentKey, mixedKey string, i2, i3, i4 id.ItemID) {
 	/// Group
 	gTextId := id.NewFieldID()
@@ -141,104 +136,124 @@ func seedGeoExportModels(ctx context.Context, r *repo.Container, p *project.Proj
 	save(i4, m2, append([]*item.Field{topField(geoExpTopGeo3)}, groupFields("top-first")...))
 }
 
-// getGeoJSON reports assertion failures to the subtest's t rather than the parent test's.
-func getGeoJSON(t *testing.T, e *httpexpect.Expect, modelKey string) *httpexpect.Value {
-	t.Helper()
-	return e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, modelKey).
-		WithReporter(httpexpect.NewAssertReporter(t)).
-		Expect().
-		Status(http.StatusOK).
-		JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"})
-}
-
 func TestPublicAPI_ExportGeoJSON_GroupGeometry(t *testing.T) {
-	t.Parallel()
-
 	e, _, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, geoExportSeeder)
 
-	tests := []struct {
-		name        string
-		incidentKey string
-		mixedKey    string
-		i2Id        id.ItemID
-		i3Id        id.ItemID
-		i4Id        id.ItemID
-	}{
-		{
-			name:        "geometry object",
-			incidentKey: geoExpObjIncidentKey,
-			mixedKey:    geoExpObjMixedKey,
-			i2Id:        geoExpObjI1Id,
-			i3Id:        geoExpObjI2Id,
-			i4Id:        geoExpObjI3Id,
-		},
-		{
-			name:        "geometry editor",
-			incidentKey: geoExpEdIncidentKey,
-			mixedKey:    geoExpEdMixedKey,
-			i2Id:        geoExpEdI1Id,
-			i3Id:        geoExpEdI2Id,
-			i4Id:        geoExpEdI3Id,
-		},
-	}
+	t.Run("geometry object: empty top-level geometry does not fall back to group geometry", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, geoExpObjIncidentKey).
+			Expect().
+			Status(http.StatusOK).
+			JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			IsEqual(map[string]any{
+				"type":     "FeatureCollection",
+				"features": []any{},
+			})
+	})
 
-	for _, tt := range tests {
-		t.Run(tt.name+": empty top-level geometry does not fall back to group geometry", func(t *testing.T) {
-			t.Parallel()
-
-			getGeoJSON(t, e, tt.incidentKey).
-				IsEqual(map[string]any{
-					"type":     "FeatureCollection",
-					"features": []any{},
-				})
-		})
-
-		t.Run(tt.name+": top-level geometry is selected regardless of group geometry", func(t *testing.T) {
-			t.Parallel()
-
-			getGeoJSON(t, e, tt.mixedKey).
-				IsEqual(map[string]any{
-					"type": "FeatureCollection",
-					"features": []map[string]any{
-						{
-							"type": "Feature",
-							"id":   tt.i2Id.String(),
-							"geometry": map[string]any{
-								"type":        "Point",
-								"coordinates": []any{139.7671, 35.6812},
-							},
-							"properties": map[string]any{
-								"detail": map[string]any{
-									"label": "both",
-								},
-							},
+	t.Run("geometry object: top-level geometry is selected regardless of group geometry", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, geoExpObjMixedKey).
+			Expect().
+			Status(http.StatusOK).
+			JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			IsEqual(map[string]any{
+				"type": "FeatureCollection",
+				"features": []map[string]any{
+					{
+						"type": "Feature",
+						"id":   geoExpObjI2Id.String(),
+						"geometry": map[string]any{
+							"type":        "Point",
+							"coordinates": []any{139.7671, 35.6812},
 						},
-						{
-							"type": "Feature",
-							"id":   tt.i3Id.String(),
-							"geometry": map[string]any{
-								"type":        "Point",
-								"coordinates": []any{135.5023, 34.6937},
-							},
-							"properties": map[string]any{},
-						},
-						{
-							"type": "Feature",
-							"id":   tt.i4Id.String(),
-							"geometry": map[string]any{
-								"type":        "Point",
-								"coordinates": []any{130.4017, 33.5902},
-							},
-							"properties": map[string]any{
-								"detail": map[string]any{
-									"label": "top-first",
-								},
+						"properties": map[string]any{
+							"detail": map[string]any{
+								"label": "both",
 							},
 						},
 					},
-				})
-		})
-	}
+					{
+						"type": "Feature",
+						"id":   geoExpObjI3Id.String(),
+						"geometry": map[string]any{
+							"type":        "Point",
+							"coordinates": []any{135.5023, 34.6937},
+						},
+						"properties": map[string]any{},
+					},
+					{
+						"type": "Feature",
+						"id":   geoExpObjI4Id.String(),
+						"geometry": map[string]any{
+							"type":        "Point",
+							"coordinates": []any{130.4017, 33.5902},
+						},
+						"properties": map[string]any{
+							"detail": map[string]any{
+								"label": "top-first",
+							},
+						},
+					},
+				},
+			})
+	})
+
+	t.Run("geometry editor: empty top-level geometry does not fall back to group geometry", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, geoExpEdIncidentKey).
+			Expect().
+			Status(http.StatusOK).
+			JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			IsEqual(map[string]any{
+				"type":     "FeatureCollection",
+				"features": []any{},
+			})
+	})
+
+	t.Run("geometry editor: top-level geometry is selected regardless of group geometry", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, geoExpEdMixedKey).
+			Expect().
+			Status(http.StatusOK).
+			JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			IsEqual(map[string]any{
+				"type": "FeatureCollection",
+				"features": []map[string]any{
+					{
+						"type": "Feature",
+						"id":   geoExpEdI2Id.String(),
+						"geometry": map[string]any{
+							"type":        "Point",
+							"coordinates": []any{139.7671, 35.6812},
+						},
+						"properties": map[string]any{
+							"detail": map[string]any{
+								"label": "both",
+							},
+						},
+					},
+					{
+						"type": "Feature",
+						"id":   geoExpEdI3Id.String(),
+						"geometry": map[string]any{
+							"type":        "Point",
+							"coordinates": []any{135.5023, 34.6937},
+						},
+						"properties": map[string]any{},
+					},
+					{
+						"type": "Feature",
+						"id":   geoExpEdI4Id.String(),
+						"geometry": map[string]any{
+							"type":        "Point",
+							"coordinates": []any{130.4017, 33.5902},
+						},
+						"properties": map[string]any{
+							"detail": map[string]any{
+								"label": "top-first",
+							},
+						},
+					},
+				},
+			})
+	})
 }
