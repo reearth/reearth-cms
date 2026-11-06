@@ -581,6 +581,10 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			want:    w1s, // unchanged
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name:    "must not save nil settings",
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -595,6 +599,9 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			got, err := base.FindByID(ctx, tc.args.ID())

@@ -51,11 +51,15 @@ func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 			Secret:    w.Secret(),
 		}
 	})
+	logo := ""
+	if i.LogoUrl() != nil {
+		logo = i.LogoUrl().String()
+	}
 	return &IntegrationDocument{
 		ID:          iId,
 		Name:        i.Name(),
 		Description: i.Description(),
-		LogoUrl:     i.LogoUrl().String(),
+		LogoUrl:     logo,
 		Type:        string(i.Type()),
 		Token:       i.Token(),
 		Developer:   i.Developer().String(),
@@ -73,9 +77,12 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	if err != nil {
 		return nil, err
 	}
-	u, err := url.Parse(d.LogoUrl)
-	if err != nil {
-		return nil, err
+	// the logo is optional and an empty one is read back as nil
+	var u *url.URL
+	if d.LogoUrl != "" {
+		if u, err = url.Parse(d.LogoUrl); err != nil {
+			return nil, err
+		}
 	}
 
 	// a webhook that can't be decoded is skipped rather than kept as a nil entry

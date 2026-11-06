@@ -116,10 +116,29 @@ func TestIntegration_Create(t *testing.T) {
 				Name:        "i1",
 				Description: nil,
 				Type:        integration.TypePrivate,
-				Logo:        *ts.Uri,
+				Logo:        ts.Uri,
 			},
 			want:    ts.I1,
 			wantErr: nil,
+		},
+		{
+			name:  "create without a logo",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "i1",
+				Type: integration.TypePrivate,
+			},
+			want: integration.New().NewID().Name("i1").Developer(ts.UId).Type(integration.TypePrivate).MustBuild(),
+		},
+		{
+			name:  "create with an empty logo URL",
+			seeds: []*integration.Integration{},
+			args: interfaces.CreateIntegrationParam{
+				Name: "i1",
+				Type: integration.TypePrivate,
+				Logo: &url.URL{},
+			},
+			want: integration.New().NewID().Name("i1").Developer(ts.UId).Type(integration.TypePrivate).MustBuild(),
 		},
 	}
 	for _, tt := range tests {
@@ -192,6 +211,20 @@ func TestIntegration_Update(t *testing.T) {
 				return i
 			}(),
 			wantErr: nil,
+		},
+		{
+			name:     "an empty logo URL removes the logo",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id:     ts.IId1,
+				params: interfaces.UpdateIntegrationParam{Logo: &url.URL{}},
+			},
+			want: func() *integration.Integration {
+				i := ts.I1.Clone()
+				i.SetLogoUrl(nil)
+				return i
+			}(),
 		},
 		{
 			name: "invalid operator",
@@ -698,6 +731,35 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:     "empty URL",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.CreateWebhookParam{
+					Name:    "w1",
+					Active:  true,
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			wantErr: integration.ErrInvalidURL,
+		},
+		{
+			name:     "URL without a scheme",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.CreateWebhookParam{
+					Name:    "w1",
+					URL:     *lo.Must(url.Parse("example.com/hook")),
+					Active:  true,
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			wantErr: integration.ErrInvalidURL,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -732,7 +794,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	wId := id.NewWebhookID()
-	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).Url(ts.Uri).MustBuild()})
 	type args struct {
 		iId    integration.ID
 		wId    integration.WebhookID
@@ -808,6 +870,19 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
+			name:     "empty URL",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I2},
+			args: args{
+				iId: ts.IId2,
+				wId: wId,
+				params: interfaces.UpdateWebhookParam{
+					URL: &url.URL{},
+				},
+			},
+			wantErr: integration.ErrInvalidURL,
+		},
+		{
 			name:     "update item not found",
 			operator: ts.Op,
 			seeds:    []*integration.Integration{},
@@ -873,7 +948,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	wId := id.NewWebhookID()
-	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).Url(ts.Uri).MustBuild()})
 	type args struct {
 		iId    integration.ID
 		wId    integration.WebhookID

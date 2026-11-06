@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -65,10 +66,13 @@ func (r *Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (
 func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserID) (integration.List, error) {
 	return r.find(ctx, bson.M{
 		"developer": userID.String(),
-	})
+	}, sortByID())
 }
 
 func (r *Integration) Save(ctx context.Context, integration *integration.Integration) error {
+	if integration == nil {
+		return rerror.ErrInvalidParams
+	}
 	doc, sId := mongodoc.NewIntegration(integration)
 	return r.client.SaveOne(ctx, sId, doc)
 }
@@ -97,9 +101,9 @@ func (r *Integration) findOne(ctx context.Context, filter any) (*integration.Int
 	return c.Result[0], nil
 }
 
-func (r *Integration) find(ctx context.Context, filter any) (integration.List, error) {
+func (r *Integration) find(ctx context.Context, filter any, opts ...*options.FindOptions) (integration.List, error) {
 	c := mongodoc.NewIntegrationConsumer()
-	if err := r.client.Find(ctx, filter, c); err != nil {
+	if err := r.client.Find(ctx, filter, c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil

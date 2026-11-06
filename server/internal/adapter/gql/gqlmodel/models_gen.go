@@ -293,7 +293,7 @@ type CreateGroupInput struct {
 type CreateIntegrationInput struct {
 	Name        string          `json:"name"`
 	Description *string         `json:"description,omitempty"`
-	LogoURL     url.URL         `json:"logoUrl"`
+	LogoURL     *url.URL        `json:"logoUrl,omitempty"`
 	Type        IntegrationType `json:"type"`
 }
 
@@ -632,7 +632,7 @@ type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`
 	Description *string            `json:"description,omitempty"`
-	LogoURL     url.URL            `json:"logoUrl"`
+	LogoURL     *url.URL           `json:"logoUrl,omitempty"`
 	IType       IntegrationType    `json:"iType"`
 	DeveloperID ID                 `json:"developerId"`
 	Developer   *User              `json:"developer"`

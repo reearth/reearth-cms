@@ -10,7 +10,9 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -75,7 +77,7 @@ func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List
 	}
 	res, err := r.find(ctx, bson.M{
 		"project": pid.String(),
-	})
+	}, sortByID())
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +122,9 @@ func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDO
 }
 
 func (r *Group) Save(ctx context.Context, group *group.Group) error {
+	if group == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(group.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -128,6 +133,7 @@ func (r *Group) Save(ctx context.Context, group *group.Group) error {
 }
 
 func (r *Group) SaveAll(ctx context.Context, list group.List) error {
+	list = lo.Compact(list)
 	if len(list) == 0 {
 		return nil
 	}
@@ -154,9 +160,9 @@ func (r *Group) findOne(ctx context.Context, filter any) (*group.Group, error) {
 	return c.Result[0], nil
 }
 
-func (r *Group) find(ctx context.Context, filter any) (group.List, error) {
+func (r *Group) find(ctx context.Context, filter any, opts ...*options.FindOptions) (group.List, error) {
 	c := mongodoc.NewGroupConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), c, opts...); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
