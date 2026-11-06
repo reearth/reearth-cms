@@ -52,7 +52,7 @@ jobs:
             sts.googleapis.com:443
             us-central1-run.googleapis.com:443
       - name: Remove Cloud Run Tag
-        uses: reearth/actions/remove-cloud-run-tag@a75bb60a59c8192805a55c3e0854c8298d8a2bcc # main
+        uses: reearth/actions/remove-cloud-run-tag@aa5f70528d1adbe1047d282c4f47ea64ff8014d0 # main
         with:
           region: ${{ secrets.GC_REGION }}
           service: reearth-scaffold-web
