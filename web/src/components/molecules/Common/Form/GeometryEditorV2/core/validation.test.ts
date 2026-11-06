@@ -88,6 +88,53 @@ describe("validateValue", () => {
     expect(messages(value)[0]).toContain(fragment);
   });
 
+  describe("bbox", () => {
+    const withBbox = (bbox: unknown) => ({ ...Test.GEO_JSON_LINE_STRING, bbox });
+    const SHAPE = "A bbox is [west, south, east, north], with an optional altitude range";
+
+    test.each<[string, unknown]>([
+      ["a flat bbox", [139, 35, 140, 36]],
+      ["a bbox with altitude", [139, 35, 0, 140, 36, 100]],
+      // RFC 7946 §5.2: west > east is a box across the antimeridian.
+      ["a bbox across the antimeridian", [170, 45, -170, 50]],
+    ])("accepts %s", (_, bbox) => {
+      expect(validateValue(withBbox(bbox), false)).toEqual([]);
+    });
+
+    test.each<[string, unknown, string]>([
+      ["isn't a list", "oops", SHAPE],
+      ["has 5 numbers", [0, 0, 0, 1, 1], SHAPE],
+      ["holds something other than a number", [0, 0, "1", 1], SHAPE],
+      ["holds Infinity", [0, 0, Infinity, 1], SHAPE],
+      [
+        "goes beyond the globe",
+        [0, 0, 200, 1],
+        "A bbox must stay within longitude ±180 and latitude ±90",
+      ],
+      [
+        "has south above north",
+        [0, 10, 1, 5],
+        "A bbox's south edge can't be north of its north edge",
+      ],
+      [
+        "has its altitudes upside down",
+        [0, 0, 40, 1, 1, 10],
+        "A bbox's lowest altitude can't be above its highest",
+      ],
+    ])("rejects a bbox that %s", (_, bbox, message) => {
+      expect(validateValue(withBbox(bbox), false)).toEqual([{ path: "bbox", message }]);
+    });
+
+    test("checks the bbox of each GeometryCollection member", () => {
+      expect(
+        validateValue(
+          { type: "GeometryCollection", geometries: [Test.GEO_JSON_POINT, withBbox("oops")] },
+          false,
+        ),
+      ).toEqual([{ path: "geometries[1].bbox", message: SHAPE }]);
+    });
+  });
+
   describe("polygon rings", () => {
     const [outer, hole] = Test.GEO_JSON_POLYGON_WITH_HOLE.coordinates;
 

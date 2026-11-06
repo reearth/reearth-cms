@@ -103,6 +103,35 @@ function checkRing(value: unknown, path: string, out: Collector) {
   }
 }
 
+/**
+ * RFC 7946 §5: [west, south, east, north], or [west, south, low, east, north, high] with
+ * altitude. West > east is fine: the box crosses the antimeridian.
+ */
+function checkBboxMember(value: unknown, path: string, out: Collector) {
+  if (
+    !Array.isArray(value) ||
+    (value.length !== 4 && value.length !== 6) ||
+    !value.every(n => typeof n === "number" && Number.isFinite(n))
+  ) {
+    out.add(path, t("A bbox is [west, south, east, north], with an optional altitude range"));
+    return;
+  }
+  const box = value as number[];
+  const half = box.length / 2;
+  const [west, south] = box;
+  const [east, north] = [box[half], box[half + 1]];
+  const lngOk = [west, east].every(lng => lng >= -180 && lng <= 180);
+  const latOk = [south, north].every(lat => lat >= -90 && lat <= 90);
+
+  if (!lngOk || !latOk) {
+    out.add(path, t("A bbox must stay within longitude ±180 and latitude ±90"));
+  } else if (south > north) {
+    out.add(path, t("A bbox's south edge can't be north of its north edge"));
+  } else if (half === 3 && box[2] > box[5]) {
+    out.add(path, t("A bbox's lowest altitude can't be above its highest"));
+  }
+}
+
 function checkList(
   value: unknown,
   path: string,
@@ -153,6 +182,7 @@ function checkGeometry(value: unknown, path: string, inCollection: boolean, out:
   }
 
   const at = (member: string) => (path ? `${path}.${member}` : member);
+  if ("bbox" in value) checkBboxMember(value.bbox, at("bbox"), out);
   const coordinates = value.coordinates;
   switch (type) {
     case GeometryKind.POINT:
