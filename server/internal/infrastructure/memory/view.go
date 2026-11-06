@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type View struct {
@@ -46,7 +47,7 @@ func (r *View) FindByModel(_ context.Context, mid id.ModelID) (view.List, error)
 		return nil, r.err
 	}
 
-	// like mongo, no views is not an error and the result is not sorted
+	// like mongo, no views is not an error
 	var res view.List
 	r.data.Range(func(_ id.ViewID, v *view.View) bool {
 		if v.Model() == mid && r.f.CanRead(v.Project()) {
@@ -54,7 +55,7 @@ func (r *View) FindByModel(_ context.Context, mid id.ModelID) (view.List, error)
 		}
 		return true
 	})
-	return res, nil
+	return res.SortByID(), nil
 }
 
 func (r *View) FindByIDs(_ context.Context, ids id.ViewIDList) (view.List, error) {
@@ -80,6 +81,9 @@ func (r *View) Save(_ context.Context, v *view.View) error {
 		return r.err
 	}
 
+	if v == nil {
+		return rerror.ErrInvalidParams
+	}
 	if !r.f.CanWrite(v.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -92,6 +96,7 @@ func (r *View) SaveAll(_ context.Context, views view.List) error {
 	if r.err != nil {
 		return r.err
 	}
+	views = lo.Compact(views)
 	if len(views) == 0 {
 		return nil
 	}

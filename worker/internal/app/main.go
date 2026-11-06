@@ -44,7 +44,7 @@ func Start(debug bool, version string) {
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
-	mongoWebhook := rmongo.NewWebhook(client.Database("reearth_cms"))
+	mongoWebhook := rmongo.NewWebhook(client.Database(conf.DB_CMS))
 	lo.Must0(mongoWebhook.InitIndex(ctx))
 	repos, err := rmongo.New(ctx, mongoWebhook, nil)
 	if err != nil {
@@ -57,7 +57,7 @@ func Start(debug bool, version string) {
 	// usecase
 	uc := interactor.NewUsecase(gateways, repos)
 	ctrl := rhttp.NewController(uc)
-	handler := NewHandler(ctrl)
+	handler := NewHandler(ctrl, NewPubSubAuthenticator(conf.PubSub, conf.Dev))
 
 	// start web server
 	NewServer(ctx, &ServerConfig{

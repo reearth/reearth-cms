@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -485,7 +486,7 @@ func testWorkspaceSettingsIsolation(t *testing.T, newRepo workspaceSettingsFacto
 	}{
 		{
 			name:   "must not keep changes made to saved settings",
-			mutate: func(saved, _ *workspacesettings.WorkspaceSettings) { saved.SetTiles(nil) },
+			mutate: func(saved, _ *workspacesettings.WorkspaceSettings) { lo.Must0(saved.SetTiles(nil)) },
 		},
 		{
 			name:   "must not keep changes made to the resource list of saved settings",
@@ -493,7 +494,7 @@ func testWorkspaceSettingsIsolation(t *testing.T, newRepo workspaceSettingsFacto
 		},
 		{
 			name:   "must not keep changes made to found settings",
-			mutate: func(_, found *workspacesettings.WorkspaceSettings) { found.SetTerrains(nil) },
+			mutate: func(_, found *workspacesettings.WorkspaceSettings) { lo.Must0(found.SetTerrains(nil)) },
 		},
 		{
 			name: "must not keep changes made to the resource list of found settings",
@@ -580,6 +581,10 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			want:    w1s, // unchanged
 			wantErr: repo.ErrOperationDenied,
 		},
+		{
+			name:    "must not save nil settings",
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -594,6 +599,9 @@ func testWorkspaceSettingsSave(t *testing.T, newRepo workspaceSettingsFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			got, err := base.FindByID(ctx, tc.args.ID())

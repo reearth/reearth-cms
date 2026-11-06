@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -61,24 +62,22 @@ func viewSelector(t view.FieldType) view.FieldSelector {
 	return view.FieldSelector{Type: t, ID: new(id.NewFieldID())}
 }
 
-// TODO: the conditions here are built without ConditionType, because mongo
-// drops it on save (mongodoc.FilterDocument.Model never sets it). The
-// adapters always set it, and Condition.FieldsByType and the item search
-// depend on it, so it must survive a round trip.
+// ConditionType is set like the adapters do, as Condition.FieldsByType and the
+// item search depend on it
 func viewBasicCondition(value any) view.Condition {
-	return view.Condition{BasicCondition: &view.BasicCondition{
+	return view.Condition{ConditionType: view.ConditionTypeBasic, BasicCondition: &view.BasicCondition{
 		Field: viewSelector(view.FieldTypeField), Op: view.BasicOperatorEquals, Value: value,
 	}}
 }
 
 func viewStringCondition() view.Condition {
-	return view.Condition{StringCondition: &view.StringCondition{
+	return view.Condition{ConditionType: view.ConditionTypeString, StringCondition: &view.StringCondition{
 		Field: viewSelector(view.FieldTypeField), Op: view.StringOperatorContains, Value: "文字列",
 	}}
 }
 
 func viewNumberCondition() view.Condition {
-	return view.Condition{NumberCondition: &view.NumberCondition{
+	return view.Condition{ConditionType: view.ConditionTypeNumber, NumberCondition: &view.NumberCondition{
 		Field: viewSelector(view.FieldTypeMetaField), Op: view.NumberOperatorGreaterThan, Value: 1.5,
 	}}
 }
@@ -298,20 +297,21 @@ func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 	ctx := context.Background()
 	p1, p2 := id.NewProjectID(), id.NewProjectID()
 	m1, m2, m3 := id.NewModelID(), id.NewModelID(), id.NewModelID()
-	// saved in an order that differs from their orders
 	m1v1 := newView(p1, m1).Order(1).MustBuild()
 	m1v2 := newView(p1, m1).Order(2).MustBuild()
 	m1v3 := newView(p1, m1).Order(0).MustBuild()
 	m2v1 := newView(p1, m2).MustBuild()
 	m3v1 := newView(p2, m3).MustBuild()
-	seeds := view.List{m1v1, m1v2, m3v1, m1v3, m2v1}
+	// saved in reverse ID order, so the result must be sorted to match
+	seeds := view.List{m1v1, m1v2, m3v1, m1v3, m2v1}.SortByID()
+	mutable.Reverse(seeds)
 
 	tests := []struct {
 		name   string
 		seeds  view.List
 		filter *repo.ProjectFilter
 		args   id.ModelID
-		want   view.List // sorted by order
+		want   view.List // in any order; the result is sorted by ID
 	}{
 		{
 			name:  "must find only the views of the model",
@@ -361,8 +361,8 @@ func testViewFindByModel(t *testing.T, newRepo viewFactory) {
 
 			got, err := r.FindByModel(ctx, tc.args)
 			assert.NoError(t, err)
-			// neither backend sorts the result; callers sort it by order
-			assert.Equal(t, tc.want, got.Ordered())
+			// callers sort the result by order themselves
+			assert.Equal(t, tc.want.SortByID(), got)
 		})
 	}
 }
@@ -393,7 +393,7 @@ func testViewFields(t *testing.T, newRepo viewFactory) {
 			name: "must keep a view with all its fields",
 			args: b().Name("一覧 view").Order(5).
 				Sort(&view.Sort{Field: viewSelector(view.FieldTypeMetaField), Direction: view.DirectionAsc}).
-				Filter(&view.Condition{AndCondition: &view.AndCondition{Conditions: []view.Condition{viewStringCondition(), viewNumberCondition()}}}).
+				Filter(&view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{viewStringCondition(), viewNumberCondition()}}}).
 				Columns(&view.ColumnList{
 					{Field: viewSelector(view.FieldTypeField), Visible: true},
 					{Field: view.FieldSelector{Type: view.FieldTypeStatus}, Visible: false},
@@ -459,19 +459,19 @@ func testViewConditions(t *testing.T, newRepo viewFactory) {
 		},
 		{
 			name: "must keep a nullable condition",
-			args: view.Condition{NullableCondition: &view.NullableCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeNullable, NullableCondition: &view.NullableCondition{
 				Field: view.FieldSelector{Type: view.FieldTypeModificationUser}, Op: view.NullableOperatorEmpty,
 			}},
 		},
 		{
 			name: "must keep a multiple condition",
-			args: view.Condition{MultipleCondition: &view.MultipleCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeMultiple, MultipleCondition: &view.MultipleCondition{
 				Field: viewSelector(view.FieldTypeField), Op: view.MultipleOperatorIncludesAny, Value: []any{"a", "b", 2.5},
 			}},
 		},
 		{
 			name: "must keep a bool condition",
-			args: view.Condition{BoolCondition: &view.BoolCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeBool, BoolCondition: &view.BoolCondition{
 				Field: viewSelector(view.FieldTypeMetaField), Op: view.BoolOperatorEquals, Value: true,
 			}},
 		},
@@ -485,29 +485,29 @@ func testViewConditions(t *testing.T, newRepo viewFactory) {
 		},
 		{
 			name: "must keep a time condition",
-			args: view.Condition{TimeCondition: &view.TimeCondition{
+			args: view.Condition{ConditionType: view.ConditionTypeTime, TimeCondition: &view.TimeCondition{
 				Field: view.FieldSelector{Type: view.FieldTypeCreationDate}, Op: view.TimeOperatorBefore, Value: now,
 			}},
 		},
 		{
 			name: "must keep an and condition",
-			args: view.Condition{AndCondition: &view.AndCondition{Conditions: []view.Condition{
+			args: view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{
 				viewStringCondition(), viewNumberCondition(),
 			}}},
 		},
 		{
 			name: "must keep an or condition",
-			args: view.Condition{OrCondition: &view.OrCondition{Conditions: []view.Condition{
+			args: view.Condition{ConditionType: view.ConditionTypeOr, OrCondition: &view.OrCondition{Conditions: []view.Condition{
 				viewBasicCondition("a"), viewBasicCondition("b"),
 			}}},
 		},
 		{
 			name: "must keep nested conditions",
-			args: view.Condition{AndCondition: &view.AndCondition{Conditions: []view.Condition{
+			args: view.Condition{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{
 				viewStringCondition(),
-				{OrCondition: &view.OrCondition{Conditions: []view.Condition{
+				{ConditionType: view.ConditionTypeOr, OrCondition: &view.OrCondition{Conditions: []view.Condition{
 					viewNumberCondition(),
-					{AndCondition: &view.AndCondition{Conditions: []view.Condition{viewBasicCondition("deep")}}},
+					{ConditionType: view.ConditionTypeAnd, AndCondition: &view.AndCondition{Conditions: []view.Condition{viewBasicCondition("deep")}}},
 				}}},
 			}}},
 		},
@@ -546,7 +546,7 @@ func testViewIsolation(t *testing.T, newRepo viewFactory) {
 		{
 			name: "must not keep a filter, sort or columns replaced on a found view",
 			mutate: func(_, found *view.View) {
-				found.SetFilter(new(viewBasicCondition("changed")))
+				lo.Must0(found.SetFilter(new(viewBasicCondition("changed"))))
 				found.SetSort(&view.Sort{Field: view.FieldSelector{Type: view.FieldTypeId}, Direction: view.DirectionDesc})
 				found.SetColumns(nil)
 			},
@@ -622,6 +622,10 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			args:   p1v1,
 			want:   p1v1,
 		},
+		{
+			name:    "must not save a nil view",
+			wantErr: rerror.ErrInvalidParams,
+		},
 	}
 
 	for _, tc := range tests {
@@ -636,6 +640,9 @@ func testViewSave(t *testing.T, newRepo viewFactory) {
 			}
 
 			assert.Equal(t, tc.wantErr, r.Save(ctx, tc.args))
+			if tc.args == nil {
+				return
+			}
 
 			// the stored state is checked unfiltered
 			assert.Equal(t, tc.want, lo.FirstOrEmpty(storedViews(t, base, id.ViewIDList{tc.args.ID()})))
@@ -702,6 +709,16 @@ func testViewSaveAll(t *testing.T, newRepo viewFactory) {
 			args:    view.List{p1v1Updated},
 			want:    view.List{p1v1}, // unchanged
 			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "must skip nil views",
+			args: view.List{nil, p1v1, nil},
+			want: view.List{p1v1},
+		},
+		{
+			name:   "must save nothing for a list of nil views even in a project that is not writable",
+			filter: new(pjFilter(nil, id.ProjectIDList{})),
+			args:   view.List{nil},
 		},
 	}
 

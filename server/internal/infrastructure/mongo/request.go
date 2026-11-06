@@ -66,6 +66,9 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 }
 
 func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList, uFilter *repo.RequestFilter) (request.List, error) {
+	if len(list) == 0 {
+		return nil, nil
+	}
 
 	filter := bson.M{
 		"items.item": bson.M{
@@ -139,7 +142,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			},
 		}
 	}
-	return r.paginate(ctx, &filter, sort, page)
+	return r.paginate(ctx, &filter, repo.NormalizeRequestSort(sort), page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
@@ -168,11 +171,6 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 		docs2 = append(docs2, d)
 	}
 	return r.client.SaveAll(ctx, ids, docs2)
-}
-
-func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
-	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
-		"id": id.String()}))
 }
 
 func (r *Request) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
@@ -216,8 +214,4 @@ func filterRequests(ids id.RequestIDList, rows request.List) request.List {
 
 func (r *Request) readFilter(filter any) any {
 	return applyProjectFilter(filter, r.f.Readable)
-}
-
-func (r *Request) writeFilter(filter any) any {
-	return applyProjectFilter(filter, r.f.Writable)
 }
