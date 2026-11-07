@@ -55,6 +55,37 @@ export abstract class Test {
     ],
   };
 
+  public static readonly GEO_JSON_LINE_STRING_WITH_BBOX: GeoJSONLineString = {
+    type: "LineString",
+    coordinates: [
+      [139.6917, 35.6895],
+      [139.7673, 35.6812],
+    ],
+    bbox: [139.6917, 35.6812, 139.7673, 35.6895],
+  };
+
+  public static readonly GEO_JSON_POINT_WITH_ALTITUDE: GeoJSONPoint = {
+    type: "Point",
+    coordinates: [139.6917, 35.6895, 50],
+  };
+
+  public static readonly GEO_JSON_LINE_STRING_WITH_ALTITUDE: GeoJSONLineString = {
+    type: "LineString",
+    coordinates: [
+      [139.6917, 35.6895, 10],
+      [139.7673, 35.6812, 40],
+    ],
+  };
+
+  public static readonly GEO_JSON_LINE_STRING_WITH_ALTITUDE_AND_BBOX: GeoJSONLineString = {
+    type: "LineString",
+    coordinates: [
+      [139.6917, 35.6895, 10],
+      [139.7673, 35.6812, 40],
+    ],
+    bbox: [139.6917, 35.6812, 10, 139.7673, 35.6895, 40],
+  };
+
   public static readonly GEO_JSON_MULTI_LINE_STRING = {
     type: "MultiLineString",
     coordinates: [
@@ -78,6 +109,26 @@ export abstract class Test {
         [139.7514, 35.6938],
         [139.7026, 35.658],
         [139.6917, 35.6895],
+      ],
+    ],
+  };
+
+  public static readonly GEO_JSON_POLYGON_WITH_HOLE: GeoJSONPolygon = {
+    type: "Polygon",
+    coordinates: [
+      [
+        [139.69, 35.65],
+        [139.78, 35.65],
+        [139.78, 35.71],
+        [139.69, 35.71],
+        [139.69, 35.65],
+      ],
+      [
+        [139.72, 35.67],
+        [139.75, 35.67],
+        [139.75, 35.69],
+        [139.72, 35.69],
+        [139.72, 35.67],
       ],
     ],
   };
@@ -161,6 +212,8 @@ export abstract class Test {
         return DATA_TEST_ID.FieldList__GeometryObject;
       case SchemaFieldType.GeometryEditor:
         return DATA_TEST_ID.FieldList__GeometryEditor;
+      case SchemaFieldType.Geometry:
+        return DATA_TEST_ID.FieldList__Geometry;
     }
   }
 }
@@ -292,6 +345,7 @@ export enum DATA_TEST_ID {
   FieldList__URL = "FieldList__URL",
   FieldList__Group = "FieldList__Group",
   FieldList__GeometryObject = "FieldList__GeometryObject",
+  FieldList__Geometry = "FieldList__Geometry",
   FieldList__GeometryEditor = "FieldList__GeometryEditor",
 
   // Content list page

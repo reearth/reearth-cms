@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import type { HintIssue } from "@placemarkio/check-geojson";
-import { check, getIssues } from "@placemarkio/check-geojson";
-import type { GeoJSON } from "geojson";
-
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
-type ValidateGeoJson = (
-  raw: Record<string, unknown> | string | GeoJSON,
-) => Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }>;
+type ParseJSONResult<T> = { isValid: true; data: T } | { isValid: false; error: string };
 
 export abstract class ObjectUtils {
   public static shallowEqual(
@@ -19,30 +13,46 @@ export abstract class ObjectUtils {
     return keys1.length === keys2.length && keys1.every(key => obj1[key] === obj2[key]);
   }
 
+  /** Primitives, arrays and plain objects; key order doesn't matter. */
+  public static isDeepEqual(a: unknown, b: unknown): boolean {
+    if (Object.is(a, b)) return true;
+    if (Array.isArray(a) || Array.isArray(b)) {
+      return (
+        Array.isArray(a) &&
+        Array.isArray(b) &&
+        a.length === b.length &&
+        a.every((entry, i) => this.isDeepEqual(entry, b[i]))
+      );
+    }
+    if (!this.isPlainObject(a) || !this.isPlainObject(b)) return false;
+    const keys = Object.keys(a);
+    return (
+      keys.length === Object.keys(b).length &&
+      keys.every(key => Object.hasOwn(b, key) && this.isDeepEqual(a[key], b[key]))
+    );
+  }
+
   // Parses the outer JSON envelope only, leaving leaf string values untouched.
   // Field values must not be reinterpreted even if they happen to look like JSON
   // (e.g. a text field value of "123" or "true" must stay a string).
+  public static parseJSONSync<T = Record<string, unknown>>(str: string): ParseJSONResult<T> {
+    try {
+      return { isValid: true, data: JSON.parse(str) as T };
+    } catch (error) {
+      return { isValid: false, error: error instanceof Error ? error.message : "Invalid JSON" };
+    }
+  }
+
   public static async parseJSON<T = Record<string, unknown>>(
     str: string,
-  ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
-    return new Promise<{ isValid: true; data: T } | { isValid: false; error: string }>(
-      (resolve, _reject) => {
-        setTimeout(() => {
-          const timer = new PerformanceTimer("parseJSON");
-          try {
-            const data = JSON.parse(str) as T;
-            resolve({ isValid: true, data });
-          } catch (error) {
-            resolve({
-              isValid: false,
-              error: error instanceof Error ? error.message : "Invalid JSON",
-            });
-          } finally {
-            timer.log();
-          }
-        }, 0);
-      },
-    );
+  ): Promise<ParseJSONResult<T>> {
+    return new Promise<ParseJSONResult<T>>(resolve => {
+      setTimeout(() => {
+        const timer = new PerformanceTimer("parseJSON");
+        resolve(ObjectUtils.parseJSONSync<T>(str));
+        timer.log();
+      }, 0);
+    });
   }
 
   public static isEmpty(obj: Record<string, unknown>): boolean {
@@ -55,27 +65,4 @@ export abstract class ObjectUtils {
   public static isPlainObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
   }
-
-  public static validateGeoJson: ValidateGeoJson = raw => {
-    return new Promise<Awaited<ReturnType<ValidateGeoJson>>>(resolve => {
-      setTimeout(() => {
-        const timer = new PerformanceTimer("validateGeoJson");
-
-        const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
-        const issues: HintIssue[] = getIssues(parseRaw);
-
-        if (issues.length > 0) {
-          resolve({
-            isValid: false,
-            error: issues.map(issue => issue.message).join(", "),
-          });
-        } else {
-          const data = check(parseRaw);
-          resolve({ isValid: true, data });
-        }
-
-        timer.log();
-      }, 0);
-    });
-  };
 }

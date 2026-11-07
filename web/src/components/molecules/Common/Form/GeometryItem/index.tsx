@@ -3,7 +3,6 @@ import type { OnMount, BeforeMount, Monaco } from "@monaco-editor/react";
 import MonacoEditor from "@monaco-editor/react";
 import Ajv from "ajv";
 import axios from "axios";
-import { json } from "monaco-editor";
 import type { editor } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
@@ -17,7 +16,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
 import { fromLonLat } from "ol/proj";
 import { Vector as VectorSource, OSM } from "ol/source";
 import { Icon as IconStyle, Fill, Stroke, Style } from "ol/style";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, useRef } from "react";
 import type { ResizeCallbackData } from "react-resizable";
 import { Resizable } from "react-resizable";
 
@@ -34,6 +33,8 @@ import type {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
+import { registerJsonSchema } from "@reearth-cms/utils/monacoJsonSchemas";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import schema from "./schema";
@@ -43,7 +44,7 @@ const { Text } = Typography;
 const ajv = new Ajv();
 const validate = ajv.compile(schema);
 
-const LOCALSTORAGE_KEY = "disableGeometryWarning";
+const { DISABLE_GEOMETRY_WARNING } = Constant.LOCAL_STORAGE_KEY;
 
 const GEO_TYPE_MAP = {
   POINT: "Point",
@@ -78,6 +79,8 @@ const GeometryItem: React.FC<Props> = ({
   errorDelete,
 }) => {
   const t = useT();
+  const modelId = useId();
+  const modelPath = `geometry-legacy/${modelId}.json`;
   const { confirm } = useModal();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -154,15 +157,10 @@ const GeometryItem: React.FC<Props> = ({
   );
 
   const handleEditorWillMount: BeforeMount = useCallback(() => {
-    json.jsonDefaults.setDiagnosticsOptions({
-      schemaValidation: "error",
-      schemas: [
-        {
-          uri: "",
-          fileMatch: ["*"],
-          schema,
-        },
-      ],
+    registerJsonSchema({
+      uri: "inmemory://schemas/geometry-legacy",
+      fileMatch: ["geometry-legacy/*"],
+      schema,
     });
   }, []);
 
@@ -358,9 +356,9 @@ const GeometryItem: React.FC<Props> = ({
             <Checkbox
               onChange={e => {
                 if (e.target.checked) {
-                  localStorage.setItem(LOCALSTORAGE_KEY, "true");
+                  localStorage.setItem(DISABLE_GEOMETRY_WARNING, "true");
                 } else {
-                  localStorage.removeItem(LOCALSTORAGE_KEY);
+                  localStorage.removeItem(DISABLE_GEOMETRY_WARNING);
                 }
               }}>
               {t("Do not show this again")}
@@ -380,7 +378,7 @@ const GeometryItem: React.FC<Props> = ({
     (newSketchType: DrawType) => {
       if (sketchType === newSketchType) {
         setType();
-      } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
+      } else if (value && !localStorage.getItem(DISABLE_GEOMETRY_WARNING)) {
         handleConfirm(newSketchType);
       } else {
         setType(newSketchType);
@@ -526,6 +524,7 @@ const GeometryItem: React.FC<Props> = ({
             </EditorButtons>
             <MonacoEditor
               height="100%"
+              path={modelPath}
               language={"json"}
               options={options}
               value={currentValue}
@@ -542,7 +541,7 @@ const GeometryItem: React.FC<Props> = ({
             <StyledSearch
               allowClear
               size="small"
-              placeholder={t("Search Location")}
+              placeholder={t("Search location")}
               onSearch={handleSearch}
               loading={isSearching}
             />
