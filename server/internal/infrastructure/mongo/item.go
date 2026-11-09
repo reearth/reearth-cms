@@ -28,6 +28,7 @@ var (
 		"fields.f",
 		"fields.v.t",
 		"fields.v.v",
+		"fields.v.k",
 		"project,schema,!timestamp,!id,__r",
 		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
