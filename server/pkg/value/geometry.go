@@ -31,10 +31,6 @@ func (p *propertyGeometry) ToValue(i any) (any, bool) {
 			return nil, false
 		}
 		return p.ToValue(*v)
-	case []byte:
-		return unmarshalGeometry(v)
-	case json.RawMessage:
-		return unmarshalGeometry(v)
 	}
 
 	// normalize any other representation (maps, structs, ...) through JSON

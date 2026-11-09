@@ -22,7 +22,6 @@ func Test_propertyGeometry_ToValue(t *testing.T) {
 		{name: "json string", args: pointStr, want: point, ok: true},
 		{name: "formatted json string", args: "{\n \"coordinates\": [139.70, 35.60],\n \"type\": \"Point\"\n}", want: point, ok: true},
 		{name: "pointer to json string", args: new(pointStr), want: point, ok: true},
-		{name: "bytes", args: []byte(pointStr), want: point, ok: true},
 		{name: "raw message", args: json.RawMessage(pointStr), want: point, ok: true},
 		{name: "map", args: map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}}, want: point, ok: true},
 		{name: "map with integers", args: map[string]any{"type": "Point", "coordinates": []int{1, 2}}, want: Geometry{"type": "Point", "coordinates": []any{1.0, 2.0}}, ok: true},
@@ -30,6 +29,7 @@ func Test_propertyGeometry_ToValue(t *testing.T) {
 			Type        string    `json:"type"`
 			Coordinates []float64 `json:"coordinates"`
 		}{Type: "Point", Coordinates: []float64{139.7, 35.6}}, want: point, ok: true},
+		{name: "bytes are not supported", args: []byte(pointStr), want: nil, ok: false},
 		{name: "nil", args: nil, want: nil, ok: false},
 		{name: "nil string pointer", args: (*string)(nil), want: nil, ok: false},
 		{name: "empty string", args: "", want: nil, ok: false},

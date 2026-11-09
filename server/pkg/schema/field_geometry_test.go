@@ -22,7 +22,25 @@ func TestNewGeometry(t *testing.T) {
 func TestFieldGeometry_Validate(t *testing.T) {
 	t.Parallel()
 
-	assert.NoError(t, NewGeometry().Validate(value.TypeGeometry.Value(`{"type":"Point","coordinates":[1,1]}`)))
-	assert.ErrorIs(t, NewGeometry().Validate(value.TypeText.Value("a")), ErrInvalidValue)
-	assert.ErrorIs(t, NewGeometry().Validate(value.TypeGeometryEditor.Value(`{"type":"Point","coordinates":[1,1]}`)), ErrInvalidValue)
+	tests := []struct {
+		name string
+		v    *value.Value
+		want error
+	}{
+		{name: "geometry", v: value.TypeGeometry.Value(`{"type":"Point","coordinates":[1,1]}`)},
+		{name: "text", v: value.TypeText.Value("a"), want: ErrInvalidValue},
+		{name: "geometry editor", v: value.TypeGeometryEditor.Value(`{"type":"Point","coordinates":[1,1]}`), want: ErrInvalidValue},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := NewGeometry().Validate(tt.v)
+			if tt.want == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorIs(t, err, tt.want)
+			}
+		})
+	}
 }
