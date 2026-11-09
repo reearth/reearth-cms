@@ -47,39 +47,12 @@ func (m *Multiple) EquivalenceKeys() []string {
 	return keys
 }
 
-// Equivalent reports whether v and w are the same value when checking uniqueness.
-func (v *Value) Equivalent(w *Value) bool {
-	if v.Type() == TypeGeometry && w.Type() == TypeGeometry {
-		vg, ok1 := v.ValueGeometry()
-		wg, ok2 := w.ValueGeometry()
-		if ok1 && ok2 {
-			vk, ok1 := GeometryKey(vg)
-			wk, ok2 := GeometryKey(wg)
-			if ok1 && ok2 {
-				return vk == wk
-			}
-		}
-	}
-	return v.Equal(w)
-}
-
 // Equivalent reports whether m and w are the same value when checking uniqueness.
 func (m *Multiple) Equivalent(w *Multiple) bool {
-	if m == nil && w == nil {
-		return true
+	if mk, wk := m.EquivalenceKeys(), w.EquivalenceKeys(); mk != nil && wk != nil {
+		return slices.Equal(mk, wk)
 	}
-	if m.IsEmpty() && w.IsEmpty() {
-		return true
-	}
-	if m == nil || w == nil || m.t != w.t || len(m.v) != len(w.v) {
-		return false
-	}
-	for i := range m.v {
-		if !m.v[i].Equivalent(w.v[i]) {
-			return false
-		}
-	}
-	return true
+	return m.Equal(w)
 }
 
 func canonicalGeometry(g Geometry) (string, bool) {

@@ -265,29 +265,20 @@ func TestMultiple_EquivalenceKeys(t *testing.T) {
 	assert.Nil(t, (*Multiple)(nil).EquivalenceKeys())
 }
 
-func TestValue_Equivalent(t *testing.T) {
-	t.Parallel()
-
-	line := TypeGeometry.Value(`{"type":"LineString","coordinates":[[1,1],[2,2]]}`)
-	reversed := TypeGeometry.Value(`{"type":"LineString","coordinates":[[2,2],[1,1]]}`)
-	other := TypeGeometry.Value(`{"type":"LineString","coordinates":[[1,1],[3,3]]}`)
-
-	assert.True(t, line.Equivalent(reversed))
-	assert.False(t, line.Equal(reversed))
-	assert.False(t, line.Equivalent(other))
-	assert.True(t, TypeText.Value("a").Equivalent(TypeText.Value("a")))
-	assert.False(t, TypeText.Value("a").Equivalent(TypeText.Value("b")))
-	assert.False(t, (*Value)(nil).Equivalent(line))
-}
-
 func TestMultiple_Equivalent(t *testing.T) {
 	t.Parallel()
 
 	p1 := `{"type":"Point","coordinates":[1,1]}`
 	l := `{"type":"LineString","coordinates":[[1,1],[2,2]]}`
 	lr := `{"type":"LineString","coordinates":[[2,2],[1,1]]}`
+	l2 := `{"type":"LineString","coordinates":[[1,1],[3,3]]}`
 
 	assert.True(t, NewMultiple(TypeGeometry, []any{p1, l}).Equivalent(NewMultiple(TypeGeometry, []any{p1, lr})))
+	assert.False(t, NewMultiple(TypeGeometry, []any{p1, l}).Equal(NewMultiple(TypeGeometry, []any{p1, lr})))
+	assert.False(t, NewMultiple(TypeGeometry, []any{l}).Equivalent(NewMultiple(TypeGeometry, []any{l2})))
+	assert.True(t, NewMultiple(TypeText, []any{"a"}).Equivalent(NewMultiple(TypeText, []any{"a"})))
+	assert.False(t, NewMultiple(TypeText, []any{"a"}).Equivalent(NewMultiple(TypeText, []any{"b"})))
+	assert.False(t, (*Multiple)(nil).Equivalent(NewMultiple(TypeGeometry, []any{l})))
 	// values of a multiple field keep their order, like the other field types
 	assert.False(t, NewMultiple(TypeGeometry, []any{p1, l}).Equivalent(NewMultiple(TypeGeometry, []any{l, p1})))
 	assert.False(t, NewMultiple(TypeGeometry, []any{p1}).Equivalent(NewMultiple(TypeGeometry, []any{p1, p1})))

@@ -46,21 +46,7 @@ func fromBSON(v any) any {
 			m[e.Key] = fromBSON(e.Value)
 		}
 		return m
-	case bson.M:
-		m := make(map[string]any, len(vv))
-		for k, e := range vv {
-			m[k] = fromBSON(e)
-		}
-		return m
 	case bson.A:
-		return lo.Map(vv, func(e any, _ int) any { return fromBSON(e) })
-	case map[string]any:
-		m := make(map[string]any, len(vv))
-		for k, e := range vv {
-			m[k] = fromBSON(e)
-		}
-		return m
-	case []any:
 		return lo.Map(vv, func(e any, _ int) any { return fromBSON(e) })
 	}
 	return v
