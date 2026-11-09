@@ -25,8 +25,11 @@ export type ValidateOptions = {
 export abstract class GeometryLimits {
   public static readonly SHAPES = 1_000;
   public static readonly COORDINATES = 100_000;
-  /** UTF-8 bytes of one geometry serialized as compact JSON, whatever the input formatting. */
-  public static readonly VALUE_BYTES = 1_024 * 1_024;
+  /**
+   * UTF-8 bytes of one geometry serialized as compact JSON, whatever the input formatting.
+   * Matches the backend's `maxGeoFieldBytes`; change both together.
+   */
+  public static readonly VALUE_BYTES = 10 * 1_024;
 }
 
 const MAX_ISSUES = 20;

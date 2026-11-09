@@ -182,6 +182,34 @@ describe("validateValue", () => {
     expect(issues.some(issue => issue.path === "[0]")).toBe(false);
   });
 
+  describe("size limit at the boundary", () => {
+    const bytesOf = (value: unknown): number =>
+      new TextEncoder().encode(JSON.stringify(value)).length;
+    const multiPoint = (count: number) => ({
+      type: "MultiPoint",
+      coordinates: Array.from({ length: count }, () => [0, 0]),
+    });
+    // n points serialize to base + 5n + (n - 1) bytes: the empty MultiPoint, 5 per [0,0], and a
+    // comma between points. Solving base + 6n - 1 <= VALUE_BYTES gives the most points that fit.
+    const fits = Math.floor((GeometryLimits.VALUE_BYTES - bytesOf(multiPoint(0)) + 1) / 6);
+
+    test("matches the backend's 10 KiB", () => {
+      expect(GeometryLimits.VALUE_BYTES).toBe(10 * 1024);
+    });
+
+    test("accepts a geometry right at the limit", () => {
+      expect(bytesOf(multiPoint(fits))).toBeLessThanOrEqual(GeometryLimits.VALUE_BYTES);
+      expect(messages(multiPoint(fits))).toEqual([]);
+    });
+
+    test("rejects a geometry just over it", () => {
+      expect(bytesOf(multiPoint(fits + 1))).toBeGreaterThan(GeometryLimits.VALUE_BYTES);
+      expect(messages(multiPoint(fits + 1))).toEqual([
+        expect.stringMatching(/^This geometry is too large: \d+ KB \(limit 10 KB\)$/),
+      ]);
+    });
+  });
+
   test("respects a legacy field's supported types", () => {
     const issues = validateValue(Test.GEO_JSON_LINE_STRING, false, {
       allowedKinds: [GeometryKind.POINT],
