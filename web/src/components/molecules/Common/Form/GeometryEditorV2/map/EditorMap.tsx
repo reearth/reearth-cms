@@ -14,6 +14,7 @@ import Segmented from "@reearth-cms/components/atoms/Segmented";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useLang, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { GeoUtils, GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -165,7 +166,10 @@ const EditorMap: React.FC<Props> = ({
       value: option,
       label: (
         <Tooltip title={TOOL_TIPS[option](t)} placement="bottom">
-          <ToolLabel>
+          <ToolLabel
+            data-testid={
+              option === MapTool.POINT ? DATA_TEST_ID.GeometryEditor__ToolPoint : undefined
+            }>
             <Icon icon={TOOL_ICON[option]} size={14} />
             {TOOL_LABELS[option](t)}
           </ToolLabel>
@@ -266,7 +270,7 @@ const EditorMap: React.FC<Props> = ({
         </BarRight>
       </TopBar>
       <MapArea>
-        <MapContainer ref={containerRef} />
+        <MapContainer ref={containerRef} data-testid={DATA_TEST_ID.GeometryEditor__Map} />
         {!readOnly && hasReadOnly && <MapLegend />}
         {drawHint && <Hint role="status">{drawHint}</Hint>}
       </MapArea>

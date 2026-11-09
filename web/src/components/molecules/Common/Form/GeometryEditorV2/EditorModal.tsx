@@ -6,6 +6,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Splitter from "@reearth-cms/components/atoms/Splitter";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdToken } from "@reearth-cms/utils/style";
 
@@ -222,7 +223,7 @@ const EditorBody: React.FC<BodyProps> = ({
 
   return (
     // Keys typed here must not reach a modal underneath (e.g. the schema field dialog's Esc).
-    <Layout onKeyDown={e => e.stopPropagation()}>
+    <Layout data-testid={DATA_TEST_ID.GeometryEditor__Root} onKeyDown={e => e.stopPropagation()}>
       <EditorHeader
         title={title}
         multiple={multiple}

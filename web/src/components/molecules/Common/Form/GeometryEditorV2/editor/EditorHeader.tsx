@@ -6,6 +6,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { BrowserUtils } from "@reearth-cms/utils/browserUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -51,6 +52,7 @@ const EditorHeader: React.FC<Props> = ({
             type="text"
             aria-label={sideOpen ? t("Hide panel") : t("Show panel")}
             aria-expanded={sideOpen}
+            data-testid={DATA_TEST_ID.GeometryEditor__SidePanelToggle}
             icon={<Icon icon={sideOpen ? "panelToggleLeft" : "panelToggleRight"} />}
             onClick={onToggleSide}
           />
@@ -94,9 +96,15 @@ const EditorHeader: React.FC<Props> = ({
               />
             </Tooltip>
             <Divider />
-            <Button onClick={onCancel}>{t("Cancel")}</Button>
+            <Button data-testid={DATA_TEST_ID.GeometryEditor__CancelButton} onClick={onCancel}>
+              {t("Cancel")}
+            </Button>
             <Tooltip title={applyBlocked ? t("Fix the GeoJSON problems first") : undefined}>
-              <Button type="primary" disabled={applyBlocked} onClick={onApply}>
+              <Button
+                type="primary"
+                disabled={applyBlocked}
+                data-testid={DATA_TEST_ID.GeometryEditor__ApplyButton}
+                onClick={onApply}>
                 {t("Apply")}
               </Button>
             </Tooltip>

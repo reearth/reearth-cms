@@ -8,6 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { GeoUtils } from "@reearth-cms/utils/geoUtils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -74,6 +75,7 @@ const ShapeList: React.FC<Props> = ({ multiple, readOnly, drawHint, onDelete }) 
             <Row
               role="option"
               aria-selected={selected}
+              data-testid={DATA_TEST_ID.GeometryEditor__ShapeRow}
               tabIndex={0}
               selected={selected}
               // Selecting is not a toggle: Esc or a click on empty map deselects.

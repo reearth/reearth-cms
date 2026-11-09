@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Typography from "@reearth-cms/components/atoms/Typography";
+import type { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
@@ -13,12 +14,14 @@ type Props = {
   /** Buttons at the right end, outside the toggle. */
   actions?: ReactNode;
   onToggle: () => void;
+  /** Each panel shares this header, so it names its own toggle for e2e. */
+  toggleTestId?: DATA_TEST_ID;
 };
 
 /** Header of a collapsible side panel: the whole title area toggles it. */
-const PanelHeader: React.FC<Props> = ({ title, open, status, actions, onToggle }) => (
+const PanelHeader: React.FC<Props> = ({ title, open, status, actions, onToggle, toggleTestId }) => (
   <Header>
-    <Toggle type="button" onClick={onToggle} aria-expanded={open}>
+    <Toggle type="button" onClick={onToggle} aria-expanded={open} data-testid={toggleTestId}>
       <Icon icon={open ? "caretDown" : "caretRight"} size={12} />
       <Typography.Text strong>{title}</Typography.Text>
       {status}

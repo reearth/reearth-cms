@@ -9,6 +9,7 @@ import PopConfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useLang, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { kindIcon, summarize } from "./core/labels";
@@ -131,7 +132,11 @@ const FieldPreview: React.FC<Props> = ({
             </Button>
           ) : (
             !empty && (
-              <Button size="small" icon={<Icon icon="edit" size={14} />} onClick={onOpen}>
+              <Button
+                size="small"
+                icon={<Icon icon="edit" size={14} />}
+                data-testid={DATA_TEST_ID.GeometryFieldPreview__EditButton}
+                onClick={onOpen}>
                 {t("Edit geometry")}
               </Button>
             )
@@ -159,7 +164,11 @@ const FieldPreview: React.FC<Props> = ({
           <EmptyOverlay>
             <Typography.Text type="secondary">{t("No geometry yet")}</Typography.Text>
             {!disabled && (
-              <Button type="primary" icon={<Icon icon="plus" />} onClick={onOpen}>
+              <Button
+                type="primary"
+                icon={<Icon icon="plus" />}
+                data-testid={DATA_TEST_ID.GeometryFieldPreview__AddButton}
+                onClick={onOpen}>
                 {t("Add geometry")}
               </Button>
             )}

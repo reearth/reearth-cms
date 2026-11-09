@@ -21,6 +21,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import geometrySchema from "@reearth-cms/components/molecules/Common/Form/GeometryItem/schema";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { registerJsonSchema } from "@reearth-cms/utils/monacoJsonSchemas";
 import { AntdColor } from "@reearth-cms/utils/style";
 
@@ -193,6 +194,7 @@ const GeoJsonPanel: React.FC<Props> = ({
   return (
     <Panel open={open}>
       <PanelHeader
+        toggleTestId={DATA_TEST_ID.GeometryEditor__GeoJsonToggle}
         title="GeoJSON"
         open={open}
         status={status}
@@ -239,7 +241,7 @@ const GeoJsonPanel: React.FC<Props> = ({
               }
             />
           )}
-          <EditorWrapper>
+          <EditorWrapper data-testid={DATA_TEST_ID.GeometryEditor__GeoJsonEditor}>
             <MonacoEditor
               path={modelPath}
               language="json"

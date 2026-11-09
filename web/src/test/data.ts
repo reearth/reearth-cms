@@ -348,6 +348,20 @@ export enum DATA_TEST_ID {
   FieldList__Geometry = "FieldList__Geometry",
   FieldList__GeometryEditor = "FieldList__GeometryEditor",
 
+  // GeometryEditorV2
+  GeometryFieldPreview__AddButton = "GeometryFieldPreview__AddButton",
+  GeometryFieldPreview__EditButton = "GeometryFieldPreview__EditButton",
+  GeometryEditor__Root = "GeometryEditor__Root",
+  GeometryEditor__SidePanelToggle = "GeometryEditor__SidePanelToggle",
+  GeometryEditor__ApplyButton = "GeometryEditor__ApplyButton",
+  GeometryEditor__CancelButton = "GeometryEditor__CancelButton",
+  GeometryEditor__ToolPoint = "GeometryEditor__ToolPoint",
+  GeometryEditor__Map = "GeometryEditor__Map",
+  GeometryEditor__ShapeRow = "GeometryEditor__ShapeRow",
+  GeometryEditor__GeoJsonToggle = "GeometryEditor__GeoJsonToggle",
+  GeometryEditor__GeoJsonEditor = "GeometryEditor__GeoJsonEditor",
+  GeometryMiniMap__Map = "GeometryMiniMap__Map",
+
   // Content list page
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",

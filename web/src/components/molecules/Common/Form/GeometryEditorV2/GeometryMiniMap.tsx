@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { useLang } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { readFieldValue } from "./core/fieldValue";
@@ -42,7 +43,7 @@ const MiniMap: React.FC<{ collection: FeatureCollection }> = ({ collection }) =>
   }, [handles, collection, lang]);
 
   return (
-    <MapArea>
+    <MapArea data-testid={DATA_TEST_ID.GeometryMiniMap__Map}>
       <MapContainer ref={containerRef} />
       <ZoomHint />
     </MapArea>

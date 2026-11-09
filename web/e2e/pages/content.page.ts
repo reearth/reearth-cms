@@ -744,6 +744,11 @@ export class ContentPage extends BasePage {
     return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverContent);
   }
 
+  /** A geometry field's popover shows a mini map, or the raw value when it can't be read. */
+  get geometryMiniMap(): Locator {
+    return this.tableContentFieldPopoverContent.getByTestId(DATA_TEST_ID.GeometryMiniMap__Map);
+  }
+
   // ========== Import Content Actions ==========
 
   async openImportContentModal(): Promise<void> {
