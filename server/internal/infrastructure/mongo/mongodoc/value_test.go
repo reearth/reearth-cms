@@ -22,6 +22,8 @@ func TestNewMultipleValue(t *testing.T) {
 }
 
 func TestValueDocument_Geometry(t *testing.T) {
+	t.Parallel()
+
 	line := `{"type":"LineString","coordinates":[[139.7,35.6,10],[139.8,35.7,10]]}`
 	collection := `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,2]}]}`
 	m := value.NewMultiple(value.TypeGeometry, []any{line, collection})
@@ -47,6 +49,8 @@ func TestValueDocument_Geometry(t *testing.T) {
 }
 
 func TestNewMultipleValue_NoKeys(t *testing.T) {
+	t.Parallel()
+
 	doc := NewMultipleValue(value.NewMultiple(value.TypeGeometryEditor, []any{`{"type":"Point","coordinates":[1,2]}`}))
 	assert.Nil(t, doc.K)
 

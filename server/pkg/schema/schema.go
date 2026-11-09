@@ -94,7 +94,7 @@ func (s *Schema) FirstGeometryField() *Field {
 		return nil
 	}
 	for _, f := range s.fields.Ordered() {
-		if f.IsGeometryField() {
+		if f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor {
 			return f
 		}
 	}
@@ -176,7 +176,7 @@ func (s *Schema) HasGeometryFields() bool {
 	if s == nil {
 		return false
 	}
-	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0 || len(s.FieldsByType(value.TypeGeometry)) > 0
+	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0
 }
 
 func (s *Schema) IsPointFieldSupported() bool {

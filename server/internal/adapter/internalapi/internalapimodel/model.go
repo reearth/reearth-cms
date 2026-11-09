@@ -91,8 +91,6 @@ func ToSchemaFieldType(t value.Type) pb.SchemaField_Type {
 		return pb.SchemaField_GeometryObject
 	case value.TypeGeometryEditor:
 		return pb.SchemaField_GeometryEditor
-	case value.TypeGeometry:
-		return pb.SchemaField_Geometry
 	default:
 		return pb.SchemaField_Text
 	}
