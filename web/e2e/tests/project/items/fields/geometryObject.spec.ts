@@ -2,6 +2,13 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+// TODO: PR#2058, temporary skip it on CI before backend is ready
+test.skip(true, "The list's geometry popover shows a mini map only once PR#2058 is deployed");
+
+/** A point's coordinates as Monaco renders them, whatever the spacing. */
+const coordinates = (lng: number, lat: number): RegExp =>
+  new RegExp(`"coordinates":\\s*\\[${lng},\\s*${lat}\\]`);
+
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
@@ -53,14 +60,15 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
-    await expect(contentPage.tooltip).toBeVisible();
-    await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
+    await expect(contentPage.geometryMiniMap).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 
   await test.step("Edit item and update geometry to [1, 0]", async () => {
     await contentPage.editButton.click();
-    await contentPage.antRowButton(1).click();
+    // The list shows a map, so the stored coordinates are checked in the item's editor.
+    await expect(contentPage.viewLinesEditor).toContainText(coordinates(0, 0));
+    await contentPage.clearLegacyGeometryEditor();
     await contentPage.typeInMonacoEditor(
       contentPage.viewLinesEditor,
       '{\n"type": "Point",\n"coordinates": [1, 0]',
@@ -72,8 +80,9 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
-    await expect(contentPage.tooltip).toBeVisible();
-    await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
+    await expect(contentPage.geometryMiniMap).toBeVisible();
+    await contentPage.editButton.click();
+    await expect(contentPage.viewLinesEditor).toContainText(coordinates(1, 0));
     await page.waitForLoadState("networkidle");
   });
 });
@@ -114,8 +123,7 @@ test("GeometryObject field editing has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.nthTableColumnButton(5)).toBeVisible();
     await contentPage.nthTableColumnButton(5).click();
-    await expect(contentPage.tooltip).toBeVisible();
-    await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
+    await expect(contentPage.geometryMiniMap).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 
@@ -167,8 +175,7 @@ test("GeometryObject field editing has succeeded", async ({
     await contentPage.contentText.click();
     await expect(contentPage.tableHead).toContainText("new geometryObject1");
     await contentPage.nthTableColumnButton(5).click();
-    await expect(contentPage.tooltip).toBeVisible();
-    await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
+    await expect(contentPage.geometryMiniMap).toBeVisible();
     await page.waitForLoadState("networkidle");
   });
 
@@ -189,20 +196,16 @@ test("GeometryObject field editing has succeeded", async ({
     await contentPage.clickAndExpectSuccess(contentPage.saveButton);
   });
 
-  await test.step("Verify multiple geometries displayed in list view tooltip", async () => {
+  await test.step("Verify multiple geometries saved in order", async () => {
     await contentPage.backButton.click();
     await contentPage.x3Button.click();
-    await expect(contentPage.tooltip).toBeVisible();
-    await expect(contentPage.tooltipParagraphs).toHaveCount(3);
-    await expect(contentPage.tooltipParagraphByIndex(0)).toContainText(
-      '{ "type": "Point", "coordinates": [1, 0] }',
-    );
-    await expect(contentPage.tooltipParagraphByIndex(1)).toContainText(
-      '{ "type": "Point", "coordinates": [2, 0] }',
-    );
-    await expect(contentPage.tooltipParagraphByIndex(2)).toContainText(
-      '{ "type": "Point", "coordinates": [0, 0] }',
-    );
+    await expect(contentPage.geometryMiniMap).toBeVisible();
+    // A map can't show order, so the stored order is checked in the item's editor.
+    await contentPage.editButtonOfRowWith(contentPage.x3Button).click();
+    await expect(contentPage.viewLinesEditor).toHaveCount(3);
+    await expect(contentPage.viewLinesEditor.nth(0)).toContainText(coordinates(1, 0));
+    await expect(contentPage.viewLinesEditor.nth(1)).toContainText(coordinates(2, 0));
+    await expect(contentPage.viewLinesEditor.nth(2)).toContainText(coordinates(0, 0));
     await page.waitForLoadState("networkidle");
   });
 });
