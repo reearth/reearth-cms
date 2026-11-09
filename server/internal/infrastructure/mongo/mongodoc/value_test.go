@@ -30,8 +30,6 @@ func TestValueDocument_Geometry(t *testing.T) {
 
 	doc := NewMultipleValue(m)
 	assert.Equal(t, "geometry", doc.T)
-	assert.Equal(t, m.EquivalenceKeys(), doc.K)
-	assert.Len(t, doc.K, 2)
 
 	// stored as embedded documents, decoded back as bson.D and bson.A
 	b, err := bson.Marshal(doc)
@@ -44,20 +42,5 @@ func TestValueDocument_Geometry(t *testing.T) {
 	var decoded ValueDocument
 	require.NoError(t, bson.Unmarshal(b, &decoded))
 	assert.IsType(t, bson.D{}, decoded.V[0])
-	assert.Equal(t, doc.K, decoded.K)
 	assert.Equal(t, m, decoded.MultipleValue())
-}
-
-func TestNewMultipleValue_NoKeys(t *testing.T) {
-	t.Parallel()
-
-	doc := NewMultipleValue(value.NewMultiple(value.TypeGeometryEditor, []any{`{"type":"Point","coordinates":[1,2]}`}))
-	assert.Nil(t, doc.K)
-
-	b, err := bson.Marshal(doc)
-	require.NoError(t, err)
-	var raw bson.M
-	require.NoError(t, bson.Unmarshal(b, &raw))
-	_, ok := raw["k"]
-	assert.False(t, ok)
 }

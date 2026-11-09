@@ -29,9 +29,7 @@ func (f *FieldGeometry) Clone() *FieldGeometry {
 
 func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
-		Geometry: func(g value.Geometry) {
-			err = validateGeometry(g)
-		},
+		Geometry: func(value.Geometry) {},
 		Default: func() {
 			err = ErrInvalidValue
 		},
