@@ -7,8 +7,9 @@ import (
 )
 
 type ValueDocument struct {
-	T string `bson:"t"`
-	V []any  `bson:"v"` // value stored in db as multiple
+	T string   `bson:"t"`
+	V []any    `bson:"v"`           // value stored in db as multiple
+	K []string `bson:"k,omitempty"` // equivalence keys of the values, used to find duplicated values
 }
 
 func NewMultipleValue(v *value.Multiple) *ValueDocument {
@@ -18,6 +19,7 @@ func NewMultipleValue(v *value.Multiple) *ValueDocument {
 	return &ValueDocument{
 		T: string(v.Type()),
 		V: v.Interface(),
+		K: v.EquivalenceKeys(),
 	}
 }
 

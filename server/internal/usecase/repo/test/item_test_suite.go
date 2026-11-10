@@ -804,6 +804,13 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	seeds := item.List{i1, i2}
 
+	sf3 := id.NewFieldID()
+	geo := func(v ...any) *value.Multiple { return value.NewMultiple(value.TypeGeometry, v) }
+	square := `{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}`
+	f3 := item.NewField(sf3, geo(square, `{"type":"Point","coordinates":[1,2]}`), nil)
+	i3 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+	geoSeeds := item.List{i3}
+
 	tests := []struct {
 		name    string
 		seeds   item.List
@@ -823,6 +830,30 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 			seeds: seeds,
 			args:  []repo.FieldAndValue{{Field: f1.FieldID(), Value: f1.Value()}},
 			want:  1,
+		},
+		{
+			name:  "must find an equivalent geometry",
+			seeds: geoSeeds,
+			args: []repo.FieldAndValue{{Field: sf3, Value: geo(
+				`{"type":"Polygon","coordinates":[[[1,1],[1,0],[0,0],[0,1],[1,1]]]}`,
+				`{"coordinates":[1.0,2.00],"type":"Point"}`,
+			)}},
+			want: 1,
+		},
+		{
+			name:  "must not find a different geometry",
+			seeds: geoSeeds,
+			args: []repo.FieldAndValue{{Field: sf3, Value: geo(
+				`{"type":"Polygon","coordinates":[[[0,0],[1,1],[1,0],[0,1],[0,0]]]}`,
+				`{"type":"Point","coordinates":[1,2]}`,
+			)}},
+			want: 0,
+		},
+		{
+			name:  "must not find a part of the geometries",
+			seeds: geoSeeds,
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(square)}},
+			want:  0,
 		},
 	}
 
