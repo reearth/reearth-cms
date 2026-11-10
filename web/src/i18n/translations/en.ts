@@ -818,6 +818,7 @@ export default {
   "This file may not be UTF-8 encoded": "",
   "This function is currently experimental and remains somewhat unstable": "",
   "This geometry can't be edited here. Edit it in GeoJSON.": "",
+  "This geometry crosses the 180° meridian without being split, so it's drawn the long way around. Split it into parts that meet at ±180.": "",
   "This geometry is too large: {{size}} KB (limit {{max}} KB)": "",
   "This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.": "",
   "This is the title of the view": "",

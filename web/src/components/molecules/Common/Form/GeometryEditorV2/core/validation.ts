@@ -20,6 +20,8 @@ export type ValidateOptions = {
   readonly allowedKinds?: readonly GeometryKind[];
 };
 
+type FlatBbox = readonly [west: number, south: number, east: number, north: number];
+
 /** Placeholders until the backend confirms the agreed limits. */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export abstract class GeometryLimits {
@@ -32,336 +34,496 @@ export abstract class GeometryLimits {
   public static readonly VALUE_BYTES = 10 * 1_024;
 }
 
-const MAX_ISSUES = 20;
-const raw = { interpolation: { escapeValue: false } };
+/** Every check returns its own issues; nothing is collected by mutation. */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export abstract class GeometryValidation {
+  private static readonly MAX_ISSUES = 20;
+  /** Positions are rounded to 7 decimals, so one may sit this far outside a bbox made before. */
+  private static readonly BBOX_TOLERANCE = 1e-7;
+  private static readonly RAW = { interpolation: { escapeValue: false } };
+  private static readonly MEMBERS: Record<string, readonly string[]> = {
+    [GeometryKind.GEOMETRY_COLLECTION]: ["type", "geometries", "bbox"],
+  };
+  private static readonly COORDINATE_MEMBERS: readonly string[] = ["type", "coordinates", "bbox"];
+  private static readonly ENCODER = new TextEncoder();
 
-const MEMBERS: Record<string, readonly string[]> = {
-  [GeometryKind.GEOMETRY_COLLECTION]: ["type", "geometries", "bbox"],
-};
-const COORDINATE_MEMBERS = ["type", "coordinates", "bbox"];
+  /**
+   * Validates a whole field value: one geometry (single) or a list of them (multiple).
+   * `null` / empty list means "no value" and is valid here; `required` is the form's job.
+   */
+  public static validateValue(
+    value: unknown,
+    multiple: boolean,
+    options: ValidateOptions = {},
+  ): GeometryIssue[] {
+    if (value === null || value === undefined) return [];
+    if (multiple && !Array.isArray(value)) {
+      return [this.issue("", t("Expected a list of geometries, e.g. [ { ... }, { ... } ]"))];
+    }
 
-const encoder = new TextEncoder();
+    if (!multiple && Array.isArray(value)) {
+      return [this.issue("", t("This field holds one geometry. Remove the surrounding [ ]."))];
+    }
 
-class Collector {
-  readonly issues: GeometryIssue[] = [];
-  coordinates = 0;
+    const shapes: readonly unknown[] = Array.isArray(value) ? value : [value];
+    const coordinates = shapes.reduce<number>(
+      (total, shape) => total + this.countPositions(shape),
+      0,
+    );
 
-  add(path: string, message: string) {
-    if (this.issues.length < MAX_ISSUES) this.issues.push({ path, message });
+    return [
+      ...(multiple && shapes.length > GeometryLimits.SHAPES
+        ? [
+            this.issue(
+              "",
+              t("Too many geometries: {{count}} (limit {{max}})", {
+                count: shapes.length,
+                max: GeometryLimits.SHAPES,
+              }),
+            ),
+          ]
+        : []),
+      ...shapes.flatMap((shape, i) => this.checkGeometry(shape, this.pathOf(i, multiple), false)),
+      ...(coordinates > GeometryLimits.COORDINATES
+        ? [
+            this.issue(
+              "",
+              t("Too many coordinates: {{count}} (limit {{max}})", {
+                count: coordinates,
+                max: GeometryLimits.COORDINATES,
+              }),
+            ),
+          ]
+        : []),
+      ...shapes.flatMap((shape, i) => this.checkSize(shape, this.pathOf(i, multiple))),
+      ...shapes.flatMap((shape, i) =>
+        this.checkAllowedKind(shape, this.pathOf(i, multiple), options.allowedKinds),
+      ),
+    ].slice(0, this.MAX_ISSUES);
   }
 
-  get full() {
-    return this.issues.length >= MAX_ISSUES;
-  }
-}
-
-function checkPosition(value: unknown, path: string, out: Collector) {
-  out.coordinates++;
-  if (
-    !Array.isArray(value) ||
-    value.length < 2 ||
-    value.length > 3 ||
-    !value.every(n => typeof n === "number" && Number.isFinite(n))
-  ) {
-    out.add(path, t("A position is [longitude, latitude] with an optional altitude"));
-    return;
-  }
-  const [lng, lat] = value as number[];
-  const lngOk = lng >= -180 && lng <= 180;
-  const latOk = lat >= -90 && lat <= 90;
-  if (lngOk && latOk) return;
-  // A latitude outside ±90 that would be a fine longitude, next to a longitude that would
-  // be a fine latitude, is almost always a [lat, lng] paste.
-  if (!latOk && Math.abs(lat) <= 180 && Math.abs(lng) <= 90) {
-    out.add(path, t("Coordinates must be [longitude, latitude]"));
-  } else if (!lngOk) {
-    out.add(path, t("Longitude must be between -180 and 180"));
-  } else {
-    out.add(path, t("Latitude must be between -90 and 90"));
-  }
-}
-
-function checkPositions(value: unknown, path: string, min: number, out: Collector): boolean {
-  if (!Array.isArray(value)) {
-    out.add(path, t("Expected a list of positions"));
-    return false;
-  }
-  if (value.length < min) {
-    out.add(
-      path,
-      min === 2
-        ? t("A LineString needs at least 2 positions")
-        : t("A polygon ring needs at least 4 positions"),
+  /**
+   * A bbox is optional and is stored as written, so a stale one is a warning, not an error.
+   * A bbox larger than its geometry is fine: RFC 7946 doesn't require the smallest one.
+   */
+  public static findStaleBboxes(
+    geometries: readonly Geometry[],
+    multiple: boolean,
+  ): GeometryIssue[] {
+    return geometries.flatMap((geometry, i) =>
+      this.checkStaleBbox(geometry, this.pathOf(i, multiple)),
     );
   }
-  value.forEach((position, i) => !out.full && checkPosition(position, `${path}[${i}]`, out));
-  return true;
-}
 
-function checkRing(value: unknown, path: string, out: Collector) {
-  if (!checkPositions(value, path, 4, out) || !Array.isArray(value)) return;
-  const ring = value;
-  if (ring.length >= 4 && JSON.stringify(ring[0]) !== JSON.stringify(ring[ring.length - 1])) {
-    out.add(path, t("A polygon ring must end where it starts"));
-  }
-}
-
-/**
- * RFC 7946 §5: [west, south, east, north], or [west, south, low, east, north, high] with
- * altitude. West > east is fine: the box crosses the antimeridian.
- */
-function checkBboxMember(value: unknown, path: string, out: Collector) {
-  if (
-    !Array.isArray(value) ||
-    (value.length !== 4 && value.length !== 6) ||
-    !value.every(n => typeof n === "number" && Number.isFinite(n))
-  ) {
-    out.add(path, t("A bbox is [west, south, east, north], with an optional altitude range"));
-    return;
-  }
-  const box = value as number[];
-  const half = box.length / 2;
-  const [west, south] = box;
-  const [east, north] = [box[half], box[half + 1]];
-  const lngOk = [west, east].every(lng => lng >= -180 && lng <= 180);
-  const latOk = [south, north].every(lat => lat >= -90 && lat <= 90);
-
-  if (!lngOk || !latOk) {
-    out.add(path, t("A bbox must stay within longitude ±180 and latitude ±90"));
-  } else if (south > north) {
-    out.add(path, t("A bbox's south edge can't be north of its north edge"));
-  } else if (half === 3 && box[2] > box[5]) {
-    out.add(path, t("A bbox's lowest altitude can't be above its highest"));
-  }
-}
-
-function checkList(
-  value: unknown,
-  path: string,
-  out: Collector,
-  each: (v: unknown, p: string) => void,
-) {
-  if (!Array.isArray(value)) {
-    out.add(path, t("Expected a list"));
-    return;
-  }
-  value.forEach((entry, i) => !out.full && each(entry, `${path}[${i}]`));
-}
-
-function checkGeometry(value: unknown, path: string, inCollection: boolean, out: Collector) {
-  if (!ObjectUtils.isPlainObject(value)) {
-    out.add(path, t("Expected a GeoJSON geometry object"));
-    return;
-  }
-  const type = value.type;
-  if (type === "Feature" || type === "FeatureCollection") {
-    out.add(
-      path,
-      t("Expected a geometry, not a {{type}}. Use the geometry inside it.", { type, ...raw }),
+  /** Uncut crossings are valid GeoJSON, so they're a warning, and the value is saved as is. */
+  public static findAntimeridianCrossings(
+    geometries: readonly Geometry[],
+    multiple: boolean,
+  ): GeometryIssue[] {
+    return geometries.flatMap((geometry, i) =>
+      this.checkAntimeridian(geometry, this.pathOf(i, multiple)),
     );
-    return;
-  }
-  if (!GeoUtils.isGeometryKind(type)) {
-    out.add(
-      path ? `${path}.type` : "type",
-      typeof type === "string"
-        ? t("Unknown geometry type {{type}}", { type, ...raw })
-        : t("A geometry needs a type"),
-    );
-    return;
   }
 
-  const allowed = MEMBERS[type] ?? COORDINATE_MEMBERS;
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) {
-      out.add(
-        path ? `${path}.${key}` : key,
-        t(
-          'Unknown property "{{name}}" is not allowed in a geometry. Store extra information in a separate field.',
-          { name: key, ...raw },
+  public static formatIssue(issue: GeometryIssue): string {
+    return issue.path ? `${issue.path}: ${issue.message}` : issue.message;
+  }
+
+  private static issue(path: string, message: string): GeometryIssue {
+    return { path, message };
+  }
+
+  private static at(path: string, member: string): string {
+    return path ? `${path}.${member}` : member;
+  }
+
+  /** Where a field value's geometry sits: `[i]` in a list, the root otherwise. */
+  private static pathOf(index: number, multiple: boolean): string {
+    return multiple ? `[${index}]` : "";
+  }
+
+  private static checkGeometry(
+    value: unknown,
+    path: string,
+    inCollection: boolean,
+  ): readonly GeometryIssue[] {
+    if (!ObjectUtils.isPlainObject(value)) {
+      return [this.issue(path, t("Expected a GeoJSON geometry object"))];
+    }
+
+    const type = value.type;
+
+    if (type === "Feature" || type === "FeatureCollection") {
+      return [
+        this.issue(
+          path,
+          t("Expected a geometry, not a {{type}}. Use the geometry inside it.", {
+            type,
+            ...this.RAW,
+          }),
+        ),
+      ];
+    }
+
+    if (!GeoUtils.isGeometryKind(type)) {
+      return [
+        this.issue(
+          this.at(path, "type"),
+          typeof type === "string"
+            ? t("Unknown geometry type {{type}}", { type, ...this.RAW })
+            : t("A geometry needs a type"),
+        ),
+      ];
+    }
+
+    const allowed = this.MEMBERS[type] ?? this.COORDINATE_MEMBERS;
+    const memberIssues = Object.keys(value)
+      .filter(key => !allowed.includes(key))
+      .map(key =>
+        this.issue(
+          this.at(path, key),
+          t(
+            'Unknown property "{{name}}" is not allowed in a geometry. Store extra information in a separate field.',
+            { name: key, ...this.RAW },
+          ),
         ),
       );
-    }
+
+    const bboxIssues =
+      "bbox" in value ? this.checkBboxMember(value.bbox, this.at(path, "bbox")) : [];
+
+    return [
+      ...memberIssues,
+      ...bboxIssues,
+      ...this.checkCoordinates(value, type, path, inCollection),
+    ];
   }
 
-  const at = (member: string) => (path ? `${path}.${member}` : member);
-  if ("bbox" in value) checkBboxMember(value.bbox, at("bbox"), out);
-  const coordinates = value.coordinates;
-  switch (type) {
-    case GeometryKind.POINT:
-      checkPosition(coordinates, at("coordinates"), out);
-      break;
-    case GeometryKind.MULTI_POINT:
-      checkList(coordinates, at("coordinates"), out, (p, pp) => checkPosition(p, pp, out));
-      break;
-    case GeometryKind.LINE_STRING:
-      checkPositions(coordinates, at("coordinates"), 2, out);
-      break;
-    case GeometryKind.MULTI_LINE_STRING:
-      checkList(coordinates, at("coordinates"), out, (l, lp) => checkPositions(l, lp, 2, out));
-      break;
-    case GeometryKind.POLYGON:
-      checkList(coordinates, at("coordinates"), out, (r, rp) => checkRing(r, rp, out));
-      break;
-    case GeometryKind.MULTI_POLYGON:
-      checkList(coordinates, at("coordinates"), out, (poly, pp) =>
-        checkList(poly, pp, out, (r, rp) => checkRing(r, rp, out)),
-      );
-      break;
-    case GeometryKind.GEOMETRY_COLLECTION:
-      if (inCollection) {
-        out.add(path, t("A GeometryCollection can't contain another GeometryCollection"));
-        return;
-      }
-      checkList(value.geometries, at("geometries"), out, (g, gp) =>
-        checkGeometry(g, gp, true, out),
-      );
-      break;
-  }
-}
-
-/**
- * Validates a whole field value: one geometry (single) or a list of them (multiple).
- * `null` / empty list means "no value" and is valid here; `required` is the form's job.
- */
-export function validateValue(
-  value: unknown,
-  multiple: boolean,
-  options: ValidateOptions = {},
-): GeometryIssue[] {
-  const out = new Collector();
-  if (value === null || value === undefined) return out.issues;
-
-  const shapes: unknown[] = [];
-  if (multiple) {
-    if (!Array.isArray(value)) {
-      out.add("", t("Expected a list of geometries, e.g. [ { ... }, { ... } ]"));
-      return out.issues;
-    }
-    if (value.length > GeometryLimits.SHAPES) {
-      out.add(
-        "",
-        t("Too many geometries: {{count}} (limit {{max}})", {
-          count: value.length,
-          max: GeometryLimits.SHAPES,
-        }),
-      );
-    }
-    value.forEach((geometry, i) => {
-      shapes.push(geometry);
-      if (!out.full) checkGeometry(geometry, `[${i}]`, false, out);
-    });
-  } else {
-    if (Array.isArray(value)) {
-      out.add("", t("This field holds one geometry. Remove the surrounding [ ]."));
-      return out.issues;
-    }
-    shapes.push(value);
-    checkGeometry(value, "", false, out);
-  }
-
-  if (out.coordinates > GeometryLimits.COORDINATES) {
-    out.add(
-      "",
-      t("Too many coordinates: {{count}} (limit {{max}})", {
-        count: out.coordinates,
-        max: GeometryLimits.COORDINATES,
-      }),
-    );
-  }
-
-  shapes.forEach((shape, i) => {
-    const bytes = encoder.encode(JSON.stringify(shape)).length;
-    if (bytes > GeometryLimits.VALUE_BYTES) {
-      out.add(
-        multiple ? `[${i}]` : "",
-        t("This geometry is too large: {{size}} KB (limit {{max}} KB)", {
-          size: Math.ceil(bytes / 1024),
-          max: GeometryLimits.VALUE_BYTES / 1024,
-        }),
-      );
-    }
-  });
-
-  const allowed = options.allowedKinds;
-  if (allowed && allowed.length < GeoUtils.ALL_KINDS.length) {
-    shapes.forEach((shape, i) => {
-      const type = ObjectUtils.isPlainObject(shape) ? shape.type : undefined;
-      if (GeoUtils.isGeometryKind(type)) {
-        if (!allowed.includes(type)) {
-          out.add(
-            multiple ? `[${i}]` : "",
-            t("This field accepts only: {{types}}", { types: allowed.join(", "), ...raw }),
-          );
+  private static checkCoordinates(
+    value: Record<string, unknown>,
+    type: GeometryKind,
+    path: string,
+    inCollection: boolean,
+  ): readonly GeometryIssue[] {
+    const coordinates = value.coordinates;
+    const coordinatesPath = this.at(path, "coordinates");
+    switch (type) {
+      case GeometryKind.POINT:
+        return this.checkPosition(coordinates, coordinatesPath);
+      case GeometryKind.MULTI_POINT:
+        return this.checkList(coordinates, coordinatesPath, (p, pp) => this.checkPosition(p, pp));
+      case GeometryKind.LINE_STRING:
+        return this.checkPositions(coordinates, coordinatesPath, 2);
+      case GeometryKind.MULTI_LINE_STRING:
+        return this.checkList(coordinates, coordinatesPath, (l, lp) =>
+          this.checkPositions(l, lp, 2),
+        );
+      case GeometryKind.POLYGON:
+        return this.checkList(coordinates, coordinatesPath, (r, rp) => this.checkRing(r, rp));
+      case GeometryKind.MULTI_POLYGON:
+        return this.checkList(coordinates, coordinatesPath, (poly, pp) =>
+          this.checkList(poly, pp, (r, rp) => this.checkRing(r, rp)),
+        );
+      case GeometryKind.GEOMETRY_COLLECTION:
+        if (inCollection) {
+          return [
+            this.issue(path, t("A GeometryCollection can't contain another GeometryCollection")),
+          ];
         }
-      }
-    });
+
+        return this.checkList(value.geometries, this.at(path, "geometries"), (g, gp) =>
+          this.checkGeometry(g, gp, true),
+        );
+    }
   }
 
-  return out.issues;
-}
+  private static checkPosition(value: unknown, path: string): readonly GeometryIssue[] {
+    if (
+      !Array.isArray(value) ||
+      value.length < 2 ||
+      value.length > 3 ||
+      !value.every(n => typeof n === "number" && Number.isFinite(n))
+    ) {
+      return [this.issue(path, t("A position is [longitude, latitude] with an optional altitude"))];
+    }
 
-/** Positions are rounded to 7 decimals, so one may sit this far outside a bbox made before. */
-const BBOX_TOLERANCE = 1e-7;
+    const [lng, lat] = value as number[];
+    const lngOk = lng >= -180 && lng <= 180;
+    const latOk = lat >= -90 && lat <= 90;
 
-/** [west, south, east, north] of a well-formed bbox, altitude left out; null otherwise. */
-function flatBbox(bbox: unknown): [number, number, number, number] | null {
-  if (!Array.isArray(bbox) || !bbox.every(n => typeof n === "number" && Number.isFinite(n))) {
+    if (lngOk && latOk) return [];
+    // A latitude outside ±90 that would be a fine longitude, next to a longitude that would
+    // be a fine latitude, is almost always a [lat, lng] paste.
+    if (!latOk && Math.abs(lat) <= 180 && Math.abs(lng) <= 90) {
+      return [this.issue(path, t("Coordinates must be [longitude, latitude]"))];
+    }
+
+    return [
+      this.issue(
+        path,
+        !lngOk
+          ? t("Longitude must be between -180 and 180")
+          : t("Latitude must be between -90 and 90"),
+      ),
+    ];
+  }
+
+  private static checkPositions(
+    value: unknown,
+    path: string,
+    min: number,
+  ): readonly GeometryIssue[] {
+    if (!Array.isArray(value)) return [this.issue(path, t("Expected a list of positions"))];
+
+    const lengthIssues =
+      value.length < min
+        ? [
+            this.issue(
+              path,
+              min === 2
+                ? t("A LineString needs at least 2 positions")
+                : t("A polygon ring needs at least 4 positions"),
+            ),
+          ]
+        : [];
+
+    return [
+      ...lengthIssues,
+      ...value.flatMap((position, i) => this.checkPosition(position, `${path}[${i}]`)),
+    ];
+  }
+
+  private static checkRing(value: unknown, path: string): readonly GeometryIssue[] {
+    const positionIssues = this.checkPositions(value, path, 4);
+    if (!Array.isArray(value)) return positionIssues;
+    const open =
+      value.length >= 4 && JSON.stringify(value[0]) !== JSON.stringify(value[value.length - 1]);
+
+    return [
+      ...positionIssues,
+      ...(open ? [this.issue(path, t("A polygon ring must end where it starts"))] : []),
+    ];
+  }
+
+  private static checkList(
+    value: unknown,
+    path: string,
+    each: (entry: unknown, entryPath: string) => readonly GeometryIssue[],
+  ): readonly GeometryIssue[] {
+    if (!Array.isArray(value)) return [this.issue(path, t("Expected a list"))];
+
+    return value.flatMap((entry, i) => each(entry, `${path}[${i}]`));
+  }
+
+  /**
+   * RFC 7946 §5: [west, south, east, north], or [west, south, low, east, north, high] with
+   * altitude. West > east is fine: the box crosses the antimeridian.
+   */
+  private static checkBboxMember(value: unknown, path: string): readonly GeometryIssue[] {
+    if (
+      !Array.isArray(value) ||
+      (value.length !== 4 && value.length !== 6) ||
+      !value.every(n => typeof n === "number" && Number.isFinite(n))
+    ) {
+      return [
+        this.issue(
+          path,
+          t("A bbox is [west, south, east, north], with an optional altitude range"),
+        ),
+      ];
+    }
+
+    const box = value as number[];
+    const half = box.length / 2;
+    const [west, south] = box;
+    const [east, north] = [box[half], box[half + 1]];
+    const lngOk = [west, east].every(lng => lng >= -180 && lng <= 180);
+    const latOk = [south, north].every(lat => lat >= -90 && lat <= 90);
+
+    if (!lngOk || !latOk) {
+      return [this.issue(path, t("A bbox must stay within longitude ±180 and latitude ±90"))];
+    }
+
+    if (south > north) {
+      return [this.issue(path, t("A bbox's south edge can't be north of its north edge"))];
+    }
+
+    if (half === 3 && box[2] > box[5]) {
+      return [this.issue(path, t("A bbox's lowest altitude can't be above its highest"))];
+    }
+
+    return [];
+  }
+
+  private static checkSize(shape: unknown, path: string): readonly GeometryIssue[] {
+    const bytes = this.ENCODER.encode(JSON.stringify(shape)).length;
+
+    return bytes <= GeometryLimits.VALUE_BYTES
+      ? []
+      : [
+          this.issue(
+            path,
+            t("This geometry is too large: {{size}} KB (limit {{max}} KB)", {
+              size: Math.ceil(bytes / 1024),
+              max: GeometryLimits.VALUE_BYTES / 1024,
+            }),
+          ),
+        ];
+  }
+
+  private static checkAllowedKind(
+    shape: unknown,
+    path: string,
+    allowed: readonly GeometryKind[] | undefined,
+  ): readonly GeometryIssue[] {
+    if (!allowed || allowed.length >= GeoUtils.ALL_KINDS.length) return [];
+
+    const type = ObjectUtils.isPlainObject(shape) ? shape.type : undefined;
+    if (!GeoUtils.isGeometryKind(type) || allowed.includes(type)) return [];
+
+    return [
+      this.issue(
+        path,
+        t("This field accepts only: {{types}}", { types: allowed.join(", "), ...this.RAW }),
+      ),
+    ];
+  }
+
+  /** How many positions a shape holds, the way the checks above walk it. */
+  private static countPositions(shape: unknown): number {
+    if (!ObjectUtils.isPlainObject(shape)) return 0;
+
+    const lengthOf = (value: unknown): number => (Array.isArray(value) ? value.length : 0);
+    const sumOf = (value: unknown, count: (entry: unknown) => number): number =>
+      Array.isArray(value) ? value.reduce<number>((total, entry) => total + count(entry), 0) : 0;
+    const coordinates = shape.coordinates;
+
+    switch (shape.type) {
+      case GeometryKind.POINT:
+        return 1;
+      case GeometryKind.MULTI_POINT:
+      case GeometryKind.LINE_STRING:
+        return lengthOf(coordinates);
+      case GeometryKind.MULTI_LINE_STRING:
+      case GeometryKind.POLYGON:
+        return sumOf(coordinates, lengthOf);
+      case GeometryKind.MULTI_POLYGON:
+        return sumOf(coordinates, polygon => sumOf(polygon, lengthOf));
+      case GeometryKind.GEOMETRY_COLLECTION:
+        return sumOf(shape.geometries, member => this.countPositions(member));
+      default:
+        return 0;
+    }
+  }
+
+  private static checkStaleBbox(geometry: Geometry, path: string): readonly GeometryIssue[] {
+    const box = this.flatBbox(geometry.bbox);
+
+    const stale =
+      box && !this.everyPosition(geometry, position => this.containsPosition(box, position))
+        ? [
+            this.issue(
+              this.at(path, "bbox"),
+              t("The bbox doesn't contain this geometry. It will be saved as is."),
+            ),
+          ]
+        : [];
+
+    const members =
+      geometry.type === GeometryKind.GEOMETRY_COLLECTION
+        ? geometry.geometries.flatMap((g, i) =>
+            this.checkStaleBbox(g, this.at(path, `geometries[${i}]`)),
+          )
+        : [];
+
+    return [...stale, ...members];
+  }
+
+  /** [west, south, east, north] of a well-formed bbox, altitude left out; null otherwise. */
+  private static flatBbox(bbox: unknown): FlatBbox | null {
+    if (!Array.isArray(bbox) || !bbox.every(n => typeof n === "number" && Number.isFinite(n))) {
+      return null;
+    }
+
+    const box = bbox as number[];
+
+    if (box.length === 4) return [box[0], box[1], box[2], box[3]];
+    if (box.length === 6) return [box[0], box[1], box[3], box[4]];
+
     return null;
   }
-  const box = bbox as number[];
-  if (box.length === 4) return [box[0], box[1], box[2], box[3]];
-  if (box.length === 6) return [box[0], box[1], box[3], box[4]];
-  return null;
-}
 
-function containsPosition(
-  [west, south, east, north]: [number, number, number, number],
-  [lng, lat]: Position,
-): boolean {
-  if (lat < south - BBOX_TOLERANCE || lat > north + BBOX_TOLERANCE) return false;
-  // west > east is a box across the antimeridian (RFC 7946 §5.2).
-  return west <= east
-    ? lng >= west - BBOX_TOLERANCE && lng <= east + BBOX_TOLERANCE
-    : lng >= west - BBOX_TOLERANCE || lng <= east + BBOX_TOLERANCE;
-}
+  private static containsPosition(
+    [west, south, east, north]: FlatBbox,
+    [lng, lat]: Position,
+  ): boolean {
+    const tolerance = this.BBOX_TOLERANCE;
 
-function everyPosition(geometry: Geometry, test: (position: Position) => boolean): boolean {
-  const visit = (value: unknown): boolean =>
-    Array.isArray(value) &&
-    (typeof value[0] === "number" ? test(value as Position) : value.every(visit));
-  return geometry.type === GeometryKind.GEOMETRY_COLLECTION
-    ? geometry.geometries.every(g => everyPosition(g, test))
-    : geometry.coordinates.length === 0 || visit(geometry.coordinates);
-}
+    if (lat < south - tolerance || lat > north + tolerance) return false;
 
-function checkBbox(geometry: Geometry, path: string, out: GeometryIssue[]) {
-  const at = (member: string) => (path ? `${path}.${member}` : member);
-  const box = flatBbox(geometry.bbox);
-  if (box && !everyPosition(geometry, position => containsPosition(box, position))) {
-    out.push({
-      path: at("bbox"),
-      message: t("The bbox doesn't contain this geometry. It will be saved as is."),
+    // west > east is a box across the antimeridian (RFC 7946 §5.2).
+    return west <= east
+      ? lng >= west - tolerance && lng <= east + tolerance
+      : lng >= west - tolerance || lng <= east + tolerance;
+  }
+
+  private static everyPosition(geometry: Geometry, test: (position: Position) => boolean): boolean {
+    const visit = (value: unknown): boolean =>
+      Array.isArray(value) &&
+      (typeof value[0] === "number" ? test(value as Position) : value.every(visit));
+
+    return geometry.type === GeometryKind.GEOMETRY_COLLECTION
+      ? geometry.geometries.every(g => this.everyPosition(g, test))
+      : geometry.coordinates.length === 0 || visit(geometry.coordinates);
+  }
+
+  private static checkAntimeridian(geometry: Geometry, path: string): readonly GeometryIssue[] {
+    if (geometry.type === GeometryKind.GEOMETRY_COLLECTION) {
+      return geometry.geometries.flatMap((g, i) =>
+        this.checkAntimeridian(g, this.at(path, `geometries[${i}]`)),
+      );
+    }
+
+    if (!this.lineLists(geometry).some(positions => this.isCrossingAntimeridian(positions))) {
+      return [];
+    }
+
+    return [
+      this.issue(
+        this.at(path, "coordinates"),
+        t(
+          "This geometry crosses the 180° meridian without being split, so it's drawn the long way around. Split it into parts that meet at ±180.",
+        ),
+      ),
+    ];
+  }
+
+  /**
+   * GeoJSON joins positions by plain interpolation, so an edge more than 180° of longitude long
+   * runs the long way around the globe instead of across the antimeridian (RFC 7946 §3.1.9).
+   * Edges along the antimeridian itself, like a cut shape's seam, don't count.
+   */
+  private static isCrossingAntimeridian(positions: readonly Position[]): boolean {
+    return positions.slice(1).some((next, i) => {
+      const [lng] = positions[i];
+      const onAntimeridian = Math.abs(lng) === 180 && Math.abs(next[0]) === 180;
+
+      return !onAntimeridian && Math.abs(next[0] - lng) > 180;
     });
   }
-  if (geometry.type === GeometryKind.GEOMETRY_COLLECTION) {
-    geometry.geometries.forEach((g, i) => checkBbox(g, at(`geometries[${i}]`), out));
+
+  /** The position lists whose consecutive positions are joined by edges. */
+  private static lineLists(geometry: Geometry): readonly Position[][] {
+    switch (geometry.type) {
+      case GeometryKind.LINE_STRING:
+        return [geometry.coordinates];
+      case GeometryKind.MULTI_LINE_STRING:
+      case GeometryKind.POLYGON:
+        return geometry.coordinates;
+      case GeometryKind.MULTI_POLYGON:
+        return geometry.coordinates.flat();
+      default:
+        return [];
+    }
   }
-}
-
-/**
- * A bbox is optional and is stored as written, so a stale one is a warning, not an error.
- * A bbox larger than its geometry is fine: RFC 7946 doesn't require the smallest one.
- */
-export function findStaleBboxes(
-  geometries: readonly Geometry[],
-  multiple: boolean,
-): GeometryIssue[] {
-  const out: GeometryIssue[] = [];
-  geometries.forEach((geometry, i) => checkBbox(geometry, multiple ? `[${i}]` : "", out));
-  return out;
-}
-
-export function formatIssue(issue: GeometryIssue): string {
-  return issue.path ? `${issue.path}: ${issue.message}` : issue.message;
 }

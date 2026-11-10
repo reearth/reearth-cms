@@ -804,6 +804,7 @@ export default {
   "This file may not be UTF-8 encoded": "UTF-8形式ではない可能性があります",
   "This function is currently experimental and remains somewhat unstable": "この機能は現在実験的であり、やや不安定です。",
   "This geometry can't be edited here. Edit it in GeoJSON.": "このジオメトリはここでは編集できません。GeoJSONで編集してください。",
+  "This geometry crosses the 180° meridian without being split, so it's drawn the long way around. Split it into parts that meet at ±180.": "このジオメトリは180°経線を分割せずにまたいでいるため、地球を反対回りに描画されます。±180で接するように分割してください。",
   "This geometry is too large: {{size}} KB (limit {{max}} KB)": "ジオメトリが大きすぎます：{{size}} KB（上限{{max}} KB）",
   "This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.": "ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。",
   "This is the title of the view": "ビューのタイトル",

@@ -4,7 +4,7 @@ import { t } from "@reearth-cms/i18n";
 import { GeoUtils } from "@reearth-cms/utils/geoUtils";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
-import { validateValue } from "./validation";
+import { GeometryValidation } from "./validation";
 import type { GeometryIssue, ValidateOptions } from "./validation";
 
 /**
@@ -61,7 +61,7 @@ export function readFieldValue(
   const candidate = multiple ? parsed : parsed[0];
   if (!multiple && candidate === null) return { ok: true, collection: EMPTY, originals: new Map() };
 
-  issues.push(...validateValue(candidate, multiple, options));
+  issues.push(...GeometryValidation.validateValue(candidate, multiple, options));
   if (issues.length > 0) {
     return { ok: false, text: JSON.stringify(candidate, null, 2), issues };
   }
@@ -129,7 +129,7 @@ export function parseText(
     };
   }
   if (result.data === null) return { ok: true, geometries: [] };
-  const issues = validateValue(result.data, multiple, options);
+  const issues = GeometryValidation.validateValue(result.data, multiple, options);
   if (issues.length > 0) return { ok: false, issues };
   return {
     ok: true,

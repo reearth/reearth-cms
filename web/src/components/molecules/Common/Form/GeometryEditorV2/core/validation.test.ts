@@ -5,10 +5,10 @@ import { Test } from "@reearth-cms/test/utils";
 import { GeometryKind } from "@reearth-cms/utils/geoUtils";
 
 import type { GeometryIssue } from "./validation";
-import { findStaleBboxes, formatIssue, GeometryLimits, validateValue } from "./validation";
+import { GeometryLimits, GeometryValidation } from "./validation";
 
 const messages = (value: unknown, multiple = false): string[] =>
-  validateValue(value, multiple).map(issue => issue.message);
+  GeometryValidation.validateValue(value, multiple).map(issue => issue.message);
 
 describe("validateValue", () => {
   test.each([
@@ -98,7 +98,7 @@ describe("validateValue", () => {
       // RFC 7946 §5.2: west > east is a box across the antimeridian.
       ["a bbox across the antimeridian", [170, 45, -170, 50]],
     ])("accepts %s", (_, bbox) => {
-      expect(validateValue(withBbox(bbox), false)).toEqual([]);
+      expect(GeometryValidation.validateValue(withBbox(bbox), false)).toEqual([]);
     });
 
     test.each<[string, unknown, string]>([
@@ -122,12 +122,14 @@ describe("validateValue", () => {
         "A bbox's lowest altitude can't be above its highest",
       ],
     ])("rejects a bbox that %s", (_, bbox, message) => {
-      expect(validateValue(withBbox(bbox), false)).toEqual([{ path: "bbox", message }]);
+      expect(GeometryValidation.validateValue(withBbox(bbox), false)).toEqual([
+        { path: "bbox", message },
+      ]);
     });
 
     test("checks the bbox of each GeometryCollection member", () => {
       expect(
-        validateValue(
+        GeometryValidation.validateValue(
           { type: "GeometryCollection", geometries: [Test.GEO_JSON_POINT, withBbox("oops")] },
           false,
         ),
@@ -146,14 +148,14 @@ describe("validateValue", () => {
         "A polygon ring needs at least 4 positions",
       ],
     ])("pins %s to that ring", (_, ring, message) => {
-      expect(validateValue({ type: "Polygon", coordinates: [outer, ring] }, false)).toEqual([
-        { path: "coordinates[1]", message },
-      ]);
+      expect(
+        GeometryValidation.validateValue({ type: "Polygon", coordinates: [outer, ring] }, false),
+      ).toEqual([{ path: "coordinates[1]", message }]);
     });
   });
 
   test("rejects a GeometryCollection inside another", () => {
-    const issues = validateValue(
+    const issues = GeometryValidation.validateValue(
       {
         type: "GeometryCollection",
         geometries: [Test.GEO_JSON_POINT, Test.GEO_JSON_GEO_COLLECTION],
@@ -176,7 +178,7 @@ describe("validateValue", () => {
       type: "MultiPoint",
       coordinates: Array.from({ length: count }, () => [139.7671251, 35.6812361]),
     };
-    const issues = validateValue([Test.GEO_JSON_POINT, big], true);
+    const issues = GeometryValidation.validateValue([Test.GEO_JSON_POINT, big], true);
     expect(issues.map(issue => issue.path)).toContain("[1]");
     expect(issues.some(issue => issue.message.startsWith("This geometry is too large"))).toBe(true);
     expect(issues.some(issue => issue.path === "[0]")).toBe(false);
@@ -211,7 +213,7 @@ describe("validateValue", () => {
   });
 
   test("respects a legacy field's supported types", () => {
-    const issues = validateValue(Test.GEO_JSON_LINE_STRING, false, {
+    const issues = GeometryValidation.validateValue(Test.GEO_JSON_LINE_STRING, false, {
       allowedKinds: [GeometryKind.POINT],
     });
     expect(issues[0].message).toBe("This field accepts only: Point");
@@ -254,7 +256,7 @@ describe("findStaleBboxes", () => {
       },
     ],
   ])("accepts %s", (_, geometry) => {
-    expect(findStaleBboxes([geometry], false)).toEqual([]);
+    expect(GeometryValidation.findStaleBboxes([geometry], false)).toEqual([]);
   });
 
   test.each<[string, Geometry[], boolean, string]>([
@@ -274,7 +276,113 @@ describe("findStaleBboxes", () => {
       "geometries[1].bbox",
     ],
   ])("flags %s", (_, geometries, multiple, path) => {
-    expect(findStaleBboxes(geometries, multiple)).toEqual([{ path, message: STALE }]);
+    expect(GeometryValidation.findStaleBboxes(geometries, multiple)).toEqual([
+      { path, message: STALE },
+    ]);
+  });
+});
+
+describe("findAntimeridianCrossings", () => {
+  const CROSSES =
+    "This geometry crosses the 180° meridian without being split, so it's drawn the long way around. Split it into parts that meet at ±180.";
+  const crossingLine: Geometry = {
+    type: "LineString",
+    coordinates: [
+      [170, 0],
+      [-170, 0],
+    ],
+  };
+  const crossingRing = [
+    [170, 0],
+    [-170, 0],
+    [-170, 10],
+    [170, 10],
+    [170, 0],
+  ];
+
+  test.each<[string, Geometry]>([
+    ["a line on one side", Test.GEO_JSON_LINE_STRING],
+    [
+      "a shape cut at the antimeridian",
+      {
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [170, 45],
+            [180, 48],
+          ],
+          [
+            [-180, 48],
+            [-170, 50],
+          ],
+        ],
+      },
+    ],
+    [
+      // Its -180 → 180 edges run along the antimeridian, not across it.
+      "a world-extent polygon",
+      {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-180, -90],
+            [180, -90],
+            [180, 90],
+            [-180, 90],
+            [-180, -90],
+          ],
+        ],
+      },
+    ],
+    [
+      "points on both sides of 180°",
+      {
+        type: "MultiPoint",
+        coordinates: [
+          [175, 0],
+          [-175, 0],
+        ],
+      },
+    ],
+    [
+      "an edge exactly 180° long",
+      {
+        type: "LineString",
+        coordinates: [
+          [-90, 0],
+          [90, 0],
+        ],
+      },
+    ],
+  ])("accepts %s", (_, geometry) => {
+    expect(GeometryValidation.findAntimeridianCrossings([geometry], false)).toEqual([]);
+  });
+
+  test.each<[string, Geometry[], boolean, string]>([
+    ["a line", [crossingLine], false, "coordinates"],
+    ["a polygon", [{ type: "Polygon", coordinates: [crossingRing] }], false, "coordinates"],
+    [
+      "a MultiPolygon",
+      [{ type: "MultiPolygon", coordinates: [[crossingRing]] }],
+      false,
+      "coordinates",
+    ],
+    [
+      "a GeometryCollection member",
+      [{ type: "GeometryCollection", geometries: [Test.GEO_JSON_POINT, crossingLine] }],
+      false,
+      "geometries[1].coordinates",
+    ],
+    [
+      "the crossing geometry in a multiple value",
+      [Test.GEO_JSON_POINT, crossingLine],
+      true,
+      "[1].coordinates",
+    ],
+  ])("flags %s that crosses 180° uncut", (_, geometries, multiple, path) => {
+    expect(GeometryValidation.findAntimeridianCrossings(geometries, multiple)).toEqual([
+      { path, message: CROSSES },
+    ]);
   });
 });
 
@@ -305,6 +413,6 @@ describe("formatIssue", () => {
     ["prefixes the path", { path: "coordinates[1]", message: "Oops" }, "coordinates[1]: Oops"],
     ["leaves a root issue as is", { path: "", message: "Oops" }, "Oops"],
   ])("%s", (_, issue, text) => {
-    expect(formatIssue(issue)).toBe(text);
+    expect(GeometryValidation.formatIssue(issue)).toBe(text);
   });
 });

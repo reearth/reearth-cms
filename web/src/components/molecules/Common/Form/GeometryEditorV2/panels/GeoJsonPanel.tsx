@@ -28,7 +28,7 @@ import { AntdColor } from "@reearth-cms/utils/style";
 import { collectionToText, parseText, withStableIds } from "../core/fieldValue";
 import { useGeoSnapshot, useGeoStore } from "../core/StoreContext";
 import { EditOrigin } from "../core/types";
-import { findStaleBboxes, formatIssue } from "../core/validation";
+import { GeometryValidation } from "../core/validation";
 import type { GeometryIssue, ValidateOptions } from "../core/validation";
 
 import PanelHeader from "./PanelHeader";
@@ -99,14 +99,16 @@ const GeoJsonPanel: React.FC<Props> = ({
 
   // Read from the store, so a stored value, committed text and a map edit (which
   // recomputes the bbox) all count. Warnings never block Apply.
-  const warnings = useMemo<GeometryIssue[]>(
-    () =>
-      findStaleBboxes(
-        snapshot.collection.features.flatMap((f): Geometry[] => (f.geometry ? [f.geometry] : [])),
-        multiple,
-      ),
-    [snapshot.collection, multiple],
-  );
+  const warnings = useMemo<GeometryIssue[]>(() => {
+    const geometries = snapshot.collection.features.flatMap((f): Geometry[] =>
+      f.geometry ? [f.geometry] : [],
+    );
+
+    return [
+      ...GeometryValidation.findStaleBboxes(geometries, multiple),
+      ...GeometryValidation.findAntimeridianCrossings(geometries, multiple),
+    ];
+  }, [snapshot.collection, multiple]);
 
   const reloadFromStore = useCallback(() => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -267,7 +269,7 @@ const GeoJsonPanel: React.FC<Props> = ({
             <Alert
               banner
               type="error"
-              message={formatIssue(issues[0])}
+              message={GeometryValidation.formatIssue(issues[0])}
               description={
                 issues.length > 1
                   ? t("... and {{count}} more errors", { count: issues.length - 1 })
@@ -279,7 +281,7 @@ const GeoJsonPanel: React.FC<Props> = ({
             <Alert
               banner
               type="warning"
-              message={formatIssue(warnings[0])}
+              message={GeometryValidation.formatIssue(warnings[0])}
               description={
                 warnings.length > 1
                   ? t("... and {{count}} more warnings", { count: warnings.length - 1 })

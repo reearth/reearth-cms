@@ -211,4 +211,32 @@ describe("GeoJsonPanel", () => {
       expect(alerts[0]).toHaveTextContent("Longitude must be between -180 and 180");
     });
   });
+
+  describe("crossing 180° without being split", () => {
+    const crossingLine = {
+      type: "LineString",
+      coordinates: [
+        [170, 0],
+        [-170, 0],
+      ],
+    };
+
+    test("is saved as written, with a warning", () => {
+      const { type, geometry, onIssuesChange } = setup();
+      type(JSON.stringify(crossingLine));
+      act(() => vi.advanceTimersByTime(500));
+      expect(geometry()).toEqual(crossingLine);
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "coordinates: This geometry crosses the 180° meridian without being split",
+      );
+      expect(onIssuesChange).toHaveBeenLastCalledWith([]);
+    });
+
+    test("counts alongside a stale bbox", () => {
+      const { type } = setup();
+      type(JSON.stringify({ ...crossingLine, bbox: [0, 0, 1, 1] }));
+      act(() => vi.advanceTimersByTime(500));
+      expect(screen.getByRole("alert")).toHaveTextContent("... and 1 more warning");
+    });
+  });
 });

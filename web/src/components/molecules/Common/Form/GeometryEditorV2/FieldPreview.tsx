@@ -14,7 +14,7 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { kindIcon, summarize } from "./core/labels";
 import type { GeometryIssue } from "./core/validation";
-import { formatIssue } from "./core/validation";
+import { GeometryValidation } from "./core/validation";
 import { alpha } from "./map/mapStyle";
 import { defaultExtent, extentOf, fitTo } from "./map/useMapFocus";
 import { useMapSync } from "./map/useMapSync";
@@ -148,7 +148,7 @@ const FieldPreview: React.FC<Props> = ({
           banner
           type="error"
           message={t("This value is not valid GeoJSON")}
-          description={formatIssue(issues[0])}
+          description={GeometryValidation.formatIssue(issues[0])}
           action={
             !disabled && (
               <Button size="small" onClick={onOpen}>
