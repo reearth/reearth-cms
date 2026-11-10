@@ -346,9 +346,9 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			var v any = nil
 			if dv != nil {
 				if multiple {
-					v, _ = dv.ValuesGeometry()
+					v, _ = dv.ValuesJson()
 				} else {
-					v, _ = dv.First().ValueGeometry()
+					v, _ = dv.First().ValueJson()
 				}
 			}
 			res = &SchemaFieldGeometry{

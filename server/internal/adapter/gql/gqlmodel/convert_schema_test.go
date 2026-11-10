@@ -227,7 +227,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 				tp: schema.NewGeometry().TypeProperty(),
 				dv: value.TypeGeometry.Value(`{"type":"Point","coordinates":[1,2]}`).AsMultiple(),
 			},
-			want: &SchemaFieldGeometry{DefaultValue: value.Geometry{"type": "Point", "coordinates": []any{1.0, 2.0}}},
+			want: &SchemaFieldGeometry{DefaultValue: value.Json{"type": "Point", "coordinates": []any{1.0, 2.0}}},
 		},
 	}
 	for _, tt := range tests {

@@ -203,7 +203,7 @@ func TestToValue(t *testing.T) {
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`),
-			want: value.Geometry{"type": "Point", "coordinates": []any{102.0, 0.5}},
+			want: value.Json{"type": "Point", "coordinates": []any{102.0, 0.5}},
 		},
 		{
 			name: "nil",

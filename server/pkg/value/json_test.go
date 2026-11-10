@@ -1,15 +1,17 @@
 package value
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_propertyJson_ToValue(t *testing.T) {
-	validJsonObj := `{"key":"value"}`
-	validJsonArr := `["item1","item2"]`
-	invalidJson := `{invalid json}`
+	t.Parallel()
+
+	point := Json{"type": "Point", "coordinates": []any{139.7, 35.6}}
+	pointStr := `{"type":"Point","coordinates":[139.7,35.6]}`
 
 	tests := []struct {
 		name string
@@ -17,145 +19,103 @@ func Test_propertyJson_ToValue(t *testing.T) {
 		want any
 		ok   bool
 	}{
-		{
-			name: "valid json object string",
-			args: validJsonObj,
-			want: validJsonObj,
-			ok:   true,
-		},
-		{
-			name: "valid json array string",
-			args: validJsonArr,
-			want: validJsonArr,
-			ok:   true,
-		},
-		{
-			name: "pointer to valid json string",
-			args: new(validJsonObj),
-			want: validJsonObj,
-			ok:   true,
-		},
-		{
-			name: "invalid json string",
-			args: invalidJson,
-			want: nil,
-			ok:   false,
-		},
-		{
-			name: "pointer to invalid json string",
-			args: new(invalidJson),
-			want: nil,
-			ok:   false,
-		},
-		{
-			name: "empty string",
-			args: "",
-			want: nil,
-			ok:   false,
-		},
-		{
-			name: "map object",
-			args: map[string]any{"key": "value"},
-			want: `{"key":"value"}`,
-			ok:   true,
-		},
-		{
-			name: "slice array",
-			args: []string{"item1", "item2"},
-			want: `["item1","item2"]`,
-			ok:   true,
-		},
-		{
-			name: "nil pointer",
-			args: (*string)(nil),
-			want: nil,
-			ok:   false,
-		},
-		{
-			name: "nil value",
-			args: nil,
-			want: nil,
-			ok:   false,
-		},
+		{name: "json string", args: pointStr, want: point, ok: true},
+		{name: "formatted json string", args: "{\n \"coordinates\": [139.70, 35.60],\n \"type\": \"Point\"\n}", want: point, ok: true},
+		{name: "pointer to json string", args: new(pointStr), want: point, ok: true},
+		{name: "raw message", args: json.RawMessage(pointStr), want: point, ok: true},
+		{name: "map", args: map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}}, want: point, ok: true},
+		{name: "map with integers", args: map[string]any{"type": "Point", "coordinates": []int{1, 2}}, want: Json{"type": "Point", "coordinates": []any{1.0, 2.0}}, ok: true},
+		{name: "struct", args: struct {
+			Type        string    `json:"type"`
+			Coordinates []float64 `json:"coordinates"`
+		}{Type: "Point", Coordinates: []float64{139.7, 35.6}}, want: point, ok: true},
+		{name: "bytes are not supported", args: []byte(pointStr), want: nil, ok: false},
+		{name: "nil", args: nil, want: nil, ok: false},
+		{name: "nil string pointer", args: (*string)(nil), want: nil, ok: false},
+		{name: "empty string", args: "", want: nil, ok: false},
+		{name: "blank string", args: "  ", want: nil, ok: false},
+		{name: "invalid json", args: "{invalid", want: nil, ok: false},
+		{name: "json array", args: "[1,2]", want: nil, ok: false},
+		{name: "json null", args: "null", want: nil, ok: false},
+		{name: "number", args: 1.0, want: nil, ok: false},
+		{name: "unsupported value", args: make(chan int), want: nil, ok: false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			p := &propertyJson{}
-			got, ok := p.ToValue(tt.args)
-			assert.Equal(t, tt.want, got)
+			got, ok := (&propertyJson{}).ToValue(tt.args)
 			assert.Equal(t, tt.ok, ok)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
 
-func Test_propertyJson_ToInterface(t *testing.T) {
-	v := `{"key":"value"}`
-	tt, ok := (&propertyJson{}).ToInterface(v)
-	assert.Equal(t, v, tt)
-	assert.Equal(t, true, ok)
-}
+func Test_propertyJson(t *testing.T) {
+	t.Parallel()
 
-func Test_propertyJson_IsEmpty(t *testing.T) {
-	assert.True(t, (&propertyJson{}).IsEmpty(Json("")))
-	assert.False(t, (&propertyJson{}).IsEmpty(Json(`{"key":"value"}`)))
-}
+	p := &propertyJson{}
+	a := Json{"type": "Point", "coordinates": []any{1.0, 2.0}}
+	b := Json{"coordinates": []any{1.0, 2.0}, "type": "Point"}
+	c := Json{"type": "Point", "coordinates": []any{1.0, 3.0}}
 
-func Test_propertyJson_Validate(t *testing.T) {
-	v := `{"key":"value"}`
-	assert.True(t, (&propertyJson{}).Validate(v))
-	assert.False(t, (&propertyJson{}).Validate(123))
-}
-
-func Test_propertyJson_Equal(t *testing.T) {
-	pj := &propertyJson{}
-	j1 := Json(`{"key":"value"}`)
-	j2 := Json(`{"key":"value"}`)
-	j3 := Json(`{"key":"different"}`)
-	assert.True(t, pj.Equal(j1, j2))
-	assert.True(t, pj.Equal(nil, nil))
-	assert.False(t, pj.Equal(nil, j1))
-	assert.False(t, pj.Equal(j1, nil))
-	assert.False(t, pj.Equal(j1, j3))
+	assert.True(t, p.Equal(a, b))
+	assert.False(t, p.Equal(a, c))
+	assert.False(t, p.Equal(a, nil))
+	assert.True(t, p.Equal(nil, nil))
+	assert.True(t, p.Validate(a))
+	assert.False(t, p.Validate("{}"))
+	assert.True(t, p.IsEmpty(Json{}))
+	assert.False(t, p.IsEmpty(a))
+	got, ok := p.ToInterface(a)
+	assert.True(t, ok)
+	assert.Equal(t, a, got)
 }
 
 func TestValue_ValueJson(t *testing.T) {
-	var v *Value
-	got, ok := v.ValueJson()
-	var expected Json
-	assert.Equal(t, expected, got)
-	assert.Equal(t, false, ok)
+	t.Parallel()
 
-	v = &Value{
-		v: 0,
-	}
-	got, ok = v.ValueJson()
-	assert.Equal(t, expected, got)
-	assert.Equal(t, false, ok)
+	v := TypeGeometry.Value(`{"type":"Point","coordinates":[1,2]}`)
+	g, ok := v.ValueJson()
+	assert.True(t, ok)
+	assert.Equal(t, Json{"type": "Point", "coordinates": []any{1.0, 2.0}}, g)
+	assert.Equal(t, g, v.Interface())
 
-	jsonStr := Json(`{"key":"value"}`)
-	v = &Value{
-		v: jsonStr,
-	}
-	got, ok = v.ValueJson()
-	assert.Equal(t, jsonStr, got)
-	assert.Equal(t, true, ok)
+	// cloned values are deep copies
+	c := v.Clone()
+	cg, _ := c.ValueJson()
+	cg["coordinates"].([]any)[0] = 5.0
+	assert.Equal(t, 1.0, g["coordinates"].([]any)[0])
+
+	_, ok = TypeText.Value("a").ValueJson()
+	assert.False(t, ok)
+	_, ok = (*Value)(nil).ValueJson()
+	assert.False(t, ok)
 }
 
 func TestMultiple_ValuesJson(t *testing.T) {
-	var m *Multiple
-	got, ok := m.ValuesJson()
-	var expected []Json
-	assert.False(t, ok)
-	assert.Equal(t, expected, got)
+	t.Parallel()
 
-	j1 := Json(`{"key1":"value1"}`)
-	j2 := Json(`{"key2":"value2"}`)
-	j3 := Json(`{"key3":"value3"}`)
-	m = NewMultiple(TypeGeometryObject, []any{j1, j2, j3})
-	expected = []Json{j1, j2, j3}
-	got, ok = m.ValuesJson()
+	m := NewMultiple(TypeGeometry, []any{`{"type":"Point","coordinates":[1,2]}`, `{"type":"Point","coordinates":[3,4]}`})
+	got, ok := m.ValuesJson()
 	assert.True(t, ok)
-	assert.Equal(t, expected, got)
+	assert.Equal(t, []Json{
+		{"type": "Point", "coordinates": []any{1.0, 2.0}},
+		{"type": "Point", "coordinates": []any{3.0, 4.0}},
+	}, got)
+
+	_, ok = NewMultiple(TypeText, []any{"a"}).ValuesJson()
+	assert.False(t, ok)
+	_, ok = (*Multiple)(nil).ValuesJson()
+	assert.False(t, ok)
+}
+
+func TestValue_MatchJson(t *testing.T) {
+	t.Parallel()
+
+	var got Json
+	TypeGeometry.Value(`{"type":"Point","coordinates":[1,2]}`).Match(Match{
+		Geometry: func(g Json) { got = g },
+	})
+	assert.Equal(t, Json{"type": "Point", "coordinates": []any{1.0, 2.0}}, got)
 }
