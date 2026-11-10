@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -348,10 +347,8 @@ func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.Impor
 	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
 	geoField := input.GeoField
 	if format == interfaces.ImportFormatTypeGeoJSON && geoField == nil {
-		geoFields := sp.Schema().FieldsByType(value.TypeGeometryObject)
-		if len(geoFields) > 0 {
-			key := geoFields[0].Key().String()
-			geoField = &key
+		if f := sp.Schema().DefaultImportGeometryField(); f != nil {
+			geoField = f.Key().Ref().StringRef()
 		}
 	}
 
@@ -408,10 +405,8 @@ func (r *mutationResolver) ImportItemsAsync(ctx context.Context, input gqlmodel.
 	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
 	geoField := input.GeoField
 	if format == interfaces.ImportFormatTypeGeoJSON && geoField == nil {
-		geoFields := sp.Schema().FieldsByType(value.TypeGeometryObject)
-		if len(geoFields) > 0 {
-			key := geoFields[0].Key().String()
-			geoField = &key
+		if f := sp.Schema().DefaultImportGeometryField(); f != nil {
+			geoField = f.Key().Ref().StringRef()
 		}
 	}
 

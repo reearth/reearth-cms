@@ -324,6 +324,37 @@ func TestGQLImportItems(t *testing.T) {
 			expectedUpdate: 0,
 			expectedIgnore: 0,
 		},
+		{
+			name: "GeoJSON FeatureCollection import into a Geometry field with auto-detected geoField",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+				{title: "location", key: "location", fType: "Geometry", typeProp: map[string]any{"geometry": map[string]any{}}},
+			},
+			fileName: "locations.geojson",
+			fileContent: func() string {
+				return `{
+					"type": "FeatureCollection",
+					"features": [
+						{
+							"type": "Feature",
+							"geometry": {"type": "Point", "coordinates": [139.6917, 35.6895]},
+							"properties": {"name": "Tokyo"}
+						},
+						{
+							"type": "Feature",
+							"geometry": {"type": "MultiPoint", "coordinates": [[-122.4194, 37.7749], [-118.2437, 34.0522]]},
+							"properties": {"name": "California"}
+						}
+					]
+				}`
+			},
+			// geoField is not specified - should auto-detect "location" field
+			expectError:    false,
+			expectedTotal:  2,
+			expectedInsert: 2,
+			expectedUpdate: 0,
+			expectedIgnore: 0,
+		},
 	}
 
 	for _, tt := range tests {
