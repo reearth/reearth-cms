@@ -38,6 +38,8 @@ func ToValueType(t value.Type) SchemaFieldType {
 		return SchemaFieldTypeGeometryObject
 	case value.TypeGeometryEditor:
 		return SchemaFieldTypeGeometryEditor
+	case value.TypeGeometry:
+		return SchemaFieldTypeGeometry
 	default:
 		return ""
 	}
@@ -79,6 +81,8 @@ func FromValueType(t SchemaFieldType) value.Type {
 		return value.TypeGeometryObject
 	case SchemaFieldTypeGeometryEditor:
 		return value.TypeGeometryEditor
+	case SchemaFieldTypeGeometry:
+		return value.TypeGeometry
 	default:
 		return ""
 	}

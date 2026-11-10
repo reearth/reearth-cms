@@ -102,6 +102,11 @@ func TestFromValueType(t *testing.T) {
 			expected: value.TypeGeometryEditor,
 		},
 		{
+			name:     "Valid ValueTypeGeometry",
+			input:    new(ValueTypeGeometry),
+			expected: value.TypeGeometry,
+		},
+		{
 			name:     "Unknown ValueType",
 			input:    new(ValueType("Unknown")),
 			expected: value.TypeUnknown,
@@ -205,6 +210,11 @@ func TestToValueType(t *testing.T) {
 			name:     "TypeGeometryEditor",
 			input:    value.TypeGeometryEditor,
 			expected: ValueTypeGeometryEditor,
+		},
+		{
+			name:     "TypeGeometry",
+			input:    value.TypeGeometry,
+			expected: ValueTypeGeometry,
 		},
 		{
 			name:     "Unknown Type",

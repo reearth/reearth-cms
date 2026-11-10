@@ -2091,6 +2091,7 @@ components:
         - tag
         - geometryObject
         - geometryEditor
+        - geometry
     tagResponse:
       type: object
       properties:

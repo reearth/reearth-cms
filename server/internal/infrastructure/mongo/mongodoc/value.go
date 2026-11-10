@@ -2,6 +2,8 @@ package mongodoc
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type ValueDocument struct {
@@ -25,5 +27,25 @@ func (d *ValueDocument) MultipleValue() *value.Multiple {
 	}
 
 	t := value.Type(d.T)
-	return value.NewMultiple(t, d.V)
+	v := d.V
+	if t == value.TypeGeometry {
+		// geometries are stored as embedded documents, which are decoded as bson.D and bson.A
+		v = lo.Map(v, func(e any, _ int) any { return fromBSON(e) })
+	}
+	return value.NewMultiple(t, v)
+}
+
+// fromBSON converts decoded bson documents and arrays into plain maps and slices.
+func fromBSON(v any) any {
+	switch vv := v.(type) {
+	case bson.D:
+		m := make(map[string]any, len(vv))
+		for _, e := range vv {
+			m[e.Key] = fromBSON(e.Value)
+		}
+		return m
+	case bson.A:
+		return lo.Map(vv, func(e any, _ int) any { return fromBSON(e) })
+	}
+	return v
 }
