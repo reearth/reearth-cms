@@ -28,11 +28,15 @@ var (
 	geoExpM1Key   = "geo-export-model"
 	geoExpM1I1Id  = id.NewItemID()
 	geoExpM1I2Id  = id.NewItemID()
+	geoExpM2Key   = "geo-export-geometry-model"
+	geoExpM2I1Id  = id.NewItemID()
 )
 
 // geoExportSeeder seeds a model with a group field (containing a geometry field) and a top-level geometry field:
 //   - item 1: only the geometry inside the group is set
 //   - item 2: only the top-level geometry is set
+//
+// and a second model with a unified Geometry field and one item.
 func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
 
@@ -103,6 +107,32 @@ func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	lo.Must0(r.Item.Save(ctx, i2))
 	lo.Must0(r.Item.UpdateRef(ctx, i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
+	/// Model with a unified Geometry field
+	geo2Id := id.NewFieldID()
+	s2 := schema.New().NewID().Project(p1.ID()).Workspace(wid).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.NewKey("name")).MustBuild(),
+		schema.NewField(schema.NewGeometry().TypeProperty()).ID(geo2Id).Name("location").Key(id.NewKey("location")).MustBuild(),
+	}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, s2))
+
+	m2 := model.New().NewID().Project(p1.ID()).Schema(s2.ID()).Key(id.NewKey(geoExpM2Key)).MustBuild()
+	lo.Must0(r.Model.Save(ctx, m2))
+
+	i3 := item.New().
+		ID(geoExpM2I1Id).
+		Model(m2.ID()).
+		Schema(s2.ID()).
+		Project(p1.ID()).
+		Thread(id.NewThreadID().Ref()).
+		User(uid).
+		Fields([]*item.Field{
+			item.NewField(s2.Fields()[0].ID(), value.TypeText.Value("Tokyo").AsMultiple(), nil),
+			item.NewField(geo2Id, value.TypeGeometry.Value(`{"type":"MultiPoint","coordinates":[[139.7671,35.6812],[139.7,35.6]]}`).AsMultiple(), nil),
+		}).
+		MustBuild()
+	lo.Must0(r.Item.Save(ctx, i3))
+	lo.Must0(r.Item.UpdateRef(ctx, i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
+
 	return nil
 }
 
@@ -132,4 +162,29 @@ func TestPublicAPI_ExportGeoJSON_GroupGeometry(t *testing.T) {
 				},
 			})
 	})
+}
+
+func TestPublicAPI_ExportGeoJSON_Geometry(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, geoExportSeeder)
+
+	e.GET("/api/p/{workspace}/{project}/{model}.geojson", geoExpW1Alias, geoExpP1Alias, geoExpM2Key).
+		Expect().
+		Status(http.StatusOK).
+		JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+		IsEqual(map[string]any{
+			"type": "FeatureCollection",
+			"features": []map[string]any{
+				{
+					"type": "Feature",
+					"id":   geoExpM2I1Id.String(),
+					"geometry": map[string]any{
+						"type":        "MultiPoint",
+						"coordinates": []any{[]any{139.7671, 35.6812}, []any{139.7, 35.6}},
+					},
+					"properties": map[string]any{"name": "Tokyo"},
+				},
+			},
+		})
 }
