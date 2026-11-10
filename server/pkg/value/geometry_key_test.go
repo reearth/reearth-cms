@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func geometryKey(t *testing.T, s string) string {
+func testGeometryKey(t *testing.T, s string) string {
 	t.Helper()
 	v := TypeGeometry.Value(s)
 	require.NotNil(t, v, s)
@@ -171,6 +171,12 @@ func TestGeometryKey(t *testing.T) {
 			same: true,
 		},
 		{
+			name: "multi line string with the same positions split differently",
+			a:    `{"type":"MultiLineString","coordinates":[[[1,1],[2,2]],[[3,3],[4,4]]]}`,
+			b:    `{"type":"MultiLineString","coordinates":[[[1,1],[2,2],[3,3],[4,4]]]}`,
+			same: false,
+		},
+		{
 			name: "multi polygon in any order with rotated rings",
 			a: `{"type":"MultiPolygon","coordinates":[
 				[[[0,0],[1,0],[1,1],[0,0]]],
@@ -223,7 +229,7 @@ func TestGeometryKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			a, b := geometryKey(t, tt.a), geometryKey(t, tt.b)
+			a, b := testGeometryKey(t, tt.a), testGeometryKey(t, tt.b)
 			if tt.same {
 				assert.Equal(t, a, b)
 			} else {
@@ -238,9 +244,7 @@ func TestGeometryKey_Invalid(t *testing.T) {
 
 	tests := []Geometry{
 		{},
-		{"type": "Unknown", "coordinates": []any{1.0, 1.0}},
 		{"type": "Point"},
-		{"type": "Point", "coordinates": []any{1.0}},
 		{"type": "Point", "coordinates": []any{"1", "1"}},
 		{"type": "LineString", "coordinates": []any{1.0, 1.0}},
 		{"type": "GeometryCollection", "geometries": []any{1.0}},
@@ -258,7 +262,7 @@ func TestMultiple_EquivalenceKeys(t *testing.T) {
 	l := `{"type":"LineString","coordinates":[[1,1],[2,2]]}`
 
 	m := NewMultiple(TypeGeometry, []any{p, l})
-	assert.Equal(t, []string{geometryKey(t, p), geometryKey(t, l)}, m.EquivalenceKeys())
+	assert.Equal(t, []string{testGeometryKey(t, p), testGeometryKey(t, l)}, m.EquivalenceKeys())
 	assert.Equal(t, []string{}, NewMultiple(TypeGeometry, nil).EquivalenceKeys())
 	assert.Nil(t, NewMultiple(TypeText, []any{"a"}).EquivalenceKeys())
 	assert.Nil(t, NewMultiple(TypeGeometryEditor, []any{p}).EquivalenceKeys())

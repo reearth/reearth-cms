@@ -57,8 +57,8 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		// positions
 		{name: "position with 1 number", input: `{"type":"Point","coordinates":[1]}`, want: ErrGeometryInvalidPosition},
 		{name: "position with 4 numbers", input: `{"type":"Point","coordinates":[1,1,1,1]}`, want: ErrGeometryInvalidPosition},
-		{name: "position with a string", input: `{"type":"Point","coordinates":["1",1]}`, want: ErrGeometryInvalidPosition},
-		{name: "position with null altitude", input: `{"type":"Point","coordinates":[1,1,null]}`, want: ErrGeometryInvalidPosition},
+		{name: "position with a string", input: `{"type":"Point","coordinates":["1",1]}`, want: ErrGeometryInvalidCoordinates},
+		{name: "position with null altitude", input: `{"type":"Point","coordinates":[1,1,null]}`, want: ErrGeometryInvalidCoordinates},
 		{name: "position is not a list", input: `{"type":"MultiPoint","coordinates":[1,1]}`, want: ErrGeometryInvalidCoordinates},
 		{name: "longitude out of range", input: `{"type":"Point","coordinates":[180.1,35.6]}`, want: ErrGeometryLongitudeOutOfRange},
 		{name: "latitude out of range", input: `{"type":"Point","coordinates":[139.7,90.1]}`, want: ErrGeometryLatitudeOutOfRange},

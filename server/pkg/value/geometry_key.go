@@ -3,31 +3,37 @@ package value
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"slices"
 	"strconv"
 	"strings"
+
+	geojson "github.com/paulmach/go.geojson"
 )
 
-// GeometryKey returns a key that is the same for two geometries if and only if they are the same value
-// under the geometry uniqueness rules:
-//   - vertices are equal only when longitude, latitude and altitude (if any) are exactly equal
+// GeometryKey returns a key that is the same for two geometries when they are the same shape:
+//   - positions are equal only when all their numbers are exactly equal, so [1,2] and [1,2,0] are different
 //   - a LineString is the same in either direction
-//   - a polygon ring is the same in either direction and from any starting vertex
-//   - polygon holes, multi-part parts and GeometryCollection members may be in any order, duplicates count
+//   - a polygon ring is the same in either direction and from any starting position
+//   - holes, the parts of multi geometries and the members of a GeometryCollection may be in any order
 //   - different geometry types are never the same
 //
-// ok is false when g is not a well-formed geometry.
+// ok is false when g cannot be read as a geometry. GeometryKey does not validate g; schema.FieldGeometry does that before values are saved.
 func GeometryKey(g Geometry) (string, bool) {
-	c, ok := canonicalGeometry(g)
-	if !ok {
+	b, err := json.Marshal(g)
+	if err != nil {
 		return "", false
 	}
-	h := sha256.Sum256([]byte(c))
+	gg, err := geojson.UnmarshalGeometry(b)
+	if err != nil {
+		return "", false
+	}
+	h := sha256.Sum256([]byte(geometryKey(gg)))
 	return hex.EncodeToString(h[:]), true
 }
 
-// EquivalenceKeys returns, for value types whose values are compared by something other than plain equality
-// when checking uniqueness, one key per value. It returns nil for the other value types.
+// EquivalenceKeys returns one key per value for value types that are not compared with Equal when checking uniqueness.
+// It returns nil for the other value types.
 func (m *Multiple) EquivalenceKeys() []string {
 	if m == nil || m.t != TypeGeometry {
 		return nil
@@ -55,196 +61,97 @@ func (m *Multiple) Equivalent(w *Multiple) bool {
 	return m.Equal(w)
 }
 
-func canonicalGeometry(g Geometry) (string, bool) {
-	t, ok := g["type"].(string)
-	if !ok {
-		return "", false
+// geometryKey writes g in a canonical text form, e.g. "LineString(([1 2],[3 4]))".
+func geometryKey(g *geojson.Geometry) string {
+	var k string
+	switch g.Type {
+	case geojson.GeometryPoint:
+		k = positionKey(g.Point)
+	case geojson.GeometryMultiPoint:
+		k = sortedKeys(g.MultiPoint, positionKey)
+	case geojson.GeometryLineString:
+		k = lineStringKey(g.LineString)
+	case geojson.GeometryMultiLineString:
+		k = sortedKeys(g.MultiLineString, lineStringKey)
+	case geojson.GeometryPolygon:
+		k = polygonKey(g.Polygon)
+	case geojson.GeometryMultiPolygon:
+		k = sortedKeys(g.MultiPolygon, polygonKey)
+	case geojson.GeometryCollection:
+		k = sortedKeys(g.Geometries, geometryKey)
 	}
-	switch t {
-	case "Point":
-		p, ok := toPosition(g["coordinates"])
-		if !ok {
-			return "", false
-		}
-		return "Point(" + p + ")", true
-	case "LineString":
-		l, ok := toPositions(g["coordinates"])
-		if !ok {
-			return "", false
-		}
-		return "LineString(" + canonicalLineString(l) + ")", true
-	case "Polygon":
-		p, ok := toPolygon(g["coordinates"])
-		if !ok {
-			return "", false
-		}
-		return "Polygon(" + p + ")", true
-	case "MultiPoint":
-		parts, ok := mapParts(g["coordinates"], func(c any) (string, bool) {
-			p, ok := toPosition(c)
-			return "(" + p + ")", ok
-		})
-		if !ok {
-			return "", false
-		}
-		return "MultiPoint(" + parts + ")", true
-	case "MultiLineString":
-		parts, ok := mapParts(g["coordinates"], func(c any) (string, bool) {
-			l, ok := toPositions(c)
-			if !ok {
-				return "", false
-			}
-			return "(" + canonicalLineString(l) + ")", true
-		})
-		if !ok {
-			return "", false
-		}
-		return "MultiLineString(" + parts + ")", true
-	case "MultiPolygon":
-		parts, ok := mapParts(g["coordinates"], func(c any) (string, bool) {
-			p, ok := toPolygon(c)
-			return "(" + p + ")", ok
-		})
-		if !ok {
-			return "", false
-		}
-		return "MultiPolygon(" + parts + ")", true
-	case "GeometryCollection":
-		parts, ok := mapParts(g["geometries"], func(c any) (string, bool) {
-			m, ok := c.(map[string]any)
-			if !ok {
-				return "", false
-			}
-			return canonicalGeometry(m)
-		})
-		if !ok {
-			return "", false
-		}
-		return "GeometryCollection(" + parts + ")", true
-	}
-	return "", false
+	return string(g.Type) + "(" + k + ")"
 }
 
-// mapParts converts every element of a list and joins them in sorted order, so the order of the parts does not matter
-// while duplicated parts are kept.
-func mapParts(v any, f func(any) (string, bool)) (string, bool) {
-	l, ok := v.([]any)
-	if !ok {
-		return "", false
-	}
-	res := make([]string, 0, len(l))
-	for _, e := range l {
-		s, ok := f(e)
-		if !ok {
-			return "", false
+func positionKey(p []float64) string {
+	nums := make([]string, 0, len(p))
+	for _, n := range p {
+		if n == 0 {
+			n = 0 // -0 and 0 are the same number
 		}
-		res = append(res, s)
+		nums = append(nums, strconv.FormatFloat(n, 'g', -1, 64))
 	}
-	slices.Sort(res)
-	return strings.Join(res, ","), true
+	return "[" + strings.Join(nums, " ") + "]"
 }
 
-func toPosition(v any) (string, bool) {
-	l, ok := v.([]any)
-	if !ok || len(l) < 2 {
-		return "", false
-	}
-	res := make([]string, 0, len(l))
-	for _, e := range l {
-		f, ok := e.(float64)
-		if !ok {
-			return "", false
-		}
-		if f == 0 {
-			f = 0 // -0 and 0 are the same number
-		}
-		res = append(res, strconv.FormatFloat(f, 'g', -1, 64))
-	}
-	return "[" + strings.Join(res, " ") + "]", true
-}
-
-func toPositions(v any) ([]string, bool) {
-	l, ok := v.([]any)
-	if !ok {
-		return nil, false
-	}
-	res := make([]string, 0, len(l))
-	for _, e := range l {
-		p, ok := toPosition(e)
-		if !ok {
-			return nil, false
-		}
-		res = append(res, p)
-	}
-	return res, true
-}
-
-func toPolygon(v any) (string, bool) {
-	l, ok := v.([]any)
-	if !ok {
-		return "", false
-	}
-	rings := make([]string, 0, len(l))
-	for _, r := range l {
-		ps, ok := toPositions(r)
-		if !ok {
-			return "", false
-		}
-		rings = append(rings, "("+canonicalRing(ps)+")")
-	}
-	if len(rings) == 0 {
-		return "", true
-	}
-	// the exterior ring stays first, holes may be in any order
-	holes := slices.Clone(rings[1:])
-	slices.Sort(holes)
-	return strings.Join(append([]string{rings[0]}, holes...), ","), true
-}
-
-// canonicalLineString returns the smaller of the two directions of the line.
-func canonicalLineString(ps []string) string {
+// lineStringKey uses whichever direction of the line comes first.
+func lineStringKey(l [][]float64) string {
+	ps := positionKeys(l)
 	r := slices.Clone(ps)
 	slices.Reverse(r)
 	if slices.Compare(r, ps) < 0 {
 		ps = r
 	}
-	return strings.Join(ps, ",")
+	return "(" + strings.Join(ps, ",") + ")"
 }
 
-// canonicalRing returns the smallest of every rotation of the ring in both directions.
-func canonicalRing(ps []string) string {
-	// drop the closing position, the ring is then a cycle of vertices
-	if len(ps) > 1 && ps[0] == ps[len(ps)-1] {
-		ps = ps[:len(ps)-1]
+// polygonKey keeps the exterior ring first and sorts the holes.
+func polygonKey(rings [][][]float64) string {
+	if len(rings) == 0 {
+		return "()"
 	}
-	n := len(ps)
-	if n == 0 {
-		return ""
+	keys := []string{ringKey(rings[0])}
+	if len(rings) > 1 {
+		keys = append(keys, sortedKeys(rings[1:], ringKey))
 	}
-	r := slices.Clone(ps)
-	slices.Reverse(r)
+	return "(" + strings.Join(keys, ",") + ")"
+}
 
-	best, bestStart := ps, 0
-	for _, cand := range [][]string{ps, r} {
-		for s := range n {
-			if compareRotations(cand, s, best, bestStart) < 0 {
-				best, bestStart = cand, s
+// ringKey uses whichever rotation of the ring, in either direction, comes first.
+func ringKey(r [][]float64) string {
+	// drop the closing position, so the ring is a cycle of positions
+	ps := positionKeys(r[:max(len(r)-1, 0)])
+	rev := slices.Clone(ps)
+	slices.Reverse(rev)
+
+	best := slices.Clone(ps)
+	rotated := make([]string, len(ps))
+	for _, dir := range [][]string{ps, rev} {
+		for start := range dir {
+			copy(rotated, dir[start:])
+			copy(rotated[len(dir)-start:], dir[:start])
+			if slices.Compare(rotated, best) < 0 {
+				copy(best, rotated)
 			}
 		}
 	}
-	res := make([]string, 0, n)
-	for i := range n {
-		res = append(res, best[(bestStart+i)%n])
-	}
-	return strings.Join(res, ",")
+	return "(" + strings.Join(best, ",") + ")"
 }
 
-func compareRotations(a []string, as int, b []string, bs int) int {
-	n := len(a)
-	for i := range n {
-		if c := strings.Compare(a[(as+i)%n], b[(bs+i)%n]); c != 0 {
-			return c
-		}
+func positionKeys(l [][]float64) []string {
+	keys := make([]string, 0, len(l))
+	for _, p := range l {
+		keys = append(keys, positionKey(p))
 	}
-	return 0
+	return keys
+}
+
+// sortedKeys joins the keys of the parts in sorted order, so the order of the parts does not matter but duplicates still count.
+func sortedKeys[T any](parts []T, key func(T) string) string {
+	keys := make([]string, 0, len(parts))
+	for _, p := range parts {
+		keys = append(keys, key(p))
+	}
+	slices.Sort(keys)
+	return strings.Join(keys, ",")
 }
