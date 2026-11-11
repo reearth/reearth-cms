@@ -146,6 +146,17 @@ const EditorBody: React.FC<BodyProps> = ({
     [showUndoNotice, store, t],
   );
 
+  // A split shape is a Multi*, which the map can't edit, so say so and offer a way back.
+  const notifySplit = useCallback<() => void>(
+    () =>
+      showUndoNotice({
+        message: t("Split at the 180° meridian"),
+        description: t("It can no longer be edited on the map. Change it in GeoJSON."),
+        duration: 6,
+      }),
+    [showUndoNotice, t],
+  );
+
   const requestTool = useCallback<(next: MapTool) => void>(
     next => {
       if (next === MapTool.SELECT || next === tool) {
@@ -302,6 +313,7 @@ const EditorBody: React.FC<BodyProps> = ({
               searchAddLabel={searchAddLabel}
               replaceWarning={!multiple && hasValue}
               onReplaced={notifyReplaced}
+              onSplit={notifySplit}
               onToolRequest={requestTool}
               onDeleteSelected={handleDeleteSelected}
               onSearchFlyTo={search.flyTo}

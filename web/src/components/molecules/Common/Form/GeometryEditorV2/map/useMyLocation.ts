@@ -52,7 +52,6 @@ export function useMyLocation(handles: MapHandles | null, store: GeoStore): MyLo
             error.code === error.PERMISSION_DENIED
               ? t("Location access is blocked. Allow it in your browser settings to use this.")
               : t("Couldn't get your location. Please try again."),
-          placement: "bottomLeft",
         });
       },
       LOCATE_OPTIONS,

@@ -41,8 +41,13 @@ const GRAB_STYLE = new Style({
   zIndex: 200,
 });
 
-const toGeoJson = (geometry: Geometry) =>
-  GEOJSON_FORMAT.writeGeometryObject(geometry) as GeoJsonGeometry;
+/** The map repeats the world sideways, so its coordinates are brought back into ±180. */
+const toGeoJson = (geometry: Geometry): GeoJsonGeometry =>
+  GeoUtils.splitAtAntimeridian(GEOJSON_FORMAT.writeGeometryObject(geometry) as GeoJsonGeometry);
+
+/** The map only edits single shapes, so a Multi* coming back means the edit was split. */
+const isSplit = (geometry: GeoJsonGeometry): boolean =>
+  geometry.type === GeometryKind.MULTI_LINE_STRING || geometry.type === GeometryKind.MULTI_POLYGON;
 
 type Options = {
   handles: MapHandles | null;
@@ -54,6 +59,8 @@ type Options = {
   drawRef: RefObject<Draw | null>;
   /** Single field: a drawing replaced an existing shape. */
   onReplaced?: () => void;
+  /** An edit crossed 180° and was split into parts, so it's no longer editable on the map. */
+  onSplit?: () => void;
 };
 
 /**
@@ -68,6 +75,7 @@ export function useMapInteractions({
   readOnly,
   drawRef,
   onReplaced,
+  onSplit,
 }: Options) {
   const t = useT();
 
@@ -82,15 +90,18 @@ export function useMapInteractions({
     };
 
     const commit = (features: readonly Feature<Geometry>[]) => {
-      const updates: GeometryUpdate[] = [];
-      for (const feature of features) {
+      const updates = features.flatMap((feature): GeometryUpdate[] => {
         const geometry = feature.getGeometry();
         const id = feature.getId();
-        if (id !== undefined && geometry) {
-          updates.push({ featureId: String(id), geometry: toGeoJson(geometry) });
-        }
-      }
+
+        return id !== undefined && geometry
+          ? [{ featureId: String(id), geometry: toGeoJson(geometry) }]
+          : [];
+      });
+
       store.setGeometries(updates, EditOrigin.MAP);
+
+      if (updates.some(({ geometry }) => isSplit(geometry))) onSplit?.();
     };
 
     const type = drawType(tool);
@@ -107,6 +118,7 @@ export function useMapInteractions({
         store.endGesture();
         commit(event.features.getArray());
       });
+
       register(translate);
 
       const modify = new Modify({
@@ -129,6 +141,7 @@ export function useMapInteractions({
             : undefined;
         },
       });
+
       modify.on("modifystart", event => {
         store.beginGesture();
         // Dragging a vertex selects it, so its numbers show while it moves.
@@ -138,10 +151,12 @@ export function useMapInteractions({
           if (index !== null) store.selectVertex(index);
         }
       });
+
       modify.on("modifyend", event => {
         store.endGesture();
         commit(event.features.getArray());
       });
+
       register(modify);
     } else {
       // No `source`: the store adds the shape and it comes back through useMapSync with an id.
@@ -152,17 +167,21 @@ export function useMapInteractions({
         store.endGesture();
         const geometry = event.feature.getGeometry();
         if (!geometry) return;
-        if (multiple) store.addFeature(toGeoJson(geometry), EditOrigin.MAP);
+        const drawn = toGeoJson(geometry);
+        if (multiple) store.addFeature(drawn, EditOrigin.MAP);
         else {
           const replacing = store.getSnapshot().collection.features.length > 0;
-          store.replaceAll(toGeoJson(geometry), EditOrigin.MAP);
+          store.replaceAll(drawn, EditOrigin.MAP);
           if (replacing) onReplaced?.();
         }
+        if (isSplit(drawn)) onSplit?.();
         // The tool stays active for the next shape; as when picking a tool, nothing is
         // selected, so no edit handles show while drawing.
         store.select(null);
       });
+
       register(draw);
+
       drawRef.current = draw;
     }
     register(new Snap({ source }));
@@ -172,7 +191,7 @@ export function useMapInteractions({
       drawRef.current = null;
       store.endGesture();
     };
-  }, [handles, store, tool, multiple, readOnly, drawRef, onReplaced]);
+  }, [handles, store, tool, multiple, readOnly, drawRef, onReplaced, onSplit]);
 
   useEffect(() => {
     if (!handles || drawType(tool) !== null) return;
@@ -200,7 +219,6 @@ export function useMapInteractions({
           shape.type === GeometryKind.POLYGON
             ? t("A polygon needs at least 3 vertices.")
             : t("A line needs at least 2 vertices."),
-        placement: "bottomLeft",
       });
     };
 

@@ -248,13 +248,13 @@ export abstract class GeometryValidation {
     }
 
     const [lng, lat] = value as number[];
-    const lngOk = lng >= -180 && lng <= 180;
-    const latOk = lat >= -90 && lat <= 90;
+    const lngOk = GeoUtils.isLongitude(lng);
+    const latOk = GeoUtils.isLatitude(lat);
 
     if (lngOk && latOk) return [];
     // A latitude outside ±90 that would be a fine longitude, next to a longitude that would
     // be a fine latitude, is almost always a [lat, lng] paste.
-    if (!latOk && Math.abs(lat) <= 180 && Math.abs(lng) <= 90) {
+    if (!latOk && GeoUtils.isLongitude(lat) && GeoUtils.isLatitude(lng)) {
       return [this.issue(path, t("Coordinates must be [longitude, latitude]"))];
     }
 
@@ -336,9 +336,10 @@ export abstract class GeometryValidation {
     const box = value as number[];
     const half = box.length / 2;
     const [west, south] = box;
-    const [east, north] = [box[half], box[half + 1]];
-    const lngOk = [west, east].every(lng => lng >= -180 && lng <= 180);
-    const latOk = [south, north].every(lat => lat >= -90 && lat <= 90);
+    const east = box[half];
+    const north = box[half + 1];
+    const lngOk = [west, east].every(lng => GeoUtils.isLongitude(lng));
+    const latOk = [south, north].every(lat => GeoUtils.isLatitude(lat));
 
     if (!lngOk || !latOk) {
       return [this.issue(path, t("A bbox must stay within longitude ±180 and latitude ±90"))];
@@ -506,9 +507,9 @@ export abstract class GeometryValidation {
   private static isCrossingAntimeridian(positions: readonly Position[]): boolean {
     return positions.slice(1).some((next, i) => {
       const [lng] = positions[i];
-      const onAntimeridian = Math.abs(lng) === 180 && Math.abs(next[0]) === 180;
+      const onAntimeridian = GeoUtils.isAntimeridian(lng) && GeoUtils.isAntimeridian(next[0]);
 
-      return !onAntimeridian && Math.abs(next[0] - lng) > 180;
+      return !onAntimeridian && Math.abs(next[0] - lng) > GeoUtils.WORLD_WIDTH / 2;
     });
   }
 

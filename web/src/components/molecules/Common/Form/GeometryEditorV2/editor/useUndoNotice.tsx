@@ -24,7 +24,6 @@ export function useUndoNotice(store: GeoStore): (notice: UndoNotice) => void {
         key,
         message,
         description,
-        placement: "bottomLeft",
         duration,
         btn: (
           <Button

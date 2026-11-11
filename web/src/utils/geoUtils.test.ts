@@ -376,3 +376,279 @@ describe("validateGeoJson", () => {
     });
   });
 });
+
+describe("splitAtAntimeridian", () => {
+  const square = (west: number, east: number): Geometry => ({
+    type: "Polygon",
+    coordinates: [
+      [
+        [west, 0],
+        [east, 0],
+        [east, 10],
+        [west, 10],
+        [west, 0],
+      ],
+    ],
+  });
+
+  test.each<[string, Geometry]>([
+    ["a point", Test.GEO_JSON_POINT],
+    ["a line", Test.GEO_JSON_LINE_STRING],
+    ["a polygon with a hole", Test.GEO_JSON_POLYGON_WITH_HOLE],
+    ["a point on −180°", { type: "Point", coordinates: [-180, 10] }],
+    ["a point on 180°", { type: "Point", coordinates: [180, 10] }],
+    [
+      "points on both sides of the antimeridian",
+      {
+        type: "MultiPoint",
+        coordinates: [
+          [-180, 0],
+          [180, 5],
+        ],
+      },
+    ],
+    [
+      "a line ending on −180°",
+      {
+        type: "LineString",
+        coordinates: [
+          [-170, 0],
+          [-180, 5],
+        ],
+      },
+    ],
+    ["a polygon touching −180°", square(-180, -170)],
+    [
+      "a line ending on 180°",
+      {
+        type: "LineString",
+        coordinates: [
+          [170, 0],
+          [180, 5],
+        ],
+      },
+    ],
+    [
+      "a degenerate line, as a LineString",
+      {
+        type: "LineString",
+        coordinates: [
+          [10, 0],
+          [10, 0],
+        ],
+      },
+    ],
+  ])("leaves %s in range alone", (_, geometry) => {
+    expect(GeoUtils.splitAtAntimeridian(geometry)).toEqual(geometry);
+  });
+
+  test.each<[string, Geometry, Geometry]>([
+    [
+      "a point",
+      { type: "Point", coordinates: [217.5, 15] },
+      { type: "Point", coordinates: [-142.5, 15] },
+    ],
+    [
+      "a line drawn entirely past 180°",
+      {
+        type: "LineString",
+        coordinates: [
+          [190, 0],
+          [200, 10],
+        ],
+      },
+      {
+        type: "LineString",
+        coordinates: [
+          [-170, 0],
+          [-160, 10],
+        ],
+      },
+    ],
+    ["a polygon drawn entirely past 180°", square(190, 200), square(-170, -160)],
+    [
+      "a line drawn entirely past −180°",
+      {
+        type: "LineString",
+        coordinates: [
+          [-190, 0],
+          [-200, 10],
+        ],
+      },
+      {
+        type: "LineString",
+        coordinates: [
+          [170, 0],
+          [160, 10],
+        ],
+      },
+    ],
+  ])("moves %s back into range", (_, geometry, expected) => {
+    expect(GeoUtils.splitAtAntimeridian(geometry)).toEqual(expected);
+  });
+
+  test.each<[string, Geometry, Geometry]>([
+    [
+      "a line crossing eastward, cut where it meets 180°",
+      {
+        type: "LineString",
+        coordinates: [
+          [170, 0],
+          [190, 10],
+        ],
+      },
+      {
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [170, 0],
+            [180, 5],
+          ],
+          [
+            [-180, 5],
+            [-170, 10],
+          ],
+        ],
+      },
+    ],
+    [
+      "a line crossing westward",
+      {
+        type: "LineString",
+        coordinates: [
+          [-170, 0],
+          [-190, 10],
+        ],
+      },
+      {
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [-170, 0],
+            [-180, 5],
+          ],
+          [
+            [180, 5],
+            [170, 10],
+          ],
+        ],
+      },
+    ],
+    [
+      "a polygon crossing 180°",
+      square(170, 190),
+      {
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [170, 0],
+              [180, 0],
+              [180, 10],
+              [170, 10],
+              [170, 0],
+            ],
+          ],
+          [
+            [
+              [-180, 0],
+              [-170, 0],
+              [-170, 10],
+              [-180, 10],
+              [-180, 0],
+            ],
+          ],
+        ],
+      },
+    ],
+    [
+      "a polygon crossing 180°, keeping its hole on the side it falls",
+      {
+        type: "Polygon",
+        coordinates: [
+          [
+            [170, 0],
+            [190, 0],
+            [190, 10],
+            [170, 10],
+            [170, 0],
+          ],
+          [
+            [185, 2],
+            [188, 2],
+            [188, 4],
+            [185, 4],
+            [185, 2],
+          ],
+        ],
+      },
+      {
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [170, 0],
+              [180, 0],
+              [180, 10],
+              [170, 10],
+              [170, 0],
+            ],
+          ],
+          [
+            [
+              [-180, 0],
+              [-170, 0],
+              [-170, 10],
+              [-180, 10],
+              [-180, 0],
+            ],
+            [
+              [-175, 2],
+              [-172, 2],
+              [-172, 4],
+              [-175, 4],
+              [-175, 2],
+            ],
+          ],
+        ],
+      },
+    ],
+  ])("splits %s", (_, geometry, expected) => {
+    expect(GeoUtils.splitAtAntimeridian(geometry)).toEqual(expected);
+  });
+
+  test("a line starting on 180° and heading east stays one line, on the far side", () => {
+    expect(
+      GeoUtils.splitAtAntimeridian({
+        type: "LineString",
+        coordinates: [
+          [180, 0],
+          [190, 0],
+        ],
+      }),
+    ).toEqual({
+      type: "LineString",
+      coordinates: [
+        [-180, 0],
+        [-170, 0],
+      ],
+    });
+  });
+
+  test("the drawn example from the field splits into two parts that meet at 180°", () => {
+    const split = GeoUtils.splitAtAntimeridian({
+      type: "LineString",
+      coordinates: [
+        [131.6555303, 16.0436059],
+        [217.586851, 15.0886743],
+      ],
+    });
+    if (split.type !== "MultiLineString") throw new Error("expected a MultiLineString");
+    const [west, east] = split.coordinates;
+    expect(west[0]).toEqual([131.6555303, 16.0436059]);
+    expect(west[1][0]).toBe(180);
+    expect(east[0][0]).toBe(-180);
+    expect(east[0][1]).toBeCloseTo(west[1][1]);
+    expect(east[1][0]).toBeCloseTo(-142.413149);
+  });
+});

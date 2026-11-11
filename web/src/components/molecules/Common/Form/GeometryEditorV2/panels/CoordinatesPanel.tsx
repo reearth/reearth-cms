@@ -88,16 +88,16 @@ const SelectedCoordinates: React.FC<{ readOnly: boolean }> = ({ readOnly }) => {
         <CoordinateInput
           label={t("Latitude")}
           value={vertex.position[Axis.LATITUDE]}
-          min={-90}
-          max={90}
+          min={GeoUtils.MIN_LATITUDE}
+          max={GeoUtils.MAX_LATITUDE}
           disabled={readOnly}
           onCommit={value => setAxis(Axis.LATITUDE, value)}
         />
         <CoordinateInput
           label={t("Longitude")}
           value={vertex.position[Axis.LONGITUDE]}
-          min={-180}
-          max={180}
+          min={GeoUtils.MIN_LONGITUDE}
+          max={GeoUtils.MAX_LONGITUDE}
           disabled={readOnly}
           onCommit={value => setAxis(Axis.LONGITUDE, value)}
         />

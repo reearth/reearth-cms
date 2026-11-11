@@ -15,7 +15,11 @@ import type { MapHandles } from "./useOlMap";
 const PADDING = [64, 64, 64, 64];
 
 /** Every continent but Antarctica. */
-const WORLD_EXTENT: Extent = transformExtent([-180, -60, 180, 75], "EPSG:4326", "EPSG:3857");
+const WORLD_EXTENT: Extent = transformExtent(
+  [GeoUtils.MIN_LONGITUDE, -60, GeoUtils.MAX_LONGITUDE, 75],
+  "EPSG:4326",
+  "EPSG:3857",
+);
 /** Yonaguni to eastern Hokkaido; the remote islands would leave the main ones tiny. */
 const JAPAN_EXTENT: Extent = transformExtent([122, 24, 146, 46], "EPSG:4326", "EPSG:3857");
 
@@ -30,7 +34,7 @@ export function defaultExtent(lang: string): Extent {
  */
 export function toMapExtent([west, south, east, north]: readonly number[]): Extent {
   return transformExtent(
-    [west, south, west > east ? east + 360 : east, north],
+    [west, south, west > east ? east + GeoUtils.WORLD_WIDTH : east, north],
     "EPSG:4326",
     "EPSG:3857",
   );

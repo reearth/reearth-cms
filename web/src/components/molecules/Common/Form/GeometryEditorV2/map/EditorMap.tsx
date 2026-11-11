@@ -41,6 +41,8 @@ type Props = {
   /** Single field that already has a shape: drawing replaces it. */
   replaceWarning?: boolean;
   onReplaced?: () => void;
+  /** A map edit crossed 180° and was split into parts. */
+  onSplit?: () => void;
   multiple: boolean;
   readOnly: boolean;
   allowedKinds: readonly GeometryKind[];
@@ -65,6 +67,7 @@ const TOOL_ICON = {
 const EditorMap: React.FC<Props> = ({
   replaceWarning,
   onReplaced,
+  onSplit,
   multiple,
   readOnly,
   allowedKinds,
@@ -101,6 +104,7 @@ const EditorMap: React.FC<Props> = ({
     readOnly,
     drawRef,
     onReplaced,
+    onSplit,
   });
 
   // Frame the value once when the editor opens; never again behind the user's back.
