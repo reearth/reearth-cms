@@ -1180,6 +1180,34 @@ paths:
         '404':
           description: 見つかりません
 
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/unpublish':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/assetParam'
+    post:
+      operationId: ItemUnpublish
+      summary: アイテムを非公開
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: 非公開にされたアイテム
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: リクエストパラメータの値が無効です
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: 見つかりません
+
   ### ITEM COMMENTS ###
   '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments':
     parameters:
