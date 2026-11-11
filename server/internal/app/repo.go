@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/serve"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
@@ -107,6 +108,27 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Fatalf("file: init error: %+v", err)
 	}
 	gateways.File = fileRepo
+
+	// reearth-serve asset storage
+	if conf.Serve.Upload && (conf.Serve.Endpoint == "" || conf.Serve.ProjectID == "") {
+		log.Fatalf("serve: upload requires both endpoint and project id")
+	}
+	if conf.Serve.Endpoint != "" {
+		serveFile, err := serve.NewFile(serve.Config{
+			Endpoint:  conf.Serve.Endpoint,
+			ProjectID: conf.Serve.ProjectID,
+			Timeout:   conf.Serve.Timeout,
+			Transport: serve.NewTokenTransport(nil, userJWT),
+		})
+		if err != nil {
+			log.Fatalf("serve: init error: %+v", err)
+		}
+		gateways.ServeFile = serveFile
+		gateways.ServeUpload = conf.Serve.Upload
+		log.Infof("serve: reearth-serve storage is used: %s (upload: %t)", conf.Serve.Endpoint, conf.Serve.Upload)
+	} else {
+		log.Infof("serve: not configured")
+	}
 
 	// Auth0
 	auth := auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)

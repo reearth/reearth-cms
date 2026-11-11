@@ -82,6 +82,9 @@ type Config struct {
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+
+	// reearth-serve asset storage
+	Serve ServeConfig `pp:",omitempty"`
 }
 
 const (
@@ -123,6 +126,14 @@ type PolicyCheckerConfig struct {
 	Endpoint string
 	Token    string
 	Timeout  int `default:"30"`
+}
+
+type ServeConfig struct {
+	Endpoint  string        `pp:",omitempty"`
+	ProjectID string        `pp:",omitempty"`
+	Timeout   time.Duration `default:"30s" pp:",omitempty"`
+	// Upload sends new direct asset uploads to reearth-serve.
+	Upload bool `pp:",omitempty"`
 }
 
 type ServerConfig struct {

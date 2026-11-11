@@ -68,6 +68,15 @@ func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *He
 		})
 	}
 
+	if gateways != nil && gateways.ServeFile != nil {
+		checks = append(checks, health.Config{
+			Name:      "serve",
+			Timeout:   time.Second * 5,
+			SkipOnErr: false,
+			Check:     gateways.ServeFile.Check,
+		})
+	}
+
 	// Add task runner health check if configured
 	if gateways != nil && gateways.TaskRunner != nil {
 		checks = append(checks, health.Config{
