@@ -22,6 +22,11 @@ const env = import.meta.env;
 
 export const defaultConfig: Config = {
   api: env.REEARTH_CMS_API || "/api",
+  oidcAuthority: env.REEARTH_CMS_OIDC_AUTHORITY,
+  oidcClientId: env.REEARTH_CMS_OIDC_CLIENT_ID,
+  oidcScope: env.REEARTH_CMS_OIDC_SCOPE,
+  oidcAudience: env.REEARTH_CMS_OIDC_AUDIENCE,
+  oidcTokenType: env.REEARTH_CMS_OIDC_TOKEN_TYPE,
   auth0Audience: env.REEARTH_CMS_AUTH0_AUDIENCE,
   auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN,
   auth0ClientId: env.REEARTH_CMS_AUTH0_CLIENT_ID,
