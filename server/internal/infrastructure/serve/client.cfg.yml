@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/v2.8.1/configuration-schema.json
+
+package: serve
+generate:
+  models: true
+  client: true
+output: client.gen.go
+output-options:
+  include-operation-ids:
+    - postApiV1Assets
+    - deleteApiV1AssetsById
+    - getApiV1Health
+    - getApiV1AssetsByIdFiles
+    - postApiV1AssetsUploads
+    - postApiV1AssetsUploadsByIdComplete
+  type-mapping:
+    number:
+      default:
+        type: float64
+  streaming-content-types:
+    - "application/octet-stream"
+    - "application/x-ndjson"
+
