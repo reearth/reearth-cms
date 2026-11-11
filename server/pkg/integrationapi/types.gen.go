@@ -1489,6 +1489,12 @@ type ItemPublishParams struct {
 	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
 }
 
+// ItemUnpublishParams defines parameters for ItemUnpublish.
+type ItemUnpublishParams struct {
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
+}
+
 // FieldCreateJSONBody defines parameters for FieldCreate.
 type FieldCreateJSONBody struct {
 	Key      *string    `json:"key,omitempty"`
