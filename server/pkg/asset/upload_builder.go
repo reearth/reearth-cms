@@ -49,6 +49,11 @@ func (b *UploadBuilder) ContentEncoding(contentEncoding string) *UploadBuilder {
 	return b
 }
 
+func (b *UploadBuilder) Serve(serve bool) *UploadBuilder {
+	b.u.serve = serve
+	return b
+}
+
 func (b *UploadBuilder) Build() *Upload {
 	return b.u
 }

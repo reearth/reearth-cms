@@ -12,6 +12,7 @@ type Upload struct {
 	contentLength   int64
 	contentType     string
 	contentEncoding string
+	serve           bool
 }
 
 func (u *Upload) UUID() string {
@@ -44,4 +45,18 @@ func (u *Upload) ContentType() string {
 
 func (u *Upload) ContentEncoding() string {
 	return u.contentEncoding
+}
+
+// StoredInServe reports whether the upload was issued by reearth-serve, in
+// which case UUID is the reearth-serve upload session ID.
+func (u *Upload) StoredInServe() bool {
+	return u.serve
+}
+
+func (u *Upload) Clone() *Upload {
+	if u == nil {
+		return nil
+	}
+	c := *u
+	return &c
 }

@@ -16,6 +16,7 @@ type AssetUploadDocument struct {
 	ContentLength   int64     `bson:"content_length"`
 	ContentType     string    `bson:"content_type"`
 	ContentEncoding string    `bson:"content_encoding"`
+	Serve           bool      `bson:"serve,omitempty"`
 }
 
 func NewAssetUpload(u *asset.Upload) *AssetUploadDocument {
@@ -27,6 +28,7 @@ func NewAssetUpload(u *asset.Upload) *AssetUploadDocument {
 		ContentLength:   u.ContentLength(),
 		ContentType:     u.ContentType(),
 		ContentEncoding: u.ContentEncoding(),
+		Serve:           u.StoredInServe(),
 	}
 }
 
@@ -43,6 +45,7 @@ func (d *AssetUploadDocument) Model() (*asset.Upload, error) {
 		ContentLength(d.ContentLength).
 		ContentType(d.ContentType).
 		ContentEncoding(d.ContentEncoding).
+		Serve(d.Serve).
 		Build(), nil
 }
 

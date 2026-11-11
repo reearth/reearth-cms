@@ -10,6 +10,7 @@ func New() *repo.Container {
 	return &repo.Container{
 		Asset:             NewAsset(),
 		AssetFile:         NewAssetFile(),
+		AssetUpload:       NewAssetUpload(),
 		Lock:              NewLock(),
 		Request:           NewRequest(),
 		User:              accountmemory.NewUser(),
