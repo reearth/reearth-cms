@@ -48,18 +48,24 @@ export async function uploadFiles<T extends File, U>(
           break;
         }
 
+        // The storage decides the encoding: it may ask for gzip even when the
+        // client did not request it, and the bytes must match the header.
+        const sendGzip = contentEncoding === "gzip";
+        if (sendGzip && !("CompressionStream" in window)) {
+          throw new Error(t("Failed to upload file"));
+        }
+
         // if contentLength is 0, no need to slice the file
-        const body: BodyInit =
-          contentLength > 0 ? file.slice(offset, offset + contentLength) : file;
+        const body: Blob = contentLength > 0 ? file.slice(offset, offset + contentLength) : file;
         const resp = await fetch(url, {
           method: "PUT",
-          body: gzip ? gzipStreamFromBlob(body) : body,
+          body: sendGzip ? gzipStreamFromBlob(body) : body,
           headers: {
             ...(contentType && { "Content-Type": contentType }),
             ...(contentEncoding && { "Content-Encoding": contentEncoding }),
           },
           // https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests
-          ...(gzip
+          ...(sendGzip
             ? {
                 duplex: "half",
               }
