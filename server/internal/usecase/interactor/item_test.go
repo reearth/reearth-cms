@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -2020,96 +2021,142 @@ func TestWorkFlow(t *testing.T) {
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }
 
-func TestItem_PublishUnpublishBatch(t *testing.T) {
+// recordingEventRepo records the events saved through it.
+type recordingEventRepo struct {
+	repo.Event
+	saved event.List
+}
+
+func (r *recordingEventRepo) SaveAll(ctx context.Context, evs event.List) error {
+	r.saved = append(r.saved, evs...)
+	return r.Event.SaveAll(ctx, evs)
+}
+
+type publishState int
+
+const (
+	stateDraft          publishState = iota // no version is public
+	statePublic                             // the latest version is public
+	statePublicOutdated                     // an older version is public, the latest is not
+)
+
+// setupPublishItems saves one item per state in a fresh workspace and returns the ids in order.
+// nil states return a nil id list, empty states an empty one.
+func setupPublishItems(t *testing.T, states []publishState) (*repo.Container, *recordingEventRepo, id.ItemIDList, *usecase.Operator) {
+	t.Helper()
+
+	wid := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(prj.ID()).MustBuild()
+	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	events := &recordingEventRepo{Event: db.Event}
+	db.Event = events
+	require.NoError(t, db.Project.Save(ctx, prj))
+	require.NoError(t, db.Schema.Save(ctx, s))
+	require.NoError(t, db.Model.Save(ctx, m))
+
+	var ids id.ItemIDList
+	if states != nil {
+		ids = make(id.ItemIDList, 0, len(states))
+	}
+	for _, st := range states {
+		it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
+		require.NoError(t, db.Item.Save(ctx, it))
+		if st != stateDraft {
+			require.NoError(t, db.Item.UpdateRef(ctx, it.ID(), version.Public, version.Latest.OrVersion().Ref()))
+		}
+		if st == statePublicOutdated {
+			// a new version moves latest away from the public one
+			require.NoError(t, db.Item.Save(ctx, it))
+		}
+		ids = append(ids, it.ID())
+	}
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:             lo.ToPtr(u.ID()),
+			OwningWorkspaces: id.WorkspaceIDList{wid},
+		},
+	}
+	return db, events, ids, op
+}
+
+func TestItem_Publish(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name string
-		n    int // number of items published/unpublished in a single request
+		name    string
+		states  []publishState
+		wantErr error
+		// events are only expected for items that were not already public on their latest version
+		wantEvents int
 	}{
-		{name: "single item", n: 1},
-		{name: "batch of items", n: 5},
+		{name: "draft", states: []publishState{stateDraft}, wantEvents: 1},
+		{name: "already public", states: []publishState{statePublic}, wantEvents: 0},
+		{name: "outdated public", states: []publishState{statePublicOutdated}, wantEvents: 1},
+		{name: "batch", states: []publishState{stateDraft, stateDraft, stateDraft, stateDraft, stateDraft}, wantEvents: 5},
+		{name: "mixed", states: []publishState{stateDraft, statePublic, statePublicOutdated}, wantEvents: 2},
+		{name: "empty list", states: []publishState{}, wantErr: interfaces.ErrItemMissing},
+		{name: "nil list", states: nil, wantErr: interfaces.ErrItemMissing},
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			// Arrange: fresh workspace/project/model and N items
-			wid := accountdomain.NewWorkspaceID()
-			prj := project.New().NewID().Workspace(wid).MustBuild()
-			s := schema.New().NewID().Workspace(wid).Project(prj.ID()).MustBuild()
-			m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
-			u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-
+			// Arrange
 			ctx := context.Background()
-			db := memory.New()
-			assert.NoError(t, db.Project.Save(ctx, prj))
-			assert.NoError(t, db.Schema.Save(ctx, s))
-			assert.NoError(t, db.Model.Save(ctx, m))
-
-			ids := make(id.ItemIDList, 0, tt.n)
-			for j := 0; j < tt.n; j++ {
-				it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
-				assert.NoError(t, db.Item.Save(ctx, it))
-				ids = append(ids, it.ID())
-			}
-
-			op := &usecase.Operator{
-				AcOperator: &accountusecase.Operator{
-					User:             lo.ToPtr(u.ID()),
-					OwningWorkspaces: id.WorkspaceIDList{wid},
-				},
-			}
-
+			db, events, ids, op := setupPublishItems(t, tt.states)
 			itemUC := NewItem(db, nil)
 
-			// Act + Assert: batch publish makes all N items public
-			published, err := itemUC.Publish(ctx, ids, op)
-			assert.NoError(t, err)
-			assert.Len(t, published, tt.n)
-			for _, v := range published {
+			// Act
+			res, err := itemUC.Publish(ctx, ids, op)
+
+			// Assert
+			assert.Len(t, events.saved, tt.wantEvents)
+			if tt.wantErr != nil {
+				assert.Nil(t, res)
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			require.NoError(t, err)
+
+			// every requested item is returned, with its latest version public
+			assert.ElementsMatch(t, ids, res.Unwrap().IDs())
+			for _, v := range res {
 				assert.True(t, v.Refs().Has(version.Public))
 			}
 
 			status, err := itemUC.ItemStatus(ctx, ids, op)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			for _, iid := range ids {
 				assert.Equal(t, item.StatusPublic, status[iid])
-			}
-
-			// Act + Assert: batch unpublish returns all N items to draft
-			unpublished, err := itemUC.Unpublish(ctx, ids, op)
-			assert.NoError(t, err)
-			assert.Len(t, unpublished, tt.n)
-			// the returned items must reflect the removed public ref
-			for _, v := range unpublished {
-				assert.False(t, v.Refs().Has(version.Public))
-			}
-
-			status, err = itemUC.ItemStatus(ctx, ids, op)
-			assert.NoError(t, err)
-			for _, iid := range ids {
-				assert.Equal(t, item.StatusDraft, status[iid])
 			}
 		})
 	}
 }
 
-func TestItem_PublishUnpublishEmpty(t *testing.T) {
+func TestItem_Unpublish(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name    string
-		publish bool
-		itemIDs id.ItemIDList
+		states  []publishState
 		wantErr error
+		// events are only expected for items that had a public version
+		wantEvents int
 	}{
-		{name: "unpublish empty list", publish: false, itemIDs: id.ItemIDList{}, wantErr: interfaces.ErrItemMissing},
-		{name: "unpublish nil list", publish: false, itemIDs: nil, wantErr: interfaces.ErrItemMissing},
-		{name: "publish empty list", publish: true, itemIDs: id.ItemIDList{}, wantErr: interfaces.ErrItemMissing},
-		{name: "publish nil list", publish: true, itemIDs: nil, wantErr: interfaces.ErrItemMissing},
+		{name: "public", states: []publishState{statePublic}, wantEvents: 1},
+		{name: "already draft", states: []publishState{stateDraft}, wantEvents: 0},
+		{name: "outdated public", states: []publishState{statePublicOutdated}, wantEvents: 1},
+		{name: "batch", states: []publishState{statePublic, statePublic, statePublic, statePublic, statePublic}, wantEvents: 5},
+		{name: "mixed", states: []publishState{stateDraft, statePublic, statePublicOutdated}, wantEvents: 2},
+		{name: "empty list", states: []publishState{}, wantErr: interfaces.ErrItemMissing},
+		{name: "nil list", states: nil, wantErr: interfaces.ErrItemMissing},
 	}
 
 	for _, tt := range tests {
@@ -2117,31 +2164,34 @@ func TestItem_PublishUnpublishEmpty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			wid := accountdomain.NewWorkspaceID()
-			u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-
+			// Arrange
 			ctx := context.Background()
-			db := memory.New()
+			db, events, ids, op := setupPublishItems(t, tt.states)
 			itemUC := NewItem(db, nil)
 
-			op := &usecase.Operator{
-				AcOperator: &accountusecase.Operator{
-					User:             lo.ToPtr(u.ID()),
-					OwningWorkspaces: id.WorkspaceIDList{wid},
-				},
+			// Act
+			res, err := itemUC.Unpublish(ctx, ids, op)
+
+			// Assert
+			assert.Len(t, events.saved, tt.wantEvents)
+			if tt.wantErr != nil {
+				assert.Nil(t, res)
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			require.NoError(t, err)
+
+			// every requested item is returned, with the public ref removed
+			assert.ElementsMatch(t, ids, res.Unwrap().IDs())
+			for _, v := range res {
+				assert.False(t, v.Refs().Has(version.Public))
 			}
 
-			// an empty list must be rejected, not panic on items[0]
-			var res item.VersionedList
-			var err error
-			if tt.publish {
-				res, err = itemUC.Publish(ctx, tt.itemIDs, op)
-			} else {
-				res, err = itemUC.Unpublish(ctx, tt.itemIDs, op)
+			status, err := itemUC.ItemStatus(ctx, ids, op)
+			require.NoError(t, err)
+			for _, iid := range ids {
+				assert.Equal(t, item.StatusDraft, status[iid])
 			}
-
-			assert.Nil(t, res)
-			assert.Equal(t, tt.wantErr, err)
 		})
 	}
 }
