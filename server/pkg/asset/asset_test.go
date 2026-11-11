@@ -155,4 +155,41 @@ func TestAsset_Clone(t *testing.T) {
 	assert.NotSame(t, a.PreviewType(), got.PreviewType())
 	assert.NotSame(t, a.ArchiveExtractionStatus(), got.ArchiveExtractionStatus())
 	assert.Nil(t, (*Asset)(nil).Clone())
+
+	assert.NoError(t, a.BindToServe("serve-1"))
+	got = a.Clone()
+	assert.Equal(t, a.ServeID(), got.ServeID())
+	assert.NotSame(t, a.serveID, got.serveID)
+}
+
+func TestAsset_BindToServe(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		serveID     string
+		wantErr     error
+		wantServeID *string
+	}{
+		{name: "bind", serveID: "serve-1", wantServeID: new("serve-1")},
+		{name: "empty id", serveID: "", wantErr: ErrNoServeID},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			uuid := "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+			a := New().NewID().Project(NewProjectID()).CreatedByUser(accountdomain.NewUserID()).Size(1).UUID(uuid).MustBuild()
+			assert.False(t, a.StoredInServe())
+
+			err := a.BindToServe(tt.serveID)
+			assert.Equal(t, tt.wantErr, err)
+			assert.Equal(t, tt.wantServeID, a.ServeID())
+			assert.Equal(t, tt.wantServeID != nil, a.StoredInServe())
+			assert.Equal(t, uuid, a.UUID(), "legacy uuid must be kept")
+		})
+	}
+
+	assert.False(t, (*Asset)(nil).StoredInServe())
 }

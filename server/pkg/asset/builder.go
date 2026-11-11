@@ -30,7 +30,7 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
 	}
-	if b.a.uuid == "" {
+	if b.a.uuid == "" && b.a.serveID == nil {
 		return nil, ErrNoUUID
 	}
 	if b.a.createdAt.IsZero() {
@@ -118,6 +118,14 @@ func (b *Builder) UUID(uuid string) *Builder {
 
 func (b *Builder) NewUUID() *Builder {
 	b.a.uuid = uuid.NewString()
+	return b
+}
+
+func (b *Builder) ServeID(serveID *string) *Builder {
+	if serveID != nil && *serveID == "" {
+		serveID = nil
+	}
+	b.a.serveID = serveID
 	return b
 }
 

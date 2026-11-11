@@ -21,6 +21,7 @@ type Asset struct {
 	size                    uint64
 	previewType             *PreviewType
 	uuid                    string
+	serveID                 *string
 	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
 	public                  bool
@@ -104,6 +105,14 @@ func (a *Asset) UUID() string {
 	return a.uuid
 }
 
+func (a *Asset) ServeID() *string {
+	return util.CloneRef(a.serveID)
+}
+
+func (a *Asset) StoredInServe() bool {
+	return a != nil && a.serveID != nil
+}
+
 func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
 	if a.archiveExtractionStatus == nil {
 		return nil
@@ -161,6 +170,14 @@ func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 	a.archiveExtractionStatus = util.CloneRef(s)
 }
 
+func (a *Asset) BindToServe(serveID string) error {
+	if serveID == "" {
+		return ErrNoServeID
+	}
+	a.serveID = &serveID
+	return nil
+}
+
 func (a *Asset) UpdatePublic(public bool) {
 	a.public = public
 }
@@ -193,6 +210,7 @@ func (a *Asset) Clone() *Asset {
 		size:                    a.size,
 		previewType:             util.CloneRef(a.previewType),
 		uuid:                    a.uuid,
+		serveID:                 util.CloneRef(a.serveID),
 		thread:                  a.thread.CloneRef(),
 		archiveExtractionStatus: util.CloneRef(a.archiveExtractionStatus),
 		public:                  a.public,

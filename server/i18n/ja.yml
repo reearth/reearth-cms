@@ -108,6 +108,8 @@ reference field model can not be changed: 参照フィールドのモデルは�
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
 schema is required for export: ""
+serve asset id is required: Serve のアセットIDは必須です。
+serve storage is not configured: Serve ストレージが設定されていません。
 the number of models in a project has exceeded the limit: プロジェクト内のモデル数が上限を超えています。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。

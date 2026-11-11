@@ -26,6 +26,7 @@ type AssetDocument struct {
 	Size                    uint64
 	PreviewType             string
 	UUID                    string
+	ServeID                 *string
 	Thread                  *string
 	ArchiveExtractionStatus string
 	Public                  bool
@@ -96,6 +97,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),
+		ServeID:                 a.ServeID(),
 		Thread:                  a.Thread().StringRef(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		Public:                  a.Public(),
@@ -121,6 +123,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(new(d.PreviewType))).
 		UUID(d.UUID).
+		ServeID(d.ServeID).
 		Thread(id.ThreadIDFromRef(d.Thread)).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(new(d.ArchiveExtractionStatus))).
 		Public(d.Public)

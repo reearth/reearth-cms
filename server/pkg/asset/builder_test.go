@@ -25,6 +25,7 @@ type Input struct {
 	size                    uint64
 	previewType             *PreviewType
 	uuid                    string
+	serveID                 *string
 	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
 	public                  bool
@@ -145,6 +146,41 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoUUID,
 		},
 		{
+			name: "should create an asset stored in serve without uuid",
+			input: Input{
+				id:            aid,
+				project:       pid,
+				createdByUser: uid,
+				fileName:      "hoge",
+				size:          size,
+				serveID:       new("serve-1"),
+				thread:        thid.Ref(),
+			},
+			want: &Asset{
+				id:        aid,
+				project:   pid,
+				createdAt: aid.Timestamp(),
+				user:      &uid,
+				fileName:  "hoge",
+				size:      size,
+				serveID:   new("serve-1"),
+				thread:    thid.Ref(),
+			},
+		},
+		{
+			name: "fail: no uuid and empty serve id",
+			input: Input{
+				id:            aid,
+				project:       pid,
+				createdByUser: uid,
+				fileName:      "hoge",
+				size:          size,
+				serveID:       new(""),
+				thread:        thid.Ref(),
+			},
+			err: ErrNoUUID,
+		},
+		{
 			name: "should create asset with id timestamp",
 			input: Input{
 				id:                      aid,
@@ -212,6 +248,7 @@ func TestBuilder_Build(t *testing.T) {
 				Size(tt.input.size).
 				Type(tt.input.previewType).
 				UUID(tt.input.uuid).
+				ServeID(tt.input.serveID).
 				Thread(tt.input.thread.Ref()).
 				ArchiveExtractionStatus(tt.input.archiveExtractionStatus).
 				Public(tt.input.public)

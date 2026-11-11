@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,6 +39,20 @@ func TestAssetDocument_Model(t *testing.T) {
 				ArchiveExtractionStatus: "",
 			},
 			want:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).UUID(uuId.String()).Size(123).MustBuild(),
+			wantErr: false,
+		},
+		{
+			name: "model stored in serve without uuid",
+			aDoc: &AssetDocument{
+				ID:        aId.String(),
+				Project:   pId.String(),
+				CreatedAt: now,
+				User:      uId.StringRef(),
+				Size:      123,
+				ServeID:   lo.ToPtr("serve-1"),
+				Thread:    tId.StringRef(),
+			},
+			want:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).ServeID(lo.ToPtr("serve-1")).Size(123).MustBuild(),
 			wantErr: false,
 		},
 	}
@@ -81,6 +96,21 @@ func TestNewAsset(t *testing.T) {
 				Thread:                  tId.StringRef(),
 				ArchiveExtractionStatus: "",
 				Public:                  true,
+			},
+			aDocId: aId.String(),
+		},
+		{
+			name: "new stored in serve",
+			a:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).UUID(uuId.String()).ServeID(lo.ToPtr("serve-1")).Size(123).MustBuild(),
+			want: &AssetDocument{
+				ID:        aId.String(),
+				Project:   pId.String(),
+				CreatedAt: now,
+				User:      uId.StringRef(),
+				Size:      123,
+				UUID:      uuId.String(),
+				ServeID:   lo.ToPtr("serve-1"),
+				Thread:    tId.StringRef(),
 			},
 			aDocId: aId.String(),
 		},

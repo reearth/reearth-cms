@@ -11,6 +11,7 @@ var (
 	ErrNoUser      = rerror.NewE(i18n.T("createdBy is required"))
 	ErrNoThread    = rerror.NewE(i18n.T("thread is required"))
 	ErrNoUUID      = rerror.NewE(i18n.T("uuid is required"))
+	ErrNoServeID   = rerror.NewE(i18n.T("serve asset id is required"))
 
 	// Content Types
 	GeoJSONContentType = "application/geo+json"
