@@ -273,25 +273,27 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
+		UUID:            param.UUID,
+		ExpiresAt:       param.ExpiresAt,
 	}, nil
 }
 
-func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
+func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, string, error) {
 	p := getGCSObjectPath(u.UUID(), u.FileName())
 	bucket, err := f.bucket(ctx)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	attrs, err := bucket.Object(p).Attrs(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("attrs(object=%s): %w", p, err)
+		return nil, "", fmt.Errorf("attrs(object=%s): %w", p, err)
 	}
 	return &file.File{
 		Content:     nil,
 		Name:        u.FileName(),
 		Size:        attrs.Size,
 		ContentType: attrs.ContentType,
-	}, nil
+	}, u.UUID(), nil
 }
 
 func (f *fileRepo) Read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {

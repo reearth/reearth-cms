@@ -137,7 +137,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			if err != nil {
 				log.Errorfc(ctx, "export: failed to pre-load %d assets: %v", len(assetIDs), err)
 			} else if assets != nil {
-				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+				assets.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 				assetsMap = assets.Map()
 			}
 		}

@@ -76,7 +76,7 @@ func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operato
 		if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{a.Project()}); err != nil {
 			return nil, err
 		}
-		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 	}
 	return a, nil
 }
@@ -90,7 +90,7 @@ func (i *Asset) FindByUUID(ctx context.Context, uuid string, _ *usecase.Operator
 		if err := i.checkPermissions(ctx, rbac.ActionRead, id.ProjectIDList{a.Project()}); err != nil {
 			return nil, err
 		}
-		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 	}
 	return a, nil
 }
@@ -104,7 +104,7 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 		return nil, err
 	}
 	if al != nil {
-		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		al.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 	}
 	return al, nil
 }
@@ -123,7 +123,7 @@ func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter inter
 		return nil, nil, err
 	}
 	if al != nil {
-		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		al.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 	}
 	return al, pi, nil
 }
@@ -161,7 +161,7 @@ func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams
 		}
 		pageInfo = pi
 
-		assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		assets.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 		if len(assets) == 0 {
 			break
 		}
@@ -348,7 +348,12 @@ func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[st
 		return nil, nil, err
 	}
 
-	f, headers, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName(), headers)
+	storage, key, err := i.gateways.AssetFile(a)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	f, headers, err := storage.ReadAsset(ctx, key, a.FileName(), headers)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -374,7 +379,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrOperationDenied
 	}
 
-	var uuid string
+	var uuid, serveID string
 	var file *file.File
 	if inp.File != nil {
 		if inp.File.ContentEncoding == "gzip" {
@@ -422,9 +427,16 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		}
 
 		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), prj.Workspace().String())
-		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
+		storage, toServe := i.gateways.AssetUploadFile()
+		inp.File.SkipExtraction = inp.SkipDecompression
+		key, size, err := storage.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
 			return nil, nil, err
+		}
+		if toServe {
+			serveID = key
+		} else {
+			uuid = key
 		}
 
 		file.Size = size
@@ -445,15 +457,27 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				if u.Expired(time.Now()) {
 					return nil, nil, rerror.ErrInternalBy(fmt.Errorf("expired upload token: %s", uuid))
 				}
-				file, err = i.gateways.File.UploadedAsset(ctx, u)
+				storage, err := i.gateways.AssetUploadFileOf(u)
 				if err != nil {
 					return nil, nil, err
 				}
+				var key string
+				file, key, err = storage.UploadedAsset(ctx, u)
+				if err != nil {
+					return nil, nil, err
+				}
+				if u.StoredInServe() {
+					uuid, serveID = "", key
+				} else {
+					uuid = key
+				}
 			}
 
-			needDecompress := false
-			if ext := strings.ToLower(path.Ext(file.Name)); ext == ".zip" || ext == ".7z" {
-				needDecompress = true
+			ext := strings.ToLower(path.Ext(file.Name))
+			needDecompress := ext == ".zip" || ext == ".7z"
+			if serveID != "" {
+				// reearth-serve extracts zip archives itself and does not support 7z.
+				needDecompress = ext == ".zip"
 			}
 
 			es := lo.ToPtr(asset.ArchiveExtractionStatusDone)
@@ -472,6 +496,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Size(uint64(file.Size)).
 				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
+				ServeID(lo.ToPtr(serveID)).
 				ArchiveExtractionStatus(es)
 
 			if op.AcOperator.User != nil {
@@ -486,7 +511,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 
 			f := asset.NewFile().
 				Name(file.Name).
@@ -505,7 +530,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			if needDecompress && !inp.SkipDecompression {
+			// TODO(T10): sync the extraction status of reearth-serve assets.
+			if needDecompress && !inp.SkipDecompression && serveID == "" {
 				if err := i.triggerDecompressEvent(ctx, a, f); err != nil {
 					return nil, nil, err
 				}
@@ -545,7 +571,7 @@ func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecas
 				return nil, err
 			}
 
-			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 
 			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
 				return nil, err
@@ -553,6 +579,11 @@ func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecas
 
 			if !operator.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
+			}
+
+			// The decompression task reads from and writes to the legacy storage.
+			if a.StoredInServe() {
+				return nil, gateway.ErrUnsupportedOperation
 			}
 
 			f, err := i.repos.AssetFile.FindByID(ctx, aId)
@@ -593,7 +624,7 @@ func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.O
 		}
 
 		if a != nil {
-			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 		}
 
 		if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
@@ -604,7 +635,12 @@ func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.O
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		err = i.gateways.File.PublishAsset(ctx, a.UUID(), a.FileName())
+		storage, key, err := i.gateways.AssetFile(a)
+		if err != nil {
+			return nil, err
+		}
+
+		err = storage.PublishAsset(ctx, key, a.FileName())
 		if err != nil {
 			return nil, err
 		}
@@ -637,7 +673,7 @@ func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase
 		}
 
 		if a != nil {
-			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 		}
 
 		if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
@@ -648,7 +684,12 @@ func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		err = i.gateways.File.UnpublishAsset(ctx, a.UUID(), a.FileName())
+		storage, key, err := i.gateways.AssetFile(a)
+		if err != nil {
+			return nil, err
+		}
+
+		err = storage.UnpublishAsset(ctx, key, a.FileName())
 		if err != nil {
 			return nil, err
 		}
@@ -706,6 +747,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 	}
 
 	var param *gateway.IssueUploadAssetParam
+	storage, toServe := i.gateways.AssetUploadFile()
 	if inp.Cursor == "" {
 		if inp.Filename == "" {
 			// TODO: Change to the appropriate error
@@ -735,6 +777,12 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		if inp.ProjectID.Compare(au.Project()) != 0 {
 			return nil, fmt.Errorf("unmatched project id(in=%s,db=%s)", inp.ProjectID, au.Project())
 		}
+		// Continue on the storage that issued the upload.
+		storage, err = i.gateways.AssetUploadFileOf(au)
+		if err != nil {
+			return nil, err
+		}
+		toServe = au.StoredInServe()
 		param = &gateway.IssueUploadAssetParam{
 			UUID:            wrapped.UUID,
 			Filename:        au.FileName(),
@@ -799,7 +847,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		}
 	}
 
-	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
+	uploadLink, err := storage.IssueUploadAssetLink(ctx, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
 		return nil, rerror.ErrNotFound
 	}
@@ -807,12 +855,17 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, err
 	}
 
+	uploadID := uploadLink.UUID
+	if uploadID == "" {
+		return nil, rerror.ErrInternalBy(errors.New("storage returned no upload id"))
+	}
 	if inp.Cursor == "" {
 		u := asset.NewUpload().
-			UUID(param.UUID).
+			UUID(uploadID).
 			Project(prj.ID()).
 			FileName(param.Filename).
-			ExpiresAt(param.ExpiresAt).
+			ExpiresAt(uploadLink.ExpiresAt).
+			Serve(toServe).
 			ContentLength(uploadLink.ContentLength).
 			ContentType(uploadLink.ContentType).
 			ContentEncoding(uploadLink.ContentEncoding).
@@ -824,11 +877,11 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 
 	return &interfaces.AssetUpload{
 		URL:             uploadLink.URL,
-		UUID:            param.UUID,
+		UUID:            uploadID,
 		ContentType:     uploadLink.ContentType,
 		ContentLength:   uploadLink.ContentLength,
 		ContentEncoding: uploadLink.ContentEncoding,
-		Next:            wrapUploadCursor(param.UUID, uploadLink.Next),
+		Next:            wrapUploadCursor(uploadID, uploadLink.Next),
 	}, nil
 }
 
@@ -869,7 +922,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 			}
 
 			if a != nil {
-				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+				a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 			}
 
 			if err := i.checkPermissions(ctx, rbac.ActionUpdate, id.ProjectIDList{a.Project()}); err != nil {
@@ -921,8 +974,13 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, fmt.Errorf("failed to find an asset file: %w", err)
 	}
 
-	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s uuid=%s", aid, a.UUID())
-	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+	storage, key, err := i.gateways.AssetFile(a)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debugfc(ctx, "asset.UpdateFiles: listing asset files begin: assetID=%s key=%s", aid, key)
+	files, err := storage.GetAssetFiles(ctx, key)
 	if err != nil {
 		if err == gateway.ErrFileNotFound {
 			return nil, err
@@ -1016,7 +1074,7 @@ func (i *Asset) checkUpdateFilesPreconditions(ctx context.Context, aid id.AssetI
 	}
 
 	if a != nil {
-		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		a.SetAccessInfoResolver(i.gateways.AssetAccessInfoResolver())
 	}
 
 	if !op.CanUpdate(a) {
@@ -1058,7 +1116,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		return aId, interfaces.ErrInvalidOperator
 	}
 
-	var uuid, filename string
+	var deleted *asset.Asset
 	result, err = Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetID, error) {
 		a, err := i.repos.Asset.FindByID(ctx, aId)
 		if err != nil {
@@ -1073,8 +1131,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			return aId, interfaces.ErrOperationDenied
 		}
 
-		uuid = a.UUID()
-		filename = a.FileName()
+		deleted = a
 
 		err = i.repos.Asset.Delete(ctx, aId)
 		if err != nil {
@@ -1103,13 +1160,49 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 	}
 
 	// TODO: move to a worker
-	if uuid != "" && filename != "" {
-		if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
-			log.Errorfc(ctx, "asset.Delete: failed to delete files of asset %s (uuid=%s): %v", aId, uuid, err)
+	if deleted != nil && deleted.FileName() != "" {
+		storage, key, err := i.gateways.AssetFile(deleted)
+		if err == nil && key != "" {
+			err = storage.DeleteAsset(ctx, key, deleted.FileName())
+		}
+		if err != nil {
+			log.Errorfc(ctx, "asset.Delete: failed to delete files of asset %s (key=%s): %v", aId, key, err)
 		}
 	}
 
 	return result, nil
+}
+
+// deleteAssetFiles deletes the files of the given assets, grouped by the
+// storage each asset is bound to. Failures are logged, not returned, because
+// the assets are already deleted in CMS.
+func (i *Asset) deleteAssetFiles(ctx context.Context, assets asset.List) {
+	keysByStorage := map[gateway.File][]string{}
+	var storages []gateway.File
+	for _, a := range assets {
+		if a == nil || a.FileName() == "" {
+			continue
+		}
+		storage, key, err := i.gateways.AssetFile(a)
+		if err != nil {
+			log.Errorfc(ctx, "asset.BatchDelete: failed to resolve storage of asset %s: %v", a.ID(), err)
+			continue
+		}
+		if key == "" {
+			continue
+		}
+		if _, ok := keysByStorage[storage]; !ok {
+			storages = append(storages, storage)
+		}
+		keysByStorage[storage] = append(keysByStorage[storage], key)
+	}
+
+	for _, storage := range storages {
+		keys := keysByStorage[storage]
+		if err := storage.DeleteAssets(ctx, keys); err != nil {
+			log.Errorfc(ctx, "asset.BatchDelete: failed to delete files of assets (keys=%v): %v", keys, err)
+		}
+	}
 }
 
 // BatchDelete deletes assets in batch based on multiple asset IDs
@@ -1122,7 +1215,7 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		return nil, interfaces.ErrEmptyIDsList
 	}
 
-	var uuids []string
+	var deleted asset.List
 	result, err = Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.AssetIDList, error) {
 		assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
 		if err != nil {
@@ -1141,12 +1234,7 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 			return assetIDs, err
 		}
 
-		uuids = lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
-			if a == nil || a.UUID() == "" || a.FileName() == "" {
-				return "", false
-			}
-			return a.UUID(), true
-		})
+		deleted = assets
 
 		if err := i.repos.Asset.BatchDelete(ctx, assetIDs); err != nil {
 			return assetIDs, err
@@ -1159,11 +1247,7 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 	}
 
 	// TODO: move to a worker
-	if len(uuids) > 0 {
-		if err := i.gateways.File.DeleteAssets(ctx, uuids); err != nil {
-			log.Errorfc(ctx, "asset.BatchDelete: failed to delete files of assets (uuids=%v): %v", uuids, err)
-		}
-	}
+	i.deleteAssetFiles(ctx, deleted)
 
 	return result, nil
 }

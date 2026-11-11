@@ -39,6 +39,10 @@ type UploadAssetLink struct {
 	ContentLength   int64
 	ContentEncoding string
 	Next            string
+	// UUID is the upload ID, used as the upload token.
+	UUID string
+	// ExpiresAt is when the upload expires.
+	ExpiresAt time.Time
 }
 
 type IssueUploadAssetParam struct {
@@ -84,7 +88,8 @@ type File interface {
 	GetAccessInfo(*asset.Asset) *asset.AccessInfo
 	GetBaseURL() string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
-	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)
+	// UploadedAsset returns the uploaded file and the key the asset is stored under.
+	UploadedAsset(context.Context, *asset.Upload) (*file.File, string, error)
 	Check(context.Context) error
 }
 

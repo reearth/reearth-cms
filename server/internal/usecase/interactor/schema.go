@@ -662,7 +662,11 @@ func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID
 	}
 
 	// read file
-	file, _, err := i.gateways.File.ReadAsset(ctx, assetData.UUID(), assetFileData.Path(), nil)
+	storage, key, err := i.gateways.AssetFile(assetData)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+	file, _, err := storage.ReadAsset(ctx, key, assetFileData.Path(), nil)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}

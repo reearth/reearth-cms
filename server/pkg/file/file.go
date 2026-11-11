@@ -28,6 +28,9 @@ type File struct {
 	Size            int64
 	ContentType     string
 	ContentEncoding string
+	// SkipExtraction asks storages that extract archives themselves to keep
+	// the archive as-is. Storages that don't extract ignore it.
+	SkipExtraction bool
 }
 
 func FromMultipart(multipartReader *multipart.Reader, formName string) (*File, error) {

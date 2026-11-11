@@ -184,8 +184,8 @@ func (f *fileRepo) IssueUploadAssetLink(_ context.Context, _ gateway.IssueUpload
 	return nil, gateway.ErrUnsupportedOperation
 }
 
-func (f *fileRepo) UploadedAsset(_ context.Context, _ *asset.Upload) (*file.File, error) {
-	return nil, gateway.ErrUnsupportedOperation
+func (f *fileRepo) UploadedAsset(_ context.Context, _ *asset.Upload) (*file.File, string, error) {
+	return nil, "", gateway.ErrUnsupportedOperation
 }
 
 // helpers
