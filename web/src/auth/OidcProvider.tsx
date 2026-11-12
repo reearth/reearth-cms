@@ -1,5 +1,5 @@
 import { UserManager } from "oidc-client-ts";
-import type { UserManagerSettings } from "oidc-client-ts";
+import type { User, UserManagerSettings } from "oidc-client-ts";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { PropsWithChildren } from "react";
 import { AuthProvider as OidcAuthProvider, useAuth as useOidcAuth } from "react-oidc-context";
@@ -31,7 +31,9 @@ export function oidcSettings(authInfo: AuthInfo, redirectUri: string): UserManag
     scope: authInfo.oidcScope || DEFAULT_OIDC_SCOPE,
     // Some providers (e.g. Auth0, Okta custom servers) need an audience to issue a JWT access token.
     extraQueryParams: authInfo.oidcAudience ? { audience: authInfo.oidcAudience } : undefined,
-    automaticSilentRenew: true,
+    // Started by OidcProvider once its UserManager is mounted, so a manager that React
+    // discards (e.g. StrictMode double render) never renews the session in parallel.
+    automaticSilentRenew: false,
     // Standard profile claims are read from the ID token; no userinfo request is needed.
     loadUserInfo: false,
   };
@@ -57,6 +59,42 @@ function isSettled(auth: AuthContextProps) {
   return !auth.isLoading && !auth.activeNavigator;
 }
 
+// Treat tokens this close to expiry as expired, so they don't lapse in flight.
+const EXPIRY_SKEW_SECONDS = 30;
+
+function jwtExpiry(token: string): number | undefined {
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const { exp } = JSON.parse(atob(payload)) as { exp?: unknown };
+    return typeof exp === "number" ? exp : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Returns the bearer token selected by tokenType, or undefined when it is missing or
+ * expired. `user.expired` only reflects the access token, so the ID token's own `exp`
+ * claim is checked; it can expire first and is retained when a refresh omits it.
+ */
+export function validToken(
+  user: User | null | undefined,
+  tokenType: OidcTokenType,
+): string | undefined {
+  const token = user?.[tokenType];
+  if (!token) return undefined;
+  const expiresAt = tokenType === "id_token" ? jwtExpiry(token) : user.expires_at;
+  if (expiresAt !== undefined && expiresAt - EXPIRY_SKEW_SECONDS <= Date.now() / 1000) {
+    return undefined;
+  }
+  return token;
+}
+
+/** Background or on-demand renewal failures are handled by getAccessToken, not shown as fatal. */
+function isRenewalError(error: AuthContextProps["error"]) {
+  return error?.source === "renewSilent" || error?.source === "signinSilent";
+}
+
 export function OidcAuthBridge({
   tokenType = "id_token",
   getEndSessionEndpoint,
@@ -79,16 +117,30 @@ export function OidcAuthBridge({
     if (settled) waitersRef.current.splice(0).forEach(resolve => resolve());
   }, [auth, settled]);
 
+  // Concurrent callers share one renewal: with refresh-token rotation, a second
+  // parallel exchange of the same refresh token would fail.
+  const renewalRef = useRef<Promise<User | null> | null>(null);
+
   const getAccessToken = useCallback(async () => {
     if (!isSettled(authRef.current)) {
       await new Promise<void>(resolve => waitersRef.current.push(resolve));
     }
-    let user = authRef.current.user;
-    if (user?.expired) user = (await authRef.current.signinSilent()) ?? undefined;
     // The CMS server verifies this JWT against the configured issuer/audience/JWKS.
-    const token = user?.[tokenType];
-    if (!token || user?.expired) throw new Error("OIDC login required.");
-    return token;
+    const current = validToken(authRef.current.user, tokenType);
+    if (current) return current;
+    if (!authRef.current.user) throw new Error("OIDC login required.");
+
+    renewalRef.current ??= authRef.current.signinSilent().finally(() => {
+      renewalRef.current = null;
+    });
+    const renewed = await renewalRef.current.catch(() => null);
+    const token = validToken(renewed, tokenType);
+    if (token) return token;
+
+    // Renewal failed or kept an expired token: drop the session so the app starts a
+    // fresh login instead of sending a token the server will reject.
+    await authRef.current.removeUser().catch(() => undefined);
+    throw new Error("OIDC login required.");
   }, [tokenType]);
 
   const value = useMemo(
@@ -117,7 +169,7 @@ export function OidcAuthBridge({
     [auth, settled, getAccessToken, getEndSessionEndpoint],
   );
 
-  if (auth.error) {
+  if (auth.error && !isRenewalError(auth.error)) {
     return (
       <div role="alert">
         <p>Login failed: {auth.error.message}</p>
@@ -141,6 +193,11 @@ export default function OidcProvider({
     }
   }, [authInfo]);
   const { userManager } = result;
+  useEffect(() => {
+    if (!userManager) return;
+    userManager.startSilentRenew();
+    return () => userManager.stopSilentRenew();
+  }, [userManager]);
   const getEndSessionEndpoint = useCallback(
     async () => userManager?.metadataService.getEndSessionEndpoint(),
     [userManager],

@@ -58,7 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cacheLocation="localstorage">
         <Auth0Wrapper>{children}</Auth0Wrapper>
       </Auth0Provider>
-    ) : null;
+    ) : (
+      <div role="alert">Auth0 is not configured: missing domain or client ID</div>
+    );
   }
 
   if (authProvider === "cognito") {
