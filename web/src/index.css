@@ -83,4 +83,10 @@ code {
     max-height: 20vh;
     overflow: auto;
   }
+  /* The mini map has a fixed size; its raw-text fallback keeps the limits above itself. */
+  &.geometryPopover .ant-popover-inner-content {
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+  }
 }

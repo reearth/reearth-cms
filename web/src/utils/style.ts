@@ -195,6 +195,8 @@ export abstract class AntdColor {
     BG_LAYOUT: "#f5f5f5",
     /** antd v4 layout background */
     BG_LAYOUT_V4: "#f0f2f5",
+    /** theme.useToken(): colorBgSpotlight — tooltip background, rgba(0,0,0,0.85) */
+    BG_SPOTLIGHT: "rgba(0, 0, 0, 0.85)",
 
     // --- Borders ---
     /** theme.useToken(): colorBorder */

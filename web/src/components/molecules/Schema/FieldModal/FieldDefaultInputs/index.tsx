@@ -137,6 +137,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
       return <URLField multiple={multiple} />;
     case "Group":
       return <GroupField />;
+    case "Geometry":
+      return <GeometryField unified isEditor={false} multiple={multiple} />;
     case "GeometryObject":
     case "GeometryEditor":
       return (

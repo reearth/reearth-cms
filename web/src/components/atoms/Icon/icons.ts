@@ -64,6 +64,10 @@ import {
   ExclamationCircleFilled,
   ExperimentOutlined,
   DiscordOutlined,
+  UndoOutlined,
+  RedoOutlined,
+  AimOutlined,
+  SelectOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -227,6 +231,10 @@ const icons = {
   logoCms: LogoCms,
   logoNavara: LogoNavara,
   discord: DiscordOutlined,
+  undo: UndoOutlined,
+  redo: RedoOutlined,
+  aim: AimOutlined,
+  select: SelectOutlined,
 };
 
 export type IconName = keyof typeof icons;

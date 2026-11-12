@@ -3,8 +3,10 @@ import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import PopConfirm from "@reearth-cms/components/atoms/PopConfirm";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
-import { Test } from "@reearth-cms/test/utils";
+import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
@@ -64,10 +66,10 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const geometry: FieldListItem = useMemo(
+  const geometry = useMemo<FieldListItem>(
     () => ({
       title: t("GeoJSON Geometry"),
-      fields: ["GeometryObject", "GeometryEditor"],
+      fields: ["Geometry", "GeometryObject", "GeometryEditor"],
     }),
     [t],
   );
@@ -115,24 +117,79 @@ const FieldList: React.FC<Props> = ({
         renderItem={item => (
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
-            {item.fields.map(field => (
-              <List.Item
-                key={field}
-                onClick={hasCreateRight ? () => addField(field) : undefined}
-                data-testid={Test.getDataTestIdFromSchemaFieldType(field)}>
-                <Meta
-                  avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
-                  title={t(fieldTypes[field].title)}
-                  description={t(fieldTypes[field].description)}
-                />
-              </List.Item>
-            ))}
+            {item.fields.map(field => {
+              const { replacedBy } = fieldTypes[field];
+              const listItem = (
+                <List.Item
+                  key={field}
+                  onClick={hasCreateRight && !replacedBy ? () => addField(field) : undefined}
+                  data-testid={Test.getDataTestIdFromSchemaFieldType(field)}>
+                  <Meta
+                    avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
+                    title={
+                      <>
+                        {t(fieldTypes[field].title)}
+                        {fieldTypes[field].isNew && (
+                          <FieldTag color="green" bordered={false}>
+                            {t("New", { context: "badge" })}
+                          </FieldTag>
+                        )}
+                        {replacedBy && (
+                          <FieldTag color="orange" bordered={false}>
+                            {t("Deprecated", { context: "badge" })}
+                          </FieldTag>
+                        )}
+                      </>
+                    }
+                    description={t(fieldTypes[field].description)}
+                  />
+                </List.Item>
+              );
+              if (!replacedBy) return listItem;
+
+              return (
+                <PopConfirm
+                  key={field}
+                  disabled={!hasCreateRight}
+                  title={t("{{field}} is deprecated", { field: t(fieldTypes[field].title) })}
+                  description={
+                    <PopConfirmDescription>
+                      {t(
+                        "Please use the new Geometry field instead. It supports drawing on a map, entering coordinates and GeoJSON in one place.",
+                      )}
+                    </PopConfirmDescription>
+                  }
+                  okText={t("Use Geometry")}
+                  cancelText={t("Continue anyway")}
+                  okButtonProps={{
+                    "data-testid":
+                      DATA_TEST_ID.Schema__DeprecatedFieldPopConfirm__UseReplacementButton,
+                  }}
+                  cancelButtonProps={{
+                    "data-testid": DATA_TEST_ID.Schema__DeprecatedFieldPopConfirm__ContinueButton,
+                  }}
+                  onConfirm={() => addField(replacedBy)}
+                  onCancel={() => addField(field)}>
+                  {listItem}
+                </PopConfirm>
+              );
+            })}
           </>
         )}
       />
     </>
   );
 };
+
+const FieldTag = styled(Tag)`
+  margin-left: ${AntdToken.SPACING.XS}px;
+  font-size: 11px;
+  line-height: 18px;
+`;
+
+const PopConfirmDescription = styled.div`
+  max-width: 280px;
+`;
 
 const StyledTitle = styled.h1`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
