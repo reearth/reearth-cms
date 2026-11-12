@@ -13,6 +13,8 @@ export const fieldTypes: Record<
     color: string;
     /** Shown as a "New" tag in the Add Field list. */
     isNew?: boolean;
+    /** Shown as a "Deprecated" tag; adding it asks the user to use this type instead. */
+    replacedBy?: SchemaFieldType;
   }
 > = {
   Text: {
@@ -111,11 +113,13 @@ export const fieldTypes: Record<
     title: t("Geometry Object"),
     description: t("Input GeoJSON and preview"),
     color: AntdColor.GREEN.GREEN_4,
+    replacedBy: "Geometry",
   },
   GeometryEditor: {
     icon: "pencil",
     title: t("Geometry Editor"),
     description: t("Draw the geometry on map"),
     color: AntdColor.GREEN.GREEN_4,
+    replacedBy: "Geometry",
   },
 };

@@ -241,6 +241,8 @@ export enum DATA_TEST_ID {
 
   // Schema
   Schema__ImportSchemaButton = "Schema__ImportSchemaButton",
+  Schema__DeprecatedFieldPopConfirm__UseReplacementButton = "Schema__DeprecatedFieldPopConfirm__UseReplacementButton",
+  Schema__DeprecatedFieldPopConfirm__ContinueButton = "Schema__DeprecatedFieldPopConfirm__ContinueButton",
 
   // ModelFieldList
   ModelFieldList__ImportSchemaButton = "ModelFieldList__ImportSchemaButton",
