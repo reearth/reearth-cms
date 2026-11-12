@@ -217,7 +217,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMenuItemByName("model name").click();
 
       // Add a Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+      await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.fill("location field");
       await fieldEditorPage.supportTypePointCheckbox.check();
@@ -257,14 +257,14 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMenuItemByName("model name").click();
 
       // Add first Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+      await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
       await fieldEditorPage.displayNameInput.fill("location1");
       await fieldEditorPage.settingsDescriptionInput.fill("first location field");
       await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
       await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
 
       // Add second Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+      await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
       await fieldEditorPage.displayNameInput.fill("location2");
       await fieldEditorPage.settingsDescriptionInput.fill("second location field");
       await fieldEditorPage.supportTypePointCheckbox.setChecked(true);

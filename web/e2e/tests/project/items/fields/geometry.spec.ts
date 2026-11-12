@@ -107,7 +107,7 @@ test("Legacy Geometry Object field keeps the old editor", async ({
   geometryEditorPage,
 }) => {
   await test.step("Create a Geometry Object field limited to points", async () => {
-    await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+    await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
     await fieldEditorPage.displayNameInput.fill("geometryObject1");
     await fieldEditorPage.settingsKeyInput.fill("geometryObject1");
     await fieldEditorPage.pointCheckbox.check();

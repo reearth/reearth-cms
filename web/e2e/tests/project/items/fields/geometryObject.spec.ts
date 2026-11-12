@@ -27,7 +27,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   contentPage,
 }) => {
   await test.step("Create GeometryObject field with Point support", async () => {
-    await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+    await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("geometryObject1");
     await fieldEditorPage.settingsDescriptionInput.click();
@@ -94,7 +94,7 @@ test("GeometryObject field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create GeometryObject field with default value", async () => {
-    await fieldEditorPage.fieldTypeListItem("Geometry Object").click();
+    await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("geometryObject1");
     await fieldEditorPage.settingsDescriptionInput.click();
