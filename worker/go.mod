@@ -1,6 +1,6 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.27.2
+go 1.27.3
 
 require (
 	cloud.google.com/go/pubsub/v2 v2.7.0
