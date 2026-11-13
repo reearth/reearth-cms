@@ -56,6 +56,10 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    // Node 25+ defines a global localStorage that shadows jsdom's in workers
+    execArgv: process.allowedNodeEnvironmentFlags.has("--no-experimental-webstorage")
+      ? ["--no-experimental-webstorage"]
+      : [],
     setupFiles: "./src/test/setup.ts",
     exclude: [...configDefaults.exclude, "e2e/**/*"],
     testTimeout: 30 * 1000,

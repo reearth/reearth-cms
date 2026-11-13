@@ -9,6 +9,7 @@ import type AuthHook from "./AuthHook";
 import { useCognitoAuth } from "./CognitoAuth";
 import { useFirebaseAuth } from "./FirebaseAuth";
 import FirebaseProvider from "./FirebaseProvider";
+import OidcProvider from "./OidcProvider";
 
 export const AuthContext = createContext<AuthHook | null>(null);
 
@@ -34,6 +35,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const authProvider = authInfo?.authProvider;
 
+  if (authProvider === "oidc") {
+    return <OidcProvider authInfo={authInfo ?? {}}>{children}</OidcProvider>;
+  }
+
   if (authProvider === "auth0") {
     const domain = authInfo?.auth0Domain;
     const clientId = authInfo?.auth0ClientId;
@@ -53,7 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cacheLocation="localstorage">
         <Auth0Wrapper>{children}</Auth0Wrapper>
       </Auth0Provider>
-    ) : null;
+    ) : (
+      <div role="alert">Auth0 is not configured: missing domain or client ID</div>
+    );
   }
 
   if (authProvider === "cognito") {
@@ -69,5 +76,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   }
 
-  return null;
+  return <div role="alert">Unsupported authentication provider: {authProvider || "(unset)"}</div>;
 };
