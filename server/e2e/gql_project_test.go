@@ -59,6 +59,10 @@ func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string,
 }
 
 func getProject(e *httpexpect.Expect, pID string) (string, *httpexpect.Value) {
+	return getProjectAs(e, pID, uId1.String())
+}
+
+func getProjectAs(e *httpexpect.Expect, pID, userID string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetProject($projectId: ID!) {
     	node(id: $projectId, type: PROJECT) {
@@ -95,7 +99,7 @@ func getProject(e *httpexpect.Expect, pID string) (string, *httpexpect.Value) {
 
 	res := e.POST("/api/graphql").
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userID).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
 		Expect().
