@@ -200,6 +200,10 @@ func TestMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
+	e.POST("/api/graphql").
+		WithHeader("Content-Type", "application/json").
+		WithBytes(jsonData).Expect().Status(http.StatusUnauthorized)
+
 	o := e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
@@ -275,17 +279,36 @@ func TestUserSearch(t *testing.T) {
 	search("notfound@e2e.com").IsEmpty()
 }
 
-func TestUserSearchRequiresAuth(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+func TestGraphQLRequiresUser(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	jsonData, err := json.Marshal(GraphQLRequest{Query: ` { userSearch(keyword: "e2e@e2e.com"){ id name email } }`})
 	assert.NoError(t, err)
 
-	res := e.POST("/api/graphql").
-		WithHeader("Content-Type", "application/json").
-		WithBytes(jsonData).Expect().Status(http.StatusOK)
-	res.JSON().Object().Value("errors").Array().NotEmpty()
-	res.Body().NotContains("e2e@e2e.com")
+	tests := []struct {
+		name    string
+		headers map[string]string
+		status  int
+	}{
+		{name: "anonymous", status: http.StatusUnauthorized},
+		{name: "integration token", headers: map[string]string{"authorization": "Bearer " + secret}, status: http.StatusUnauthorized},
+		{name: "signed-in user", headers: map[string]string{"X-Reearth-Debug-User": uId.String()}, status: http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := e.POST("/api/graphql").WithHeader("Content-Type", "application/json")
+			for k, v := range tt.headers {
+				req = req.WithHeader(k, v)
+			}
+			res := req.WithBytes(jsonData).Expect().Status(tt.status)
+			if tt.status != http.StatusOK {
+				res.Body().NotContains("e2e@e2e.com")
+				return
+			}
+			res.JSON().Object().Value("data").Object().Value("userSearch").Array()
+		})
+	}
 }
 
 func TestNode(t *testing.T) {
