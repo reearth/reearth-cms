@@ -7320,6 +7320,7 @@ extend type Mutation {
 	{Name: "../../../schemas/gql/user.graphql", Input: `type User implements Node {
   id: ID!
   name: String!
+  # TODO: remove email field so that it is not returned in the API. It is currently kept for backward compatibility.
   email: String!
   host: String
 }
