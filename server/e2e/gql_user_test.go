@@ -273,7 +273,7 @@ func TestUserSearch(t *testing.T) {
 	ul.Length().IsEqual(1)
 	o = ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId2.String())
-	o.Value("email").String().IsEqual("e2e2@e2e.com")
+	o.Value("email").String().IsEmpty()
 
 	search("notfound").IsEmpty()
 	search("notfound@e2e.com").IsEmpty()
@@ -313,7 +313,7 @@ func TestGraphQLRequiresUser(t *testing.T) {
 
 func TestNode(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id } }`, uId1.String())
+	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id ... on User{ name email } } }`, uId1.String())
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -327,6 +327,8 @@ func TestNode(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("node").Object()
 	o.Value("id").String().IsEqual(uId1.String())
+	o.Value("name").String().IsEqual("e2e")
+	o.Value("email").String().IsEmpty()
 }
 
 func TestNodes(t *testing.T) {

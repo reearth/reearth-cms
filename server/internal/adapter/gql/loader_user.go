@@ -42,9 +42,9 @@ func (c *UserLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-// Search finds users to invite to a workspace without exposing other users' email addresses.
-// SearchUser matches names partially and emails only exactly, so the email is returned only when the keyword is that email.
-// A keyword containing "@" is treated as an email lookup and matches only an identical email.
+// Search finds users to invite to a workspace. SearchUser matches names partially and emails only exactly;
+// a keyword containing "@" is treated as an email lookup and keeps only the user with that exact email.
+// Emails are never returned (see gqlmodel.SimpleToUser).
 func (c *UserLoader) Search(ctx context.Context, keyword string) ([]*gqlmodel.User, error) {
 	keyword = strings.TrimSpace(keyword)
 
@@ -55,17 +55,9 @@ func (c *UserLoader) Search(ctx context.Context, keyword string) ([]*gqlmodel.Us
 
 	isEmail := strings.Contains(keyword, "@")
 	return lo.FilterMap(res, func(u *user.Simple, _ int) (*gqlmodel.User, bool) {
-		if u == nil {
+		if u == nil || (isEmail && !strings.EqualFold(u.Email, keyword)) {
 			return nil, false
 		}
-		emailMatched := strings.EqualFold(u.Email, keyword)
-		if isEmail && !emailMatched {
-			return nil, false
-		}
-		gu := gqlmodel.SimpleToUser(u)
-		if !emailMatched {
-			gu.Email = ""
-		}
-		return gu, true
+		return gqlmodel.SimpleToUser(u), true
 	}), nil
 }
