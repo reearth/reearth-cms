@@ -212,7 +212,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.wantID, m.Model.Id)
 
-			_, _, res := getModel(e, tt.wantID)
+			_, _, res := getModelAs(e, tt.wantID, uId.String())
 			assert.Equal(t, res.Path("$.data.node.name").Raw().(string), m.Model.Name)
 			assert.Equal(t, res.Path("$.data.node.key").Raw().(string), m.Model.Key)
 			assert.Equal(t, res.Path("$.data.node.description").Raw().(string), m.Model.Description)

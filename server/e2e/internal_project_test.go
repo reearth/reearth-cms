@@ -182,7 +182,7 @@ func TestInternalListProjectsAPI(t *testing.T) {
 					break
 				}
 				gotProject := l.Projects[i]
-				_, wantProject := getProject(e, want.String())
+				_, wantProject := getProjectAs(e, want.String(), uId.String())
 
 				assert.Equal(t, wantProject.Path("$.data.node.name").Raw().(string), gotProject.GetName())
 				assert.Equal(t, wantProject.Path("$.data.node.alias").Raw().(string), gotProject.GetAlias())

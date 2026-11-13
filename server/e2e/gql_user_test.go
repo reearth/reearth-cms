@@ -200,6 +200,10 @@ func TestMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
+	e.POST("/api/graphql").
+		WithHeader("Content-Type", "application/json").
+		WithBytes(jsonData).Expect().Status(http.StatusUnauthorized)
+
 	o := e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
@@ -269,28 +273,47 @@ func TestUserSearch(t *testing.T) {
 	ul.Length().IsEqual(1)
 	o = ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId2.String())
-	o.Value("email").String().IsEqual("e2e2@e2e.com")
+	o.Value("email").String().IsEmpty()
 
 	search("notfound").IsEmpty()
 	search("notfound@e2e.com").IsEmpty()
 }
 
-func TestUserSearchRequiresAuth(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+func TestGraphQLRequiresUser(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	jsonData, err := json.Marshal(GraphQLRequest{Query: ` { userSearch(keyword: "e2e@e2e.com"){ id name email } }`})
 	assert.NoError(t, err)
 
-	res := e.POST("/api/graphql").
-		WithHeader("Content-Type", "application/json").
-		WithBytes(jsonData).Expect().Status(http.StatusOK)
-	res.JSON().Object().Value("errors").Array().NotEmpty()
-	res.Body().NotContains("e2e@e2e.com")
+	tests := []struct {
+		name    string
+		headers map[string]string
+		status  int
+	}{
+		{name: "anonymous", status: http.StatusUnauthorized},
+		{name: "integration token", headers: map[string]string{"authorization": "Bearer " + secret}, status: http.StatusUnauthorized},
+		{name: "signed-in user", headers: map[string]string{"X-Reearth-Debug-User": uId.String()}, status: http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := e.POST("/api/graphql").WithHeader("Content-Type", "application/json")
+			for k, v := range tt.headers {
+				req = req.WithHeader(k, v)
+			}
+			res := req.WithBytes(jsonData).Expect().Status(tt.status)
+			if tt.status != http.StatusOK {
+				res.Body().NotContains("e2e@e2e.com")
+				return
+			}
+			res.JSON().Object().Value("data").Object().Value("userSearch").Array()
+		})
+	}
 }
 
 func TestNode(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id } }`, uId1.String())
+	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id ... on User{ name email } } }`, uId1.String())
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -304,6 +327,8 @@ func TestNode(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("node").Object()
 	o.Value("id").String().IsEqual(uId1.String())
+	o.Value("name").String().IsEqual("e2e")
+	o.Value("email").String().IsEmpty()
 }
 
 func TestNodes(t *testing.T) {

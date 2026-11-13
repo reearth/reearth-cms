@@ -294,6 +294,17 @@ func generateIntegrationOperator(ctx context.Context, appCtx *ApplicationContext
 	}, nil
 }
 
+func UserRequiredMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			if adapter.User(c.Request().Context()) == nil {
+				return echo.ErrUnauthorized
+			}
+			return next(c)
+		}
+	}
+}
+
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {

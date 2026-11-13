@@ -2,9 +2,14 @@ package app
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/labstack/echo/v5"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -474,6 +479,69 @@ func TestGenerateUserOperator_LanguagePriority(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, op)
 			assert.Equal(t, tt.expectedLang, op.Lang, tt.description)
+		})
+	}
+}
+
+func TestUserRequiredMiddleware(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		ctx     func() context.Context
+		wantErr error
+	}{
+		{
+			name:    "no user or operator",
+			ctx:     context.Background,
+			wantErr: echo.ErrUnauthorized,
+		},
+		{
+			name: "integration operator without user",
+			ctx: func() context.Context {
+				iId := id.NewIntegrationID()
+				return adapter.AttachOperator(context.Background(), &usecase.Operator{Integration: &iId})
+			},
+			wantErr: echo.ErrUnauthorized,
+		},
+		{
+			name: "signed-in user",
+			ctx: func() context.Context {
+				u := user.New().NewID().Name("u").Email("u@example.com").MustBuild()
+				return adapter.AttachUser(context.Background(), u)
+			},
+		},
+		{
+			name: "signed-in user with integration",
+			ctx: func() context.Context {
+				u := user.New().NewID().Name("u").Email("u@example.com").MustBuild()
+				iId := id.NewIntegrationID()
+				ctx := adapter.AttachUser(context.Background(), u)
+				return adapter.AttachOperator(ctx, &usecase.Operator{Integration: &iId})
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := httptest.NewRequest(http.MethodPost, "/api/graphql", nil).WithContext(tt.ctx())
+			c := echo.New().NewContext(r, httptest.NewRecorder())
+
+			called := false
+			err := UserRequiredMiddleware()(func(*echo.Context) error {
+				called = true
+				return nil
+			})(c)
+
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.False(t, called)
+				return
+			}
+			assert.NoError(t, err)
+			assert.True(t, called)
 		})
 	}
 }
