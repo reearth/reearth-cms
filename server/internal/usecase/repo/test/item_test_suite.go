@@ -832,13 +832,22 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 			want:  1,
 		},
 		{
-			name:  "must find an equivalent geometry",
+			name:  "must find the same geometry with another key order and number formatting",
 			seeds: geoSeeds,
 			args: []repo.FieldAndValue{{Field: sf3, Value: geo(
-				`{"type":"Polygon","coordinates":[[[1,1],[1,0],[0,0],[0,1],[1,1]]]}`,
+				`{"coordinates":[[[0,0],[1.0,0],[1,1],[0,1],[0,0]]],"type":"Polygon"}`,
 				`{"coordinates":[1.0,2.00],"type":"Point"}`,
 			)}},
 			want: 1,
+		},
+		{
+			name:  "must not find the same ring from another starting vertex",
+			seeds: geoSeeds,
+			args: []repo.FieldAndValue{{Field: sf3, Value: geo(
+				`{"type":"Polygon","coordinates":[[[1,1],[1,0],[0,0],[0,1],[1,1]]]}`,
+				`{"type":"Point","coordinates":[1,2]}`,
+			)}},
+			want: 0,
 		},
 		{
 			name:  "must not find a different geometry",

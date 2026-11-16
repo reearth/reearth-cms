@@ -48,9 +48,13 @@ func TestGQLItemGeometryField_ValidationAndUnique(t *testing.T) {
 		wantErr string
 	}{
 		{
-			name:    "the same line in the reverse direction is a duplicate",
-			value:   `{"type":"LineString","coordinates":[[139.8,35.7],[139.7,35.6]]}`,
+			name:    "the same line with another key order is a duplicate",
+			value:   `{"coordinates":[[139.70,35.6],[139.8,35.7]],"type":"LineString"}`,
 			wantErr: "UNIQUE_VIOLATION",
+		},
+		{
+			name:  "the same line in the reverse direction is not a duplicate",
+			value: `{"type":"LineString","coordinates":[[139.8,35.7],[139.7,35.6]]}`,
 		},
 		{
 			name:    "reversed coordinates are rejected with their cause",
