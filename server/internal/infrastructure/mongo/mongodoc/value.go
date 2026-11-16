@@ -20,8 +20,6 @@ func NewMultipleValue(v *value.Multiple) *ValueDocument {
 	}
 	vv := v.Interface()
 	if v.Type() == value.TypeGeometry {
-		// MongoDB compares embedded documents including their key order, and Go writes map keys in random order.
-		// Geometries are written with sorted keys, so equal geometries are stored identically and can be matched by value.
 		vv = lo.Map(vv, func(e any, _ int) any { return toBSON(e) })
 	}
 	return &ValueDocument{
