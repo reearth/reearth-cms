@@ -810,6 +810,15 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 	f3 := item.NewField(sf3, geo(square, `{"type":"Point","coordinates":[1,2]}`), nil)
 	i3 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()
 	geoSeeds := item.List{i3}
+	geoSeed := func(v string) item.List {
+		f := item.NewField(sf3, geo(v), nil)
+		return item.List{item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f}).Project(pid).Thread(id.NewThreadID().Ref()).Anonymous(true).MustBuild()}
+	}
+	polygonWithHoles := func(h1, h2 string) string {
+		return `{"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]],` + h1 + `,` + h2 + `]}`
+	}
+	hole1 := `[[1,1],[2,1],[2,2],[1,1]]`
+	hole2 := `[[5,5],[6,5],[6,6],[5,5]]`
 
 	tests := []struct {
 		name    string
@@ -857,6 +866,78 @@ func testItemFindByModelAndValue(t *testing.T, newRepo itemFactory) {
 				`{"type":"Point","coordinates":[1,2]}`,
 			)}},
 			want: 0,
+		},
+		{
+			name:  "geometry rule: same position with -0 and 0",
+			seeds: geoSeed(`{"type":"Point","coordinates":[0,1]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"Point","coordinates":[-0,1]}`)}},
+			want:  1,
+		},
+		{
+			name:  "geometry rule: missing altitude differs from altitude 0",
+			seeds: geoSeed(`{"type":"Point","coordinates":[1,2]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"Point","coordinates":[1,2,0]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: close points differ",
+			seeds: geoSeed(`{"type":"Point","coordinates":[139.7,35.6]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"Point","coordinates":[139.7000001,35.6]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: reversed line string differs",
+			seeds: geoSeed(`{"type":"LineString","coordinates":[[1,1],[2,2]]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"LineString","coordinates":[[2,2],[1,1]]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: ring in the other direction differs",
+			seeds: geoSeed(`{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[1,0],[0,0]]]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: holes in the same order match",
+			seeds: geoSeed(polygonWithHoles(hole1, hole2)),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(polygonWithHoles(hole1, hole2))}},
+			want:  1,
+		},
+		{
+			name:  "geometry rule: holes in another order differ",
+			seeds: geoSeed(polygonWithHoles(hole1, hole2)),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(polygonWithHoles(hole2, hole1))}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: multi point parts in another order differ",
+			seeds: geoSeed(`{"type":"MultiPoint","coordinates":[[1,2],[3,4]]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"MultiPoint","coordinates":[[3,4],[1,2]]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: geometry collection members in another order differ",
+			seeds: geoSeed(`{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,2]},{"type":"Point","coordinates":[3,4]}]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[3,4]},{"type":"Point","coordinates":[1,2]}]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: duplicate parts are counted: [A, A] differs from [A]",
+			seeds: geoSeed(`{"type":"MultiPoint","coordinates":[[1,2],[1,2]]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"MultiPoint","coordinates":[[1,2]]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: duplicate parts are counted: [A, A, B] differs from [A, B, B]",
+			seeds: geoSeed(`{"type":"MultiPoint","coordinates":[[1,2],[1,2],[3,4]]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"MultiPoint","coordinates":[[1,2],[3,4],[3,4]]}`)}},
+			want:  0,
+		},
+		{
+			name:  "geometry rule: point differs from a single-part multi point",
+			seeds: geoSeed(`{"type":"Point","coordinates":[1,2]}`),
+			args:  []repo.FieldAndValue{{Field: sf3, Value: geo(`{"type":"MultiPoint","coordinates":[[1,2]]}`)}},
+			want:  0,
 		},
 		{
 			name:  "must not find a part of the geometries",
