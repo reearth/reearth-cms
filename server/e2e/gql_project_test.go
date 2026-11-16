@@ -58,10 +58,6 @@ func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string,
 	return res.Path("$.data.createProject.project.id").Raw().(string), res
 }
 
-func getProject(e *httpexpect.Expect, pID string) (string, *httpexpect.Value) {
-	return getProjectAs(e, pID, uId1.String())
-}
-
 func getProjectAs(e *httpexpect.Expect, pID, userID string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetProject($projectId: ID!) {
@@ -160,7 +156,6 @@ func updateProject(e *httpexpect.Expect, pID, name, desc, alias, visibility stri
 
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
-
 
 func RegeneratePublicApiToken(e *httpexpect.Expect, pId, tId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
