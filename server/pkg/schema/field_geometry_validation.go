@@ -11,7 +11,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 
-	// TODO: use "github.com/reearth/reearth-cms/server/pkg/types"
+	// go.geojson rejects non-numeric and null coordinates, which pkg/types would decode as 0
 	geojson "github.com/paulmach/go.geojson"
 )
 
@@ -162,7 +162,7 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 }
 
 // validateGeometry validates a value of the Geometry field.
-func validateGeometry(g value.Geometry) error {
+func validateGeometry(g value.Json) error {
 	b, err := json.Marshal(g)
 	if err != nil {
 		return ErrGeoFieldInvalidGeoStructure

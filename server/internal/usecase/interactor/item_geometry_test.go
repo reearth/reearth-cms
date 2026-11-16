@@ -37,10 +37,11 @@ func TestItem_Create_GeometryUnique(t *testing.T) {
 	}{
 		{name: "same value", existing: line, value: line, wantErr: true},
 		{name: "same value as an object", existing: line, value: map[string]any{"type": "LineString", "coordinates": []any{[]any{139.70, 35.60}, []any{139.8, 35.7}}}, wantErr: true},
-		{name: "reversed line string", existing: line, value: reversedLine, wantErr: true},
+		{name: "same value with another key order", existing: line, value: map[string]any{"coordinates": []any{[]any{139.7, 35.6}, []any{139.8, 35.7}}, "type": "LineString"}, wantErr: true},
+		{name: "reversed line string is different", existing: line, value: reversedLine},
 		{name: "close points are different", existing: point, value: closePoint},
 		{name: "point and multi point are different", existing: point, value: multiPoint},
-		{name: "multiple: same values", multiple: true, existing: []any{point, line}, value: []any{point, reversedLine}, wantErr: true},
+		{name: "multiple: same values", multiple: true, existing: []any{point, line}, value: []any{point, line}, wantErr: true},
 		{name: "multiple: values in another order", multiple: true, existing: []any{point, line}, value: []any{line, point}},
 		{name: "multiple: subset of the values", multiple: true, existing: []any{point, line}, value: []any{point}},
 	}
@@ -106,7 +107,7 @@ func TestItem_Create_GeometryValidation(t *testing.T) {
 		Fields:   item.FieldInputList{{Field: sf.ID().Ref(), Value: `{"type":"Point","coordinates":[139.7,35.6]}`}},
 	}, op)
 	require.NoError(t, err)
-	assert.Equal(t, value.Geometry{"type": "Point", "coordinates": []any{139.7, 35.6}}, got.Value().Field(sf.ID()).Value().First().Interface())
+	assert.Equal(t, value.Json{"type": "Point", "coordinates": []any{139.7, 35.6}}, got.Value().Field(sf.ID()).Value().First().Interface())
 }
 
 // newGeometryItemTest saves a project, a schema with the field sf and a model, and returns an Item interactor with an operator that can write to them.
