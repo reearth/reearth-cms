@@ -34,7 +34,7 @@ services:
     image: ghcr.io/dexidp/dex:v2.46.1
     command: dex serve /etc/dex/config.yaml
     ports:
-      - '5556:5556'
+      - '127.0.0.1:5556:5556'
     volumes:
       - ./dex.yaml:/etc/dex/config.yaml:ro
 
