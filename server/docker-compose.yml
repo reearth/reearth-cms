@@ -29,6 +29,14 @@ services:
     ports:
       - '4318:4318'   # OTLP HTTP (ingest from app)
       - '16686:16686' # Jaeger UI
+  reearth-cms-dex:
+    # Local OIDC provider for development (see dex.yaml)
+    image: ghcr.io/dexidp/dex:v2.46.1
+    command: dex serve /etc/dex/config.yaml
+    ports:
+      - '5556:5556'
+    volumes:
+      - ./dex.yaml:/etc/dex/config.yaml:ro
 
 volumes:
   mongo-data:
