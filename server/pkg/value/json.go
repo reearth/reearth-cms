@@ -2,51 +2,56 @@ package value
 
 import (
 	"encoding/json"
+	"reflect"
+	"strings"
 
 	"github.com/samber/lo"
 )
 
 const TypeJson Type = "json"
-const TypeGeometryObject Type = "geometryObject"
-const TypeGeometryEditor Type = "geometryEditor"
+const TypeGeometry Type = "geometry"
 
 type propertyJson struct{}
 
-type Json = string
+// Json is a JSON object stored as structured data.
+// Numbers are always float64 and nested objects and arrays are map[string]any and []any,
+// so two objects holding the same data compare equal regardless of their original formatting.
+type Json = map[string]any
 
 func (p *propertyJson) ToValue(i any) (any, bool) {
-	// Handle nil input
-	if i == nil {
+	switch v := i.(type) {
+	case nil:
 		return nil, false
-	}
-
-	// Handle string input - validate it's valid JSON
-	if v, ok := i.(string); ok {
-		if json.Valid([]byte(v)) {
-			return v, true
+	case string:
+		if strings.TrimSpace(v) == "" {
+			return nil, false
 		}
-		return nil, false
-	}
-
-	// Handle pointer to string
-	if v, ok := i.(*string); ok {
+		return unmarshalJson([]byte(v))
+	case *string:
 		if v == nil {
 			return nil, false
 		}
 		return p.ToValue(*v)
 	}
 
-	// Handle parsed JSON objects (map, slice, struct, etc.)
-	// Marshal them to JSON string
-	if jsonBytes, err := json.Marshal(i); err == nil {
-		return string(jsonBytes), true
+	// normalize any other representation (maps, structs, ...) through JSON
+	b, err := json.Marshal(i)
+	if err != nil {
+		return nil, false
 	}
+	return unmarshalJson(b)
+}
 
-	return nil, false
+func unmarshalJson(b []byte) (any, bool) {
+	var j Json
+	if err := json.Unmarshal(b, &j); err != nil || j == nil {
+		return nil, false
+	}
+	return j, true
 }
 
 func (*propertyJson) ToInterface(v any) (any, bool) {
-	return v.(Json), true
+	return v, true
 }
 
 func (*propertyJson) Validate(i any) bool {
@@ -55,17 +60,14 @@ func (*propertyJson) Validate(i any) bool {
 }
 
 func (*propertyJson) Equal(v, w any) bool {
-	var vv, ww Json
-	if v != nil && w != nil {
-		vv = v.(Json)
-		ww = w.(Json)
-		return vv == ww
+	if v == nil || w == nil {
+		return v == w
 	}
-	return v == w
+	return reflect.DeepEqual(v.(Json), w.(Json))
 }
 
 func (*propertyJson) IsEmpty(v any) bool {
-	return v.(Json) == ""
+	return len(v.(Json)) == 0
 }
 
 func (v *Value) ValueJson() (vv Json, ok bool) {

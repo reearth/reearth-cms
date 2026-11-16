@@ -16,6 +16,7 @@ enum SchemaFieldType {
   Group
   GeometryObject
   GeometryEditor
+  Geometry
 }
 
 enum SchemaFieldTagColor {
@@ -89,6 +90,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldGroup
   | SchemaFieldGeometryObject
   | SchemaFieldGeometryEditor
+  | SchemaFieldGeometry
 
 type SchemaFieldText {
   defaultValue: Any
@@ -178,6 +180,10 @@ type SchemaFieldGeometryObject {
 type SchemaFieldGeometryEditor {
   defaultValue: Any
   supportedTypes: [GeometryEditorSupportedType!]!
+}
+
+type SchemaFieldGeometry {
+  defaultValue: Any
 }
 
 # Inputs
@@ -278,6 +284,10 @@ input SchemaFieldGeometryEditorInput {
   supportedTypes: [GeometryEditorSupportedType!]!
 }
 
+input SchemaFieldGeometryInput {
+  defaultValue: Any
+}
+
 input SchemaFieldLineStringInput {
   defaultValue: Any
 }
@@ -300,6 +310,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   group: SchemaFieldGroupInput
   geometryObject: SchemaFieldGeometryObjectInput
   geometryEditor: SchemaFieldGeometryEditorInput
+  geometry: SchemaFieldGeometryInput
 }
 
 input CreateFieldInput {

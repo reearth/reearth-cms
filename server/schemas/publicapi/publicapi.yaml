@@ -105,7 +105,7 @@ components:
           type: object
           description: |
             Field values keyed by field key. Fields of type Asset, Reference, Tag, Group,
-            GeometryEditor, and GeometryObject are not supported for posting and are ignored;
+            GeometryEditor, GeometryObject, and Geometry are not supported for posting and are ignored;
             if such a field is required by the model, posting is rejected entirely.
 
     PostItemResponse:
