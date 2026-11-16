@@ -162,7 +162,7 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 }
 
 // validateGeometry validates a value of the Geometry field.
-func validateGeometry(g value.Geometry) error {
+func validateGeometry(g value.Json) error {
 	b, err := json.Marshal(g)
 	if err != nil {
 		return ErrGeoFieldInvalidGeoStructure

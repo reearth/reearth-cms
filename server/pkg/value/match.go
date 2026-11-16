@@ -19,7 +19,7 @@ type Match struct {
 	Group          func(Group)
 	GeometryObject func(String)
 	GeometryEditor func(String)
-	Geometry       func(Geometry)
+	Geometry       func(Json)
 	Default        func()
 }
 
@@ -118,7 +118,7 @@ func (v *Value) Match(m Match) {
 		}
 	case TypeGeometry:
 		if m.Geometry != nil {
-			m.Geometry(v.v.(Geometry))
+			m.Geometry(v.v.(Json))
 			return
 		}
 	}

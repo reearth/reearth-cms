@@ -11,7 +11,7 @@ func testGeometryKey(t *testing.T, s string) string {
 	t.Helper()
 	v := TypeGeometry.Value(s)
 	require.NotNil(t, v, s)
-	g, ok := v.ValueGeometry()
+	g, ok := v.ValueJson()
 	require.True(t, ok)
 	k, ok := GeometryKey(g)
 	require.True(t, ok, s)
@@ -242,7 +242,7 @@ func TestGeometryKey(t *testing.T) {
 func TestGeometryKey_Invalid(t *testing.T) {
 	t.Parallel()
 
-	tests := []Geometry{
+	tests := []Json{
 		{},
 		{"type": "Point"},
 		{"type": "Point", "coordinates": []any{"1", "1"}},

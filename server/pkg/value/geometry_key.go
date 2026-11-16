@@ -19,7 +19,7 @@ import (
 //   - different geometry types are never the same
 //
 // ok is false when g cannot be read as a geometry. GeometryKey does not validate g; schema.FieldGeometry does that before values are saved.
-func GeometryKey(g Geometry) (string, bool) {
+func GeometryKey(g Json) (string, bool) {
 	b, err := json.Marshal(g)
 	if err != nil {
 		return "", false
@@ -40,7 +40,7 @@ func (m *Multiple) EquivalenceKeys() []string {
 	}
 	keys := make([]string, 0, len(m.v))
 	for _, v := range m.v {
-		g, ok := v.ValueGeometry()
+		g, ok := v.ValueJson()
 		if !ok {
 			return nil
 		}

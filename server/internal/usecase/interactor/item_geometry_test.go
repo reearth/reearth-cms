@@ -106,7 +106,7 @@ func TestItem_Create_GeometryValidation(t *testing.T) {
 		Fields:   item.FieldInputList{{Field: sf.ID().Ref(), Value: `{"type":"Point","coordinates":[139.7,35.6]}`}},
 	}, op)
 	require.NoError(t, err)
-	assert.Equal(t, value.Geometry{"type": "Point", "coordinates": []any{139.7, 35.6}}, got.Value().Field(sf.ID()).Value().First().Interface())
+	assert.Equal(t, value.Json{"type": "Point", "coordinates": []any{139.7, 35.6}}, got.Value().Field(sf.ID()).Value().First().Interface())
 }
 
 // newGeometryItemTest saves a project, a schema with the field sf and a model, and returns an Item interactor with an operator that can write to them.
