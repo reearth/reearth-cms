@@ -865,7 +865,6 @@ func createRequest2(e *httpexpect.Expect, projectId, title string, description, 
 				createdBy {
 					id
 					name
-					email
 				}
 				workspaceId
 				projectId

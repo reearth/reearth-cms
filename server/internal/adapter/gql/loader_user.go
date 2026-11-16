@@ -44,7 +44,7 @@ func (c *UserLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 
 // Search finds users to invite to a workspace. SearchUser matches names partially and emails only exactly;
 // a keyword containing "@" is treated as an email lookup and keeps only the user with that exact email.
-// Emails are never returned (see gqlmodel.SimpleToUser).
+// The GraphQL User type has no email field; only Me exposes the signed-in user's own email.
 func (c *UserLoader) Search(ctx context.Context, keyword string) ([]*gqlmodel.User, error) {
 	keyword = strings.TrimSpace(keyword)
 

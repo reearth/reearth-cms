@@ -233,7 +233,7 @@ func TestUserSearch(t *testing.T) {
 
 	search := func(keyword string) *httpexpect.Array {
 		jsonData, err := json.Marshal(GraphQLRequest{
-			Query: fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, keyword),
+			Query: fmt.Sprintf(` { userSearch(keyword: "%s"){ id name } }`, keyword),
 		})
 		assert.NoError(t, err)
 		return e.POST("/api/graphql").
@@ -244,20 +244,18 @@ func TestUserSearch(t *testing.T) {
 			Value("data").Object().Value("userSearch").Array()
 	}
 
-	// name search: partial match on names, emails are never returned
+	// name search: partial match on names
 	ul := search("e2e")
 	ul.Length().IsEqual(4)
 	o := ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
-	o.Value("email").String().IsEmpty()
 
 	ul = search("e2e2")
 	ul.Length().IsEqual(1)
 	o = ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId2.String())
 	o.Value("name").String().IsEqual("e2e2")
-	o.Value("email").String().IsEmpty()
 
 	// substrings of emails do not match
 	search("e2e.com").IsEmpty()
@@ -269,7 +267,6 @@ func TestUserSearch(t *testing.T) {
 	ul.Length().IsEqual(1)
 	o = ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId2.String())
-	o.Value("email").String().IsEmpty()
 
 	search("notfound").IsEmpty()
 	search("notfound@e2e.com").IsEmpty()
@@ -278,7 +275,7 @@ func TestUserSearch(t *testing.T) {
 func TestUserSearchRequiresAuth(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
-	jsonData, err := json.Marshal(GraphQLRequest{Query: ` { userSearch(keyword: "e2e@e2e.com"){ id name email } }`})
+	jsonData, err := json.Marshal(GraphQLRequest{Query: ` { userSearch(keyword: "e2e@e2e.com"){ id name } }`})
 	assert.NoError(t, err)
 
 	res := e.POST("/api/graphql").
@@ -290,7 +287,7 @@ func TestUserSearchRequiresAuth(t *testing.T) {
 
 func TestNode(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id ... on User{ name email } } }`, uId1.String())
+	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id ... on User{ name } } }`, uId1.String())
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -305,7 +302,21 @@ func TestNode(t *testing.T) {
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("node").Object()
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
-	o.Value("email").String().IsEmpty()
+}
+
+func TestUserHasNoEmailField(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	jsonData, err := json.Marshal(GraphQLRequest{
+		Query: fmt.Sprintf(` { node(id: "%s", type: USER){ id ... on User{ name email } } }`, uId1.String()),
+	})
+	assert.NoError(t, err)
+	res := e.POST("/api/graphql").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect()
+	res.Body().NotContains("e2e@e2e.com")
+	res.JSON().Object().Value("errors").Array().Value(0).Object().
+		Value("message").String().Contains(`Cannot query field "email" on type "User"`)
 }
 
 func TestNodes(t *testing.T) {

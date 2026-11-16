@@ -1655,10 +1655,9 @@ type URLResourcePropsInput struct {
 }
 
 type User struct {
-	ID    ID      `json:"id"`
-	Name  string  `json:"name"`
-	Email string  `json:"email"`
-	Host  *string `json:"host,omitempty"`
+	ID   ID      `json:"id"`
+	Name string  `json:"name"`
+	Host *string `json:"host,omitempty"`
 }
 
 func (User) IsOperator() {}
