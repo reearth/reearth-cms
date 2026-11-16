@@ -6,6 +6,11 @@ import { config } from ".";
 const tenantKey = "reearth_tennant";
 
 export type AuthInfo = {
+  oidcAuthority?: string;
+  oidcClientId?: string;
+  oidcScope?: string;
+  oidcAudience?: string;
+  oidcTokenType?: string;
   auth0ClientId?: string;
   auth0Domain?: string;
   auth0Audience?: string;
@@ -42,6 +47,11 @@ export function logOutFromTenant() {
 function defaultAuthInfo(conf = config()): AuthInfo | undefined {
   if (!conf) return;
   return {
+    oidcAuthority: conf.oidcAuthority,
+    oidcClientId: conf.oidcClientId,
+    oidcScope: conf.oidcScope,
+    oidcAudience: conf.oidcAudience,
+    oidcTokenType: conf.oidcTokenType,
     auth0Audience: conf.auth0Audience,
     auth0ClientId: conf.auth0ClientId,
     auth0Domain: conf.auth0Domain,
