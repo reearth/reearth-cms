@@ -33,6 +33,14 @@ jobs:
           go mod tidy
           git diff --exit-code go.mod go.sum
         working-directory: worker
+      # The shared module has no CI of its own; the worker CI runs whenever it changes.
+      - name: golangci-lint (shared)
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
+        with:
+          version: v2.15.0
+          working-directory: shared
+          args: --config=../.golangci.yml
+          skip-cache: true
       - name: Check go fmt
         working-directory: worker
         run: |
@@ -64,6 +72,9 @@ jobs:
         working-directory: worker
         env:
           REEARTH_CMS_DB: mongodb://localhost
+      - name: test (shared)
+        run: go test -v -race ./...
+        working-directory: shared
       - name: Send coverage report
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:

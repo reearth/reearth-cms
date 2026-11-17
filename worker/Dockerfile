@@ -6,20 +6,20 @@ ARG VERSION
 
 RUN apk add --update --no-cache git ca-certificates build-base
 
-COPY go.work go.work.sum /app/
-COPY server/go.mod server/go.sum server/main.go /app/server/
+# Built from the repository root so the shared module is available.
+COPY shared/go.mod /app/shared/
 COPY worker/go.mod worker/go.sum worker/main.go /app/worker/
 
-WORKDIR /app
+WORKDIR /app/worker
 
 RUN go mod download
 
-COPY server/pkg/ /app/server/pkg/
+COPY shared/ /app/shared/
 COPY worker/cmd/ /app/worker/cmd/
 COPY worker/internal/ /app/worker/internal/
 COPY worker/pkg/ /app/worker/pkg/
 
-RUN CGO_ENABLED=0 go build -tags "${TAG}" "-ldflags=-X main.version=${VERSION} -s -w -buildid=" -trimpath ./worker/cmd/reearth-cms-worker
+RUN CGO_ENABLED=0 go build -tags "${TAG}" "-ldflags=-X main.version=${VERSION} -s -w -buildid=" -trimpath -o /app/reearth-cms-worker ./cmd/reearth-cms-worker
 
 FROM scratch
 

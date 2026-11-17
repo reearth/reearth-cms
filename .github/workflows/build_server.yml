@@ -66,7 +66,8 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
-          context: ./server
+          context: .
+          file: ./server/Dockerfile
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}

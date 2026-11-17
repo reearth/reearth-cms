@@ -5,8 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/shared/task"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/util"
@@ -28,11 +27,11 @@ func TestCopier_Copy(t *testing.T) {
 	iCol := db.Collection("item")
 	w.SetCollection(iCol)
 
-	pid := id.NewProjectID().String()
+	pid := newID()
 	uid := accountdomain.NewUserID().String()
-	mid1, mid2 := id.NewModelID().String(), id.NewModelID().String()
-	sid1, sid2 := id.NewSchemaID().String(), id.NewSchemaID().String()
-	iid1, iid2 := id.NewItemID().String(), id.NewItemID().String()
+	mid1, mid2 := newID(), newID()
+	sid1, sid2 := newID(), newID()
+	iid1, iid2 := newID(), newID()
 
 	i1 := map[string]any{
 		"id":        iid1,

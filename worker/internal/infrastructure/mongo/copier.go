@@ -7,8 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/shared/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -64,6 +63,8 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		result["_id"] = primitive.NewObjectID()
 
 		for k, change := range changesMap {
+			// Every change type in shared/task must be handled here.
+			//exhaustive:enforce
 			switch change.Type {
 			case task.ChangeTypeNew:
 				str, ok := change.Value.(string)
@@ -129,13 +130,14 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 
 func generateId(t string) (string, bool) {
 	switch t {
-	case "item":
-		return id.NewAssetID().String(), true
-	case "schema":
-		return id.NewSchemaID().String(), true
-	case "model":
-		return id.NewModelID().String(), true
+	case "item", "schema", "model":
+		return newID(), true
 	default:
 		return "", false
 	}
+}
+
+// newID returns a new ID in the server's format: a lowercase ULID.
+func newID() string {
+	return strings.ToLower(ulid.Make().String())
 }
