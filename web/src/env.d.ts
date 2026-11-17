@@ -18,6 +18,11 @@ type ImportMetaEnv = {
   readonly REEARTH_CMS_AUTH0_AUDIENCE: string;
   readonly REEARTH_CMS_AUTH0_CLIENT_ID: string;
   readonly REEARTH_CMS_AUTH_PROVIDER: string;
+  readonly REEARTH_CMS_OIDC_AUTHORITY: string;
+  readonly REEARTH_CMS_OIDC_CLIENT_ID: string;
+  readonly REEARTH_CMS_OIDC_SCOPE: string;
+  readonly REEARTH_CMS_OIDC_AUDIENCE: string;
+  readonly REEARTH_CMS_OIDC_TOKEN_TYPE: string;
   readonly REEARTH_CMS_COGNITO_REGION: string;
   readonly REEARTH_CMS_COGNITO_USER_POOL_ID: string;
   readonly REEARTH_CMS_COGNITO_USER_POOL_WEB_CLIENT_ID: string;
