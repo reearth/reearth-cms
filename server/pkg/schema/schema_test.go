@@ -283,6 +283,8 @@ func TestSchema_GeometryFields(t *testing.T) {
 	geoObjF := &Field{id: NewFieldID(), typeProperty: NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty()}
 	geoEdtF := &Field{id: NewFieldID(), typeProperty: NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty()}
 	geoF := &Field{id: NewFieldID(), typeProperty: NewGeometry().TypeProperty()}
+	geoLastF := &Field{id: NewFieldID(), order: 1, typeProperty: NewGeometry().TypeProperty()}
+	geoObjFirstF := &Field{id: NewFieldID(), order: 0, typeProperty: NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty()}
 
 	tests := []struct {
 		name              string
@@ -297,6 +299,7 @@ func TestSchema_GeometryFields(t *testing.T) {
 		// imports never use a geometry editor field, which only accepts the types it supports
 		{name: "geometry editor field", s: &Schema{fields: FieldList{geoEdtF}}, wantHasGeometry: true},
 		{name: "first geometry object or geometry field", s: &Schema{fields: FieldList{geoEdtF, geoF, geoObjF}}, wantHasGeometry: true, wantDefaultImport: geoF},
+		{name: "first in field order, not storage order", s: &Schema{fields: FieldList{geoLastF, geoObjFirstF}}, wantHasGeometry: true, wantDefaultImport: geoObjFirstF},
 	}
 
 	for _, tt := range tests {
