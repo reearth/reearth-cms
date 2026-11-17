@@ -1553,7 +1553,6 @@ export type Query = {
   projects: ProjectConnection;
   requests: RequestConnection;
   searchItem: ItemConnection;
-  userByNameOrEmail?: Maybe<User>;
   userSearch: Array<User>;
   versionsByItem: Array<VersionedItem>;
   view: Array<View>;
@@ -1650,10 +1649,6 @@ export type QueryRequestsArgs = {
 
 export type QuerySearchItemArgs = {
   input: SearchItemInput;
-};
-
-export type QueryUserByNameOrEmailArgs = {
-  nameOrEmail: Scalars["String"]["input"];
 };
 
 export type QueryUserSearchArgs = {

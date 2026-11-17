@@ -261,6 +261,40 @@ func TestUpdateWorkspaceSettings_InvalidTerrainTypeRejected(t *testing.T) {
 	}
 }
 
+func TestUpdateWorkspaceSettings_InvalidResourceIDRejected(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
+
+	tiles := map[string]any{
+		"resources": []map[string]any{
+			{
+				"tile": map[string]any{
+					"id":   "invalid",
+					"type": "DEFAULT",
+					"props": map[string]any{
+						"name":  "name1",
+						"url":   "url1",
+						"image": "image1",
+					},
+				},
+			},
+		},
+		"selectedResource": nil,
+		"enabled":          false,
+	}
+	terrains := map[string]any{
+		"resources":        []map[string]any{},
+		"selectedResource": nil,
+		"enabled":          false,
+	}
+
+	// the resource used to be saved as a nil entry and dropped on read
+	res := updateWorkspaceSettingsRaw(e, wId.String(), tiles, terrains).
+		Status(http.StatusOK).
+		JSON().Object()
+	res.Path("$.errors[0].message").String().IsEqual("invalid ID")
+	res.Value("data").Object().Value("updateWorkspaceSettings").IsNull()
+}
+
 func TestUpdateWorkspaceSettings(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
 

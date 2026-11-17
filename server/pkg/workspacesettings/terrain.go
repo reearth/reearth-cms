@@ -7,6 +7,10 @@ const (
 	TerrainTypeCesiumIon      TerrainType = "CESIUM_ION"
 )
 
+func (t TerrainType) IsValid() bool {
+	return t == TerrainTypeReearthTerrain || t == TerrainTypeCesiumIon
+}
+
 type TerrainResource struct {
 	id    ResourceID
 	rtype TerrainType

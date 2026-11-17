@@ -459,13 +459,25 @@ func TestIntegration_SetLogoUrl(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   string
+		want   *url.URL
 	}{
 		{
 			name:   "set",
 			fields: fields{},
 			args:   args{logoUrl: lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))},
-			want:   "https://sub.hugo.com/dir?p=1#test",
+			want:   lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
+		},
+		{
+			name:   "nil removes the logo",
+			fields: fields{logoUrl: lo.Must(url.Parse("https://sub.hugo.com"))},
+			args:   args{logoUrl: nil},
+			want:   nil,
+		},
+		{
+			name:   "an empty URL removes the logo",
+			fields: fields{logoUrl: lo.Must(url.Parse("https://sub.hugo.com"))},
+			args:   args{logoUrl: &url.URL{}},
+			want:   nil,
 		},
 	}
 	for _, tt := range tests {
@@ -484,7 +496,7 @@ func TestIntegration_SetLogoUrl(t *testing.T) {
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetLogoUrl(tt.args.logoUrl)
-			assert.Equal(t, tt.want, i.logoUrl.String())
+			assert.Equal(t, tt.want, i.logoUrl)
 		})
 	}
 }
@@ -1294,4 +1306,36 @@ func TestIntegration_RandomToken(t *testing.T) {
 	assert.NotNil(t, i.token)
 	assert.True(t, strings.HasPrefix(i.token, "secret_"))
 	assert.Equal(t, 50, len(i.token))
+}
+
+func TestIntegration_Validate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		args    *Integration
+		wantErr error
+	}{
+		{
+			name: "must accept an integration with an ID and a developer",
+			args: &Integration{id: NewID(), developer: accountdomain.NewUserID()},
+		},
+		{
+			name:    "must reject an integration without an ID",
+			args:    &Integration{developer: accountdomain.NewUserID()},
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "must reject an integration without a developer",
+			args:    &Integration{id: NewID()},
+			wantErr: ErrInvalidID,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantErr, tc.args.Validate())
+		})
+	}
 }

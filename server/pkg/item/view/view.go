@@ -55,6 +55,16 @@ func (v *View) Clone() *View {
 	}
 }
 
+func (v *View) Validate() error {
+	if v.id.IsNil() || v.project.IsNil() || v.model.IsNil() || v.schema.IsNil() || v.user.IsNil() {
+		return ErrInvalidID
+	}
+	if v.filter != nil {
+		return v.filter.Validate()
+	}
+	return nil
+}
+
 func (v *View) Project() ProjectID {
 	return v.project
 }
@@ -63,8 +73,14 @@ func (v *View) SetName(name string) {
 	v.name = name
 }
 
-func (v *View) SetFilter(condition *Condition) {
+func (v *View) SetFilter(condition *Condition) error {
+	if condition != nil {
+		if err := condition.Validate(); err != nil {
+			return err
+		}
+	}
 	v.filter = condition
+	return nil
 }
 
 func (v *View) SetSort(sort *Sort) {

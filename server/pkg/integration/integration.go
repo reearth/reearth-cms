@@ -23,6 +23,13 @@ type Integration struct {
 	updatedAt   time.Time
 }
 
+func (i *Integration) Validate() error {
+	if i.id.IsNil() || i.developer.IsNil() {
+		return ErrInvalidID
+	}
+	return nil
+}
+
 func (i *Integration) ID() ID {
 	return i.id
 }
@@ -55,8 +62,16 @@ func (i *Integration) LogoUrl() *url.URL {
 	return i.logoUrl
 }
 
+// SetLogoUrl sets the logo. The logo is optional, so an empty URL removes it.
 func (i *Integration) SetLogoUrl(logoUrl *url.URL) {
+	if isEmptyURL(logoUrl) {
+		logoUrl = nil
+	}
 	i.logoUrl = logoUrl
+}
+
+func isEmptyURL(u *url.URL) bool {
+	return u == nil || u.String() == ""
 }
 
 func (i *Integration) Token() string {

@@ -215,3 +215,53 @@ func Test_WorkspaceSettingsDocument_Model(t *testing.T) {
 		})
 	}
 }
+
+func TestFromResourceDocument(t *testing.T) {
+	t.Parallel()
+	rid := workspacesettings.NewResourceID()
+
+	tests := []struct {
+		name string
+		args *ResourceDocument
+		want *workspacesettings.Resource
+	}{
+		{
+			name: "tile",
+			args: &ResourceDocument{Tile: &TileResourceDocument{ID: rid.String(), Type: "DEFAULT", Props: UrlResourcePropsDocument{Name: "n"}}},
+			want: workspacesettings.NewResource(workspacesettings.ResourceTypeTile,
+				workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, workspacesettings.NewURLResourceProps("n", "", "")), nil),
+		},
+		{
+			name: "terrain",
+			args: &ResourceDocument{Terrain: &TerrainResourceDocument{ID: rid.String(), Type: "CESIUM_ION"}},
+			want: workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil,
+				workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeCesiumIon, workspacesettings.NewCesiumResourceProps("", "", "", "", ""))),
+		},
+		{
+			name: "a tile with an invalid ID is skipped",
+			args: &ResourceDocument{Tile: &TileResourceDocument{ID: "invalid", Type: "DEFAULT"}},
+		},
+		{
+			name: "a terrain with an empty ID is skipped",
+			args: &ResourceDocument{Terrain: &TerrainResourceDocument{Type: "CESIUM_ION"}},
+		},
+		{
+			name: "a tile with an unknown type is skipped",
+			args: &ResourceDocument{Tile: &TileResourceDocument{ID: rid.String(), Type: "UNKNOWN"}},
+		},
+		{
+			name: "a resource with neither a tile nor a terrain is skipped",
+			args: &ResourceDocument{ResourceType: "TILE"},
+		},
+		{
+			name: "nil",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, FromResourceDocument(tc.args))
+		})
+	}
+}

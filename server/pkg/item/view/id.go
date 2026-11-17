@@ -12,6 +12,8 @@ type ProjectID = id.ProjectID
 type ModelID = id.ModelID
 type SchemaID = id.SchemaID
 
+var ErrInvalidID = id.ErrInvalidID
+
 var NewID = id.NewViewID
 var NewProjectID = id.NewProjectID
 var NewModelID = id.NewModelID

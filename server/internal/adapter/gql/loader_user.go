@@ -2,11 +2,14 @@ package gql
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -41,22 +44,38 @@ func (c *UserLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-func (c *UserLoader) ByNameOrEmail(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error) {
-	res, err := c.usecase.FetchByNameOrEmail(ctx, nameOrEmail)
+// Search finds users to invite to a workspace without exposing other users' email addresses:
+// a keyword containing "@" matches only an identical email, and any other keyword matches names only and returns no email.
+func (c *UserLoader) Search(ctx context.Context, keyword string) ([]*gqlmodel.User, error) {
+	keyword = strings.TrimSpace(keyword)
+
+	if strings.Contains(keyword, "@") {
+		u, err := c.usecase.FetchByNameOrEmail(ctx, keyword)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return []*gqlmodel.User{}, nil
+			}
+			return nil, err
+		}
+		if u == nil || !strings.EqualFold(u.Email, keyword) {
+			return []*gqlmodel.User{}, nil
+		}
+		return []*gqlmodel.User{gqlmodel.SimpleToUser(u)}, nil
+	}
+
+	res, err := c.usecase.SearchUser(ctx, keyword)
 	if err != nil {
 		return nil, err
 	}
 
-	return gqlmodel.SimpleToUser(res), nil
-}
-
-func (c *UserLoader) Search(ctx context.Context, nameOrEmail string) ([]*gqlmodel.User, error) {
-	res, err := c.usecase.SearchUser(ctx, nameOrEmail)
-	if err != nil {
-		return nil, err
-	}
-
-	return lo.Map(res, func(u *user.Simple, _ int) *gqlmodel.User {
-		return gqlmodel.SimpleToUser(u)
+	lowerKeyword := strings.ToLower(keyword)
+	return lo.FilterMap(res, func(u *user.Simple, _ int) (*gqlmodel.User, bool) {
+		// SearchUser also matches emails partially; drop those hits so emails cannot be probed by substring.
+		if u == nil || !strings.Contains(strings.ToLower(u.Name), lowerKeyword) {
+			return nil, false
+		}
+		gu := gqlmodel.SimpleToUser(u)
+		gu.Email = ""
+		return gu, true
 	}), nil
 }

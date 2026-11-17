@@ -382,6 +382,7 @@ const (
 	ValueTypeBool           ValueType = "bool"
 	ValueTypeCheckbox       ValueType = "checkbox"
 	ValueTypeDate           ValueType = "date"
+	ValueTypeGeometry       ValueType = "geometry"
 	ValueTypeGeometryEditor ValueType = "geometryEditor"
 	ValueTypeGeometryObject ValueType = "geometryObject"
 	ValueTypeGroup          ValueType = "group"
@@ -407,6 +408,8 @@ func (e ValueType) Valid() bool {
 	case ValueTypeCheckbox:
 		return true
 	case ValueTypeDate:
+		return true
+	case ValueTypeGeometry:
 		return true
 	case ValueTypeGeometryEditor:
 		return true

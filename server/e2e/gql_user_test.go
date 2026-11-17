@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -227,97 +228,64 @@ func TestMe(t *testing.T) {
 	o.Value("profilePictureUrl").String().IsEqual("")
 }
 
-func TestUserByNameOrEmail(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := fmt.Sprintf(` { userByNameOrEmail(nameOrEmail: "%s"){ id name email } }`, "e2e")
-	request := GraphQLRequest{
-		Query: query,
-	}
-	jsonData, err := json.Marshal(request)
-	if err != nil {
-		assert.NoError(t, err)
-	}
-	o := e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("userByNameOrEmail").Object()
-	o.Value("id").String().IsEqual(uId1.String())
-	o.Value("name").String().IsEqual("e2e")
-	o.Value("email").String().IsEqual("e2e@e2e.com")
-
-	query = fmt.Sprintf(` { userByNameOrEmail(nameOrEmail: "%s"){ id name email } }`, "notfound")
-	request = GraphQLRequest{
-		Query: query,
-	}
-	jsonData, err = json.Marshal(request)
-	if err != nil {
-		assert.NoError(t, err)
-	}
-	e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("data").Object().Value("userByNameOrEmail").IsNull()
-}
-
 func TestUserSearch(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, "e2e")
-	request := GraphQLRequest{
-		Query: query,
-	}
-	jsonData, err := json.Marshal(request)
-	if err != nil {
+
+	search := func(keyword string) *httpexpect.Array {
+		jsonData, err := json.Marshal(GraphQLRequest{
+			Query: fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, keyword),
+		})
 		assert.NoError(t, err)
+		return e.POST("/api/graphql").
+			WithHeader("authorization", "Bearer test").
+			WithHeader("Content-Type", "application/json").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+			Value("data").Object().Value("userSearch").Array()
 	}
-	res := e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	ul := res.Value("data").Object().Value("userSearch").Array()
+
+	// name search: partial match on names, emails are never returned
+	ul := search("e2e")
 	ul.Length().IsEqual(4)
 	o := ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
-	o.Value("email").String().IsEqual("e2e@e2e.com")
+	o.Value("email").String().IsEmpty()
 
-	query = fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, "e2e2")
-	request = GraphQLRequest{
-		Query: query,
-	}
-	jsonData, err = json.Marshal(request)
-	if err != nil {
-		assert.NoError(t, err)
-	}
-	res = e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	ul = res.Value("data").Object().Value("userSearch").Array()
+	ul = search("e2e2")
 	ul.Length().IsEqual(1)
 	o = ul.Value(0).Object()
 	o.Value("id").String().IsEqual(uId2.String())
 	o.Value("name").String().IsEqual("e2e2")
+	o.Value("email").String().IsEmpty()
+
+	// substrings of emails do not match
+	search("e2e.com").IsEmpty()
+	search("@e2e.com").IsEmpty()
+	search("e2e2@e2e").IsEmpty()
+
+	// an exact email matches only that user
+	ul = search("e2e2@e2e.com")
+	ul.Length().IsEqual(1)
+	o = ul.Value(0).Object()
+	o.Value("id").String().IsEqual(uId2.String())
 	o.Value("email").String().IsEqual("e2e2@e2e.com")
 
-	query = fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, "notfound")
-	request = GraphQLRequest{
-		Query: query,
-	}
-	jsonData, err = json.Marshal(request)
-	if err != nil {
-		assert.NoError(t, err)
-	}
-	e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
+	search("notfound").IsEmpty()
+	search("notfound@e2e.com").IsEmpty()
+}
+
+func TestUserSearchRequiresAuth(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	jsonData, err := json.Marshal(GraphQLRequest{Query: ` { userSearch(keyword: "e2e@e2e.com"){ id name email } }`})
+	assert.NoError(t, err)
+
+	res := e.POST("/api/graphql").
 		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("data").Object().Value("userSearch").Array().IsEmpty()
+		WithBytes(jsonData).Expect().Status(http.StatusOK)
+	res.JSON().Object().Value("errors").Array().NotEmpty()
+	res.Body().NotContains("e2e@e2e.com")
 }
 
 func TestNode(t *testing.T) {

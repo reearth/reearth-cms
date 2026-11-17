@@ -10,8 +10,10 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransaction bool, acRepo *accountrepo.Container) (*repo.Container, error) {
@@ -110,6 +112,20 @@ func logIndexResult(name string, r mongox.IndexResult) {
 		return
 	}
 	log.Infof("mongo: %s: index deleted: %v, updated: %v, created: %v", name, d, u, a)
+}
+
+// sortByID sorts by the ID, which follows the creation time
+func sortByID() *options.FindOptions {
+	return options.Find().SetSort(bson.D{{Key: "id", Value: 1}})
+}
+
+// filterByIDs skips unknown IDs and orders the rows like the given IDs
+func filterByIDs[K comparable, T interface{ ID() K }](ids []K, rows []T) []T {
+	byID := lo.KeyBy(rows, func(r T) K { return r.ID() })
+	return lo.FilterMap(ids, func(id K, _ int) (T, bool) {
+		r, ok := byID[id]
+		return r, ok
+	})
 }
 
 func applyWorkspaceFilter(filter any, ids accountdomain.WorkspaceIDList) any {

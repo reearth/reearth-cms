@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
@@ -50,7 +51,7 @@ func (s *Sort) Into() *usecasex.Sort {
 	}
 	return &usecasex.Sort{
 		Key:      s.Key,
-		Reverted: *s.Reverted,
+		Reverted: lo.FromPtr(s.Reverted),
 	}
 }
 

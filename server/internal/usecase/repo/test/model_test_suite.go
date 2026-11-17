@@ -892,6 +892,20 @@ func testModelFindByIDOrKey(t *testing.T, newRepo modelFactory) {
 			want:   p1m1,
 		},
 		{
+			name:    "must not find a model of an unreadable project by ID",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
+			args:    args{p1, model.IDOrKey(p1m1.ID().String())},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "must not find a model of an unreadable project by key",
+			seeds:   seeds,
+			filter:  new(pjFilter(id.ProjectIDList{p2}, id.ProjectIDList{p2})),
+			args:    args{p1, model.IDOrKey(p1m1.Key().String())},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
 			name:    "must not find a model of another project by ID",
 			seeds:   seeds,
 			args:    args{p2, model.IDOrKey(p1m1.ID().String())},
@@ -1118,6 +1132,13 @@ func testModelSaveAll(t *testing.T, newRepo modelFactory) {
 		{
 			name:    "must not save models outside writable projects",
 			filter:  new(pjFilter(id.ProjectIDList{p1, p2}, nil)),
+			args:    model.List{p1m1, p2m1},
+			want:    model.List{},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:    "must not save a list that includes an unwritable project",
+			filter:  new(pjFilter(nil, id.ProjectIDList{p1})),
 			args:    model.List{p1m1, p2m1},
 			want:    model.List{},
 			wantErr: repo.ErrOperationDenied,

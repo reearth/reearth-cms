@@ -33,6 +33,7 @@ func TestNew(t *testing.T) {
 
 func TestBuilder_Build(t *testing.T) {
 	iId := id.NewIntegrationID()
+	uId := accountdomain.NewUserID()
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -50,12 +51,20 @@ func TestBuilder_Build(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
+			name:    "no developer",
+			fields:  fields{i: &Integration{id: iId}},
+			want:    nil,
+			wantErr: ErrInvalidID,
+		},
+		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
-				id: iId,
+				id:        iId,
+				developer: uId,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -64,10 +73,12 @@ func TestBuilder_Build(t *testing.T) {
 			name: "full",
 			fields: fields{i: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			},
 			wantErr: nil,
@@ -94,6 +105,7 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	iId := id.NewIntegrationID()
+	uId := accountdomain.NewUserID()
 	now := time.Now()
 	type fields struct {
 		i *Integration
@@ -111,12 +123,20 @@ func TestBuilder_MustBuild(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
+			name:    "no developer",
+			fields:  fields{i: &Integration{id: iId}},
+			want:    nil,
+			wantErr: ErrInvalidID,
+		},
+		{
 			name: "no updated at",
 			fields: fields{i: &Integration{
-				id: iId,
+				id:        iId,
+				developer: uId,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: iId.Timestamp(),
 			},
 			wantErr: nil,
@@ -125,10 +145,12 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "full",
 			fields: fields{i: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			}},
 			want: &Integration{
 				id:        iId,
+				developer: uId,
 				updatedAt: now,
 			},
 			wantErr: nil,
@@ -327,9 +349,15 @@ func TestBuilder_LogoUrl(t *testing.T) {
 			want:   &Builder{i: &Integration{logoUrl: lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))}},
 		},
 		{
-			name:   "set",
+			name:   "nil",
 			fields: fields{i: &Integration{}},
 			args:   args{logoURL: nil},
+			want:   &Builder{i: &Integration{logoUrl: nil}},
+		},
+		{
+			name:   "an empty URL is no logo",
+			fields: fields{i: &Integration{}},
+			args:   args{logoURL: &url.URL{}},
 			want:   &Builder{i: &Integration{logoUrl: nil}},
 		},
 	}

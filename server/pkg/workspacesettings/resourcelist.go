@@ -24,6 +24,18 @@ func (wr *ResourceList) Enabled() *bool {
 	return wr.enabled
 }
 
+func (wr *ResourceList) Validate() error {
+	if wr == nil {
+		return nil
+	}
+	for _, r := range wr.resources {
+		if err := r.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (wr *ResourceList) SetResources(r []*Resource) {
 	wr.resources = slices.Clone(r)
 }
