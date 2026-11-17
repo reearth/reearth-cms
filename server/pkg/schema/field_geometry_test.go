@@ -41,6 +41,7 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "line string", input: `{"type":"LineString","coordinates":[[1,1],[2,2]]}`},
 		{name: "multi line string", input: `{"type":"MultiLineString","coordinates":[[[1,1],[2,2]],[[3,3],[4,4]]]}`},
 		{name: "polygon", input: `{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,0]]]}`},
+		{name: "bbox is removed before validation", input: `{"type":"Polygon","bbox":[0,0,1,1],"coordinates":[[[0,0],[1,0],[1,1],[0,0]]]}`},
 		{name: "polygon with a hole", input: `{"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,0]],[[1,1],[2,1],[2,2],[1,1]]]}`},
 		{name: "multi polygon", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]]]}`},
 		{name: "geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,1]},{"type":"LineString","coordinates":[[1,1],[2,2]]}]}`},
@@ -54,7 +55,8 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "geometries in a point", input: `{"type":"Point","coordinates":[1,1],"geometries":[]}`, want: ErrGeometryUnknownProperty},
 		{name: "coordinates in a geometry collection", input: `{"type":"GeometryCollection","geometries":[],"coordinates":[]}`, want: ErrGeometryUnknownProperty},
 		{name: "missing coordinates", input: `{"type":"Point"}`, want: ErrGeometryInvalidCoordinates},
-		{name: "missing geometries", input: `{"type":"GeometryCollection"}`, want: ErrGeometryInvalidCoordinates},
+		{name: "missing geometries", input: `{"type":"GeometryCollection"}`, want: ErrGeometryInvalidGeometries},
+		{name: "geometries is not a list", input: `{"type":"GeometryCollection","geometries":{}}`, want: ErrGeometryInvalidGeometries},
 		{name: "nested geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[]}]}`, want: ErrGeometryNestedCollection},
 		{name: "member is not an object", input: `{"type":"GeometryCollection","geometries":[[1,1]]}`, want: ErrGeometryInvalidType},
 
@@ -133,5 +135,18 @@ func TestField_ValidateValue_Geometry(t *testing.T) {
 		assert.Equal(t, f.Key().Ref(), errs[0].Key)
 		assert.Equal(t, FieldValidationCodeInvalidGeoStructure, errs[0].Code)
 		assert.ErrorIs(t, errs[0], ErrGeometryUnknownProperty)
+	}
+}
+
+func TestGeometryErrors_InvalidGeoStructure(t *testing.T) {
+	t.Parallel()
+
+	f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	for _, err := range []error{
+		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
+		ErrGeometryInvalidPosition, ErrGeometryLongitudeOutOfRange, ErrGeometryLatitudeOutOfRange, ErrGeometryReversedCoordinates,
+		ErrGeometryLineStringTooShort, ErrGeometryRingTooShort, ErrGeometryRingNotClosed, ErrGeometryNestedCollection,
+	} {
+		assert.Equal(t, FieldValidationCodeInvalidGeoStructure, f.ValidationError(err, FieldValidationCodeConstraint).Code, err.Error())
 	}
 }

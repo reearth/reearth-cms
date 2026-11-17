@@ -26,6 +26,9 @@ run-app:
 run-db:
 	docker compose up -d reearth-cms-mongo
 
+run-dex:
+	docker compose up -d reearth-cms-dex
+
 gql:
 	go generate ./internal/adapter/gql
 
@@ -46,4 +49,4 @@ grpc:
 gen-policies: gen-cerbos-policies
 	go run ./cmd/policy-generator
 
-.PHONY: lint test build check run-app run-db gql i18n i18n-ci oapi grpc gen-cerbos-policies gen-policies
+.PHONY: lint test build check run-app run-db run-dex gql i18n i18n-ci oapi grpc gen-cerbos-policies gen-policies

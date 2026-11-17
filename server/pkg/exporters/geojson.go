@@ -181,7 +181,7 @@ func extractGeometry(field *item.Field) (*types.Geometry, bool) {
 	v := field.Value().First()
 	geoStr, ok := v.ValueString()
 	// Geometry field values are stored as objects instead of GeoJSON strings
-	if g, isObject := v.ValueGeometry(); isObject {
+	if g, isObject := v.ValueJson(); isObject {
 		b, err := json.Marshal(g)
 		geoStr, ok = string(b), err == nil
 	}
