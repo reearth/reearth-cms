@@ -9,20 +9,19 @@ func NewComment(c *thread.Comment) *Comment {
 		return nil
 	}
 
-	var authorID any
-	var authorType CommentAuthorType
-	if c.Author().User() != nil {
-		authorID = c.Author().User().Ref()
-		authorType = User
-	}
-	if c.Author().Integration() != nil {
-		authorID = c.Author().Integration().Ref()
-		authorType = Integrtaion
+	// authorId holds either a user ID or an integration ID; authorType tells which.
+	// Machine and anonymous authors have neither, so both fields are omitted.
+	var authorID *string
+	var authorType *CommentAuthorType
+	if u := c.Author().User(); u != nil {
+		authorID, authorType = new(u.String()), new(User)
+	} else if i := c.Author().Integration(); i != nil {
+		authorID, authorType = new(i.String()), new(Integrtaion)
 	}
 	return &Comment{
 		Id:         c.ID().Ref(),
-		AuthorId:   &authorID,
-		AuthorType: &authorType,
+		AuthorId:   authorID,
+		AuthorType: authorType,
 		Content:    new(c.Content()),
 		CreatedAt:  new(c.CreatedAt()),
 	}

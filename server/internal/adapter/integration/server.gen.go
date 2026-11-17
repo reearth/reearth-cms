@@ -21,7 +21,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v5"
 	"github.com/oapi-codegen/runtime"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	. "github.com/reearth/reearth-cms/server/pkg/integrationapi"
 )
 
@@ -184,7 +183,7 @@ func (w *ServerInterfaceWrapper) ProjectFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -237,7 +236,7 @@ func (w *ServerInterfaceWrapper) ProjectCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -290,7 +289,7 @@ func (w *ServerInterfaceWrapper) ProjectDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -298,7 +297,7 @@ func (w *ServerInterfaceWrapper) ProjectDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -314,7 +313,7 @@ func (w *ServerInterfaceWrapper) ProjectGet(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -322,7 +321,7 @@ func (w *ServerInterfaceWrapper) ProjectGet(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -338,7 +337,7 @@ func (w *ServerInterfaceWrapper) ProjectUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -346,7 +345,7 @@ func (w *ServerInterfaceWrapper) ProjectUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -362,7 +361,7 @@ func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -370,7 +369,7 @@ func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -386,7 +385,7 @@ func (w *ServerInterfaceWrapper) AssetFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -394,7 +393,7 @@ func (w *ServerInterfaceWrapper) AssetFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -447,7 +446,7 @@ func (w *ServerInterfaceWrapper) AssetCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -455,7 +454,7 @@ func (w *ServerInterfaceWrapper) AssetCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -471,7 +470,7 @@ func (w *ServerInterfaceWrapper) AssetUploadCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -479,7 +478,7 @@ func (w *ServerInterfaceWrapper) AssetUploadCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -495,7 +494,7 @@ func (w *ServerInterfaceWrapper) AssetDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -503,7 +502,7 @@ func (w *ServerInterfaceWrapper) AssetDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -511,7 +510,7 @@ func (w *ServerInterfaceWrapper) AssetDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -527,7 +526,7 @@ func (w *ServerInterfaceWrapper) AssetGet(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -535,7 +534,7 @@ func (w *ServerInterfaceWrapper) AssetGet(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -543,7 +542,7 @@ func (w *ServerInterfaceWrapper) AssetGet(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -559,7 +558,7 @@ func (w *ServerInterfaceWrapper) AssetCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -567,7 +566,7 @@ func (w *ServerInterfaceWrapper) AssetCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -575,7 +574,7 @@ func (w *ServerInterfaceWrapper) AssetCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -591,7 +590,7 @@ func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -599,7 +598,7 @@ func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -607,7 +606,7 @@ func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -623,7 +622,7 @@ func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -631,7 +630,7 @@ func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -639,7 +638,7 @@ func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -647,7 +646,7 @@ func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "commentId" -------------
 	var commentId CommentIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "comment-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
 	}
@@ -663,7 +662,7 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -671,7 +670,7 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -679,7 +678,7 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -687,7 +686,7 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "commentId" -------------
 	var commentId CommentIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "comment-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
 	}
@@ -703,7 +702,7 @@ func (w *ServerInterfaceWrapper) AssetPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -711,7 +710,7 @@ func (w *ServerInterfaceWrapper) AssetPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -719,7 +718,7 @@ func (w *ServerInterfaceWrapper) AssetPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -735,7 +734,7 @@ func (w *ServerInterfaceWrapper) AssetUnpublish(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -743,7 +742,7 @@ func (w *ServerInterfaceWrapper) AssetUnpublish(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -751,7 +750,7 @@ func (w *ServerInterfaceWrapper) AssetUnpublish(ctx *echo.Context) error {
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "asset-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
 	}
@@ -767,7 +766,7 @@ func (w *ServerInterfaceWrapper) AssetContentGet(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -775,7 +774,7 @@ func (w *ServerInterfaceWrapper) AssetContentGet(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -815,7 +814,7 @@ func (w *ServerInterfaceWrapper) GroupFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -823,7 +822,7 @@ func (w *ServerInterfaceWrapper) GroupFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -869,7 +868,7 @@ func (w *ServerInterfaceWrapper) GroupCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -877,7 +876,7 @@ func (w *ServerInterfaceWrapper) GroupCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -923,7 +922,7 @@ func (w *ServerInterfaceWrapper) GroupDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -931,7 +930,7 @@ func (w *ServerInterfaceWrapper) GroupDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -939,7 +938,7 @@ func (w *ServerInterfaceWrapper) GroupDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "groupIdOrKey" -------------
 	var groupIdOrKey GroupIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "group-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
 	}
@@ -955,7 +954,7 @@ func (w *ServerInterfaceWrapper) GroupGet(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -963,7 +962,7 @@ func (w *ServerInterfaceWrapper) GroupGet(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -971,7 +970,7 @@ func (w *ServerInterfaceWrapper) GroupGet(ctx *echo.Context) error {
 	// ------------- Path parameter "groupIdOrKey" -------------
 	var groupIdOrKey GroupIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "group-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
 	}
@@ -987,7 +986,7 @@ func (w *ServerInterfaceWrapper) GroupUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -995,7 +994,7 @@ func (w *ServerInterfaceWrapper) GroupUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1003,7 +1002,7 @@ func (w *ServerInterfaceWrapper) GroupUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "groupIdOrKey" -------------
 	var groupIdOrKey GroupIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "group-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
 	}
@@ -1019,7 +1018,7 @@ func (w *ServerInterfaceWrapper) ModelFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1027,7 +1026,7 @@ func (w *ServerInterfaceWrapper) ModelFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1080,7 +1079,7 @@ func (w *ServerInterfaceWrapper) ModelCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1088,7 +1087,7 @@ func (w *ServerInterfaceWrapper) ModelCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1141,7 +1140,7 @@ func (w *ServerInterfaceWrapper) ModelDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1149,7 +1148,7 @@ func (w *ServerInterfaceWrapper) ModelDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1157,7 +1156,7 @@ func (w *ServerInterfaceWrapper) ModelDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1173,7 +1172,7 @@ func (w *ServerInterfaceWrapper) ModelGet(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1181,7 +1180,7 @@ func (w *ServerInterfaceWrapper) ModelGet(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1189,7 +1188,7 @@ func (w *ServerInterfaceWrapper) ModelGet(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1205,7 +1204,7 @@ func (w *ServerInterfaceWrapper) ModelUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1213,7 +1212,7 @@ func (w *ServerInterfaceWrapper) ModelUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1221,7 +1220,7 @@ func (w *ServerInterfaceWrapper) ModelUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1237,7 +1236,7 @@ func (w *ServerInterfaceWrapper) ModelCopy(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1245,7 +1244,7 @@ func (w *ServerInterfaceWrapper) ModelCopy(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1253,7 +1252,7 @@ func (w *ServerInterfaceWrapper) ModelCopy(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1269,7 +1268,7 @@ func (w *ServerInterfaceWrapper) ModelImport(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1277,7 +1276,7 @@ func (w *ServerInterfaceWrapper) ModelImport(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1285,7 +1284,7 @@ func (w *ServerInterfaceWrapper) ModelImport(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1301,7 +1300,7 @@ func (w *ServerInterfaceWrapper) ItemFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1309,7 +1308,7 @@ func (w *ServerInterfaceWrapper) ItemFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1317,7 +1316,7 @@ func (w *ServerInterfaceWrapper) ItemFilter(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1384,7 +1383,7 @@ func (w *ServerInterfaceWrapper) ItemCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1392,7 +1391,7 @@ func (w *ServerInterfaceWrapper) ItemCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1400,7 +1399,7 @@ func (w *ServerInterfaceWrapper) ItemCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1416,7 +1415,7 @@ func (w *ServerInterfaceWrapper) ItemsAsCSV(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1424,7 +1423,7 @@ func (w *ServerInterfaceWrapper) ItemsAsCSV(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1432,7 +1431,7 @@ func (w *ServerInterfaceWrapper) ItemsAsCSV(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1471,7 +1470,7 @@ func (w *ServerInterfaceWrapper) ItemsAsGeoJSON(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1479,7 +1478,7 @@ func (w *ServerInterfaceWrapper) ItemsAsGeoJSON(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1487,7 +1486,7 @@ func (w *ServerInterfaceWrapper) ItemsAsGeoJSON(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1526,7 +1525,7 @@ func (w *ServerInterfaceWrapper) ItemFilterPost(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1534,7 +1533,7 @@ func (w *ServerInterfaceWrapper) ItemFilterPost(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1542,7 +1541,7 @@ func (w *ServerInterfaceWrapper) ItemFilterPost(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1609,7 +1608,7 @@ func (w *ServerInterfaceWrapper) ItemDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1617,7 +1616,7 @@ func (w *ServerInterfaceWrapper) ItemDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1625,7 +1624,7 @@ func (w *ServerInterfaceWrapper) ItemDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1633,7 +1632,7 @@ func (w *ServerInterfaceWrapper) ItemDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1649,7 +1648,7 @@ func (w *ServerInterfaceWrapper) ItemGet(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1657,7 +1656,7 @@ func (w *ServerInterfaceWrapper) ItemGet(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1665,7 +1664,7 @@ func (w *ServerInterfaceWrapper) ItemGet(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1673,7 +1672,7 @@ func (w *ServerInterfaceWrapper) ItemGet(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1705,7 +1704,7 @@ func (w *ServerInterfaceWrapper) ItemUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1713,7 +1712,7 @@ func (w *ServerInterfaceWrapper) ItemUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1721,7 +1720,7 @@ func (w *ServerInterfaceWrapper) ItemUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1729,7 +1728,7 @@ func (w *ServerInterfaceWrapper) ItemUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1745,7 +1744,7 @@ func (w *ServerInterfaceWrapper) ItemCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1753,7 +1752,7 @@ func (w *ServerInterfaceWrapper) ItemCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1761,7 +1760,7 @@ func (w *ServerInterfaceWrapper) ItemCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1769,7 +1768,7 @@ func (w *ServerInterfaceWrapper) ItemCommentList(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1785,7 +1784,7 @@ func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1793,7 +1792,7 @@ func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1801,7 +1800,7 @@ func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1809,7 +1808,7 @@ func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1825,7 +1824,7 @@ func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1833,7 +1832,7 @@ func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1841,7 +1840,7 @@ func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1849,7 +1848,7 @@ func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1857,7 +1856,7 @@ func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "commentId" -------------
 	var commentId CommentIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "comment-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
 	}
@@ -1873,7 +1872,7 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1881,7 +1880,7 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1889,7 +1888,7 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1897,7 +1896,7 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1905,7 +1904,7 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "commentId" -------------
 	var commentId CommentIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "comment-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
 	}
@@ -1921,7 +1920,7 @@ func (w *ServerInterfaceWrapper) ItemPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1929,7 +1928,7 @@ func (w *ServerInterfaceWrapper) ItemPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1937,7 +1936,7 @@ func (w *ServerInterfaceWrapper) ItemPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -1945,7 +1944,7 @@ func (w *ServerInterfaceWrapper) ItemPublish(ctx *echo.Context) error {
 	// ------------- Path parameter "itemId" -------------
 	var itemId ItemIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
@@ -1970,7 +1969,7 @@ func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx *echo.Context) 
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -1978,7 +1977,7 @@ func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx *echo.Context) 
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -1986,7 +1985,7 @@ func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx *echo.Context) 
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -2002,7 +2001,7 @@ func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -2010,7 +2009,7 @@ func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -2018,7 +2017,7 @@ func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx *echo.Context) error {
 	// ------------- Path parameter "modelIdOrKey" -------------
 	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
@@ -2034,7 +2033,7 @@ func (w *ServerInterfaceWrapper) FieldCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -2042,7 +2041,7 @@ func (w *ServerInterfaceWrapper) FieldCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -2050,7 +2049,7 @@ func (w *ServerInterfaceWrapper) FieldCreate(ctx *echo.Context) error {
 	// ------------- Path parameter "schemaId" -------------
 	var schemaId SchemaIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "schema-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
 	}
@@ -2066,7 +2065,7 @@ func (w *ServerInterfaceWrapper) FieldDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -2074,7 +2073,7 @@ func (w *ServerInterfaceWrapper) FieldDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -2082,7 +2081,7 @@ func (w *ServerInterfaceWrapper) FieldDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "schemaId" -------------
 	var schemaId SchemaIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "schema-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
 	}
@@ -2090,7 +2089,7 @@ func (w *ServerInterfaceWrapper) FieldDelete(ctx *echo.Context) error {
 	// ------------- Path parameter "fieldIdOrKey" -------------
 	var fieldIdOrKey FieldIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "field-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
 	}
@@ -2106,7 +2105,7 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "workspaceIdOrAlias" -------------
 	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
@@ -2114,7 +2113,7 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
@@ -2122,7 +2121,7 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "schemaId" -------------
 	var schemaId SchemaIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "schema-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
 	}
@@ -2130,7 +2129,7 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx *echo.Context) error {
 	// ------------- Path parameter "fieldIdOrKey" -------------
 	var fieldIdOrKey FieldIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "field-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
 	}
@@ -2192,49 +2191,49 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias", wrapper.ProjectDelete, options.OperationMiddlewares["ProjectDelete"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias", wrapper.ProjectGet, options.OperationMiddlewares["ProjectGet"]...)
 	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias", wrapper.ProjectUpdate, options.OperationMiddlewares["ProjectUpdate"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models", wrapper.ModelFilter, options.OperationMiddlewares["ModelFilter"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models", wrapper.ModelCreate, options.OperationMiddlewares["ModelCreate"]...)
-	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDelete, options.OperationMiddlewares["ModelDelete"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelGet, options.OperationMiddlewares["ModelGet"]...)
-	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelUpdate, options.OperationMiddlewares["ModelUpdate"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelAsJSON, options.OperationMiddlewares["SchemaByModelAsJSON"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON, options.OperationMiddlewares["MetadataSchemaByModelAsJSON"]...)
-	router.PUT(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/import", wrapper.ModelImport, options.OperationMiddlewares["ModelImport"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/copy", wrapper.ModelCopy, options.OperationMiddlewares["ModelCopy"]...)
+	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetBatchDelete, options.OperationMiddlewares["AssetBatchDelete"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetFilter, options.OperationMiddlewares["AssetFilter"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetCreate, options.OperationMiddlewares["AssetCreate"]...)
+	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId", wrapper.AssetDelete, options.OperationMiddlewares["AssetDelete"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId", wrapper.AssetGet, options.OperationMiddlewares["AssetGet"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments", wrapper.AssetCommentList, options.OperationMiddlewares["AssetCommentList"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments", wrapper.AssetCommentCreate, options.OperationMiddlewares["AssetCommentCreate"]...)
+	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete, options.OperationMiddlewares["AssetCommentDelete"]...)
+	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate, options.OperationMiddlewares["AssetCommentUpdate"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/publish", wrapper.AssetPublish, options.OperationMiddlewares["AssetPublish"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/unpublish", wrapper.AssetUnpublish, options.OperationMiddlewares["AssetUnpublish"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:uuid1/:uuid2/:filename", wrapper.AssetContentGet, options.OperationMiddlewares["AssetContentGet"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/uploads", wrapper.AssetUploadCreate, options.OperationMiddlewares["AssetUploadCreate"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups", wrapper.GroupFilter, options.OperationMiddlewares["GroupFilter"]...)
 	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups", wrapper.GroupCreate, options.OperationMiddlewares["GroupCreate"]...)
 	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupDelete, options.OperationMiddlewares["GroupDelete"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupGet, options.OperationMiddlewares["GroupGet"]...)
 	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupUpdate, options.OperationMiddlewares["GroupUpdate"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields", wrapper.FieldCreate, options.OperationMiddlewares["FieldCreate"]...)
-	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete, options.OperationMiddlewares["FieldDelete"]...)
-	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate, options.OperationMiddlewares["FieldUpdate"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models", wrapper.ModelFilter, options.OperationMiddlewares["ModelFilter"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models", wrapper.ModelCreate, options.OperationMiddlewares["ModelCreate"]...)
+	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDelete, options.OperationMiddlewares["ModelDelete"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelGet, options.OperationMiddlewares["ModelGet"]...)
+	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelUpdate, options.OperationMiddlewares["ModelUpdate"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/copy", wrapper.ModelCopy, options.OperationMiddlewares["ModelCopy"]...)
+	router.PUT(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/import", wrapper.ModelImport, options.OperationMiddlewares["ModelImport"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemFilter, options.OperationMiddlewares["ItemFilter"]...)
 	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemCreate, options.OperationMiddlewares["ItemCreate"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/filter", wrapper.ItemFilterPost, options.OperationMiddlewares["ItemFilterPost"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items.geojson", wrapper.ItemsAsGeoJSON, options.OperationMiddlewares["ItemsAsGeoJSON"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items.csv", wrapper.ItemsAsCSV, options.OperationMiddlewares["ItemsAsCSV"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items.geojson", wrapper.ItemsAsGeoJSON, options.OperationMiddlewares["ItemsAsGeoJSON"]...)
 	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId", wrapper.ItemDelete, options.OperationMiddlewares["ItemDelete"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId", wrapper.ItemGet, options.OperationMiddlewares["ItemGet"]...)
 	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId", wrapper.ItemUpdate, options.OperationMiddlewares["ItemUpdate"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/publish", wrapper.ItemPublish, options.OperationMiddlewares["ItemPublish"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments", wrapper.ItemCommentList, options.OperationMiddlewares["ItemCommentList"]...)
 	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments", wrapper.ItemCommentCreate, options.OperationMiddlewares["ItemCommentCreate"]...)
 	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete, options.OperationMiddlewares["ItemCommentDelete"]...)
 	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate, options.OperationMiddlewares["ItemCommentUpdate"]...)
-	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetBatchDelete, options.OperationMiddlewares["AssetBatchDelete"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetFilter, options.OperationMiddlewares["AssetFilter"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetCreate, options.OperationMiddlewares["AssetCreate"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/uploads", wrapper.AssetUploadCreate, options.OperationMiddlewares["AssetUploadCreate"]...)
-	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId", wrapper.AssetDelete, options.OperationMiddlewares["AssetDelete"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId", wrapper.AssetGet, options.OperationMiddlewares["AssetGet"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/publish", wrapper.AssetPublish, options.OperationMiddlewares["AssetPublish"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/unpublish", wrapper.AssetUnpublish, options.OperationMiddlewares["AssetUnpublish"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:uuid1/:uuid2/:filename", wrapper.AssetContentGet, options.OperationMiddlewares["AssetContentGet"]...)
-	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments", wrapper.AssetCommentList, options.OperationMiddlewares["AssetCommentList"]...)
-	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments", wrapper.AssetCommentCreate, options.OperationMiddlewares["AssetCommentCreate"]...)
-	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete, options.OperationMiddlewares["AssetCommentDelete"]...)
-	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate, options.OperationMiddlewares["AssetCommentUpdate"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/publish", wrapper.ItemPublish, options.OperationMiddlewares["ItemPublish"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/filter", wrapper.ItemFilterPost, options.OperationMiddlewares["ItemFilterPost"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON, options.OperationMiddlewares["MetadataSchemaByModelAsJSON"]...)
+	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelAsJSON, options.OperationMiddlewares["SchemaByModelAsJSON"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields", wrapper.FieldCreate, options.OperationMiddlewares["FieldCreate"]...)
+	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete, options.OperationMiddlewares["FieldDelete"]...)
+	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate, options.OperationMiddlewares["FieldUpdate"]...)
 
 }
 
@@ -2367,7 +2366,7 @@ type ProjectDeleteResponseObject interface {
 }
 
 type ProjectDelete200JSONResponse struct {
-	Id id.ProjectID `json:"id"`
+	Id ProjectID `json:"id"`
 }
 
 func (response ProjectDelete200JSONResponse) VisitProjectDeleteResponse(w http.ResponseWriter) error {
@@ -2533,7 +2532,7 @@ type AssetBatchDeleteResponseObject interface {
 }
 
 type AssetBatchDelete200JSONResponse struct {
-	Ids *[]id.AssetID `json:"ids,omitempty"`
+	Ids *[]AssetID `json:"ids,omitempty"`
 }
 
 func (response AssetBatchDelete200JSONResponse) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
@@ -2736,7 +2735,7 @@ type AssetDeleteResponseObject interface {
 }
 
 type AssetDelete200JSONResponse struct {
-	Id *id.AssetID `json:"id,omitempty"`
+	Id *AssetID `json:"id,omitempty"`
 }
 
 func (response AssetDelete200JSONResponse) VisitAssetDeleteResponse(w http.ResponseWriter) error {
@@ -2930,7 +2929,7 @@ type AssetCommentDeleteResponseObject interface {
 }
 
 type AssetCommentDelete200JSONResponse struct {
-	Id *id.CommentID `json:"id,omitempty"`
+	Id *CommentID `json:"id,omitempty"`
 }
 
 func (response AssetCommentDelete200JSONResponse) VisitAssetCommentDeleteResponse(w http.ResponseWriter) error {
@@ -3285,7 +3284,7 @@ type GroupDeleteResponseObject interface {
 }
 
 type GroupDelete200JSONResponse struct {
-	Id *id.GroupID `json:"id,omitempty"`
+	Id *GroupID `json:"id,omitempty"`
 }
 
 func (response GroupDelete200JSONResponse) VisitGroupDeleteResponse(w http.ResponseWriter) error {
@@ -3553,7 +3552,7 @@ type ModelDeleteResponseObject interface {
 }
 
 type ModelDelete200JSONResponse struct {
-	Id id.ModelID `json:"id"`
+	Id ModelID `json:"id"`
 }
 
 func (response ModelDelete200JSONResponse) VisitModelDeleteResponse(w http.ResponseWriter) error {
@@ -3781,7 +3780,7 @@ type ModelImport200JSONResponse struct {
 	IgnoredCount  *int           `json:"ignoredCount,omitempty"`
 	InsertedCount *int           `json:"insertedCount,omitempty"`
 	ItemsCount    *int           `json:"itemsCount,omitempty"`
-	ModelId       *id.ModelID    `json:"modelId,omitempty"`
+	ModelId       *ModelID       `json:"modelId,omitempty"`
 	NewFields     *[]SchemaField `json:"newFields,omitempty"`
 	UpdatedCount  *int           `json:"updatedCount,omitempty"`
 }
@@ -4136,7 +4135,7 @@ type ItemDeleteResponseObject interface {
 }
 
 type ItemDelete200JSONResponse struct {
-	Id *id.ItemID `json:"id,omitempty"`
+	Id *ItemID `json:"id,omitempty"`
 }
 
 func (response ItemDelete200JSONResponse) VisitItemDeleteResponse(w http.ResponseWriter) error {
@@ -4400,7 +4399,7 @@ type ItemCommentDeleteResponseObject interface {
 }
 
 type ItemCommentDelete200JSONResponse struct {
-	Id *id.CommentID `json:"id,omitempty"`
+	Id *CommentID `json:"id,omitempty"`
 }
 
 func (response ItemCommentDelete200JSONResponse) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
@@ -4707,7 +4706,7 @@ type FieldDeleteResponseObject interface {
 }
 
 type FieldDelete200JSONResponse struct {
-	Id *id.FieldID `json:"id,omitempty"`
+	Id *FieldID `json:"id,omitempty"`
 }
 
 func (response FieldDelete200JSONResponse) VisitFieldDeleteResponse(w http.ResponseWriter) error {
@@ -6615,87 +6614,86 @@ func (sh *strictHandler) FieldUpdate(ctx *echo.Context, workspaceIdOrAlias Works
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
-	"LwL5uQrkzJaKqRfIq9V/BwA=",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
