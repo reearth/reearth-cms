@@ -59,7 +59,7 @@ func TestGQLItemGeometryField_ValidationAndUnique(t *testing.T) {
 		{
 			name:    "reversed coordinates are rejected with their cause",
 			value:   `{"type":"Point","coordinates":[35.6,139.7]}`,
-			wantErr: "INVALID_GEO_STRUCTURE (coordinates seem to be in latitude, longitude order",
+			wantErr: "INVALID_GEO_STRUCTURE (latitude must be between -90 and 90; longitude and latitude may be swapped",
 		},
 		{
 			name:  "a different shape is not a duplicate",

@@ -2,14 +2,12 @@ package schema
 
 import (
 	"encoding/json"
-	"errors"
 	"math"
 	"slices"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 
 	// go.geojson rejects non-numeric and null coordinates, which pkg/types would decode as 0
 	geojson "github.com/paulmach/go.geojson"
@@ -21,40 +19,20 @@ var (
 	ErrGeoFieldInvalidGeoStructure = rerror.NewE(i18n.T("invalid Geo field structure"))
 
 	// errors of the Geometry field
-	ErrGeometryInvalidType         = rerror.NewE(i18n.T("geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection"))
-	ErrGeometryUnknownProperty     = rerror.NewE(i18n.T("geometry contains an unknown property"))
-	ErrGeometryInvalidCoordinates  = rerror.NewE(i18n.T("geometry coordinates are invalid"))
-	ErrGeometryInvalidPosition     = rerror.NewE(i18n.T("a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude"))
-	ErrGeometryLongitudeOutOfRange = rerror.NewE(i18n.T("longitude must be between -180 and 180"))
-	ErrGeometryLatitudeOutOfRange  = rerror.NewE(i18n.T("latitude must be between -90 and 90"))
-	ErrGeometryReversedCoordinates = rerror.NewE(i18n.T("coordinates seem to be in latitude, longitude order; positions must be in longitude, latitude order"))
-	ErrGeometryLineStringTooShort  = rerror.NewE(i18n.T("a LineString must have at least 2 positions"))
-	ErrGeometryRingTooShort        = rerror.NewE(i18n.T("a polygon ring must have at least 4 positions"))
-	ErrGeometryRingNotClosed       = rerror.NewE(i18n.T("the first and last positions of a polygon ring must be equal"))
-	ErrGeometryNestedCollection    = rerror.NewE(i18n.T("a GeometryCollection must not contain another GeometryCollection"))
+	// They wrap ErrGeoFieldInvalidGeoStructure, so they are all reported with FieldValidationCodeInvalidGeoStructure.
+	ErrGeometryInvalidType         = rerror.WrapE(i18n.T("geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryUnknownProperty     = rerror.WrapE(i18n.T("geometry contains an unknown property"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryInvalidCoordinates  = rerror.WrapE(i18n.T("geometry coordinates are invalid"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryInvalidGeometries   = rerror.WrapE(i18n.T("a GeometryCollection must have a list of geometries"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryInvalidPosition     = rerror.WrapE(i18n.T("a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryLongitudeOutOfRange = rerror.WrapE(i18n.T("longitude must be between -180 and 180"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryLatitudeOutOfRange  = rerror.WrapE(i18n.T("latitude must be between -90 and 90"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryReversedCoordinates = rerror.WrapE(i18n.T("latitude must be between -90 and 90; longitude and latitude may be swapped"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryLineStringTooShort  = rerror.WrapE(i18n.T("a LineString must have at least 2 positions"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryRingTooShort        = rerror.WrapE(i18n.T("a polygon ring must have at least 4 positions"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryRingNotClosed       = rerror.WrapE(i18n.T("the first and last positions of a polygon ring must be equal"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryNestedCollection    = rerror.WrapE(i18n.T("a GeometryCollection must not contain another GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
 )
-
-// geoStructureErrors are reported with FieldValidationCodeInvalidGeoStructure.
-var geoStructureErrors = []error{
-	ErrGeoFieldInvalidGeoStructure,
-	ErrGeometryInvalidType,
-	ErrGeometryUnknownProperty,
-	ErrGeometryInvalidCoordinates,
-	ErrGeometryInvalidPosition,
-	ErrGeometryLongitudeOutOfRange,
-	ErrGeometryLatitudeOutOfRange,
-	ErrGeometryReversedCoordinates,
-	ErrGeometryLineStringTooShort,
-	ErrGeometryRingTooShort,
-	ErrGeometryRingNotClosed,
-	ErrGeometryNestedCollection,
-}
-
-func isGeoStructureError(err error) bool {
-	return lo.ContainsBy(geoStructureErrors, func(e error) bool {
-		return errors.Is(err, e)
-	})
-}
 
 const maxGeoFieldBytes = 10 * 1024
 
@@ -202,11 +180,17 @@ func validateGeometryMembers(g map[string]any, inCollection bool) error {
 			return ErrGeometryUnknownProperty
 		}
 	}
-	if _, ok := g[member]; !ok {
-		return ErrGeometryInvalidCoordinates
+	if member == "coordinates" {
+		if _, ok := g[member]; !ok {
+			return ErrGeometryInvalidCoordinates
+		}
+		return nil
 	}
 
-	members, _ := g["geometries"].([]any)
+	members, ok := g["geometries"].([]any)
+	if !ok {
+		return ErrGeometryInvalidGeometries
+	}
 	for _, m := range members {
 		mg, ok := m.(map[string]any)
 		if !ok {
