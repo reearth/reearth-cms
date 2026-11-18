@@ -7,7 +7,7 @@ import { GeoUtils } from "@reearth-cms/utils/geoUtils";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { writeFieldValue } from "../core/fieldValue";
-import type { Originals } from "../core/fieldValue";
+import type { FieldValue, Originals } from "../core/fieldValue";
 import type { GeoStore } from "../core/geoStore";
 import type { GeoJsonPanelHandle } from "../panels/GeoJsonPanel";
 
@@ -17,13 +17,13 @@ type Options = {
   store: GeoStore;
   /** What the editor opened with; null when the stored value could not be read. */
   initialCollection: FeatureCollection | null;
-  /** Original text of each stored shape, so unchanged shapes are written back verbatim. */
+  /** Each stored shape as it was, so unchanged shapes are written back verbatim. */
   originals: Originals;
   multiple: boolean;
   readOnly: boolean;
   jsonPanelRef: RefObject<GeoJsonPanelHandle | null>;
   confirm: EditorConfirm;
-  onApply: (value: string | string[]) => void;
+  onApply: (value: FieldValue) => void;
   onClose: () => void;
 };
 

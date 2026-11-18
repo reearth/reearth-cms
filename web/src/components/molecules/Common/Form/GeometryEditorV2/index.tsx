@@ -5,8 +5,8 @@ import type { ObjectSupportedType } from "@reearth-cms/components/molecules/Sche
 import { useT } from "@reearth-cms/i18n";
 import { GeometryKind, GeoUtils } from "@reearth-cms/utils/geoUtils";
 
-import { readFieldValue } from "./core/fieldValue";
-import type { FieldValue } from "./core/fieldValue";
+import { collectionToText, readFieldValue } from "./core/fieldValue";
+import type { FieldValue, StoredValue } from "./core/fieldValue";
 import EditorModal from "./EditorModal";
 import FieldPreview from "./FieldPreview";
 
@@ -21,9 +21,9 @@ const KIND_BY_SUPPORTED_TYPE: Record<ObjectSupportedType, GeometryKind> = {
 };
 
 type Props = {
-  /** Injected by antd Form.Item: a GeoJSON string, or a list of them when `multiple`. */
-  value?: FieldValue;
-  onChange?: (value: string | string[]) => void;
+  /** Injected by antd Form.Item: a GeoJSON geometry, or a list of them when `multiple`. */
+  value?: StoredValue;
+  onChange?: (value: FieldValue) => void;
   title: string;
   multiple: boolean;
   /** Legacy Geometry Object restriction; omitted means every GeoJSON geometry type. */
@@ -64,26 +64,11 @@ const GeometryEditorV2: React.FC<Props> = ({
   useEffect(() => onValidityChange?.(read.ok), [onValidityChange, read.ok]);
 
   const handleCopy = useCallback(() => {
-    const text = multiple
-      ? JSON.stringify(
-          (Array.isArray(value) ? value : []).filter(Boolean).map(v => {
-            try {
-              return JSON.parse(v);
-            } catch {
-              return v;
-            }
-          }),
-          null,
-          2,
-        )
-      : typeof value === "string"
-        ? value
-        : "";
-
+    const text = read.ok ? collectionToText(read.collection, multiple) : read.text;
     void navigator.clipboard
       ?.writeText(text)
       .then(() => Notification.success({ message: t("Value copied!!") }));
-  }, [multiple, t, value]);
+  }, [multiple, read, t]);
 
   return (
     <>
@@ -93,7 +78,7 @@ const GeometryEditorV2: React.FC<Props> = ({
         disabled={disabled}
         onOpen={() => setOpen(true)}
         onCopy={handleCopy}
-        onClear={() => onChange?.(multiple ? [] : "")}
+        onClear={() => onChange?.(multiple ? [] : null)}
       />
       <EditorModal
         open={open}

@@ -1,4 +1,5 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
+import { z } from "zod";
 
 import { t } from "@reearth-cms/i18n";
 import { GeoUtils } from "@reearth-cms/utils/geoUtils";
@@ -10,16 +11,18 @@ import type { GeometryIssue, ValidateOptions } from "./validation";
 /**
  * The boundary between the CMS field value and the editor's internal document.
  *
- * The field stores what it always has: one GeoJSON geometry serialized to a string, or a
- * list of such strings when `multiple` is on. The editor works on a
- * FeatureCollection because the map diffs on feature ids — those ids are internal and
- * never reach the stored value.
+ * The Geometry field stores one GeoJSON geometry object, or a list of them when `multiple`
+ * is on. The editor works on a FeatureCollection because the map diffs on feature ids —
+ * those ids are internal and never reach the stored value.
  */
 
-export type FieldValue = string | string[] | null | undefined;
+export type FieldValue = Geometry | Geometry[] | null;
 
-/** Internal id -> the exact string the value held, to keep untouched shapes byte-identical. */
-export type Originals = ReadonlyMap<string, string>;
+/** Legacy Geometry Object/Editor fields still store GeoJSON strings; readers accept both. */
+export type StoredValue = FieldValue | string | string[] | undefined;
+
+/** Internal id -> the geometry the value held, to write untouched shapes back unrounded. */
+export type Originals = ReadonlyMap<string, Geometry>;
 
 export type ReadResult =
   | { readonly ok: true; readonly collection: FeatureCollection; readonly originals: Originals }
@@ -27,13 +30,16 @@ export type ReadResult =
 
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 
+/** Empty entries: nothing stored, or a blank legacy string. */
+const BLANK_ENTRY_VALIDATOR = z.union([z.null(), z.undefined(), z.string().trim().length(0)]);
+
 export function readFieldValue(
-  value: FieldValue,
+  value: StoredValue,
   multiple: boolean,
   options: ValidateOptions = {},
 ): ReadResult {
   const entries = (multiple ? (Array.isArray(value) ? value : []) : [value]).filter(
-    (entry): entry is string => typeof entry === "string" && entry.trim() !== "",
+    entry => !BLANK_ENTRY_VALIDATOR.safeParse(entry).success,
   );
   if (!multiple && entries.length === 0) {
     return { ok: true, collection: EMPTY, originals: new Map() };
@@ -42,6 +48,10 @@ export function readFieldValue(
   const parsed: unknown[] = [];
   const issues: GeometryIssue[] = [];
   entries.forEach((entry, i) => {
+    if (typeof entry !== "string") {
+      parsed.push(entry);
+      return;
+    }
     const result = ObjectUtils.parseJSONSync<unknown>(entry);
     if (result.isValid) {
       parsed.push(result.data);
@@ -67,7 +77,9 @@ export function readFieldValue(
   }
 
   const collection = GeoUtils.toCollection(parsed as Geometry[]);
-  const originals = new Map(collection.features.map((f, i) => [String(f.id), entries[i]]));
+  const originals = new Map(
+    collection.features.map((f, i) => [String(f.id), parsed[i] as Geometry]),
+  );
   return { ok: true, collection, originals };
 }
 
@@ -76,24 +88,21 @@ export function writeFieldValue(
   collection: FeatureCollection,
   multiple: boolean,
   originals: Originals = new Map(),
-): string | string[] {
+): Geometry | Geometry[] | null {
   const values = collection.features
     .filter((feature): feature is Feature<Geometry> => !!feature.geometry)
     .map(feature => {
       const original = originals.get(String(feature.id));
-      if (original !== undefined) {
-        const before = ObjectUtils.parseJSONSync<Geometry>(original);
-        // Unchanged shapes keep their exact stored text so version history stays quiet.
-        if (
-          before.isValid &&
-          ObjectUtils.isDeepEqual(GeoUtils.roundGeometry(before.data), feature.geometry)
-        ) {
-          return original;
-        }
+      // The store rounds coordinates; an untouched shape keeps its stored precision and bbox.
+      if (
+        original !== undefined &&
+        ObjectUtils.isDeepEqual(GeoUtils.roundGeometry(original), feature.geometry)
+      ) {
+        return original;
       }
-      return JSON.stringify(feature.geometry);
+      return feature.geometry;
     });
-  return multiple ? values : (values[0] ?? "");
+  return multiple ? values : (values[0] ?? null);
 }
 
 /** The text shown in the GeoJSON panel: exactly the value, pretty-printed. */

@@ -36,7 +36,7 @@ const setup = ({
     useDraft({
       store,
       initialCollection,
-      originals: new Map([["s1", JSON.stringify(Test.GEO_JSON_POINT)]]),
+      originals: new Map([["s1", Test.GEO_JSON_POINT]]),
       multiple: false,
       readOnly,
       jsonPanelRef,
@@ -60,7 +60,7 @@ describe("useDraft", () => {
     const { store, result, onApply, onClose } = setup();
     store.setGeometry("s1", { type: "Point", coordinates: [2, 2] }, EditOrigin.MAP);
     result.current.apply();
-    expect(onApply).toHaveBeenCalledWith('{"type":"Point","coordinates":[2,2]}');
+    expect(onApply).toHaveBeenCalledWith({ type: "Point", coordinates: [2, 2] });
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -85,7 +85,7 @@ describe("useDraft", () => {
   test("an unreadable stored value counts as changed, so Apply writes", () => {
     const { result, onApply } = setup({ initialCollection: null });
     result.current.apply();
-    expect(onApply).toHaveBeenCalledWith(JSON.stringify(Test.GEO_JSON_POINT));
+    expect(onApply).toHaveBeenCalledWith(Test.GEO_JSON_POINT);
   });
 
   test("Cancel closes at once with no changes, or when read-only", () => {

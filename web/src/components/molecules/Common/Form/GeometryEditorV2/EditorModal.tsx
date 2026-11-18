@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import type { Geometry } from "geojson";
 import type Draw from "ol/interaction/Draw";
 import { useCallback, useMemo, useRef, useState } from "react";
 
@@ -11,7 +12,7 @@ import { GeometryKind } from "@reearth-cms/utils/geoUtils";
 import { AntdToken } from "@reearth-cms/utils/style";
 
 import { readFieldValue } from "./core/fieldValue";
-import type { FieldValue, Originals } from "./core/fieldValue";
+import type { FieldValue, Originals, StoredValue } from "./core/fieldValue";
 import { createGeoStore } from "./core/geoStore";
 import type { GeoStore } from "./core/geoStore";
 import { GeoStoreProvider, useGeoSnapshot } from "./core/StoreContext";
@@ -42,8 +43,8 @@ type Props = {
   multiple: boolean;
   readOnly: boolean;
   allowedKinds: readonly GeometryKind[];
-  value: FieldValue;
-  onApply: (value: string | string[]) => void;
+  value: StoredValue;
+  onApply: (value: FieldValue) => void;
   onClose: () => void;
 };
 
@@ -116,7 +117,7 @@ const EditorBody: React.FC<BodyProps> = ({
   const jsonPanelRef = useRef<GeoJsonPanelHandle | null>(null);
 
   const originals = useMemo<Originals>(
-    () => (initial.ok ? initial.originals : new Map<string, string>()),
+    () => (initial.ok ? initial.originals : new Map<string, Geometry>()),
     [initial],
   );
   const hasValue = snapshot.collection.features.length > 0;

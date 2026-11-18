@@ -8,14 +8,14 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { readFieldValue } from "./core/fieldValue";
-import type { ReadResult } from "./core/fieldValue";
+import type { ReadResult, StoredValue } from "./core/fieldValue";
 import { defaultExtent, extentOf, fitTo } from "./map/useMapFocus";
 import { useMapSync } from "./map/useMapSync";
 import { useOlMap } from "./map/useOlMap";
 import ZoomHint from "./map/ZoomHint";
 
 type Props = {
-  value: string | string[];
+  value: StoredValue;
   multiple: boolean;
   /** Shown instead of the map when the value can't be read. */
   fallback: ReactNode;
