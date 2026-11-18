@@ -151,11 +151,71 @@ func validateGeometry(g value.Json) error {
 	if err := validateGeometryMembers(g, false); err != nil {
 		return err
 	}
-	gg, err := geojson.UnmarshalGeometry(b)
-	if err != nil {
+	gg, ok := toGeoJSONGeometry(g)
+	if !ok {
 		return ErrGeometryInvalidCoordinates
 	}
 	return validateGeometryCoordinates(gg)
+}
+
+// toGeoJSONGeometry converts g, whose members are already validated, to a geojson.Geometry.
+// It returns false if any coordinate is not a number or a list is not nested as the type requires.
+func toGeoJSONGeometry(g map[string]any) (*geojson.Geometry, bool) {
+	t, _ := g["type"].(string)
+	gg := &geojson.Geometry{Type: geojson.GeometryType(t)}
+	c := g["coordinates"]
+	ok := true
+	switch gg.Type {
+	case geojson.GeometryPoint:
+		gg.Point, ok = toPosition(c)
+	case geojson.GeometryMultiPoint:
+		gg.MultiPoint, ok = toList(c, toPosition)
+	case geojson.GeometryLineString:
+		gg.LineString, ok = toList(c, toPosition)
+	case geojson.GeometryMultiLineString:
+		gg.MultiLineString, ok = toList(c, toPositions)
+	case geojson.GeometryPolygon:
+		gg.Polygon, ok = toList(c, toPositions)
+	case geojson.GeometryMultiPolygon:
+		gg.MultiPolygon, ok = toList(c, toRings)
+	case geojson.GeometryCollection:
+		gg.Geometries, ok = toList(g["geometries"], func(m any) (*geojson.Geometry, bool) {
+			mg, _ := m.(map[string]any)
+			return toGeoJSONGeometry(mg)
+		})
+	}
+	return gg, ok
+}
+
+func toPosition(v any) ([]float64, bool) {
+	return toList(v, func(n any) (float64, bool) {
+		f, ok := n.(float64)
+		return f, ok
+	})
+}
+
+func toPositions(v any) ([][]float64, bool) {
+	return toList(v, toPosition)
+}
+
+func toRings(v any) ([][][]float64, bool) {
+	return toList(v, toPositions)
+}
+
+func toList[T any](v any, convert func(any) (T, bool)) ([]T, bool) {
+	l, ok := v.([]any)
+	if !ok {
+		return nil, false
+	}
+	res := make([]T, 0, len(l))
+	for _, e := range l {
+		c, ok := convert(e)
+		if !ok {
+			return nil, false
+		}
+		res = append(res, c)
+	}
+	return res, true
 }
 
 // validateGeometryMembers checks the type and the members of g: "type" and either "coordinates" or "geometries".

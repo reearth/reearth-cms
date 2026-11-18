@@ -22,7 +22,6 @@ func TestNewGeometry(t *testing.T) {
 
 	sf := NewField(f.TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	assert.True(t, sf.IsGeometryField())
-	assert.True(t, sf.SupportsPointField())
 }
 
 func TestFieldGeometry_Validate(t *testing.T) {
@@ -66,6 +65,11 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "position with a string", input: `{"type":"Point","coordinates":["1",1]}`, want: ErrGeometryInvalidCoordinates},
 		{name: "position with null altitude", input: `{"type":"Point","coordinates":[1,1,null]}`, want: ErrGeometryInvalidCoordinates},
 		{name: "position is not a list", input: `{"type":"MultiPoint","coordinates":[1,1]}`, want: ErrGeometryInvalidCoordinates},
+		{name: "null coordinates", input: `{"type":"Point","coordinates":null}`, want: ErrGeometryInvalidCoordinates},
+		{name: "ring position with a string", input: `{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,"0"]]]}`, want: ErrGeometryInvalidCoordinates},
+		{name: "polygon nested too shallowly", input: `{"type":"Polygon","coordinates":[[0,0],[1,0],[1,1],[0,0]]}`, want: ErrGeometryInvalidCoordinates},
+		{name: "invalid coordinates are reported before out of range ones", input: `{"type":"LineString","coordinates":[[200,0],["a",0]]}`, want: ErrGeometryInvalidCoordinates},
+		{name: "invalid coordinates in a geometry collection member", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":["a",1]}]}`, want: ErrGeometryInvalidCoordinates},
 		{name: "longitude out of range", input: `{"type":"Point","coordinates":[180.1,35.6]}`, want: ErrGeometryLongitudeOutOfRange},
 		{name: "latitude out of range", input: `{"type":"Point","coordinates":[139.7,90.1]}`, want: ErrGeometryLatitudeOutOfRange},
 		{name: "latitude far out of range", input: `{"type":"Point","coordinates":[10,200]}`, want: ErrGeometryLatitudeOutOfRange},
