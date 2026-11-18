@@ -936,7 +936,7 @@ type Item struct {
 	IsMetadata      *bool      `json:"isMetadata,omitempty"`
 	MetadataFields  *[]Field   `json:"metadataFields,omitempty"`
 	MetadataItemId  *ItemID    `json:"metadataItemId,omitempty"`
-	ModelId         *string    `json:"modelId,omitempty"`
+	ModelId         *ModelID   `json:"modelId,omitempty"`
 	OriginalItemId  *ItemID    `json:"originalItemId,omitempty"`
 	ReferencedItems *[]Item    `json:"referencedItems,omitempty"`
 	UpdatedAt       *time.Time `json:"updatedAt,omitempty"`
@@ -1035,7 +1035,7 @@ type VersionedItem struct {
 	IsMetadata      *bool                 `json:"isMetadata,omitempty"`
 	MetadataFields  *[]Field              `json:"metadataFields,omitempty"`
 	MetadataItemId  *ItemID               `json:"metadataItemId,omitempty"`
-	ModelId         *string               `json:"modelId,omitempty"`
+	ModelId         *ModelID              `json:"modelId,omitempty"`
 	OriginalItemId  *ItemID               `json:"originalItemId,omitempty"`
 	Parents         *[]openapi_types.UUID `json:"parents,omitempty"`
 	ReferencedItems *[]VersionedItem      `json:"referencedItems,omitempty"`

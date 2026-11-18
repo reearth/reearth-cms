@@ -2152,6 +2152,7 @@ components:
           format: item-id
           type: string
         modelId:
+          format: model-id
           type: string
         fields:
           type: array
