@@ -33,7 +33,6 @@ jobs:
           - reearth/reearth-cms-web
           - reearth/reearth-cms-worker
           - reearth/reearth-cms-decompressor
-          - reearth/reearth-cms-copier
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
