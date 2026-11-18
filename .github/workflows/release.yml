@@ -1,30 +1,49 @@
 name: Release
+# Step 2 of a release, after Stage + Deploy CMS dev + acceptance test.
+# Cuts vX.Y.Z on the release branch (CHANGELOG commit + tag), publishes a
+# GitHub Release with the changelog, and promotes the tested :rc images to
+# :X.Y.Z and :latest. "Deploy CMS production" in reearth-cloud then deploys
+# that exact version.
 on:
   workflow_dispatch:
     inputs:
       version:
         required: false
-        description: 'Next version (NOTE: Switch the branch to "release"!)'
+        description: 'Next version (run from the "release" branch). Use "custom" for a specific version.'
         type: choice
         default: minor
         options:
           - patch
           - minor
           - major
+          - custom
+      custom_version:
+        required: false
+        description: 'Custom version without "v" (e.g. 0.2.0) - only used when version is "custom"'
+        type: string
+
+concurrency:
+  group: release-flow
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
-      - name: Set up git config
-        run: |
-          git config --global user.name ${{ vars.GH_APP_USER }}
-          git config --global user.email ${{ vars.GH_APP_ID }}+${{ vars.GH_APP_USER }}[bot]@users.noreply.github.com
       # The default GITHUB_TOKEN cannot push to release/main, so push with the GitHub App token as stage.yml does.
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         id: app-token
@@ -36,26 +55,123 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
+      - name: Set up git config
+        run: |
+          git config --global user.name ${{ vars.GH_APP_USER }}
+          git config --global user.email ${{ vars.GH_APP_ID }}+${{ vars.GH_APP_USER }}[bot]@users.noreply.github.com
+          git config --global pull.rebase false
+      # Images are no longer built from the release branch, only promoted from
+      # main by Stage. Anything pushed straight to release would be missing from
+      # :rc, so the release tree must equal the last staged main commit
+      # (CHANGELOG.md aside).
+      - name: Check that release matches what Stage promoted to rc
+        run: |
+          git fetch --force origin main release
+          staged=$(git log --merges -1 --format=%P origin/release | awk '{print $2}')
+          echo "last staged main commit: $staged"
+          if ! git diff --quiet "$staged" origin/release -- . ':(exclude)CHANGELOG.md'; then
+            echo "::error::release differs from the last staged main commit ($staged), so :rc does not match it. Merge the change to main and run Stage again."
+            git diff --stat "$staged" origin/release -- . ':(exclude)CHANGELOG.md'
+            exit 1
+          fi
+      - name: Check whether this release was already cut
+        id: gate
+        # The tag is the checkpoint for the whole release, so a re-run after a
+        # later step failed skips the cut and only finishes the remaining steps.
+        run: |
+          git fetch --tags --force origin
+          if [ "${{ inputs.version }}" = "custom" ] \
+            && git rev-parse -q --verify "refs/tags/v${{ inputs.custom_version }}" > /dev/null; then
+            echo "cut=true" >> "$GITHUB_OUTPUT"
+            echo "tag v${{ inputs.custom_version }} already exists; skipping the cut"
+          else
+            echo "cut=false" >> "$GITHUB_OUTPUT"
+          fi
       - id: changelog
         name: Generate CHANGELOG
+        if: steps.gate.outputs.cut != 'true'
         uses: reearth/changelog-action@cd9d00f467a683c3c9996c1574cfa42d60968dc5 # main
         with:
-          version: ${{ github.event.inputs.version }}
+          version: ${{ inputs.version == 'custom' && inputs.custom_version || inputs.version }}
           repo: ${{ github.repository }}
           latest: CHANGELOG_latest.md
+      - id: version
+        name: Determine version
+        env:
+          RAW_VERSION: ${{ inputs.version == 'custom' && inputs.custom_version || steps.changelog.outputs.version }}
+        run: echo "version=${RAW_VERSION#v}" >> "$GITHUB_OUTPUT"
       - name: Upload latest CHANGELOG
+        if: steps.gate.outputs.cut != 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: changelog-${{ steps.changelog.outputs.version }}
+          name: changelog-${{ steps.version.outputs.version }}
           path: CHANGELOG_latest.md
-      - name: Commit & push to release
+      - name: Commit & tag release
+        if: steps.gate.outputs.cut != 'true'
         env:
-          TAG: ${{ steps.changelog.outputs.version }}
+          TAG: v${{ steps.version.outputs.version }}
         run: |
           rm CHANGELOG_latest.md
           git add CHANGELOG.md
-          git commit -am "$TAG"
-          git tag $TAG
-          git push --atomic origin release $TAG
-      - name: Commit & push to main
-        run: git switch main && git cherry-pick release && git push
+          git commit -m "$TAG"
+          git tag "$TAG"
+          # Atomic: branch and tag land together or not at all.
+          git push --atomic origin release "$TAG"
+      - id: sha
+        name: Resolve release commit
+        run: echo "sha=$(git rev-parse "v${{ steps.version.outputs.version }}^{commit}")" >> "$GITHUB_OUTPUT"
+      - name: Reconcile main
+        # Copies the release CHANGELOG to main. A no-op when main already has it,
+        # so a re-run is safe.
+        env:
+          TAG: v${{ steps.version.outputs.version }}
+        run: |
+          git fetch --force origin main release
+          git switch -C main origin/main
+          if git diff --quiet origin/release -- CHANGELOG.md; then
+            echo "main already has the release CHANGELOG"
+          else
+            git checkout origin/release -- CHANGELOG.md
+            git commit -m "$TAG" -- CHANGELOG.md
+            git push origin main
+          fi
+
+  promote-to-version:
+    needs: release
+    uses: ./.github/workflows/promote_images.yml
+    with:
+      from_tag: rc
+      to_tags: ${{ needs.release.outputs.version }} latest
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  publish-release:
+    needs: [release, promote-to-version]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: v${{ needs.release.outputs.version }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+      - name: Download latest CHANGELOG
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: changelog-${{ needs.release.outputs.version }}
+      - name: Create GitHub release
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          allowUpdates: true
+          commit: ${{ needs.release.outputs.sha }}
+          name: ${{ env.TAG }}
+          tag: ${{ env.TAG }}
+          bodyFile: CHANGELOG_latest.md
+      - name: Summary
+        run: |
+          echo "### Released $TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "Images: \`reearth/reearth-cms*:${{ needs.release.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Next: run **Deploy CMS production** in reearth-cloud with version \`${{ needs.release.outputs.version }}\`." >> "$GITHUB_STEP_SUMMARY"

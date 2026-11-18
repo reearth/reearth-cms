@@ -1,12 +1,27 @@
 name: Stage
+# Step 1 of a release: freeze main into the release branch and promote the
+# images built from it (nightly -> rc). "Deploy CMS dev" in reearth-cloud then
+# deploys :rc, so dev runs exactly what the next Release will ship.
 on:
   workflow_dispatch:
+
+concurrency:
+  group: release-flow
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   stage:
     name: Stage
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
@@ -26,9 +41,49 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
+      - id: sha
+        name: Resolve main commit
+        run: echo "sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
+      # :nightly is only safe to promote once CI has finished building it from
+      # this exact commit. Refuse to stage while main's CI is running or failed.
+      - name: Check that CI on main finished successfully
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          run=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?branch=main&head_sha=$SHA&per_page=1" \
+            --jq '.workflow_runs[0] | "\(.status) \(.conclusion) \(.html_url)"')
+          echo "ci on $SHA: ${run:-none}"
+          case "$run" in
+            "completed success "*) ;;
+            "") echo "::error::No CI run found for main@$SHA"; exit 1 ;;
+            *)  echo "::error::CI for main@$SHA is not green yet ($run). Wait for it, then stage again."; exit 1 ;;
+          esac
       - name: Checkout release branch
         run: git switch release || git switch -c release
       - name: Merge main branch to release branch
-        run: git merge -X theirs main
+        # --no-ff always records a merge commit; Release reads the staged commit from it.
+        run: git merge --no-ff -X theirs -m "Merge branch 'main' into release" "${{ steps.sha.outputs.sha }}"
+      - name: Check that release now matches main
+        run: |
+          if ! git diff --quiet "${{ steps.sha.outputs.sha }}" HEAD -- . ':(exclude)CHANGELOG.md'; then
+            echo "::error::After the merge, release still differs from main (files changed only on release). Fix main first."
+            git diff --stat "${{ steps.sha.outputs.sha }}" HEAD -- . ':(exclude)CHANGELOG.md'
+            exit 1
+          fi
       - name: Git push
         run: git push origin release
+      - name: Summary
+        run: |
+          echo "### Staged main@\`${{ steps.sha.outputs.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Next: run **Deploy CMS dev** in reearth-cloud, run the acceptance test, then run **Release** from the \`release\` branch." >> "$GITHUB_STEP_SUMMARY"
+
+  promote-to-rc:
+    needs: stage
+    uses: ./.github/workflows/promote_images.yml
+    with:
+      from_tag: nightly
+      to_tags: rc
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

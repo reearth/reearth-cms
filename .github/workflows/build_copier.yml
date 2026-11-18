@@ -3,7 +3,7 @@ on:
   workflow_run:
     workflows: [ci-worker]
     types: [completed]
-    branches: [main, release]
+    branches: [main] # release gets images by promotion, not rebuilds
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true

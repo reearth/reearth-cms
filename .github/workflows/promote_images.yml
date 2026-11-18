@@ -1,0 +1,59 @@
+# Retags already-built images under new tags with a registry-side manifest copy
+# (no rebuild, no pull/push of layers). Stage promotes nightly -> rc and Release
+# promotes rc -> <version> + latest, so the image tested on dev is byte-for-byte
+# the image that ships to production.
+name: promote-images
+on:
+  workflow_call:
+    inputs:
+      from_tag:
+        type: string
+        required: true
+      to_tags:
+        description: Space-separated list of tags to create from from_tag
+        type: string
+        required: true
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - reearth/reearth-cms
+          - reearth/reearth-cms-web
+          - reearth/reearth-cms-worker
+          - reearth/reearth-cms-decompressor
+          - reearth/reearth-cms-copier
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Login to DockerHub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Retag ${{ matrix.image }}
+        env:
+          IMAGE: ${{ matrix.image }}
+          FROM_TAG: ${{ inputs.from_tag }}
+          TO_TAGS: ${{ inputs.to_tags }}
+        run: |
+          args=()
+          for t in $TO_TAGS; do args+=(-t "$IMAGE:$t"); done
+          docker buildx imagetools create "${args[@]}" "$IMAGE:$FROM_TAG"
+          echo "### $IMAGE" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$FROM_TAG\` → \`$TO_TAGS\` ($(docker buildx imagetools inspect "$IMAGE:$FROM_TAG" --format '{{json .Manifest.Digest}}'))" >> "$GITHUB_STEP_SUMMARY"

@@ -134,7 +134,9 @@ jobs:
 
   build-server:
     needs: [prepare, build-prepare]
-    if: needs.prepare.outputs.server == 'true'
+    # Images are built from main only (:nightly). The release branch gets :rc and
+    # :X.Y.Z by promotion (stage.yml / release.yml), never by a rebuild.
+    if: needs.prepare.outputs.server == 'true' && github.ref != 'refs/heads/release'
     uses: ./.github/workflows/build_server.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}
@@ -147,7 +149,9 @@ jobs:
 
   build-worker:
     needs: [prepare, build-prepare]
-    if: needs.prepare.outputs.worker == 'true'
+    # Images are built from main only (:nightly). The release branch gets :rc and
+    # :X.Y.Z by promotion (stage.yml / release.yml), never by a rebuild.
+    if: needs.prepare.outputs.worker == 'true' && github.ref != 'refs/heads/release'
     uses: ./.github/workflows/build_worker.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}
