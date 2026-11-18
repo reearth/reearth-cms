@@ -62,7 +62,7 @@ export type GetAssetsQuery = {
             id: string;
             name: string;
             description: string | null;
-            logoUrl: string;
+            logoUrl: string | null;
             iType: Types.IntegrationType;
             developerId: string;
             createdAt: Date;
@@ -153,7 +153,7 @@ export type GetAssetsItemsQuery = {
             id: string;
             name: string;
             description: string | null;
-            logoUrl: string;
+            logoUrl: string | null;
             iType: Types.IntegrationType;
             developerId: string;
             createdAt: Date;
@@ -237,7 +237,7 @@ export type GetAssetQuery = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -340,7 +340,7 @@ export type GetAssetItemQuery = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -447,7 +447,7 @@ export type CreateAssetMutation = {
             id: string;
             name: string;
             description: string | null;
-            logoUrl: string;
+            logoUrl: string | null;
             iType: Types.IntegrationType;
             developerId: string;
             createdAt: Date;
@@ -526,7 +526,7 @@ export type UpdateAssetMutation = {
             id: string;
             name: string;
             description: string | null;
-            logoUrl: string;
+            logoUrl: string | null;
             iType: Types.IntegrationType;
             developerId: string;
             createdAt: Date;
@@ -620,7 +620,7 @@ export type DecompressAssetMutation = {
             id: string;
             name: string;
             description: string | null;
-            logoUrl: string;
+            logoUrl: string | null;
             iType: Types.IntegrationType;
             developerId: string;
             createdAt: Date;

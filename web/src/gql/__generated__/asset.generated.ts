@@ -29,7 +29,7 @@ export type AssetFragmentFragment = {
         id: string;
         name: string;
         description: string | null;
-        logoUrl: string;
+        logoUrl: string | null;
         iType: Types.IntegrationType;
         developerId: string;
         createdAt: Date;

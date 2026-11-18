@@ -57,7 +57,7 @@ export const fromGraphQLIntegration = (integration: GQLIntegration): Integration
   id: integration.id,
   name: integration.name,
   description: integration.description,
-  logoUrl: integration.logoUrl,
+  logoUrl: integration.logoUrl ?? "",
   developerId: integration.developerId,
   developer: integration.developer,
   iType: integration.iType,

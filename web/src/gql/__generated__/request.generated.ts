@@ -13,6 +13,7 @@ export type SchemaFieldType =
   | "Bool"
   | "Checkbox"
   | "Date"
+  | "Geometry"
   | "GeometryEditor"
   | "GeometryObject"
   | "Group"
@@ -98,6 +99,7 @@ export type RequestFragmentFragment = {
               | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate" }
+              | { __typename: "SchemaFieldGeometry" }
               | { __typename: "SchemaFieldGeometryEditor" }
               | { __typename: "SchemaFieldGeometryObject" }
               | { __typename: "SchemaFieldGroup"; groupId: string }

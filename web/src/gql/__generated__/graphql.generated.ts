@@ -320,7 +320,7 @@ export type CreateGroupInput = {
 
 export type CreateIntegrationInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
-  logoUrl: Scalars["URL"]["input"];
+  logoUrl?: InputMaybe<Scalars["URL"]["input"]>;
   name: Scalars["String"]["input"];
   type: IntegrationType;
 };
@@ -734,7 +734,7 @@ export type Integration = Node & {
   developerId: Scalars["ID"]["output"];
   iType: IntegrationType;
   id: Scalars["ID"]["output"];
-  logoUrl: Scalars["URL"]["output"];
+  logoUrl?: Maybe<Scalars["URL"]["output"]>;
   name: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };
@@ -1868,6 +1868,11 @@ export type SchemaFieldDateInput = {
   defaultValue?: InputMaybe<Scalars["Any"]["input"]>;
 };
 
+export type SchemaFieldGeometry = {
+  __typename?: "SchemaFieldGeometry";
+  defaultValue?: Maybe<Scalars["Any"]["output"]>;
+};
+
 export type SchemaFieldGeometryEditor = {
   __typename?: "SchemaFieldGeometryEditor";
   defaultValue?: Maybe<Scalars["Any"]["output"]>;
@@ -1877,6 +1882,10 @@ export type SchemaFieldGeometryEditor = {
 export type SchemaFieldGeometryEditorInput = {
   defaultValue?: InputMaybe<Scalars["Any"]["input"]>;
   supportedTypes: Array<GeometryEditorSupportedType>;
+};
+
+export type SchemaFieldGeometryInput = {
+  defaultValue?: InputMaybe<Scalars["Any"]["input"]>;
 };
 
 export type SchemaFieldGeometryObject = {
@@ -2037,6 +2046,7 @@ export enum SchemaFieldType {
   Bool = "Bool",
   Checkbox = "Checkbox",
   Date = "Date",
+  Geometry = "Geometry",
   GeometryEditor = "GeometryEditor",
   GeometryObject = "GeometryObject",
   Group = "Group",
@@ -2057,6 +2067,7 @@ export type SchemaFieldTypeProperty =
   | SchemaFieldBool
   | SchemaFieldCheckbox
   | SchemaFieldDate
+  | SchemaFieldGeometry
   | SchemaFieldGeometryEditor
   | SchemaFieldGeometryObject
   | SchemaFieldGroup
@@ -2076,6 +2087,7 @@ export type SchemaFieldTypePropertyInput = {
   bool?: InputMaybe<SchemaFieldBoolInput>;
   checkbox?: InputMaybe<SchemaFieldCheckboxInput>;
   date?: InputMaybe<SchemaFieldDateInput>;
+  geometry?: InputMaybe<SchemaFieldGeometryInput>;
   geometryEditor?: InputMaybe<SchemaFieldGeometryEditorInput>;
   geometryObject?: InputMaybe<SchemaFieldGeometryObjectInput>;
   group?: InputMaybe<SchemaFieldGroupInput>;

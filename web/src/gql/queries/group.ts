@@ -75,6 +75,9 @@ export const GET_GROUP = gql`
                 defaultValue
                 editorSupportedTypes: supportedTypes
               }
+              ... on SchemaFieldGeometry {
+                defaultValue
+              }
             }
           }
         }
