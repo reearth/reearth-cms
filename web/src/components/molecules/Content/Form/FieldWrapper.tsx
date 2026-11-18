@@ -32,7 +32,10 @@ const FieldWrapper: React.FC<Props> = ({
 }) => {
   const isFullWidth = useMemo(
     () =>
-      field.type === "Group" || field.type === "GeometryObject" || field.type === "GeometryEditor",
+      field.type === "Group" ||
+      field.type === "Geometry" ||
+      field.type === "GeometryObject" ||
+      field.type === "GeometryEditor",
     [field.type],
   );
 

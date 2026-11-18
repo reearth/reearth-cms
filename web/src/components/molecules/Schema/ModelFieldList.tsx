@@ -14,7 +14,6 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
 import type { Field } from "./types";
-import { displayFieldType } from "./unifiedGeometry";
 
 type Props = {
   isMeta?: boolean;
@@ -182,8 +181,8 @@ const ModelFieldList: React.FC<Props> = ({
                     <FieldThumbnail>
                       {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
                       <StyledIcon
-                        icon={fieldTypes[displayFieldType(item)].icon}
-                        color={fieldTypes[displayFieldType(item)].color}
+                        icon={fieldTypes[item.type].icon}
+                        color={fieldTypes[item.type].color}
                       />
                     </FieldThumbnail>
                   }

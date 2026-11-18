@@ -95,22 +95,22 @@ describe("buildPostItemCurl", () => {
     );
   });
 
-  test("excludes unsupported field types", () => {
-    const fields = [
+  test.each<[SchemaFieldType, string]>([
+    ["Asset", "cover"],
+    ["Reference", "author"],
+    ["Tag", "labels"],
+    ["Group", "meta"],
+    ["Geometry", "location"],
+    ["GeometryObject", "shape"],
+    ["GeometryEditor", "geo"],
+  ])("excludes %s fields", (type, key) => {
+    const curl = buildPostItemCurl(endpoint, [
       field("Text", { key: "title" }),
-      field("Asset", { key: "cover" }),
-      field("Reference", { key: "author" }),
-      field("Tag", { key: "labels" }),
-      field("Group", { key: "meta" }),
-      field("GeometryObject", { key: "shape" }),
-      field("GeometryEditor", { key: "geo" }),
-    ];
+      field(type, { key }),
+    ]);
 
-    const curl = buildPostItemCurl(endpoint, fields);
     expect(curl).toContain('"title": "<Text>"');
-    for (const key of ["cover", "author", "labels", "meta", "shape", "geo"]) {
-      expect(curl).not.toContain(`"${key}"`);
-    }
+    expect(curl).not.toContain(`"${key}"`);
   });
 
   test("yields an empty fields object when no field is supported", () => {

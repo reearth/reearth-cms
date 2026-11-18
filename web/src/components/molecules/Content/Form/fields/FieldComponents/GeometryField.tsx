@@ -5,11 +5,7 @@ import GeometryEditorV2 from "@reearth-cms/components/molecules/Common/Form/Geom
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
-import type {
-  FieldProps,
-  ObjectSupportedType,
-} from "@reearth-cms/components/molecules/Schema/types";
-import { isUnifiedGeometryField } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
+import type { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
@@ -40,9 +36,7 @@ const GeometryField: React.FC<FieldProps> = ({
 
   const isEditor = useMemo(() => field.type === "GeometryEditor", [field.type]);
 
-  // Prototype: the unified Geometry field (a Geometry Object accepting every type) uses the
-  // new editor; restricted Geometry Object and Geometry Editor fields keep the old one.
-  const useV2 = useMemo<boolean>(() => isUnifiedGeometryField(field), [field]);
+  const useV2 = useMemo<boolean>(() => field.type === "Geometry", [field.type]);
 
   const handleValidityChange = useCallback(
     (valid: boolean) => (valid ? errorDelete(0) : errorAdd(0)),
@@ -72,7 +66,6 @@ const GeometryField: React.FC<FieldProps> = ({
             <GeometryEditorV2
               title={field.title}
               multiple
-              supportedTypes={field.typeProperty?.objectSupportedTypes as ObjectSupportedType[]}
               disabled={disabled}
               onValidityChange={handleValidityChange}
             />
@@ -81,7 +74,6 @@ const GeometryField: React.FC<FieldProps> = ({
           <GeometryEditorV2
             title={field.title}
             multiple={false}
-            supportedTypes={field.typeProperty?.objectSupportedTypes as ObjectSupportedType[]}
             disabled={disabled}
             onValidityChange={handleValidityChange}
           />
