@@ -47,6 +47,11 @@ jobs:
         run: |
           go generate ./internal/adapter/gql
           git diff --exit-code ./internal/adapter/gql
+      - name: Check oapi generation
+        working-directory: server
+        run: |
+          go generate ./pkg/integrationapi ./internal/adapter/integration
+          git diff --exit-code ./pkg/integrationapi ./internal/adapter/integration
       - name: Check go fmt
         working-directory: server
         run: |
