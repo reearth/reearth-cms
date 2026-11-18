@@ -1,11 +1,17 @@
 name: Release
-# Step 2 of a release, run from the release branch after Stage.
-# Cuts vX.Y.Z on the release branch (CHANGELOG commit + tag), promotes the
-# images Stage built from the staged commit (:stage-<sha>, the same images as
-# :rc) to :X.Y.Z and :latest, and publishes a GitHub Release.
+# Step 2 of a release, run from the release branch after Stage and the
+# acceptance test. Takes the candidate commit that Stage built and that was
+# tested, checks that the release branch and the candidate images match it,
+# cuts vX.Y.Z (CHANGELOG commit + tag), promotes the candidate images
+# (:stage-<sha>) to :X.Y.Z (+ :latest for stable versions) and publishes a
+# GitHub Release.
 on:
   workflow_dispatch:
     inputs:
+      candidate:
+        required: true
+        description: 'Candidate commit SHA from the Stage run that was tested (shown in its summary)'
+        type: string
       version:
         required: false
         description: 'Next version (run from the "release" branch). Use "custom" for a specific version.'
@@ -18,7 +24,7 @@ on:
           - custom
       custom_version:
         required: false
-        description: 'Custom version without "v" (e.g. 0.2.0) - only used when version is "custom"'
+        description: 'Custom version without "v" (e.g. 0.2.0 or 0.2.0-beta.1) - only used when version is "custom"'
         type: string
 
 concurrency:
@@ -27,6 +33,12 @@ concurrency:
 
 permissions:
   contents: read
+
+env:
+  # Every image Stage builds; all of them must exist for the candidate.
+  IMAGES: reearth/reearth-cms reearth/reearth-cms-web reearth/reearth-cms-worker reearth/reearth-cms-decompressor reearth/reearth-cms-copier
+  # Docker tags cannot contain "+", so build metadata is not allowed.
+  VERSION_PATTERN: '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'
 
 jobs:
   release:
@@ -37,13 +49,28 @@ jobs:
       contents: write
     outputs:
       version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
       sha: ${{ steps.sha.outputs.sha }}
-      staged: ${{ steps.staged.outputs.sha }}
+      candidate: ${{ steps.candidate.outputs.sha }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
+      - name: Validate inputs
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+          CUSTOM_VERSION: ${{ inputs.custom_version }}
+          CANDIDATE: ${{ inputs.candidate }}
+        run: |
+          if ! [[ "$CANDIDATE" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "::error::candidate must be a commit SHA (7-40 lowercase hex characters)"
+            exit 1
+          fi
+          if [ "$VERSION_INPUT" = "custom" ] && ! [[ "$CUSTOM_VERSION" =~ $VERSION_PATTERN ]]; then
+            echo "::error::custom_version must look like 1.2.3 or 1.2.3-beta.1 (no leading v, no +metadata)"
+            exit 1
+          fi
       # The default GITHUB_TOKEN cannot push to release/main, so push with the GitHub App token as stage.yml does.
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         id: app-token
@@ -53,6 +80,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          # The branch tip, not the dispatch commit: a re-run after the cut
+          # then sees the version commit and resumes it instead of cutting again.
+          ref: refs/heads/release
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
       - name: Set up git config
@@ -60,22 +90,47 @@ jobs:
           git config --global user.name ${{ vars.GH_APP_USER }}
           git config --global user.email ${{ vars.GH_APP_ID }}+${{ vars.GH_APP_USER }}[bot]@users.noreply.github.com
           git config --global pull.rebase false
-      # Release images are built by Stage from the staged main commit, never
-      # from the release branch. Anything pushed straight to release would be
-      # missing from them, so the release tree must equal the last staged main
-      # commit (CHANGELOG.md aside).
-      - name: Check that release matches what Stage built
-        id: staged
+      - name: Resolve candidate
+        id: candidate
+        env:
+          CANDIDATE: ${{ inputs.candidate }}
         run: |
-          git fetch --force origin main release
-          staged=$(git log --first-parent --merges -1 --format=%P origin/release | awk '{print $2}')
-          echo "last staged main commit: $staged"
-          echo "sha=$staged" >> "$GITHUB_OUTPUT"
-          if ! git diff --quiet "$staged" origin/release -- . ':(exclude)CHANGELOG.md'; then
-            echo "::error::release differs from the last staged main commit ($staged), so the staged images do not match it. Merge the change to main and run Stage again."
-            git diff --stat "$staged" origin/release -- . ':(exclude)CHANGELOG.md'
+          git fetch --force origin main
+          sha=$(git rev-parse --verify --quiet "${CANDIDATE}^{commit}") || {
+            echo "::error::Candidate $CANDIDATE is not a known commit"; exit 1; }
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::Candidate $sha is not on main"; exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      # Release images are built by Stage from the candidate commit, never from
+      # the release branch. If release differs from the candidate (another Stage
+      # ran after the acceptance test, or a commit was pushed straight to
+      # release), the candidate images do not match it.
+      - name: Check that release matches the candidate
+        env:
+          SHA: ${{ steps.candidate.outputs.sha }}
+        run: |
+          if ! git diff --quiet "$SHA" HEAD -- . ':(exclude)CHANGELOG.md'; then
+            echo "::error::release differs from candidate $SHA. Use the candidate of the latest Stage run, or run Stage again and repeat the acceptance test."
+            git diff --stat "$SHA" HEAD -- . ':(exclude)CHANGELOG.md'
             exit 1
           fi
+      # Check every image before writing anything, so a failed Stage build can
+      # never lead to a partial release.
+      - name: Check that all candidate images exist
+        env:
+          SHA: ${{ steps.candidate.outputs.sha }}
+        run: |
+          missing=0
+          for image in $IMAGES; do
+            if digest=$(docker buildx imagetools inspect "$image:stage-$SHA" --format '{{json .Manifest.Digest}}' 2>/dev/null); then
+              echo "$image:stage-$SHA $digest"
+            else
+              echo "::error::Missing $image:stage-$SHA. Did every build job of the Stage run succeed?"
+              missing=1
+            fi
+          done
+          exit $missing
       - name: Check whether this release was already cut
         id: gate
         # The tag is the checkpoint for the whole release. If release HEAD is
@@ -104,7 +159,17 @@ jobs:
         name: Determine version
         env:
           RAW_VERSION: ${{ steps.gate.outputs.tag || (inputs.version == 'custom' && inputs.custom_version) || steps.changelog.outputs.version }}
-        run: echo "version=${RAW_VERSION#v}" >> "$GITHUB_OUTPUT"
+        run: |
+          version="${RAW_VERSION#v}"
+          if ! [[ "$version" =~ $VERSION_PATTERN ]]; then
+            echo "::error::Invalid version '$version'"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$version" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Commit & tag release
         if: steps.gate.outputs.cut != 'true'
         env:
@@ -118,29 +183,36 @@ jobs:
           git push --atomic origin release "$TAG"
       - id: sha
         name: Resolve release commit
-        run: echo "sha=$(git rev-parse "v${{ steps.version.outputs.version }}^{commit}")" >> "$GITHUB_OUTPUT"
-      - name: Reconcile main
-        # Copies the release CHANGELOG to main. A no-op when main already has it,
-        # so a re-run is safe.
         env:
           TAG: v${{ steps.version.outputs.version }}
+        run: echo "sha=$(git rev-parse "$TAG^{commit}")" >> "$GITHUB_OUTPUT"
+      - name: Copy the release CHANGELOG entry to main
+        # Cherry-picks the version commit (CHANGELOG.md only) so entries that
+        # main already has are kept. A no-op when main already has this version.
+        env:
+          TAG: v${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          git fetch --force origin main release
+          git fetch --force origin main
           git switch -C main origin/main
-          if git diff --quiet origin/release -- CHANGELOG.md; then
-            echo "main already has the release CHANGELOG"
-          else
-            git checkout origin/release -- CHANGELOG.md
-            git commit -m "$TAG" -- CHANGELOG.md
-            git push origin main
+          if grep -q "^## $VERSION " CHANGELOG.md; then
+            echo "main already has the $TAG CHANGELOG entry"
+            exit 0
           fi
+          if ! git cherry-pick "$TAG"; then
+            echo "::error::Could not apply the $TAG CHANGELOG entry to main. Resolve it by hand and push to main."
+            git cherry-pick --abort
+            exit 1
+          fi
+          git push origin main
 
   promote-to-version:
     needs: release
     uses: ./.github/workflows/promote_images.yml
     with:
-      from_tag: stage-${{ needs.release.outputs.staged }}
-      to_tags: ${{ needs.release.outputs.version }} latest
+      from_tag: stage-${{ needs.release.outputs.candidate }}
+      # Prereleases (X.Y.Z-suffix) never move :latest.
+      to_tags: ${{ needs.release.outputs.prerelease == 'true' && needs.release.outputs.version || format('{0} latest', needs.release.outputs.version) }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -152,6 +224,7 @@ jobs:
       contents: write
     env:
       TAG: v${{ needs.release.outputs.version }}
+      VERSION: ${{ needs.release.outputs.version }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
@@ -164,8 +237,6 @@ jobs:
       # Read the notes from CHANGELOG.md at the tag, so a re-run or a later
       # dispatch can publish the release without the original run's files.
       - name: Extract release notes
-        env:
-          VERSION: ${{ needs.release.outputs.version }}
         run: |
           awk -v h="## $VERSION " 'index($0, h) == 1 {p = 1; next} p && /^## / {exit} p' CHANGELOG.md > CHANGELOG_latest.md
           if [ ! -s CHANGELOG_latest.md ]; then
@@ -180,7 +251,8 @@ jobs:
           name: ${{ env.TAG }}
           tag: ${{ env.TAG }}
           bodyFile: CHANGELOG_latest.md
+          prerelease: ${{ needs.release.outputs.prerelease == 'true' }}
       - name: Summary
         run: |
           echo "### Released $TAG" >> "$GITHUB_STEP_SUMMARY"
-          echo "Images: \`reearth/reearth-cms*:${{ needs.release.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Images: \`reearth/reearth-cms*:$VERSION\`" >> "$GITHUB_STEP_SUMMARY"

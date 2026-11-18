@@ -1,6 +1,6 @@
 # Retags already-built images under new tags with a registry-side manifest copy
 # (no rebuild, no pull/push of layers). Release promotes the images Stage built
-# (:stage-<sha>) to :<version> + :latest, so the image tested on dev is
+# (:stage-<sha>) to :<version> (+ :latest), so the image tested on dev is
 # byte-for-byte the image that ships to production.
 name: promote-images
 on:
@@ -52,8 +52,11 @@ jobs:
           FROM_TAG: ${{ inputs.from_tag }}
           TO_TAGS: ${{ inputs.to_tags }}
         run: |
+          # Resolve the source once and copy by digest, so the copy and the
+          # summary refer to the same image even if the source tag moves.
+          digest=$(docker buildx imagetools inspect "$IMAGE:$FROM_TAG" --format '{{json .Manifest.Digest}}' | tr -d '"')
           args=()
           for t in $TO_TAGS; do args+=(-t "$IMAGE:$t"); done
-          docker buildx imagetools create "${args[@]}" "$IMAGE:$FROM_TAG"
+          docker buildx imagetools create "${args[@]}" "$IMAGE@$digest"
           echo "### $IMAGE" >> "$GITHUB_STEP_SUMMARY"
-          echo "\`$FROM_TAG\` → \`$TO_TAGS\` ($(docker buildx imagetools inspect "$IMAGE:$FROM_TAG" --format '{{json .Manifest.Digest}}'))" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$FROM_TAG\` ($digest) → \`$TO_TAGS\`" >> "$GITHUB_STEP_SUMMARY"

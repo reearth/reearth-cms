@@ -134,9 +134,10 @@ jobs:
 
   build-server:
     needs: [prepare, build-prepare]
-    # No builds on the release branch: release images are built by stage.yml from
-    # the staged commit and promoted by release.yml. A build here would overwrite :rc.
-    if: needs.prepare.outputs.server == 'true' && github.ref != 'refs/heads/release'
+    # Only pushes to main build images (:nightly). Release images are built by
+    # stage.yml from the staged commit; any other build (release branch, or a PR
+    # from release) would overwrite :rc.
+    if: needs.prepare.outputs.server == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/build_server.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}
@@ -149,9 +150,10 @@ jobs:
 
   build-worker:
     needs: [prepare, build-prepare]
-    # No builds on the release branch: release images are built by stage.yml from
-    # the staged commit and promoted by release.yml. A build here would overwrite :rc.
-    if: needs.prepare.outputs.worker == 'true' && github.ref != 'refs/heads/release'
+    # Only pushes to main build images (:nightly). Release images are built by
+    # stage.yml from the staged commit; any other build (release branch, or a PR
+    # from release) would overwrite :rc.
+    if: needs.prepare.outputs.worker == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/build_worker.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}

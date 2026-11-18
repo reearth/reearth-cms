@@ -65,7 +65,6 @@ jobs:
       - name: Checkout release branch
         run: git switch release || git switch -c release
       - name: Merge main branch to release branch
-        # --no-ff always records a merge commit; Release reads the staged commit from it.
         run: git merge --no-ff -X theirs -m "Merge branch 'main' into release" "${{ steps.sha.outputs.sha }}"
       - name: Check that release now matches main
         run: |
@@ -76,10 +75,6 @@ jobs:
           fi
       - name: Git push
         run: git push origin release
-      - name: Summary
-        run: |
-          echo "### Staged main@\`${{ steps.sha.outputs.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "Images: \`:rc\` and \`:stage-${{ steps.sha.outputs.sha }}\` (built by the jobs below)" >> "$GITHUB_STEP_SUMMARY"
 
   # Build every image from the staged commit (not from :nightly, which can be
   # overwritten by any later merge). :stage-<sha> pins the exact build that
@@ -122,3 +117,20 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  # Runs only when every build succeeded, so the candidate it reports always
+  # has all of its images.
+  summary:
+    needs: [stage, build-server, build-web, build-worker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        env:
+          SHA: ${{ needs.stage.outputs.sha }}
+        run: |
+          {
+            echo "### Release candidate ready"
+            echo "Candidate: \`$SHA\`"
+            echo "Images: \`:rc\` and \`:stage-$SHA\`"
+            echo "Test \`:rc\`, then run **Release** from the \`release\` branch with this candidate."
+          } >> "$GITHUB_STEP_SUMMARY"
