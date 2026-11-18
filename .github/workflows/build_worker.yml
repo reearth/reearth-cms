@@ -11,6 +11,18 @@ on:
         type: string
       name:
         type: string
+      ref:
+        description: Commit to build (default - the commit that triggered the caller)
+        type: string
+        default: ''
+      platforms:
+        description: Overrides the target platforms (comma-separated)
+        type: string
+        default: ''
+      extra_tags:
+        description: Extra image tags (space-separated)
+        type: string
+        default: ''
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -30,6 +42,8 @@ jobs:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.ref }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
       - name: Set up Docker Buildx
@@ -45,6 +59,8 @@ jobs:
           TAG: ${{ inputs.new_tag_short }}
           NAME: ${{ inputs.name }}
           SHA: ${{ inputs.sha_short }}
+          PLATFORMS_OVERRIDE: ${{ inputs.platforms }}
+          EXTRA_TAGS: ${{ inputs.extra_tags }}
         run: |
           if [[ -n $TAG ]]; then
             PLATFORMS=linux/amd64,linux/arm64
@@ -60,6 +76,8 @@ jobs:
             VERSION=$SHA
             TAGS=$IMAGE_NAME:$NAME
           fi
+          if [[ -n $PLATFORMS_OVERRIDE ]]; then PLATFORMS=$PLATFORMS_OVERRIDE; fi
+          for t in $EXTRA_TAGS; do TAGS+=",$IMAGE_NAME:$t"; done
           echo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
@@ -87,6 +105,8 @@ jobs:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.ref }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
       - name: Set up Docker Buildx
@@ -102,6 +122,8 @@ jobs:
           TAG: ${{ inputs.new_tag_short }}
           NAME: ${{ inputs.name }}
           SHA: ${{ inputs.sha_short }}
+          PLATFORMS_OVERRIDE: ${{ inputs.platforms }}
+          EXTRA_TAGS: ${{ inputs.extra_tags }}
         run: |
           if [[ -n $TAG ]]; then
             PLATFORMS=linux/amd64,linux/arm64
@@ -117,6 +139,8 @@ jobs:
             VERSION=$SHA
             TAGS=$IMAGE_NAME:$NAME
           fi
+          if [[ -n $PLATFORMS_OVERRIDE ]]; then PLATFORMS=$PLATFORMS_OVERRIDE; fi
+          for t in $EXTRA_TAGS; do TAGS+=",$IMAGE_NAME:$t"; done
           echo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
@@ -144,6 +168,8 @@ jobs:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.ref }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
       - name: Set up Docker Buildx
@@ -159,6 +185,8 @@ jobs:
           TAG: ${{ inputs.new_tag_short }}
           NAME: ${{ inputs.name }}
           SHA: ${{ inputs.sha_short }}
+          PLATFORMS_OVERRIDE: ${{ inputs.platforms }}
+          EXTRA_TAGS: ${{ inputs.extra_tags }}
         run: |
           if [[ -n $TAG ]]; then
             PLATFORMS=linux/amd64,linux/arm64
@@ -174,6 +202,8 @@ jobs:
             VERSION=$SHA
             TAGS=$IMAGE_NAME:$NAME
           fi
+          if [[ -n $PLATFORMS_OVERRIDE ]]; then PLATFORMS=$PLATFORMS_OVERRIDE; fi
+          for t in $EXTRA_TAGS; do TAGS+=",$IMAGE_NAME:$t"; done
           echo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"

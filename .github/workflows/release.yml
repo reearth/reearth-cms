@@ -1,9 +1,8 @@
 name: Release
-# Step 2 of a release, after Stage + Deploy CMS dev + acceptance test.
-# Cuts vX.Y.Z on the release branch (CHANGELOG commit + tag), publishes a
-# GitHub Release with the changelog, and promotes the tested :rc images to
-# :X.Y.Z and :latest. "Deploy CMS production" in reearth-cloud then deploys
-# that exact version.
+# Step 2 of a release, run from the release branch after Stage.
+# Cuts vX.Y.Z on the release branch (CHANGELOG commit + tag), promotes the
+# images Stage built from the staged commit (:stage-<sha>, the same images as
+# :rc) to :X.Y.Z and :latest, and publishes a GitHub Release.
 on:
   workflow_dispatch:
     inputs:
@@ -39,6 +38,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       sha: ${{ steps.sha.outputs.sha }}
+      staged: ${{ steps.staged.outputs.sha }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
@@ -60,17 +60,19 @@ jobs:
           git config --global user.name ${{ vars.GH_APP_USER }}
           git config --global user.email ${{ vars.GH_APP_ID }}+${{ vars.GH_APP_USER }}[bot]@users.noreply.github.com
           git config --global pull.rebase false
-      # Images are no longer built from the release branch, only promoted from
-      # main by Stage. Anything pushed straight to release would be missing from
-      # :rc, so the release tree must equal the last staged main commit
-      # (CHANGELOG.md aside).
-      - name: Check that release matches what Stage promoted to rc
+      # Release images are built by Stage from the staged main commit, never
+      # from the release branch. Anything pushed straight to release would be
+      # missing from them, so the release tree must equal the last staged main
+      # commit (CHANGELOG.md aside).
+      - name: Check that release matches what Stage built
+        id: staged
         run: |
           git fetch --force origin main release
           staged=$(git log --first-parent --merges -1 --format=%P origin/release | awk '{print $2}')
           echo "last staged main commit: $staged"
+          echo "sha=$staged" >> "$GITHUB_OUTPUT"
           if ! git diff --quiet "$staged" origin/release -- . ':(exclude)CHANGELOG.md'; then
-            echo "::error::release differs from the last staged main commit ($staged), so :rc does not match it. Merge the change to main and run Stage again."
+            echo "::error::release differs from the last staged main commit ($staged), so the staged images do not match it. Merge the change to main and run Stage again."
             git diff --stat "$staged" origin/release -- . ':(exclude)CHANGELOG.md'
             exit 1
           fi
@@ -137,7 +139,7 @@ jobs:
     needs: release
     uses: ./.github/workflows/promote_images.yml
     with:
-      from_tag: rc
+      from_tag: stage-${{ needs.release.outputs.staged }}
       to_tags: ${{ needs.release.outputs.version }} latest
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -182,4 +184,3 @@ jobs:
         run: |
           echo "### Released $TAG" >> "$GITHUB_STEP_SUMMARY"
           echo "Images: \`reearth/reearth-cms*:${{ needs.release.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "Next: run **Deploy CMS production** in reearth-cloud with version \`${{ needs.release.outputs.version }}\`." >> "$GITHUB_STEP_SUMMARY"

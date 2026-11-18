@@ -134,8 +134,8 @@ jobs:
 
   build-server:
     needs: [prepare, build-prepare]
-    # Images are built from main only (:nightly). The release branch gets :rc and
-    # :X.Y.Z by promotion (stage.yml / release.yml), never by a rebuild.
+    # No builds on the release branch: release images are built by stage.yml from
+    # the staged commit and promoted by release.yml. A build here would overwrite :rc.
     if: needs.prepare.outputs.server == 'true' && github.ref != 'refs/heads/release'
     uses: ./.github/workflows/build_server.yml
     with:
@@ -149,8 +149,8 @@ jobs:
 
   build-worker:
     needs: [prepare, build-prepare]
-    # Images are built from main only (:nightly). The release branch gets :rc and
-    # :X.Y.Z by promotion (stage.yml / release.yml), never by a rebuild.
+    # No builds on the release branch: release images are built by stage.yml from
+    # the staged commit and promoted by release.yml. A build here would overwrite :rc.
     if: needs.prepare.outputs.worker == 'true' && github.ref != 'refs/heads/release'
     uses: ./.github/workflows/build_worker.yml
     with:

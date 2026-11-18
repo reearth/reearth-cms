@@ -1,7 +1,7 @@
 # Retags already-built images under new tags with a registry-side manifest copy
-# (no rebuild, no pull/push of layers). Stage promotes nightly -> rc and Release
-# promotes rc -> <version> + latest, so the image tested on dev is byte-for-byte
-# the image that ships to production.
+# (no rebuild, no pull/push of layers). Release promotes the images Stage built
+# (:stage-<sha>) to :<version> + :latest, so the image tested on dev is
+# byte-for-byte the image that ships to production.
 name: promote-images
 on:
   workflow_call:
@@ -33,6 +33,7 @@ jobs:
           - reearth/reearth-cms-web
           - reearth/reearth-cms-worker
           - reearth/reearth-cms-decompressor
+          - reearth/reearth-cms-copier
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1

@@ -1,7 +1,8 @@
 name: Stage
-# Step 1 of a release: freeze main into the release branch and promote the
-# images built from it (nightly -> rc). "Deploy CMS dev" in reearth-cloud then
-# deploys :rc, so dev runs exactly what the next Release will ship.
+# Step 1 of a release: merge main into the release branch, then build the
+# release candidate images (amd64 + arm64) from that exact commit, tagged :rc
+# and :stage-<sha>. Release later promotes :stage-<sha>, so the images that
+# ship are the ones that were tested as :rc.
 on:
   workflow_dispatch:
 
@@ -22,6 +23,7 @@ jobs:
       actions: read
     outputs:
       sha: ${{ steps.sha.outputs.sha }}
+      sha_short: ${{ steps.sha.outputs.sha_short }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
@@ -43,9 +45,10 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
       - id: sha
         name: Resolve main commit
-        run: echo "sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
-      # :nightly is only safe to promote once CI has finished building it from
-      # this exact commit. Refuse to stage while main's CI is running or failed.
+        run: |
+          echo "sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
+          echo "sha_short=$(git rev-parse --short origin/main)" >> "$GITHUB_OUTPUT"
+      # Only stage a commit that passed CI. Refuse while main's CI is running or failed.
       - name: Check that CI on main finished successfully
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,14 +79,46 @@ jobs:
       - name: Summary
         run: |
           echo "### Staged main@\`${{ steps.sha.outputs.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "Next: run **Deploy CMS dev** in reearth-cloud, run the acceptance test, then run **Release** from the \`release\` branch." >> "$GITHUB_STEP_SUMMARY"
+          echo "Images: \`:rc\` and \`:stage-${{ steps.sha.outputs.sha }}\` (built by the jobs below)" >> "$GITHUB_STEP_SUMMARY"
 
-  promote-to-rc:
+  # Build every image from the staged commit (not from :nightly, which can be
+  # overwritten by any later merge). :stage-<sha> pins the exact build that
+  # Release will promote.
+  build-server:
     needs: stage
-    uses: ./.github/workflows/promote_images.yml
+    uses: ./.github/workflows/build_server.yml
     with:
-      from_tag: nightly
-      to_tags: rc
+      name: rc
+      ref: ${{ needs.stage.outputs.sha }}
+      sha_short: ${{ needs.stage.outputs.sha_short }}
+      platforms: linux/amd64,linux/arm64
+      extra_tags: stage-${{ needs.stage.outputs.sha }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-web:
+    needs: stage
+    uses: ./.github/workflows/build_web.yml
+    with:
+      name: rc
+      ref: ${{ needs.stage.outputs.sha }}
+      sha_short: ${{ needs.stage.outputs.sha_short }}
+      platforms: linux/amd64,linux/arm64
+      extra_tags: stage-${{ needs.stage.outputs.sha }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-worker:
+    needs: stage
+    uses: ./.github/workflows/build_worker.yml
+    with:
+      name: rc
+      ref: ${{ needs.stage.outputs.sha }}
+      sha_short: ${{ needs.stage.outputs.sha_short }}
+      platforms: linux/amd64,linux/arm64
+      extra_tags: stage-${{ needs.stage.outputs.sha }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
