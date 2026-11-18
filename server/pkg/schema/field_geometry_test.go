@@ -22,6 +22,7 @@ func TestNewGeometry(t *testing.T) {
 
 	sf := NewField(f.TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	assert.True(t, sf.IsGeometryField())
+	assert.True(t, sf.SupportsPointField())
 }
 
 func TestFieldGeometry_Validate(t *testing.T) {
