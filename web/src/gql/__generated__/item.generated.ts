@@ -227,7 +227,7 @@ export type GetItemsQuery = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -316,7 +316,7 @@ export type GetItemQuery = {
             createdAt: Date;
             author:
               | { __typename: "Integration"; id: string; name: string }
-              | { __typename: "User"; id: string; name: string; email: string }
+              | { __typename: "User"; id: string; name: string }
               | null;
           }>;
         } | null;
@@ -459,7 +459,7 @@ export type SearchItemQuery = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -892,7 +892,6 @@ export const GetItemsDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1210,7 +1209,6 @@ export const GetItemDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1761,7 +1759,6 @@ export const SearchItemDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },

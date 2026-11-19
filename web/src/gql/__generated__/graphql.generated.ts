@@ -2463,7 +2463,6 @@ export type UrlResourcePropsInput = {
 
 export type User = Node & {
   __typename?: "User";
-  email: Scalars["String"]["output"];
   host?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   name: Scalars["String"]["output"];

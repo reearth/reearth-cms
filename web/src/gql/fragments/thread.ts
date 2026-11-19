@@ -10,7 +10,6 @@ export const threadFragment = gql`
         ... on User {
           id
           name
-          email
         }
         ... on Integration {
           id

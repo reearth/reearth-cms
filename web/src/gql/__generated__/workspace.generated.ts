@@ -80,7 +80,7 @@ export type WorkspaceFragmentFragment = {
           developerId: string;
           createdAt: Date;
           updatedAt: Date;
-          developer: { __typename: "User"; id: string; name: string; email: string };
+          developer: { __typename: "User"; id: string; name: string };
           config: {
             __typename: "IntegrationConfig";
             token: string;
@@ -107,13 +107,13 @@ export type WorkspaceFragmentFragment = {
             }>;
           } | null;
         } | null;
-        invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+        invitedBy: { __typename: "User"; id: string; name: string } | null;
       }
     | {
         __typename: "WorkspaceUserMember";
         userId: string;
         role: Types.Role;
-        user: { __typename: "User"; id: string; name: string; email: string } | null;
+        user: { __typename: "User"; id: string; name: string } | null;
       }
   >;
 };
@@ -148,7 +148,7 @@ export type GetWorkspacesQuery = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -175,13 +175,13 @@ export type GetWorkspacesQuery = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     } | null;
@@ -208,7 +208,7 @@ export type GetWorkspacesQuery = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -235,13 +235,13 @@ export type GetWorkspacesQuery = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     }>;
@@ -288,7 +288,7 @@ export type GetWorkspaceQuery = {
                 developerId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                developer: { __typename: "User"; id: string; name: string; email: string };
+                developer: { __typename: "User"; id: string; name: string };
                 config: {
                   __typename: "IntegrationConfig";
                   token: string;
@@ -315,13 +315,13 @@ export type GetWorkspaceQuery = {
                   }>;
                 } | null;
               } | null;
-              invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+              invitedBy: { __typename: "User"; id: string; name: string } | null;
             }
           | {
               __typename: "WorkspaceUserMember";
               userId: string;
               role: Types.Role;
-              user: { __typename: "User"; id: string; name: string; email: string } | null;
+              user: { __typename: "User"; id: string; name: string } | null;
             }
         >;
       }
@@ -360,7 +360,7 @@ export type UpdateWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -387,13 +387,13 @@ export type UpdateWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -439,7 +439,7 @@ export type AddUsersToWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -466,13 +466,13 @@ export type AddUsersToWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -511,7 +511,7 @@ export type UpdateMemberOfWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -538,13 +538,13 @@ export type UpdateMemberOfWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -582,7 +582,7 @@ export type RemoveMultipleMembersFromWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -609,13 +609,13 @@ export type RemoveMultipleMembersFromWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -654,7 +654,7 @@ export type AddIntegrationToWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -681,13 +681,13 @@ export type AddIntegrationToWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -726,7 +726,7 @@ export type UpdateIntegrationOfWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -753,13 +753,13 @@ export type UpdateIntegrationOfWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -797,7 +797,7 @@ export type RemoveIntegrationFromWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -824,13 +824,13 @@ export type RemoveIntegrationFromWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -867,7 +867,7 @@ export type CreateWorkspaceMutation = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -894,13 +894,13 @@ export type CreateWorkspaceMutation = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     };
@@ -1101,7 +1101,6 @@ export const GetWorkspacesDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1186,7 +1185,6 @@ export const GetWorkspacesDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1228,7 +1226,6 @@ export const GetWorkspacesDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1323,7 +1320,6 @@ export const GetWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1408,7 +1404,6 @@ export const GetWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1450,7 +1445,6 @@ export const GetWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1563,7 +1557,6 @@ export const UpdateWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1648,7 +1641,6 @@ export const UpdateWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1690,7 +1682,6 @@ export const UpdateWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1858,7 +1849,6 @@ export const AddUsersToWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1943,7 +1933,6 @@ export const AddUsersToWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1985,7 +1974,6 @@ export const AddUsersToWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2111,7 +2099,6 @@ export const UpdateMemberOfWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2196,7 +2183,6 @@ export const UpdateMemberOfWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2238,7 +2224,6 @@ export const UpdateMemberOfWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2360,7 +2345,6 @@ export const RemoveMultipleMembersFromWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2445,7 +2429,6 @@ export const RemoveMultipleMembersFromWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2487,7 +2470,6 @@ export const RemoveMultipleMembersFromWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2616,7 +2598,6 @@ export const AddIntegrationToWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2701,7 +2682,6 @@ export const AddIntegrationToWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2743,7 +2723,6 @@ export const AddIntegrationToWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2872,7 +2851,6 @@ export const UpdateIntegrationOfWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2957,7 +2935,6 @@ export const UpdateIntegrationOfWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2999,7 +2976,6 @@ export const UpdateIntegrationOfWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -3115,7 +3091,6 @@ export const RemoveIntegrationFromWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -3200,7 +3175,6 @@ export const RemoveIntegrationFromWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -3242,7 +3216,6 @@ export const RemoveIntegrationFromWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -3345,7 +3318,6 @@ export const CreateWorkspaceDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -3430,7 +3402,6 @@ export const CreateWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -3472,7 +3443,6 @@ export const CreateWorkspaceDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },

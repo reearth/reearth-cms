@@ -20,7 +20,6 @@ describe("My integrations list", () => {
       developer: {
         id: "",
         name: "",
-        email: "",
       },
       iType: "Private",
       config: {},
@@ -34,7 +33,6 @@ describe("My integrations list", () => {
       developer: {
         id: "",
         name: "",
-        email: "",
       },
       iType: "Private",
       config: {},
