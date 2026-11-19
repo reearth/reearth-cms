@@ -12,7 +12,6 @@ export const workspaceFragment = gql`
         user {
           id
           name
-          email
         }
         userId
         role
@@ -27,7 +26,6 @@ export const workspaceFragment = gql`
         invitedBy {
           id
           name
-          email
         }
         invitedById
       }

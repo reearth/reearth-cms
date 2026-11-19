@@ -11,7 +11,6 @@ export const integrationFragment = gql`
     developer {
       id
       name
-      email
     }
     config {
       token

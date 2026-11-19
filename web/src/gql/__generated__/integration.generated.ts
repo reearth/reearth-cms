@@ -13,12 +13,12 @@ export type IntegrationFragmentFragment = {
   id: string;
   name: string;
   description: string | null;
-  logoUrl: string;
+  logoUrl: string | null;
   iType: Types.IntegrationType;
   developerId: string;
   createdAt: Date;
   updatedAt: Date;
-  developer: { __typename: "User"; id: string; name: string; email: string };
+  developer: { __typename: "User"; id: string; name: string };
   config: {
     __typename: "IntegrationConfig";
     token: string;
@@ -61,7 +61,7 @@ export type CreateIntegrationMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -82,7 +82,7 @@ export type UpdateIntegrationMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -108,7 +108,7 @@ export type RegenerateIntegrationTokenMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -138,7 +138,6 @@ export const IntegrationFragmentFragmentDoc = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
