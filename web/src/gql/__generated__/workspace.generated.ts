@@ -75,7 +75,7 @@ export type WorkspaceFragmentFragment = {
           id: string;
           name: string;
           description: string | null;
-          logoUrl: string;
+          logoUrl: string | null;
           iType: Types.IntegrationType;
           developerId: string;
           createdAt: Date;
@@ -143,7 +143,7 @@ export type GetWorkspacesQuery = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -203,7 +203,7 @@ export type GetWorkspacesQuery = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -283,7 +283,7 @@ export type GetWorkspaceQuery = {
                 id: string;
                 name: string;
                 description: string | null;
-                logoUrl: string;
+                logoUrl: string | null;
                 iType: Types.IntegrationType;
                 developerId: string;
                 createdAt: Date;
@@ -355,7 +355,7 @@ export type UpdateWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -434,7 +434,7 @@ export type AddUsersToWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -506,7 +506,7 @@ export type UpdateMemberOfWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -577,7 +577,7 @@ export type RemoveMultipleMembersFromWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -649,7 +649,7 @@ export type AddIntegrationToWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -721,7 +721,7 @@ export type UpdateIntegrationOfWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -792,7 +792,7 @@ export type RemoveIntegrationFromWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
@@ -862,7 +862,7 @@ export type CreateWorkspaceMutation = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;

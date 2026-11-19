@@ -61,6 +61,10 @@ export type SchemaFieldGeometryEditorInput = {
   supportedTypes: Array<GeometryEditorSupportedType>;
 };
 
+export type SchemaFieldGeometryInput = {
+  defaultValue?: unknown;
+};
+
 export type SchemaFieldGeometryObjectInput = {
   defaultValue?: unknown;
   supportedTypes: Array<GeometryObjectSupportedType>;
@@ -137,6 +141,7 @@ export type SchemaFieldType =
   | "Bool"
   | "Checkbox"
   | "Date"
+  | "Geometry"
   | "GeometryEditor"
   | "GeometryObject"
   | "Group"
@@ -156,6 +161,7 @@ export type SchemaFieldTypePropertyInput = {
   bool?: SchemaFieldBoolInput | null | undefined;
   checkbox?: SchemaFieldCheckboxInput | null | undefined;
   date?: SchemaFieldDateInput | null | undefined;
+  geometry?: SchemaFieldGeometryInput | null | undefined;
   geometryEditor?: SchemaFieldGeometryEditorInput | null | undefined;
   geometryObject?: SchemaFieldGeometryObjectInput | null | undefined;
   group?: SchemaFieldGroupInput | null | undefined;

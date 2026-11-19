@@ -13,7 +13,7 @@ export type IntegrationFragmentFragment = {
   id: string;
   name: string;
   description: string | null;
-  logoUrl: string;
+  logoUrl: string | null;
   iType: Types.IntegrationType;
   developerId: string;
   createdAt: Date;
@@ -61,7 +61,7 @@ export type CreateIntegrationMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -82,7 +82,7 @@ export type UpdateIntegrationMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -108,7 +108,7 @@ export type RegenerateIntegrationTokenMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;

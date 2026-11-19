@@ -42,6 +42,10 @@ jobs:
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
         run: yarn run lint
+      - name: Check gql generation
+        run: |
+          yarn gql
+          git diff --exit-code ./src/gql/__generated__
 
   i18n:
     name: i18n
