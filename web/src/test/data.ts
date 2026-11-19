@@ -362,6 +362,7 @@ export enum DATA_TEST_ID {
   GeometryEditor__ShapeRow = "GeometryEditor__ShapeRow",
   GeometryEditor__GeoJsonToggle = "GeometryEditor__GeoJsonToggle",
   GeometryEditor__GeoJsonEditor = "GeometryEditor__GeoJsonEditor",
+  GeometryEditor__GeoJsonCopyButton = "GeometryEditor__GeoJsonCopyButton",
   GeometryMiniMap__Map = "GeometryMiniMap__Map",
 
   // Content list page

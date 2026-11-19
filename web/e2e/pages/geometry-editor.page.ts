@@ -1,6 +1,7 @@
 // e2e/pages/geometry-editor.page.ts
 import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/data";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { BasePage } from "./base.page";
 
@@ -49,6 +50,9 @@ export class GeometryEditorPage extends BasePage {
   get geoJsonText(): Locator {
     return this.monacoEditor.locator(".view-lines");
   }
+  get copyGeoJsonButton(): Locator {
+    return this.editor.getByTestId(DATA_TEST_ID.GeometryEditor__GeoJsonCopyButton);
+  }
 
   async drawPointAtMapCenter(): Promise<void> {
     await this.pointTool.click();
@@ -59,6 +63,20 @@ export class GeometryEditorPage extends BasePage {
     await this.expand(this.sidePanelToggle);
     await this.expand(this.geoJsonPanelToggle);
     await this.geoJsonText.waitFor({ state: "visible" });
+  }
+
+  /**
+   * The panel's full GeoJSON, parsed. Monaco renders only the lines in view, and the server
+   * returns keys alphabetically, so a shape's "type" can sit below the visible lines.
+   */
+  async readGeoJson(): Promise<unknown> {
+    await this.page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    await this.openGeoJsonPanel();
+    await this.copyGeoJsonButton.click();
+    const text = await this.page.evaluate(() => navigator.clipboard.readText());
+    const result = await ObjectUtils.parseJSON<unknown>(text);
+    if (!result.isValid) throw new Error(`Copied GeoJSON is not valid JSON: ${result.error}`);
+    return result.data;
   }
 
   /** Both toggles flip, so click only when collapsed. */

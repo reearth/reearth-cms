@@ -5,9 +5,6 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 // Only what unit tests can't cover: the real map, persistence through the server, the content
 // list's mini map and which editor a field gets.
 
-const TYPE_POINT = /"type":\s*"Point"/;
-const TYPE_LINE_STRING = /"type":\s*"LineString"/;
-
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
@@ -43,8 +40,7 @@ test("Geometry field drawn on the map is saved and shown in the list", async ({
   await test.step("The point is still there after a reload", async () => {
     await page.reload();
     await geometryEditorPage.editGeometryButton.click();
-    await geometryEditorPage.openGeoJsonPanel();
-    await expect(geometryEditorPage.geoJsonText).toContainText(TYPE_POINT);
+    expect(await geometryEditorPage.readGeoJson()).toMatchObject({ type: "Point" });
   });
 
   await test.step("The content list shows it on a mini map", async () => {
@@ -86,9 +82,10 @@ test("Multiple Geometry field saves several geometries", async ({
   await test.step("Both geometries are still there after a reload", async () => {
     await page.reload();
     await geometryEditorPage.editGeometryButton.click();
-    await geometryEditorPage.openGeoJsonPanel();
-    await expect(geometryEditorPage.geoJsonText).toContainText(TYPE_POINT);
-    await expect(geometryEditorPage.geoJsonText).toContainText(TYPE_LINE_STRING);
+    expect(await geometryEditorPage.readGeoJson()).toMatchObject([
+      { type: "Point" },
+      { type: "LineString" },
+    ]);
   });
 
   await test.step("The content list counts both", async () => {

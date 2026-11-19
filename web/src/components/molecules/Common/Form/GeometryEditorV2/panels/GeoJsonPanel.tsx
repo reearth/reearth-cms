@@ -221,6 +221,7 @@ const GeoJsonPanel: React.FC<Props> = ({
                 size="small"
                 type="text"
                 aria-label={t("Copy GeoJSON")}
+                data-testid={DATA_TEST_ID.GeometryEditor__GeoJsonCopyButton}
                 icon={<Icon icon="editorCopy" size={14} />}
                 onClick={() => void navigator.clipboard?.writeText(text)}
               />
