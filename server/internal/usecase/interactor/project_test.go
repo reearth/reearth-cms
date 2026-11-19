@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -1289,6 +1290,7 @@ func TestProject_Delete(t *testing.T) {
 	tests := []struct {
 		name           string
 		seeds          project.List
+		models         model.List
 		args           args
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
@@ -1303,6 +1305,16 @@ func TestProject_Delete(t *testing.T) {
 				operator: opOwner,
 			},
 			wantErr: nil,
+		},
+		{
+			name:   "delete rejected when project has models",
+			seeds:  project.List{p1, p2},
+			models: model.List{model.New().NewID().Schema(id.NewSchemaID()).Key(id.RandomKey()).Project(pid1).MustBuild()},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: interfaces.ErrProjectHasModels,
 		},
 		{
 			name:  "delete not found",
@@ -1391,6 +1403,10 @@ func TestProject_Delete(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
+				assert.NoError(t, err)
+			}
+			for _, m := range tc.models {
+				err := db.Model.Save(ctx, m)
 				assert.NoError(t, err)
 			}
 

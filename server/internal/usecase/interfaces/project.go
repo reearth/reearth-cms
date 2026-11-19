@@ -84,6 +84,7 @@ var (
 	ErrProjectAliasAlreadyUsed      error = rerror.NewE(i18n.T("project alias is already used by another project"))
 	ErrInvalidProject                     = rerror.NewE(i18n.T("invalid project"))
 	ErrProjectCreationLimitExceeded error = rerror.NewE(i18n.T("project creation limit exceeded"))
+	ErrProjectHasModels             error = rerror.NewE(i18n.T("can't delete a project as it still has models"))
 )
 
 type ProjectLimitsResult struct {

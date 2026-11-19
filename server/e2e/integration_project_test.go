@@ -225,3 +225,19 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 }
+
+// DELETE /{workspaceId}/projects/{projectId} for a project that still has models
+func TestIntegrationProjectDeleteWithModelsAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	iAPIProjectDelete(e, wId0, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest)
+
+	// the project must still exist
+	iAPIProjectGet(e, wId0, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+}

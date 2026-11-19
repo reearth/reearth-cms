@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"github.com/gavv/httpexpect/v2"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/stretchr/testify/assert"
@@ -585,13 +588,23 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 
 // GRPC Delete Project
 func TestInternalDeleteProjectAPI(t *testing.T) {
+	emptyPid := id.NewProjectID()
+	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+		if err := baseSeeder(ctx, r, g); err != nil {
+			return err
+		}
+		// a project without models, which is allowed to be deleted
+		p := project.New().ID(emptyPid).Name("empty").Workspace(wId0).Alias("empty-project").MustBuild()
+		return r.Project.Save(ctx, p)
+	}
+
 	StartServer(t, &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
 			Port:   "52050",
 			Token:  "TestToken",
 		},
-	}, true, baseSeeder)
+	}, true, seeder)
 	clientConn, err := grpc.NewClient("localhost:52050",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
@@ -624,9 +637,15 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 			wantErr:   errors.New("not found"),
 		},
 		{
-			name:      "workspace member with write permission can delete project",
+			name:      "project with models cannot be deleted",
 			user:      uId.String(),
 			projectId: pid.String(),
+			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models"),
+		},
+		{
+			name:      "workspace member with write permission can delete project",
+			user:      uId.String(),
+			projectId: emptyPid.String(),
 		},
 	}
 
