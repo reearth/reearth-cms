@@ -15,6 +15,7 @@ var commands = map[string]command{
 	"ref-field-schema":   RefFieldSchema,
 	"item-migration":     ItemMigration,
 	"project-visibility": ProjectVisibility,
+	"orphaned-data":      OrphanedData,
 	"text-normalization": TextNormalizationMigration,
 }
 
