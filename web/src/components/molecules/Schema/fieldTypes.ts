@@ -11,6 +11,8 @@ export const fieldTypes: Record<
     title: string;
     description: string;
     color: string;
+    /** Shown as a "New" tag in the Add Field list. */
+    isNew?: boolean;
   }
 > = {
   Text: {
@@ -96,6 +98,13 @@ export const fieldTypes: Record<
     title: t("Group"),
     description: t("Customize a group of fields"),
     color: AntdColor.CYAN.CYAN_4,
+  },
+  Geometry: {
+    icon: "polygon",
+    title: t("Geometry"),
+    description: t("Draw points, lines or areas on a map, or enter them as coordinates or GeoJSON"),
+    color: AntdColor.GREEN.GREEN_6,
+    isNew: true,
   },
   GeometryObject: {
     icon: "curlyBrackets",

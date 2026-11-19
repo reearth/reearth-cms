@@ -161,6 +161,8 @@ export abstract class Test {
         return DATA_TEST_ID.FieldList__GeometryObject;
       case SchemaFieldType.GeometryEditor:
         return DATA_TEST_ID.FieldList__GeometryEditor;
+      case SchemaFieldType.Geometry:
+        return DATA_TEST_ID.FieldList__Geometry;
     }
   }
 }
@@ -292,6 +294,7 @@ export enum DATA_TEST_ID {
   FieldList__URL = "FieldList__URL",
   FieldList__Group = "FieldList__Group",
   FieldList__GeometryObject = "FieldList__GeometryObject",
+  FieldList__Geometry = "FieldList__Geometry",
   FieldList__GeometryEditor = "FieldList__GeometryEditor",
 
   // Content list page

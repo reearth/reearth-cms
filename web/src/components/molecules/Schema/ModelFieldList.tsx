@@ -13,6 +13,7 @@ import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
+import { displayFieldType } from "./unifiedGeometry";
 import type { Field } from "./types";
 
 type Props = {
@@ -181,8 +182,8 @@ const ModelFieldList: React.FC<Props> = ({
                     <FieldThumbnail>
                       {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
                       <StyledIcon
-                        icon={fieldTypes[item.type].icon}
-                        color={fieldTypes[item.type].color}
+                        icon={fieldTypes[displayFieldType(item)].icon}
+                        color={fieldTypes[displayFieldType(item)].color}
                       />
                     </FieldThumbnail>
                   }

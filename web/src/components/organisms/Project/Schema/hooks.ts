@@ -16,6 +16,7 @@ import type {
   FormValues,
   ModelFormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { displayFieldType } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
@@ -361,7 +362,7 @@ export default () => {
 
   const handleFieldUpdateModalOpen = useCallback(
     (field: Field) => {
-      setSelectedType(field.type);
+      setSelectedType(displayFieldType(field));
       setSelectedField(field);
       setFieldModalShown(true);
     },

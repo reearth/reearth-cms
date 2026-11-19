@@ -78,6 +78,9 @@ export const SchemaFieldType = {
   Group: "Group",
   GeometryObject: "GeometryObject",
   GeometryEditor: "GeometryEditor",
+  // Prototype: the unified field from 04-geometry-field-proposal.md. Frontend only; it is
+  // saved as a Geometry Object that accepts every GeoJSON type (see unifiedGeometry.ts).
+  Geometry: "Geometry",
 } as const;
 
 export type SchemaFieldType = (typeof SchemaFieldType)[keyof typeof SchemaFieldType];

@@ -19,6 +19,7 @@ import type {
   EditorSupportedType,
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { ALL_GEOMETRY_TYPES } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { RegexUtils } from "@reearth-cms/utils/regex";
 
@@ -224,6 +225,13 @@ export default (
         return {
           group: { groupId: values.group },
         };
+      case "Geometry":
+        return {
+          geometryObject: {
+            defaultValue: values.defaultValue,
+            supportedTypes: ALL_GEOMETRY_TYPES,
+          },
+        };
       case "GeometryObject":
         return {
           geometryObject: {
@@ -325,6 +333,8 @@ export default (
     const values = await form.validateFields();
     values.type = selectedType;
     values.typeProperty = typePropertyGet(values);
+    // Prototype: the unified Geometry field is stored as a Geometry Object accepting every type.
+    if (selectedType === "Geometry") values.type = "GeometryObject";
     values.metadata = isMeta;
     try {
       await onSubmit({

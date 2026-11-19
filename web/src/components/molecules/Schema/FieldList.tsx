@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 import { Test } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
@@ -67,7 +68,7 @@ const FieldList: React.FC<Props> = ({
   const geometry: FieldListItem = useMemo(
     () => ({
       title: t("GeoJSON Geometry"),
-      fields: ["GeometryObject", "GeometryEditor"],
+      fields: ["Geometry", "GeometryObject", "GeometryEditor"],
     }),
     [t],
   );
@@ -122,7 +123,16 @@ const FieldList: React.FC<Props> = ({
                 data-testid={Test.getDataTestIdFromSchemaFieldType(field)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
-                  title={t(fieldTypes[field].title)}
+                  title={
+                    <>
+                      {t(fieldTypes[field].title)}
+                      {fieldTypes[field].isNew && (
+                        <NewTag color="green" bordered={false}>
+                          {t("New", { context: "badge" })}
+                        </NewTag>
+                      )}
+                    </>
+                  }
                   description={t(fieldTypes[field].description)}
                 />
               </List.Item>
@@ -133,6 +143,12 @@ const FieldList: React.FC<Props> = ({
     </>
   );
 };
+
+const NewTag = styled(Tag)`
+  margin-left: ${AntdToken.SPACING.XS}px;
+  font-size: 11px;
+  line-height: 18px;
+`;
 
 const StyledTitle = styled.h1`
   font-size: ${AntdToken.FONT.SIZE_LG}px;

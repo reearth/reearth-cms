@@ -7,6 +7,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { displayFieldType } from "@reearth-cms/components/molecules/Schema/unifiedGeometry";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -88,7 +89,7 @@ export const renderField = (
         trigger="click"
         placement="bottom">
         <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
-          <Icon icon={fieldTypes[field.type].icon} size={AntdToken.FONT.SIZE_LG} />
+          <Icon icon={fieldTypes[displayFieldType(field)].icon} size={AntdToken.FONT.SIZE_LG} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
       </Popover>
