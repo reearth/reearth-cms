@@ -3,12 +3,15 @@ package publicapi
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v5"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
@@ -72,6 +75,33 @@ var PostingErrorCodes = []string{
 // newAPIError builds a uniform error body with both code and message set.
 func newAPIError(code, message string, details any) apiErrorResponse {
 	return apiErrorResponse{Error: code, Code: code, Message: message, Details: details}
+}
+
+type fieldErrorDetail struct {
+	Key    string `json:"field,omitempty"`
+	Code   string `json:"code"`
+	Detail string `json:"detail,omitempty"`
+}
+
+func fieldErrorDetails(errs schema.FieldValidationErrors) []fieldErrorDetail {
+	return lo.Map(errs, func(e schema.FieldValidationError, _ int) fieldErrorDetail {
+		d := fieldErrorDetail{Key: fieldErrorKey(e), Code: string(e.Code)}
+		if e.Detail != nil {
+			d.Detail = e.Detail.Error()
+		}
+		return d
+	})
+}
+
+func fieldErrorKey(e schema.FieldValidationError) string {
+	var key string
+	if e.Key != nil {
+		key = e.Key.String()
+	}
+	if e.Index != nil {
+		key += "[" + strconv.Itoa(*e.Index) + "]"
+	}
+	return key
 }
 
 // postingAccessErrorResponse maps errors from ValidatePostingAccess to their HTTP responses.
