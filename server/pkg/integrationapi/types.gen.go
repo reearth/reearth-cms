@@ -913,6 +913,18 @@ type FieldSelector struct {
 // FieldSelectorType defines model for FieldSelector.Type.
 type FieldSelectorType string
 
+// FieldValidationErrorDetail defines model for fieldValidationErrorDetail.
+type FieldValidationErrorDetail struct {
+	// Code The validation error code, for example INVALID_GEO_STRUCTURE or UNIQUE_VIOLATION
+	Code string `json:"code"`
+
+	// Detail Why the value is invalid
+	Detail *string `json:"detail,omitempty"`
+
+	// Field The key of the field, with the index of the value for a multiple field, for example "title[1]"
+	Field *string `json:"field,omitempty"`
+}
+
 // File defines model for file.
 type File struct {
 	Children    *[]File  `json:"children,omitempty"`
@@ -1097,6 +1109,15 @@ type SortParam string
 
 // WorkspaceIdOrAliasParam defines model for workspaceIdOrAliasParam.
 type WorkspaceIdOrAliasParam = accountdomain.WorkspaceIDOrAlias
+
+// FieldValidationError defines model for FieldValidationError.
+type FieldValidationError struct {
+	// Details The fields that failed validation
+	Details *[]FieldValidationErrorDetail `json:"details,omitempty"`
+
+	// Error The error message
+	Error string `json:"error"`
+}
 
 // ProjectFilterParams defines parameters for ProjectFilter.
 type ProjectFilterParams struct {
