@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/v2.8.2/configuration-schema.json
 package: integration
 generate:
   echo5-server: true
@@ -8,4 +9,26 @@ output:
 additional-imports:
   - package: github.com/reearth/reearth-cms/server/pkg/integrationapi
     alias: .
-  - package: github.com/reearth/reearth-cms/server/pkg/id
+output-options:
+  overlay:
+    path: ../../../pkg/integrationapi/types.overlay.yml
+  type-mapping:
+    string:
+      formats:
+        workspace-id:          { type: WorkspaceID }
+        workspace-id-or-alias: { type: WorkspaceIDOrAlias }
+        project-id:            { type: ProjectID }
+        project-id-or-alias:   { type: ProjectIDOrAlias }
+        model-id:              { type: ModelID }
+        model-id-or-key:       { type: ModelIDOrKey }
+        schema-id:             { type: SchemaID }
+        field-id:              { type: FieldID }
+        field-id-or-key:       { type: FieldIDOrKey }
+        group-id:              { type: GroupID }
+        group-id-or-key:       { type: GroupIDOrKey }
+        item-id:               { type: ItemID }
+        item-group-id:         { type: ItemGroupID }
+        asset-id:              { type: AssetID }
+        comment-id:            { type: CommentID }
+        tag-id:                { type: TagID }
+        api-key-id:            { type: APIKeyID }
