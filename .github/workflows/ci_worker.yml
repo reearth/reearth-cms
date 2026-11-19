@@ -41,6 +41,16 @@ jobs:
           working-directory: shared
           args: --config=../.golangci.yml
           skip-cache: true
+      - name: Check go.mod tidiness (shared)
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+        working-directory: shared
+      - name: Check go fmt (shared)
+        working-directory: shared
+        run: |
+          go fmt ./...
+          git diff --exit-code ./
       - name: Check go fmt
         working-directory: worker
         run: |

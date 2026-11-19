@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -107,6 +108,13 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 				result[k] = strings.ToLower(newId.String())
 			case task.ChangeTypeSet:
 				result[k] = change.Value
+			default:
+				// A newer server can send a change type this worker does not
+				// know. Fail instead of copying the field unchanged, which
+				// would duplicate IDs.
+				err := fmt.Errorf("unknown change type %q for field %q", change.Type, k)
+				log.Errorf("failed to copy: %v", err)
+				return err
 			}
 		}
 
