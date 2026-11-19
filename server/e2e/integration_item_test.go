@@ -746,6 +746,11 @@ func iAPIItemPublish(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias,
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
+func iAPIItemUnpublish(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/unpublish"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+}
+
 func iAPIItemsAsGeoJSON(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
@@ -2311,6 +2316,86 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 		Value("refs").
 		Array().
 		ContainsAny("public")
+}
+
+// POST /items/{itemId}/unpublish
+func TestIntegrationUnpublishItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	iAPIItemUnpublish(e, wId0, pid, mId1, itmId1).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemUnpublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemUnpublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	// unknown item
+	iAPIItemUnpublish(e, wId0, pid, mId1, id.NewItemID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// item of another model
+	iAPIItemUnpublish(e, wId0, pid, mId0, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// an item that was never published is returned as is
+	iAPIItemUnpublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		NotContainsAny("public")
+
+	iAPIItemPublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	iAPIItemUnpublish(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("id", itmId1.String()).
+		Value("refs").
+		Array().
+		NotContainsAny("public")
+
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		NotContainsAny("public")
+
+	// the public ref is gone: ref=public no longer finds the item
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("ref", "public").
+		Expect().
+		Status(http.StatusNotFound)
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {
