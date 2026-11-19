@@ -70,22 +70,49 @@ func TestIntegrationItemGeometryField(t *testing.T) {
 		},
 	})
 
-	// invalid geometries are rejected
-	for _, v := range []any{
-		map[string]any{"type": "Point", "coordinates": []any{35.6, 139.7}},
-		map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}, "name": "x"},
-		map[string]any{"type": "GeometryCollection", "geometries": []any{map[string]any{"type": "GeometryCollection", "geometries": []any{}}}},
-		map[string]any{"type": "LineString", "coordinates": []any{[]any{139.7, 35.6}}},
-		`{"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]]}`,
+	// non-standard members are removed
+	iAPIItemCreate(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{
+			"fields": []any{
+				map[string]any{"key": "geo", "value": []any{
+					map[string]any{"type": "Point", "bbox": []any{1, 2, 1, 2}, "coordinates": []any{1, 2}, "name": "x"},
+				}},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").Array().Value(0).Object().
+		Value("value").IsEqual([]any{map[string]any{"type": "Point", "coordinates": []any{1, 2}}})
+
+	// invalid geometries are rejected, and the response tells which field failed and why
+	for _, tt := range []struct {
+		value  any
+		detail string
+	}{
+		{value: map[string]any{"type": "Point", "coordinates": []any{35.6, 139.7}}, detail: "latitude must be between -90 and 90; longitude and latitude may be swapped"},
+		{value: map[string]any{"type": "MultiPoint", "coordinates": []any{}}, detail: "a geometry must not be empty"},
+		{value: map[string]any{"type": "GeometryCollection", "geometries": []any{map[string]any{"type": "GeometryCollection", "geometries": []any{}}}}, detail: "a GeometryCollection must not contain another GeometryCollection"},
+		{value: map[string]any{"type": "LineString", "coordinates": []any{[]any{139.7, 35.6}}}, detail: "a LineString must have at least 2 positions"},
+		{value: `{"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]]}`, detail: "the first and last positions of a polygon ring must be equal"},
 	} {
 		iAPIItemCreate(e, wId0, pid, mId1).
 			WithHeader("authorization", "Bearer "+secret).
 			WithJSON(map[string]any{
 				"fields": []any{
-					map[string]any{"key": "geo", "value": []any{v}},
+					map[string]any{"key": "geo", "value": []any{tt.value}},
 				},
 			}).
 			Expect().
-			Status(http.StatusBadRequest)
+			Status(http.StatusBadRequest).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "field validation failed",
+				"details": []any{
+					map[string]any{"field": "geo[0]", "code": "INVALID_GEO_STRUCTURE", "detail": tt.detail},
+				},
+			})
 	}
 }

@@ -21,7 +21,6 @@ var (
 	// errors of the Geometry field
 	// They wrap ErrGeoFieldInvalidGeoStructure, so they are all reported with FieldValidationCodeInvalidGeoStructure.
 	ErrGeometryInvalidType         = rerror.WrapE(i18n.T("geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
-	ErrGeometryUnknownProperty     = rerror.WrapE(i18n.T("geometry contains an unknown property"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryInvalidCoordinates  = rerror.WrapE(i18n.T("geometry coordinates are invalid"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryInvalidGeometries   = rerror.WrapE(i18n.T("a GeometryCollection must have a list of geometries"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryInvalidPosition     = rerror.WrapE(i18n.T("a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude"), ErrGeoFieldInvalidGeoStructure)
@@ -32,6 +31,7 @@ var (
 	ErrGeometryRingTooShort        = rerror.WrapE(i18n.T("a polygon ring must have at least 4 positions"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryRingNotClosed       = rerror.WrapE(i18n.T("the first and last positions of a polygon ring must be equal"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryNestedCollection    = rerror.WrapE(i18n.T("a GeometryCollection must not contain another GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryEmpty               = rerror.WrapE(i18n.T("a geometry must not be empty"), ErrGeoFieldInvalidGeoStructure)
 )
 
 const maxGeoFieldBytes = 10 * 1024
@@ -218,7 +218,7 @@ func toList[T any](v any, convert func(any) (T, bool)) ([]T, bool) {
 	return res, true
 }
 
-// validateGeometryMembers checks the type and the members of g: "type" and either "coordinates" or "geometries".
+// validateGeometryMembers checks the type of g and that it has "coordinates", or "geometries" for a GeometryCollection.
 func validateGeometryMembers(g map[string]any, inCollection bool) error {
 	t, _ := g["type"].(string)
 	member := "coordinates"
@@ -235,11 +235,7 @@ func validateGeometryMembers(g map[string]any, inCollection bool) error {
 		return ErrGeometryInvalidType
 	}
 
-	for k := range g {
-		if k != "type" && k != member {
-			return ErrGeometryUnknownProperty
-		}
-	}
+	// other members were removed when the value was created (see value.TypeGeometry)
 	if member == "coordinates" {
 		if _, ok := g[member]; !ok {
 			return ErrGeometryInvalidCoordinates
@@ -268,17 +264,17 @@ func validateGeometryCoordinates(g *geojson.Geometry) error {
 	case geojson.GeometryPoint:
 		return validatePosition(g.Point)
 	case geojson.GeometryMultiPoint:
-		return validateAll(g.MultiPoint, validatePosition)
+		return validateParts(g.MultiPoint, validatePosition)
 	case geojson.GeometryLineString:
 		return validateLineString(g.LineString)
 	case geojson.GeometryMultiLineString:
-		return validateAll(g.MultiLineString, validateLineString)
+		return validateParts(g.MultiLineString, validateLineString)
 	case geojson.GeometryPolygon:
 		return validatePolygon(g.Polygon)
 	case geojson.GeometryMultiPolygon:
-		return validateAll(g.MultiPolygon, validatePolygon)
+		return validateParts(g.MultiPolygon, validatePolygon)
 	case geojson.GeometryCollection:
-		return validateAll(g.Geometries, validateGeometryCoordinates)
+		return validateParts(g.Geometries, validateGeometryCoordinates)
 	}
 	return nil
 }
@@ -309,7 +305,15 @@ func validateLineString(l [][]float64) error {
 }
 
 func validatePolygon(rings [][][]float64) error {
-	return validateAll(rings, validateRing)
+	return validateParts(rings, validateRing)
+}
+
+// validateParts validates the parts of a geometry, which must have at least one part.
+func validateParts[T any](parts []T, validate func(T) error) error {
+	if len(parts) == 0 {
+		return ErrGeometryEmpty
+	}
+	return validateAll(parts, validate)
 }
 
 func validateRing(r [][]float64) error {

@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -223,6 +224,17 @@ func errorHandler(next echo.HTTPErrorHandler) echo.HTTPErrorHandler {
 	return func(c *echo.Context, err error) {
 		resp, _ := echo.UnwrapResponse(c.Response())
 		if resp != nil && resp.Committed {
+			return
+		}
+
+		// field validation errors also tell which fields failed and why
+		if fve, ok := errors.AsType[schema.FieldValidationErrors](err); ok && !fve.Empty() {
+			if err := c.JSON(fve.StatusCode(), map[string]any{
+				"error":   "field validation failed",
+				"details": fve.Details(),
+			}); err != nil {
+				next(c, err)
+			}
 			return
 		}
 
