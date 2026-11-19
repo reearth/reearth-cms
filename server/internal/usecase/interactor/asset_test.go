@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -1448,6 +1449,49 @@ func TestAsset_Delete(t *testing.T) {
 			_, err = db.Asset.FindByID(ctx, tc.args.id)
 			assert.Equal(t, rerror.ErrNotFound, err)
 		})
+	}
+}
+
+func TestAsset_Delete_RemovesExtractedFiles(t *testing.T) {
+	ctx := context.Background()
+	uid := accountdomain.NewUserID()
+	ws := workspace.New().NewID().MustBuild()
+	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+
+	// mockFs holds xxx.zip and its extracted files under the same asset folder
+	const assetUUID = "5130c89f-8f67-4766-b127-49ee6796d464"
+	a := asset.New().NewID().Project(proj.ID()).UUID(assetUUID).FileName("xxx.zip").
+		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	db := memory.New()
+	assert.NoError(t, db.Asset.Save(ctx, a.Clone()))
+	assert.NoError(t, db.Project.Save(ctx, proj.Clone()))
+
+	mfs := mockFs()
+	assetUC := Asset{
+		repos:       db,
+		gateways:    &gateway.Container{File: lo.Must(fs.NewFile(mfs, "", false))},
+		ignoreEvent: true,
+	}
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:             &uid,
+			OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		OwningProjects: []id.ProjectID{proj.ID()},
+	}
+
+	_, err := assetUC.Delete(ctx, a.ID(), op)
+	assert.NoError(t, err)
+
+	folder := path.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464")
+	for _, p := range []string{
+		path.Join(folder, "xxx.zip"),
+		path.Join(folder, "xxx", "zzz.txt"),
+		path.Join(folder, "xxx", "yyy", "hello.txt"),
+	} {
+		_, err := mfs.Stat(p)
+		assert.ErrorIs(t, err, os.ErrNotExist, p)
 	}
 }
 
