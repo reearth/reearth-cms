@@ -1092,6 +1092,12 @@ func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Pac
 			return nil, err
 		}
 
+		if threadIDs := iList.ThreadIDs(); len(threadIDs) > 0 {
+			if err := i.repos.Thread.RemoveByIDs(ctx, threadIDs); err != nil {
+				return nil, err
+			}
+		}
+
 		return iIDs, nil
 	})
 }

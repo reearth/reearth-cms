@@ -51,6 +51,15 @@ func (l List) Projects() id.ProjectIDList {
 	}))
 }
 
+func (l List) ThreadIDs() id.ThreadIDList {
+	return lo.FilterMap(l, func(i *Item, _ int) (id.ThreadID, bool) {
+		if i == nil || i.Thread() == nil {
+			return id.ThreadID{}, false
+		}
+		return *i.Thread(), true
+	})
+}
+
 func (l List) MetadataIDs() IDList {
 	return lo.FilterMap(l, func(i *Item, _ int) (ID, bool) {
 		if i.MetadataItem().IsNil() {
