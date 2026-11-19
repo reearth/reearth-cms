@@ -34,10 +34,6 @@ func ToValueType(t value.Type) SchemaFieldType {
 		return SchemaFieldTypeURL
 	case value.TypeGroup:
 		return SchemaFieldTypeGroup
-	case value.TypeGeometryObject:
-		return SchemaFieldTypeGeometryObject
-	case value.TypeGeometryEditor:
-		return SchemaFieldTypeGeometryEditor
 	case value.TypeGeometry:
 		return SchemaFieldTypeGeometry
 	default:
@@ -77,10 +73,6 @@ func FromValueType(t SchemaFieldType) value.Type {
 		return value.TypeReference
 	case SchemaFieldTypeURL:
 		return value.TypeURL
-	case SchemaFieldTypeGeometryObject:
-		return value.TypeGeometryObject
-	case SchemaFieldTypeGeometryEditor:
-		return value.TypeGeometryEditor
 	case SchemaFieldTypeGeometry:
 		return value.TypeGeometry
 	default:

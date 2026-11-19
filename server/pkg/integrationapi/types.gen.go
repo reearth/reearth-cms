@@ -378,24 +378,22 @@ func (e RefOrVersionRef) Valid() bool {
 
 // Defines values for ValueType.
 const (
-	ValueTypeAsset          ValueType = "asset"
-	ValueTypeBool           ValueType = "bool"
-	ValueTypeCheckbox       ValueType = "checkbox"
-	ValueTypeDate           ValueType = "date"
-	ValueTypeGeometry       ValueType = "geometry"
-	ValueTypeGeometryEditor ValueType = "geometryEditor"
-	ValueTypeGeometryObject ValueType = "geometryObject"
-	ValueTypeGroup          ValueType = "group"
-	ValueTypeInteger        ValueType = "integer"
-	ValueTypeMarkdown       ValueType = "markdown"
-	ValueTypeNumber         ValueType = "number"
-	ValueTypeReference      ValueType = "reference"
-	ValueTypeRichText       ValueType = "richText"
-	ValueTypeSelect         ValueType = "select"
-	ValueTypeTag            ValueType = "tag"
-	ValueTypeText           ValueType = "text"
-	ValueTypeTextArea       ValueType = "textArea"
-	ValueTypeUrl            ValueType = "url"
+	ValueTypeAsset     ValueType = "asset"
+	ValueTypeBool      ValueType = "bool"
+	ValueTypeCheckbox  ValueType = "checkbox"
+	ValueTypeDate      ValueType = "date"
+	ValueTypeGeometry  ValueType = "geometry"
+	ValueTypeGroup     ValueType = "group"
+	ValueTypeInteger   ValueType = "integer"
+	ValueTypeMarkdown  ValueType = "markdown"
+	ValueTypeNumber    ValueType = "number"
+	ValueTypeReference ValueType = "reference"
+	ValueTypeRichText  ValueType = "richText"
+	ValueTypeSelect    ValueType = "select"
+	ValueTypeTag       ValueType = "tag"
+	ValueTypeText      ValueType = "text"
+	ValueTypeTextArea  ValueType = "textArea"
+	ValueTypeUrl       ValueType = "url"
 )
 
 // Valid indicates whether the value is a known member of the ValueType enum.
@@ -410,10 +408,6 @@ func (e ValueType) Valid() bool {
 	case ValueTypeDate:
 		return true
 	case ValueTypeGeometry:
-		return true
-	case ValueTypeGeometryEditor:
-		return true
-	case ValueTypeGeometryObject:
 		return true
 	case ValueTypeGroup:
 		return true

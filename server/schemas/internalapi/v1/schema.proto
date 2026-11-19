@@ -110,9 +110,11 @@ message SchemaField {
     Checkbox = 12;
     URL = 13;
     Group = 14;
-    GeometryObject = 15;
-    GeometryEditor = 16;
     Geometry = 17;
+
+    // Geometry Object and Geometry Editor were migrated to Geometry
+    reserved 15, 16;
+    reserved "GeometryObject", "GeometryEditor";
   }
 
   string field_id = 1;

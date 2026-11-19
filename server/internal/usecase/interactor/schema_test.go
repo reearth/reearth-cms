@@ -326,7 +326,7 @@ func TestAsset_GuessSchemaFields(t *testing.T) {
 				Fields: []interfaces.GuessSchemaField{
 					{
 						Name: "geometry",
-						Type: "geometryObject",
+						Type: "geometry",
 						Key:  "geometry",
 					},
 					{

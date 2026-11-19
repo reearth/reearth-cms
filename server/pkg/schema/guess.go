@@ -56,7 +56,7 @@ func (s *Schema) GuessSchemaFieldFromJson(file io.Reader, isGeoJSON, appendGeoFi
 
 	if isGeoJSON && appendGeoField {
 		fields = append([]GuessFieldData{{
-			Type: value.TypeGeometryObject,
+			Type: value.TypeGeometry,
 			Name: "geometry",
 			Key:  "geometry",
 		}}, fields...)

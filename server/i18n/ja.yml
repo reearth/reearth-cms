@@ -130,7 +130,6 @@ unsupported content encoding: サポートされていないContent-Encodingで�
 unsupported entity: サポートされていないエンティティです。
 unsupported export format: ""
 unsupported field type required in schema: スキーマで要求されているフィールドタイプはサポートされていません。
-unsupported geometry type: サポートされていないジオメトリタイプです。
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。

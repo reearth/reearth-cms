@@ -1,26 +1,24 @@
 package value
 
 type Match struct {
-	Asset          func(Asset)
-	Bool           func(Bool)
-	Checkbox       func(Bool)
-	DateTime       func(DateTime)
-	Integer        func(Integer)
-	Number         func(Number)
-	String         func(String)
-	Text           func(String)
-	TextArea       func(String)
-	RichText       func(String)
-	Markdown       func(String)
-	Select         func(String)
-	Tag            func(String)
-	Reference      func(Reference)
-	URL            func(URL)
-	Group          func(Group)
-	GeometryObject func(String)
-	GeometryEditor func(String)
-	Geometry       func(Json)
-	Default        func()
+	Asset     func(Asset)
+	Bool      func(Bool)
+	Checkbox  func(Bool)
+	DateTime  func(DateTime)
+	Integer   func(Integer)
+	Number    func(Number)
+	String    func(String)
+	Text      func(String)
+	TextArea  func(String)
+	RichText  func(String)
+	Markdown  func(String)
+	Select    func(String)
+	Tag       func(String)
+	Reference func(Reference)
+	URL       func(URL)
+	Group     func(Group)
+	Geometry  func(Json)
+	Default   func()
 }
 
 func (v *Value) Match(m Match) {
@@ -104,16 +102,6 @@ func (v *Value) Match(m Match) {
 	case TypeGroup:
 		if m.Group != nil {
 			m.Group(v.v.(Group))
-			return
-		}
-	case TypeGeometryObject:
-		if m.GeometryObject != nil {
-			m.GeometryObject(v.v.(String))
-			return
-		}
-	case TypeGeometryEditor:
-		if m.GeometryEditor != nil {
-			m.GeometryEditor(v.v.(String))
 			return
 		}
 	case TypeGeometry:

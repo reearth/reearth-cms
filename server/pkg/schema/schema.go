@@ -172,18 +172,6 @@ func (s *Schema) Clone() *Schema {
 	}
 }
 
-// DefaultImportGeometryField returns the field that GeoJSON imports write geometries to when no field is given:
-// the first Geometry Object or Geometry field in field order.
-func (s *Schema) DefaultImportGeometryField() *Field {
-	if s == nil {
-		return nil
-	}
-	f, _ := lo.Find(s.fields.Ordered(), func(f *Field) bool {
-		return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometry
-	})
-	return f
-}
-
 func (s *Schema) HasGeometryFields() bool {
 	if s == nil {
 		return false
@@ -191,18 +179,6 @@ func (s *Schema) HasGeometryFields() bool {
 	return lo.ContainsBy(s.fields, func(f *Field) bool {
 		return f.IsGeometryField()
 	})
-}
-
-func (s *Schema) IsPointFieldSupported() bool {
-	if s == nil {
-		return false
-	}
-	for _, f := range s.Fields() {
-		if f.SupportsPointField() {
-			return true
-		}
-	}
-	return false
 }
 
 func (s *Schema) CopyFrom(s2 *Schema) {

@@ -31,7 +31,7 @@ func TestValidateItem(t *testing.T) {
 
 	titleField := buildValidationTestField("title", schema.NewText(nil).TypeProperty(), true)
 	statusField := buildValidationTestField("status", schema.NewSelect([]string{"open", "closed"}).TypeProperty(), false)
-	locationField := buildValidationTestField("location", schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint}).TypeProperty(), false)
+	locationField := buildValidationTestField("location", schema.NewGeometry().TypeProperty(), false)
 	minCount, maxCount := int64(1), int64(10)
 	countField := buildValidationTestField("count", schema.MustNewInteger(&minCount, &maxCount).TypeProperty(), false)
 	numberField, err := schema.NewNumber(nil, nil)
@@ -51,7 +51,7 @@ func TestValidateItem(t *testing.T) {
 	sMultiRequired := buildValidationTestSchema(titleField, subtitleField)
 	spMultiRequired := schema.NewPackage(sMultiRequired, nil, nil, nil)
 
-	requiredLocationField := buildValidationTestField("requiredLocation", schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint}).TypeProperty(), true)
+	requiredLocationField := buildValidationTestField("requiredLocation", schema.NewGeometry().TypeProperty(), true)
 	sRequiredGeo := buildValidationTestSchema(requiredLocationField)
 	spRequiredGeo := schema.NewPackage(sRequiredGeo, nil, nil, nil)
 
@@ -117,30 +117,30 @@ func TestValidateItem(t *testing.T) {
 			wantCodes: map[string]schema.FieldValidationCode{"title": schema.FieldValidationCodeRequired, "subtitle": schema.FieldValidationCodeRequired},
 		},
 		{
-			name: "well-formed JSON with an unsupported geometry type fails as constraint violation",
+			name: "well-formed JSON that is not a valid geometry fails as invalid geo structure",
 			fields: Fields{
 				NewField(titleField.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
-				NewField(locationField.ID(), value.TypeGeometryObject.Value(`{"type": "LineString", "coordinates": [[102.0, 0.5], [103.0, 1.5]]}`).AsMultiple(), nil),
+				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type": "Point", "coordinates": [102.0, 0.5], "name": "a"}`).AsMultiple(), nil),
 			},
 			sp:        sp,
-			wantCodes: map[string]schema.FieldValidationCode{"location": schema.FieldValidationCodeConstraint},
+			wantCodes: map[string]schema.FieldValidationCode{"location": schema.FieldValidationCodeInvalidGeoStructure},
 		},
 		{
-			// value.TypeGeometryObject.Value rejects any input that isn't syntactically valid JSON,
+			// value.TypeGeometry.Value rejects any input that isn't a syntactically valid JSON object,
 			// so a truncated/garbled payload never becomes a value at all: it collapses to an empty
 			// field rather than surfacing as a constraint violation. Raw user input is checked
 			// earlier by schema.Field.ParseValue, which reports it as a type mismatch.
 			name: "malformed JSON on an optional geometry field is silently dropped, not reported",
 			fields: Fields{
 				NewField(titleField.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
-				NewField(locationField.ID(), value.TypeGeometryObject.Value(`{"type": "Point", "coordinates": [102.0, 0.5]`).AsMultiple(), nil),
+				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type": "Point", "coordinates": [102.0, 0.5]`).AsMultiple(), nil),
 			},
 			sp: sp,
 		},
 		{
 			name: "malformed JSON on a required geometry field is reported as missing, not as invalid JSON",
 			fields: Fields{
-				NewField(requiredLocationField.ID(), value.TypeGeometryObject.Value("not-json-at-all").AsMultiple(), nil),
+				NewField(requiredLocationField.ID(), value.TypeGeometry.Value("not-json-at-all").AsMultiple(), nil),
 			},
 			sp:        spRequiredGeo,
 			wantCodes: map[string]schema.FieldValidationCode{"requiredLocation": schema.FieldValidationCodeRequired},
@@ -202,7 +202,7 @@ func TestValidateItem(t *testing.T) {
 			name: "geometry over the size limit keeps its specific code",
 			fields: Fields{
 				NewField(titleField.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
-				NewField(locationField.ID(), value.TypeGeometryObject.Value(`{"type":"Point","coordinates":[1,2],"pad":"`+strings.Repeat("a", 10*1024)+`"}`).AsMultiple(), nil),
+				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type":"Point","coordinates":[1,2],"pad":"`+strings.Repeat("a", 10*1024)+`"}`).AsMultiple(), nil),
 			},
 			sp:        sp,
 			wantCodes: map[string]schema.FieldValidationCode{"location": schema.FieldValidationCodeMaxSizeExceeded},

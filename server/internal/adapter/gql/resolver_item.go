@@ -347,7 +347,7 @@ func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.Impor
 	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
 	geoField := input.GeoField
 	if format == interfaces.ImportFormatTypeGeoJSON && geoField == nil {
-		if f := sp.Schema().DefaultImportGeometryField(); f != nil {
+		if f := sp.Schema().FirstGeometryField(); f != nil {
 			geoField = f.Key().Ref().StringRef()
 		}
 	}
@@ -405,7 +405,7 @@ func (r *mutationResolver) ImportItemsAsync(ctx context.Context, input gqlmodel.
 	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
 	geoField := input.GeoField
 	if format == interfaces.ImportFormatTypeGeoJSON && geoField == nil {
-		if f := sp.Schema().DefaultImportGeometryField(); f != nil {
+		if f := sp.Schema().FirstGeometryField(); f != nil {
 			geoField = f.Key().Ref().StringRef()
 		}
 	}

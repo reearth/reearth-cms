@@ -25,8 +25,6 @@ var unsupportedTypes = []value.Type{
 	value.TypeReference,
 	value.TypeTag,
 	value.TypeGroup,
-	value.TypeGeometryEditor,
-	value.TypeGeometryObject,
 	value.TypeGeometry,
 }
 

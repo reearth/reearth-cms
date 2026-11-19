@@ -30,12 +30,6 @@ type JSONSchema struct {
 	Maximum *float64 `json:"maximum,omitempty"`
 	Minimum *float64 `json:"minimum,omitempty"`
 
-	// for geo type
-	GeoSupportedType *string `json:"x-geoSupportedType,omitempty"`
-
-	// for geo type
-	GeoSupportedTypes *[]string `json:"x-geoSupportedTypes,omitempty"`
-
 	// for select type
 	Options *[]string `json:"x-options,omitempty"`
 }

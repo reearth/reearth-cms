@@ -15,10 +15,8 @@ import (
 
 func TestBuildCSVHeaders(t *testing.T) {
 
-	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
-	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).MustBuild()
+	sf1 := schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).MustBuild()
 	sf3 := schema.NewField(schema.MustNewInteger(new(int64(1)), new(int64(100))).TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("isMarried").Key(id.NewKey("isMarried")).MustBuild()
 	s1 := schema.New().NewID().Fields([]*schema.Field{sf1, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).MustBuild()
@@ -41,16 +39,14 @@ func TestRowFromItem(t *testing.T) {
 	mid := id.NewModelID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
-	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
-	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).MustBuild()
+	sf1 := schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).MustBuild()
 	sf3 := schema.NewField(schema.MustNewInteger(new(int64(1)), new(int64(100))).TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("isMarried").Key(id.NewKey("isMarried")).MustBuild()
 	s := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
 	sp := schema.NewPackage(s, nil, nil, nil)
-	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
-	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
+	fi1 := item.NewField(sf1.ID(), value.TypeGeometry.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
+	fi2 := item.NewField(sf2.ID(), value.TypeGeometry.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
 	fi3 := item.NewField(sf3.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
 	fi4 := item.NewField(sf4.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	i1 := item.New().

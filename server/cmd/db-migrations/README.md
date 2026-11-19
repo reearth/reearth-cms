@@ -28,3 +28,26 @@ go build ./cmd/db-migrations
 ```bash
 ./db-migrations --cmd=text-normalization --wet-run
 ```
+
+### geometry-unification
+
+Converts Geometry Object and Geometry Editor fields into Geometry fields:
+
+- Field types become `geometry`, and their supported types are removed (Geometry accepts every geometry type).
+- Item values (every version) and default values stored as GeoJSON strings become GeoJSON objects. A `bbox` member is removed.
+- Every Geometry value, including those of existing Geometry fields, is saved with sorted keys, so equal geometries are stored identically and unique fields find them.
+
+Nothing is rejected. The run reports, for the latest item versions and the default values:
+
+- values that do not pass the Geometry validation (they are converted, and must be fixed before the item can be saved again),
+- values that are not GeoJSON objects (they are removed),
+- duplicate values in unique fields (they are kept).
+
+Run it before deploying the server version that removes the Geometry Object and Geometry Editor fields.
+
+```bash
+cd server
+go build ./cmd/db-migrations
+./db-migrations --cmd=geometry-unification            # dry run: report only
+./db-migrations --cmd=geometry-unification --wet-run  # apply
+```

@@ -194,20 +194,20 @@ func guessSchemaFields(e *httpexpect.Expect, assetId, modelId string) *httpexpec
 }
 
 type fIds struct {
-	textFId           string
-	textAreaFId       string
-	markdownFId       string
-	assetFId          string
-	boolFId           string
-	selectFId         string
-	integerFId        string
-	numberFId         string
-	urlFId            string
-	dateFId           string
-	tagFID            string
-	checkFid          string
-	geometryObjectFid string
-	geometryEditorFid string
+	textFId      string
+	textAreaFId  string
+	markdownFId  string
+	assetFId     string
+	boolFId      string
+	selectFId    string
+	integerFId   string
+	numberFId    string
+	urlFId       string
+	dateFId      string
+	tagFID       string
+	checkFid     string
+	geometryFid  string
+	geometry2Fid string
 }
 
 func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds {
@@ -303,21 +303,19 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 			"checkbox": map[string]any{},
 		})
 
-	geometryObjectFId, _ := createField(e, mId, "geometryObject", "geometryObject", "geometryObject",
-		false, false, false, false, "GeometryObject",
+	geometryFId, _ := createField(e, mId, "geometry", "geometry", "geometry",
+		false, false, false, false, "Geometry",
 		map[string]any{
-			"geometryObject": map[string]any{
-				"defaultValue":   nil,
-				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
+			"geometry": map[string]any{
+				"defaultValue": nil,
 			},
 		})
 
-	geometryEditorFId, _ := createField(e, mId, "geometryEditor", "geometryEditor", "geometryEditor",
-		false, false, false, false, "GeometryEditor",
+	geometry2FId, _ := createField(e, mId, "geometry2", "geometry2", "geometry2",
+		false, false, false, false, "Geometry",
 		map[string]any{
-			"geometryEditor": map[string]any{
-				"defaultValue":   nil,
-				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
+			"geometry": map[string]any{
+				"defaultValue": nil,
 			},
 		})
 
@@ -343,25 +341,25 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		dateFId,
 		tagFId,
 		checkboxFId,
-		geometryObjectFId,
-		geometryEditorFId,
+		geometryFId,
+		geometry2FId,
 	}, ids)
 
 	return fIds{
-		textFId:           textFId,
-		textAreaFId:       textAreaFId,
-		markdownFId:       markdownFId,
-		assetFId:          assetFId,
-		boolFId:           boolFId,
-		selectFId:         selectFId,
-		integerFId:        integerFId,
-		numberFId:         numberFId,
-		urlFId:            urlFId,
-		dateFId:           dateFId,
-		tagFID:            tagFId,
-		checkFid:          checkboxFId,
-		geometryObjectFid: geometryObjectFId,
-		geometryEditorFid: geometryEditorFId,
+		textFId:      textFId,
+		textAreaFId:  textAreaFId,
+		markdownFId:  markdownFId,
+		assetFId:     assetFId,
+		boolFId:      boolFId,
+		selectFId:    selectFId,
+		integerFId:   integerFId,
+		numberFId:    numberFId,
+		urlFId:       urlFId,
+		dateFId:      dateFId,
+		tagFID:       tagFId,
+		checkFid:     checkboxFId,
+		geometryFid:  geometryFId,
+		geometry2Fid: geometry2FId,
 	}
 }
 
@@ -744,7 +742,7 @@ func TestGuessSchemaFields(t *testing.T) {
 		IsEqual([]map[string]any{
 			{
 				"key":  "geometry",
-				"type": "geometryObject",
+				"type": "geometry",
 				"name": "geometry",
 			},
 			{

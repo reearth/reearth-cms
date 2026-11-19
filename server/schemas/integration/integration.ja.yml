@@ -2089,8 +2089,6 @@ components:
         - url
         - group
         - tag
-        - geometryObject
-        - geometryEditor
         - geometry
     tagResponse:
       type: object
