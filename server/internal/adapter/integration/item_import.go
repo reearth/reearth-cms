@@ -22,7 +22,7 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ModelImport404Response{}, err
 		}
-		return ModelImport400Response{}, err
+		return nil, err
 	}
 
 	// run as background

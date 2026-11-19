@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
@@ -115,4 +116,30 @@ func TestIntegrationItemGeometryField(t *testing.T) {
 				},
 			})
 	}
+
+	// imports report invalid geometries the same way
+	// GeoJSON imports write one geometry per item, so they use a field that is not multiple
+	iAPIFieldCreate(e, wId0, pid, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"key": "location", "type": "geometry", "multiple": false, "required": false}).
+		Expect().
+		Status(http.StatusOK)
+
+	iAPIModelImport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithMultipart().
+		WithFile("file", "./test.geojson", strings.NewReader(`{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[35.6,139.7]},"properties":{}}]}`)).
+		WithFormField("format", "geoJson").
+		WithFormField("strategy", "insert").
+		WithFormField("mutateSchema", "false").
+		WithFormField("geometryFieldKey", "location").
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "field validation failed",
+			"details": []any{
+				map[string]any{"field": "location", "code": "INVALID_GEO_STRUCTURE", "detail": "latitude must be between -90 and 90; longitude and latitude may be swapped"},
+			},
+		})
 }

@@ -517,7 +517,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/schemaField'
         '400':
-          description: リクエストパラメータの値が無効です
+          $ref: '#/components/responses/FieldValidationError'
         '404':
           description: 見つかりません
         '401':

@@ -517,7 +517,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/schemaField'
         '400':
-          description: Invalid request parameter value
+          $ref: '#/components/responses/FieldValidationError'
         '404':
           description: Not found
         '401':
