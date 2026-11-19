@@ -44,3 +44,23 @@ func TestValueDocument_Geometry(t *testing.T) {
 	assert.IsType(t, bson.D{}, decoded.V[0])
 	assert.Equal(t, m, decoded.MultipleValue())
 }
+
+func TestNewMultipleValue_GeometryKeyOrder(t *testing.T) {
+	t.Parallel()
+
+	a := value.NewMultiple(value.TypeGeometry, []any{`{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,2]}]}`})
+	b := value.NewMultiple(value.TypeGeometry, []any{`{"geometries":[{"coordinates":[1,2],"type":"Point"}],"type":"GeometryCollection"}`})
+
+	// the same geometry is stored identically regardless of its key order
+	ba, err := bson.Marshal(NewMultipleValue(a))
+	require.NoError(t, err)
+	bb, err := bson.Marshal(NewMultipleValue(b))
+	require.NoError(t, err)
+	assert.Equal(t, ba, bb)
+
+	// keys are stored in sorted order
+	assert.Equal(t, bson.D{
+		{Key: "geometries", Value: []any{bson.D{{Key: "coordinates", Value: []any{1.0, 2.0}}, {Key: "type", Value: "Point"}}}},
+		{Key: "type", Value: "GeometryCollection"},
+	}, NewMultipleValue(a).V[0])
+}
