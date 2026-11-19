@@ -27,7 +27,8 @@ require (
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/reearth/reearth-accounts/server v0.0.0-20261013054957-a545c2083d8b
-	github.com/reearth/reearthx v0.0.0-20261113064132-a3bec2df2dfc
+	github.com/reearth/reearth-cms/shared v0.0.0
+	github.com/reearth/reearthx v0.0.0-20261019070039-3b14d79ab14b
 	github.com/samber/lo v1.53.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	github.com/spf13/afero v1.15.0
@@ -197,3 +198,5 @@ tool (
 	github.com/reearth/reearthx/tools
 	go.uber.org/mock/mockgen
 )
+
+replace github.com/reearth/reearth-cms/shared => ../shared
