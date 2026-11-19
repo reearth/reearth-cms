@@ -1081,6 +1081,12 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			return aId, err
 		}
 
+		if th := a.Thread(); th != nil {
+			if err := i.repos.Thread.RemoveByIDs(ctx, id.ThreadIDList{*th}); err != nil {
+				return aId, err
+			}
+		}
+
 		p, err := i.repos.Project.FindByID(ctx, a.Project())
 		if err != nil {
 			return aId, err
@@ -1149,6 +1155,10 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		})
 
 		if err := i.repos.Asset.BatchDelete(ctx, assetIDs); err != nil {
+			return assetIDs, err
+		}
+
+		if err := i.repos.Thread.RemoveByIDs(ctx, assets.Threads()); err != nil {
 			return assetIDs, err
 		}
 
