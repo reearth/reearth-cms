@@ -72,3 +72,25 @@ func TestField_Clone(t *testing.T) {
 		})
 	}
 }
+
+func TestField_IsGeometryField(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		t    value.Type
+		want bool
+	}{
+		{name: "geometry object", t: value.TypeGeometryObject, want: true},
+		{name: "geometry editor", t: value.TypeGeometryEditor, want: true},
+		{name: "geometry", t: value.TypeGeometry, want: true},
+		{name: "text", t: value.TypeText, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, NewField(id.NewFieldID(), value.NewMultiple(tt.t, nil), nil).IsGeometryField())
+		})
+	}
+}
