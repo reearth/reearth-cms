@@ -4,7 +4,9 @@ import type { EmotionMatchers } from "@emotion/jest";
 import "@ant-design/v5-patch-for-react-19";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { act, cleanup } from "@testing-library/react";
-import destroyFns from "antd/es/modal/destroyFns";
+// Must be the lib (CJS) build: vitest externalizes antd, so components load
+// antd/lib and antd/es/modal/destroyFns would be a separate, always-empty array.
+import destroyFns from "antd/lib/modal/destroyFns";
 import { unstable_IdlePriority, unstable_scheduleCallback } from "scheduler";
 import { beforeAll, beforeEach, afterEach, expect } from "vitest";
 
@@ -95,7 +97,8 @@ afterEach(async () => {
   // https://github.com/reearth/reearth-cms/actions/runs/30790140377,
   // https://github.com/reearth/reearth-cms/actions/runs/43369604972,
   // https://github.com/reearth/reearth-cms/actions/runs/44465889497,
-  // https://github.com/reearth/reearth-cms/actions/runs/44471694971).
+  // https://github.com/reearth/reearth-cms/actions/runs/44471694971,
+  // https://github.com/reearth/reearth-cms/actions/runs/44479462260).
   // Inside act(), React queues that work on the act queue instead and flushes it
   // synchronously before act() resolves. Each step gets its own act() because
   // queued commits only apply on exit, and back-to-back awaits leave no macrotask
