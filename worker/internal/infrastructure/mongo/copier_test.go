@@ -5,8 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/shared/task"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/util"
@@ -28,11 +27,11 @@ func TestCopier_Copy(t *testing.T) {
 	iCol := db.Collection("item")
 	w.SetCollection(iCol)
 
-	pid := id.NewProjectID().String()
+	pid := newID()
 	uid := accountdomain.NewUserID().String()
-	mid1, mid2 := id.NewModelID().String(), id.NewModelID().String()
-	sid1, sid2 := id.NewSchemaID().String(), id.NewSchemaID().String()
-	iid1, iid2 := id.NewItemID().String(), id.NewItemID().String()
+	mid1, mid2 := newID(), newID()
+	sid1, sid2 := newID(), newID()
+	iid1, iid2 := newID(), newID()
 
 	i1 := map[string]any{
 		"id":        iid1,
@@ -101,6 +100,31 @@ func TestCopier_Copy(t *testing.T) {
 		assert.Contains(t, doc, "timestamp")
 		assert.Contains(t, doc["__r"], "latest")
 	}
+}
+
+func TestCopier_Copy_UnknownChangeType(t *testing.T) {
+	ctx := context.Background()
+	db := mongotest.Connect(t)(t)
+	w := NewCopier(db)
+	w.SetCollection(db.Collection("item"))
+
+	sid1, sid2 := newID(), newID()
+	_, err := w.c.InsertOne(ctx, map[string]any{"id": newID(), "schema": sid1})
+	assert.NoError(t, err)
+
+	// A newer server may send a change type this worker does not know yet.
+	filter := bson.M{"schema": sid1}
+	changes := task.Changes{
+		"id":     {Type: task.ChangeType("unknown"), Value: "item"},
+		"schema": {Type: task.ChangeTypeSet, Value: sid2},
+	}
+
+	err = w.Copy(ctx, filter, changes)
+	assert.ErrorContains(t, err, `unknown change type "unknown" for field "id"`)
+
+	count, err := w.c.CountDocuments(ctx, bson.M{"schema": sid2})
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
 }
 
 func TestCopier_GenerateId(t *testing.T) {
