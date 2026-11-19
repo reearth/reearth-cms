@@ -2,7 +2,8 @@ name: reearth-cms
 services:
   reearth-cms-server:
     build:
-      context: .
+      context: ..
+      dockerfile: server/Dockerfile
     environment:
       REEARTH_DB: mongodb://reearth-cms-mongo
       REEARTH_CMS_OTEL_ENDPOINT: http://reearth-cms-jaeger:4318

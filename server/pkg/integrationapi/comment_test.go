@@ -15,8 +15,7 @@ func TestNewComment(t *testing.T) {
 	authorIntegration := operator.OperatorFromIntegration(iid)
 	c := thread.NewComment(thread.NewCommentID(), authorUser, "test")
 	cIntegration := thread.NewComment(thread.NewCommentID(), authorIntegration, "test")
-	authorID := c.Author().User().Ref()
-	authorIntegrationID := cIntegration.Author().Integration().Ref()
+	cMachine := thread.NewComment(thread.NewCommentID(), operator.OperatorFromMachine(), "test")
 	tests := []struct {
 		name     string
 		input    *thread.Comment
@@ -35,7 +34,7 @@ func TestNewComment(t *testing.T) {
 				CreatedAt:  new(c.CreatedAt()),
 				Id:         c.ID().Ref(),
 				AuthorType: new(User),
-				AuthorId:   new(any(authorID)),
+				AuthorId:   new(uid.String()),
 			},
 		},
 		{
@@ -46,7 +45,16 @@ func TestNewComment(t *testing.T) {
 				CreatedAt:  new(cIntegration.CreatedAt()),
 				Id:         cIntegration.ID().Ref(),
 				AuthorType: new(Integrtaion),
-				AuthorId:   new(any(authorIntegrationID)),
+				AuthorId:   new(iid.String()),
+			},
+		},
+		{
+			name:  "Machine author has no author ID or type",
+			input: cMachine,
+			expected: &Comment{
+				Content:   new("test"),
+				CreatedAt: new(cMachine.CreatedAt()),
+				Id:        cMachine.ID().Ref(),
 			},
 		},
 	}

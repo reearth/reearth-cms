@@ -184,7 +184,7 @@ paths:
                   - id
                 properties:
                   id:
-                    x-go-type: id.ProjectID
+                    format: project-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -356,7 +356,7 @@ paths:
                   - id
                 properties:
                   id:
-                    x-go-type: id.ModelID
+                    format: model-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -444,7 +444,7 @@ paths:
               type: object
               properties:
                 assetId:
-                  x-go-type: id.AssetID
+                  format: asset-id
                   type: string
                 format:
                   type: string
@@ -502,7 +502,7 @@ paths:
                 type: object
                 properties:
                   modelId:
-                    x-go-type: id.ModelID
+                    format: model-id
                     type: string
                   itemsCount:
                     type: integer
@@ -725,7 +725,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.GroupID
+                    format: group-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -834,7 +834,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.FieldID
+                    format: field-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -1144,7 +1144,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.ItemID
+                    format: item-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -1294,7 +1294,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.CommentID
+                    format: comment-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -1418,7 +1418,7 @@ paths:
                   type: array
                   items:
                     type: string
-                    x-go-type: id.AssetID
+                    format: asset-id
       responses:
         '200':
           description: アセットの一覧
@@ -1430,7 +1430,7 @@ paths:
                   ids:
                     type: array
                     items:
-                      x-go-type: id.AssetID
+                      format: asset-id
                       type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -1529,7 +1529,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.AssetID
+                    format: asset-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -1741,7 +1741,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.CommentID
+                    format: comment-id
                     type: string
         '400':
           description: リクエストパラメータの値が無効です
@@ -1759,7 +1759,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: accountdomain.WorkspaceIDOrAlias
+        format: workspace-id-or-alias
     projectIdOrAliasParam:
       name: projectIdOrAlias
       in: path
@@ -1767,7 +1767,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: project.IDOrAlias
+        format: project-id-or-alias
     schemaIdParam:
       name: schemaId
       in: path
@@ -1775,7 +1775,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: id.SchemaID
+        format: schema-id
     modelIdOrKeyParam:
       name: modelIdOrKey
       in: path
@@ -1783,7 +1783,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: model.IDOrKey
+        format: model-id-or-key
     groupIdOrKeyParam:
       name: groupIdOrKey
       in: path
@@ -1791,7 +1791,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: group.IDOrKey
+        format: group-id-or-key
     fieldIdOrKeyParam:
       name: fieldIdOrKey
       in: path
@@ -1799,7 +1799,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: schema.FieldIDOrKey
+        format: field-id-or-key
     itemIdParam:
       name: itemId
       in: path
@@ -1807,7 +1807,7 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: id.ItemID
+        format: item-id
     assetIdParam:
       name: assetId
       in: path
@@ -1815,14 +1815,14 @@ components:
       required: true
       schema:
         type: string
-        x-go-type: id.AssetID
+        format: asset-id
     commentIdParam:
       name: commentId
       in: path
       description: 選択されたコメントのID
       required: true
       schema:
-        x-go-type: id.CommentID
+        format: comment-id
         type: string
     sortParam:
       name: sort
@@ -1905,10 +1905,10 @@ components:
         - updatedAt
       properties:
         id:
-          x-go-type: id.ProjectID
+          format: project-id
           type: string
         workspaceId:
-          x-go-type: accountdomain.WorkspaceID
+          format: workspace-id
           type: string
         name:
           type: string
@@ -1939,7 +1939,7 @@ components:
           type: array
           items:
             type: string
-            x-go-type: id.ModelID
+            format: model-id
         publicAssets:
           type: boolean
       required:
@@ -1950,7 +1950,7 @@ components:
       properties:
         id:
           type: string
-          x-go-type: id.APIKeyID
+          format: api-key-id
         name:
           type: string
         description:
@@ -1986,18 +1986,18 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.ModelID
+          format: model-id
           type: string
         projectId:
-          x-go-type: id.ProjectID
+          format: project-id
           type: string
         schemaId:
-          x-go-type: id.SchemaID
+          format: schema-id
           type: string
         schema:
           $ref: '#/components/schemas/schema'
         metadataSchemaId:
-          x-go-type: id.SchemaID
+          format: schema-id
           type: string
         metadataSchema:
           $ref: '#/components/schemas/schema'
@@ -2029,13 +2029,13 @@ components:
         - fields
       properties:
         id:
-          x-go-type: id.GroupID
+          format: group-id
           type: string
         schemaId:
-          x-go-type: id.SchemaID
+          format: schema-id
           type: string
         projectId:
-          x-go-type: id.ProjectID
+          format: project-id
           type: string
         name:
           type: string
@@ -2053,24 +2053,23 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.SchemaID
+          format: schema-id
           type: string
         projectId:
-          x-go-type: id.ProjectID
+          format: project-id
           type: string
         fields:
           type: array
           items:
             $ref: '#/components/schemas/schemaField'
         titleField:
-          x-go-type: id.FieldID
+          format: field-id
           type: string
         createdAt:
           type: string
           format: date-time
     JSONSchema:
       type: object
-      x-go-type: types.JSONSchema
     valueType:
       type: string
       enum:
@@ -2096,7 +2095,7 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.TagID
+          format: tag-id
           type: string
         name:
           type: string
@@ -2106,7 +2105,7 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.FieldID
+          format: field-id
           type: string
         type:
           $ref: '#/components/schemas/valueType'
@@ -2144,15 +2143,16 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.ItemID
+          format: item-id
           type: string
         metadataItemId:
-          x-go-type: id.ItemID
+          format: item-id
           type: string
         originalItemId:
-          x-go-type: id.ItemID
+          format: item-id
           type: string
         modelId:
+          format: model-id
           type: string
         fields:
           type: array
@@ -2176,7 +2176,6 @@ components:
           format: date-time
     GeoJSON:
       type: object
-      x-go-type: types.GeoJSON
     versionedItem:
       allOf:
         - $ref: '#/components/schemas/item'
@@ -2191,7 +2190,7 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.FieldID
+          format: field-id
           type: string
         type:
           $ref: '#/components/schemas/valueType'
@@ -2199,7 +2198,7 @@ components:
         key:
           type: string
         group:
-          x-go-type: id.ItemGroupID
+          format: item-group-id
           type: string
     refOrVersion:
       type: object
@@ -2229,10 +2228,10 @@ components:
         - public
       properties:
         id:
-          x-go-type: id.AssetID
+          format: asset-id
           type: string
         projectId:
-          x-go-type: id.ProjectID
+          format: project-id
           type: string
         name:
           type: string
@@ -2274,11 +2273,10 @@ components:
       type: object
       properties:
         id:
-          x-go-type: id.CommentID
+          format: comment-id
           type: string
         authorId:
           type: string
-          x-go-type: any
         authorType:
           type: string
           enum:
@@ -2308,7 +2306,7 @@ components:
       type: object
       properties:
         fieldId:
-          x-go-type: id.FieldID
+          format: field-id
           type: string
         type:
           type: string
