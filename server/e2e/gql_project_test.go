@@ -58,7 +58,7 @@ func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string,
 	return res.Path("$.data.createProject.project.id").Raw().(string), res
 }
 
-func getProject(e *httpexpect.Expect, pID string) (string, *httpexpect.Value) {
+func getProjectAs(e *httpexpect.Expect, pID, userID string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetProject($projectId: ID!) {
     	node(id: $projectId, type: PROJECT) {
@@ -95,7 +95,7 @@ func getProject(e *httpexpect.Expect, pID string) (string, *httpexpect.Value) {
 
 	res := e.POST("/api/graphql").
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userID).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
 		Expect().
@@ -156,7 +156,6 @@ func updateProject(e *httpexpect.Expect, pID, name, desc, alias, visibility stri
 
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
-
 
 func RegeneratePublicApiToken(e *httpexpect.Expect, pId, tId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
