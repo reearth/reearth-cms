@@ -10,6 +10,7 @@ jobs:
       web: ${{ steps.web.outputs.any_modified }}
       server: ${{ steps.server.outputs.any_modified }}
       worker: ${{ steps.worker.outputs.any_modified }}
+      actions: ${{ steps.actions.outputs.any_modified }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.22.1
@@ -53,6 +54,18 @@ jobs:
             .github/workflows/ci_worker.yml
             .github/workflows/build_worker.yml
 
+      - name: changed files for actions lockfile
+        id: actions
+        uses: step-security/changed-files@v47.0.5
+        with:
+          files: |
+            .github/workflows/**
+
+  ci-actions-lock:
+    needs: prepare
+    if: needs.prepare.outputs.actions == 'true'
+    uses: ./.github/workflows/actions_lock.yml
+
   ci-web:
     needs: prepare
     if: needs.prepare.outputs.web == 'true'
@@ -77,6 +90,7 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     needs:
+      - ci-actions-lock
       - ci-web
       - ci-server
       - ci-worker

@@ -3,11 +3,7 @@
 # Regenerate locally with `gh actions-lock`. Docs: https://gh.io/actions-lockfile
 name: actions-lock
 on:
-  push:
-    branches: [main]
-  pull_request:
-    paths:
-      - .github/workflows/**
+  workflow_call:
 permissions:
   contents: read
 jobs:
