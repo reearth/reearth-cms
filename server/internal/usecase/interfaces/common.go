@@ -19,6 +19,7 @@ type Container struct {
 	Asset             Asset
 	Workspace         accountinterfaces.Workspace
 	WorkspaceSettings WorkspaceSettings
+	WorkspaceDeleter  WorkspaceDeleter
 	User              accountinterfaces.User
 	Item              Item
 	View              View

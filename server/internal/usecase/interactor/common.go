@@ -28,9 +28,10 @@ type ContainerConfig struct {
 func New(r *repo.Container, g *gateway.Container,
 	ar *accountrepo.Container, ag *accountgateway.Container,
 	config ContainerConfig) interfaces.Container {
+	ws := accountinteractor.NewWorkspace(ar, nil)
 	return interfaces.Container{
 		Asset:             NewAsset(r, g),
-		Workspace:         accountinteractor.NewWorkspace(ar, nil),
+		Workspace:         ws,
 		User:              accountinteractor.NewMultiUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain, ar.Users),
 		Project:           NewProject(r, g),
 		Item:              NewItem(r, g),
@@ -42,6 +43,7 @@ func New(r *repo.Container, g *gateway.Container,
 		Thread:            NewThread(r, g),
 		Group:             NewGroup(r, g),
 		WorkspaceSettings: NewWorkspaceSettings(r, g),
+		WorkspaceDeleter:  NewWorkspaceDeleter(r, g, ws),
 		Job:               NewJob(r, g),
 	}
 }

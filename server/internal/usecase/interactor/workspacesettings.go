@@ -83,15 +83,6 @@ func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWo
 		WithPermission(ws.authz(), rbac.ResourceWorkspaceSettings, rbac.ActionDelete, inp.ID).
 		Transaction(),
 		func(ctx context.Context) error {
-			// Deleting a workspace does not cascade to its projects yet,
-			// so reject deletion while the workspace still has projects.
-			count, err := ws.repos.Project.CountByWorkspace(ctx, inp.ID)
-			if err != nil {
-				return err
-			}
-			if count > 0 {
-				return interfaces.ErrWorkspaceHasProjects
-			}
 			return ws.repos.WorkspaceSettings.Remove(ctx, inp.ID)
 		})
 }
