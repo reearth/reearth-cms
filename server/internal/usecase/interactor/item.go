@@ -600,18 +600,23 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, err
 		}
 
+		updated, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
 		// resolve all referenced items across the whole batch in one query
 		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
-		refItemsByID, err := i.batchReferencedItems(ctx, items, *sp)
+		refItemsByID, err := i.batchReferencedItems(ctx, updated, *sp)
 		if err != nil {
 			return nil, err
 		}
 
-		events = make([]Event, 0, len(items))
-		for _, itm := range items {
+		events = make([]Event, 0, len(updated))
+		for _, itm := range updated {
 			events = append(events, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
@@ -627,7 +632,7 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			})
 		}
 
-		return items, nil
+		return updated, nil
 	})
 	if err != nil {
 		return nil, err

@@ -25,6 +25,17 @@
       ],
       "groupName": "Go toolchain",
       "groupSlug": "go-toolchain"
+    },
+    {
+      "description": "Take go.mod go directives from the golang Docker image tags so they never get ahead of the images",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "golang"
+      ],
+      "overrideDatasource": "docker",
+      "overridePackageName": "golang"
     }
   ]
 }
