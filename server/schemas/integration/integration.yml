@@ -1180,6 +1180,34 @@ paths:
         '404':
           description: Not found
 
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/unpublish':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/assetParam'
+    post:
+      operationId: ItemUnpublish
+      summary: unpublish item
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: the unpublished item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+
   ### ITEM COMMENTS ###
   '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments':
     parameters:
