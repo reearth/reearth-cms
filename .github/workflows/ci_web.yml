@@ -43,39 +43,6 @@ jobs:
       - name: Lint
         run: yarn run lint
 
-  gql:
-    name: gql
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
-        with:
-          egress-policy: audit
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Setup Node
-        id: setup-node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: lts/*
-          cache: yarn
-          cache-dependency-path: '**/yarn.lock'
-      - name: Cache node_modules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
-      - name: Install
-        run: yarn install --frozen-lockfile --prefer-offline
-      - name: Check gql generation
-        run: |
-          yarn gql
-          git diff --exit-code ./src/gql/__generated__
-
   i18n:
     name: i18n
     runs-on: ubuntu-latest

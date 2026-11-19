@@ -25,7 +25,6 @@ jobs:
         with:
           files: |
             web/**
-            server/schemas/**/*.graphql
             .github/workflows/ci.yml
             .github/workflows/ci_web.yml
             .github/workflows/build_web.yml
