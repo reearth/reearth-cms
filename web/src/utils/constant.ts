@@ -32,10 +32,12 @@ export abstract class Constant {
     IGNORE_FIELD_TYPES_JSON: IGNORE_FIELD_TYPES_COMMON,
     IGNORE_FIELD_TYPES_GEO_JSON: new Set<SchemaFieldType>([
       ...Array.from(IGNORE_FIELD_TYPES_COMMON),
+      SchemaFieldType.Geometry,
       SchemaFieldType.GeometryObject,
     ]),
     IGNORE_FIELD_TYPES_GEO_CSV: new Set<SchemaFieldType>([
       ...Array.from(IGNORE_FIELD_TYPES_COMMON),
+      SchemaFieldType.Geometry,
       SchemaFieldType.GeometryObject,
     ]),
 
