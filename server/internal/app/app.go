@@ -82,6 +82,7 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 	graphqlMiddlewares = append(graphqlMiddlewares,
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
+		UserRequiredMiddleware(),
 		usecaseMiddleware,
 	)
 	api.Any("/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev), graphqlMiddlewares...)

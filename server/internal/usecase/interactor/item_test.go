@@ -2069,6 +2069,9 @@ func TestItem_PublishUnpublishBatch(t *testing.T) {
 			published, err := itemUC.Publish(ctx, ids, op)
 			assert.NoError(t, err)
 			assert.Len(t, published, tt.n)
+			for _, v := range published {
+				assert.True(t, v.Refs().Has(version.Public))
+			}
 
 			status, err := itemUC.ItemStatus(ctx, ids, op)
 			assert.NoError(t, err)
@@ -2080,6 +2083,10 @@ func TestItem_PublishUnpublishBatch(t *testing.T) {
 			unpublished, err := itemUC.Unpublish(ctx, ids, op)
 			assert.NoError(t, err)
 			assert.Len(t, unpublished, tt.n)
+			// the returned items must reflect the removed public ref
+			for _, v := range unpublished {
+				assert.False(t, v.Refs().Has(version.Public))
+			}
 
 			status, err = itemUC.ItemStatus(ctx, ids, op)
 			assert.NoError(t, err)
