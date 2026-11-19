@@ -276,37 +276,30 @@ func TestSchema_FirstGeometryField(t *testing.T) {
 	}
 }
 
-func TestSchema_GeometryFields(t *testing.T) {
+func TestSchema_HasGeometryFields(t *testing.T) {
 	t.Parallel()
 
 	boolF := &Field{id: NewFieldID(), typeProperty: NewBool().TypeProperty()}
 	geoObjF := &Field{id: NewFieldID(), typeProperty: NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty()}
 	geoEdtF := &Field{id: NewFieldID(), typeProperty: NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty()}
 	geoF := &Field{id: NewFieldID(), typeProperty: NewGeometry().TypeProperty()}
-	geoLastF := &Field{id: NewFieldID(), order: 1, typeProperty: NewGeometry().TypeProperty()}
-	geoObjFirstF := &Field{id: NewFieldID(), order: 0, typeProperty: NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty()}
 
 	tests := []struct {
-		name              string
-		s                 *Schema
-		wantHasGeometry   bool
-		wantDefaultImport *Field
+		name string
+		s    *Schema
+		want bool
 	}{
 		{name: "nil schema", s: nil},
 		{name: "no geometry field", s: &Schema{fields: FieldList{boolF}}},
-		{name: "geometry object field", s: &Schema{fields: FieldList{boolF, geoObjF}}, wantHasGeometry: true, wantDefaultImport: geoObjF},
-		{name: "geometry field", s: &Schema{fields: FieldList{boolF, geoF}}, wantHasGeometry: true, wantDefaultImport: geoF},
-		// imports never use a geometry editor field, which only accepts the types it supports
-		{name: "geometry editor field", s: &Schema{fields: FieldList{geoEdtF}}, wantHasGeometry: true},
-		{name: "first geometry object or geometry field", s: &Schema{fields: FieldList{geoEdtF, geoF, geoObjF}}, wantHasGeometry: true, wantDefaultImport: geoF},
-		{name: "first in field order, not storage order", s: &Schema{fields: FieldList{geoLastF, geoObjFirstF}}, wantHasGeometry: true, wantDefaultImport: geoObjFirstF},
+		{name: "geometry object field", s: &Schema{fields: FieldList{boolF, geoObjF}}, want: true},
+		{name: "geometry editor field", s: &Schema{fields: FieldList{boolF, geoEdtF}}, want: true},
+		{name: "geometry field", s: &Schema{fields: FieldList{boolF, geoF}}, want: true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.wantHasGeometry, tt.s.HasGeometryFields())
-			assert.Equal(t, tt.wantDefaultImport, tt.s.DefaultImportGeometryField())
+			assert.Equal(t, tt.want, tt.s.HasGeometryFields())
 		})
 	}
 }
