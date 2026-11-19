@@ -15,7 +15,7 @@ require (
 	github.com/labstack/echo-opentelemetry v0.0.4
 	github.com/labstack/echo/v5 v5.4.4
 	github.com/oklog/ulid/v2 v2.1.2
-	github.com/reearth/reearth-cms/server v0.0.0-20261014075612-0e8a1da63af6
+	github.com/reearth/reearth-cms/shared v0.0.0
 	github.com/reearth/reearthx v0.0.0-20261019070039-3b14d79ab14b
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.53.0
@@ -57,7 +57,6 @@ require (
 	github.com/google/s2a-go v0.1.11 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.25 // indirect
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
-	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/klauspost/compress v1.20.1 // indirect
 	github.com/labstack/echo/v4 v4.15.1 // indirect
@@ -109,3 +108,5 @@ require (
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
+
+replace github.com/reearth/reearth-cms/shared => ../shared
