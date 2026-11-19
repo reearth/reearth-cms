@@ -45,7 +45,7 @@ type orphanedSummary struct {
 	Size       int64
 }
 
-// OrphanedData audits data that belongs to deleted projects (and projects of deleted workspaces).
+// OrphanedData audits data that belongs to deleted projects, and projects and workspace settings of deleted workspaces.
 // Only dry run (audit) is supported for now. Deletion will reuse the project cascade deletion.
 func OrphanedData(ctx context.Context, dbURL, dbName string, wetRun bool) error {
 	if wetRun {
@@ -88,14 +88,37 @@ func OrphanedData(ctx context.Context, dbURL, dbName string, wetRun bool) error 
 		fmt.Printf("\nskipped workspace check: no workspaces found in account DB '%s'\n", accountDBName)
 		return nil
 	}
-	orphanedProjects := 0
+	projectWorkspaces := make([]string, 0, len(projects))
 	for _, ws := range projects {
-		if _, ok := workspaces[ws]; !ok {
-			orphanedProjects++
+		projectWorkspaces = append(projectWorkspaces, ws)
+	}
+	fmt.Printf("\naccount DB '%s': %d workspaces\n", accountDBName, len(workspaces))
+	fmt.Printf("projects whose workspace no longer exists: %d\n", countMissing(projectWorkspaces, workspaces))
+
+	settings, err := _od_loadIDs(ctx, db.Collection("workspacesettings"))
+	if err != nil {
+		return fmt.Errorf("failed to load workspace settings: %w", err)
+	}
+	settingsWorkspaces := make([]string, 0, len(settings))
+	for ws := range settings {
+		settingsWorkspaces = append(settingsWorkspaces, ws)
+	}
+	fmt.Printf("workspace settings whose workspace no longer exists: %d\n", countMissing(settingsWorkspaces, workspaces))
+	return nil
+}
+
+// countMissing counts the IDs that are not in existing (empty IDs are ignored).
+func countMissing(ids []string, existing map[string]struct{}) int {
+	n := 0
+	for _, id := range ids {
+		if id == "" {
+			continue
+		}
+		if _, ok := existing[id]; !ok {
+			n++
 		}
 	}
-	fmt.Printf("\nprojects whose workspace no longer exists: %d (account DB '%s', %d workspaces)\n", orphanedProjects, accountDBName, len(workspaces))
-	return nil
+	return n
 }
 
 // summarizeOrphaned keeps only the groups whose project does not exist.

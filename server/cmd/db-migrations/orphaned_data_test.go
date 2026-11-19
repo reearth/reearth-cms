@@ -26,3 +26,10 @@ func Test_formatBytes(t *testing.T) {
 	assert.Equal(t, "1.5 KiB", formatBytes(1536))
 	assert.Equal(t, "2.0 GiB", formatBytes(2*1024*1024*1024))
 }
+
+func Test_countMissing(t *testing.T) {
+	existing := map[string]struct{}{"w1": {}, "w2": {}}
+
+	assert.Equal(t, 2, countMissing([]string{"w1", "w2", "w3", "w3", ""}, existing))
+	assert.Equal(t, 0, countMissing(nil, existing))
+}
