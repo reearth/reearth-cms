@@ -517,7 +517,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/schemaField'
         '400':
-          description: リクエストパラメータの値が無効です
+          $ref: '#/components/responses/FieldValidationError'
         '404':
           description: 見つかりません
         '401':
@@ -925,7 +925,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/versionedItem'
         '400':
-          description: リクエストパラメータの値が無効です
+          $ref: '#/components/responses/FieldValidationError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1121,7 +1121,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/versionedItem'
         '400':
-          description: リクエストパラメータの値が無効です
+          $ref: '#/components/responses/FieldValidationError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -2446,7 +2446,38 @@ components:
             - fieldId
             - operator
             - value
+    fieldValidationErrorDetail:
+      type: object
+      required:
+        - code
+      properties:
+        field:
+          type: string
+          description: 'フィールドのキー。複数値フィールドの場合は値のインデックスを含みます（例: "title[1]"）'
+        code:
+          type: string
+          description: '検証エラーコード（例: INVALID_GEO_STRUCTURE、UNIQUE_VIOLATION）'
+        detail:
+          type: string
+          description: 値が無効な理由
   responses:
+    FieldValidationError:
+      description: リクエストパラメータの値が無効です。フィールドの検証に失敗した場合、detailsに失敗したフィールドとその理由が含まれます。
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - error
+            properties:
+              error:
+                type: string
+                description: エラーメッセージ
+              details:
+                type: array
+                description: 検証に失敗したフィールド
+                items:
+                  $ref: '#/components/schemas/fieldValidationErrorDetail'
     UnauthorizedError:
       description: アクセストークンが存在しないか無効です
     NotFoundError:

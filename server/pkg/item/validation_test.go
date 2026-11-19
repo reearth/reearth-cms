@@ -120,7 +120,7 @@ func TestValidateItem(t *testing.T) {
 			name: "well-formed JSON that is not a valid geometry fails as invalid geo structure",
 			fields: Fields{
 				NewField(titleField.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
-				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type": "Point", "coordinates": [102.0, 0.5], "name": "a"}`).AsMultiple(), nil),
+				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type": "Point", "coordinates": [200.0, 0.5]}`).AsMultiple(), nil),
 			},
 			sp:        sp,
 			wantCodes: map[string]schema.FieldValidationCode{"location": schema.FieldValidationCodeInvalidGeoStructure},
@@ -202,7 +202,7 @@ func TestValidateItem(t *testing.T) {
 			name: "geometry over the size limit keeps its specific code",
 			fields: Fields{
 				NewField(titleField.ID(), value.TypeText.Value("hello").AsMultiple(), nil),
-				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type":"Point","coordinates":[1,2],"pad":"`+strings.Repeat("a", 10*1024)+`"}`).AsMultiple(), nil),
+				NewField(locationField.ID(), value.TypeGeometry.Value(`{"type":"MultiPoint","coordinates":[`+strings.Repeat("[1,2],", 2000)+`[1,2]]}`).AsMultiple(), nil),
 			},
 			sp:        sp,
 			wantCodes: map[string]schema.FieldValidationCode{"location": schema.FieldValidationCodeMaxSizeExceeded},
