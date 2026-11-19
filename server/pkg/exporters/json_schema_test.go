@@ -136,6 +136,7 @@ func TestDetermineTypeAndFormat(t *testing.T) {
 		{value.TypeGroup, "group", "array", ""},
 		{value.TypeGeometryObject, "geometryObject", "object", ""},
 		{value.TypeGeometryEditor, "geometryEditor", "object", ""},
+		{value.TypeGeometry, "geometry", "object", ""},
 		{"unknown", "", "string", ""},
 	}
 

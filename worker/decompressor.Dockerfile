@@ -1,4 +1,4 @@
-FROM golang:1.27.2 AS build
+FROM golang:1.27.3 AS build
 # Built from the repository root so the shared module is available.
 COPY shared/go.mod /app/shared/
 COPY worker/go.mod worker/go.sum /app/worker/
