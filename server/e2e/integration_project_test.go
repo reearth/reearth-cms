@@ -1,12 +1,17 @@
 package e2e
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 )
 
@@ -226,18 +231,61 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 }
 
-// DELETE /{workspaceId}/projects/{projectId} for a project that still has models
-func TestIntegrationProjectDeleteWithModelsAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
+// DELETE /{workspaceId}/projects/{projectId} depending on the project data
+func TestIntegrationProjectDeleteByDataAPI(t *testing.T) {
+	emptyPid := id.NewProjectID()
+	groupOnlyPid := id.NewProjectID()
+	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+		if err := baseSeeder(ctx, r, g); err != nil {
+			return err
+		}
+		if err := r.Project.Save(ctx, project.New().ID(emptyPid).Name("empty").Workspace(wId0).Alias("empty-project").MustBuild()); err != nil {
+			return err
+		}
+		if err := r.Project.Save(ctx, project.New().ID(groupOnlyPid).Name("group only").Workspace(wId0).Alias("group-only-project").MustBuild()); err != nil {
+			return err
+		}
+		return r.Group.Save(ctx, group.New().NewID().Name("g").Project(groupOnlyPid).Key(id.RandomKey()).Schema(id.NewSchemaID()).MustBuild())
+	}
+	e := StartServer(t, &app.Config{}, true, seeder)
 
-	iAPIProjectDelete(e, wId0, pid).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusBadRequest)
+	tests := []struct {
+		name          string
+		projectID     id.ProjectID
+		wantStatus    int
+		wantGetStatus int
+	}{
+		{
+			name:          "project with models is not deleted",
+			projectID:     pid,
+			wantStatus:    http.StatusBadRequest,
+			wantGetStatus: http.StatusOK,
+		},
+		{
+			name:          "project with only groups is not deleted",
+			projectID:     groupOnlyPid,
+			wantStatus:    http.StatusBadRequest,
+			wantGetStatus: http.StatusOK,
+		},
+		{
+			name:          "empty project is deleted",
+			projectID:     emptyPid,
+			wantStatus:    http.StatusOK,
+			wantGetStatus: http.StatusNotFound,
+		},
+	}
 
-	// the project must still exist
-	iAPIProjectGet(e, wId0, pid).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			iAPIProjectDelete(e, wId0, tc.projectID).
+				WithHeader("authorization", "Bearer "+secret).
+				Expect().
+				Status(tc.wantStatus)
+
+			iAPIProjectGet(e, wId0, tc.projectID).
+				WithHeader("authorization", "Bearer "+secret).
+				Expect().
+				Status(tc.wantGetStatus)
+		})
+	}
 }

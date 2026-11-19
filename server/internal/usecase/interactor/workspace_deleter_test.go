@@ -21,48 +21,77 @@ import (
 )
 
 func TestWorkspaceDeleter_Delete(t *testing.T) {
+	ws := workspace.New().NewID().Name("ws").MustBuild()
+	personalWs := workspace.New().NewID().Name("personal").Personal(true).MustBuild()
+	wid := ws.ID()
+	personalWid := personalWs.ID()
+
+	owner := func(wids ...accountdomain.WorkspaceID) *usecase.Operator {
+		return &usecase.Operator{AcOperator: &accountusecase.Operator{
+			User:               new(user.NewID()),
+			ReadableWorkspaces: wids,
+			OwningWorkspaces:   wids,
+		}}
+	}
+	reader := &usecase.Operator{AcOperator: &accountusecase.Operator{
+		User:               new(user.NewID()),
+		ReadableWorkspaces: accountdomain.WorkspaceIDList{wid},
+	}}
+
 	tests := []struct {
-		name         string
-		personal     bool
-		hasProjects  bool
-		hasSettings  bool
-		maintainer   bool
-		wantErr      error
-		wantDeleted  bool
-		wantSettings bool
+		name               string
+		workspaceSeeds     workspace.List
+		settingsSeeds      workspacesettings.List
+		projectSeeds       project.List
+		id                 accountdomain.WorkspaceID
+		operator           *usecase.Operator
+		wantErr            error
+		wantWorkspaceExist bool
+		wantSettingsExist  bool
 	}{
 		{
-			name:        "delete workspace and its settings",
-			hasSettings: true,
-			maintainer:  true,
-			wantDeleted: true,
+			name:           "delete workspace and its settings",
+			workspaceSeeds: workspace.List{ws},
+			settingsSeeds:  workspacesettings.List{workspacesettings.New().ID(wid).MustBuild()},
+			id:             wid,
+			operator:       owner(wid),
 		},
 		{
-			name:        "delete workspace without settings",
-			maintainer:  true,
-			wantDeleted: true,
+			name:           "delete workspace without settings",
+			workspaceSeeds: workspace.List{ws},
+			id:             wid,
+			operator:       owner(wid),
 		},
 		{
-			name:         "rejected when workspace has projects",
-			hasProjects:  true,
-			hasSettings:  true,
-			maintainer:   true,
-			wantErr:      interfaces.ErrWorkspaceHasProjects,
-			wantSettings: true,
+			name:               "rejected when workspace has projects",
+			workspaceSeeds:     workspace.List{ws},
+			settingsSeeds:      workspacesettings.List{workspacesettings.New().ID(wid).MustBuild()},
+			projectSeeds:       project.List{project.New().NewID().Workspace(wid).MustBuild()},
+			id:                 wid,
+			operator:           owner(wid),
+			wantErr:            interfaces.ErrWorkspaceHasProjects,
+			wantWorkspaceExist: true,
+			wantSettingsExist:  true,
 		},
 		{
-			name:         "personal workspace keeps its settings",
-			personal:     true,
-			hasSettings:  true,
-			maintainer:   true,
-			wantErr:      workspace.ErrCannotModifyPersonalWorkspace,
-			wantSettings: true,
+			name:               "personal workspace keeps its settings",
+			workspaceSeeds:     workspace.List{personalWs},
+			settingsSeeds:      workspacesettings.List{workspacesettings.New().ID(personalWid).MustBuild()},
+			id:                 personalWid,
+			operator:           owner(personalWid),
+			wantErr:            workspace.ErrCannotModifyPersonalWorkspace,
+			wantWorkspaceExist: true,
+			wantSettingsExist:  true,
 		},
 		{
-			name:         "operation denied for non-maintainer",
-			hasSettings:  true,
-			wantErr:      interfaces.ErrOperationDenied,
-			wantSettings: true,
+			name:               "operation denied for non-maintainer",
+			workspaceSeeds:     workspace.List{ws},
+			settingsSeeds:      workspacesettings.List{workspacesettings.New().ID(wid).MustBuild()},
+			id:                 wid,
+			operator:           reader,
+			wantErr:            interfaces.ErrOperationDenied,
+			wantWorkspaceExist: true,
+			wantSettingsExist:  true,
 		},
 	}
 
@@ -73,48 +102,37 @@ func TestWorkspaceDeleter_Delete(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			adb := accountmemory.New()
-
-			ws := workspace.New().NewID().Name("ws").Personal(tc.personal).MustBuild()
-			wid := ws.ID()
-			require.NoError(t, adb.Workspace.Save(ctx, ws))
-
-			if tc.hasSettings {
-				require.NoError(t, db.WorkspaceSettings.Save(ctx, workspacesettings.New().ID(wid).MustBuild()))
+			for _, w := range tc.workspaceSeeds {
+				require.NoError(t, adb.Workspace.Save(ctx, w))
 			}
-			if tc.hasProjects {
-				require.NoError(t, db.Project.Save(ctx, project.New().NewID().Workspace(wid).MustBuild()))
+			for _, s := range tc.settingsSeeds {
+				require.NoError(t, db.WorkspaceSettings.Save(ctx, s))
 			}
-
-			acOp := &accountusecase.Operator{
-				User:               new(user.NewID()),
-				ReadableWorkspaces: accountdomain.WorkspaceIDList{wid},
+			for _, p := range tc.projectSeeds {
+				require.NoError(t, db.Project.Save(ctx, p))
 			}
-			if tc.maintainer {
-				acOp.OwningWorkspaces = accountdomain.WorkspaceIDList{wid}
-			}
-			op := &usecase.Operator{AcOperator: acOp}
 
 			uc := NewWorkspaceDeleter(db, nil, accountinteractor.NewWorkspace(adb, nil))
-			err := uc.Delete(ctx, wid, op)
+			err := uc.Delete(ctx, tc.id, tc.operator)
 
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
+				assert.ErrorIs(t, err, tc.wantErr)
 			} else {
 				assert.NoError(t, err)
 			}
 
-			_, err = adb.Workspace.FindByID(ctx, wid)
-			if tc.wantDeleted {
-				assert.Equal(t, rerror.ErrNotFound, err)
-			} else {
+			_, err = adb.Workspace.FindByID(ctx, tc.id)
+			if tc.wantWorkspaceExist {
 				assert.NoError(t, err)
+			} else {
+				assert.ErrorIs(t, err, rerror.ErrNotFound)
 			}
 
-			_, err = db.WorkspaceSettings.FindByID(ctx, wid)
-			if tc.wantSettings {
+			_, err = db.WorkspaceSettings.FindByID(ctx, tc.id)
+			if tc.wantSettingsExist {
 				assert.NoError(t, err)
 			} else {
-				assert.Equal(t, rerror.ErrNotFound, err)
+				assert.ErrorIs(t, err, rerror.ErrNotFound)
 			}
 		})
 	}

@@ -508,10 +508,13 @@ func TestDeleteWorkspaceWithProjects(t *testing.T) {
 		if err := baseSeederWorkspace(ctx, r, g); err != nil {
 			return err
 		}
+		if err := r.WorkspaceSettings.Save(ctx, workspacesettings.New().ID(wId).MustBuild()); err != nil {
+			return err
+		}
 		p := project.New().NewID().Name("p").Workspace(wId).Alias("ws-delete-test").MustBuild()
 		return r.Project.Save(ctx, p)
 	}
-	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, seeder)
+	e, r, ar := StartServerWithRepos(t, &app.Config{}, true, seeder)
 
 	query := fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, wId)
 	jsonData, err := json.Marshal(GraphQLRequest{Query: query})
@@ -524,7 +527,9 @@ func TestDeleteWorkspaceWithProjects(t *testing.T) {
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
 	o.Value("errors").Array().Value(0).Object().Value("message").IsEqual("can't delete a workspace as it still has projects")
 
-	// the workspace must still exist
+	// the workspace and its settings must still exist
 	_, err = ar.Workspace.FindByID(context.Background(), wId)
+	assert.Nil(t, err)
+	_, err = r.WorkspaceSettings.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 }

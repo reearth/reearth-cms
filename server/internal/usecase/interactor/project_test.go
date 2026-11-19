@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -1290,7 +1291,8 @@ func TestProject_Delete(t *testing.T) {
 	tests := []struct {
 		name           string
 		seeds          project.List
-		models         model.List
+		modelsSeeds    model.List
+		groupsSeeds    group.List
 		args           args
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
@@ -1307,14 +1309,24 @@ func TestProject_Delete(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:   "delete rejected when project has models",
-			seeds:  project.List{p1, p2},
-			models: model.List{model.New().NewID().Schema(id.NewSchemaID()).Key(id.RandomKey()).Project(pid1).MustBuild()},
+			name:        "delete rejected when project has models",
+			seeds:       project.List{p1, p2},
+			modelsSeeds: model.List{model.New().NewID().Schema(id.NewSchemaID()).Key(id.RandomKey()).Project(pid1).MustBuild()},
 			args: args{
 				id:       pid1,
 				operator: opOwner,
 			},
-			wantErr: interfaces.ErrProjectHasModels,
+			wantErr: interfaces.ErrProjectNotEmpty,
+		},
+		{
+			name:        "delete rejected when project has groups",
+			seeds:       project.List{p1, p2},
+			groupsSeeds: group.List{group.New().NewID().Name("g").Schema(id.NewSchemaID()).Key(id.RandomKey()).Project(pid1).MustBuild()},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: interfaces.ErrProjectNotEmpty,
 		},
 		{
 			name:  "delete not found",
@@ -1405,9 +1417,11 @@ func TestProject_Delete(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			for _, m := range tc.models {
-				err := db.Model.Save(ctx, m)
-				assert.NoError(t, err)
+			for _, m := range tc.modelsSeeds {
+				require.NoError(t, db.Model.Save(ctx, m))
+			}
+			for _, g := range tc.groupsSeeds {
+				require.NoError(t, db.Group.Save(ctx, g))
 			}
 
 			var gateways *gateway.Container

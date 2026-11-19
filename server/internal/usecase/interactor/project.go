@@ -387,13 +387,20 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 			Transaction(),
 		func(ctx context.Context) error {
 			// Deleting a project does not cascade to its data yet,
-			// so reject deletion while the project still has models.
+			// so reject deletion while the project still has models or groups.
 			count, err := i.repos.Model.CountByProject(ctx, projectID)
 			if err != nil {
 				return err
 			}
 			if count > 0 {
-				return interfaces.ErrProjectHasModels
+				return interfaces.ErrProjectNotEmpty
+			}
+			groups, err := i.repos.Group.FindByProject(ctx, projectID)
+			if err != nil {
+				return err
+			}
+			if len(groups) > 0 {
+				return interfaces.ErrProjectNotEmpty
 			}
 			return i.repos.Project.Remove(ctx, projectID)
 		})
