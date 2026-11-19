@@ -3,9 +3,9 @@ import { matchers as emotionMatchers } from "@emotion/jest";
 import type { EmotionMatchers } from "@emotion/jest";
 import "@ant-design/v5-patch-for-react-19";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
-import { cleanup } from "@testing-library/react";
+import { act, cleanup } from "@testing-library/react";
 import destroyFns from "antd/es/modal/destroyFns";
-import { beforeAll, beforeEach, afterEach, expect, vi } from "vitest";
+import { beforeAll, beforeEach, afterEach, expect } from "vitest";
 
 import Modal from "@reearth-cms/components/atoms/Modal";
 
@@ -85,36 +85,31 @@ beforeEach(() => {
 afterEach(async () => {
   // Modal.confirm/info/etc. mount a standalone React root outside RTL's render
   // tree, so cleanup() never unmounts it. destroyAll() only *schedules* an async
-  // close (rc-motion waits for a real animationend/transitionend, synthesized by
-  // the observer above) - if one was still open, wait for the resulting unmount
-  // to actually finish before disconnecting the observer or wiping the DOM, or
-  // the pending scheduler work throws "window is not defined" once this test
-  // file's jsdom env tears down
+  // close (rc-motion waits for animationend/transitionend, synthesized by the
+  // observer above). Outside act(), React 19 runs that unmount and its passive
+  // effect flush (react-dom-client:17920, which reads window.event) on the
+  // Scheduler via setImmediate; on a loaded CI runner that task can be sliced
+  // past this file's jsdom teardown and throw "window is not defined"
   // (https://github.com/reearth/reearth-cms/actions/runs/29556580184,
-  // https://github.com/reearth/reearth-cms/actions/runs/29558591266).
+  // https://github.com/reearth/reearth-cms/actions/runs/30790140377,
+  // https://github.com/reearth/reearth-cms/actions/runs/43369604972,
+  // https://github.com/reearth/reearth-cms/actions/runs/44465889497).
+  // Inside act(), React queues that work on the act queue instead and flushes it
+  // synchronously before act() resolves, so nothing is left on the Scheduler.
+  // Each step gets its own act() because queued commits only apply on exit, and
+  // back-to-back awaits leave no macrotask gap for timers to fire outside act.
   // Gated on destroyFns (antd's own pending-instance list, popped synchronously
   // by destroyAll()) so declarative `<Modal open>` usages elsewhere - which never
   // populate destroyFns and stay mounted until cleanup() - aren't blocked on.
   const hadOpenConfirmModal = destroyFns.length > 0;
-  Modal.destroyAll();
+  await act(async () => {
+    Modal.destroyAll();
+  });
   if (hadOpenConfirmModal) {
-    await vi.waitFor(() => {
-      if (document.querySelector(".ant-modal-root")) throw new Error("modal still mounted");
-    });
-  }
-  // React's Node/jsdom scheduler shim defers commits via setImmediate (see the
-  // "Immediate.performWorkUntilDeadline"/"processImmediate" frames in the errors
-  // linked above). React 19 also schedules a *separate* NormalPriority task to
-  // flush passive effects after the modal-root unmount commit
-  // (react-dom-client:17920, whose first statement reads window.event). That
-  // task is time-sliced: on a loaded CI runner shouldYieldToHost() can yield and
-  // reschedule the remainder onto a later tick, so a single flush can miss it -
-  // it then throws "window is not defined" once the next file tears down jsdom
-  // (https://github.com/reearth/reearth-cms/actions/runs/30790140377). Drain
-  // several ticks so the rescheduled remainder runs while this file's
-  // window/document still exist.
-  for (let i = 0; i < 5; i++) {
-    await new Promise(resolve => setImmediate(resolve));
+    for (let i = 0; document.querySelector(".ant-modal-root"); i++) {
+      if (i >= 100) throw new Error("modal still mounted");
+      await act(() => new Promise<void>(resolve => setTimeout(resolve, 10)));
+    }
   }
   _animationObserver?.disconnect();
   cleanup();
