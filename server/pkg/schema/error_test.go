@@ -73,10 +73,8 @@ func TestFieldValidationErrors_Details(t *testing.T) {
 	}{
 		{name: "top-level field", err: fe(nil, nil), wantKey: "title"},
 		{name: "element of a top-level multiple field", err: fe(lo.ToPtr(1), nil), wantKey: "title[1]"},
-		//{name: "field in a group", err: fe(nil, &single), wantKey: "group.title"},
-		//{name: "element of a multiple field in a group", err: fe(lo.ToPtr(1), &single), wantKey: "group.title[1]"},
-		//{name: "field in a multiple group", err: fe(nil, &multiple), wantKey: "groups[2].title"},
-		//{name: "element of a multiple field in a multiple group", err: fe(lo.ToPtr(0), &multiple), wantKey: "groups[2].title[0]"},
+		// the group is not in the key, but its ID must not be exposed either
+		{name: "field in a group", err: fe(nil, id.NewItemGroupID().Ref()), wantKey: "title"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
