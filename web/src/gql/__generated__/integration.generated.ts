@@ -49,7 +49,7 @@ export type IntegrationFragmentFragment = {
 export type CreateIntegrationMutationVariables = Exact<{
   name: string;
   description?: string | null | undefined;
-  logoUrl: string;
+  logoUrl?: string | null | undefined;
   type: Types.IntegrationType;
 }>;
 
@@ -71,7 +71,7 @@ export type UpdateIntegrationMutationVariables = Exact<{
   integrationId: string;
   name: string;
   description?: string | null | undefined;
-  logoUrl: string;
+  logoUrl?: string | null | undefined;
 }>;
 
 export type UpdateIntegrationMutation = {
@@ -216,10 +216,7 @@ export const CreateIntegrationDocument = {
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "logoUrl" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
-          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
         },
         {
           kind: "VariableDefinition",
@@ -324,10 +321,7 @@ export const UpdateIntegrationDocument = {
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "logoUrl" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
-          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
         },
       ],
       selectionSet: {
