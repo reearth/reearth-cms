@@ -5,6 +5,7 @@ import "@ant-design/v5-patch-for-react-19";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { act, cleanup } from "@testing-library/react";
 import destroyFns from "antd/es/modal/destroyFns";
+import { unstable_IdlePriority, unstable_scheduleCallback } from "scheduler";
 import { beforeAll, beforeEach, afterEach, expect } from "vitest";
 
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -93,11 +94,12 @@ afterEach(async () => {
   // (https://github.com/reearth/reearth-cms/actions/runs/29556580184,
   // https://github.com/reearth/reearth-cms/actions/runs/30790140377,
   // https://github.com/reearth/reearth-cms/actions/runs/43369604972,
-  // https://github.com/reearth/reearth-cms/actions/runs/44465889497).
+  // https://github.com/reearth/reearth-cms/actions/runs/44465889497,
+  // https://github.com/reearth/reearth-cms/actions/runs/44471694971).
   // Inside act(), React queues that work on the act queue instead and flushes it
-  // synchronously before act() resolves, so nothing is left on the Scheduler.
-  // Each step gets its own act() because queued commits only apply on exit, and
-  // back-to-back awaits leave no macrotask gap for timers to fire outside act.
+  // synchronously before act() resolves. Each step gets its own act() because
+  // queued commits only apply on exit, and back-to-back awaits leave no macrotask
+  // gap for timers to fire outside act.
   // Gated on destroyFns (antd's own pending-instance list, popped synchronously
   // by destroyAll()) so declarative `<Modal open>` usages elsewhere - which never
   // populate destroyFns and stay mounted until cleanup() - aren't blocked on.
@@ -114,4 +116,13 @@ afterEach(async () => {
   _animationObserver?.disconnect();
   cleanup();
   document.body.innerHTML = "";
+  // act() only captures work scheduled while it is open. Commits fired from
+  // timers during the test body (the observer above, rc-motion's raf steps)
+  // already sit on the real Scheduler, so wait for its queue to empty before
+  // jsdom teardown. Idle tasks never expire, so this sentinel runs only after
+  // every higher-priority task, including yielded continuations. Requires the
+  // pinned `scheduler` devDependency to be the same copy react-dom loads.
+  await new Promise<void>(resolve => {
+    unstable_scheduleCallback(unstable_IdlePriority, () => resolve());
+  });
 });
