@@ -2021,14 +2021,18 @@ func TestWorkFlow(t *testing.T) {
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }
 
-// recordingEventRepo records the events saved through it.
+// recordingEventRepo records the events saved through it, and fails the save when err is set.
 type recordingEventRepo struct {
 	repo.Event
 	saved event.List
+	err   error
 }
 
 func (r *recordingEventRepo) SaveAll(ctx context.Context, evs event.List) error {
 	r.saved = append(r.saved, evs...)
+	if r.err != nil {
+		return r.err
+	}
 	return r.Event.SaveAll(ctx, evs)
 }
 
@@ -2091,7 +2095,9 @@ func TestItem_Publish(t *testing.T) {
 	tests := []struct {
 		name    string
 		states  []publishState
-		wantErr error
+		// dispatchErr makes the event dispatch fail after the change is committed
+		dispatchErr bool
+		wantErr     error
 		// events are only expected for items that were not already public on their latest version
 		wantEvents int
 	}{
@@ -2100,6 +2106,7 @@ func TestItem_Publish(t *testing.T) {
 		{name: "outdated public", states: []publishState{statePublicOutdated}, wantEvents: 1},
 		{name: "batch", states: []publishState{stateDraft, stateDraft, stateDraft, stateDraft, stateDraft}, wantEvents: 5},
 		{name: "mixed", states: []publishState{stateDraft, statePublic, statePublicOutdated}, wantEvents: 2},
+		{name: "dispatch failure", states: []publishState{stateDraft}, dispatchErr: true, wantEvents: 1},
 		{name: "empty list", states: []publishState{}, wantErr: interfaces.ErrItemMissing},
 		{name: "nil list", states: nil, wantErr: interfaces.ErrItemMissing},
 	}
@@ -2111,6 +2118,9 @@ func TestItem_Publish(t *testing.T) {
 			// Arrange
 			ctx := context.Background()
 			db, events, ids, op := setupPublishItems(t, tt.states)
+			if tt.dispatchErr {
+				events.err = errors.New("dispatch failed")
+			}
 			itemUC := NewItem(db, nil)
 
 			// Act
@@ -2146,7 +2156,9 @@ func TestItem_Unpublish(t *testing.T) {
 	tests := []struct {
 		name    string
 		states  []publishState
-		wantErr error
+		// dispatchErr makes the event dispatch fail after the change is committed
+		dispatchErr bool
+		wantErr     error
 		// events are only expected for items that had a public version
 		wantEvents int
 	}{
@@ -2155,6 +2167,7 @@ func TestItem_Unpublish(t *testing.T) {
 		{name: "outdated public", states: []publishState{statePublicOutdated}, wantEvents: 1},
 		{name: "batch", states: []publishState{statePublic, statePublic, statePublic, statePublic, statePublic}, wantEvents: 5},
 		{name: "mixed", states: []publishState{stateDraft, statePublic, statePublicOutdated}, wantEvents: 2},
+		{name: "dispatch failure", states: []publishState{statePublic}, dispatchErr: true, wantEvents: 1},
 		{name: "empty list", states: []publishState{}, wantErr: interfaces.ErrItemMissing},
 		{name: "nil list", states: nil, wantErr: interfaces.ErrItemMissing},
 	}
@@ -2167,6 +2180,9 @@ func TestItem_Unpublish(t *testing.T) {
 			// Arrange
 			ctx := context.Background()
 			db, events, ids, op := setupPublishItems(t, tt.states)
+			if tt.dispatchErr {
+				events.err = errors.New("dispatch failed")
+			}
 			itemUC := NewItem(db, nil)
 
 			// Act

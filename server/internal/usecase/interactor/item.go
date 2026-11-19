@@ -20,6 +20,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -652,10 +653,11 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		return nil, err
 	}
 
-	// dispatch events/webhooks outside the transaction
+	// dispatch events/webhooks outside the transaction; the unpublish is already committed,
+	// so a dispatch failure is logged instead of failing the request
 	if len(events) > 0 {
 		if err := i.events(ctx, events); err != nil {
-			return nil, err
+			log.Errorfc(ctx, "item.Unpublish: failed to dispatch events: %v", err)
 		}
 	}
 
@@ -757,9 +759,12 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 		return nil, err
 	}
 
-	// dispatch events/webhooks outside the transaction
+	// dispatch events/webhooks outside the transaction; the publish is already committed,
+	// so a dispatch failure is logged instead of failing the request
 	if len(events) > 0 {
-		_ = i.events(ctx, events)
+		if err := i.events(ctx, events); err != nil {
+			log.Errorfc(ctx, "item.Publish: failed to dispatch events: %v", err)
+		}
 	}
 
 	return updated, nil
