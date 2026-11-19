@@ -2093,20 +2093,18 @@ func TestItem_Publish(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name    string
-		states  []publishState
-		// dispatchErr makes the event dispatch fail after the change is committed
-		dispatchErr bool
-		wantErr     error
-		// events are only expected for items that were not already public on their latest version
-		wantEvents int
+		name           string
+		states         []publishState
+		setDispatchErr bool
+		wantErr        error
+		wantEvents     int
 	}{
 		{name: "draft", states: []publishState{stateDraft}, wantEvents: 1},
 		{name: "already public", states: []publishState{statePublic}, wantEvents: 0},
 		{name: "outdated public", states: []publishState{statePublicOutdated}, wantEvents: 1},
 		{name: "batch", states: []publishState{stateDraft, stateDraft, stateDraft, stateDraft, stateDraft}, wantEvents: 5},
 		{name: "mixed", states: []publishState{stateDraft, statePublic, statePublicOutdated}, wantEvents: 2},
-		{name: "dispatch failure", states: []publishState{stateDraft}, dispatchErr: true, wantEvents: 1},
+		{name: "dispatch failure", states: []publishState{stateDraft}, setDispatchErr: true, wantEvents: 1},
 		{name: "empty list", states: []publishState{}, wantErr: interfaces.ErrItemMissing},
 		{name: "nil list", states: nil, wantErr: interfaces.ErrItemMissing},
 	}
@@ -2118,7 +2116,7 @@ func TestItem_Publish(t *testing.T) {
 			// Arrange
 			ctx := context.Background()
 			db, events, ids, op := setupPublishItems(t, tt.states)
-			if tt.dispatchErr {
+			if tt.setDispatchErr {
 				events.err = errors.New("dispatch failed")
 			}
 			itemUC := NewItem(db, nil)
@@ -2154,33 +2152,30 @@ func TestItem_Unpublish(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name    string
-		states  []publishState
-		// dispatchErr makes the event dispatch fail after the change is committed
-		dispatchErr bool
-		wantErr     error
-		// events are only expected for items that had a public version
-		wantEvents int
+		name           string
+		states         []publishState
+		setDispatchErr bool
+		wantErr        error
+		wantEvents     int
 	}{
 		{name: "public", states: []publishState{statePublic}, wantEvents: 1},
 		{name: "already draft", states: []publishState{stateDraft}, wantEvents: 0},
 		{name: "outdated public", states: []publishState{statePublicOutdated}, wantEvents: 1},
 		{name: "batch", states: []publishState{statePublic, statePublic, statePublic, statePublic, statePublic}, wantEvents: 5},
 		{name: "mixed", states: []publishState{stateDraft, statePublic, statePublicOutdated}, wantEvents: 2},
-		{name: "dispatch failure", states: []publishState{statePublic}, dispatchErr: true, wantEvents: 1},
+		{name: "dispatch failure", states: []publishState{statePublic}, setDispatchErr: true, wantEvents: 1},
 		{name: "empty list", states: []publishState{}, wantErr: interfaces.ErrItemMissing},
 		{name: "nil list", states: nil, wantErr: interfaces.ErrItemMissing},
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			// Arrange
 			ctx := context.Background()
 			db, events, ids, op := setupPublishItems(t, tt.states)
-			if tt.dispatchErr {
+			if tt.setDispatchErr {
 				events.err = errors.New("dispatch failed")
 			}
 			itemUC := NewItem(db, nil)
