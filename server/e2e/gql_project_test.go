@@ -438,3 +438,91 @@ func TestProjectPostingAllowedOrigins_PostEndpoint(t *testing.T) {
 		})
 	}
 }
+
+func deleteProject(e *httpexpect.Expect, pID string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation DeleteProject($projectId: ID!) {
+    deleteProject(input: {projectId: $projectId}) {
+        projectId
+    }
+}`,
+		Variables: map[string]any{
+			"projectId": pID,
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
+func projectNode(e *httpexpect.Expect, pID string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `query GetProject($projectId: ID!) {
+    node(id: $projectId, type: PROJECT) {
+        id
+    }
+}`,
+		Variables: map[string]any{
+			"projectId": pID,
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Path("$.data.node")
+}
+
+func TestDeleteProject(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	const errNotEmpty = "can't delete a project as it still has models or groups"
+
+	t.Run("project with models is not deleted", func(t *testing.T) {
+		pID, _ := createProject(e, wId.String(), "with-model", "", "del-with-model")
+		createModel(e, pID, "m", "", "m-key")
+
+		res := deleteProject(e, pID)
+		res.Path("$.errors").Array().Value(0).Object().Value("message").IsEqual(errNotEmpty)
+		projectNode(e, pID).Object().HasValue("id", pID)
+	})
+
+	t.Run("project with only groups is not deleted", func(t *testing.T) {
+		pID, _ := createProject(e, wId.String(), "with-group", "", "del-with-group")
+		createGroup(e, pID, "g", "", "g-key")
+
+		res := deleteProject(e, pID)
+		res.Path("$.errors").Array().Value(0).Object().Value("message").IsEqual(errNotEmpty)
+		projectNode(e, pID).Object().HasValue("id", pID)
+	})
+
+	t.Run("empty project is deleted", func(t *testing.T) {
+		pID, _ := createProject(e, wId.String(), "empty", "", "del-empty")
+
+		res := deleteProject(e, pID)
+		res.Path("$.data.deleteProject.projectId").IsEqual(pID)
+		projectNode(e, pID).IsNull()
+	})
+
+	t.Run("project is deleted after its models are deleted", func(t *testing.T) {
+		pID, _ := createProject(e, wId.String(), "cleaned", "", "del-cleaned")
+		mID, _ := createModel(e, pID, "m", "", "m-key2")
+
+		deleteProject(e, pID).Path("$.errors").Array().NotEmpty()
+
+		deleteModel(e, mID)
+		res := deleteProject(e, pID)
+		res.Path("$.data.deleteProject.projectId").IsEqual(pID)
+		projectNode(e, pID).IsNull()
+	})
+}

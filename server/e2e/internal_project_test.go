@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/stretchr/testify/assert"
@@ -589,13 +590,22 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 // GRPC Delete Project
 func TestInternalDeleteProjectAPI(t *testing.T) {
 	emptyPid := id.NewProjectID()
+	groupOnlyPid := id.NewProjectID()
 	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 		if err := baseSeeder(ctx, r, g); err != nil {
 			return err
 		}
-		// a project without models, which is allowed to be deleted
+		// a project without models and groups, which is allowed to be deleted
 		p := project.New().ID(emptyPid).Name("empty").Workspace(wId0).Alias("empty-project").MustBuild()
-		return r.Project.Save(ctx, p)
+		if err := r.Project.Save(ctx, p); err != nil {
+			return err
+		}
+		// a project with only a group, which is not allowed to be deleted
+		gp := project.New().ID(groupOnlyPid).Name("group only").Workspace(wId0).Alias("group-only-project").MustBuild()
+		if err := r.Project.Save(ctx, gp); err != nil {
+			return err
+		}
+		return r.Group.Save(ctx, group.New().NewID().Name("g").Project(groupOnlyPid).Key(id.RandomKey()).Schema(id.NewSchemaID()).MustBuild())
 	}
 
 	StartServer(t, &app.Config{
@@ -640,6 +650,12 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 			name:      "project with models cannot be deleted",
 			user:      uId.String(),
 			projectId: pid.String(),
+			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models or groups"),
+		},
+		{
+			name:      "project with only groups cannot be deleted",
+			user:      uId.String(),
+			projectId: groupOnlyPid.String(),
 			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models or groups"),
 		},
 		{

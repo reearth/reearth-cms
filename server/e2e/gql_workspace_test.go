@@ -155,7 +155,13 @@ func TestCreateWorkspace(t *testing.T) {
 }
 
 func TestDeleteWorkspace(t *testing.T) {
-	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
+	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+		if err := baseSeederWorkspace(ctx, r, g); err != nil {
+			return err
+		}
+		return r.WorkspaceSettings.Save(ctx, workspacesettings.New().ID(wId).MustBuild())
+	}
+	e, r, ar := StartServerWithRepos(t, &app.Config{}, true, seeder)
 	_, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	query := fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, wId)
@@ -173,6 +179,8 @@ func TestDeleteWorkspace(t *testing.T) {
 	o.Value("data").Object().Value("deleteWorkspace").Object().Value("workspaceId").String().IsEqual(wId.String())
 
 	_, err = ar.Workspace.FindByID(context.Background(), wId)
+	assert.Equal(t, rerror.ErrNotFound, err)
+	_, err = r.WorkspaceSettings.FindByID(context.Background(), wId)
 	assert.Equal(t, rerror.ErrNotFound, err)
 
 	query = fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, accountdomain.NewWorkspaceID())
