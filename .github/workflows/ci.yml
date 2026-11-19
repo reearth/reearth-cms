@@ -12,16 +12,16 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: block
           allowed-endpoints: >
             github.com:443
       - name: checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
       - name: changed files for web
         id: web
-        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
+        uses: step-security/changed-files@v47.0.5
         with:
           files: |
             web/**
@@ -31,7 +31,7 @@ jobs:
 
       - name: changed files for server
         id: server
-        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
+        uses: step-security/changed-files@v47.0.5
         with:
           files: |
             server/**
@@ -43,7 +43,7 @@ jobs:
 
       - name: changed files for worker
         id: worker
-        uses: step-security/changed-files@2e07db73e5ccdb319b9a6c7766bd46d39d304bad # v47.0.5
+        uses: step-security/changed-files@v47.0.5
         with:
           files: |
             worker/**
@@ -83,7 +83,7 @@ jobs:
     if: '!failure()'
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: block
           allowed-endpoints: >+
@@ -100,7 +100,7 @@ jobs:
       name: ${{ steps.prepare.outputs.name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -192,7 +192,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
       - uses: reearth/actions/deploy-cloud-run-with-tag@a75bb60a59c8192805a55c3e0854c8298d8a2bcc # main
