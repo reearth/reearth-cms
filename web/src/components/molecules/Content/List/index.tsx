@@ -156,6 +156,7 @@ const ContentListMolecule: React.FC<Props> = ({
     [exportContentLoading, totalCount],
   );
 
+  // TODO: count Geometry fields once the server's GeoJSON export supports them (follow-up to #2059).
   const getGeometryFieldsCount = useMemo(
     () =>
       model?.schema?.fields?.filter(

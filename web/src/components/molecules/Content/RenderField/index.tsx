@@ -65,6 +65,7 @@ export const renderField = (
     items.length > 1 ||
     field.type === "TextArea" ||
     field.type === "MarkdownText" ||
+    field.type === "Geometry" ||
     field.type === "GeometryObject" ||
     field.type === "GeometryEditor"
   ) {
@@ -79,7 +80,10 @@ export const renderField = (
         })}
       </>
     );
-    const geometry = field.type === "GeometryObject" || field.type === "GeometryEditor";
+    const geometry =
+      field.type === "Geometry" ||
+      field.type === "GeometryObject" ||
+      field.type === "GeometryEditor";
     const content = geometry ? (
       <GeometryMiniMap
         value={value}

@@ -26,6 +26,5 @@ export const FIELD_TYPE_COMPONENT_MAP = {
   Select: SelectField,
   GeometryObject: GeometryField,
   GeometryEditor: GeometryField,
-  // Stored as GeometryObject, so this entry only keeps the map exhaustive.
   Geometry: GeometryField,
 };
