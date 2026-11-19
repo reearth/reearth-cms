@@ -2,9 +2,6 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-// TODO: PR#2058, temporary skip it on CI before backend is ready
-test.skip(true, "The list's geometry popover shows a mini map only once PR#2058 is deployed");
-
 /** A point's coordinates as Monaco renders them, whatever the spacing. */
 const coordinates = (lng: number, lat: number): RegExp =>
   new RegExp(`"coordinates":\\s*\\[${lng},\\s*${lat}\\]`);

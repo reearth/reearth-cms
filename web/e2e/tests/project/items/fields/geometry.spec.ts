@@ -2,9 +2,6 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-// TODO: PR#2058, temporary skip it on CI before backend is ready
-test.skip(true, "The unified Geometry field isn't deployed yet");
-
 // Only what unit tests can't cover: the real map, persistence through the server, the content
 // list's mini map and which editor a field gets.
 
