@@ -1,0 +1,34 @@
+# Local Dex OIDC provider for development only (no secrets needed).
+# Login: admin@example.com / password
+issuer: http://localhost:5556/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+  allowedOrigins:
+    - http://localhost:3000
+    - http://127.0.0.1:3000
+
+oauth2:
+  passwordConnector: local
+  grantTypes:
+    - authorization_code
+    - refresh_token
+    - password
+
+staticClients:
+  - id: cms-local
+    name: CMS Local
+    public: true
+    redirectURIs:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+
+enablePasswordDB: true
+staticPasswords:
+  - email: admin@example.com
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W" # bcrypt hash for "password"
+    username: admin
+    userID: 08a8684b-db88-4b73-90a9-3cd1661f5466

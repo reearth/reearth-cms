@@ -1,6 +1,5 @@
 *        @pyshx
 /server/ @yk-eukarya @mimoham24
 /worker/ @yk-eukarya
+/shared/ @yk-eukarya @mimoham24
 /web/    @nourbalaha @kazettique
-/go.work     @yk-eukarya @mimoham24
-/go.work.sum @yk-eukarya @mimoham24

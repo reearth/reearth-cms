@@ -105,7 +105,7 @@ components:
           type: object
           description: |
             フィールドキーをキーとするフィールド値。Asset、Reference、Tag、Group、
-            GeometryEditor、GeometryObject型のフィールドは投稿でサポートされておらず、無視されます。
+            GeometryEditor、GeometryObject、Geometry型のフィールドは投稿でサポートされておらず、無視されます。
             モデルでこれらの型が必須フィールドとして定義されている場合、投稿自体が拒否されます。
 
     PostItemResponse:

@@ -1,0 +1,15 @@
+overlay: 1.0.0
+info:
+  title: Go type bindings for the integration API
+  version: 1.0.0
+  description: >-
+    Applied by oapi-codegen at generation time only; the published spec stays free of Go-specific extensions.
+    String IDs are mapped through `output-options.type-mapping` in the codegen configs instead. This overlay
+    covers only what type-mapping cannot express (it supports string/number/integer/boolean formats only).
+actions:
+  - target: $.components.schemas.JSONSchema
+    update:
+      x-go-type: types.JSONSchema
+  - target: $.components.schemas.GeoJSON
+    update:
+      x-go-type: types.GeoJSON

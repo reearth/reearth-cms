@@ -112,6 +112,7 @@ message SchemaField {
     Group = 14;
     GeometryObject = 15;
     GeometryEditor = 16;
+    Geometry = 17;
   }
 
   string field_id = 1;
