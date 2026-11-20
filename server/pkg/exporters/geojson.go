@@ -66,7 +66,7 @@ func extractProperties(itm *item.Item, sp *schema.Package, assets asset.List) *o
 	properties := orderedmap.New()
 	for _, field := range sp.Schema().Fields().Ordered() {
 		switch field.Type() {
-		case value.TypeGeometryObject, value.TypeGeometryEditor, value.TypeGeometry:
+		case value.TypeGeometry:
 			continue
 		case value.TypeGroup:
 			gp, ok := extractGroupProperties(itm, sp, field)
@@ -178,18 +178,12 @@ func extractSingleGroupProperties(gId value.Group, itm *item.Item, gf schema.Fie
 }
 
 func extractGeometry(field *item.Field) (*types.Geometry, bool) {
-	v := field.Value().First()
-	var b []byte
-	if g, ok := v.ValueJson(); ok {
-		// Geometry field values are stored as objects
-		var err error
-		if b, err = json.Marshal(g); err != nil {
-			return nil, false
-		}
-	} else if s, ok := v.ValueString(); ok {
-		// Geometry Object and Geometry Editor values are stored as GeoJSON strings
-		b = []byte(s)
-	} else {
+	g, ok := field.Value().First().ValueJson()
+	if !ok {
+		return nil, false
+	}
+	b, err := json.Marshal(g)
+	if err != nil {
 		return nil, false
 	}
 	var geometry types.Geometry

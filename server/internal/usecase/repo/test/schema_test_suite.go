@@ -367,16 +367,9 @@ func testSchemaFields(t *testing.T, newRepo schemaFactory) {
 			field: newSchemaField(schema.NewGroup(id.NewGroupID()).TypeProperty()).MustBuild(),
 		},
 		{
-			name: "must keep a geometry object field",
-			field: newSchemaField(schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{
-				schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypePolygon,
-			}).TypeProperty()).MustBuild(),
-		},
-		{
-			name: "must keep a geometry editor field",
-			field: newSchemaField(schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{
-				schema.GeometryEditorSupportedTypeLineString,
-			}).TypeProperty()).MustBuild(),
+			name: "must keep a geometry field",
+			field: newSchemaField(schema.NewGeometry().TypeProperty()).
+				DefaultValue(value.TypeGeometry.Value(`{"type":"Point","coordinates":[139.7,35.6]}`).AsMultiple()).MustBuild(),
 		},
 	}
 

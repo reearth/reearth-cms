@@ -322,10 +322,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 
-	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	sf7 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
-	sf8 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).ID(fId8).Key(sfKey8).MustBuild()
+	sf7 := schema.NewField(schema.NewGeometry().TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
+	sf8 := schema.NewField(schema.NewGeometry().TypeProperty()).ID(fId8).Key(sfKey8).MustBuild()
 	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7, sf8}).MustBuild()
 	if err := r.Schema.Save(ctx, s7); err != nil {
 		return err
@@ -454,8 +452,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Thread(thId5.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
-			item.NewField(fId7, value.MultipleFrom(value.TypeGeometryObject, []*value.Value{value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
-			item.NewField(fId8, value.MultipleFrom(value.TypeGeometryEditor, []*value.Value{value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+			item.NewField(fId7, value.MultipleFrom(value.TypeGeometry, []*value.Value{value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+			item.NewField(fId8, value.MultipleFrom(value.TypeGeometry, []*value.Value{value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm5); err != nil {
@@ -602,10 +600,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("dvsf2")).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(id.NewKey("dvsf3")).MustBuild()
 
-	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(id.NewKey("dvsf4")).MustBuild()
-	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(id.NewKey("dvsf5")).MustBuild()
+	dvsf4 := schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Key(id.NewKey("dvsf4")).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Key(id.NewKey("dvsf5")).MustBuild()
 
 	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
@@ -1415,7 +1411,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
 		{"schemaFieldId": fids.numberFId, "value": 1, "type": "Number"},
-		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "Geometry"},
 	})
 
 	res := IntegrationItemsAsGeoJSON(e, t, wId.String(), pId, uId1.String(), mId, 1, 10)
@@ -1445,8 +1441,8 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
 		{"schemaFieldId": fids.integerFId, "value": 30, "type": "Integer"},
-		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "GeometryObject"},
-		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometry2Fid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "Geometry"},
 	})
 
 	res := IntegrationItemsWithProjectAsGeoJSON(e, t, wId.String(), pId, uId1.String(), mId, 1, 10)
@@ -1473,7 +1469,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 	sId, _, _ := getModel(e, mId)
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
-		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "Geometry"},
 	})
 
 	res := IntegrationItemsAsCSV(e, wId.String(), pId, uId1.String(), mId, 1, 10)
@@ -1492,8 +1488,8 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
 		{"schemaFieldId": fids.integerFId, "value": 30, "type": "Integer"},
-		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "GeometryObject"},
-		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometry2Fid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "Geometry"},
 	})
 
 	res := IntegrationItemsWithProjectAsCSV(e, wId.String(), pId, uId1.String(), mId, 1, 10)
@@ -1650,16 +1646,16 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	obj2.
 		Value("fields").
 		IsEqual([]any{
-			map[string]string{
+			map[string]any{
 				"id":    fId7.String(),
-				"type":  "geometryObject",
-				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"type":  "geometry",
+				"value": map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
 				"key":   sfKey7.String(),
 			},
-			map[string]string{
+			map[string]any{
 				"id":    fId8.String(),
-				"type":  "geometryEditor",
-				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"type":  "geometry",
+				"value": map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
 				"key":   sfKey8.String(),
 			},
 		})
@@ -1952,13 +1948,13 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				map[string]string{
 					"id":    fId7.String(),
 					"key":   sfKey7.String(),
-					"type":  "geometryObject",
+					"type":  "geometry",
 					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				},
 				map[string]string{
 					"id":    fId8.String(),
 					"key":   sfKey8.String(),
-					"type":  "geometryEditor",
+					"type":  "geometry",
 					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				},
 			},
@@ -1969,17 +1965,17 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object().
 		Value("fields").
 		IsEqual([]any{
-			map[string]string{
+			map[string]any{
 				"id":    fId7.String(),
 				"key":   sfKey7.String(),
-				"type":  "geometryObject",
-				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"type":  "geometry",
+				"value": map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
 			},
-			map[string]string{
+			map[string]any{
 				"id":    fId8.String(),
 				"key":   sfKey8.String(),
-				"type":  "geometryEditor",
-				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"type":  "geometry",
+				"value": map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
 			},
 		})
 }
@@ -2123,14 +2119,14 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		IsEqual([]any{
 			map[string]any{
 				"id":    fId7.String(),
-				"type":  "geometryObject",
-				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"type":  "geometry",
+				"value": map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
 				"key":   sfKey7.String(),
 			},
 			map[string]any{
 				"id":    fId8.String(),
-				"type":  "geometryEditor",
-				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"type":  "geometry",
+				"value": map[string]any{"type": "Point", "coordinates": []any{102.0, 0.5}},
 				"key":   sfKey8.String(),
 			},
 		})

@@ -81,8 +81,6 @@ func TestField_IsGeometryField(t *testing.T) {
 		t    value.Type
 		want bool
 	}{
-		{name: "geometry object", t: value.TypeGeometryObject, want: true},
-		{name: "geometry editor", t: value.TypeGeometryEditor, want: true},
 		{name: "geometry", t: value.TypeGeometry, want: true},
 		{name: "text", t: value.TypeText, want: false},
 	}

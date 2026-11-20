@@ -181,18 +181,6 @@ func (s *Schema) HasGeometryFields() bool {
 	})
 }
 
-func (s *Schema) IsPointFieldSupported() bool {
-	if s == nil {
-		return false
-	}
-	for _, f := range s.Fields() {
-		if f.SupportsPointField() {
-			return true
-		}
-	}
-	return false
-}
-
 func (s *Schema) CopyFrom(s2 *Schema) {
 	if s == nil || s2 == nil {
 		return

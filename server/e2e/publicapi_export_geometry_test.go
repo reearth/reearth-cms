@@ -51,7 +51,7 @@ func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	p1 := project.New().NewID().Workspace(wid).Alias(geoExpP1Alias).Accessibility(project.NewPublicAccessibility()).MustBuild()
 	lo.Must0(r.Project.Save(ctx, p1))
 
-	geoTp := schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}).TypeProperty()
+	geoTp := schema.NewGeometry().TypeProperty()
 
 	/// Group with a geometry field
 	gGeoId := id.NewFieldID()
@@ -85,7 +85,7 @@ func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		Thread(id.NewThreadID().Ref()).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(gGeoId, value.TypeGeometryObject.Value(`{"type":"LineString","coordinates":[[-0.1276,51.5072],[2.3522,48.8566]]}`).AsMultiple(), ig.Ref()),
+			item.NewField(gGeoId, value.TypeGeometry.Value(`{"type":"LineString","coordinates":[[-0.1276,51.5072],[2.3522,48.8566]]}`).AsMultiple(), ig.Ref()),
 			item.NewField(groupId, value.TypeGroup.Value(ig).AsMultiple(), nil),
 		}).
 		MustBuild()
@@ -101,7 +101,7 @@ func geoExportSeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		Thread(id.NewThreadID().Ref()).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(geoId, value.TypeGeometryObject.Value(`{"type":"Point","coordinates":[139.7671,35.6812]}`).AsMultiple(), nil),
+			item.NewField(geoId, value.TypeGeometry.Value(`{"type":"Point","coordinates":[139.7671,35.6812]}`).AsMultiple(), nil),
 		}).
 		MustBuild()
 	lo.Must0(r.Item.Save(ctx, i2))

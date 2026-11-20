@@ -259,11 +259,7 @@ func TestGQLImportItems(t *testing.T) {
 			name: "GeoJSON FeatureCollection import",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
-				{title: "location", key: "location", fType: "GeometryObject", typeProp: map[string]any{
-					"geometryObject": map[string]any{
-						"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
-					},
-				}},
+				{title: "location", key: "location", fType: "Geometry", typeProp: map[string]any{"geometry": map[string]any{}}},
 			},
 			fileName: "locations.geojson",
 			fileContent: func() string {
@@ -316,11 +312,7 @@ func TestGQLImportItems(t *testing.T) {
 			name: "GeoJSON FeatureCollection import with auto-detected geoField",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
-				{title: "location", key: "location", fType: "GeometryObject", typeProp: map[string]any{
-					"geometryObject": map[string]any{
-						"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
-					},
-				}},
+				{title: "location", key: "location", fType: "Geometry", typeProp: map[string]any{"geometry": map[string]any{}}},
 			},
 			fileName: "locations.geojson",
 			fileContent: func() string {

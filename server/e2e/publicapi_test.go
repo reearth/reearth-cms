@@ -43,8 +43,8 @@ var (
 	pApiP1S1F2Key = "asset"
 	pApiP1S1F3Key = "test-field-2"
 	pApiP1S1F4Key = "asset2"
-	pApiP1S1F5Key = "geometry-object"
-	pApiP1S1F6Key = "geometry-editor"
+	pApiP1S1F5Key = "geometry-1"
+	pApiP1S1F6Key = "geometry-2"
 	pApiP1M1I1Id  = id.NewItemID()
 	pApiP1M1I2Id  = id.NewItemID()
 	pApiP1M1I3Id  = id.NewItemID()
@@ -68,7 +68,7 @@ var (
 	pApiP1M4I1Id  = id.NewItemID()
 	pApiP1S3F1Key = "group"
 	pApiP1S3F2Key = "multiple-group"
-	pApiP1S3F3Key = "geometry-object"
+	pApiP1S3F3Key = "geometry"
 
 	// populated by publicAPISeeder; used in expected response assertions
 	pApiUid      accountdomain.UserID
@@ -1125,17 +1125,15 @@ func TestPublicAPI_Model_Schema(t *testing.T) {
 						"x-fieldType": "asset",
 						"x-multiple":  true,
 					},
-					"geometry-editor": map[string]any{
-						"title":              "geometry-editor",
-						"type":               "object",
-						"x-fieldType":        "geometryEditor",
-						"x-geoSupportedType": "POINT",
+					"geometry-1": map[string]any{
+						"title":       "geometry-1",
+						"type":        "object",
+						"x-fieldType": "geometry",
 					},
-					"geometry-object": map[string]any{
-						"title":               "geometry-object",
-						"type":                "object",
-						"x-fieldType":         "geometryObject",
-						"x-geoSupportedTypes": []string{"POINT", "LINESTRING"},
+					"geometry-2": map[string]any{
+						"title":       "geometry-2",
+						"type":        "object",
+						"x-fieldType": "geometry",
 					},
 					"test-field-1": map[string]any{
 						"title":       "test-field-1",
@@ -1237,7 +1235,7 @@ func TestPublicAPI_PostItem(t *testing.T) {
 	createField(e, mIdV, "agreed", "", "agreed", false, false, false, false, "Checkbox", map[string]any{"checkbox": map[string]any{}})
 	createField(e, mIdV, "publishedAt", "", "publishedAt", false, false, false, false, "Date", map[string]any{"date": map[string]any{}})
 	createField(e, mIdV, "website", "", "website", false, false, false, false, "URL", map[string]any{"url": map[string]any{}})
-	createField(e, mIdV, "location", "", "location", false, false, false, false, "GeometryObject", map[string]any{"geometryObject": map[string]any{"defaultValue": nil, "supportedTypes": []string{"POINT", "LINESTRING"}}})
+	createField(e, mIdV, "location", "", "location", false, false, false, false, "Geometry", map[string]any{"geometry": map[string]any{"defaultValue": nil}})
 
 	postV := func(fields map[string]any) *httpexpect.Object {
 		return e.POST("/api/p/{workspace}/{project}/{model}/items", wId.String(), pIdV, mKeyV).
@@ -1741,16 +1739,14 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 
 	/// Project 1 Model 1
 	p1s1txt1Id := id.NewFieldID()
-	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	p1s1 := schema.New().ID(pApiP1S1Id).Project(pApiP1Id).Workspace(p1.Workspace()).
 		Fields(schema.FieldList{
 			schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1s1txt1Id).Name(pApiP1S1F1Key).Key(id.NewKey(pApiP1S1F1Key)).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(pApiP1S1F2Key).Key(id.NewKey(pApiP1S1F2Key)).MustBuild(),
 			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name(pApiP1S1F3Key).Key(id.NewKey(pApiP1S1F3Key)).Multiple(true).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(pApiP1S1F4Key).Key(id.NewKey(pApiP1S1F4Key)).Multiple(true).MustBuild(),
-			schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(pApiP1S1F5Key).Key(id.NewKey(pApiP1S1F5Key)).MustBuild(),
-			schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name(pApiP1S1F6Key).Key(id.NewKey(pApiP1S1F6Key)).MustBuild(),
+			schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Name(pApiP1S1F5Key).Key(id.NewKey(pApiP1S1F5Key)).MustBuild(),
+			schema.NewField(schema.NewGeometry().TypeProperty()).NewID().Name(pApiP1S1F6Key).Key(id.NewKey(pApiP1S1F6Key)).MustBuild(),
 		}).TitleField(p1s1txt1Id.Ref()).
 		MustBuild()
 	lo.Must0(r.Schema.Save(ctx, p1s1))
@@ -1794,7 +1790,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	p1s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
 		schema.NewField(schema.NewGroup(p1g1.ID()).TypeProperty()).ID(p1s3g1Id).Name(pApiP1S3F1Key).Key(id.NewKey(pApiP1S3F1Key)).MustBuild(),
 		schema.NewField(schema.NewGroup(p1g2.ID()).TypeProperty()).ID(p1s3g2Id).Name(pApiP1S3F2Key).Key(id.NewKey(pApiP1S3F2Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(p1s3geo1Id).Name(pApiP1S3F3Key).Key(id.NewKey(pApiP1S3F3Key)).MustBuild(),
+		schema.NewField(schema.NewGeometry().TypeProperty()).ID(p1s3geo1Id).Name(pApiP1S3F3Key).Key(id.NewKey(pApiP1S3F3Key)).MustBuild(),
 	}).MustBuild()
 	lo.Must0(r.Schema.Save(ctx, p1s3))
 
@@ -1871,8 +1867,8 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			item.NewField(p1s1.Fields()[1].ID(), value.TypeAsset.Value(pApiP1A2Id).AsMultiple(), nil),
 			item.NewField(p1s1.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
 			item.NewField(p1s1.Fields()[3].ID(), value.TypeAsset.Value(p1a1.ID()).AsMultiple(), nil),
-			item.NewField(p1s1.Fields()[4].ID(), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
-			item.NewField(p1s1.Fields()[5].ID(), value.TypeGeometryEditor.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil),
+			item.NewField(p1s1.Fields()[4].ID(), value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
+			item.NewField(p1s1.Fields()[5].ID(), value.TypeGeometry.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil),
 		}).MustBuild()
 	pApiP1M1I5Ts = p1m1i5.Timestamp().UTC().Truncate(time.Millisecond)
 
@@ -1913,7 +1909,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		Fields([]*item.Field{
 			item.NewField(p1s3g1Id, value.TypeGroup.Value(p1m4i8ig1).AsMultiple(), nil),
 			item.NewField(p1s3g2Id, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(p1m4i8ig2)}), nil),
-			item.NewField(p1s3geo1Id, value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
+			item.NewField(p1s3geo1Id, value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
 			item.NewField(p1g1f1Id, value.TypeText.Value("aaa").AsMultiple(), p1m4i8ig1.Ref()),
 			item.NewField(p1g2f1Id, value.TypeText.Value("bbb").AsMultiple(), p1m4i8ig2.Ref()),
 		}).
