@@ -18,6 +18,8 @@ import type {
   FieldGeoEditorMulti,
   FieldGeoObject,
   FieldGeoObjectMulti,
+  FieldGeometry,
+  FieldGeometryMulti,
   FieldInteger,
   FieldIntegerMulti,
   FieldMarkdownText,
@@ -312,6 +314,24 @@ describe("Test import schema", () => {
           } as FieldGeoEditorMulti,
           expectedResult: EXPECTED_RESULT,
         },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Geometry,
+            "x-multiple": false,
+            "x-defaultValue": Test.GEO_JSON_POINT,
+          } as FieldGeometry,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Geometry,
+            "x-multiple": true,
+            "x-defaultValue": [Test.GEO_JSON_POINT, Test.GEO_JSON_LINE_STRING],
+          } as FieldGeometryMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
       ])(
         "$setup.type field are legal with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
@@ -512,6 +532,22 @@ describe("Test import schema", () => {
             "x-fieldType": ExportSchemaFieldType.URL,
             "x-multiple": true,
           } as FieldURLMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Geometry,
+            "x-multiple": false,
+          } as FieldGeometry,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Geometry,
+            "x-multiple": true,
+          } as FieldGeometryMulti,
           expectedResult: EXPECTED_RESULT,
         },
       ])(
@@ -990,6 +1026,24 @@ describe("Test import schema", () => {
             ...COMMON_SCHEMA_FIELD,
             "x-fieldType": ExportSchemaFieldType.URL,
             "x-defaultValue": [false, "have you ever seen the rain"],
+            "x-multiple": true,
+          },
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Geometry,
+            "x-defaultValue": { type: "Point", coordinates: "not coordinates" },
+            "x-multiple": false,
+          },
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Geometry,
+            "x-defaultValue": [Test.GEO_JSON_POINT, "not a geometry"],
             "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,

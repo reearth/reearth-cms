@@ -54,6 +54,7 @@ export abstract class Constant {
       [ExportSchemaFieldType.URL]: SchemaFieldType.URL,
       [ExportSchemaFieldType.GeometryObject]: SchemaFieldType.GeometryObject,
       [ExportSchemaFieldType.GeometryEditor]: SchemaFieldType.GeometryEditor,
+      [ExportSchemaFieldType.Geometry]: SchemaFieldType.Geometry,
     },
   };
 

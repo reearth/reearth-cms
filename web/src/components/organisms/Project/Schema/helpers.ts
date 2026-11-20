@@ -50,6 +50,8 @@ export abstract class SchemaHelpers {
         return "GeometryObject";
       case "geometryEditor":
         return "GeometryEditor";
+      case "geometry":
+        return "Geometry";
       case "text":
       default:
         return "Text";
@@ -146,6 +148,10 @@ export abstract class SchemaHelpers {
             supportedTypes: [],
           },
         };
+      case "geometry":
+        return {
+          geometry: { defaultValue: "" },
+        };
       case "text":
       default:
         return {
@@ -217,6 +223,10 @@ export abstract class SchemaHelpers {
               ? [field["x-geoSupportedType"]]
               : []) as GeometryEditorSupportedType[],
           },
+        };
+      case ExportSchemaFieldType.Geometry:
+        return {
+          geometry: { defaultValue: field["x-defaultValue"] },
         };
       default:
         return {

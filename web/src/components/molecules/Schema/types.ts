@@ -96,6 +96,7 @@ export enum ExportSchemaFieldType {
   URL = "url",
   GeometryObject = "geometryObject",
   GeometryEditor = "geometryEditor",
+  Geometry = "geometry",
 }
 
 export type Tag = {
