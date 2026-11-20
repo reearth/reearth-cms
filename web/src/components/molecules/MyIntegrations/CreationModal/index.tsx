@@ -19,14 +19,12 @@ type Props = {
 export type FormValues = {
   name: string;
   description: string;
-  logoUrl: string;
   type: IntegrationType;
 };
 
 const initialValues: FormValues = {
   name: "",
   description: "",
-  logoUrl: "",
   type: "Private",
 };
 
@@ -44,7 +42,6 @@ const IntegrationCreationModal: React.FC<Props> = ({
     setIsDisabled(true);
     try {
       const values = await form.validateFields();
-      values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
       values.type = "Private";
       await onIntegrationCreate(values);
       onClose();
