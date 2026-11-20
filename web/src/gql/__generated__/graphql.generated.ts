@@ -320,7 +320,7 @@ export type CreateGroupInput = {
 
 export type CreateIntegrationInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
-  logoUrl: Scalars["URL"]["input"];
+  logoUrl?: InputMaybe<Scalars["URL"]["input"]>;
   name: Scalars["String"]["input"];
   type: IntegrationType;
 };
@@ -734,7 +734,7 @@ export type Integration = Node & {
   developerId: Scalars["ID"]["output"];
   iType: IntegrationType;
   id: Scalars["ID"]["output"];
-  logoUrl: Scalars["URL"]["output"];
+  logoUrl?: Maybe<Scalars["URL"]["output"]>;
   name: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };
@@ -2451,7 +2451,6 @@ export type UrlResourcePropsInput = {
 
 export type User = Node & {
   __typename?: "User";
-  email: Scalars["String"]["output"];
   host?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   name: Scalars["String"]["output"];

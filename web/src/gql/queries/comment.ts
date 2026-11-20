@@ -9,7 +9,6 @@ export const ADD_COMMENT = gql`
           ... on User {
             id
             name
-            email
           }
           ... on Integration {
             id
@@ -34,7 +33,6 @@ export const UPDATE_COMMENT = gql`
           ... on User {
             id
             name
-            email
           }
           ... on Integration {
             id

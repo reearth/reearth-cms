@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
@@ -82,10 +83,14 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 	})
 
 	if cfg.InternalApi.Active {
-		l2, err := net.Listen("tcp", ":"+cfg.InternalApi.Port)
+		// Always let the OS assign a free port: a fixed one can collide with an
+		// ephemeral port already in use (e.g. by a DB connection). The assigned
+		// port is written back to cfg so tests can dial it.
+		l2, err := net.Listen("tcp", "127.0.0.1:0")
 		if err != nil {
 			t.Fatalf("grpc server failed to listen: %v", err)
 		}
+		cfg.InternalApi.Port = strconv.Itoa(l2.Addr().(*net.TCPAddr).Port)
 
 		ch2 := make(chan error)
 		go func() {

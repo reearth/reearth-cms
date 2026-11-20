@@ -35,6 +35,8 @@ jobs:
         with:
           files: |
             server/**
+            shared/**
+            .dockerignore
             .github/workflows/ci.yml
             .github/workflows/ci_server.yml
             .github/workflows/build_server.yml
@@ -45,6 +47,8 @@ jobs:
         with:
           files: |
             worker/**
+            shared/**
+            .dockerignore
             .github/workflows/ci.yml
             .github/workflows/ci_worker.yml
             .github/workflows/build_worker.yml

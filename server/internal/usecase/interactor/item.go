@@ -20,6 +20,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -595,8 +596,15 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, interfaces.ErrInvalidOperator
 		}
 
-		// remove public ref from all items in a single write
-		if err := i.repos.Item.BulkUpdateRef(ctx, itemIDs, version.Public, nil); err != nil {
+		// only items with a public version change; the others are already unpublished
+		published, err := i.repos.Item.FindByIDs(ctx, itemIDs, version.Public.Ref())
+		if err != nil {
+			return nil, err
+		}
+		changedIDs := published.Unwrap().IDs()
+
+		// remove public ref from the changed items in a single write
+		if err := i.repos.Item.BulkUpdateRef(ctx, changedIDs, version.Public, nil); err != nil {
 			return nil, err
 		}
 
@@ -605,18 +613,25 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, err
 		}
 
+		changed := lo.Filter(updated, func(itm item.Versioned, _ int) bool {
+			return changedIDs.Has(itm.Value().ID())
+		})
+		if len(changed) == 0 {
+			return updated, nil
+		}
+
 		// resolve all referenced items across the whole batch in one query
 		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
-		refItemsByID, err := i.batchReferencedItems(ctx, updated, *sp)
+		refItemsByID, err := i.batchReferencedItems(ctx, changed, *sp)
 		if err != nil {
 			return nil, err
 		}
 
-		events = make([]Event, 0, len(updated))
-		for _, itm := range updated {
+		events = make([]Event, 0, len(changed))
+		for _, itm := range changed {
 			events = append(events, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
@@ -638,10 +653,11 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		return nil, err
 	}
 
-	// dispatch events/webhooks outside the transaction
+	// dispatch events/webhooks outside the transaction; the unpublish is already committed,
+	// so a dispatch failure is logged instead of failing the request
 	if len(events) > 0 {
 		if err := i.events(ctx, events); err != nil {
-			return nil, err
+			log.Errorfc(ctx, "item.Unpublish: failed to dispatch events: %v", err)
 		}
 	}
 
@@ -688,8 +704,13 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, interfaces.ErrInvalidOperator
 		}
 
-		// add public ref to all items in a single write
-		if err := i.repos.Item.BulkUpdateRef(ctx, itemIDs, version.Public, version.Latest.OrVersion().Ref()); err != nil {
+		// only items whose latest version is not public change; the others are already published
+		changedIDs := id.ItemIDList(lo.FilterMap(items, func(itm item.Versioned, _ int) (id.ItemID, bool) {
+			return itm.Value().ID(), !itm.Refs().Has(version.Public)
+		}))
+
+		// add public ref to the changed items in a single write
+		if err := i.repos.Item.BulkUpdateRef(ctx, changedIDs, version.Public, version.Latest.OrVersion().Ref()); err != nil {
 			return nil, err
 		}
 
@@ -698,18 +719,25 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, err
 		}
 
+		changed := lo.Filter(updated, func(itm item.Versioned, _ int) bool {
+			return changedIDs.Has(itm.Value().ID())
+		})
+		if len(changed) == 0 {
+			return updated, nil
+		}
+
 		// resolve all referenced items across the whole batch in one query
 		sp, err := NewSchema(i.repos, i.gateways).FindByModel(ctx, m.ID(), operator)
 		if err != nil {
 			return nil, err
 		}
-		refItemsByID, err := i.batchReferencedItems(ctx, updated, *sp)
+		refItemsByID, err := i.batchReferencedItems(ctx, changed, *sp)
 		if err != nil {
 			return nil, err
 		}
 
-		events = make([]Event, 0, len(updated))
-		for _, itm := range updated {
+		events = make([]Event, 0, len(changed))
+		for _, itm := range changed {
 			events = append(events, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
@@ -731,9 +759,12 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 		return nil, err
 	}
 
-	// dispatch events/webhooks outside the transaction
+	// dispatch events/webhooks outside the transaction; the publish is already committed,
+	// so a dispatch failure is logged instead of failing the request
 	if len(events) > 0 {
-		_ = i.events(ctx, events)
+		if err := i.events(ctx, events); err != nil {
+			log.Errorfc(ctx, "item.Publish: failed to dispatch events: %v", err)
+		}
 	}
 
 	return updated, nil

@@ -155,6 +155,9 @@ type ServerInterface interface {
 	// ItemPublish publish item
 	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish)
 	ItemPublish(ctx *echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemPublishParams) error
+	// ItemUnpublish unpublish item
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/unpublish)
+	ItemUnpublish(ctx *echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemUnpublishParams) error
 	// MetadataSchemaByModelAsJSON Returns a metadata schema as json by project and model ID
 	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
 	MetadataSchemaByModelAsJSON(ctx *echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
@@ -1963,6 +1966,55 @@ func (w *ServerInterfaceWrapper) ItemPublish(ctx *echo.Context) error {
 	return err
 }
 
+// ItemUnpublish converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemUnpublish(ctx *echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "workspace-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "project-id-or-alias", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "model-id-or-key", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "item-id", ValueIsUnescaped: ctx.Request().URL.RawPath == ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ItemUnpublishParams
+	// ------------- Optional query parameter "asset" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "asset", ctx.QueryParams(), &params.Asset, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter asset: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ItemUnpublish(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, params)
+	return err
+}
+
 // MetadataSchemaByModelAsJSON converts echo context to params.
 func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx *echo.Context) error {
 	var err error
@@ -2228,6 +2280,7 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.DELETE(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete, options.OperationMiddlewares["ItemCommentDelete"]...)
 	router.PATCH(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate, options.OperationMiddlewares["ItemCommentUpdate"]...)
 	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/publish", wrapper.ItemPublish, options.OperationMiddlewares["ItemPublish"]...)
+	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/unpublish", wrapper.ItemUnpublish, options.OperationMiddlewares["ItemUnpublish"]...)
 	router.POST(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/filter", wrapper.ItemFilterPost, options.OperationMiddlewares["ItemFilterPost"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON, options.OperationMiddlewares["MetadataSchemaByModelAsJSON"]...)
 	router.GET(options.BaseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelAsJSON, options.OperationMiddlewares["SchemaByModelAsJSON"]...)
@@ -4536,6 +4589,55 @@ func (response ItemPublish404Response) VisitItemPublishResponse(w http.ResponseW
 	return nil
 }
 
+type ItemUnpublishRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	Params             ItemUnpublishParams
+}
+
+type ItemUnpublishResponseObject interface {
+	VisitItemUnpublishResponse(w http.ResponseWriter) error
+}
+
+type ItemUnpublish200JSONResponse VersionedItem
+
+func (response ItemUnpublish200JSONResponse) VisitItemUnpublishResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ItemUnpublish400Response struct {
+}
+
+func (response ItemUnpublish400Response) VisitItemUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemUnpublish401Response = UnauthorizedErrorResponse
+
+func (response ItemUnpublish401Response) VisitItemUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemUnpublish404Response struct {
+}
+
+func (response ItemUnpublish404Response) VisitItemUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type MetadataSchemaByModelAsJSONRequestObject struct {
 	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
 	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
@@ -4924,6 +5026,9 @@ type StrictServerInterface interface {
 	// ItemPublish publish item
 	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish)
 	ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error)
+	// ItemUnpublish unpublish item
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/unpublish)
+	ItemUnpublish(ctx context.Context, request ItemUnpublishRequestObject) (ItemUnpublishResponseObject, error)
 	// MetadataSchemaByModelAsJSON Returns a metadata schema as json by project and model ID
 	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
 	MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error)
@@ -6566,6 +6671,35 @@ func (sh *strictHandler) ItemPublish(ctx *echo.Context, workspaceIdOrAlias Works
 	return nil
 }
 
+// ItemUnpublish operation middleware
+func (sh *strictHandler) ItemUnpublish(ctx *echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemUnpublishParams) error {
+	var request ItemUnpublishRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+	request.Params = params
+
+	handler := func(ctx *echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemUnpublish(ctx.Request().Context(), request.(ItemUnpublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemUnpublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemUnpublishResponseObject); ok {
+		return validResponse.VisitItemUnpublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // MetadataSchemaByModelAsJSON operation middleware
 func (sh *strictHandler) MetadataSchemaByModelAsJSON(ctx *echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
 	var request MetadataSchemaByModelAsJSONRequestObject
@@ -6829,11 +6963,12 @@ var swaggerSpec = []string{
 	"1glJsBxvL5cAvAZJXoMkvQTU+Q68uNGj/K+loJf8+A7S9iQkA1TxOg1/fmM+vihas5WuO/qVmk6666fN",
 	"nqoTbvca8DlkctiBnFkTwYkEYds7aXnWOQGwiU2Gvm9MckWnokKXiwkkydNus3+N9b5o1q/S9c5MiPZy",
 	"yWon5DSqJcsvnGSxZBK4U6uET4+sWugwKsSbnOoQ82t95VOqr9ydA7YvSrvWXHaI8ahKLpcwfSpO26sA",
-	"dQXokCWaHTJ/rdDsVmg+LT4y85KrHbzfpxg+qgK5u2DVjchOvWW0g6LQrS5guTj0acQFzXx2kOVj4wXf",
-	"Nb7POyYH2G7FQRweyJ7BZGlTL1Tir/pWMP5QPXlp+usjAe+WKn35gptcga0Rkxxff7J1Q+MFHxDuvbZF",
-	"EnppVcMofN2Tt3zWj72eyFWv3HR43NSbiV4082hsCTR61L+kebYOjR8+IizUbcaTCs8PHFC6qz18Jw8M",
-	"puA/eLd2cXxv9ZMWC00yqrr4dO9eVOmUWofM8GLb4zRiWmY+a1lidoGeaDHWM6O8tgHSxF8uyEPpO4hW",
-	"KYCeHKs6VcqwMbh6yoiOT6q2d3CpszXcpFAxcKDpVRa/VFmc24ow9bJ4tfrvAA==",
+	"dQXokCWaHTJ/rdDsVmg+LT4y85KrHbzfpxg+qgK5u2DVjchOvWW0g6LQrS5guTj0acQFzXx2leWzZoUj",
+	"qxZ9UMywk3LUndjBLUt9GgxRzGgHLGFDaN81zs875svYbsXZNB7InsFkabORVC68+lYw/lA9jGz661My",
+	"75Yqo/+Cm/SZrRGUHF9/snWP7wWfme+9tsW5jNKqhlH4mqZi+awfez2Rq1656fC4qTcTvWjm0dgSaPSo",
+	"f0kzbb1bdPiIsFC3mVBqx2rgGOtd7XlUeYY2Bf9Z1LXX73urn7RYaZJR1V3Aew8slA5udjgsUewEnkaY",
+	"18xnLUvMxugTLcZ6ZpQ3mUCa+CtoeSh9BwFcBdCTw7enShk2LF1PGdHxSdX2Di51tkZgFSoGjr2+yuKX",
+	"KotzWySpXhavVv8dAA==",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
