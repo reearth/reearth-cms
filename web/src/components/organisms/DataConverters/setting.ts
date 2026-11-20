@@ -113,7 +113,6 @@ export const fromGraphQLMember = (member: WorkspaceMember): Member => {
         user: {
           id: (member as WorkspaceUserMember).user?.id ?? "",
           name: (member as WorkspaceUserMember).user?.name ?? "",
-          email: (member as WorkspaceUserMember).user?.email ?? "",
         },
       };
   }

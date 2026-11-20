@@ -7,7 +7,6 @@ export const GET_USERS = gql`
     userSearch(keyword: $keyword) {
       id
       name
-      email
     }
   }
 `;
@@ -34,7 +33,6 @@ export const GET_ME = gql`
             user {
               id
               name
-              email
             }
             userId
             role
@@ -49,7 +47,6 @@ export const GET_ME = gql`
             invitedBy {
               id
               name
-              email
             }
             invitedById
           }

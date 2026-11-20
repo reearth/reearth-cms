@@ -76,8 +76,8 @@ export type GetRequestsQuery = {
       updatedAt: Date;
       approvedAt: Date | null;
       closedAt: Date | null;
-      createdBy: { __typename: "User"; id: string; name: string; email: string } | null;
-      reviewers: Array<{ __typename: "User"; id: string; name: string; email: string }>;
+      createdBy: { __typename: "User"; id: string; name: string } | null;
+      reviewers: Array<{ __typename: "User"; id: string; name: string }>;
       thread: {
         __typename: "Thread";
         id: string;
@@ -90,7 +90,7 @@ export type GetRequestsQuery = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -251,7 +251,7 @@ export type GetRequestQuery = {
             };
           } | null;
         }>;
-        createdBy: { __typename: "User"; id: string; name: string; email: string } | null;
+        createdBy: { __typename: "User"; id: string; name: string } | null;
         thread: {
           __typename: "Thread";
           id: string;
@@ -264,7 +264,7 @@ export type GetRequestQuery = {
             createdAt: Date;
             author:
               | { __typename: "Integration"; id: string; name: string }
-              | { __typename: "User"; id: string; name: string; email: string }
+              | { __typename: "User"; id: string; name: string }
               | null;
           }>;
         } | null;
@@ -275,7 +275,7 @@ export type GetRequestQuery = {
           createdAt: Date;
           updatedAt: Date;
         } | null;
-        reviewers: Array<{ __typename: "User"; id: string; name: string; email: string }>;
+        reviewers: Array<{ __typename: "User"; id: string; name: string }>;
       }
     | { __typename: "Schema"; id: string }
     | { __typename: "User"; id: string }
@@ -409,7 +409,7 @@ export type CreateRequestMutation = {
           };
         } | null;
       }>;
-      createdBy: { __typename: "User"; id: string; name: string; email: string } | null;
+      createdBy: { __typename: "User"; id: string; name: string } | null;
       thread: {
         __typename: "Thread";
         id: string;
@@ -422,7 +422,7 @@ export type CreateRequestMutation = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -433,7 +433,7 @@ export type CreateRequestMutation = {
         createdAt: Date;
         updatedAt: Date;
       } | null;
-      reviewers: Array<{ __typename: "User"; id: string; name: string; email: string }>;
+      reviewers: Array<{ __typename: "User"; id: string; name: string }>;
     };
   } | null;
 };
@@ -562,7 +562,7 @@ export type UpdateRequestMutation = {
           };
         } | null;
       }>;
-      createdBy: { __typename: "User"; id: string; name: string; email: string } | null;
+      createdBy: { __typename: "User"; id: string; name: string } | null;
       thread: {
         __typename: "Thread";
         id: string;
@@ -575,7 +575,7 @@ export type UpdateRequestMutation = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -586,7 +586,7 @@ export type UpdateRequestMutation = {
         createdAt: Date;
         updatedAt: Date;
       } | null;
-      reviewers: Array<{ __typename: "User"; id: string; name: string; email: string }>;
+      reviewers: Array<{ __typename: "User"; id: string; name: string }>;
     };
   } | null;
 };
@@ -710,7 +710,7 @@ export type ApproveRequestMutation = {
           };
         } | null;
       }>;
-      createdBy: { __typename: "User"; id: string; name: string; email: string } | null;
+      createdBy: { __typename: "User"; id: string; name: string } | null;
       thread: {
         __typename: "Thread";
         id: string;
@@ -723,7 +723,7 @@ export type ApproveRequestMutation = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -734,7 +734,7 @@ export type ApproveRequestMutation = {
         createdAt: Date;
         updatedAt: Date;
       } | null;
-      reviewers: Array<{ __typename: "User"; id: string; name: string; email: string }>;
+      reviewers: Array<{ __typename: "User"; id: string; name: string }>;
     };
   } | null;
 };
@@ -864,7 +864,6 @@ export const GetRequestsDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -880,7 +879,6 @@ export const GetRequestsDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -942,7 +940,6 @@ export const GetRequestsDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1211,7 +1208,6 @@ export const GetRequestDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1633,7 +1629,6 @@ export const GetRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1677,7 +1672,6 @@ export const GetRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1842,7 +1836,6 @@ export const CreateRequestDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2264,7 +2257,6 @@ export const CreateRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2308,7 +2300,6 @@ export const CreateRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2467,7 +2458,6 @@ export const UpdateRequestDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2889,7 +2879,6 @@ export const UpdateRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2933,7 +2922,6 @@ export const UpdateRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -3030,7 +3018,6 @@ export const ApproveRequestDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -3452,7 +3439,6 @@ export const ApproveRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -3496,7 +3482,6 @@ export const ApproveRequestDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },

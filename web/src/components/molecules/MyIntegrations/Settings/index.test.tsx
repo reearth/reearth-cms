@@ -12,7 +12,6 @@ describe("My integration general settings", () => {
     developer: {
       id: "",
       name: "",
-      email: "",
     },
     iType: "Private" as const,
     config: {

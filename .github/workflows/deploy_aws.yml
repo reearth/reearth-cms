@@ -85,7 +85,8 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
-          context: ./server
+          context: .
+          file: ./server/Dockerfile
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_AWS }}
           # cache-from: type=gha
@@ -115,7 +116,8 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
-          context: ./worker
+          context: .
+          file: ./worker/Dockerfile
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.WORKER_IMAGE_AWS }}
           # cache-from: type=gha

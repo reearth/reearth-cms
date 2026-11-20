@@ -10,7 +10,7 @@ describe("Member add modal", () => {
   const open = true;
   const searchLoading = false;
   const addLoading = false;
-  const member = { id: "id", name: "name", email: "email@test.com" };
+  const member = { id: "id", name: "name" };
   const onUserSearch = () => {
     return Promise.resolve([member]);
   };
@@ -44,11 +44,10 @@ describe("Member add modal", () => {
 
     await user.type(searchInput, "st");
     await expect.poll(() => onUserSearchMock).toHaveBeenCalledWith("test");
-    await expect.poll(() => screen.getByText(member.email)).toBeVisible();
+    await expect.poll(() => screen.getByText(member.name)).toBeVisible();
 
     await user.click(screen.getByText(member.name));
     expect(screen.getByText(member.name)).toBeVisible();
-    expect(screen.getByText(member.email)).toBeVisible();
     await user.click(screen.getByText("Reader"));
     await expect.poll(() => screen.getByText("Owner")).toBeVisible();
     expect(screen.getByText("Maintainer")).toBeVisible();

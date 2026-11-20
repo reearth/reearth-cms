@@ -34,7 +34,7 @@ export type AssetFragmentFragment = {
         developerId: string;
         createdAt: Date;
         updatedAt: Date;
-        developer: { __typename: "User"; id: string; name: string; email: string };
+        developer: { __typename: "User"; id: string; name: string };
         config: {
           __typename: "IntegrationConfig";
           token: string;
@@ -61,7 +61,7 @@ export type AssetFragmentFragment = {
           }>;
         } | null;
       }
-    | { __typename: "User"; id: string; name: string; email: string };
+    | { __typename: "User"; id: string; name: string };
   thread: {
     __typename: "Thread";
     id: string;
@@ -74,7 +74,7 @@ export type AssetFragmentFragment = {
       createdAt: Date;
       author:
         | { __typename: "Integration"; id: string; name: string }
-        | { __typename: "User"; id: string; name: string; email: string }
+        | { __typename: "User"; id: string; name: string }
         | null;
     }>;
   } | null;
@@ -108,7 +108,6 @@ export const AssetFragmentFragmentDoc = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -171,7 +170,6 @@ export const AssetFragmentFragmentDoc = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -253,7 +251,6 @@ export const AssetFragmentFragmentDoc = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },

@@ -67,7 +67,7 @@ export type GetAssetsQuery = {
             developerId: string;
             createdAt: Date;
             updatedAt: Date;
-            developer: { __typename: "User"; id: string; name: string; email: string };
+            developer: { __typename: "User"; id: string; name: string };
             config: {
               __typename: "IntegrationConfig";
               token: string;
@@ -94,7 +94,7 @@ export type GetAssetsQuery = {
               }>;
             } | null;
           }
-        | { __typename: "User"; id: string; name: string; email: string };
+        | { __typename: "User"; id: string; name: string };
       thread: {
         __typename: "Thread";
         id: string;
@@ -107,7 +107,7 @@ export type GetAssetsQuery = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -158,7 +158,7 @@ export type GetAssetsItemsQuery = {
             developerId: string;
             createdAt: Date;
             updatedAt: Date;
-            developer: { __typename: "User"; id: string; name: string; email: string };
+            developer: { __typename: "User"; id: string; name: string };
             config: {
               __typename: "IntegrationConfig";
               token: string;
@@ -185,7 +185,7 @@ export type GetAssetsItemsQuery = {
               }>;
             } | null;
           }
-        | { __typename: "User"; id: string; name: string; email: string };
+        | { __typename: "User"; id: string; name: string };
       thread: {
         __typename: "Thread";
         id: string;
@@ -198,7 +198,7 @@ export type GetAssetsItemsQuery = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -242,7 +242,7 @@ export type GetAssetQuery = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -269,7 +269,7 @@ export type GetAssetQuery = {
                 }>;
               } | null;
             }
-          | { __typename: "User"; id: string; name: string; email: string };
+          | { __typename: "User"; id: string; name: string };
         thread: {
           __typename: "Thread";
           id: string;
@@ -282,7 +282,7 @@ export type GetAssetQuery = {
             createdAt: Date;
             author:
               | { __typename: "Integration"; id: string; name: string }
-              | { __typename: "User"; id: string; name: string; email: string }
+              | { __typename: "User"; id: string; name: string }
               | null;
           }>;
         } | null;
@@ -345,7 +345,7 @@ export type GetAssetItemQuery = {
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -372,7 +372,7 @@ export type GetAssetItemQuery = {
                 }>;
               } | null;
             }
-          | { __typename: "User"; id: string; name: string; email: string };
+          | { __typename: "User"; id: string; name: string };
         thread: {
           __typename: "Thread";
           id: string;
@@ -385,7 +385,7 @@ export type GetAssetItemQuery = {
             createdAt: Date;
             author:
               | { __typename: "Integration"; id: string; name: string }
-              | { __typename: "User"; id: string; name: string; email: string }
+              | { __typename: "User"; id: string; name: string }
               | null;
           }>;
         } | null;
@@ -452,7 +452,7 @@ export type CreateAssetMutation = {
             developerId: string;
             createdAt: Date;
             updatedAt: Date;
-            developer: { __typename: "User"; id: string; name: string; email: string };
+            developer: { __typename: "User"; id: string; name: string };
             config: {
               __typename: "IntegrationConfig";
               token: string;
@@ -479,7 +479,7 @@ export type CreateAssetMutation = {
               }>;
             } | null;
           }
-        | { __typename: "User"; id: string; name: string; email: string };
+        | { __typename: "User"; id: string; name: string };
       thread: {
         __typename: "Thread";
         id: string;
@@ -492,7 +492,7 @@ export type CreateAssetMutation = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -531,7 +531,7 @@ export type UpdateAssetMutation = {
             developerId: string;
             createdAt: Date;
             updatedAt: Date;
-            developer: { __typename: "User"; id: string; name: string; email: string };
+            developer: { __typename: "User"; id: string; name: string };
             config: {
               __typename: "IntegrationConfig";
               token: string;
@@ -558,7 +558,7 @@ export type UpdateAssetMutation = {
               }>;
             } | null;
           }
-        | { __typename: "User"; id: string; name: string; email: string };
+        | { __typename: "User"; id: string; name: string };
       thread: {
         __typename: "Thread";
         id: string;
@@ -571,7 +571,7 @@ export type UpdateAssetMutation = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -625,7 +625,7 @@ export type DecompressAssetMutation = {
             developerId: string;
             createdAt: Date;
             updatedAt: Date;
-            developer: { __typename: "User"; id: string; name: string; email: string };
+            developer: { __typename: "User"; id: string; name: string };
             config: {
               __typename: "IntegrationConfig";
               token: string;
@@ -652,7 +652,7 @@ export type DecompressAssetMutation = {
               }>;
             } | null;
           }
-        | { __typename: "User"; id: string; name: string; email: string };
+        | { __typename: "User"; id: string; name: string };
       thread: {
         __typename: "Thread";
         id: string;
@@ -665,7 +665,7 @@ export type DecompressAssetMutation = {
           createdAt: Date;
           author:
             | { __typename: "Integration"; id: string; name: string }
-            | { __typename: "User"; id: string; name: string; email: string }
+            | { __typename: "User"; id: string; name: string }
             | null;
         }>;
       } | null;
@@ -844,7 +844,6 @@ export const GetAssetsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -926,7 +925,6 @@ export const GetAssetsDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -981,7 +979,6 @@ export const GetAssetsDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -1187,7 +1184,6 @@ export const GetAssetsItemsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1269,7 +1265,6 @@ export const GetAssetsItemsDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1324,7 +1319,6 @@ export const GetAssetsItemsDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -1434,7 +1428,6 @@ export const GetAssetDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1516,7 +1509,6 @@ export const GetAssetDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1571,7 +1563,6 @@ export const GetAssetDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -1756,7 +1747,6 @@ export const GetAssetItemDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -1838,7 +1828,6 @@ export const GetAssetItemDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -1893,7 +1882,6 @@ export const GetAssetItemDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -2134,7 +2122,6 @@ export const CreateAssetDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2216,7 +2203,6 @@ export const CreateAssetDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2271,7 +2257,6 @@ export const CreateAssetDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -2404,7 +2389,6 @@ export const UpdateAssetDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2486,7 +2470,6 @@ export const UpdateAssetDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2541,7 +2524,6 @@ export const UpdateAssetDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },
@@ -2768,7 +2750,6 @@ export const DecompressAssetDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -2850,7 +2831,6 @@ export const DecompressAssetDocument = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },
@@ -2905,7 +2885,6 @@ export const DecompressAssetDocument = {
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
-                      { kind: "Field", name: { kind: "Name", value: "email" } },
                     ],
                   },
                 },

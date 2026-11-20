@@ -18,7 +18,7 @@ export type IntegrationFragmentFragment = {
   developerId: string;
   createdAt: Date;
   updatedAt: Date;
-  developer: { __typename: "User"; id: string; name: string; email: string };
+  developer: { __typename: "User"; id: string; name: string };
   config: {
     __typename: "IntegrationConfig";
     token: string;
@@ -138,7 +138,6 @@ export const IntegrationFragmentFragmentDoc = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },

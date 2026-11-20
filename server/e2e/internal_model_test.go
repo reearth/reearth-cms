@@ -17,15 +17,15 @@ import (
 
 // GRPC List Models in Project
 func TestInternalListModelsInProjectAPI(t *testing.T) {
-	StartServer(t, &app.Config{
+	cfg := &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "52050",
 			Token:  "TestToken",
 		},
-	}, true, baseSeeder)
+	}
+	StartServer(t, cfg, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050",
+	clientConn, err := grpc.NewClient("127.0.0.1:"+cfg.InternalApi.Port,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -121,14 +121,14 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 
 // GRPC Get Model
 func TestInternalGetModelAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{
+	cfg := &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "52050",
 			Token:  "TestToken",
 		},
-	}, true, baseSeeder)
-	clientConn, err := grpc.NewClient("localhost:52050",
+	}
+	e := StartServer(t, cfg, true, baseSeeder)
+	clientConn, err := grpc.NewClient("127.0.0.1:"+cfg.InternalApi.Port,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	require.NoError(t, err)
@@ -212,7 +212,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.wantID, m.Model.Id)
 
-			_, _, res := getModel(e, tt.wantID)
+			_, _, res := getModelAs(e, tt.wantID, uId.String())
 			assert.Equal(t, res.Path("$.data.node.name").Raw().(string), m.Model.Name)
 			assert.Equal(t, res.Path("$.data.node.key").Raw().(string), m.Model.Key)
 			assert.Equal(t, res.Path("$.data.node.description").Raw().(string), m.Model.Description)
@@ -223,15 +223,15 @@ func TestInternalGetModelAPI(t *testing.T) {
 
 // GRPC List Items in Model
 func TestInternalListItemsInModelAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{
+	cfg := &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "52050",
 			Token:  "TestToken",
 		},
-	}, true, baseSeeder)
+	}
+	e := StartServer(t, cfg, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050",
+	clientConn, err := grpc.NewClient("127.0.0.1:"+cfg.InternalApi.Port,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
