@@ -213,4 +213,43 @@ describe("Test ModelCard component", () => {
     expect(exportSchema).toHaveClass("ant-dropdown-menu-item-disabled");
     expect(exportContent).toHaveClass("ant-dropdown-menu-submenu-disabled");
   });
+
+  test.each([
+    SchemaFieldType.Geometry,
+    SchemaFieldType.GeometryObject,
+    SchemaFieldType.GeometryEditor,
+  ])("Counts %s as a geometry field for GeoJSON export", async type => {
+    const baseProps = buildProps();
+    const props = buildProps({
+      model: {
+        ...baseProps.model,
+        schema: {
+          id: "test-schema-id",
+          fields: [
+            {
+              id: "field-1",
+              type,
+              title: "Location",
+              key: "location",
+              description: "",
+              required: false,
+              unique: false,
+              multiple: false,
+              isTitle: false,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ModelCard {...props} />);
+    await openFileOperationDropdown();
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExport);
+    await openSubmenu(DATA_TEST_ID.ModelCard__FileOperationExportContent);
+    await user.click(
+      await screen.findByTestId(DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON),
+    );
+
+    expect(props.onModelExport).toHaveBeenCalledWith(props.model.id, ExportFormat.Geojson, 1);
+  });
 });
