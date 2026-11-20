@@ -857,7 +857,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 			}
 			geoFieldId := id.FieldIDFromRef(geoField)
 			f := sp.FieldByIDOrKey(geoFieldId, &geoFieldKey)
-			if f == nil { // TODO: check GeoField type
+			if f == nil || !f.IsGeometryField() {
 				return nil, rerror.ErrInvalidParams
 			}
 

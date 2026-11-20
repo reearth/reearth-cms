@@ -8,6 +8,7 @@ URL field max length exceeded: URLフィールドの最大文字数を超えて�
 a GeometryCollection must have a list of geometries: GeometryCollectionにはジオメトリのリストが必要です。
 a GeometryCollection must not contain another GeometryCollection: GeometryCollectionの中に別のGeometryCollectionを含めることはできません。
 a LineString must have at least 2 positions: LineStringには少なくとも2つの座標が必要です。
+a geometry must not be empty: 空のジオメトリは指定できません。
 a polygon ring must have at least 4 positions: ポリゴンのリングには少なくとも4つの座標が必要です。
 "a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude": 座標は経度、緯度、任意の高度からなる2つまたは3つの有限の数値である必要があります。
 already locked: 既にロック済みです。
