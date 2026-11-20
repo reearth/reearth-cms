@@ -234,7 +234,6 @@ export default {
   "Edit": "編集",
   "Edit geometry": "ジオメトリを編集",
   "Editable on the map": "地図上で編集可能",
-  "Email": "メールアドレス",
   "Email address or user name": "Emailアドレスもしくはユーザー名",
   "Empty content cannot be exported": "コンテンツがないためエクスポートできません",
   "Empty Schema design.": "スキーマが未設定です。",

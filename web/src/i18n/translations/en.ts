@@ -247,7 +247,6 @@ export default {
   "Edit": "",
   "Edit geometry": "",
   "Editable on the map": "",
-  "Email": "",
   "Email address or user name": "",
   "Empty content cannot be exported": "",
   "Empty Schema design.": "",
