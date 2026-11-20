@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -1458,6 +1459,7 @@ func TestItem_BatchDelete(t *testing.T) {
 	i4 := item.New().NewID().User(u.ID()).Schema(s2.ID()).Model(m2.ID()).Project(pid).MustBuild()
 	i5 := item.New().NewID().User(u.ID()).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).MustBuild()   // Different project for permission test
 	i1Integration := item.New().NewID().Integration(integrationID).Schema(s1.ID()).Model(id.NewModelID()).Project(pid).MustBuild() // For integration test
+	threadIDs := id.ThreadIDList{id.NewThreadID(), id.NewThreadID(), id.NewThreadID()}
 
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -1561,6 +1563,42 @@ func TestItem_BatchDelete(t *testing.T) {
 			wantErr: nil,
 			wantSp:  *schema.NewPackage(s1, nil, nil, nil),
 			wantIDs: id.ItemIDList{i1.ID()},
+		},
+		{
+			name:       "success - deletes the threads of the deleted items",
+			schemaSeed: schema.List{s1, s2},
+			modelSeed:  model.List{m1, m2},
+			itemSeed:   item.List{i1, i2, i3, i4, i5, i1Integration},
+			op:         validOp,
+			patchSeeds: func(ctx context.Context, db *repo.Container) error {
+				for idx, itm := range (item.List{i1, i2, i3}) {
+					th := thread.New().ID(threadIDs[idx]).Workspace(wid).MustBuild()
+					if err := db.Thread.Save(ctx, th); err != nil {
+						return err
+					}
+					withThread := itm.Clone()
+					withThread.SetThread(th.ID())
+					if err := db.Item.Save(ctx, withThread); err != nil {
+						return err
+					}
+				}
+				return nil
+			},
+			wantErr: nil,
+			wantSp:  *schema.NewPackage(s1, nil, nil, nil),
+			wantIDs: id.ItemIDList{i1.ID(), i2.ID()},
+			extraCheck: func(ctx context.Context, t *testing.T, db *repo.Container) {
+				// the deleted items' threads are gone
+				_, err := db.Thread.FindByID(ctx, threadIDs[0])
+				assert.ErrorIs(t, err, rerror.ErrNotFound)
+				_, err = db.Thread.FindByID(ctx, threadIDs[1])
+				assert.ErrorIs(t, err, rerror.ErrNotFound)
+
+				// the remaining item keeps its thread
+				th, err := db.Thread.FindByID(ctx, threadIDs[2])
+				assert.NoError(t, err)
+				assert.Equal(t, threadIDs[2], th.ID())
+			},
 		},
 		{
 			name:       "success - batch delete items with reference fields (one-way reference) - verify reference clearing",

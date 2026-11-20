@@ -178,6 +178,42 @@ func TestList_Projects(t *testing.T) {
 	}
 }
 
+func TestList_ThreadIDs(t *testing.T) {
+	t.Parallel()
+
+	th1, th2 := id.NewThreadID(), id.NewThreadID()
+
+	tests := []struct {
+		name     string
+		list     List
+		expected id.ThreadIDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			expected: id.ThreadIDList{},
+		},
+		{
+			name:     "items with threads",
+			list:     List{&Item{thread: &th1}, &Item{thread: &th2}},
+			expected: id.ThreadIDList{th1, th2},
+		},
+		{
+			name:     "nil items and items without a thread are skipped",
+			list:     List{nil, &Item{}, &Item{thread: &th1}},
+			expected: id.ThreadIDList{th1},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.expected, tt.list.ThreadIDs())
+		})
+	}
+}
+
 func TestToMap(t *testing.T) {
 	now := time.Now()
 	fId1 := id.NewFieldID()
