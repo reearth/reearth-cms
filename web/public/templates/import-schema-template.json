@@ -203,61 +203,38 @@
       "x-multiple": true,
       "x-unique": false
     },
-    "geo-object-key": {
-      "title": "geo-object-key",
-      "description": "this geo object field",
-      "x-fieldType": "geometryObject",
+    "geometry-key": {
+      "title": "geometry-key",
+      "description": "this geometry field",
+      "x-fieldType": "geometry",
       "x-defaultValue": {
         "type": "Point",
         "coordinates": [139.6917, 35.6895]
       },
       "x-required": true,
       "x-multiple": false,
-      "x-unique": false,
-      "x-geoSupportedTypes": ["POINT"]
+      "x-unique": false
     },
-    "geo-object-key-multi": {
-      "title": "geo-object-key-multi",
-      "description": "this geo object field with multiple value",
-      "x-fieldType": "geometryObject",
+    "geometry-key-multi": {
+      "title": "geometry-key-multi",
+      "description": "this geometry field with multiple value",
+      "x-fieldType": "geometry",
       "x-defaultValue": [
         {
           "type": "Point",
           "coordinates": [139.6917, 35.6895]
-        }
-      ],
-      "x-required": true,
-      "x-multiple": true,
-      "x-unique": false,
-      "x-geoSupportedTypes": ["POINT"]
-    },
-    "geo-editor-key": {
-      "title": "geo-object-key",
-      "description": "this geo editor field",
-      "x-fieldType": "geometryEditor",
-      "x-defaultValue": {
-        "type": "Point",
-        "coordinates": [139.6917, 35.6895]
-      },
-      "x-required": true,
-      "x-multiple": false,
-      "x-unique": false,
-      "x-geoSupportedType": "POINT"
-    },
-    "geo-editor-key-multi": {
-      "title": "geo-object-key-multi",
-      "description": "this geo editor field with multiple value",
-      "x-fieldType": "geometryEditor",
-      "x-defaultValue": [
+        },
         {
-          "type": "Point",
-          "coordinates": [139.6917, 35.6895]
+          "type": "LineString",
+          "coordinates": [
+            [139.6917, 35.6895],
+            [139.7671, 35.6812]
+          ]
         }
       ],
       "x-required": true,
       "x-multiple": true,
-      "x-unique": false,
-      "x-geoSupportedType": "POINT"
+      "x-unique": false
     }
   }
 }

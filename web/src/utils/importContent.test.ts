@@ -131,18 +131,9 @@ describe("Content import test", () => {
           typeProperty: {},
         },
         {
-          type: SchemaFieldType.GeometryObject,
-          key: "geo-object-key",
-          typeProperty: {
-            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
-          },
-        },
-        {
-          type: SchemaFieldType.GeometryEditor,
-          key: "geo-editor-key",
-          typeProperty: {
-            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
-          },
+          type: SchemaFieldType.Geometry,
+          key: "geometry-key",
+          typeProperty: {},
         },
       ].map(({ type, key, typeProperty }) => ({
         ...DEFAULT_COMMON_FIELD,
