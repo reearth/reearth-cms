@@ -18,6 +18,9 @@ auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
 can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
+can't delete a project as it still has groups: まだグループが存在するため、プロジェクトを削除できません。
+can't delete a project as it still has models: まだモデルが存在するため、プロジェクトを削除できません。
+can't delete a workspace as it still has projects: まだプロジェクトが存在するため、ワークスペースを削除できません。
 can't update by approve: このメソッドで承認することはできません
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。

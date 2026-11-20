@@ -7582,7 +7582,7 @@ type CesiumResourceProps {
     name: String!
     url: String!
     image: String!
-    cesiumIonAssetId: String! 
+    cesiumIonAssetId: String!
     cesiumIonAccessToken: String!
 }
 
@@ -7626,7 +7626,7 @@ input CesiumResourcePropsInput {
     name: String!
     url: String!
     image: String!
-    cesiumIonAssetId: String! 
+    cesiumIonAssetId: String!
     cesiumIonAccessToken: String!
 }
 

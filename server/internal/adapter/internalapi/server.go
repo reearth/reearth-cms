@@ -140,6 +140,9 @@ func (s server) DeleteProject(ctx context.Context, req *pb.DeleteProjectRequest)
 
 	err = uc.Project.Delete(ctx, pId, op)
 	if err != nil {
+		if errors.Is(err, interfaces.ErrProjectHasModels) || errors.Is(err, interfaces.ErrProjectHasGroups) {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
 		return nil, err
 	}
 

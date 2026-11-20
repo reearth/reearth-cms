@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -154,7 +155,13 @@ func TestCreateWorkspace(t *testing.T) {
 }
 
 func TestDeleteWorkspace(t *testing.T) {
-	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
+	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+		if err := baseSeederWorkspace(ctx, r, g); err != nil {
+			return err
+		}
+		return r.WorkspaceSettings.Save(ctx, workspacesettings.New().ID(wId).MustBuild())
+	}
+	e, r, ar := StartServerWithRepos(t, &app.Config{}, true, seeder)
 	_, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	query := fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, wId)
@@ -172,6 +179,8 @@ func TestDeleteWorkspace(t *testing.T) {
 	o.Value("data").Object().Value("deleteWorkspace").Object().Value("workspaceId").String().IsEqual(wId.String())
 
 	_, err = ar.Workspace.FindByID(context.Background(), wId)
+	assert.Equal(t, rerror.ErrNotFound, err)
+	_, err = r.WorkspaceSettings.FindByID(context.Background(), wId)
 	assert.Equal(t, rerror.ErrNotFound, err)
 
 	query = fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, accountdomain.NewWorkspaceID())
@@ -500,4 +509,35 @@ func TestUpdateIntegrationOfWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
 		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
+}
+
+func TestDeleteWorkspaceWithProjects(t *testing.T) {
+	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+		if err := baseSeederWorkspace(ctx, r, g); err != nil {
+			return err
+		}
+		if err := r.WorkspaceSettings.Save(ctx, workspacesettings.New().ID(wId).MustBuild()); err != nil {
+			return err
+		}
+		p := project.New().NewID().Name("p").Workspace(wId).Alias("ws-delete-test").MustBuild()
+		return r.Project.Save(ctx, p)
+	}
+	e, r, ar := StartServerWithRepos(t, &app.Config{}, true, seeder)
+
+	query := fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, wId)
+	jsonData, err := json.Marshal(GraphQLRequest{Query: query})
+	assert.Nil(t, err)
+
+	o := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+	o.Value("errors").Array().Value(0).Object().Value("message").IsEqual("can't delete a workspace as it still has projects")
+
+	// the workspace and its settings must still exist
+	_, err = ar.Workspace.FindByID(context.Background(), wId)
+	assert.Nil(t, err)
+	_, err = r.WorkspaceSettings.FindByID(context.Background(), wId)
+	assert.Nil(t, err)
 }
