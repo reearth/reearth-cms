@@ -31,7 +31,7 @@ describe("Integration table", () => {
   const integration: WorkspaceIntegration = {
     id: "id",
     name,
-    createdBy: { id: "", name: creatorName, email: "" },
+    createdBy: { id: "", name: creatorName },
     role,
   };
 

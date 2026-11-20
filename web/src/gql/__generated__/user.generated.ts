@@ -16,9 +16,7 @@ export type GetUsersQueryVariables = Exact<{
   keyword: string;
 }>;
 
-export type GetUsersQuery = {
-  userSearch: Array<{ __typename: "User"; id: string; name: string; email: string }>;
-};
+export type GetUsersQuery = { userSearch: Array<{ __typename: "User"; id: string; name: string }> };
 
 export type GetMeQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -49,12 +47,12 @@ export type GetMeQuery = {
               id: string;
               name: string;
               description: string | null;
-              logoUrl: string;
+              logoUrl: string | null;
               iType: Types.IntegrationType;
               developerId: string;
               createdAt: Date;
               updatedAt: Date;
-              developer: { __typename: "User"; id: string; name: string; email: string };
+              developer: { __typename: "User"; id: string; name: string };
               config: {
                 __typename: "IntegrationConfig";
                 token: string;
@@ -81,13 +79,13 @@ export type GetMeQuery = {
                 }>;
               } | null;
             } | null;
-            invitedBy: { __typename: "User"; id: string; name: string; email: string } | null;
+            invitedBy: { __typename: "User"; id: string; name: string } | null;
           }
         | {
             __typename: "WorkspaceUserMember";
             userId: string;
             role: Types.Role;
-            user: { __typename: "User"; id: string; name: string; email: string } | null;
+            user: { __typename: "User"; id: string; name: string } | null;
           }
       >;
     }>;
@@ -96,12 +94,12 @@ export type GetMeQuery = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
       developerId: string;
       createdAt: Date;
       updatedAt: Date;
-      developer: { __typename: "User"; id: string; name: string; email: string };
+      developer: { __typename: "User"; id: string; name: string };
       config: {
         __typename: "IntegrationConfig";
         token: string;
@@ -226,7 +224,6 @@ export const GetUsersDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -300,7 +297,6 @@ export const GetMeDocument = {
                                       selections: [
                                         { kind: "Field", name: { kind: "Name", value: "id" } },
                                         { kind: "Field", name: { kind: "Name", value: "name" } },
-                                        { kind: "Field", name: { kind: "Name", value: "email" } },
                                       ],
                                     },
                                   },
@@ -342,7 +338,6 @@ export const GetMeDocument = {
                                       selections: [
                                         { kind: "Field", name: { kind: "Name", value: "id" } },
                                         { kind: "Field", name: { kind: "Name", value: "name" } },
-                                        { kind: "Field", name: { kind: "Name", value: "email" } },
                                       ],
                                     },
                                   },
@@ -397,7 +392,6 @@ export const GetMeDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },

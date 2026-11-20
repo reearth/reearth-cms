@@ -505,6 +505,74 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 	return ItemPublish200JSONResponse(integrationapi.NewVersionedItem(i, schm, ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), ms, mi, sp.GroupSchemas())), nil
 }
 
+func (s *Server) ItemUnpublish(ctx context.Context, request ItemUnpublishRequestObject) (ItemUnpublishResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemUnpublish404Response{}, err
+		}
+		return ItemUnpublish400Response{}, err
+	}
+
+	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemUnpublish404Response{}, err
+		}
+		return ItemUnpublish400Response{}, err
+	}
+
+	if i.Value().Model() != wp.Model.ID() {
+		return ItemUnpublish404Response{}, rerror.ErrNotFound
+	}
+
+	vl, err := uc.Item.Unpublish(ctx, id.ItemIDList{request.ItemId}, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
+			return ItemUnpublish404Response{}, nil
+		}
+		return ItemUnpublish400Response{}, err
+	}
+
+	if len(vl) == 0 {
+		return ItemUnpublish404Response{}, nil
+	}
+
+	i = vl[0]
+
+	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
+	if err != nil {
+		return ItemUnpublish404Response{}, err
+	}
+
+	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Params.Asset)
+	if err != nil {
+		return ItemUnpublish400Response{}, err
+	}
+	ac := assetContext(ctx, assets, request.Params.Asset)
+
+	msList, miList := getMetaSchemasAndItems(ctx, item.VersionedList{i})
+
+	var mi item.Versioned
+	var ms *schema.Schema
+	if len(miList) > 0 {
+		mi = miList[0]
+	}
+	if len(msList) > 0 {
+		ms = msList[0]
+	}
+
+	schm := sp.Schema()
+	if i.Value().Schema() != schm.ID() {
+		schm = sp.MetaSchema()
+	}
+
+	return ItemUnpublish200JSONResponse(integrationapi.NewVersionedItem(i, schm, ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), ms, mi, sp.GroupSchemas())), nil
+}
+
 func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, fields, metaFields *[]integrationapi.Field, op *usecase.Operator) (*integrationapi.VersionedItem, error) {
 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {

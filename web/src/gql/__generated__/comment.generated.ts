@@ -25,7 +25,7 @@ export type AddCommentMutation = {
       createdAt: Date;
       author:
         | { __typename: "Integration"; id: string; name: string }
-        | { __typename: "User"; id: string; name: string; email: string }
+        | { __typename: "User"; id: string; name: string }
         | null;
     };
   } | null;
@@ -49,7 +49,7 @@ export type UpdateCommentMutation = {
       createdAt: Date;
       author:
         | { __typename: "Integration"; id: string; name: string }
-        | { __typename: "User"; id: string; name: string; email: string }
+        | { __typename: "User"; id: string; name: string }
         | null;
     };
   } | null;
@@ -143,7 +143,6 @@ export const AddCommentDocument = {
                                 selections: [
                                   { kind: "Field", name: { kind: "Name", value: "id" } },
                                   { kind: "Field", name: { kind: "Name", value: "name" } },
-                                  { kind: "Field", name: { kind: "Name", value: "email" } },
                                 ],
                               },
                             },
@@ -271,7 +270,6 @@ export const UpdateCommentDocument = {
                                 selections: [
                                   { kind: "Field", name: { kind: "Name", value: "id" } },
                                   { kind: "Field", name: { kind: "Name", value: "name" } },
-                                  { kind: "Field", name: { kind: "Name", value: "email" } },
                                 ],
                               },
                             },

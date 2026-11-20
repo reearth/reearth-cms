@@ -26,12 +26,11 @@ export default () => {
   );
 
   const handleIntegrationCreate = useCallback(
-    async ({ name, description, logoUrl, type }: FormValues) => {
+    async ({ name, description, type }: FormValues) => {
       const integration = await createNewIntegration({
         variables: {
           name,
           description,
-          logoUrl,
           type: type === "Private" ? IntegrationType.Private : IntegrationType.Public,
         },
       });

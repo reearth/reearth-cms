@@ -22,6 +22,7 @@ export type SchemaFieldType =
   | "Bool"
   | "Checkbox"
   | "Date"
+  | "Geometry"
   | "GeometryEditor"
   | "GeometryObject"
   | "Group"
@@ -84,6 +85,7 @@ export type GetGroupQuery = {
               | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate"; defaultValue: unknown }
+              | { __typename: "SchemaFieldGeometry" }
               | {
                   __typename: "SchemaFieldGeometryEditor";
                   defaultValue: unknown;

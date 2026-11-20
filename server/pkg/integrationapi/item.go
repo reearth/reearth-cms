@@ -27,7 +27,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 
 	return VersionedItem{
 		Id:              i.ID().Ref(),
-		ModelId:         i.Model().Ref().StringRef(),
+		ModelId:         i.Model().Ref(),
 		MetadataItemId:  i.MetadataItem(),
 		OriginalItemId:  i.OriginalItem(),
 		IsMetadata:      new(i.IsMetadata()),
@@ -48,7 +48,7 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 
 	return Item{
 		Id:              i.ID().Ref(),
-		ModelId:         i.Model().Ref().StringRef(),
+		ModelId:         i.Model().Ref(),
 		MetadataItemId:  i.MetadataItem(),
 		OriginalItemId:  i.OriginalItem(),
 		IsMetadata:      new(i.IsMetadata()),

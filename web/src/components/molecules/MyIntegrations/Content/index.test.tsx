@@ -17,7 +17,6 @@ describe("Integration creation modal", () => {
     developer: {
       id: "",
       name: "",
-      email: "",
     },
     iType: "Private" as const,
     config: {

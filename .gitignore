@@ -8,6 +8,10 @@ node_modules
 
 .env
 
+# Go workspace (local only; each module builds on its own)
+go.work
+go.work.sum
+
 /web/.env*
 /web/coverage
 /web/dist
