@@ -20,20 +20,20 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        uses: actions/cache@v6.1.0
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
@@ -51,20 +51,20 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        uses: actions/cache@v6.1.0
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
@@ -84,20 +84,20 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        uses: actions/cache@v6.1.0
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
@@ -107,7 +107,7 @@ jobs:
       - name: Test
         run: yarn run coverage
       - name: Send coverage report
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
+        uses: codecov/codecov-action@v7.1.1
         with:
           flags: web
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -121,26 +121,26 @@ jobs:
         working-directory: web
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
       - name: Setup Node
         id: setup-node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Cache node_modules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        uses: actions/cache@v6.1.0
         with:
           path: web/node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
           restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Cache TypeScript
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        uses: actions/cache@v6.1.0
         with:
           path: web/node_modules/.cache
           key: ${{ runner.os }}-typescript-${{ hashFiles('web/tsconfig.json', 'web/package.json', 'web/yarn.lock') }}
@@ -157,7 +157,7 @@ jobs:
           tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
       - name: Upload artifact
         if: github.ref_name == 'main' || github.ref_name == 'release'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: reearth-cms-web
           path: web/reearth-cms-web.tar.gz
