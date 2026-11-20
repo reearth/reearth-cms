@@ -4,7 +4,7 @@ export const CREATE_INTEGRATION = gql`
   mutation CreateIntegration(
     $name: String!
     $description: String
-    $logoUrl: URL!
+    $logoUrl: URL
     $type: IntegrationType!
   ) {
     createIntegration(
@@ -26,7 +26,7 @@ export const UPDATE_INTEGRATION = gql`
     $integrationId: ID!
     $name: String!
     $description: String
-    $logoUrl: URL!
+    $logoUrl: URL
   ) {
     updateIntegration(
       input: {
