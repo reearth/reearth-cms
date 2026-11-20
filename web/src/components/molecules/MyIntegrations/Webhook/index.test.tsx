@@ -15,7 +15,6 @@ describe("Webhook", () => {
     developer: {
       id: "",
       name: "",
-      email: "",
     },
     iType: "Private" as const,
     config: {

@@ -13,6 +13,7 @@ export type SchemaFieldType =
   | "Bool"
   | "Checkbox"
   | "Date"
+  | "Geometry"
   | "GeometryEditor"
   | "GeometryObject"
   | "Group"
@@ -98,6 +99,7 @@ export type RequestFragmentFragment = {
               | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate" }
+              | { __typename: "SchemaFieldGeometry" }
               | { __typename: "SchemaFieldGeometryEditor" }
               | { __typename: "SchemaFieldGeometryObject" }
               | { __typename: "SchemaFieldGroup"; groupId: string }
@@ -134,7 +136,7 @@ export type RequestFragmentFragment = {
       };
     } | null;
   }>;
-  createdBy: { __typename: "User"; id: string; name: string; email: string } | null;
+  createdBy: { __typename: "User"; id: string; name: string } | null;
   thread: {
     __typename: "Thread";
     id: string;
@@ -147,7 +149,7 @@ export type RequestFragmentFragment = {
       createdAt: Date;
       author:
         | { __typename: "Integration"; id: string; name: string }
-        | { __typename: "User"; id: string; name: string; email: string }
+        | { __typename: "User"; id: string; name: string }
         | null;
     }>;
   } | null;
@@ -158,7 +160,7 @@ export type RequestFragmentFragment = {
     createdAt: Date;
     updatedAt: Date;
   } | null;
-  reviewers: Array<{ __typename: "User"; id: string; name: string; email: string }>;
+  reviewers: Array<{ __typename: "User"; id: string; name: string }>;
 };
 
 export const RequestFragmentFragmentDoc = {
@@ -556,7 +558,6 @@ export const RequestFragmentFragmentDoc = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -600,7 +601,6 @@ export const RequestFragmentFragmentDoc = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -637,7 +637,6 @@ export const RequestFragmentFragmentDoc = {
                           selections: [
                             { kind: "Field", name: { kind: "Name", value: "id" } },
                             { kind: "Field", name: { kind: "Name", value: "name" } },
-                            { kind: "Field", name: { kind: "Name", value: "email" } },
                           ],
                         },
                       },

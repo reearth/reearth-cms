@@ -22,9 +22,9 @@ describe("Member", () => {
     {
       userId: "userId2",
       role: "OWNER",
-      user: { id: "id2", name: "name2", email: "email2@test.com" },
+      user: { id: "id2", name: "name2" },
     },
-    { userId, role: "OWNER", user: { id: "id1", name: "name1", email: "email1@test.com" } },
+    { userId, role: "OWNER", user: { id: "id1", name: "name1" } },
   ];
   const page = 1;
   const pageSize = 10;

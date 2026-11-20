@@ -33,7 +33,6 @@ type Props = {
 type FormType = {
   name: string;
   description: string;
-  logoUrl: string;
 };
 
 const MyIntegrationForm: React.FC<Props> = ({
@@ -70,7 +69,6 @@ const MyIntegrationForm: React.FC<Props> = ({
     setIsDisabled(true);
     try {
       const values = await form.validateFields();
-      values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
       await onIntegrationUpdate(values);
     } catch (_) {
       setIsDisabled(false);

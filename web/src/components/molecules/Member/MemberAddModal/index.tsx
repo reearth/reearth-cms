@@ -103,7 +103,6 @@ const MemberAddModal: React.FC<Props> = ({
           <UserWrapper>
             <UserInfo>
               <UserName>{user.name}</UserName>
-              {user.email && <Email>{user.email}</Email>}
             </UserInfo>
           </UserWrapper>
         ),
@@ -211,7 +210,6 @@ const MemberAddModal: React.FC<Props> = ({
               <SelectedUser key={user.id}>
                 <UserInfo>
                   <UserName title={user.name}>{user.name}</UserName>
-                  {user.email && <Email title={user.email}>{user.email}</Email>}
                 </UserInfo>
                 <Actions>
                   <FormItemRole name={[user.id]}>
@@ -283,14 +281,6 @@ const UserInfo = styled.div`
 
 const UserName = styled.div`
   max-width: 50%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const Email = styled.div`
-  font-family: "Roboto";
-  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

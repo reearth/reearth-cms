@@ -137,6 +137,10 @@ func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 }
 
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
+	return getModelAs(e, mID, uId1.String())
+}
+
+func getModelAs(e *httpexpect.Expect, mID, userID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
 				  node(id: $modelId, type: Model) {
@@ -297,7 +301,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 
 	res := e.POST("/api/graphql").
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userID).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
 		Expect().

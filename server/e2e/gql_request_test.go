@@ -28,7 +28,6 @@ func createRequest(e *httpexpect.Expect, projectId, title string, description, s
 				createdBy {
 					id
 					name
-					email
 				}
 				workspaceId
 				projectId
@@ -89,7 +88,6 @@ func updateRequest(e *httpexpect.Expect, requestId, title string, description, s
 				createdBy {
 					id
 					name
-					email
 				}
 				workspaceId
 				projectId

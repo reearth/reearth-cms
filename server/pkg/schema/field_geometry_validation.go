@@ -18,6 +18,7 @@ var (
 	// errors of the Geometry field
 	// They wrap ErrGeoFieldInvalidGeoStructure, so they are all reported with FieldValidationCodeInvalidGeoStructure.
 	ErrGeometryInvalidType         = rerror.WrapE(i18n.T("geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryUnknownProperty     = rerror.WrapE(i18n.T("geometry contains an unknown property"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryInvalidCoordinates  = rerror.WrapE(i18n.T("geometry coordinates are invalid"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryInvalidGeometries   = rerror.WrapE(i18n.T("a GeometryCollection must have a list of geometries"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryInvalidPosition     = rerror.WrapE(i18n.T("a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude"), ErrGeoFieldInvalidGeoStructure)
@@ -112,7 +113,7 @@ func toList[T any](v any, convert func(any) (T, bool)) ([]T, bool) {
 	return res, true
 }
 
-// validateGeometryMembers checks the type of g and that it has "coordinates", or "geometries" for a GeometryCollection.
+// validateGeometryMembers checks the type and the members of g: "type" and either "coordinates" or "geometries".
 func validateGeometryMembers(g map[string]any, inCollection bool) error {
 	t, _ := g["type"].(string)
 	member := "coordinates"
@@ -129,7 +130,11 @@ func validateGeometryMembers(g map[string]any, inCollection bool) error {
 		return ErrGeometryInvalidType
 	}
 
-	// other members were removed when the value was created (see value.TypeGeometry)
+	for k := range g {
+		if k != "type" && k != member {
+			return ErrGeometryUnknownProperty
+		}
+	}
 	if member == "coordinates" {
 		if _, ok := g[member]; !ok {
 			return ErrGeometryInvalidCoordinates

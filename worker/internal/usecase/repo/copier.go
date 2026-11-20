@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/shared/task"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
