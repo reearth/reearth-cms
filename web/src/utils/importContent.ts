@@ -4,7 +4,7 @@ import type { GeoJsonProperties, GeoJSON } from "geojson";
 import type { ParseResult } from "papaparse";
 import Papa from "papaparse";
 import z from "zod";
-import { GeoJSON2DSchema } from "zod-geojson";
+import { GeoJSONGeometrySchema, GeoJSON2DSchema } from "zod-geojson";
 
 import type { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -438,6 +438,41 @@ export abstract class ImportContentUtils {
           break;
         }
 
+        case "Geometry": {
+          // CSV file cannot contain geometry object
+          if (sourceFormat === "JSON") {
+            let geometryField: z.ZodTypeAny = GeoJSONGeometrySchema;
+
+            // validate multiple and add into schema
+            const multiple = z.boolean().parse(field.multiple);
+
+            // validate defaultValue into schema with single or multiple respectively
+            if (multiple) {
+              const defaultValuesValidation = GeoJSONGeometrySchema.array()
+                .optional()
+                .safeParse(field.typeProperty?.defaultValue);
+
+              if (defaultValuesValidation.success && defaultValuesValidation.data)
+                geometryField = geometryField.array().default(defaultValuesValidation.data);
+              else geometryField = geometryField.array();
+            } else {
+              const defaultValueValidation = GeoJSONGeometrySchema.optional().safeParse(
+                field.typeProperty?.defaultValue,
+              );
+
+              if (defaultValueValidation.success && defaultValueValidation.data)
+                geometryField = geometryField.default(defaultValueValidation.data);
+            }
+
+            validateObj[field.key] = !field.required
+              ? geometryField.nullable().optional()
+              : geometryField;
+            classifiers[field.key] = this.geometryClassifier();
+          }
+
+          break;
+        }
+
         case "GeometryObject": {
           // CSV file cannot contain geometry object
           if (sourceFormat === "JSON") {
@@ -749,6 +784,13 @@ export abstract class ImportContentUtils {
         }
         return "outOfRange";
       }
+      return null;
+    };
+  }
+
+  private static geometryClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type" || issue.code === "invalid_union") return "typeMismatch";
       return null;
     };
   }

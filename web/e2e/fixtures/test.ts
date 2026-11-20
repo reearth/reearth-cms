@@ -6,6 +6,7 @@ import type { Config } from "../config/config";
 import { AssetsPage } from "../pages/assets.page";
 import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";
+import { GeometryEditorPage } from "../pages/geometry-editor.page";
 import { IntegrationsPage } from "../pages/integrations.page";
 import { LoginPage } from "../pages/login.page";
 import { MemberPage } from "../pages/member.page";
@@ -21,6 +22,7 @@ export type PageObjects = {
   loginPage: LoginPage;
   contentPage: ContentPage;
   fieldEditorPage: FieldEditorPage;
+  geometryEditorPage: GeometryEditorPage;
   integrationsPage: IntegrationsPage;
   memberPage: MemberPage;
   projectPage: ProjectPage;
@@ -101,6 +103,10 @@ export const test = base.extend<Fixtures>({
 
   fieldEditorPage: async ({ page }, use) => {
     await use(new FieldEditorPage(page));
+  },
+
+  geometryEditorPage: async ({ page }, use) => {
+    await use(new GeometryEditorPage(page));
   },
 
   memberPage: async ({ page }, use) => {

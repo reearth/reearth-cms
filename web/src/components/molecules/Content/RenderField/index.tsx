@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import GeometryMiniMap from "@reearth-cms/components/molecules/Common/Form/GeometryEditorV2/GeometryMiniMap";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -64,10 +65,11 @@ export const renderField = (
     items.length > 1 ||
     field.type === "TextArea" ||
     field.type === "MarkdownText" ||
+    field.type === "Geometry" ||
     field.type === "GeometryObject" ||
     field.type === "GeometryEditor"
   ) {
-    const content = (
+    const text = (
       <>
         {items.map((item, index) => {
           return (
@@ -78,9 +80,22 @@ export const renderField = (
         })}
       </>
     );
+    const geometry =
+      field.type === "Geometry" ||
+      field.type === "GeometryObject" ||
+      field.type === "GeometryEditor";
+    const content = geometry ? (
+      <GeometryMiniMap
+        value={value}
+        multiple={field.multiple}
+        fallback={<GeometryFallback>{text}</GeometryFallback>}
+      />
+    ) : (
+      text
+    );
     return (
       <Popover
-        rootClassName="contentPopover"
+        rootClassName={geometry ? "contentPopover geometryPopover" : "contentPopover"}
         content={
           <div data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverContent}>{content}</div>
         }
@@ -97,6 +112,12 @@ export const renderField = (
     return <ItemFormat item={items[0]} field={field} update={update} />;
   }
 };
+
+const GeometryFallback = styled.div`
+  max-width: 20vw;
+  max-height: 20vh;
+  overflow: auto;
+`;
 
 const StyledButton = styled(Button)`
   align-items: center;

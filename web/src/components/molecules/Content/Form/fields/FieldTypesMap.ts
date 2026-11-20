@@ -26,4 +26,5 @@ export const FIELD_TYPE_COMPONENT_MAP = {
   Select: SelectField,
   GeometryObject: GeometryField,
   GeometryEditor: GeometryField,
+  Geometry: GeometryField,
 };

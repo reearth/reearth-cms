@@ -50,6 +50,57 @@ describe("ObjectUtils", () => {
     });
   });
 
+  describe("isDeepEqual", () => {
+    it("compares nested arrays and objects by value", () => {
+      expect(
+        ObjectUtils.isDeepEqual(
+          {
+            type: "LineString",
+            coordinates: [
+              [0, 0],
+              [1, 1],
+            ],
+          },
+          {
+            coordinates: [
+              [0, 0],
+              [1, 1],
+            ],
+            type: "LineString",
+          },
+        ),
+      ).toBe(true);
+    });
+
+    it("returns false for any difference", () => {
+      expect(ObjectUtils.isDeepEqual([[0, 0]], [[0, 1]])).toBe(false);
+      expect(ObjectUtils.isDeepEqual([1, 2], [1, 2, 3])).toBe(false);
+      expect(ObjectUtils.isDeepEqual({ x: 1 }, { x: 1, y: 2 })).toBe(false);
+      expect(ObjectUtils.isDeepEqual({ x: undefined }, { y: undefined })).toBe(false);
+      expect(ObjectUtils.isDeepEqual([], {})).toBe(false);
+      expect(ObjectUtils.isDeepEqual(null, {})).toBe(false);
+      expect(ObjectUtils.isDeepEqual("1", 1)).toBe(false);
+    });
+
+    it("treats primitives by value", () => {
+      expect(ObjectUtils.isDeepEqual(1, 1)).toBe(true);
+      expect(ObjectUtils.isDeepEqual(null, null)).toBe(true);
+      expect(ObjectUtils.isDeepEqual(NaN, NaN)).toBe(true);
+    });
+  });
+
+  describe("parseJSONSync", () => {
+    it("returns the parsed value", () => {
+      expect(ObjectUtils.parseJSONSync('{"x":1}')).toEqual({ isValid: true, data: { x: 1 } });
+    });
+
+    it("returns the parser's message for invalid JSON", () => {
+      const result = ObjectUtils.parseJSONSync("{invalid");
+      expect(result.isValid).toBe(false);
+      if (!result.isValid) expect(result.error).not.toBe("");
+    });
+  });
+
   describe("parseJSON", () => {
     it("Pass case: simple object", async () => {
       const input = '{"x":1,"y":"hello"}';

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useCallback } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
+import GeometryEditorV2 from "@reearth-cms/components/molecules/Common/Form/GeometryEditorV2";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
@@ -35,6 +36,13 @@ const GeometryField: React.FC<FieldProps> = ({
 
   const isEditor = useMemo(() => field.type === "GeometryEditor", [field.type]);
 
+  const useV2 = useMemo<boolean>(() => field.type === "Geometry", [field.type]);
+
+  const handleValidityChange = useCallback(
+    (valid: boolean) => (valid ? errorDelete(0) : errorAdd(0)),
+    [errorAdd, errorDelete],
+  );
+
   return (
     <Form.Item
       extra={field.description}
@@ -52,7 +60,25 @@ const GeometryField: React.FC<FieldProps> = ({
       ]}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
-      {field.multiple ? (
+      {useV2 ? (
+        field.multiple ? (
+          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+            <GeometryEditorV2
+              title={field.title}
+              multiple
+              disabled={disabled}
+              onValidityChange={handleValidityChange}
+            />
+          </ResponsiveHeight>
+        ) : (
+          <GeometryEditorV2
+            title={field.title}
+            multiple={false}
+            disabled={disabled}
+            onValidityChange={handleValidityChange}
+          />
+        )
+      ) : field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueGeometry
             supportedTypes={supportedTypes}

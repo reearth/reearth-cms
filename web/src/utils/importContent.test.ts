@@ -825,6 +825,46 @@ describe("Content import test", () => {
         });
       });
 
+      describe("[Pass case] Geometry field value type match", () => {
+        test.each<{ name: string; multiple: boolean; value: GeoJSON | GeoJSON[] }>([
+          { name: "a point", multiple: false, value: Test.GEO_JSON_POINT },
+          {
+            name: "a point with altitude",
+            multiple: false,
+            value: Test.GEO_JSON_POINT_WITH_ALTITUDE,
+          },
+          {
+            name: "a polygon with a hole",
+            multiple: false,
+            value: Test.GEO_JSON_POLYGON_WITH_HOLE,
+          },
+          { name: "a geometry collection", multiple: false, value: Test.GEO_JSON_GEO_COLLECTION },
+          {
+            name: "a list of mixed geometry types",
+            multiple: true,
+            value: [Test.GEO_JSON_POINT, Test.GEO_JSON_LINE_STRING, Test.GEO_JSON_MULTI_POLYGON],
+          },
+        ])("Geometry field accepts $name", async ({ multiple, value }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.Geometry,
+              key: "field-key",
+              required: true,
+              multiple,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            await parseAsImportedJSON([{ "field-key": value }]),
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(true);
+        });
+      });
+
       describe("[Pass case] GeoEditor field value type match", () => {
         const COMMON_SETUP = {
           key: "field-key",
@@ -1381,6 +1421,45 @@ describe("Content import test", () => {
           expect(exceedLimit).toBe(expectedResult.exceedLimit);
           expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
           expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      describe("[Fail case] Geometry field value type mismatch", () => {
+        test.each<{ name: string; multiple: boolean; value: unknown }>([
+          { name: "a string", multiple: false, value: "hello" },
+          {
+            name: "a Feature",
+            multiple: false,
+            value: { type: "Feature", geometry: Test.GEO_JSON_POINT, properties: {} },
+          },
+          {
+            name: "a single geometry for a multiple field",
+            multiple: true,
+            value: Test.GEO_JSON_POINT,
+          },
+        ])("Geometry field rejects $name", async ({ multiple, value }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.Geometry,
+              key: "field-key",
+              required: true,
+              multiple,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            await parseAsImportedJSON([{ "field-key": value }]),
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(false);
+
+          if (contentValidation.isValid) return;
+
+          expect(contentValidation.error.typeMismatchFieldKeys.size).toBe(1);
+          expect(contentValidation.error.outOfRangeFieldKeys.size).toBe(0);
         });
       });
 

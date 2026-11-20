@@ -224,6 +224,10 @@ export default (
         return {
           group: { groupId: values.group },
         };
+      case "Geometry":
+        return {
+          geometry: { defaultValue: values.defaultValue },
+        };
       case "GeometryObject":
         return {
           geometryObject: {

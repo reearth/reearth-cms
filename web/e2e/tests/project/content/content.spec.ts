@@ -346,7 +346,7 @@ test.describe("Import content", () => {
   }) => {
     await test.step("Create geometry object field matching template schema", async () => {
       // TODO: need refactor
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+      await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
       await fieldEditorPage.displayNameInput.click();
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.click();
@@ -436,7 +436,7 @@ test.describe("Import content", () => {
       );
 
       // TODO: refactor this
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
+      await fieldEditorPage.selectFieldType(SchemaFieldType.GeometryObject);
       await fieldEditorPage.displayNameInput.click();
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.click();

@@ -22,6 +22,7 @@ export type SchemaFieldType =
   | "Bool"
   | "Checkbox"
   | "Date"
+  | "Geometry"
   | "GeometryEditor"
   | "GeometryObject"
   | "Group"
@@ -84,6 +85,7 @@ export type GetGroupQuery = {
               | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate"; defaultValue: unknown }
+              | { __typename: "SchemaFieldGeometry"; defaultValue: unknown }
               | {
                   __typename: "SchemaFieldGeometryEditor";
                   defaultValue: unknown;
@@ -548,6 +550,22 @@ export const GetGroupDocument = {
                                                   value: "editorSupportedTypes",
                                                 },
                                                 name: { kind: "Name", value: "supportedTypes" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldGeometry" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "defaultValue" },
                                               },
                                             ],
                                           },

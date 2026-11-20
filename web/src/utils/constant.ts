@@ -32,10 +32,12 @@ export abstract class Constant {
     IGNORE_FIELD_TYPES_JSON: IGNORE_FIELD_TYPES_COMMON,
     IGNORE_FIELD_TYPES_GEO_JSON: new Set<SchemaFieldType>([
       ...Array.from(IGNORE_FIELD_TYPES_COMMON),
+      SchemaFieldType.Geometry,
       SchemaFieldType.GeometryObject,
     ]),
     IGNORE_FIELD_TYPES_GEO_CSV: new Set<SchemaFieldType>([
       ...Array.from(IGNORE_FIELD_TYPES_COMMON),
+      SchemaFieldType.Geometry,
       SchemaFieldType.GeometryObject,
     ]),
 
@@ -60,6 +62,11 @@ export abstract class Constant {
     IMPORT_CONTENT_JSON: "/templates/import-content-template.json",
     IMPORT_CONTENT_GEO_JSON: "/templates/import-content-template.geojson",
     IMPORT_SCHEMA_JSON: "/templates/import-schema-template.json",
+  };
+
+  public static readonly LOCAL_STORAGE_KEY = {
+    // Both geometry editors read it, so "Do not show this again" applies to either.
+    DISABLE_GEOMETRY_WARNING: "disableGeometryWarning",
   };
 
   public static readonly IS_DEV: boolean =

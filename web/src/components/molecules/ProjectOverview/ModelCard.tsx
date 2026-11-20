@@ -62,14 +62,15 @@ const ModelCard: React.FC<Props> = ({
     [model.schema.fields],
   );
 
-  const getGeometryFieldsCount = useMemo(
+  // TODO: count Geometry fields once the server's GeoJSON export supports them (follow-up to #2059).
+  const getGeometryFieldsCount = useMemo<number>(
     () =>
-      model.schema?.fields?.filter(
+      model.schema.fields.filter(
         field =>
           field.type === SchemaFieldType.GeometryEditor ||
           field.type === SchemaFieldType.GeometryObject,
-      ).length ?? 0,
-    [model.schema?.fields],
+      ).length,
+    [model.schema.fields],
   );
 
   const getImportSchemaUIMetadata = useMemo(

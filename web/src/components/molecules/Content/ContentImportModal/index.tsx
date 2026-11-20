@@ -21,6 +21,7 @@ import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
+import { GeoUtils } from "@reearth-cms/utils/geoUtils";
 import type { ImportContentItem, ValidationErrorMeta } from "@reearth-cms/utils/importContent";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
@@ -275,7 +276,7 @@ const ContentImportModal: React.FC<Props> = ({
           }
 
           case "geojson": {
-            const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
+            const geoJSONValidation = await GeoUtils.validateGeoJson(content);
 
             if (!geoJSONValidation.isValid) {
               raiseIllegalFileAlert();

@@ -1,5 +1,5 @@
 // e2e/pages/field-editor.page.ts
-import type { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import type { Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/data";
 
@@ -234,6 +234,24 @@ export class FieldEditorPage extends BasePage {
   // Field type selection
   fieldTypeButton(fileType: SchemaFieldType): Locator {
     return this.getByTestId(Test.getDataTestIdFromSchemaFieldType(fileType));
+  }
+
+  get deprecatedFieldContinueButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__DeprecatedFieldPopConfirm__ContinueButton);
+  }
+
+  async selectFieldType(fieldType: SchemaFieldType): Promise<void> {
+    await this.fieldTypeButton(fieldType).click();
+
+    switch (fieldType) {
+      case SchemaFieldType.GeometryObject:
+      case SchemaFieldType.GeometryEditor:
+        await this.deprecatedFieldContinueButton.click();
+        break;
+
+      default:
+        break;
+    }
   }
 
   // Boolean field specific
@@ -480,7 +498,7 @@ export class FieldEditorPage extends BasePage {
     required?: boolean,
     unique?: boolean,
   ): Promise<void> {
-    await this.fieldTypeButton(fieldType).click();
+    await this.selectFieldType(fieldType);
     await this.displayNameInput.fill(displayName);
     await this.settingsKeyInput.fill(key || displayName);
 
