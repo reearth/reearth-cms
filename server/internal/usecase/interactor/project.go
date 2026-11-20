@@ -393,14 +393,14 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 				return err
 			}
 			if count > 0 {
-				return interfaces.ErrProjectNotEmpty
+				return interfaces.ErrProjectHasModels
 			}
 			groups, err := i.repos.Group.FindByProject(ctx, projectID)
 			if err != nil {
 				return err
 			}
 			if len(groups) > 0 {
-				return interfaces.ErrProjectNotEmpty
+				return interfaces.ErrProjectHasGroups
 			}
 			return i.repos.Project.Remove(ctx, projectID)
 		})

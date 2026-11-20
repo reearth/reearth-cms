@@ -650,13 +650,13 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 			name:      "project with models cannot be deleted",
 			user:      uId.String(),
 			projectId: pid.String(),
-			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models or groups"),
+			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models"),
 		},
 		{
 			name:      "project with only groups cannot be deleted",
 			user:      uId.String(),
 			projectId: groupOnlyPid.String(),
-			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models or groups"),
+			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has groups"),
 		},
 		{
 			name:      "workspace member with write permission can delete project",

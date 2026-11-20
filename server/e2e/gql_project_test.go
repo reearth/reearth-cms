@@ -486,14 +486,17 @@ func projectNode(e *httpexpect.Expect, pID string) *httpexpect.Value {
 
 func TestDeleteProject(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	const errNotEmpty = "can't delete a project as it still has models or groups"
+	const (
+		errHasModels = "can't delete a project as it still has models"
+		errHasGroups = "can't delete a project as it still has groups"
+	)
 
 	t.Run("project with models is not deleted", func(t *testing.T) {
 		pID, _ := createProject(e, wId.String(), "with-model", "", "del-with-model")
 		createModel(e, pID, "m", "", "m-key")
 
 		res := deleteProject(e, pID)
-		res.Path("$.errors").Array().Value(0).Object().Value("message").IsEqual(errNotEmpty)
+		res.Path("$.errors").Array().Value(0).Object().Value("message").IsEqual(errHasModels)
 		projectNode(e, pID).Object().HasValue("id", pID)
 	})
 
@@ -502,7 +505,7 @@ func TestDeleteProject(t *testing.T) {
 		createGroup(e, pID, "g", "", "g-key")
 
 		res := deleteProject(e, pID)
-		res.Path("$.errors").Array().Value(0).Object().Value("message").IsEqual(errNotEmpty)
+		res.Path("$.errors").Array().Value(0).Object().Value("message").IsEqual(errHasGroups)
 		projectNode(e, pID).Object().HasValue("id", pID)
 	})
 

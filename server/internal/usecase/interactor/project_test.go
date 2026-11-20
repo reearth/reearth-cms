@@ -1329,7 +1329,7 @@ func TestProject_Delete(t *testing.T) {
 				id:       pid1,
 				operator: opOwner,
 			},
-			wantErr:  interfaces.ErrProjectNotEmpty,
+			wantErr:  interfaces.ErrProjectHasModels,
 			wantKept: true,
 		},
 		{
@@ -1340,7 +1340,7 @@ func TestProject_Delete(t *testing.T) {
 				id:       pid1,
 				operator: opOwner,
 			},
-			wantErr:  interfaces.ErrProjectNotEmpty,
+			wantErr:  interfaces.ErrProjectHasGroups,
 			wantKept: true,
 		},
 		{
@@ -1352,7 +1352,7 @@ func TestProject_Delete(t *testing.T) {
 				id:       pid1,
 				operator: opOwner,
 			},
-			wantErr:  interfaces.ErrProjectNotEmpty,
+			wantErr:  interfaces.ErrProjectHasModels,
 			wantKept: true,
 		},
 		{

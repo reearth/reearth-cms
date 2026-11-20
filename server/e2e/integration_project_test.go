@@ -193,46 +193,6 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 
 // DELETE /{workspaceId}/projects/{projectId}
 func TestIntegrationProjectDeleteAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	// First, create a project to delete
-	createRes := iAPIProjectCreate(e, wId0).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]any{
-			"name":  "Temp Project",
-			"alias": "to-delete",
-		}).
-		Expect().
-		Status(http.StatusCreated).
-		JSON().
-		Object()
-
-	projectIDToDelete := createRes.Value("id").String().Raw()
-
-	// Unauthorized
-	iAPIProjectDelete(e, wId0, id.MustProjectID(projectIDToDelete)).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	// Authorized delete
-	del := iAPIProjectDelete(e, wId0, id.MustProjectID(projectIDToDelete)).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-
-	del.HasValue("id", projectIDToDelete)
-
-	// Verify the project is deleted
-	iAPIProjectGet(e, wId0, id.MustProjectID(projectIDToDelete)).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-}
-
-// DELETE /{workspaceId}/projects/{projectId} depending on the project data
-func TestIntegrationProjectDeleteByDataAPI(t *testing.T) {
 	emptyPid := id.NewProjectID()
 	groupOnlyPid := id.NewProjectID()
 	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
@@ -249,22 +209,30 @@ func TestIntegrationProjectDeleteByDataAPI(t *testing.T) {
 	}
 	e := StartServer(t, &app.Config{}, true, seeder)
 
+	// Unauthorized
+	iAPIProjectDelete(e, wId0, emptyPid).
+		Expect().
+		Status(http.StatusUnauthorized)
+
 	tests := []struct {
 		name          string
 		projectID     id.ProjectID
 		wantStatus    int
+		wantError     string
 		wantGetStatus int
 	}{
 		{
 			name:          "project with models is not deleted",
 			projectID:     pid,
 			wantStatus:    http.StatusBadRequest,
+			wantError:     "can't delete a project as it still has models",
 			wantGetStatus: http.StatusOK,
 		},
 		{
 			name:          "project with only groups is not deleted",
 			projectID:     groupOnlyPid,
 			wantStatus:    http.StatusBadRequest,
+			wantError:     "can't delete a project as it still has groups",
 			wantGetStatus: http.StatusOK,
 		},
 		{
@@ -277,10 +245,13 @@ func TestIntegrationProjectDeleteByDataAPI(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			iAPIProjectDelete(e, wId0, tc.projectID).
+			res := iAPIProjectDelete(e, wId0, tc.projectID).
 				WithHeader("authorization", "Bearer "+secret).
 				Expect().
 				Status(tc.wantStatus)
+			if tc.wantError != "" {
+				res.JSON().Object().HasValue("error", tc.wantError)
+			}
 
 			iAPIProjectGet(e, wId0, tc.projectID).
 				WithHeader("authorization", "Bearer "+secret).
