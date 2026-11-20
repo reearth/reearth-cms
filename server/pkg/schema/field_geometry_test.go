@@ -50,9 +50,10 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "missing type", input: `{"coordinates":[1,1]}`, want: ErrGeometryInvalidType},
 		{name: "unknown type", input: `{"type":"Circle","coordinates":[1,1]}`, want: ErrGeometryInvalidType},
 		{name: "feature is not a geometry", input: `{"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]}}`, want: ErrGeometryInvalidType},
-		{name: "foreign members are removed before validation", input: `{"type":"Point","coordinates":[1,1],"name":"a"}`},
-		{name: "foreign members of a member are removed before validation", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,1],"properties":{}}]}`},
-		{name: "geometries in a point are removed before validation", input: `{"type":"Point","coordinates":[1,1],"geometries":[]}`},
+		{name: "unknown property", input: `{"type":"Point","coordinates":[1,1],"name":"a"}`, want: ErrGeometryUnknownProperty},
+		{name: "unknown property in a member", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,1],"properties":{}}]}`, want: ErrGeometryUnknownProperty},
+		{name: "geometries in a point", input: `{"type":"Point","coordinates":[1,1],"geometries":[]}`, want: ErrGeometryUnknownProperty},
+		{name: "coordinates in a geometry collection", input: `{"type":"GeometryCollection","geometries":[],"coordinates":[]}`, want: ErrGeometryUnknownProperty},
 		{name: "missing coordinates", input: `{"type":"Point"}`, want: ErrGeometryInvalidCoordinates},
 		{name: "missing geometries", input: `{"type":"GeometryCollection"}`, want: ErrGeometryInvalidGeometries},
 		{name: "geometries is not a list", input: `{"type":"GeometryCollection","geometries":{}}`, want: ErrGeometryInvalidGeometries},
@@ -90,7 +91,6 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "empty multi polygon", input: `{"type":"MultiPolygon","coordinates":[]}`, want: ErrGeometryEmpty},
 		{name: "multi polygon with a polygon without rings", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]],[]]}`, want: ErrGeometryEmpty},
 		{name: "empty geometry collection", input: `{"type":"GeometryCollection","geometries":[]}`, want: ErrGeometryEmpty},
-		{name: "geometry collection with only coordinates", input: `{"type":"GeometryCollection","geometries":[],"coordinates":[]}`, want: ErrGeometryEmpty},
 		{name: "empty member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[]}]}`, want: ErrGeometryEmpty},
 		{name: "invalid member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[1,1]]}]}`, want: ErrGeometryLineStringTooShort},
 	}
@@ -141,12 +141,12 @@ func TestField_ValidateValue_Geometry(t *testing.T) {
 	t.Parallel()
 
 	f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-	errs := f.Validate(value.NewMultiple(value.TypeGeometry, []any{`{"type":"MultiPoint","coordinates":[]}`}))
+	errs := f.Validate(value.NewMultiple(value.TypeGeometry, []any{`{"type":"Point","coordinates":[1,1],"foo":1}`}))
 	if assert.Len(t, errs, 1) {
 		assert.Equal(t, f.ID().Ref(), errs[0].Field)
 		assert.Equal(t, f.Key().Ref(), errs[0].Key)
 		assert.Equal(t, FieldValidationCodeInvalidGeoStructure, errs[0].Code)
-		assert.ErrorIs(t, errs[0], ErrGeometryEmpty)
+		assert.ErrorIs(t, errs[0], ErrGeometryUnknownProperty)
 	}
 }
 
@@ -155,7 +155,7 @@ func TestGeometryErrors_InvalidGeoStructure(t *testing.T) {
 
 	f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	for _, err := range []error{
-		ErrGeometryInvalidType, ErrGeometryEmpty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
+		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryEmpty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
 		ErrGeometryInvalidPosition, ErrGeometryLongitudeOutOfRange, ErrGeometryLatitudeOutOfRange, ErrGeometryReversedCoordinates,
 		ErrGeometryLineStringTooShort, ErrGeometryRingTooShort, ErrGeometryRingNotClosed, ErrGeometryNestedCollection,
 	} {

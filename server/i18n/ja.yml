@@ -47,6 +47,7 @@ file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
 format is incompatible with export type: 形式がエクスポートタイプと互換性がありません
+geometry contains an unknown property: ジオメトリに不明なプロパティが含まれています。
 geometry coordinates are invalid: ジオメトリの座標が無効です。
 geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection: ジオメトリタイプはPoint、MultiPoint、LineString、MultiLineString、Polygon、MultiPolygon、GeometryCollectionのいずれかである必要があります。
 import file contains too many records (max 50,000): レコード数が上限（50,000件）を超えています
