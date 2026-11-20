@@ -2,20 +2,20 @@ FROM golang:1.27.3-alpine AS build
 
 RUN apk add --update --no-cache ca-certificates
 
-COPY go.work go.work.sum /app/
-COPY server/go.mod server/go.sum server/main.go /app/server/
+# Built from the repository root so the shared module is available.
+COPY shared/go.mod /app/shared/
 COPY worker/go.mod worker/go.sum worker/main.go /app/worker/
 
-WORKDIR /app
+WORKDIR /app/worker
 
 RUN go mod download
 
-COPY server/pkg/ /app/server/pkg/
+COPY shared/ /app/shared/
 COPY worker/cmd/ /app/worker/cmd/
 COPY worker/internal/ /app/worker/internal/
 COPY worker/pkg/ /app/worker/pkg/
 
-RUN CGO_ENABLED=0 go build -trimpath -o copier ./worker/cmd/copier
+RUN CGO_ENABLED=0 go build -trimpath -o /app/copier ./cmd/copier
 
 FROM scratch
 

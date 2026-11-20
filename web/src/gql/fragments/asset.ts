@@ -12,7 +12,6 @@ export const assetFragment = gql`
       ... on User {
         id
         name
-        email
       }
       ... on Integration {
         ...integrationFragment

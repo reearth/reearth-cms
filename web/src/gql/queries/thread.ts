@@ -24,7 +24,6 @@ export const CREATE_THREAD_WITH_COMMENT = gql`
             ... on User {
               id
               name
-              email
             }
             ... on Integration {
               id
