@@ -1490,12 +1490,39 @@ func TestAsset_BatchDelete(t *testing.T) {
 	a4 := asset.New().NewID().Project(proj.ID()).NewUUID().
 		CreatedByUser(uid).Size(1000).MustBuild()
 
+	otherUID := accountdomain.NewUserID()
+	th5 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
+	// an asset created by another user
+	a5 := asset.New().NewID().Project(proj.ID()).NewUUID().
+		CreatedByUser(otherUID).Size(1000).Thread(th5.ID().Ref()).MustBuild()
+
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:             &uid,
 			OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 		},
 		OwningProjects: []id.ProjectID{proj.ID()},
+	}
+	readerOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		ReadableProjects: []id.ProjectID{proj.ID()},
+	}
+	writerOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		WritableProjects: []id.ProjectID{proj.ID()},
+	}
+	maintainerOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:                   &uid,
+			MaintainableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		MaintainableProjects: []id.ProjectID{proj.ID()},
 	}
 
 	tests := []struct {
@@ -1531,6 +1558,48 @@ func TestAsset_BatchDelete(t *testing.T) {
 			wantAssetsKept:     id.AssetIDList{a3.ID()},
 			wantThreadsRemoved: id.ThreadIDList{th2.ID()},
 			wantThreadsKept:    id.ThreadIDList{th3.ID()},
+		},
+		{
+			name:               "writer deletes own assets",
+			seedsAsset:         asset.List{a1, a2},
+			seedsThread:        thread.List{th1, th2},
+			ids:                id.AssetIDList{a1.ID()},
+			operator:           writerOp,
+			wantAssetsRemoved:  id.AssetIDList{a1.ID()},
+			wantAssetsKept:     id.AssetIDList{a2.ID()},
+			wantThreadsRemoved: id.ThreadIDList{th1.ID()},
+			wantThreadsKept:    id.ThreadIDList{th2.ID()},
+		},
+		{
+			name:               "maintainer deletes another user's assets",
+			seedsAsset:         asset.List{a1, a5},
+			seedsThread:        thread.List{th1, th5},
+			ids:                id.AssetIDList{a5.ID()},
+			operator:           maintainerOp,
+			wantAssetsRemoved:  id.AssetIDList{a5.ID()},
+			wantAssetsKept:     id.AssetIDList{a1.ID()},
+			wantThreadsRemoved: id.ThreadIDList{th5.ID()},
+			wantThreadsKept:    id.ThreadIDList{th1.ID()},
+		},
+		{
+			name:            "reader cannot delete",
+			seedsAsset:      asset.List{a1, a2},
+			seedsThread:     thread.List{th1, th2},
+			ids:             id.AssetIDList{a1.ID(), a2.ID()},
+			operator:        readerOp,
+			wantErr:         interfaces.ErrOperationDenied,
+			wantAssetsKept:  id.AssetIDList{a1.ID(), a2.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th2.ID()},
+		},
+		{
+			name:            "writer cannot delete another user's assets",
+			seedsAsset:      asset.List{a1, a5},
+			seedsThread:     thread.List{th1, th5},
+			ids:             id.AssetIDList{a1.ID(), a5.ID()},
+			operator:        writerOp,
+			wantErr:         interfaces.ErrOperationDenied,
+			wantAssetsKept:  id.AssetIDList{a1.ID(), a5.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th5.ID()},
 		},
 		{
 			name:        "invalid operator",

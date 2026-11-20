@@ -1147,6 +1147,12 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 			return assetIDs, err
 		}
 
+		for _, a := range assets {
+			if a != nil && !operator.CanUpdate(a) {
+				return assetIDs, interfaces.ErrOperationDenied
+			}
+		}
+
 		uuids = lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
 			if a == nil || a.UUID() == "" || a.FileName() == "" {
 				return "", false
