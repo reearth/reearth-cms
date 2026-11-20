@@ -112,3 +112,49 @@ func TestList_Projects(t *testing.T) {
 		})
 	}
 }
+
+func TestList_Threads(t *testing.T) {
+	t.Parallel()
+
+	uid := accountdomain.NewUserID()
+	pid := NewProjectID()
+	th1 := NewThreadID()
+	th2 := NewThreadID()
+	a1 := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(th1.Ref()).NewUUID().MustBuild()
+	a2 := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(th2.Ref()).NewUUID().MustBuild()
+	noThread := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).NewUUID().MustBuild()
+
+	tests := []struct {
+		name string
+		list List
+		want id.ThreadIDList
+	}{
+		{
+			name: "nil list",
+			list: nil,
+			want: id.ThreadIDList{},
+		},
+		{
+			name: "empty list",
+			list: List{},
+			want: id.ThreadIDList{},
+		},
+		{
+			name: "assets with threads",
+			list: List{a1, a2},
+			want: id.ThreadIDList{th1, th2},
+		},
+		{
+			name: "nil entries and assets without a thread are skipped",
+			list: List{nil, a1, noThread, nil, a2},
+			want: id.ThreadIDList{th1, th2},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.list.Threads())
+		})
+	}
+}
