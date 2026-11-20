@@ -3,16 +3,24 @@ on:
   push:
     branches: [main, release]
   pull_request:
+permissions:
+  contents: read
+# Cancel superseded runs on PRs only. Pushes to main/release get a unique group
+# (run_id) so every commit still builds and deploys.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       web: ${{ steps.web.outputs.any_modified }}
       server: ${{ steps.server.outputs.any_modified }}
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -76,22 +84,31 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs:
       - ci-web
       - ci-server
       - ci-worker
-    if: '!failure()'
+    # Always run so this required check never silently passes: skipped is OK
+    # (component unchanged), failure or cancelled is not.
+    if: always()
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >+
+      - name: Check results
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One or more CI jobs failed or were cancelled: ${{ join(needs.*.result, ', ') }}"
+          exit 1
       - run: echo OK
 
   build-prepare:
     needs: prepare
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       build: ${{ steps.prepare.outputs.build }}
       sha_short: ${{ steps.prepare.outputs.sha_short }}
@@ -100,7 +117,7 @@ jobs:
       name: ${{ steps.prepare.outputs.name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -183,6 +200,7 @@ jobs:
   deploy-web-pr:
     needs: [build-web-pr, build-prepare]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       preview_url: ${{ steps.deploy.outputs.url }}
     permissions:
@@ -192,7 +210,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: reearth/actions/deploy-cloud-run-with-tag@a75bb60a59c8192805a55c3e0854c8298d8a2bcc # main

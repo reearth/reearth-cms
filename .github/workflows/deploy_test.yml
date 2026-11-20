@@ -38,16 +38,19 @@ on:
       REEARTH_WEB_E2E_PASSWORD:
         required: false
 
+permissions:
+  contents: read
 jobs:
   deploy_server:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'server')
     permissions:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -81,13 +84,14 @@ jobs:
 
   deploy_web:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'web')
     permissions:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -115,13 +119,14 @@ jobs:
 
   deploy_worker:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'worker')
     permissions:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
