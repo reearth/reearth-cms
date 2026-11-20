@@ -57,7 +57,7 @@ export const fromGraphQLIntegration = (integration: GQLIntegration): Integration
   id: integration.id,
   name: integration.name,
   description: integration.description,
-  logoUrl: integration.logoUrl,
+  logoUrl: integration.logoUrl ?? "",
   developerId: integration.developerId,
   developer: integration.developer,
   iType: integration.iType,
@@ -113,7 +113,6 @@ export const fromGraphQLMember = (member: WorkspaceMember): Member => {
         user: {
           id: (member as WorkspaceUserMember).user?.id ?? "",
           name: (member as WorkspaceUserMember).user?.name ?? "",
-          email: (member as WorkspaceUserMember).user?.email ?? "",
         },
       };
   }

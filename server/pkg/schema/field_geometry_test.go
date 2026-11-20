@@ -19,6 +19,10 @@ func TestNewGeometry(t *testing.T) {
 	assert.Equal(t, f, f.Clone())
 	assert.Nil(t, (*FieldGeometry)(nil).Clone())
 	assert.NoError(t, f.ValidateMultiple(nil))
+
+	sf := NewField(f.TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	assert.True(t, sf.IsGeometryField())
+	assert.True(t, sf.SupportsPointField())
 }
 
 func TestFieldGeometry_Validate(t *testing.T) {

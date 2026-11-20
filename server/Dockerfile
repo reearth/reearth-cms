@@ -5,17 +5,20 @@ ARG VERSION
 
 RUN apk add --update --no-cache git ca-certificates build-base mailcap
 
-COPY go.mod go.sum main.go /app/
-WORKDIR /app
+# Built from the repository root so the shared module is available.
+COPY shared/go.mod /app/shared/
+COPY server/go.mod server/go.sum server/main.go /app/server/
+WORKDIR /app/server
 RUN go mod download
 
-COPY cmd/ /app/cmd/
-COPY pkg/ /app/pkg/
-COPY internal/ /app/internal/
-COPY i18n/ /app/i18n/
+COPY shared/ /app/shared/
+COPY server/cmd/ /app/server/cmd/
+COPY server/pkg/ /app/server/pkg/
+COPY server/internal/ /app/server/internal/
+COPY server/i18n/ /app/server/i18n/
 
-RUN CGO_ENABLED=0 go build -tags "${TAG}" "-ldflags=-X main.version=${VERSION} -s -w -buildid=" -trimpath ./cmd/reearth-cms
-RUN CGO_ENABLED=0 go build "-ldflags=-s -w -buildid=" -trimpath ./cmd/db-migrations
+RUN CGO_ENABLED=0 go build -tags "${TAG}" "-ldflags=-X main.version=${VERSION} -s -w -buildid=" -trimpath -o /app/reearth-cms ./cmd/reearth-cms
+RUN CGO_ENABLED=0 go build "-ldflags=-s -w -buildid=" -trimpath -o /app/db-migrations ./cmd/db-migrations
 
 FROM scratch
 

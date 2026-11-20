@@ -46,7 +46,7 @@ func (f *Field) ItemGroup() *ItemGroupID {
 }
 
 func (f *Field) IsGeometryField() bool {
-	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
+	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor || f.Type() == value.TypeGeometry
 }
 
 func (f *Field) Clone() *Field {

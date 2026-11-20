@@ -10,7 +10,7 @@ describe("Integration wrapper", () => {
   const workspaceIntegrations = [
     {
       name: "name",
-      createdBy: { id: "", name: "creatorName", email: "" },
+      createdBy: { id: "", name: "creatorName" },
       role: "READER" as const,
     },
   ];

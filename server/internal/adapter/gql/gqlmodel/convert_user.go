@@ -16,10 +16,9 @@ func SimpleToUser(u *user.Simple) *User {
 	}
 
 	return &User{
-		ID:    IDFrom(u.ID),
-		Name:  u.Name,
-		Email: u.Email,
-		Host:  lo.EmptyableToPtr(u.Host),
+		ID:   IDFrom(u.ID),
+		Name: u.Name,
+		Host: lo.EmptyableToPtr(u.Host),
 	}
 }
 
@@ -29,10 +28,9 @@ func ToUser(u *user.User) *User {
 	}
 
 	return &User{
-		ID:    IDFrom(u.ID()),
-		Name:  u.Name(),
-		Email: u.Email(),
-		Host:  lo.EmptyableToPtr(u.Host()),
+		ID:   IDFrom(u.ID()),
+		Name: u.Name(),
+		Host: lo.EmptyableToPtr(u.Host()),
 	}
 }
 

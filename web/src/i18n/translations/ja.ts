@@ -179,7 +179,6 @@ export default {
   "each defaultValue item should be less than maximum": "各デフォルト値はmaximum以下である必要があります",
   "each defaultValue item should be less than maxLength": "各デフォルト値はmaxLength以下である必要があります",
   "Edit": "編集",
-  "Email": "メールアドレス",
   "Email address or user name": "Emailアドレスもしくはユーザー名",
   "Empty content cannot be exported": "コンテンツがないためエクスポートできません",
   "Empty Schema design.": "スキーマが未設定です。",

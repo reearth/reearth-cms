@@ -13,7 +13,7 @@ describe("Member role modal", () => {
   const member: UserMember = {
     userId: "userId",
     role: "OWNER",
-    user: { id: "id1", name: "name1", email: "email1@test.com" },
+    user: { id: "id1", name: "name1" },
   };
   const loading = false;
   const onClose = () => {

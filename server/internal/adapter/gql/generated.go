@@ -945,10 +945,9 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Email func(childComplexity int) int
-		Host  func(childComplexity int) int
-		ID    func(childComplexity int) int
-		Name  func(childComplexity int) int
+		Host func(childComplexity int) int
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	VersionedItem struct {
@@ -4832,12 +4831,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.UrlResourceProps.URL(childComplexity), true
 
-	case "User.email":
-		if e.ComplexityRoot.User.Email == nil {
-			break
-		}
-
-		return e.ComplexityRoot.User.Email(childComplexity), true
 	case "User.host":
 		if e.ComplexityRoot.User.Host == nil {
 			break
@@ -7345,7 +7338,6 @@ extend type Mutation {
 	{Name: "../../../schemas/gql/user.graphql", Input: `type User implements Node {
   id: ID!
   name: String!
-  email: String!
   host: String
 }
 
@@ -8930,8 +8922,6 @@ func (ec *executionContext) childFields_User(ctx context.Context, field graphql.
 		return ec.fieldContext_User_id(ctx, field)
 	case "name":
 		return ec.fieldContext_User_name(ctx, field)
-	case "email":
-		return ec.fieldContext_User_email(ctx, field)
 	case "host":
 		return ec.fieldContext_User_host(ctx, field)
 	}
@@ -25359,29 +25349,6 @@ func (ec *executionContext) fieldContext_User_name(_ context.Context, field grap
 	return graphql.NewScalarFieldContext("User", field, false, false, "String")
 }
 
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_User_email(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Email, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_User_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("User", field, false, false, "String")
-}
-
 func (ec *executionContext) _User_host(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -41633,11 +41600,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "name":
 			out.Values[i] = ec._User_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "email":
-			out.Values[i] = ec._User_email(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
