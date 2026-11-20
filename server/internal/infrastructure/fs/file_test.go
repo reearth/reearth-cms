@@ -106,8 +106,8 @@ func TestFile_UploadAsset(t *testing.T) {
 }
 
 func TestFile_DeleteAsset(t *testing.T) {
-	u := newUUID()
-	n := "aaa.txt"
+	u := "5130c89f-8f67-4766-b127-49ee6796d464"
+	n := "xxx.txt"
 	fs := mockFs()
 	f, _ := NewFile(fs, "https://example.com/assets", false)
 	err := f.DeleteAsset(context.Background(), u, n)
@@ -115,6 +115,12 @@ func TestFile_DeleteAsset(t *testing.T) {
 
 	_, err = fs.Stat(getFSObjectPath(u, n))
 	assert.ErrorIs(t, err, os.ErrNotExist)
+	// files extracted from an archive live in the same asset folder
+	_, err = fs.Stat(getFSObjectPath(u, filepath.Join("yyy", "hello.txt")))
+	assert.ErrorIs(t, err, os.ErrNotExist)
+	// other files are kept
+	_, err = fs.Stat(filepath.Join("plugins", "aaa~1.0.0", "foo.js"))
+	assert.NoError(t, err)
 
 	u1 := ""
 	n1 := ""
