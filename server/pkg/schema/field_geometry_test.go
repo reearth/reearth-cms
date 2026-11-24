@@ -45,6 +45,14 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "multi polygon", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]]]}`},
 		{name: "geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,1]},{"type":"LineString","coordinates":[[1,1],[2,2]]}]}`},
 
+		// empty geometries are accepted, like the web editor
+		{name: "empty multi point", input: `{"type":"MultiPoint","coordinates":[]}`},
+		{name: "empty multi line string", input: `{"type":"MultiLineString","coordinates":[]}`},
+		{name: "polygon without rings", input: `{"type":"Polygon","coordinates":[]}`},
+		{name: "empty multi polygon", input: `{"type":"MultiPolygon","coordinates":[]}`},
+		{name: "multi polygon with a polygon without rings", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]],[]]}`},
+		{name: "empty geometry collection", input: `{"type":"GeometryCollection","geometries":[]}`},
+		{name: "empty member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[]}]}`},
 		// valid bbox
 		{name: "bbox of a point", input: `{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}`},
 		{name: "bbox of a polygon", input: `{"type":"Polygon","bbox":[0,0,1,1],"coordinates":[[[0,0],[1,0],[1,1],[0,0]]]}`},
@@ -112,13 +120,6 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "ring closed with a different altitude", input: `{"type":"Polygon","coordinates":[[[0,0,1],[1,0],[1,1],[0,0]]]}`, want: ErrGeometryRingNotClosed},
 		{name: "hole not closed", input: `{"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,0]],[[1,1],[2,1],[2,2],[1,2]]]}`, want: ErrGeometryRingNotClosed},
 		{name: "multi polygon with an invalid ring", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[0,0]]]]}`, want: ErrGeometryRingTooShort},
-		{name: "empty multi point", input: `{"type":"MultiPoint","coordinates":[]}`, want: ErrGeometryEmpty},
-		{name: "empty multi line string", input: `{"type":"MultiLineString","coordinates":[]}`, want: ErrGeometryEmpty},
-		{name: "polygon without rings", input: `{"type":"Polygon","coordinates":[]}`, want: ErrGeometryEmpty},
-		{name: "empty multi polygon", input: `{"type":"MultiPolygon","coordinates":[]}`, want: ErrGeometryEmpty},
-		{name: "multi polygon with a polygon without rings", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]],[]]}`, want: ErrGeometryEmpty},
-		{name: "empty geometry collection", input: `{"type":"GeometryCollection","geometries":[]}`, want: ErrGeometryEmpty},
-		{name: "empty member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[]}]}`, want: ErrGeometryEmpty},
 		{name: "invalid member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[1,1]]}]}`, want: ErrGeometryLineStringTooShort},
 	}
 
@@ -182,7 +183,7 @@ func TestGeometryErrors_InvalidGeoStructure(t *testing.T) {
 
 	f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	for _, err := range []error{
-		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryEmpty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
+		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
 		ErrGeometryInvalidPosition, ErrGeometryLongitudeOutOfRange, ErrGeometryLatitudeOutOfRange, ErrGeometryReversedCoordinates,
 		ErrGeometryLineStringTooShort, ErrGeometryRingTooShort, ErrGeometryRingNotClosed, ErrGeometryNestedCollection,
 		ErrGeometryInvalidBBox, ErrGeometryBBoxOutOfRange,
@@ -227,4 +228,68 @@ func TestField_Geometry_BBoxIsStored(t *testing.T) {
 		assert.ErrorIs(t, err, ErrGeometryBBoxOutOfRange)
 		assert.Nil(t, f.DefaultValue())
 	})
+}
+
+func TestFieldGeometry_ValidateMultiple(t *testing.T) {
+	t.Parallel()
+
+	repeat := func(n int, v string) []any {
+		res := make([]any, n)
+		for i := range res {
+			res[i] = v
+		}
+		return res
+	}
+	multiPoint := func(positions int) string {
+		return `{"type":"MultiPoint","coordinates":[` + strings.TrimSuffix(strings.Repeat("[1,1],", positions), ",") + `]}`
+	}
+
+	tests := []struct {
+		name   string
+		values []any
+		want   error
+	}{
+		{name: "1,000 geometries", values: repeat(1_000, `{"type":"Point","coordinates":[1,1]}`)},
+		{name: "1,001 geometries", values: repeat(1_001, `{"type":"Point","coordinates":[1,1]}`), want: ErrGeometryTooManyGeometries},
+		{name: "100,000 coordinates", values: repeat(100, multiPoint(1_000))},
+		{name: "100,001 coordinates", values: append(repeat(100, multiPoint(1_000)), `{"type":"Point","coordinates":[1,1]}`), want: ErrGeometryTooManyCoordinates},
+		{
+			name:   "coordinates of every type are counted",
+			values: append(repeat(99, multiPoint(1_000)), `{"type":"GeometryCollection","geometries":[{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]]]},{"type":"Point","coordinates":[1,1]}]}`, multiPoint(996)),
+			want:   ErrGeometryTooManyCoordinates,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := NewGeometry().ValidateMultiple(value.NewMultiple(value.TypeGeometry, tt.values))
+			if tt.want == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorIs(t, err, tt.want)
+			}
+		})
+	}
+}
+
+func TestGeometryErrors_MaxSizeExceeded(t *testing.T) {
+	t.Parallel()
+
+	f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).Multiple(true).MustBuild()
+	for _, err := range []error{ErrGeometryTooManyGeometries, ErrGeometryTooManyCoordinates} {
+		assert.Equal(t, FieldValidationCodeMaxSizeExceeded, f.ValidationError(err, FieldValidationCodeConstraint).Code, err.Error())
+	}
+
+	errs := f.Validate(value.NewMultiple(value.TypeGeometry, func() []any {
+		res := make([]any, 1_001)
+		for i := range res {
+			res[i] = `{"type":"Point","coordinates":[1,1]}`
+		}
+		return res
+	}()))
+	if assert.Len(t, errs, 1) {
+		assert.Equal(t, FieldValidationCodeMaxSizeExceeded, errs[0].Code)
+		assert.ErrorIs(t, errs[0], ErrGeometryTooManyGeometries)
+	}
 }

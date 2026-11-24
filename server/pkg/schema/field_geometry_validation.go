@@ -32,12 +32,19 @@ var (
 	ErrGeometryRingTooShort        = rerror.WrapE(i18n.T("a polygon ring must have at least 4 positions"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryRingNotClosed       = rerror.WrapE(i18n.T("the first and last positions of a polygon ring must be equal"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryNestedCollection    = rerror.WrapE(i18n.T("a GeometryCollection must not contain another GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
-	ErrGeometryEmpty               = rerror.WrapE(i18n.T("a geometry must not be empty"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryTooManyGeometries   = rerror.WrapE(i18n.T("a Geometry field can have at most 1,000 geometries"), ErrGeoFieldMaxSizeExceeded)
+	ErrGeometryTooManyCoordinates  = rerror.WrapE(i18n.T("a Geometry field value can have at most 100,000 coordinates"), ErrGeoFieldMaxSizeExceeded)
 	ErrGeometryInvalidBBox         = rerror.WrapE(i18n.T("a bbox must be [west, south, east, north], with an optional altitude range"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryBBoxOutOfRange      = rerror.WrapE(i18n.T("a bbox must have longitudes between -180 and 180, latitudes between -90 and 90, and south and minimum altitude not greater than north and maximum altitude"), ErrGeoFieldInvalidGeoStructure)
 )
 
 const maxGeoFieldBytes = 10 * 1024
+
+// The limits of one Geometry field value. They match GeometryLimits in the web editor; change both together.
+const (
+	maxGeometriesPerValue = 1_000
+	maxPositionsPerValue  = 100_000
+)
 
 func validateGeoJSON(data string) (geojson.GeometryType, error) {
 	if !isValidGeoJSONLimits(data) {
@@ -274,17 +281,17 @@ func validateGeometryCoordinates(g *geojson.Geometry) error {
 	case geojson.GeometryPoint:
 		return validatePosition(g.Point)
 	case geojson.GeometryMultiPoint:
-		return validateParts(g.MultiPoint, validatePosition)
+		return validateAll(g.MultiPoint, validatePosition)
 	case geojson.GeometryLineString:
 		return validateLineString(g.LineString)
 	case geojson.GeometryMultiLineString:
-		return validateParts(g.MultiLineString, validateLineString)
+		return validateAll(g.MultiLineString, validateLineString)
 	case geojson.GeometryPolygon:
 		return validatePolygon(g.Polygon)
 	case geojson.GeometryMultiPolygon:
-		return validateParts(g.MultiPolygon, validatePolygon)
+		return validateAll(g.MultiPolygon, validatePolygon)
 	case geojson.GeometryCollection:
-		return validateParts(g.Geometries, validateGeometryCoordinates)
+		return validateAll(g.Geometries, validateGeometryCoordinates)
 	}
 	return nil
 }
@@ -315,15 +322,7 @@ func validateLineString(l [][]float64) error {
 }
 
 func validatePolygon(rings [][][]float64) error {
-	return validateParts(rings, validateRing)
-}
-
-// validateParts validates the parts of a geometry, which must have at least one part.
-func validateParts[T any](parts []T, validate func(T) error) error {
-	if len(parts) == 0 {
-		return ErrGeometryEmpty
-	}
-	return validateAll(parts, validate)
+	return validateAll(rings, validateRing)
 }
 
 func validateRing(r [][]float64) error {
@@ -381,4 +380,38 @@ func validateBBox(raw any) error {
 		return ErrGeometryBBoxOutOfRange
 	}
 	return nil
+}
+
+// countGeometryPositions counts the positions of g, including those of the members of a GeometryCollection,
+// the same way as the web editor: lists that are not lists count as empty.
+func countGeometryPositions(g map[string]any) int {
+	lengthOf := func(v any) int {
+		l, _ := v.([]any)
+		return len(l)
+	}
+	sumOf := func(v any, count func(any) int) int {
+		l, _ := v.([]any)
+		total := 0
+		for _, e := range l {
+			total += count(e)
+		}
+		return total
+	}
+	c := g["coordinates"]
+	switch t, _ := g["type"].(string); geojson.GeometryType(t) {
+	case geojson.GeometryPoint:
+		return 1
+	case geojson.GeometryMultiPoint, geojson.GeometryLineString:
+		return lengthOf(c)
+	case geojson.GeometryMultiLineString, geojson.GeometryPolygon:
+		return sumOf(c, lengthOf)
+	case geojson.GeometryMultiPolygon:
+		return sumOf(c, func(p any) int { return sumOf(p, lengthOf) })
+	case geojson.GeometryCollection:
+		return sumOf(g["geometries"], func(m any) int {
+			mg, _ := m.(map[string]any)
+			return countGeometryPositions(mg)
+		})
+	}
+	return 0
 }

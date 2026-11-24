@@ -5,12 +5,13 @@ File is missing: ファイルがありません
 Geo field max size exceeded: ジオメトリフィールドの最大サイズを超えています。
 Options could not be empty!: 選択フィールドは空にできません
 URL field max length exceeded: URLフィールドの最大文字数を超えています。
+a Geometry field can have at most 1,000 geometries: Geometryフィールドに入れられるジオメトリは最大1,000個です。
+a Geometry field value can have at most 100,000 coordinates: Geometryフィールドの値に入れられる座標は最大100,000個です。
 a GeometryCollection must have a list of geometries: GeometryCollectionにはジオメトリのリストが必要です。
 a GeometryCollection must not contain another GeometryCollection: GeometryCollectionの中に別のGeometryCollectionを含めることはできません。
 a LineString must have at least 2 positions: LineStringには少なくとも2つの座標が必要です。
 a bbox must be [west, south, east, north], with an optional altitude range: bboxは[西, 南, 東, 北]の形式である必要があり、高度の範囲を含めることもできます。
 a bbox must have longitudes between -180 and 180, latitudes between -90 and 90, and south and minimum altitude not greater than north and maximum altitude: bboxの経度は-180から180、緯度は-90から90の範囲である必要があり、南端と最小高度は北端と最大高度以下である必要があります。
-a geometry must not be empty: 空のジオメトリは指定できません。
 a polygon ring must have at least 4 positions: ポリゴンのリングには少なくとも4つの座標が必要です。
 "a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude": 座標は経度、緯度、任意の高度からなる2つまたは3つの有限の数値である必要があります。
 already locked: 既にロック済みです。

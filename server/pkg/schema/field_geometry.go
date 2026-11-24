@@ -39,6 +39,19 @@ func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 	return
 }
 
-func (f *FieldGeometry) ValidateMultiple(_ *value.Multiple) error {
+// ValidateMultiple checks the limits of the whole field value: the number of geometries and of positions.
+func (f *FieldGeometry) ValidateMultiple(m *value.Multiple) error {
+	if m.Len() > maxGeometriesPerValue {
+		return ErrGeometryTooManyGeometries
+	}
+	positions := 0
+	for _, v := range m.Values() {
+		if g, ok := v.ValueJson(); ok {
+			positions += countGeometryPositions(g)
+		}
+	}
+	if positions > maxPositionsPerValue {
+		return ErrGeometryTooManyCoordinates
+	}
 	return nil
 }
