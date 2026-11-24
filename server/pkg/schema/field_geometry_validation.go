@@ -41,6 +41,11 @@ var (
 
 const maxGeoFieldBytes = 10 * 1024
 
+// bboxTolerance is how far, in degrees (or altitude units), a position may be outside its bbox.
+// The web editor rounds coordinates to 7 decimals but keeps a written bbox as it is, so a position may move this far outside it.
+// It matches BBOX_TOLERANCE in the web editor's validation; change both together.
+const bboxTolerance = 1e-7
+
 func validateGeoJSON(data string) (geojson.GeometryType, error) {
 	if !isValidGeoJSONLimits(data) {
 		return "", ErrGeoFieldMaxSizeExceeded
@@ -371,6 +376,7 @@ func validateGeometryBBoxes(g map[string]any, gg *geojson.Geometry) error {
 // validateBBox validates a bbox: [west, south, east, north], or [west, south, min altitude, east, north, max altitude].
 // It has 4 numbers when no position has an altitude, 6 when every position has one, and either when only some have one.
 // West may be greater than east when the bbox crosses the antimeridian (RFC 7946 §5.2).
+// A position may be up to bboxTolerance outside the bbox.
 func validateBBox(raw any, positions [][]float64) error {
 	bbox, ok := toPosition(raw)
 	if !ok {
@@ -391,14 +397,16 @@ func validateBBox(raw any, positions [][]float64) error {
 		return ErrGeometryBBoxOutOfRange
 	}
 
+	const tol = bboxTolerance
 	crossesAntimeridian := west > east
 	for _, p := range positions {
 		lng, lat := p[0], p[1]
-		inLng := lng >= west && lng <= east
+		inLng := lng >= west-tol && lng <= east+tol
 		if crossesAntimeridian {
-			inLng = lng >= west || lng <= east
+			inLng = lng >= west-tol || lng <= east+tol
 		}
-		if !inLng || lat < south || lat > north || n == 3 && len(p) == 3 && (p[2] < bbox[2] || p[2] > bbox[5]) {
+		inAltitude := n == 2 || len(p) == 2 || p[2] >= bbox[2]-tol && p[2] <= bbox[5]+tol
+		if !inLng || lat < south-tol || lat > north+tol || !inAltitude {
 			return ErrGeometryBBoxNotContaining
 		}
 	}
