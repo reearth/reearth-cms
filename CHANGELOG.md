@@ -2,6 +2,87 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.0 - 2026-11-24
+
+### server
+
+#### chore
+
+- Drop redundant auth check in UserSearch to align release with main [`b3be16`](https://github.com/reearth/reearth-cms/commit/b3be16)
+- Local dev setup with Dex and cleaned-up env examples ([#2087](https://github.com/reearth/reearth-cms/pull/2087)) [`395458`](https://github.com/reearth/reearth-cms/commit/395458)
+
+#### ci
+
+- Check oapi generation ([#2095](https://github.com/reearth/reearth-cms/pull/2095)) [`e1fc58`](https://github.com/reearth/reearth-cms/commit/e1fc58)
+
+#### feat
+
+- Add item unpublish endpoint to the integration API ([#2082](https://github.com/reearth/reearth-cms/pull/2082)) [`5750a4`](https://github.com/reearth/reearth-cms/commit/5750a4)
+- Support the Geometry field in export and import ([#2078](https://github.com/reearth/reearth-cms/pull/2078)) [`c37e02`](https://github.com/reearth/reearth-cms/commit/c37e02)
+- Add validation and uniqueness for the Geometry field ([#2077](https://github.com/reearth/reearth-cms/pull/2077)) [`4400cb`](https://github.com/reearth/reearth-cms/commit/4400cb)
+- Add unified Geometry field type ([#2059](https://github.com/reearth/reearth-cms/pull/2059)) [`003682`](https://github.com/reearth/reearth-cms/commit/003682)
+
+#### fix
+
+- Remove unused rerror [`d98f2a`](https://github.com/reearth/reearth-cms/commit/d98f2a)
+- Remove unwonted space added by the IDE ([#2111](https://github.com/reearth/reearth-cms/pull/2111)) [`d455ec`](https://github.com/reearth/reearth-cms/commit/d455ec)
+- Reject project and workspace deletion while they still h… ([#2099](https://github.com/reearth/reearth-cms/pull/2099)) [`e0815e`](https://github.com/reearth/reearth-cms/commit/e0815e)
+- Skip unchanged items when publishing and unpublishing ([#2081](https://github.com/reearth/reearth-cms/pull/2081)) [`7ced7f`](https://github.com/reearth/reearth-cms/commit/7ced7f)
+- Require a signed-in user on the GraphQL endpoint ([#2086](https://github.com/reearth/reearth-cms/pull/2086)) [`b87ede`](https://github.com/reearth/reearth-cms/commit/b87ede)
+- Return updated refs from Item.Unpublish ([#2080](https://github.com/reearth/reearth-cms/pull/2080)) [`530258`](https://github.com/reearth/reearth-cms/commit/530258)
+- Fix view model index, empty token and item lookups, and clean up request repo ([#2071](https://github.com/reearth/reearth-cms/pull/2071)) [`fae94d`](https://github.com/reearth/reearth-cms/commit/fae94d)
+
+#### refactor
+
+- Keep Go-specific x-go-type out of the integration API spec ([#2092](https://github.com/reearth/reearth-cms/pull/2092)) [`5ea071`](https://github.com/reearth/reearth-cms/commit/5ea071)
+
+#### test
+
+- Use OS-assigned port for internal gRPC e2e server to fix flaky bind errors ([#2096](https://github.com/reearth/reearth-cms/pull/2096)) [`141d6b`](https://github.com/reearth/reearth-cms/commit/141d6b)
+- E2e coverage for GeoJSON export with nested group geometry ([#2049](https://github.com/reearth/reearth-cms/pull/2049)) [`daeacb`](https://github.com/reearth/reearth-cms/commit/daeacb)
+
+### web
+
+#### chore
+
+- Make Dex the default local auth in .env.example ([#2089](https://github.com/reearth/reearth-cms/pull/2089)) [`863d89`](https://github.com/reearth/reearth-cms/commit/863d89)
+
+#### ci
+
+- Bump validate-nginx-config to fix envsubst on Ubuntu 26 runners ([#2088](https://github.com/reearth/reearth-cms/pull/2088)) [`ca241f`](https://github.com/reearth/reearth-cms/commit/ca241f)
+
+#### feat
+
+- Support login with any OpenID Connect provider ([#2079](https://github.com/reearth/reearth-cms/pull/2079)) [`8deee2`](https://github.com/reearth/reearth-cms/commit/8deee2)
+
+#### fix
+
+- Fix flaky tests ([#2097](https://github.com/reearth/reearth-cms/pull/2097)) [`aa1aa8`](https://github.com/reearth/reearth-cms/commit/aa1aa8)
+- Regenerate gql types and drop the integration logo placeholder ([#2103](https://github.com/reearth/reearth-cms/pull/2103)) [`d2c544`](https://github.com/reearth/reearth-cms/commit/d2c544)
+
+### worker
+
+#### feat
+
+- Make CMS DB name configurable ([#2074](https://github.com/reearth/reearth-cms/pull/2074)) [`632679`](https://github.com/reearth/reearth-cms/commit/632679)
+
+### 
+
+#### chore
+
+- Update go dependencies ([#2109](https://github.com/reearth/reearth-cms/pull/2109)) [`0892ff`](https://github.com/reearth/reearth-cms/commit/0892ff)
+- Update go toolchain to v1.27.3 ([#2056](https://github.com/reearth/reearth-cms/pull/2056)) [`a5dff5`](https://github.com/reearth/reearth-cms/commit/a5dff5)
+- Take the go.mod Go version from the golang Docker image tags ([#2090](https://github.com/reearth/reearth-cms/pull/2090)) [`fd4527`](https://github.com/reearth/reearth-cms/commit/fd4527)
+- Update go dependencies ([#2057](https://github.com/reearth/reearth-cms/pull/2057)) [`7db07d`](https://github.com/reearth/reearth-cms/commit/7db07d)
+
+#### fix
+
+- Remove other users&[#39](https://github.com/reearth/reearth-cms/pull/39); emails from the GraphQL API and UI ([#2084](https://github.com/reearth/reearth-cms/pull/2084)) [`7c04e1`](https://github.com/reearth/reearth-cms/commit/7c04e1)
+
+#### refactor
+
+- Share the copy task types through a shared module and drop go.work ([#2091](https://github.com/reearth/reearth-cms/pull/2091)) [`e66842`](https://github.com/reearth/reearth-cms/commit/e66842)
+
 ## 0.1.0 - 2026-11-06
 
 ### asset

@@ -143,7 +143,8 @@ func TestGeometryUnification(t *testing.T) {
 	for _, f := range i1.Fields[1:] {
 		assert.Equal(t, "geometry", f.V.T)
 	}
-	assert.Equal(t, bson.A{sortedPoint}, i1.Fields[1].V.V, "bbox is removed and keys are sorted")
+	sortedPointWithBBox := bson.D{{Key: "bbox", Value: bson.A{139.7, 35.6, 139.7, 35.6}}, {Key: "coordinates", Value: bson.A{139.7, 35.6}}, {Key: "type", Value: "Point"}}
+	assert.Equal(t, bson.A{sortedPointWithBBox}, i1.Fields[1].V.V, "a valid bbox is kept and keys are sorted")
 	assert.Equal(t, bson.A{reversedPoint}, i1.Fields[2].V.V, "invalid values are converted")
 	assert.Equal(t, "group", *i1.Fields[2].ItemGroup, "other members of the field are kept")
 	assert.Equal(t, bson.A{sortedPoint}, i1.Fields[3].V.V, "existing Geometry values are sorted")
@@ -157,7 +158,7 @@ func TestGeometryUnification(t *testing.T) {
 	require.NoError(t, err)
 	g, ok := im.Field(id.MustFieldID(objID)).Value().First().ValueJson()
 	assert.True(t, ok)
-	assert.Equal(t, value.Json{"type": "Point", "coordinates": []any{139.7, 35.6}}, g)
+	assert.Equal(t, value.Json{"type": "Point", "bbox": []any{139.7, 35.6, 139.7, 35.6}, "coordinates": []any{139.7, 35.6}}, g)
 
 	// running again changes nothing
 	before := snapshot(t, ctx, db)

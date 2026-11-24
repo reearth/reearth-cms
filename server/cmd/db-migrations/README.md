@@ -34,7 +34,7 @@ go build ./cmd/db-migrations
 Converts Geometry Object and Geometry Editor fields into Geometry fields:
 
 - Field types become `geometry`, and their supported types are removed (Geometry accepts every geometry type).
-- Item values (every version) and default values stored as GeoJSON strings become GeoJSON objects. A `bbox` member is removed.
+- Item values (every version) and default values stored as GeoJSON strings become GeoJSON objects. A valid `bbox` member is kept; an invalid one is reported like any other invalid value.
 - Every Geometry value, including those of existing Geometry fields, is saved with sorted keys, so equal geometries are stored identically and unique fields find them.
 
 Nothing is rejected. The run reports, for the latest item versions and the default values:
