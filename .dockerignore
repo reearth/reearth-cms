@@ -1,0 +1,11 @@
+# The server and worker images are built from the repository root so they can
+# use the shared module. Send only what those builds need.
+*
+!shared/
+!server/
+!worker/
+**/.env
+**/.env.*
+server/data/
+server/mongo/
+server/web/

@@ -78,3 +78,42 @@ func Test_ToProjectPublicationScope(t *testing.T) {
 		assert.Equal(t, PUBLIC, ToProjectVisibility("SOMETHING_ELSE"))
 	})
 }
+
+func Test_ToAPIKey_Publication(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		publication *project.PublicationSettings
+		want        PublicationSettings
+	}{
+		{
+			name:        "with publication settings",
+			publication: project.NewPublicationSettings(nil, true),
+			want:        PublicationSettings{PublicAssets: true},
+		},
+		{
+			name:        "without publication settings",
+			publication: nil,
+			want:        PublicationSettings{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			key := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key").Publication(tt.publication).Build()
+
+			got := ToAPIKey(key)
+			if assert.NotNil(t, got) {
+				assert.Equal(t, tt.want, got.Publication)
+			}
+
+			acc := ToProjectAccessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil, project.APIKeys{key}))
+			if assert.Len(t, acc.ApiKeys, 1) {
+				assert.Equal(t, tt.want, acc.ApiKeys[0].Publication)
+			}
+		})
+	}
+}

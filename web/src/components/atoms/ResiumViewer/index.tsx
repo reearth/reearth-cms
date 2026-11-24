@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Cesium3DTileFeature, JulianDate, Entity } from "cesium";
+import type { Property as CesiumProperty } from "cesium";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CesiumMovementEvent, RootEventTarget } from "resium";
 import { Viewer } from "resium";
@@ -71,7 +72,9 @@ const ResiumViewer: React.FC<Props> = ({
         const entity = target.id;
         setTitle(entity.id);
         onSelect?.(entity.id);
-        setDescription(showDescription ? entity.description?.getValue(JulianDate.now()) : "");
+        // Cesium 1.146 mistypes Entity.description as string; at runtime it is still a Property
+        const description = entity.description as CesiumProperty | undefined;
+        setDescription(showDescription ? description?.getValue(JulianDate.now()) : "");
         props = entity.properties?.getValue(JulianDate.now());
       }
 

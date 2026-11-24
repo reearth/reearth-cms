@@ -19,6 +19,7 @@ type Config struct {
 	PubSub      PubSubConfig
 	GCP         GCPConfig `envconfig:"GCP"`
 	DB          string
+	DB_CMS      string `default:"reearth_cms"`
 	HealthCheck HealthCheckConfig
 }
 

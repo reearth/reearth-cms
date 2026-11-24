@@ -16,6 +16,13 @@ func (l List) Workspaces() accountdomain.WorkspaceIDList {
 	}))
 }
 
+func (l List) Clone() List {
+	if l == nil {
+		return nil
+	}
+	return lo.Map(l, func(r *Request, _ int) *Request { return r.Clone() })
+}
+
 func (l List) UpdateStatus(state State) {
 	for _, request := range l {
 		request.SetState(state)

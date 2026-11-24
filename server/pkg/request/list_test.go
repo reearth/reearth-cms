@@ -82,3 +82,35 @@ func TestList_Workspaces(t *testing.T) {
 		})
 	}
 }
+
+func TestList_Clone(t *testing.T) {
+	item, _ := NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	r := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).
+		CreatedBy(accountdomain.NewUserID()).Items(ItemList{item}).Title("title").MustBuild()
+
+	tests := []struct {
+		name string
+		list List
+	}{
+		{name: "must clone a list", list: List{r, nil}},
+		{name: "must clone an empty list", list: List{}},
+		{name: "must keep a nil list nil", list: nil},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.list, tc.list.Clone())
+			if tc.list != nil {
+				for i := range tc.list {
+					assert.Equal(t, tc.list[i], tc.list.Clone()[i])
+					if tc.list[i] != nil {
+						assert.NotSame(t, tc.list[i], tc.list.Clone()[i])
+					}
+				}
+			}
+
+		})
+	}
+}

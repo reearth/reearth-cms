@@ -5,6 +5,11 @@ File is missing: ファイルがありません
 Geo field max size exceeded: ジオメトリフィールドの最大サイズを超えています。
 Options could not be empty!: 選択フィールドは空にできません
 URL field max length exceeded: URLフィールドの最大文字数を超えています。
+a GeometryCollection must have a list of geometries: GeometryCollectionにはジオメトリのリストが必要です。
+a GeometryCollection must not contain another GeometryCollection: GeometryCollectionの中に別のGeometryCollectionを含めることはできません。
+a LineString must have at least 2 positions: LineStringには少なくとも2つの座標が必要です。
+a polygon ring must have at least 4 positions: ポリゴンのリングには少なくとも4つの座標が必要です。
+"a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude": 座標は経度、緯度、任意の高度からなる2つまたは3つの有限の数値である必要があります。
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
@@ -13,6 +18,9 @@ auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
 can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
+can't delete a project as it still has groups: まだグループが存在するため、プロジェクトを削除できません。
+can't delete a project as it still has models: まだモデルが存在するため、プロジェクトを削除できません。
+can't delete a workspace as it still has projects: まだプロジェクトが存在するため、ワークスペースを削除できません。
 can't update by approve: このメソッドで承認することはできません
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
@@ -41,6 +49,9 @@ file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
 format is incompatible with export type: 形式がエクスポートタイプと互換性がありません
+geometry contains an unknown property: ジオメトリに不明なプロパティが含まれています。
+geometry coordinates are invalid: ジオメトリの座標が無効です。
+geometry type must be one of Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon or GeometryCollection: ジオメトリタイプはPoint、MultiPoint、LineString、MultiLineString、Polygon、MultiPolygon、GeometryCollectionのいずれかである必要があります。
 import file contains too many records (max 50,000): レコード数が上限（50,000件）を超えています
 import file is too large (max 100MB): ファイルサイズが上限（100MB）を超えています
 internal: 内部
@@ -48,6 +59,7 @@ invalid Geo field structure: ジオメトリフィールドの構造が無効で
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
+invalid condition: 無効な条件です。
 invalid content type: 無効なコンテンツタイプです。
 invalid content type for schema conversion: スキーマ変換のための無効なコンテンツタイプです。
 invalid cursor: 無効なカーソルです。
@@ -65,6 +77,7 @@ invalid object: 無効なオブジェクトです。
 invalid operator: 無効なオペレーターです。
 invalid params: 無効なパラメーターです。
 invalid project: 無効なプロジェクトです。
+invalid resource: 無効なリソースです。
 invalid selected geometry field in this model: ""
 invalid smtp url: 無効なSMTP URLです。
 invalid type: 無効な型です。
@@ -79,6 +92,9 @@ items are required for export: ""
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 job not found: ジョブが見つかりません
+latitude must be between -90 and 90: 緯度は-90から90の範囲で指定してください。
+latitude must be between -90 and 90; longitude and latitude may be swapped: 緯度は-90から90の範囲で指定してください。経度と緯度が逆になっている可能性があります。
+longitude must be between -180 and 180: 経度は-180から180の範囲で指定してください。
 max must be larger then min: 最大値は最小値より大きい必要があります。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 metadata schema not found: メタデータのスキーマが見つかりません。
@@ -108,6 +124,7 @@ reference field model can not be changed: 参照フィールドのモデルは�
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
 schema is required for export: ""
+the first and last positions of a polygon ring must be equal: ポリゴンのリングの最初と最後の座標は同じである必要があります。
 the number of models in a project has exceeded the limit: プロジェクト内のモデル数が上限を超えています。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。

@@ -71,6 +71,8 @@ func Test_propertyGroup_Equal(t *testing.T) {
 	iid1 := id.NewItemGroupID()
 	iid2, _ := id.ItemGroupIDFrom(iid1.String())
 	assert.True(t, pr.Equal(iid1, iid2))
+	assert.False(t, pr.Equal(iid1, id.NewItemGroupID()))
+	assert.False(t, TypeGroup.Value(iid1).Equal(TypeGroup.Value(id.NewItemGroupID())))
 }
 
 func TestValue_ValueGroup(t *testing.T) {

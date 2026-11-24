@@ -130,3 +130,24 @@ func (r *Request) SetUpdatedAt(d time.Time) {
 func (r *Request) SetThread(thid id.ThreadID) {
 	r.thread = &thid
 }
+
+func (r *Request) Clone() *Request {
+	if r == nil {
+		return nil
+	}
+	return &Request{
+		id:          r.id.Clone(),
+		workspace:   r.workspace.Clone(),
+		project:     r.project.Clone(),
+		items:       r.items.Clone(),
+		title:       r.title,
+		description: r.description,
+		createdBy:   r.createdBy.Clone(),
+		reviewers:   r.reviewers.Clone(),
+		state:       r.state,
+		updatedAt:   r.updatedAt,
+		approvedAt:  util.CloneRef(r.approvedAt),
+		closedAt:    util.CloneRef(r.closedAt),
+		thread:      r.thread.CloneRef(),
+	}
+}

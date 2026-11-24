@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -44,38 +43,22 @@ func (c *UserLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-// Search finds users to invite to a workspace without exposing other users' email addresses:
-// a keyword containing "@" matches only an identical email, and any other keyword matches names only and returns no email.
+// Search finds users to invite to a workspace. SearchUser matches names partially and emails only exactly;
+// a keyword containing "@" is treated as an email lookup and keeps only the user with that exact email.
+// The GraphQL User type has no email field; only Me exposes the signed-in user's own email.
 func (c *UserLoader) Search(ctx context.Context, keyword string) ([]*gqlmodel.User, error) {
 	keyword = strings.TrimSpace(keyword)
-
-	if strings.Contains(keyword, "@") {
-		u, err := c.usecase.FetchByNameOrEmail(ctx, keyword)
-		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
-				return []*gqlmodel.User{}, nil
-			}
-			return nil, err
-		}
-		if u == nil || !strings.EqualFold(u.Email, keyword) {
-			return []*gqlmodel.User{}, nil
-		}
-		return []*gqlmodel.User{gqlmodel.SimpleToUser(u)}, nil
-	}
 
 	res, err := c.usecase.SearchUser(ctx, keyword)
 	if err != nil {
 		return nil, err
 	}
 
-	lowerKeyword := strings.ToLower(keyword)
+	isEmail := strings.Contains(keyword, "@")
 	return lo.FilterMap(res, func(u *user.Simple, _ int) (*gqlmodel.User, bool) {
-		// SearchUser also matches emails partially; drop those hits so emails cannot be probed by substring.
-		if u == nil || !strings.Contains(strings.ToLower(u.Name), lowerKeyword) {
+		if u == nil || (isEmail && !strings.EqualFold(u.Email, keyword)) {
 			return nil, false
 		}
-		gu := gqlmodel.SimpleToUser(u)
-		gu.Email = ""
-		return gu, true
+		return gqlmodel.SimpleToUser(u), true
 	}), nil
 }

@@ -62,10 +62,14 @@ func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.
 				}
 			}
 			if inp.Tiles != nil {
-				wss.SetTiles(inp.Tiles)
+				if err := wss.SetTiles(inp.Tiles); err != nil {
+					return nil, err
+				}
 			}
 			if inp.Terrains != nil {
-				wss.SetTerrains(inp.Terrains)
+				if err := wss.SetTerrains(inp.Terrains); err != nil {
+					return nil, err
+				}
 			}
 			if err := ws.repos.WorkspaceSettings.Save(ctx, wss); err != nil {
 				return nil, err
@@ -79,6 +83,15 @@ func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWo
 		WithPermission(ws.authz(), rbac.ResourceWorkspaceSettings, rbac.ActionDelete, inp.ID).
 		Transaction(),
 		func(ctx context.Context) error {
+			// Deleting a workspace does not cascade to its projects yet,
+			// so reject deletion while the workspace still has projects.
+			count, err := ws.repos.Project.CountByWorkspace(ctx, inp.ID)
+			if err != nil {
+				return err
+			}
+			if count > 0 {
+				return interfaces.ErrWorkspaceHasProjects
+			}
 			return ws.repos.WorkspaceSettings.Remove(ctx, inp.ID)
 		})
 }

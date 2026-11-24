@@ -102,43 +102,52 @@ func ToCesiumResourceProps(r workspacesettings.CesiumResourceProps) *CesiumResou
 	}
 }
 
-func FromResourceList(wr *ResourcesListInput) *workspacesettings.ResourceList {
+func FromResourceList(wr *ResourcesListInput) (*workspacesettings.ResourceList, error) {
 	if wr == nil {
-		return nil
+		return nil, nil
 	}
-	r := lo.Map(wr.Resources, func(r *ResourceInput, _ int) *workspacesettings.Resource {
-		return FromResource(r)
-	})
+	r := make([]*workspacesettings.Resource, 0, len(wr.Resources))
+	for _, ri := range wr.Resources {
+		res, err := FromResource(ri)
+		if err != nil {
+			return nil, err
+		}
+		r = append(r, res)
+	}
 	rid := ToIDRef[id.Resource](wr.SelectedResource)
-	return workspacesettings.NewResourceList(r, rid, wr.Enabled)
+	return workspacesettings.NewResourceList(r, rid, wr.Enabled), nil
 }
 
-func FromResource(r *ResourceInput) *workspacesettings.Resource {
-	if r == nil {
-		return nil
+// FromResource returns an error for an invalid ID. Other invalid input, such as both
+// a tile and a terrain, is converted as it is and rejected by the domain's validation.
+func FromResource(r *ResourceInput) (*workspacesettings.Resource, error) {
+	if r == nil || (r.Tile == nil && r.Terrain == nil) {
+		return nil, nil
 	}
 
+	var tile *workspacesettings.TileResource
 	if r.Tile != nil {
 		rid, err := ToID[id.Resource](r.Tile.ID)
 		if err != nil {
-			return nil
+			return nil, err
 		}
-
-		tile := workspacesettings.NewTileResource(rid, FromTileType(r.Tile.Type), FromUrlResourceProps(r.Tile.Props))
-		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tile, nil)
+		tile = workspacesettings.NewTileResource(rid, FromTileType(r.Tile.Type), FromUrlResourceProps(r.Tile.Props))
 	}
 
+	var terrain *workspacesettings.TerrainResource
 	if r.Terrain != nil {
 		rid, err := ToID[id.Resource](r.Terrain.ID)
 		if err != nil {
-			return nil
+			return nil, err
 		}
-
-		terrain := workspacesettings.NewTerrainResource(rid, FromTerrainType(r.Terrain.Type), FromCesiumResourceProps(r.Terrain.Props))
-		return workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrain)
+		terrain = workspacesettings.NewTerrainResource(rid, FromTerrainType(r.Terrain.Type), FromCesiumResourceProps(r.Terrain.Props))
 	}
 
-	return nil
+	rtype := workspacesettings.ResourceTypeTerrain
+	if tile != nil {
+		rtype = workspacesettings.ResourceTypeTile
+	}
+	return workspacesettings.NewResource(rtype, tile, terrain), nil
 }
 
 func FromTerrainType(tt TerrainType) workspacesettings.TerrainType {

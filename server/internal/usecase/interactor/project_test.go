@@ -6,14 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"go.uber.org/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -25,6 +26,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 // sequentialPolicyChecker for testing multiple policy calls
@@ -744,7 +746,7 @@ func TestProject_Create(t *testing.T) {
 
 func TestProject_Update(t *testing.T) {
 	now := util.Now()
-	defer util.MockNow(now)
+	defer util.MockNow(now)()
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
@@ -1046,7 +1048,7 @@ func TestProject_Update(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -1054,8 +1056,7 @@ func TestProject_Update(t *testing.T) {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
+				require.NoError(t, db.Project.Save(ctx, p.Clone()))
 			}
 
 			var gateways *gateway.Container
@@ -1265,6 +1266,16 @@ func TestProject_Delete(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
 
+	pid3 := id.NewProjectID()
+	p3 := project.New().ID(pid3).Workspace(wid1).MustBuild()
+
+	modelOf := func(pid id.ProjectID) *model.Model {
+		return model.New().NewID().Schema(id.NewSchemaID()).Key(id.RandomKey()).Project(pid).MustBuild()
+	}
+	groupOf := func(pid id.ProjectID) *group.Group {
+		return group.New().NewID().Name("g").Schema(id.NewSchemaID()).Key(id.RandomKey()).Project(pid).MustBuild()
+	}
+
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -1290,8 +1301,13 @@ func TestProject_Delete(t *testing.T) {
 	tests := []struct {
 		name           string
 		seeds          project.List
+		modelsSeeds    model.List
+		groupsSeeds    group.List
 		args           args
 		mockProjectErr bool
+		modelErr       error
+		groupErr       error
+		wantKept       bool
 		policyChecker  gateway.PolicyChecker
 		wantErr        error
 		setupAuth      func(mock *gatewaymock.MockAuthorization)
@@ -1304,6 +1320,73 @@ func TestProject_Delete(t *testing.T) {
 				operator: opOwner,
 			},
 			wantErr: nil,
+		},
+		{
+			name:        "delete rejected when project has models",
+			seeds:       project.List{p1, p2},
+			modelsSeeds: model.List{modelOf(pid1)},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr:  interfaces.ErrProjectHasModels,
+			wantKept: true,
+		},
+		{
+			name:        "delete rejected when project has groups",
+			seeds:       project.List{p1, p2},
+			groupsSeeds: group.List{groupOf(pid1)},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr:  interfaces.ErrProjectHasGroups,
+			wantKept: true,
+		},
+		{
+			name:        "delete rejected when project has both models and groups",
+			seeds:       project.List{p1},
+			modelsSeeds: model.List{modelOf(pid1)},
+			groupsSeeds: group.List{groupOf(pid1)},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr:  interfaces.ErrProjectHasModels,
+			wantKept: true,
+		},
+		{
+			name:        "delete not blocked by models and groups of another project",
+			seeds:       project.List{p1, p3},
+			modelsSeeds: model.List{modelOf(pid3)},
+			groupsSeeds: group.List{groupOf(pid3)},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			wantErr: nil,
+		},
+		{
+			name:  "model repository error",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			modelErr: errors.New("model error"),
+			wantErr:  errors.New("model error"),
+			wantKept: true,
+		},
+		{
+			name:  "group repository error",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			groupErr: errors.New("group error"),
+			wantErr:  errors.New("group error"),
+			wantKept: true,
 		},
 		{
 			name:  "delete not found",
@@ -1394,6 +1477,18 @@ func TestProject_Delete(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
+			for _, m := range tc.modelsSeeds {
+				require.NoError(t, db.Model.Save(ctx, m))
+			}
+			for _, g := range tc.groupsSeeds {
+				require.NoError(t, db.Group.Save(ctx, g))
+			}
+			if tc.modelErr != nil {
+				memory.SetModelError(db.Model, tc.modelErr)
+			}
+			if tc.groupErr != nil {
+				memory.SetGroupError(db.Group, tc.groupErr)
+			}
 
 			var gateways *gateway.Container
 			if tc.policyChecker != nil || tc.setupAuth != nil {
@@ -1413,6 +1508,10 @@ func TestProject_Delete(t *testing.T) {
 			err := projectUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
+				if tc.wantKept {
+					_, err = db.Project.FindByID(ctx, tc.args.id)
+					assert.NoError(t, err, "project must be kept when deletion is rejected")
+				}
 				return
 			}
 			assert.NoError(t, err)

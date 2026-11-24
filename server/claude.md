@@ -767,7 +767,7 @@ if item == nil {
 
 ## 📚 Key Technologies
 
-- **Language:** Go 1.25+
+- **Language:** Go (version in `go.mod`)
 - **GraphQL:** [gqlgen](https://gqlgen.com/) - Type-safe GraphQL server
 - **Database:** MongoDB with [mongo-driver](https://github.com/mongodb/mongo-go-driver)
 - **HTTP Framework:** [Echo](https://echo.labstack.com/)

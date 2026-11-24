@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
       - name: checkout
@@ -24,7 +24,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
-          version: v2.12.2
+          version: v2.15.0
           working-directory: worker
           args: --config=../.golangci.yml
           skip-cache: true
@@ -33,6 +33,24 @@ jobs:
           go mod tidy
           git diff --exit-code go.mod go.sum
         working-directory: worker
+      # The shared module has no CI of its own; the worker CI runs whenever it changes.
+      - name: golangci-lint (shared)
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
+        with:
+          version: v2.15.0
+          working-directory: shared
+          args: --config=../.golangci.yml
+          skip-cache: true
+      - name: Check go.mod tidiness (shared)
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+        working-directory: shared
+      - name: Check go fmt (shared)
+        working-directory: shared
+        run: |
+          go fmt ./...
+          git diff --exit-code ./
       - name: Check go fmt
         working-directory: worker
         run: |
@@ -48,7 +66,7 @@ jobs:
           - 27017:27017
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
       - name: checkout
@@ -64,8 +82,11 @@ jobs:
         working-directory: worker
         env:
           REEARTH_CMS_DB: mongodb://localhost
+      - name: test (shared)
+        run: go test -v -race ./...
+        working-directory: shared
       - name: Send coverage report
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           flags: worker
           token: ${{ secrets.CODECOV_TOKEN }}

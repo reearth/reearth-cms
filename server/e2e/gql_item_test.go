@@ -139,7 +139,6 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 					  ... on User {
 						id
 						name
-						email
 						__typename
 					  }
 					  ... on Integration {
@@ -255,7 +254,6 @@ func SearchItem(e *httpexpect.Expect, query, sort, filter, pagination map[string
 					  ... on User {
 						id
 						name
-						email
 						__typename
 					  }
 					  ... on Integration {

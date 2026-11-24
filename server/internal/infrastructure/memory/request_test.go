@@ -6,359 +6,42 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	repotest "github.com/reearth/reearth-cms/server/internal/usecase/repo/test"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRequest_Filtered(t *testing.T) {
-	r := &Request{}
-	pid := id.NewProjectID()
-
-	assert.Equal(t, &Request{
-		f: repo.ProjectFilter{
-			Readable: id.ProjectIDList{pid},
-			Writable: nil,
-		},
-	}, r.Filtered(repo.ProjectFilter{
-		Readable: id.ProjectIDList{pid},
-		Writable: nil,
-	}))
-}
-
-func TestRequest_FindByID(t *testing.T) {
-	ctx := context.Background()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
-	req := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(id.NewProjectID()).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-	r := NewRequest()
-	_ = r.Save(ctx, req)
-
-	out, err := r.FindByID(ctx, req.ID())
-	assert.NoError(t, err)
-	assert.Equal(t, req, out)
-
-	out2, err := r.FindByID(ctx, id.RequestID{})
-	assert.Nil(t, out2)
-	assert.Same(t, rerror.ErrNotFound, err)
-}
-
-func TestRequest_SaveAll(t *testing.T) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
-	req1 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-
-	req2 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-
-	r := NewRequest()
-	err := r.SaveAll(ctx, pid, request.List{req1, req2})
-	assert.NoError(t, err)
-	r = r.Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
+func TestRequestRepo(t *testing.T) {
+	repotest.TestRequestRepo(t, func(*testing.T) repo.Request {
+		return NewRequest()
 	})
+}
 
-	data, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.Equal(t, 2, len(data))
-
+func TestRequest_MemorySpecific_Errors(t *testing.T) {
+	ctx := context.Background()
 	wantErr := errors.New("test")
+	item := lo.Must(request.NewItemWithVersion(id.NewItemID(), version.New().OrRef()))
+	req := request.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).
+		CreatedBy(accountdomain.NewUserID()).Items(request.ItemList{item}).Title("title").MustBuild()
+	pagination := usecasex.CursorPagination{First: new(int64(10))}.Wrap()
+
+	r := NewRequest()
+	assert.NoError(t, r.Save(ctx, req))
 	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.SaveAll(ctx, pid, request.List{}))
-}
+	// the error survives filtering
+	r = r.Filtered(repo.ProjectFilter{})
 
-func TestRequest_Save(t *testing.T) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	err := func(rets ...any) error { return rets[len(rets)-1].(error) }
 
-	req1 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-
-	req2 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(id.NewProjectID()).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-	pf := repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	}
-	r := NewRequest().Filtered(pf)
-
-	_ = r.Save(ctx, req1)
-	got, _ := r.FindByID(ctx, req1.ID())
-	assert.Equal(t, req1, got)
-
-	err := r.Save(ctx, req2)
-	assert.Equal(t, repo.ErrOperationDenied, err)
-
-	wantErr := errors.New("test")
-	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.Save(ctx, req1))
-}
-
-func TestRequest_FindByIDs(t *testing.T) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
-	req1 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-
-	req2 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-	pf := repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	}
-	r := NewRequest().Filtered(pf)
-	_ = r.Save(ctx, req1)
-	_ = r.Save(ctx, req2)
-
-	got, err := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(got))
-}
-
-func TestRequest_FindByProject(t *testing.T) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
-	req1 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-
-	req2 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("xxx").
-		State(request.StateDraft).
-		MustBuild()
-
-	req3 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(id.NewProjectID()).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item}).
-		Title("foo").
-		MustBuild()
-	pf := repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	}
-	r := NewRequest().Filtered(pf)
-	_ = r.Save(ctx, req1)
-	_ = r.Save(ctx, req2)
-	_ = r.Save(ctx, req3)
-	type args struct {
-		id     id.ProjectID
-		filter repo.RequestFilter
-	}
-	tests := []struct {
-		name string
-		args args
-		want int
-	}{
-		{
-			name: "find by project id only (find 2)",
-			args: args{
-				id: pid,
-			},
-			want: 2,
-		},
-		{
-			name: "find by stat (find 1)",
-			args: args{
-				id: pid,
-				filter: repo.RequestFilter{
-					State: []request.State{request.StateDraft},
-				},
-			},
-			want: 1,
-		},
-		{
-			name: "find by title (find 1)",
-			args: args{
-				id: pid,
-				filter: repo.RequestFilter{
-					Keyword: new("foo"),
-				},
-			},
-			want: 1,
-		},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			// tt.Parallel()
-			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter, nil, nil)
-
-			assert.Equal(t, tc.want, len(got))
-		})
-	}
-
-	wantErr := errors.New("test")
-	SetRequestError(r, wantErr)
-	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{}, nil, nil)
-	assert.Same(t, wantErr, err)
-}
-
-func TestRequest_FindByItem(t *testing.T) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
-	req1 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item1}).
-		Title("foo").
-		MustBuild()
-
-	req2 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item1}).
-		Title("xxx").
-		State(request.StateDraft).
-		MustBuild()
-
-	req3 := request.New().
-		NewID().
-		Workspace(accountdomain.NewWorkspaceID()).
-		Project(pid).
-		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID().Ref()).
-		Items(request.ItemList{item2}).
-		Title("foo").
-		MustBuild()
-	pf := repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	}
-
-	tests := []struct {
-		name    string
-		input   id.ItemIDList
-		want    int
-		wantErr error
-	}{
-		{
-			name:  "must find 2",
-			input: id.ItemIDList{item1.Item()},
-			want:  2,
-		},
-		{
-			name:  "must find 1",
-			input: id.ItemIDList{item2.Item()},
-			want:  1,
-		},
-		{
-			name:  "must find 0",
-			input: id.ItemIDList{id.NewItemID()},
-			want:  0,
-		},
-		{
-			name:    "error",
-			input:   id.ItemIDList{id.NewItemID()},
-			wantErr: errors.New("test"),
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tc := tc
-			tt.Parallel()
-
-			r := NewRequest().Filtered(pf)
-			_ = r.Save(ctx, req1)
-			_ = r.Save(ctx, req2)
-			_ = r.Save(ctx, req3)
-			if tc.wantErr != nil {
-				SetRequestError(r, tc.wantErr)
-			}
-
-			got, err := r.FindByItems(ctx, tc.input, nil)
-			if tc.wantErr != nil {
-				assert.Same(t, tc.wantErr, err)
-				return
-			}
-
-			assert.Nil(tt, err)
-			assert.Equal(t, tc.want, len(got))
-		})
-	}
+	assert.Same(t, wantErr, err(r.FindByID(ctx, req.ID())))
+	assert.Same(t, wantErr, err(r.FindByIDs(ctx, id.RequestIDList{req.ID()})))
+	assert.Same(t, wantErr, err(r.FindByProject(ctx, req.Project(), repo.RequestFilter{}, nil, pagination)))
+	assert.Same(t, wantErr, err(r.FindByItems(ctx, req.Items().IDs(), nil)))
+	assert.Same(t, wantErr, err(r.Save(ctx, req)))
+	assert.Same(t, wantErr, err(r.SaveAll(ctx, req.Project(), request.List{req})))
 }

@@ -1,31 +1,43 @@
-version: '3'
+name: reearth-cms
 services:
-  reearth-cms-backend:
+  reearth-cms-server:
     build:
-      context: .
+      context: ..
+      dockerfile: server/Dockerfile
     environment:
       REEARTH_DB: mongodb://reearth-cms-mongo
-      REEARTH_CMS_OTEL_ENDPOINT: http://jaeger:4318
+      REEARTH_CMS_OTEL_ENDPOINT: http://reearth-cms-jaeger:4318
     ports:
       - '8080:8080'
     # env_file:
     #   - ./.env
     links:
       - reearth-cms-mongo
-      - jaeger
+      - reearth-cms-jaeger
     depends_on:
       - reearth-cms-mongo
-      - jaeger
+      - reearth-cms-jaeger
     volumes:
       - ./data:/reearth/data
   reearth-cms-mongo:
     image: mongo:6-focal
     ports:
-      - 27017:27017
+      - '27017:27017'
     volumes:
-      - ./mongo:/data/db
-  jaeger:
+      - mongo-data:/data/db
+  reearth-cms-jaeger:
     image: jaegertracing/jaeger:2.20.0
     ports:
       - '4318:4318'   # OTLP HTTP (ingest from app)
       - '16686:16686' # Jaeger UI
+  reearth-cms-dex:
+    # Local OIDC provider for development (see dex.yaml)
+    image: ghcr.io/dexidp/dex:v2.46.1
+    command: dex serve /etc/dex/config.yaml
+    ports:
+      - '127.0.0.1:5556:5556'
+    volumes:
+      - ./dex.yaml:/etc/dex/config.yaml:ro
+
+volumes:
+  mongo-data:

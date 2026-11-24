@@ -28,6 +28,9 @@ func CompareFields(n, o Fields) FieldChanges {
 
 	changes := make([]FieldChange, 0, len(nFields)+len(oFields))
 
+	// TODO: key fields by FieldID and ItemGroup (schema.FieldKey) instead of FieldID only:
+	// changes to multiple instances of the same group field currently collapse into one,
+	// and the sort is not stable when field ID timestamps are equal.
 	for fieldID, newField := range nFields {
 		oldField, exists := oFields[fieldID]
 

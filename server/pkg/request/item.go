@@ -39,6 +39,27 @@ func NewItem(i ItemID, ver *string) (*Item, error) {
 	return NewItemWithVersion(i, ptr)
 }
 
+func (i *Item) Clone() *Item {
+	if i == nil {
+		return nil
+	}
+	return &Item{
+		item:    i.item.Clone(),
+		pointer: i.pointer,
+	}
+}
+
+func (l ItemList) Clone() ItemList {
+	if l == nil {
+		return nil
+	}
+	res := make(ItemList, len(l))
+	for i, item := range l {
+		res[i] = item.Clone()
+	}
+	return res
+}
+
 func (l ItemList) IDs() id.ItemIDList {
 	ids := id.ItemIDList{}
 	for _, item := range l {

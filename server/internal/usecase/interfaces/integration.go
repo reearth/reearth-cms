@@ -14,7 +14,7 @@ type CreateIntegrationParam struct {
 	Name        string
 	Description *string
 	Type        integration.Type
-	Logo        url.URL
+	Logo        *url.URL
 }
 
 type UpdateIntegrationParam struct {

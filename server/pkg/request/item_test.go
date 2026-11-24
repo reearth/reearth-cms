@@ -35,3 +35,21 @@ func TestItemList_HasDuplication(t *testing.T) {
 	assert.Equal(t, true, input1.HasDuplication())
 	assert.Equal(t, false, input2.HasDuplication())
 }
+
+func TestItemList_Clone(t *testing.T) {
+	i1, _ := NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	i2, _ := NewItemWithVersion(id.NewItemID(), version.Latest.OrVersion())
+	list := ItemList{i1, i2}
+
+	got := list.Clone()
+	assert.Equal(t, list, got)
+	assert.NotSame(t, list[0], got[0])
+	assert.NotSame(t, list[1], got[1])
+
+	got[0].SetPointer(version.Public.OrVersion())
+	assert.NotEqual(t, got[0].Pointer(), list[0].Pointer())
+
+	assert.Equal(t, ItemList{}, ItemList{}.Clone())
+	assert.Nil(t, ItemList(nil).Clone())
+	assert.Nil(t, (*Item)(nil).Clone())
+}

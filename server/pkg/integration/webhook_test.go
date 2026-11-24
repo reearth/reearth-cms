@@ -97,9 +97,13 @@ func TestWebhook_Clone(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equalf(t, tt.want, tt.w.Clone(), "Clone()")
+			c := tt.w.Clone()
+			assert.Equalf(t, tt.want, c, "Clone()")
 			if tt.want != nil {
-				assert.NotSame(t, tt.want, tt.w)
+				assert.NotSame(t, tt.w, c)
+				// the trigger map is copied: enabling an event on the clone leaves the original untouched
+				c.Trigger().Enable(event.ItemCreate)
+				assert.False(t, tt.w.Trigger().IsActive(event.ItemCreate))
 			}
 		})
 	}
@@ -485,4 +489,59 @@ func TestWebhookTrigger_Enable(t *testing.T) {
 	assert.True(t, wt.IsActive(event.ItemCreate))
 	wt.Disable(event.ItemCreate)
 	assert.False(t, wt.IsActive(event.ItemCreate))
+}
+
+func TestValidateWebhookURL(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		args    *url.URL
+		wantErr error
+	}{
+		{
+			name: "https",
+			args: lo.Must(url.Parse("https://example.com/hook")),
+		},
+		{
+			name: "http",
+			args: lo.Must(url.Parse("http://127.0.0.1:8080")),
+		},
+		{
+			name:    "nil",
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "empty",
+			args:    &url.URL{},
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "no scheme",
+			args:    lo.Must(url.Parse("example.com/hook")),
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "unsupported scheme",
+			args:    lo.Must(url.Parse("ftp://example.com/hook")),
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "no host",
+			args:    lo.Must(url.Parse("https:///hook")),
+			wantErr: ErrInvalidURL,
+		},
+		{
+			name:    "a port but no hostname",
+			args:    lo.Must(url.Parse("http://:8080/hook")),
+			wantErr: ErrInvalidURL,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.wantErr, ValidateWebhookURL(tc.args))
+		})
+	}
 }

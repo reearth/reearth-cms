@@ -5,13 +5,12 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/avast/retry-go/v4"
+	"github.com/avast/retry-go/v5"
 	"github.com/google/uuid"
-	lock "github.com/square/mongo-lock"
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
+	lock "github.com/square/mongo-lock"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Lock struct {
@@ -41,11 +40,13 @@ func (r *Lock) Lock(ctx context.Context, name string) error {
 	lockID := uuid.NewString()
 	log.Infof("lock: trying to lock: id=%s, name=%s, host=%s", name, lockID, r.hostid)
 
-	if err := retry.Do(
-		func() error { return r.l.XLock(ctx, name, lockID, r.details()) },
+	if err := retry.New(
+		retry.Context(ctx),
 		retry.RetryIf(func(err error) bool {
 			return errors.Is(err, lock.ErrAlreadyLocked)
 		}),
+	).Do(
+		func() error { return r.l.XLock(ctx, name, lockID, r.details()) },
 	); err != nil {
 		log.Infof("lock: failed to lock: name=%s, id=%s, host=%s, err=%s", name, lockID, r.hostid, err)
 		return repo.ErrFailedToLock

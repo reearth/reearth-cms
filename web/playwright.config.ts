@@ -13,6 +13,8 @@ export const authFile = path.join(__dirname, "./e2e/support/.auth/user.json");
 
 export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:3000/";
 
+const allureResultsDir = path.resolve(__dirname, "allure-results");
+
 const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
   workers: process.env.CI ? 1 : "25%",
@@ -31,11 +33,11 @@ const config: PlaywrightTestConfig = {
   testMatch: "**/*.spec.ts",
   testIgnore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
   reporter: process.env.CI
-    ? [["blob"], ["github"], ["list"], ["allure-playwright", { resultsDir: "allure-results" }]]
+    ? [["blob"], ["github"], ["list"], ["allure-playwright", { resultsDir: allureResultsDir }]]
     : [
         ["list"],
         ["html", { open: "never" }],
-        ["allure-playwright", { resultsDir: "allure-results" }],
+        ["allure-playwright", { resultsDir: allureResultsDir }],
       ],
   fullyParallel: false,
   projects: [

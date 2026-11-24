@@ -24,6 +24,18 @@ func (wr *ResourceList) Enabled() *bool {
 	return wr.enabled
 }
 
+func (wr *ResourceList) Validate() error {
+	if wr == nil {
+		return nil
+	}
+	for _, r := range wr.resources {
+		if err := r.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (wr *ResourceList) SetResources(r []*Resource) {
 	wr.resources = slices.Clone(r)
 }
@@ -34,6 +46,18 @@ func (wr *ResourceList) SetSelectedResource(rid *ResourceID) {
 
 func (wr *ResourceList) SetEnabled(s *bool) {
 	wr.enabled = util.CloneRef(s)
+}
+
+func (wr *ResourceList) Clone() *ResourceList {
+	if wr == nil {
+		return nil
+	}
+
+	return &ResourceList{
+		resources:        util.Map(wr.resources, (*Resource).Clone),
+		selectedResource: wr.selectedResource.CloneRef(),
+		enabled:          util.CloneRef(wr.enabled),
+	}
 }
 
 func NewResourceList(resources []*Resource, selectedResource *ResourceID, enabled *bool) *ResourceList {

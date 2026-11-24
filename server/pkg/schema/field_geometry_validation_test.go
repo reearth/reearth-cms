@@ -240,6 +240,19 @@ func TestIsValidGeoJSON(t *testing.T) {
 			expected: true,
 		},
 		{
+			name:     "GeometryCollection without geometries",
+			input:    `{"type": "GeometryCollection"}`,
+			expected: false,
+		},
+		{
+			name: "GeometryCollection with a malformed geometry",
+			input: `{
+			  "type": "GeometryCollection",
+			  "geometries": [{"type": "Point", "coordinates": "invalid"}]
+			}`,
+			expected: false,
+		},
+		{
 			name:     "empty string",
 			input:    ``,
 			expected: false,

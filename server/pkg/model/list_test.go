@@ -53,17 +53,57 @@ func TestList_OrderByIDs(t *testing.T) {
 }
 
 func TestList_Remove(t *testing.T) {
+	t.Parallel()
+
 	pid := id.NewProjectID()
-	sid1 := id.NewSchemaID()
-	sid2 := id.NewSchemaID()
-	sid3 := id.NewSchemaID()
-	mod1 := New().NewID().Project(pid).Schema(sid1).Key(id.NewKey("key1")).Order(0).MustBuild()
-	mod2 := New().NewID().Project(pid).Schema(sid2).Key(id.NewKey("key2")).Order(1).MustBuild()
-	mod3 := New().NewID().Project(pid).Schema(sid3).Key(id.NewKey("key3")).Order(2).MustBuild()
-	mods := List{mod1, mod2, mod3}
-	assert.Equal(t, List{mod1, mod3}, mods.Remove(mod2.ID()))
-	assert.Equal(t, List{mod1, mod2}, mods.Remove(mod3.ID()))
-	assert.Equal(t, List{mod2, mod3}, mods.Remove(mod1.ID()))
+	models := List{
+		New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(id.NewKey("key1")).Order(0).MustBuild(),
+		New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(id.NewKey("key2")).Order(1).MustBuild(),
+		New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(id.NewKey("key3")).Order(2).MustBuild(),
+	}
+
+	tests := []struct {
+		name   string
+		remove id.ModelID
+		want   map[string]int // key -> order of the returned models
+	}{
+		{
+			name:   "remove first",
+			remove: models[0].ID(),
+			want:   map[string]int{"key2": 0, "key3": 1},
+		},
+		{
+			name:   "remove middle",
+			remove: models[1].ID(),
+			want:   map[string]int{"key1": 0, "key3": 1},
+		},
+		{
+			name:   "remove last",
+			remove: models[2].ID(),
+			want:   map[string]int{"key1": 0, "key2": 1},
+		},
+		{
+			name:   "unknown ID leaves the list unchanged",
+			remove: id.NewModelID(),
+			want:   map[string]int{"key1": 0, "key2": 1, "key3": 2},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			mods := models.Clone()
+			res := mods.Remove(tt.remove)
+
+			got := make(map[string]int, len(res))
+			for _, m := range res {
+				got[m.Key().String()] = m.Order()
+			}
+			assert.Equal(t, tt.want, got)
+			// the caller's models are not modified
+			assert.Equal(t, mods, models)
+		})
+	}
 }
 
 func TestList_Ordered(t *testing.T) {

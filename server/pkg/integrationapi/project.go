@@ -81,7 +81,7 @@ func ToAPIKey(a *project.APIKey) *ApiKey {
 		Key:         a.Key(),
 		Name:        a.Name(),
 		Description: new(a.Description()),
-		Publication: *ToProjectPublicationSettings(a.Publication()),
+		Publication: lo.FromPtr(ToProjectPublicationSettings(a.Publication())),
 	}
 }
 

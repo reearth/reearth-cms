@@ -45,6 +45,8 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeGeometryObject
 	case ValueTypeGeometryEditor:
 		return value.TypeGeometryEditor
+	case ValueTypeGeometry:
+		return value.TypeGeometry
 	default:
 		return value.TypeUnknown
 	}
@@ -86,6 +88,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeGeometryObject
 	case value.TypeGeometryEditor:
 		return ValueTypeGeometryEditor
+	case value.TypeGeometry:
+		return ValueTypeGeometry
 	default:
 		return ""
 	}
@@ -125,6 +129,9 @@ func ToValue(v *value.Value, sf *schema.Field, assets *AssetContext) any {
 			return nil
 		}
 		res := tag.Tags().FindByID(tid)
+		if res == nil {
+			return nil
+		}
 		return TagResponse{
 			Color: new(res.Color().String()),
 			Id:    res.ID().Ref(),

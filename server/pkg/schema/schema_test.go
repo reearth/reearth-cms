@@ -206,6 +206,7 @@ func TestSchema_FirstGeometryField(t *testing.T) {
 	boolTP := tp(NewBool().TypeProperty())
 	geoObjTP := tp(NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty())
 	geoEdtTP := tp(NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty())
+	geoTP := tp(NewGeometry().TypeProperty())
 
 	fid1 := NewFieldID()
 	fid2 := NewFieldID()
@@ -248,6 +249,14 @@ func TestSchema_FirstGeometryField(t *testing.T) {
 			want: &Field{id: fid2, name: "f2", typeProperty: geoEdtTP},
 		},
 		{
+			name: "geometry field",
+			s: &Schema{fields: FieldList{
+				{id: fid1, name: "f1", typeProperty: boolTP},
+				{id: fid2, name: "f2", typeProperty: geoTP},
+			}},
+			want: &Field{id: fid2, name: "f2", typeProperty: geoTP},
+		},
+		{
 			name: "returns first geometry field by order",
 			s: &Schema{fields: FieldList{
 				{id: fid1, name: "f1", typeProperty: geoObjTP, order: 2},
@@ -263,6 +272,34 @@ func TestSchema_FirstGeometryField(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tc.want, tc.s.FirstGeometryField())
+		})
+	}
+}
+
+func TestSchema_HasGeometryFields(t *testing.T) {
+	t.Parallel()
+
+	boolF := &Field{id: NewFieldID(), typeProperty: NewBool().TypeProperty()}
+	geoObjF := &Field{id: NewFieldID(), typeProperty: NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty()}
+	geoEdtF := &Field{id: NewFieldID(), typeProperty: NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty()}
+	geoF := &Field{id: NewFieldID(), typeProperty: NewGeometry().TypeProperty()}
+
+	tests := []struct {
+		name string
+		s    *Schema
+		want bool
+	}{
+		{name: "nil schema", s: nil},
+		{name: "no geometry field", s: &Schema{fields: FieldList{boolF}}},
+		{name: "geometry object field", s: &Schema{fields: FieldList{boolF, geoObjF}}, want: true},
+		{name: "geometry editor field", s: &Schema{fields: FieldList{boolF, geoEdtF}}, want: true},
+		{name: "geometry field", s: &Schema{fields: FieldList{boolF, geoF}}, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.s.HasGeometryFields())
 		})
 	}
 }
@@ -491,6 +528,10 @@ func TestSchema_Clone(t *testing.T) {
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)
+	// fields are deep-copied: changing the clone's field leaves the original untouched
+	assert.NotSame(t, s.fields[0], c.fields[0])
+	c.fields[0].SetName("changed")
+	assert.Equal(t, "f1", s.fields[0].Name())
 
 	s = nil
 	c = s.Clone()
@@ -549,6 +590,10 @@ func TestSchema_CopyFrom(t *testing.T) {
 	s2.CopyFrom(s1)
 	assert.Equal(t, s1.fields, s2.fields)
 	assert.Equal(t, s1.titleField, s2.titleField)
+	// fields are deep-copied: changing the copy's field leaves the source untouched
+	assert.NotSame(t, s1.fields[0], s2.fields[0])
+	s2.fields[0].SetName("changed")
+	assert.Equal(t, "f1", s1.fields[0].Name())
 
 	s3 := &Schema{id: id.NewSchemaID(), fields: FieldList{}}
 	s3.CopyFrom(nil)

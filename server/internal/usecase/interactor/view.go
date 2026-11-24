@@ -149,7 +149,9 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 			if param.Name != nil {
 				v.SetName(*param.Name)
 			}
-			v.SetFilter(param.Filter)
+			if err := v.SetFilter(param.Filter); err != nil {
+				return nil, err
+			}
 			v.SetSort(param.Sort)
 			v.SetColumns(param.Columns)
 			v.SetUpdatedAt(time.Now())
@@ -170,6 +172,10 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 			v, err := i.repos.View.FindByIDs(ctx, ids)
 			if err != nil {
 				return nil, err
+			}
+			// FindByIDs skips unknown and unreadable views
+			if len(v) != len(ids) {
+				return nil, rerror.ErrNotFound
 			}
 			if !v.AreViewsInTheSameModel() {
 				return nil, interfaces.ErrViewsAreNotInTheSameModel

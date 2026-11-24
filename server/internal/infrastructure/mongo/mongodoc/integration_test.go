@@ -15,6 +15,7 @@ func TestIntegrationDocument_Model(t *testing.T) {
 	now := time.Now()
 	iId := integration.NewID()
 	uId := user.NewID()
+	wId := integration.NewWebhookID()
 	tests := []struct {
 		name    string
 		iDoc    *IntegrationDocument
@@ -46,6 +47,57 @@ func TestIntegrationDocument_Model(t *testing.T) {
 				LogoUrl(lo.Must(url.Parse("https://huho.com/xzy"))).
 				MustBuild(),
 			wantErr: false,
+		},
+		{
+			name: "webhooks that can't be decoded are skipped",
+			iDoc: &IntegrationDocument{
+				ID:        iId.String(),
+				Type:      "private",
+				LogoUrl:   "https://huho.com/xzy",
+				Developer: uId.String(),
+				Webhook: []WebhookDocument{
+					{ID: "invalid", Url: "https://example.com/a"},
+					{ID: wId.String(), Url: "https://example.com/b", UpdatedAt: now},
+					{ID: integration.NewWebhookID().String(), Url: "%zz"},
+				},
+				UpdatedAt: now,
+			},
+			want: integration.New().
+				ID(iId).
+				Type(integration.TypePrivate).
+				Developer(uId).
+				UpdatedAt(now).
+				Webhook([]*integration.Webhook{
+					integration.NewWebhookBuilder().ID(wId).Url(lo.Must(url.Parse("https://example.com/b"))).
+						Trigger(integration.WebhookTrigger{}).UpdatedAt(now).MustBuild(),
+				}).
+				LogoUrl(lo.Must(url.Parse("https://huho.com/xzy"))).
+				MustBuild(),
+		},
+		{
+			name: "an empty logo URL is read as no logo",
+			iDoc: &IntegrationDocument{
+				ID:        iId.String(),
+				Type:      "private",
+				Developer: uId.String(),
+				UpdatedAt: now,
+			},
+			want: integration.New().
+				ID(iId).
+				Type(integration.TypePrivate).
+				Developer(uId).
+				UpdatedAt(now).
+				Webhook([]*integration.Webhook{}).
+				MustBuild(),
+		},
+		{
+			name: "an invalid logo URL",
+			iDoc: &IntegrationDocument{
+				ID:        iId.String(),
+				LogoUrl:   "%zz",
+				Developer: uId.String(),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -95,6 +147,24 @@ func TestNewIntegration(t *testing.T) {
 				Developer:   uId.String(),
 				Webhook:     []WebhookDocument{},
 				UpdatedAt:   now,
+			},
+			iDocId: iId.String(),
+		},
+		{
+			name: "no logo URL",
+			i: integration.New().
+				ID(iId).
+				Type(integration.TypePrivate).
+				Developer(uId).
+				UpdatedAt(now).
+				Webhook([]*integration.Webhook{}).
+				MustBuild(),
+			want: &IntegrationDocument{
+				ID:        iId.String(),
+				Type:      "private",
+				Developer: uId.String(),
+				Webhook:   []WebhookDocument{},
+				UpdatedAt: now,
 			},
 			iDocId: iId.String(),
 		},

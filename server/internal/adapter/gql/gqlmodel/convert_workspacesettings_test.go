@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
+	"github.com/reearth/reearthx/idx"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -99,8 +100,17 @@ func Test_FromResourceList(t *testing.T) {
 		Enabled:          new(true),
 	}
 
-	assert.Equal(t, rl, FromResourceList(expected))
-	assert.Nil(t, FromResourceList(nil))
+	got, err := FromResourceList(expected)
+	assert.NoError(t, err)
+	assert.Equal(t, rl, got)
+	got, err = FromResourceList(nil)
+	assert.NoError(t, err)
+	assert.Nil(t, got)
+
+	// an invalid ID in any resource fails the list
+	got, err = FromResourceList(&ResourcesListInput{Resources: []*ResourceInput{ri, {Tile: &TileResourceInput{ID: "invalid"}}}})
+	assert.Equal(t, idx.ErrInvalidID, err)
+	assert.Nil(t, got)
 }
 
 func Test_FromResource(t *testing.T) {
@@ -124,8 +134,12 @@ func Test_FromResource(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, r, FromResource(expected))
-	assert.Nil(t, FromResource(nil))
+	got, err := FromResource(expected)
+	assert.NoError(t, err)
+	assert.Equal(t, r, got)
+	got, err = FromResource(nil)
+	assert.NoError(t, err)
+	assert.Nil(t, got)
 
 	rid2 := workspacesettings.NewResourceID()
 	pp2 := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
@@ -145,8 +159,28 @@ func Test_FromResource(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, r2, FromResource(expected2))
-	assert.Nil(t, FromResource(nil))
+	got, err = FromResource(expected2)
+	assert.NoError(t, err)
+	assert.Equal(t, r2, got)
+
+	// an invalid ID is returned as an error rather than a nil resource
+	got, err = FromResource(&ResourceInput{Tile: &TileResourceInput{ID: "invalid"}})
+	assert.Equal(t, idx.ErrInvalidID, err)
+	assert.Nil(t, got)
+	got, err = FromResource(&ResourceInput{Terrain: &TerrainResourceInput{ID: "invalid"}})
+	assert.Equal(t, idx.ErrInvalidID, err)
+	assert.Nil(t, got)
+
+	// both a tile and a terrain are kept, so validation rejects the resource
+	got, err = FromResource(&ResourceInput{Tile: expected2.Tile, Terrain: expected.Terrain})
+	assert.NoError(t, err)
+	assert.Equal(t, workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt2, tt), got)
+	assert.Equal(t, workspacesettings.ErrInvalidResource, got.Validate())
+
+	// an input with neither is a nil entry, which validation also rejects
+	got, err = FromResource(&ResourceInput{})
+	assert.NoError(t, err)
+	assert.Nil(t, got)
 }
 
 func Test_FromTerrainType(t *testing.T) {

@@ -108,3 +108,29 @@ func TestRequest_UpdatedAt(t *testing.T) {
 
 	assert.Equal(t, time, r.UpdatedAt())
 }
+
+func TestRequest_Clone(t *testing.T) {
+	now := time.Now()
+	item, _ := NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	r := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).
+		CreatedBy(accountdomain.NewUserID()).Items(ItemList{item}).Title("title").Description("desc").
+		Reviewers(accountdomain.UserIDList{accountdomain.NewUserID()}).State(StateApproved).
+		UpdatedAt(now).ApprovedAt(&now).ClosedAt(&now).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	got := r.Clone()
+	assert.Equal(t, r, got)
+	assert.NotSame(t, r, got)
+	assert.NotSame(t, r.items[0], got.items[0])
+	assert.NotSame(t, r.approvedAt, got.approvedAt)
+	assert.NotSame(t, r.closedAt, got.closedAt)
+	assert.NotSame(t, r.thread, got.thread)
+
+	// changes to the clone must not reach the original
+	got.items[0].SetPointer(version.Latest.OrVersion())
+	got.reviewers[0] = accountdomain.NewUserID()
+	assert.Equal(t, item.Pointer(), r.items[0].Pointer())
+	assert.NotEqual(t, got.reviewers, r.reviewers)
+
+	assert.Equal(t, &Request{}, (&Request{}).Clone())
+	assert.Nil(t, (*Request)(nil).Clone())
+}

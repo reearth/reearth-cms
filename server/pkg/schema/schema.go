@@ -94,7 +94,7 @@ func (s *Schema) FirstGeometryField() *Field {
 		return nil
 	}
 	for _, f := range s.fields.Ordered() {
-		if f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor {
+		if f.IsGeometryField() {
 			return f
 		}
 	}
@@ -167,7 +167,7 @@ func (s *Schema) Clone() *Schema {
 		id:         s.ID(),
 		project:    s.Project().Clone(),
 		workspace:  s.Workspace().Clone(),
-		fields:     slices.Clone(s.fields),
+		fields:     s.fields.Clone(),
 		titleField: s.TitleField().CloneRef(),
 	}
 }
@@ -176,7 +176,9 @@ func (s *Schema) HasGeometryFields() bool {
 	if s == nil {
 		return false
 	}
-	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0
+	return lo.ContainsBy(s.fields, func(f *Field) bool {
+		return f.IsGeometryField()
+	})
 }
 
 func (s *Schema) IsPointFieldSupported() bool {
@@ -195,6 +197,6 @@ func (s *Schema) CopyFrom(s2 *Schema) {
 	if s == nil || s2 == nil {
 		return
 	}
-	s.fields = slices.Clone(s2.fields)
+	s.fields = s2.fields.Clone()
 	s.titleField = s2.TitleField().CloneRef()
 }

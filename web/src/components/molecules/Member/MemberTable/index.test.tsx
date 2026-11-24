@@ -21,7 +21,7 @@ describe("Member table", () => {
   const onRoleModalOpen = () => {};
   const onMemberAddModalOpen = () => {};
   const workspaceUserMembers: UserMember[] = [
-    { userId, role: "OWNER", user: { id: "id1", name: "name1", email: "email1@test.com" } },
+    { userId, role: "OWNER", user: { id: "id1", name: "name1" } },
   ];
   const page = 1;
   const pageSize = 10;
@@ -32,7 +32,7 @@ describe("Member table", () => {
   const hasRemoveRight = true;
   const hasChangeRoleRight = true;
 
-  const secondMember = { id: "id2", name: "name2", email: "email2@test.com" };
+  const secondMember = { id: "id2", name: "name2" };
 
   test("Table options works successfully", async () => {
     const reloadMock = vi.fn();
@@ -153,11 +153,9 @@ describe("Member table", () => {
     const { user } = workspaceUserMembers[0];
 
     expect(screen.getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Email" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Role" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Action" })).toBeInTheDocument();
     expect(screen.getByText(user.name)).toBeVisible();
-    expect(screen.getByText(user.email)).toBeVisible();
     expect(screen.getByText("Owner")).toBeVisible();
   });
 
@@ -221,7 +219,7 @@ describe("Member table", () => {
   test("Removing multiple members is fired successfully", async () => {
     const onMemberRemoveFromWorkspaceMock = vi.fn();
 
-    const thirdMember = { id: "id3", name: "name3", email: "email3@test.com" };
+    const thirdMember = { id: "id3", name: "name3" };
 
     render(
       <MemberTable
@@ -261,9 +259,7 @@ describe("Member table", () => {
     const dialog = screen.getByRole("dialog");
     await expect.poll(() => dialog).toBeVisible();
     expect(getByText(dialog, secondMember.name)).toBeVisible();
-    expect(getByText(dialog, secondMember.email)).toBeVisible();
     expect(getByText(dialog, thirdMember.name)).toBeVisible();
-    expect(getByText(dialog, thirdMember.email)).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Yes" }));
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();
@@ -302,7 +298,6 @@ describe("Member table", () => {
     await user.click(screen.getByRole("button", { name: "Remove" }));
     const dialog = screen.getByRole("dialog");
     await expect.poll(() => getByText(dialog, secondMember.name)).toBeVisible();
-    expect(getByText(dialog, secondMember.email)).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Yes" }));
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();

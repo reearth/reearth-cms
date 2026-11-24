@@ -1,5 +1,12 @@
 package workspacesettings
 
+import (
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
+)
+
+var ErrInvalidResource = rerror.NewE(i18n.T("invalid resource"))
+
 type ResourceType string
 
 const (
@@ -25,6 +32,23 @@ func (r *Resource) Terrain() *TerrainResource {
 	return r.terrain
 }
 
+func (r *Resource) Validate() error {
+	if r == nil {
+		return ErrInvalidResource
+	}
+	switch r.resourceType {
+	case ResourceTypeTile:
+		if r.tile != nil && r.terrain == nil && r.tile.rtype.IsValid() && !r.tile.id.IsNil() {
+			return nil
+		}
+	case ResourceTypeTerrain:
+		if r.terrain != nil && r.tile == nil && r.terrain.rtype.IsValid() && !r.terrain.id.IsNil() {
+			return nil
+		}
+	}
+	return ErrInvalidResource
+}
+
 func NewResource(resourceType ResourceType, tile *TileResource, terrain *TerrainResource) *Resource {
 	return &Resource{
 		resourceType: resourceType,
@@ -43,4 +67,16 @@ func (r *Resource) SetTile(n *TileResource) {
 
 func (r *Resource) SetTerrain(n *TerrainResource) {
 	r.terrain = n
+}
+
+func (r *Resource) Clone() *Resource {
+	if r == nil {
+		return nil
+	}
+
+	return &Resource{
+		resourceType: r.resourceType,
+		tile:         r.tile,
+		terrain:      r.terrain,
+	}
 }

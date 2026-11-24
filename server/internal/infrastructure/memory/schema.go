@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -14,14 +13,12 @@ import (
 type Schema struct {
 	data *util.SyncMap[id.SchemaID, *schema.Schema]
 	f    repo.WorkspaceFilter
-	now  *util.TimeNow
 	err  error
 }
 
 func NewSchema() repo.Schema {
 	return &Schema{
 		data: &util.SyncMap[id.SchemaID, *schema.Schema]{},
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -29,7 +26,7 @@ func (r *Schema) Filtered(f repo.WorkspaceFilter) repo.Schema {
 	return &Schema{
 		data: r.data,
 		f:    r.f.Merge(f),
-		now:  &util.TimeNow{},
+		err:  r.err,
 	}
 }
 
@@ -38,11 +35,7 @@ func (r *Schema) FindByID(_ context.Context, sid id.SchemaID) (*schema.Schema, e
 		return nil, r.err
 	}
 
-	s := r.data.Find(func(k id.SchemaID, s *schema.Schema) bool {
-		return k == sid && r.f.CanRead(s.Workspace())
-	})
-
-	if s != nil {
+	if s, ok := r.data.Load(sid); ok && r.canRead(s) {
 		return s, nil
 	}
 	return nil, rerror.ErrNotFound
@@ -52,12 +45,18 @@ func (r *Schema) FindByIDs(_ context.Context, ids id.SchemaIDList) (schema.List,
 	if r.err != nil {
 		return nil, r.err
 	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
 
-	result := r.data.FindAll(func(k id.SchemaID, s *schema.Schema) bool {
-		return ids.Has(k) && r.f.CanRead(s.Workspace())
-	})
-
-	return schema.List(result).SortByID(), nil
+	// the result keeps the order of the given IDs, as mongo does
+	result := make(schema.List, 0, len(ids))
+	for _, sid := range ids {
+		if s, ok := r.data.Load(sid); ok && r.canRead(s) {
+			result = append(result, s)
+		}
+	}
+	return result, nil
 }
 
 func (r *Schema) Save(_ context.Context, s *schema.Schema) error {
@@ -106,8 +105,8 @@ func (r *Schema) Remove(_ context.Context, sId id.SchemaID) error {
 	return rerror.ErrNotFound
 }
 
-func MockSchemaNow(r repo.Schema, t time.Time) func() {
-	return r.(*Schema).now.Mock(t)
+func (r *Schema) canRead(s *schema.Schema) bool {
+	return r.f.Readable == nil || r.f.Readable.Has(s.Workspace())
 }
 
 func SetSchemaError(r repo.Schema, err error) {

@@ -19,6 +19,9 @@ func (b *WebhookBuilder) Build() (*Webhook, error) {
 	if b.w.id.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.w.url == nil {
+		return nil, ErrInvalidURL
+	}
 	if b.w.updatedAt.IsZero() {
 		b.w.updatedAt = b.w.CreatedAt()
 	}

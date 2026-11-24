@@ -280,6 +280,46 @@ func TestSchema_GuessSchemaFieldFromJson(t *testing.T) {
 			want:      nil,
 			wantErr:   true,
 		},
+		{
+			name:   "invalid GeoJSON (null properties)",
+			schema: &Schema{},
+			jsonData: `{
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [125.6, 10.1]
+                        },
+                        "properties": null
+                    }
+                ]
+            }`,
+			isGeoJSON: true,
+			want:      nil,
+			wantErr:   true,
+		},
+		{
+			name:   "invalid GeoJSON (non-object properties)",
+			schema: &Schema{},
+			jsonData: `{
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [125.6, 10.1]
+                        },
+                        "properties": "invalid"
+                    }
+                ]
+            }`,
+			isGeoJSON: true,
+			want:      nil,
+			wantErr:   true,
+		},
 	}
 
 	for _, tt := range tests {

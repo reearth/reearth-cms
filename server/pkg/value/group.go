@@ -37,7 +37,7 @@ func (*propertyGroup) Validate(i any) bool {
 
 func (*propertyGroup) Equal(v, w any) bool {
 	vv := v.(Group)
-	ww := v.(Group)
+	ww := w.(Group)
 	return vv == ww
 }
 

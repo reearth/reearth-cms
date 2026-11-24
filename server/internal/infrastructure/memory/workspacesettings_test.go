@@ -2,68 +2,37 @@ package memory
 
 import (
 	"context"
+	"errors"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	repotest "github.com/reearth/reearth-cms/server/internal/usecase/repo/test"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWorkspaceSettingsRepo_FindByID(t *testing.T) {
-	wid := accountdomain.NewWorkspaceID()
-	w := workspacesettings.New().ID(wid).Tiles(nil).Terrains(nil).MustBuild()
-
-	r := NewWorkspaceSettings()
-	ctx := context.Background()
-
-	err := r.Save(ctx, w.Clone())
-	assert.NoError(t, err)
-
-	got, err := r.FindByID(ctx, wid)
-	assert.NoError(t, err)
-	assert.Equal(t, w, got)
+func TestWorkspaceSettingsRepo(t *testing.T) {
+	repotest.TestWorkspaceSettingsRepo(t, func(*testing.T) repo.WorkspaceSettings {
+		return NewWorkspaceSettings()
+	})
 }
 
-func TestWorkspaceSettingsRepo_FindByIDs(t *testing.T) {
-	wid1 := accountdomain.NewWorkspaceID()
-	w1 := workspacesettings.New().ID(wid1).Tiles(nil).Terrains(nil).MustBuild()
-	wid2 := accountdomain.NewWorkspaceID()
-	w2 := workspacesettings.New().ID(wid2).Tiles(nil).Terrains(nil).MustBuild()
-	ids := accountdomain.WorkspaceIDList{wid1, wid2}
+func TestWorkspaceSettings_MemorySpecific_Errors(t *testing.T) {
+	ctx := context.Background()
+	wantErr := errors.New("test")
+	ws := workspacesettings.New().NewID().MustBuild()
 
 	r := NewWorkspaceSettings()
-	ctx := context.Background()
+	assert.NoError(t, r.Save(ctx, ws))
+	SetWorkspaceSettingsError(r, wantErr)
+	// the error survives filtering
+	r = r.Filtered(repo.WorkspaceFilter{})
 
-	err := r.Save(ctx, w1.Clone())
-	assert.NoError(t, err)
-	err = r.Save(ctx, w2.Clone())
-	assert.NoError(t, err)
+	err := func(rets ...any) error { return rets[len(rets)-1].(error) }
 
-	want := workspacesettings.List{w1, w2}
-	got, err := r.FindByIDs(ctx, ids)
-	assert.NoError(t, err)
-	assert.Equal(t, want, got)
-
-	ids2 := accountdomain.WorkspaceIDList{}
-	got2, err2 := r.FindByIDs(ctx, ids2)
-	assert.NoError(t, err2)
-	assert.Nil(t, got2)
-}
-
-func TestWorkspaceSettingsRepo_Remove(t *testing.T) {
-	wid1 := accountdomain.NewWorkspaceID()
-	w1 := workspacesettings.New().ID(wid1).Tiles(nil).Terrains(nil).MustBuild()
-
-	r := NewWorkspaceSettings()
-	ctx := context.Background()
-
-	err := r.Save(ctx, w1.Clone())
-	assert.NoError(t, err)
-
-	err = r.Remove(ctx, wid1)
-	assert.NoError(t, err)
-
-	_, err = r.FindByID(ctx, wid1)
-	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	assert.Same(t, wantErr, err(r.FindByID(ctx, ws.ID())))
+	assert.Same(t, wantErr, err(r.FindByIDs(ctx, accountdomain.WorkspaceIDList{ws.ID()})))
+	assert.Same(t, wantErr, err(r.Save(ctx, ws)))
+	assert.Same(t, wantErr, err(r.Remove(ctx, ws.ID())))
 }

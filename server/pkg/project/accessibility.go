@@ -144,6 +144,7 @@ func (p *Accessibility) AddAPIKey(key APIKey) {
 	}
 	if p.apiKeys.Contains(key.ID()) {
 		p.UpdateAPIKey(key)
+		return
 	}
 	p.apiKeys = append(p.apiKeys, key.Clone())
 }

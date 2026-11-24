@@ -67,21 +67,15 @@ func (l List) Ordered() List {
 }
 
 func (l List) Remove(mid id.ModelID) List {
-	ordered := slices.Clone(l).Ordered()
-	var index int
-	for i, model := range ordered {
-		if mid == model.ID() {
-			index = i
-			break
-		}
-	}
-	if index > len(l) {
+	ordered := l.Clone().Ordered()
+	idx := slices.IndexFunc(ordered, func(m *Model) bool { return m.ID() == mid })
+	if idx < 0 {
 		return l
 	}
-	for _, m2 := range ordered[index:] {
-		m2.order -= 1
+	for _, m := range ordered[idx+1:] {
+		m.order--
 	}
-	return append(ordered[:index], ordered[index+1:]...)
+	return slices.Delete(ordered, idx, idx+1)
 }
 
 func (l List) Model(modelID id.ModelID) *Model {

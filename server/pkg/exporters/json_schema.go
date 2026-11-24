@@ -44,7 +44,10 @@ func targetFields(sp *schema.Package, t JSONSchemaExportTarget) schema.FieldList
 
 func targetId(sp *schema.Package, t JSONSchemaExportTarget) *string {
 	if t == JSONSchemaExportTargetMetadataSchema {
-		return sp.MetaSchema().ID().Ref().StringRef()
+		if ms := sp.MetaSchema(); ms != nil {
+			return ms.ID().Ref().StringRef()
+		}
+		return nil
 	}
 	if t == JSONSchemaExportTargetSchema {
 		return sp.Schema().ID().Ref().StringRef()
@@ -179,7 +182,7 @@ func determineFTypeAndTypeAndFormat(t value.Type) (string, string, string) {
 		return string(t), "string", "binary"
 	case value.TypeGroup:
 		return string(t), "array", ""
-	case value.TypeGeometryObject, value.TypeGeometryEditor:
+	case value.TypeGeometryObject, value.TypeGeometryEditor, value.TypeGeometry:
 		return string(t), "object", ""
 	default:
 		return "", "string", ""

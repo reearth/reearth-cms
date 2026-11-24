@@ -11,6 +11,14 @@ const (
 	TileTypeURL                 TileType = "URL"
 )
 
+func (t TileType) IsValid() bool {
+	switch t {
+	case TileTypeDefault, TileTypeRoadMap, TileTypeOpenStreetMap, TileTypeEarthAtNight, TileTypeJapanGSIStandardMap, TileTypeURL:
+		return true
+	}
+	return false
+}
+
 type TileResource struct {
 	id    ResourceID
 	rtype TileType
