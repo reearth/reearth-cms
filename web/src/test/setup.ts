@@ -7,7 +7,6 @@ import { act, cleanup } from "@testing-library/react";
 // Must be the lib (CJS) build: vitest externalizes antd, so components load
 // antd/lib and antd/es/modal/destroyFns would be a separate, always-empty array.
 import destroyFns from "antd/lib/modal/destroyFns";
-import { unstable_IdlePriority, unstable_scheduleCallback } from "scheduler";
 import { beforeAll, beforeEach, afterEach, expect } from "vitest";
 
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -119,13 +118,4 @@ afterEach(async () => {
   _animationObserver?.disconnect();
   cleanup();
   document.body.innerHTML = "";
-  // act() only captures work scheduled while it is open. Commits fired from
-  // timers during the test body (the observer above, rc-motion's raf steps)
-  // already sit on the real Scheduler, so wait for its queue to empty before
-  // jsdom teardown. Idle tasks never expire, so this sentinel runs only after
-  // every higher-priority task, including yielded continuations. Requires the
-  // pinned `scheduler` devDependency to be the same copy react-dom loads.
-  await new Promise<void>(resolve => {
-    unstable_scheduleCallback(unstable_IdlePriority, () => resolve());
-  });
 });
