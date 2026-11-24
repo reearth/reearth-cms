@@ -64,16 +64,6 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const geometry: FieldListItem = useMemo(
-    () => ({
-      title: t("GeoJSON Geometry"),
-      fields: ["GeometryObject", "GeometryEditor"],
-    }),
-    [t],
-  );
-
-  const group: FieldListItem[] = useMemo(() => [...common, geometry], [common, geometry]);
-
   const data: FieldListItem[] = useMemo(
     () => [
       ...common,
@@ -85,9 +75,8 @@ const FieldList: React.FC<Props> = ({
         title: t("Group"),
         fields: ["Group"],
       },
-      geometry,
     ],
-    [common, geometry, t],
+    [common, t],
   );
 
   const meta: FieldListItem[] = useMemo(
@@ -101,8 +90,8 @@ const FieldList: React.FC<Props> = ({
   );
 
   const dataSource = useMemo(
-    () => (selectedSchemaType === "group" ? group : currentTab === "meta-data" ? meta : data),
-    [selectedSchemaType, group, currentTab, meta, data],
+    () => (selectedSchemaType === "group" ? common : currentTab === "meta-data" ? meta : data),
+    [selectedSchemaType, common, currentTab, meta, data],
   );
 
   return (

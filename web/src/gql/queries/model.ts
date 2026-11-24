@@ -174,14 +174,6 @@ export const GET_MODEL_NODE = gql`
               ... on SchemaFieldGroup {
                 groupId
               }
-              ... on SchemaFieldGeometryObject {
-                defaultValue
-                objectSupportedTypes: supportedTypes
-              }
-              ... on SchemaFieldGeometryEditor {
-                defaultValue
-                editorSupportedTypes: supportedTypes
-              }
             }
           }
         }

@@ -373,13 +373,8 @@ describe("ImportErrorLogUtils", () => {
       expect(entries[0].detail).toBe("No valid field type matched this configuration");
     });
 
-    test("E9: schema paths with x-geoSupportedTypes, x-options, x-multiple labels", () => {
+    test("E9: schema paths with x-options, x-multiple labels", () => {
       const issues: z.core.$ZodIssue[] = [
-        {
-          code: "custom",
-          message: "Error in supported types",
-          path: ["properties", "geoField", "x-geoSupportedTypes"],
-        } as z.core.$ZodIssue,
         {
           code: "custom",
           message: "Error in options",
@@ -392,10 +387,9 @@ describe("ImportErrorLogUtils", () => {
         } as z.core.$ZodIssue,
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
-      expect(entries.length).toBe(3);
-      expect(entries[0].path).toEqual(["properties", "geoField", "x-geoSupportedTypes"]);
-      expect(entries[1].path).toEqual(["properties", "selectField", "x-options"]);
-      expect(entries[2].path).toEqual(["properties", "multiField", "x-multiple"]);
+      expect(entries.length).toBe(2);
+      expect(entries[0].path).toEqual(["properties", "selectField", "x-options"]);
+      expect(entries[1].path).toEqual(["properties", "multiField", "x-multiple"]);
     });
 
     test("E10: content path with numeric index not at position 0", () => {

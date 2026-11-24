@@ -6,25 +6,12 @@ export type Incremental<T> =
 import * as Types from "./graphql.generated";
 
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
-export type GeometryEditorSupportedType = "ANY" | "LINESTRING" | "POINT" | "POLYGON";
-
-export type GeometryObjectSupportedType =
-  | "GEOMETRYCOLLECTION"
-  | "LINESTRING"
-  | "MULTILINESTRING"
-  | "MULTIPOINT"
-  | "MULTIPOLYGON"
-  | "POINT"
-  | "POLYGON";
-
 export type SchemaFieldType =
   | "Asset"
   | "Bool"
   | "Checkbox"
   | "Date"
   | "Geometry"
-  | "GeometryEditor"
-  | "GeometryObject"
   | "Group"
   | "Integer"
   | "MarkdownText"
@@ -86,16 +73,6 @@ export type GetGroupQuery = {
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate"; defaultValue: unknown }
               | { __typename: "SchemaFieldGeometry" }
-              | {
-                  __typename: "SchemaFieldGeometryEditor";
-                  defaultValue: unknown;
-                  editorSupportedTypes: Array<Types.GeometryEditorSupportedType>;
-                }
-              | {
-                  __typename: "SchemaFieldGeometryObject";
-                  defaultValue: unknown;
-                  objectSupportedTypes: Array<Types.GeometryObjectSupportedType>;
-                }
               | { __typename: "SchemaFieldGroup" }
               | {
                   __typename: "SchemaFieldInteger";
@@ -496,60 +473,6 @@ export const GetGroupDocument = {
                                               {
                                                 kind: "Field",
                                                 name: { kind: "Name", value: "defaultValue" },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: "InlineFragment",
-                                          typeCondition: {
-                                            kind: "NamedType",
-                                            name: {
-                                              kind: "Name",
-                                              value: "SchemaFieldGeometryObject",
-                                            },
-                                          },
-                                          selectionSet: {
-                                            kind: "SelectionSet",
-                                            selections: [
-                                              {
-                                                kind: "Field",
-                                                name: { kind: "Name", value: "defaultValue" },
-                                              },
-                                              {
-                                                kind: "Field",
-                                                alias: {
-                                                  kind: "Name",
-                                                  value: "objectSupportedTypes",
-                                                },
-                                                name: { kind: "Name", value: "supportedTypes" },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: "InlineFragment",
-                                          typeCondition: {
-                                            kind: "NamedType",
-                                            name: {
-                                              kind: "Name",
-                                              value: "SchemaFieldGeometryEditor",
-                                            },
-                                          },
-                                          selectionSet: {
-                                            kind: "SelectionSet",
-                                            selections: [
-                                              {
-                                                kind: "Field",
-                                                name: { kind: "Name", value: "defaultValue" },
-                                              },
-                                              {
-                                                kind: "Field",
-                                                alias: {
-                                                  kind: "Name",
-                                                  value: "editorSupportedTypes",
-                                                },
-                                                name: { kind: "Name", value: "supportedTypes" },
                                               },
                                             ],
                                           },

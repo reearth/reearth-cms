@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"slices"
 	"sort"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -28,6 +29,7 @@ var geometryTypes = []string{geometryObjectType, geometryEditorType, string(valu
 // GeometryUnification converts Geometry Object and Geometry Editor fields and their values into Geometry fields.
 // Values stored as GeoJSON strings become GeoJSON objects, and every Geometry value is saved with sorted keys,
 // so that equal geometries are stored identically and the uniqueness query matches them.
+// Members that a geometry must not have are removed, because older values were stored without this check.
 // Values that do not pass the Geometry validation and duplicates in unique fields are converted and reported.
 func GeometryUnification(ctx context.Context, dbURL, dbName string, wetRun bool) error {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURL))
@@ -243,6 +245,8 @@ type geometryValueResult struct {
 	key string
 	// dropped is the number of values that could not be read as a GeoJSON object
 	dropped int
+	// removed are the paths of the members that were removed because a geometry must not have them, or because they are an invalid bbox
+	removed []string
 	// invalid are the validation errors of the converted values
 	invalid []error
 }
@@ -251,13 +255,28 @@ type geometryValueResult struct {
 func convertGeometryValue(stored mongodoc.ValueDocument) geometryValueResult {
 	d := mongodoc.ValueDocument{T: string(value.TypeGeometry), V: stored.V}
 	m := d.MultipleValue()
-	res := geometryValueResult{doc: mongodoc.NewMultipleValue(m)}
+	res := geometryValueResult{dropped: len(stored.V) - m.Len()}
 
-	res.dropped = len(stored.V) - m.Len()
+	// Geometry Object values were validated without checking for unknown members, so they may have some
+	values := m.Interface()
+	for i, v := range values {
+		if g, ok := v.(value.Json); ok {
+			res.removed = append(res.removed, removeUnknownGeometryMembers(g, fmt.Sprintf("[%d]", i))...)
+		}
+	}
+	if len(res.removed) > 0 {
+		m = value.NewMultiple(value.TypeGeometry, values)
+	}
+	res.doc = mongodoc.NewMultipleValue(m)
+
 	for _, v := range m.Values() {
 		if err := schema.NewGeometry().Validate(v); err != nil {
 			res.invalid = append(res.invalid, err)
 		}
+	}
+	// the limits of the whole field value
+	if err := schema.NewGeometry().ValidateMultiple(m); err != nil {
+		res.invalid = append(res.invalid, err)
 	}
 	if m.Len() > 0 {
 		if b, err := json.Marshal(m.Interface()); err == nil {
@@ -266,6 +285,45 @@ func convertGeometryValue(stored mongodoc.ValueDocument) geometryValueResult {
 	}
 	res.changed = !sameValueDocument(stored, res.doc)
 	return res
+}
+
+// removeUnknownGeometryMembers removes every member of g other than "type", "coordinates" (or "geometries" for a GeometryCollection)
+// and a valid "bbox", including in the members of a GeometryCollection. An invalid bbox is removed too.
+// It returns the paths of the removed members. A geometry with an unknown type is kept, so that its validation reports the type.
+func removeUnknownGeometryMembers(g value.Json, path string) []string {
+	member := "coordinates"
+	switch t, _ := g["type"].(string); t {
+	case "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon":
+	case "GeometryCollection":
+		member = "geometries"
+	default:
+		return nil
+	}
+
+	var removed []string
+	for k, v := range g {
+		switch k {
+		case "type", member:
+			continue
+		case "bbox":
+			if schema.ValidateGeometryBBox(v) == nil {
+				continue
+			}
+			removed = append(removed, path+".bbox (invalid)")
+		default:
+			removed = append(removed, path+"."+k)
+		}
+		delete(g, k)
+	}
+	sort.Strings(removed)
+
+	members, _ := g["geometries"].([]any)
+	for i, m := range members {
+		if mg, ok := m.(value.Json); ok {
+			removed = append(removed, removeUnknownGeometryMembers(mg, fmt.Sprintf("%s.geometries[%d]", path, i))...)
+		}
+	}
+	return removed
 }
 
 func sameValueDocument(a mongodoc.ValueDocument, b *mongodoc.ValueDocument) bool {
@@ -283,6 +341,9 @@ func sameValueDocument(a mongodoc.ValueDocument, b *mongodoc.ValueDocument) bool
 func (r geometryValueResult) report(where string) {
 	if r.dropped > 0 {
 		fmt.Printf("%s: %d values are not GeoJSON objects and are removed\n", where, r.dropped)
+	}
+	if len(r.removed) > 0 {
+		fmt.Printf("%s: members not allowed in a geometry and invalid bboxes are removed: %s\n", where, strings.Join(r.removed, ", "))
 	}
 	for _, err := range r.invalid {
 		fmt.Printf("%s: invalid value: %v\n", where, err)

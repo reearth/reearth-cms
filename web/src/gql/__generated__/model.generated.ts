@@ -8,17 +8,6 @@ import * as Types from "./graphql.generated";
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 export type ExportFormat = "CSV" | "GEOJSON" | "JSON";
 
-export type GeometryEditorSupportedType = "ANY" | "LINESTRING" | "POINT" | "POLYGON";
-
-export type GeometryObjectSupportedType =
-  | "GEOMETRYCOLLECTION"
-  | "LINESTRING"
-  | "MULTILINESTRING"
-  | "MULTIPOINT"
-  | "MULTIPOLYGON"
-  | "POINT"
-  | "POLYGON";
-
 export type Pagination = {
   after?: string | null | undefined;
   before?: string | null | undefined;
@@ -46,8 +35,6 @@ export type SchemaFieldType =
   | "Checkbox"
   | "Date"
   | "Geometry"
-  | "GeometryEditor"
-  | "GeometryObject"
   | "Group"
   | "Integer"
   | "MarkdownText"
@@ -101,8 +88,6 @@ export type GetModelsQuery = {
             | { __typename: "SchemaFieldCheckbox" }
             | { __typename: "SchemaFieldDate" }
             | { __typename: "SchemaFieldGeometry" }
-            | { __typename: "SchemaFieldGeometryEditor" }
-            | { __typename: "SchemaFieldGeometryObject" }
             | { __typename: "SchemaFieldGroup" }
             | { __typename: "SchemaFieldInteger"; min: number | null; max: number | null }
             | { __typename: "SchemaFieldMarkdown"; maxLength: number | null }
@@ -164,8 +149,6 @@ export type GetModelQuery = {
               | { __typename: "SchemaFieldCheckbox"; defaultValue: unknown }
               | { __typename: "SchemaFieldDate"; defaultValue: unknown }
               | { __typename: "SchemaFieldGeometry" }
-              | { __typename: "SchemaFieldGeometryEditor" }
-              | { __typename: "SchemaFieldGeometryObject" }
               | { __typename: "SchemaFieldGroup" }
               | { __typename: "SchemaFieldInteger" }
               | { __typename: "SchemaFieldMarkdown" }
@@ -210,16 +193,6 @@ export type GetModelQuery = {
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate"; defaultValue: unknown }
               | { __typename: "SchemaFieldGeometry" }
-              | {
-                  __typename: "SchemaFieldGeometryEditor";
-                  defaultValue: unknown;
-                  editorSupportedTypes: Array<Types.GeometryEditorSupportedType>;
-                }
-              | {
-                  __typename: "SchemaFieldGeometryObject";
-                  defaultValue: unknown;
-                  objectSupportedTypes: Array<Types.GeometryObjectSupportedType>;
-                }
               | { __typename: "SchemaFieldGroup"; groupId: string }
               | {
                   __typename: "SchemaFieldInteger";
@@ -1144,60 +1117,6 @@ export const GetModelDocument = {
                                               {
                                                 kind: "Field",
                                                 name: { kind: "Name", value: "groupId" },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: "InlineFragment",
-                                          typeCondition: {
-                                            kind: "NamedType",
-                                            name: {
-                                              kind: "Name",
-                                              value: "SchemaFieldGeometryObject",
-                                            },
-                                          },
-                                          selectionSet: {
-                                            kind: "SelectionSet",
-                                            selections: [
-                                              {
-                                                kind: "Field",
-                                                name: { kind: "Name", value: "defaultValue" },
-                                              },
-                                              {
-                                                kind: "Field",
-                                                alias: {
-                                                  kind: "Name",
-                                                  value: "objectSupportedTypes",
-                                                },
-                                                name: { kind: "Name", value: "supportedTypes" },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: "InlineFragment",
-                                          typeCondition: {
-                                            kind: "NamedType",
-                                            name: {
-                                              kind: "Name",
-                                              value: "SchemaFieldGeometryEditor",
-                                            },
-                                          },
-                                          selectionSet: {
-                                            kind: "SelectionSet",
-                                            selections: [
-                                              {
-                                                kind: "Field",
-                                                name: { kind: "Name", value: "defaultValue" },
-                                              },
-                                              {
-                                                kind: "Field",
-                                                alias: {
-                                                  kind: "Name",
-                                                  value: "editorSupportedTypes",
-                                                },
-                                                name: { kind: "Name", value: "supportedTypes" },
                                               },
                                             ],
                                           },

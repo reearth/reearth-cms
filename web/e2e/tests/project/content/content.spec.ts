@@ -17,10 +17,6 @@ const TEST_IMPORT_CONTENT_CSV_PATH = path.resolve(
   __dirname,
   "../../../files/test-import-content.csv",
 );
-const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
-  __dirname,
-  "../../../files/test-import-content.geojson",
-);
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -339,43 +335,6 @@ test.describe("Import content", () => {
     });
   });
 
-  test("@smoke Pass Case: Import content with matching schema succeeds with GeoJSON", async ({
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-  }) => {
-    await test.step("Create geometry object field matching template schema", async () => {
-      // TODO: need refactor
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.click();
-      await fieldEditorPage.displayNameInput.fill("location");
-      await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.pointCheckbox.check();
-      await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-
-      await fieldEditorPage.createField(SchemaFieldType.Text, "title");
-
-      await projectPage.contentMenuItem.click();
-    });
-
-    await test.step("Open import modal and upload GeoJSON file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
-    });
-
-    await test.step("Verify import job is created and modal closes", async () => {
-      await expect(contentPage.importContentModal).toBeHidden();
-      await expect(contentPage.tableReloadIcon).toBeVisible();
-      await contentPage.tableReloadIcon.click();
-      await expect(contentPage.tableContentFieldPopoverIcon).toBeVisible();
-      await contentPage.tableContentFieldPopoverIcon.click();
-      await expect(contentPage.tableContentFieldPopoverContent).toBeVisible();
-      await expect(contentPage.tableContentFieldPopoverContent).toHaveText(
-        '{"coordinates":[25.105497,121.597366],"type":"Point"}',
-      );
-    });
-  });
-
   [
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
     { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
@@ -417,43 +376,6 @@ test.describe("Import content", () => {
         await expect(contentPage.importContentErrorWrapper).toContainText(t("Validation errors"));
         await expect(contentPage.importContentGoBackButton).toBeVisible();
       });
-    });
-  });
-
-  test("Fail Case: Import content with GeoJSON file shows schema mismatch warning", async ({
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-  }) => {
-    await test.step("Create text field with different key than template", async () => {
-      await fieldEditorPage.createField(
-        SchemaFieldType.Text,
-        "title-1",
-        "title-1",
-        "",
-        true,
-        false,
-      );
-
-      // TODO: refactor this
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.click();
-      await fieldEditorPage.displayNameInput.fill("location");
-      await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.pointCheckbox.check();
-      await fieldEditorPage.okButton.click();
-
-      await projectPage.contentMenuItem.click();
-    });
-
-    await test.step("Open import modal and upload GeoJSON file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
-    });
-
-    await test.step("Verify error log is displayed", async () => {
-      await expect(contentPage.importContentErrorWrapper).toBeVisible();
-      await expect(contentPage.importContentErrorWrapper).toContainText(t("Validation errors"));
     });
   });
 

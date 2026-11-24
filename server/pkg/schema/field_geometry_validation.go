@@ -292,6 +292,11 @@ func validateGeometryBBoxes(g map[string]any) error {
 	return nil
 }
 
+// ValidateGeometryBBox validates a bbox the way the Geometry field does: its shape and its ranges (RFC 7946 §5).
+func ValidateGeometryBBox(raw any) error {
+	return validateBBox(raw)
+}
+
 // validateBBox validates a bbox: [west, south, east, north], or [west, south, min altitude, east, north, max altitude].
 // West may be greater than east when the bbox crosses the antimeridian (RFC 7946 §5.2).
 func validateBBox(raw any) error {

@@ -623,23 +623,6 @@ export type FieldsPayload = {
   fields: Array<SchemaField>;
 };
 
-export enum GeometryEditorSupportedType {
-  Any = "ANY",
-  Linestring = "LINESTRING",
-  Point = "POINT",
-  Polygon = "POLYGON",
-}
-
-export enum GeometryObjectSupportedType {
-  Geometrycollection = "GEOMETRYCOLLECTION",
-  Linestring = "LINESTRING",
-  Multilinestring = "MULTILINESTRING",
-  Multipoint = "MULTIPOINT",
-  Multipolygon = "MULTIPOLYGON",
-  Point = "POINT",
-  Polygon = "POLYGON",
-}
-
 export type Group = Node & {
   __typename?: "Group";
   description: Scalars["String"]["output"];
@@ -1873,30 +1856,8 @@ export type SchemaFieldGeometry = {
   defaultValue?: Maybe<Scalars["Any"]["output"]>;
 };
 
-export type SchemaFieldGeometryEditor = {
-  __typename?: "SchemaFieldGeometryEditor";
-  defaultValue?: Maybe<Scalars["Any"]["output"]>;
-  supportedTypes: Array<GeometryEditorSupportedType>;
-};
-
-export type SchemaFieldGeometryEditorInput = {
-  defaultValue?: InputMaybe<Scalars["Any"]["input"]>;
-  supportedTypes: Array<GeometryEditorSupportedType>;
-};
-
 export type SchemaFieldGeometryInput = {
   defaultValue?: InputMaybe<Scalars["Any"]["input"]>;
-};
-
-export type SchemaFieldGeometryObject = {
-  __typename?: "SchemaFieldGeometryObject";
-  defaultValue?: Maybe<Scalars["Any"]["output"]>;
-  supportedTypes: Array<GeometryObjectSupportedType>;
-};
-
-export type SchemaFieldGeometryObjectInput = {
-  defaultValue?: InputMaybe<Scalars["Any"]["input"]>;
-  supportedTypes: Array<GeometryObjectSupportedType>;
 };
 
 export type SchemaFieldGroup = {
@@ -2047,8 +2008,6 @@ export enum SchemaFieldType {
   Checkbox = "Checkbox",
   Date = "Date",
   Geometry = "Geometry",
-  GeometryEditor = "GeometryEditor",
-  GeometryObject = "GeometryObject",
   Group = "Group",
   Integer = "Integer",
   MarkdownText = "MarkdownText",
@@ -2068,8 +2027,6 @@ export type SchemaFieldTypeProperty =
   | SchemaFieldCheckbox
   | SchemaFieldDate
   | SchemaFieldGeometry
-  | SchemaFieldGeometryEditor
-  | SchemaFieldGeometryObject
   | SchemaFieldGroup
   | SchemaFieldInteger
   | SchemaFieldMarkdown
@@ -2088,8 +2045,6 @@ export type SchemaFieldTypePropertyInput = {
   checkbox?: InputMaybe<SchemaFieldCheckboxInput>;
   date?: InputMaybe<SchemaFieldDateInput>;
   geometry?: InputMaybe<SchemaFieldGeometryInput>;
-  geometryEditor?: InputMaybe<SchemaFieldGeometryEditorInput>;
-  geometryObject?: InputMaybe<SchemaFieldGeometryObjectInput>;
   group?: InputMaybe<SchemaFieldGroupInput>;
   integer?: InputMaybe<SchemaFieldIntegerInput>;
   markdownText?: InputMaybe<SchemaMarkdownTextInput>;

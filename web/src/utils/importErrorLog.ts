@@ -25,8 +25,6 @@ export abstract class ImportErrorLogUtils {
   private static readonly SCHEMA_PATH_LABELS: Record<string, () => string> = {
     "x-defaultValue": () => t("Default value"),
     "x-fieldType": () => t("Field Type"),
-    "x-geoSupportedTypes": () => t("Supported types"),
-    "x-geoSupportedType": () => t("Supported type"),
     "x-options": () => t("Options"),
     "x-multiple": () => t("Multiple"),
   };

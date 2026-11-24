@@ -29,17 +29,6 @@ export type CreateFieldInput = {
   unique: boolean;
 };
 
-export type GeometryEditorSupportedType = "ANY" | "LINESTRING" | "POINT" | "POLYGON";
-
-export type GeometryObjectSupportedType =
-  | "GEOMETRYCOLLECTION"
-  | "LINESTRING"
-  | "MULTILINESTRING"
-  | "MULTIPOINT"
-  | "MULTIPOLYGON"
-  | "POINT"
-  | "POLYGON";
-
 export type SchemaFieldAssetInput = {
   defaultValue?: unknown;
 };
@@ -56,18 +45,8 @@ export type SchemaFieldDateInput = {
   defaultValue?: unknown;
 };
 
-export type SchemaFieldGeometryEditorInput = {
-  defaultValue?: unknown;
-  supportedTypes: Array<GeometryEditorSupportedType>;
-};
-
 export type SchemaFieldGeometryInput = {
   defaultValue?: unknown;
-};
-
-export type SchemaFieldGeometryObjectInput = {
-  defaultValue?: unknown;
-  supportedTypes: Array<GeometryObjectSupportedType>;
 };
 
 export type SchemaFieldGroupInput = {
@@ -142,8 +121,6 @@ export type SchemaFieldType =
   | "Checkbox"
   | "Date"
   | "Geometry"
-  | "GeometryEditor"
-  | "GeometryObject"
   | "Group"
   | "Integer"
   | "MarkdownText"
@@ -162,8 +139,6 @@ export type SchemaFieldTypePropertyInput = {
   checkbox?: SchemaFieldCheckboxInput | null | undefined;
   date?: SchemaFieldDateInput | null | undefined;
   geometry?: SchemaFieldGeometryInput | null | undefined;
-  geometryEditor?: SchemaFieldGeometryEditorInput | null | undefined;
-  geometryObject?: SchemaFieldGeometryObjectInput | null | undefined;
   group?: SchemaFieldGroupInput | null | undefined;
   integer?: SchemaFieldIntegerInput | null | undefined;
   markdownText?: SchemaMarkdownTextInput | null | undefined;

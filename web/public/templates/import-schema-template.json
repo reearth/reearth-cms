@@ -202,62 +202,6 @@
       "x-required": true,
       "x-multiple": true,
       "x-unique": false
-    },
-    "geo-object-key": {
-      "title": "geo-object-key",
-      "description": "this geo object field",
-      "x-fieldType": "geometryObject",
-      "x-defaultValue": {
-        "type": "Point",
-        "coordinates": [139.6917, 35.6895]
-      },
-      "x-required": true,
-      "x-multiple": false,
-      "x-unique": false,
-      "x-geoSupportedTypes": ["POINT"]
-    },
-    "geo-object-key-multi": {
-      "title": "geo-object-key-multi",
-      "description": "this geo object field with multiple value",
-      "x-fieldType": "geometryObject",
-      "x-defaultValue": [
-        {
-          "type": "Point",
-          "coordinates": [139.6917, 35.6895]
-        }
-      ],
-      "x-required": true,
-      "x-multiple": true,
-      "x-unique": false,
-      "x-geoSupportedTypes": ["POINT"]
-    },
-    "geo-editor-key": {
-      "title": "geo-object-key",
-      "description": "this geo editor field",
-      "x-fieldType": "geometryEditor",
-      "x-defaultValue": {
-        "type": "Point",
-        "coordinates": [139.6917, 35.6895]
-      },
-      "x-required": true,
-      "x-multiple": false,
-      "x-unique": false,
-      "x-geoSupportedType": "POINT"
-    },
-    "geo-editor-key-multi": {
-      "title": "geo-object-key-multi",
-      "description": "this geo editor field with multiple value",
-      "x-fieldType": "geometryEditor",
-      "x-defaultValue": [
-        {
-          "type": "Point",
-          "coordinates": [139.6917, 35.6895]
-        }
-      ],
-      "x-required": true,
-      "x-multiple": true,
-      "x-unique": false,
-      "x-geoSupportedType": "POINT"
     }
   }
 }

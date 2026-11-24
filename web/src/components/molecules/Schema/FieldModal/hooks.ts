@@ -15,8 +15,6 @@ import type {
   SchemaFieldType,
   FormValues,
   FormTypes,
-  ObjectSupportedType,
-  EditorSupportedType,
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
@@ -37,10 +35,6 @@ export default (
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
-  const selectedSupportedTypes = Form.useWatch<ObjectSupportedType[] | EditorSupportedType>(
-    "supportedTypes",
-    form,
-  );
   const maxLength = Form.useWatch("maxLength", form);
   const min = Form.useWatch("min", form);
   const max = Form.useWatch("max", form);
@@ -146,9 +140,6 @@ export default (
       values: selectedField?.typeProperty?.values,
       tags: selectedField?.typeProperty?.tags,
       group: selectedField?.typeProperty?.groupId,
-      supportedTypes:
-        selectedField?.typeProperty?.objectSupportedTypes ||
-        selectedField?.typeProperty?.editorSupportedTypes?.[0],
     };
     form.setFieldsValue(defaultValue);
     defaultValueRef.current = defaultValue;
@@ -224,20 +215,6 @@ export default (
         return {
           group: { groupId: values.group },
         };
-      case "GeometryObject":
-        return {
-          geometryObject: {
-            defaultValue: values.defaultValue,
-            supportedTypes: values.supportedTypes,
-          },
-        };
-      case "GeometryEditor":
-        return {
-          geometryEditor: {
-            defaultValue: values.defaultValue,
-            supportedTypes: [values.supportedTypes],
-          },
-        };
       case "Text":
       default:
         return {
@@ -252,7 +229,6 @@ export default (
       if (
         form.getFieldValue("values")?.length === 0 ||
         form.getFieldValue("group")?.length === 0 ||
-        form.getFieldValue("supportedTypes")?.length === 0 ||
         form.getFieldValue("tags")?.length === 0
       ) {
         setButtonDisabled(true);
@@ -261,12 +237,8 @@ export default (
         const hasChanges =
           !origValues ||
           (Object.keys(origValues) as (keyof FormTypes)[]).some(k => {
-            let curr: unknown = form.getFieldValue(k);
-            let orig: unknown = origValues[k];
-            if (k === "supportedTypes" && Array.isArray(curr) && Array.isArray(orig)) {
-              curr = [...curr].sort();
-              orig = [...orig].sort();
-            }
+            const curr: unknown = form.getFieldValue(k);
+            const orig: unknown = origValues[k];
             return JSON.stringify(emptyConvert(curr)) !== JSON.stringify(emptyConvert(orig));
           });
 
@@ -285,13 +257,8 @@ export default (
 
   const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
     const [key, value] = Object.entries(changedValues)[0] as [keyof FormTypes, unknown];
-    let changedValue = value;
-    let defaultValue = defaultValueRef.current?.[key];
-    if (key === "supportedTypes" && Array.isArray(value) && Array.isArray(defaultValue)) {
-      changedValue = [...value].sort();
-      defaultValue = [...defaultValue].sort();
-    }
-    if (JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))) {
+    const defaultValue = defaultValueRef.current?.[key];
+    if (JSON.stringify(emptyConvert(value)) === JSON.stringify(emptyConvert(defaultValue))) {
       changedKeys.current.delete(key);
     } else {
       changedKeys.current.add(key);
@@ -369,44 +336,17 @@ export default (
     [isMeta, selectedSchemaType, selectedType],
   );
 
-  const ObjectSupportType = useMemo(
-    () => [
-      { label: "Point", value: "POINT" },
-      { label: "Linestring", value: "LINESTRING" },
-      { label: "Polygon", value: "POLYGON" },
-      { label: "GeometryCollection", value: "GEOMETRYCOLLECTION" },
-      { label: "MultiPoint", value: "MULTIPOINT" },
-      { label: "MultiLinestring", value: "MULTILINESTRING" },
-      { label: "MultiPolygon", value: "MULTIPOLYGON" },
-    ],
-    [],
-  );
-
-  const EditorSupportType = useMemo(
-    () => [
-      { label: "Point", value: "POINT" },
-      { label: "Linestring", value: "LINESTRING" },
-      { label: "Polygon", value: "POLYGON" },
-      { label: "Any", value: "ANY" },
-    ],
-    [],
-  );
-
   useEffect(() => {
     if (open && !selectedField) {
       if (selectedType === "Select") {
         form.setFieldValue("values", []);
       } else if (selectedType === "Group") {
         form.setFieldValue("group", "");
-      } else if (selectedType === "GeometryObject") {
-        form.setFieldValue("supportedTypes", []);
-      } else if (selectedType === "GeometryEditor") {
-        form.setFieldValue("supportedTypes", EditorSupportType[0].value);
       } else if (selectedType === "Tag") {
         form.setFieldValue("tags", []);
       }
     }
-  }, [EditorSupportType, form, open, selectedField, selectedType]);
+  }, [form, open, selectedField, selectedType]);
 
   const [emptyIndexes, setEmptyIndexes] = useState<number[]>([]);
   const emptyValidator = useCallback(async (values?: string[]) => {
@@ -449,7 +389,6 @@ export default (
     activeTab,
     selectedValues,
     selectedTags,
-    selectedSupportedTypes,
     maxLength,
     min,
     max,
@@ -465,8 +404,6 @@ export default (
     isUniqueDisabled,
     keyValidate,
     isTitleDisabled,
-    ObjectSupportType,
-    EditorSupportType,
     emptyValidator,
     duplicatedValidator,
     errorIndexes,

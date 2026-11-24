@@ -14,8 +14,6 @@ export type SchemaFieldType =
   | "Checkbox"
   | "Date"
   | "Geometry"
-  | "GeometryEditor"
-  | "GeometryObject"
   | "Group"
   | "Integer"
   | "MarkdownText"
@@ -100,8 +98,6 @@ export type RequestFragmentFragment = {
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate" }
               | { __typename: "SchemaFieldGeometry" }
-              | { __typename: "SchemaFieldGeometryEditor" }
-              | { __typename: "SchemaFieldGeometryObject" }
               | { __typename: "SchemaFieldGroup"; groupId: string }
               | {
                   __typename: "SchemaFieldInteger";

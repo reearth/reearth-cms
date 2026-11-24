@@ -4,11 +4,9 @@ import type { GeoJsonProperties, GeoJSON } from "geojson";
 import type { ParseResult } from "papaparse";
 import Papa from "papaparse";
 import z from "zod";
-import { GeoJSON2DSchema } from "zod-geojson";
 
 import type { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
-import type { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/types";
 import { t } from "@reearth-cms/i18n";
 
 import { Constant } from "./constant";
@@ -35,13 +33,6 @@ type FieldClassifier = (
 interface ValidatorWithClassifiers {
   schema: z.ZodType<ImportContentItem>;
   classifiers: Record<string, FieldClassifier>;
-}
-
-enum CustomError {
-  SUPPORTED_TYPES_INVALID = "invalid supportedTypes",
-  SUPPORTED_TYPES_OUT_OF_RANGE = "supportedTypes out of range",
-  EDITOR_SUPPORTED_TYPES_INVALID = "invalid editorSupportedTypes",
-  EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE = "editorSupportedTypes out of range",
 }
 
 export abstract class ImportContentUtils {
@@ -77,7 +68,7 @@ export abstract class ImportContentUtils {
 
   private static getValidatorMeta(
     fieldData: Model["schema"]["fields"],
-    sourceFormat: ContentSourceFormat,
+    _sourceFormat: ContentSourceFormat,
   ): ValidatorWithClassifiers {
     const validateObj: Record<string, z.ZodTypeAny> = {};
     const classifiers: Record<string, FieldClassifier> = {};
@@ -438,154 +429,6 @@ export abstract class ImportContentUtils {
           break;
         }
 
-        case "GeometryObject": {
-          // CSV file cannot contain geometry object
-          if (sourceFormat === "JSON") {
-            const supportedTypes = z
-              .union([
-                z.literal("POINT"),
-                z.literal("MULTIPOINT"),
-                z.literal("LINESTRING"),
-                z.literal("MULTILINESTRING"),
-                z.literal("POLYGON"),
-                z.literal("MULTIPOLYGON"),
-                z.literal("GEOMETRYCOLLECTION"),
-              ])
-              .array()
-              .safeParse(field.typeProperty?.objectSupportedTypes);
-
-            let geoObjectField: z.ZodTypeAny = GeoJSON2DSchema.superRefine((_value, context) => {
-              if (!supportedTypes.success) {
-                context.addIssue({
-                  code: "custom",
-                  input: field.typeProperty?.objectSupportedTypes,
-                  expected:
-                    "POINT | MULTIPOINT | LINESTRING | MULTILINESTRING | POLYGON | MULTIPOLYGON | GEOMETRYCOLLECTION",
-                  message: CustomError.SUPPORTED_TYPES_INVALID,
-                });
-              }
-            }).superRefine((value, context) => {
-              const valueType = this.extractGeoTypeName(value);
-
-              if (
-                supportedTypes.success &&
-                valueType &&
-                !supportedTypes.data.includes(valueType as ObjectSupportedType)
-              ) {
-                context.addIssue({
-                  code: "custom",
-                  input: valueType,
-                  expected: supportedTypes.data.join(" | "),
-                  message: CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
-                });
-              }
-            });
-
-            // validate multiple and add into schema
-            const multiple = z.boolean().parse(field.multiple);
-
-            // validate defaultValue into schema with single or multiple respectively
-            if (multiple) {
-              const defaultValuesValidation = GeoJSON2DSchema.array()
-                .optional()
-                .safeParse(field.typeProperty?.defaultValue);
-
-              if (defaultValuesValidation.success && defaultValuesValidation.data)
-                geoObjectField = geoObjectField.array().default(defaultValuesValidation.data);
-              else geoObjectField = geoObjectField.array();
-            } else {
-              const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
-                field.typeProperty?.defaultValue,
-              );
-
-              if (defaultValueValidation.success && defaultValueValidation.data)
-                geoObjectField = geoObjectField.default(defaultValueValidation.data);
-            }
-
-            validateObj[field.key] = !field.required
-              ? geoObjectField.nullable().optional()
-              : geoObjectField;
-            classifiers[field.key] = this.geoClassifier(
-              CustomError.SUPPORTED_TYPES_INVALID,
-              CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
-            );
-          }
-
-          break;
-        }
-
-        case "GeometryEditor": {
-          // CSV file cannot contain geometry object
-          if (sourceFormat === "JSON") {
-            const editorSupportedTypes = z
-              .union([
-                z.literal("POINT"),
-                z.literal("LINESTRING"),
-                z.literal("POLYGON"),
-                z.literal("ANY"),
-              ])
-              .array()
-              .safeParse(field.typeProperty?.editorSupportedTypes);
-
-            let geoEditorField: z.ZodTypeAny = GeoJSON2DSchema.superRefine((_value, context) => {
-              if (!editorSupportedTypes.success) {
-                context.addIssue({
-                  code: "custom",
-                  input: field.typeProperty?.editorSupportedTypes,
-                  expected: "POINT, LINESTRING, POLYGON, ANY",
-                  message: CustomError.EDITOR_SUPPORTED_TYPES_INVALID,
-                });
-              }
-            }).superRefine((value, context) => {
-              const valueType = this.extractGeoTypeName(value);
-
-              if (
-                editorSupportedTypes.success &&
-                valueType &&
-                !editorSupportedTypes.data.some(type => type === valueType)
-              ) {
-                context.addIssue({
-                  code: "custom",
-                  input: valueType,
-                  expected: editorSupportedTypes.data.join(" | "),
-                  message: CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
-                });
-              }
-            });
-
-            // validate multiple and add into schema
-            const multiple = z.boolean().parse(field.multiple);
-
-            // validate defaultValue into schema with single or multiple respectively
-            if (multiple) {
-              const defaultValuesValidation = GeoJSON2DSchema.array()
-                .optional()
-                .safeParse(field.typeProperty?.defaultValue);
-
-              if (defaultValuesValidation.success && defaultValuesValidation.data)
-                geoEditorField = geoEditorField.array().default(defaultValuesValidation.data);
-              else geoEditorField = geoEditorField.array();
-            } else {
-              const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
-                field.typeProperty?.defaultValue,
-              );
-
-              if (defaultValueValidation.success && defaultValueValidation.data)
-                geoEditorField = geoEditorField.default(defaultValueValidation.data);
-            }
-
-            validateObj[field.key] = !field.required
-              ? geoEditorField.nullable().optional()
-              : geoEditorField;
-            classifiers[field.key] = this.geoClassifier(
-              CustomError.EDITOR_SUPPORTED_TYPES_INVALID,
-              CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
-            );
-          }
-
-          break;
-        }
-
         default:
       }
     });
@@ -697,18 +540,6 @@ export abstract class ImportContentUtils {
     };
   }
 
-  private static extractGeoTypeName(value: unknown): string | null {
-    if (
-      typeof value === "object" &&
-      value !== null &&
-      "type" in value &&
-      typeof value.type === "string"
-    ) {
-      return value.type.toUpperCase();
-    }
-    return null;
-  }
-
   private static typeOnlyClassifier(): FieldClassifier {
     return issue => {
       if (issue.code === "invalid_type") return "typeMismatch";
@@ -749,18 +580,6 @@ export abstract class ImportContentUtils {
         }
         return "outOfRange";
       }
-      return null;
-    };
-  }
-
-  private static geoClassifier(invalidMsg: string, outOfRangeMsg: string): FieldClassifier {
-    return issue => {
-      if (issue.code === "custom") {
-        if (issue.message === invalidMsg) return "typeMismatch";
-        if (issue.message === outOfRangeMsg) return "outOfRange";
-      }
-      // Other errors (from GeoJSON2DSchema validation) are type mismatches
-      if (issue.code === "invalid_type" || issue.code === "invalid_union") return "typeMismatch";
       return null;
     };
   }

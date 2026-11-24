@@ -29,8 +29,6 @@ export type SchemaFieldType =
   | "Checkbox"
   | "Date"
   | "Geometry"
-  | "GeometryEditor"
-  | "GeometryObject"
   | "Group"
   | "Integer"
   | "MarkdownText"
@@ -211,8 +209,6 @@ export type GetRequestQuery = {
                     | { __typename: "SchemaFieldCheckbox" }
                     | { __typename: "SchemaFieldDate" }
                     | { __typename: "SchemaFieldGeometry" }
-                    | { __typename: "SchemaFieldGeometryEditor" }
-                    | { __typename: "SchemaFieldGeometryObject" }
                     | { __typename: "SchemaFieldGroup"; groupId: string }
                     | {
                         __typename: "SchemaFieldInteger";
@@ -369,8 +365,6 @@ export type CreateRequestMutation = {
                   | { __typename: "SchemaFieldCheckbox" }
                   | { __typename: "SchemaFieldDate" }
                   | { __typename: "SchemaFieldGeometry" }
-                  | { __typename: "SchemaFieldGeometryEditor" }
-                  | { __typename: "SchemaFieldGeometryObject" }
                   | { __typename: "SchemaFieldGroup"; groupId: string }
                   | {
                       __typename: "SchemaFieldInteger";
@@ -522,8 +516,6 @@ export type UpdateRequestMutation = {
                   | { __typename: "SchemaFieldCheckbox" }
                   | { __typename: "SchemaFieldDate" }
                   | { __typename: "SchemaFieldGeometry" }
-                  | { __typename: "SchemaFieldGeometryEditor" }
-                  | { __typename: "SchemaFieldGeometryObject" }
                   | { __typename: "SchemaFieldGroup"; groupId: string }
                   | {
                       __typename: "SchemaFieldInteger";
@@ -670,8 +662,6 @@ export type ApproveRequestMutation = {
                   | { __typename: "SchemaFieldCheckbox" }
                   | { __typename: "SchemaFieldDate" }
                   | { __typename: "SchemaFieldGeometry" }
-                  | { __typename: "SchemaFieldGeometryEditor" }
-                  | { __typename: "SchemaFieldGeometryObject" }
                   | { __typename: "SchemaFieldGroup"; groupId: string }
                   | {
                       __typename: "SchemaFieldInteger";

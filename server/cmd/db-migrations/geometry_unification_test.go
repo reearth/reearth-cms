@@ -177,6 +177,7 @@ func TestConvertGeometryValue(t *testing.T) {
 		wantChanged bool
 		wantKey     string
 		wantDropped int
+		wantRemoved []string
 		wantInvalid []error
 	}{
 		{
@@ -201,6 +202,68 @@ func TestConvertGeometryValue(t *testing.T) {
 			stored:      mongodoc.ValueDocument{T: "geometry", V: []any{bson.D{{Key: "type", Value: "Point"}, {Key: "coordinates", Value: bson.A{139.7, 35.6}}}}},
 			wantChanged: true,
 			wantKey:     `[{"coordinates":[139.7,35.6],"type":"Point"}]`,
+		},
+		{
+			name:        "unknown members are removed",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"Point","coordinates":[139.7,35.6],"properties":{"name":"Tokyo"},"id":1}`}},
+			wantChanged: true,
+			wantKey:     `[{"coordinates":[139.7,35.6],"type":"Point"}]`,
+			wantRemoved: []string{"[0].id", "[0].properties"},
+		},
+		{
+			name:        "unknown members are removed from geometry collection members",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{point, `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,1],"name":"a"}],"coordinates":[]}`}},
+			wantChanged: true,
+			wantKey:     `[{"coordinates":[139.7,35.6],"type":"Point"},{"geometries":[{"coordinates":[1,1],"type":"Point"}],"type":"GeometryCollection"}]`,
+			wantRemoved: []string{"[1].coordinates", "[1].geometries[0].name"},
+		},
+		{
+			name:        "unknown members are removed from geometry values",
+			stored:      mongodoc.ValueDocument{T: "geometry", V: []any{bson.D{{Key: "coordinates", Value: bson.A{139.7, 35.6}}, {Key: "name", Value: "a"}, {Key: "type", Value: "Point"}}}},
+			wantChanged: true,
+			wantKey:     `[{"coordinates":[139.7,35.6],"type":"Point"}]`,
+			wantRemoved: []string{"[0].name"},
+		},
+		{
+			name:        "a valid bbox is kept",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}`}},
+			wantChanged: true,
+			wantKey:     `[{"bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6],"type":"Point"}]`,
+		},
+		{
+			name:        "a valid bbox is kept while unknown members are removed",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6],"id":1}`}},
+			wantChanged: true,
+			wantKey:     `[{"bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6],"type":"Point"}]`,
+			wantRemoved: []string{"[0].id"},
+		},
+		{
+			name:        "an invalid bbox is removed",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"Point","bbox":[0,0,200,1],"coordinates":[139.7,35.6]}`}},
+			wantChanged: true,
+			wantKey:     `[{"coordinates":[139.7,35.6],"type":"Point"}]`,
+			wantRemoved: []string{"[0].bbox (invalid)"},
+		},
+		{
+			name:        "an invalid bbox of a geometry collection member is removed",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"GeometryCollection","geometries":[{"type":"Point","bbox":[1,1],"coordinates":[1,1]}]}`}},
+			wantChanged: true,
+			wantKey:     `[{"geometries":[{"coordinates":[1,1],"type":"Point"}],"type":"GeometryCollection"}]`,
+			wantRemoved: []string{"[0].geometries[0].bbox (invalid)"},
+		},
+		{
+			name:        "an empty geometry is reported",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"MultiPoint","coordinates":[]}`}},
+			wantChanged: true,
+			wantKey:     `[{"coordinates":[],"type":"MultiPoint"}]`,
+			wantInvalid: []error{schema.ErrGeometryEmpty},
+		},
+		{
+			name:        "a geometry with an unknown type is kept and reported",
+			stored:      mongodoc.ValueDocument{T: "geometryObject", V: []any{`{"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]},"properties":{}}`}},
+			wantChanged: true,
+			wantKey:     `[{"geometry":{"coordinates":[1,1],"type":"Point"},"properties":{},"type":"Feature"}]`,
+			wantInvalid: []error{schema.ErrGeometryInvalidType},
 		},
 		{
 			name:        "invalid geometry",
@@ -230,6 +293,7 @@ func TestConvertGeometryValue(t *testing.T) {
 			assert.Equal(t, tt.wantChanged, res.changed)
 			assert.Equal(t, tt.wantKey, res.key)
 			assert.Equal(t, tt.wantDropped, res.dropped)
+			assert.Equal(t, tt.wantRemoved, res.removed)
 			if assert.Len(t, res.invalid, len(tt.wantInvalid)) {
 				for i, err := range tt.wantInvalid {
 					assert.ErrorIs(t, res.invalid[i], err)
@@ -237,6 +301,22 @@ func TestConvertGeometryValue(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestConvertGeometryValue_Limits(t *testing.T) {
+	t.Parallel()
+
+	points := make([]any, 1_001)
+	for i := range points {
+		points[i] = `{"type":"Point","coordinates":[1,1]}`
+	}
+	res := convertGeometryValue(mongodoc.ValueDocument{T: "geometryEditor", V: points})
+	if assert.Len(t, res.invalid, 1) {
+		assert.ErrorIs(t, res.invalid[0], schema.ErrGeometryTooManyGeometries)
+	}
+
+	res = convertGeometryValue(mongodoc.ValueDocument{T: "geometryEditor", V: points[:1_000]})
+	assert.Empty(t, res.invalid)
 }
 
 func fieldsToAny(fields []bson.M) []any {

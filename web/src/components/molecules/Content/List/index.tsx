@@ -17,7 +17,6 @@ import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
 import type { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import type {
   ConditionInput,
   CurrentView,
@@ -156,16 +155,6 @@ const ContentListMolecule: React.FC<Props> = ({
     [exportContentLoading, totalCount],
   );
 
-  const getGeometryFieldsCount = useMemo(
-    () =>
-      model?.schema?.fields?.filter(
-        field =>
-          field.type === SchemaFieldType.GeometryEditor ||
-          field.type === SchemaFieldType.GeometryObject,
-      ).length ?? 0,
-    [model?.schema?.fields],
-  );
-
   const exportContentMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
@@ -181,10 +170,10 @@ const ContentListMolecule: React.FC<Props> = ({
       {
         key: "export-geojson",
         label: t("GeoJSON"),
-        onClick: () => onContentExport(ExportFormat.Geojson, getGeometryFieldsCount),
+        onClick: () => onContentExport(ExportFormat.Geojson),
       },
     ],
-    [t, onContentExport, getGeometryFieldsCount],
+    [t, onContentExport],
   );
 
   const dropdownItems = useMemo<MenuProps["items"]>(
