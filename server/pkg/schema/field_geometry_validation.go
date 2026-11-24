@@ -32,6 +32,7 @@ var (
 	ErrGeometryRingTooShort        = rerror.WrapE(i18n.T("a polygon ring must have at least 4 positions"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryRingNotClosed       = rerror.WrapE(i18n.T("the first and last positions of a polygon ring must be equal"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryNestedCollection    = rerror.WrapE(i18n.T("a GeometryCollection must not contain another GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryEmpty               = rerror.WrapE(i18n.T("a geometry must not be empty"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryTooManyGeometries   = rerror.WrapE(i18n.T("a Geometry field can have at most 1,000 geometries"), ErrGeoFieldMaxSizeExceeded)
 	ErrGeometryTooManyCoordinates  = rerror.WrapE(i18n.T("a Geometry field value can have at most 100,000 coordinates"), ErrGeoFieldMaxSizeExceeded)
 	ErrGeometryInvalidBBox         = rerror.WrapE(i18n.T("a bbox must be [west, south, east, north], with an optional altitude range"), ErrGeoFieldInvalidGeoStructure)
@@ -281,17 +282,17 @@ func validateGeometryCoordinates(g *geojson.Geometry) error {
 	case geojson.GeometryPoint:
 		return validatePosition(g.Point)
 	case geojson.GeometryMultiPoint:
-		return validateAll(g.MultiPoint, validatePosition)
+		return validateParts(g.MultiPoint, validatePosition)
 	case geojson.GeometryLineString:
 		return validateLineString(g.LineString)
 	case geojson.GeometryMultiLineString:
-		return validateAll(g.MultiLineString, validateLineString)
+		return validateParts(g.MultiLineString, validateLineString)
 	case geojson.GeometryPolygon:
 		return validatePolygon(g.Polygon)
 	case geojson.GeometryMultiPolygon:
-		return validateAll(g.MultiPolygon, validatePolygon)
+		return validateParts(g.MultiPolygon, validatePolygon)
 	case geojson.GeometryCollection:
-		return validateAll(g.Geometries, validateGeometryCoordinates)
+		return validateParts(g.Geometries, validateGeometryCoordinates)
 	}
 	return nil
 }
@@ -322,7 +323,15 @@ func validateLineString(l [][]float64) error {
 }
 
 func validatePolygon(rings [][][]float64) error {
-	return validateAll(rings, validateRing)
+	return validateParts(rings, validateRing)
+}
+
+// validateParts validates the parts of a geometry, which must have at least one part.
+func validateParts[T any](parts []T, validate func(T) error) error {
+	if len(parts) == 0 {
+		return ErrGeometryEmpty
+	}
+	return validateAll(parts, validate)
 }
 
 func validateRing(r [][]float64) error {

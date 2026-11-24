@@ -90,6 +90,7 @@ func TestIntegrationItemGeometryField(t *testing.T) {
 	for _, v := range []any{
 		map[string]any{"type": "Point", "coordinates": []any{35.6, 139.7}},
 		map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}, "name": "x"},
+		map[string]any{"type": "MultiPoint", "coordinates": []any{}},
 		map[string]any{"type": "Point", "bbox": []any{0, 0, 200, 1}, "coordinates": []any{139.7, 35.6}},
 		map[string]any{"type": "GeometryCollection", "geometries": []any{map[string]any{"type": "GeometryCollection", "geometries": []any{}}}},
 		map[string]any{"type": "LineString", "coordinates": []any{[]any{139.7, 35.6}}},

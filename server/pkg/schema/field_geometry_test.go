@@ -45,14 +45,6 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "multi polygon", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]]]}`},
 		{name: "geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,1]},{"type":"LineString","coordinates":[[1,1],[2,2]]}]}`},
 
-		// empty geometries are accepted, like the web editor
-		{name: "empty multi point", input: `{"type":"MultiPoint","coordinates":[]}`},
-		{name: "empty multi line string", input: `{"type":"MultiLineString","coordinates":[]}`},
-		{name: "polygon without rings", input: `{"type":"Polygon","coordinates":[]}`},
-		{name: "empty multi polygon", input: `{"type":"MultiPolygon","coordinates":[]}`},
-		{name: "multi polygon with a polygon without rings", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]],[]]}`},
-		{name: "empty geometry collection", input: `{"type":"GeometryCollection","geometries":[]}`},
-		{name: "empty member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[]}]}`},
 		// valid bbox
 		{name: "bbox of a point", input: `{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}`},
 		{name: "bbox of a polygon", input: `{"type":"Polygon","bbox":[0,0,1,1],"coordinates":[[[0,0],[1,0],[1,1],[0,0]]]}`},
@@ -120,6 +112,13 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "ring closed with a different altitude", input: `{"type":"Polygon","coordinates":[[[0,0,1],[1,0],[1,1],[0,0]]]}`, want: ErrGeometryRingNotClosed},
 		{name: "hole not closed", input: `{"type":"Polygon","coordinates":[[[0,0],[10,0],[10,10],[0,0]],[[1,1],[2,1],[2,2],[1,2]]]}`, want: ErrGeometryRingNotClosed},
 		{name: "multi polygon with an invalid ring", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[0,0]]]]}`, want: ErrGeometryRingTooShort},
+		{name: "empty multi point", input: `{"type":"MultiPoint","coordinates":[]}`, want: ErrGeometryEmpty},
+		{name: "empty multi line string", input: `{"type":"MultiLineString","coordinates":[]}`, want: ErrGeometryEmpty},
+		{name: "polygon without rings", input: `{"type":"Polygon","coordinates":[]}`, want: ErrGeometryEmpty},
+		{name: "empty multi polygon", input: `{"type":"MultiPolygon","coordinates":[]}`, want: ErrGeometryEmpty},
+		{name: "multi polygon with a polygon without rings", input: `{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,0]]],[]]}`, want: ErrGeometryEmpty},
+		{name: "empty geometry collection", input: `{"type":"GeometryCollection","geometries":[]}`, want: ErrGeometryEmpty},
+		{name: "empty member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[]}]}`, want: ErrGeometryEmpty},
 		{name: "invalid member of a geometry collection", input: `{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[1,1]]}]}`, want: ErrGeometryLineStringTooShort},
 	}
 
@@ -183,7 +182,7 @@ func TestGeometryErrors_InvalidGeoStructure(t *testing.T) {
 
 	f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	for _, err := range []error{
-		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
+		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryEmpty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
 		ErrGeometryInvalidPosition, ErrGeometryLongitudeOutOfRange, ErrGeometryLatitudeOutOfRange, ErrGeometryReversedCoordinates,
 		ErrGeometryLineStringTooShort, ErrGeometryRingTooShort, ErrGeometryRingNotClosed, ErrGeometryNestedCollection,
 		ErrGeometryInvalidBBox, ErrGeometryBBoxOutOfRange,
