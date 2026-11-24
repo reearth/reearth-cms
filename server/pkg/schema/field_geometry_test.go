@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
@@ -290,5 +291,47 @@ func TestGeometryErrors_MaxSizeExceeded(t *testing.T) {
 	if assert.Len(t, errs, 1) {
 		assert.Equal(t, FieldValidationCodeMaxSizeExceeded, errs[0].Code)
 		assert.ErrorIs(t, errs[0], ErrGeometryTooManyGeometries)
+	}
+}
+
+func TestToGeoJSONGeometry(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		in   map[string]any
+		want *geojson.Geometry
+	}{
+		{
+			name: "point",
+			in:   map[string]any{"type": "Point", "coordinates": []any{1.0, 2.0}},
+			want: &geojson.Geometry{Type: geojson.GeometryPoint, Point: []float64{1, 2}},
+		},
+		{
+			name: "geometry collection",
+			in: map[string]any{"type": "GeometryCollection", "geometries": []any{
+				map[string]any{"type": "Point", "coordinates": []any{1.0, 2.0}},
+			}},
+			want: &geojson.Geometry{Type: geojson.GeometryCollection, Geometries: []*geojson.Geometry{
+				{Type: geojson.GeometryPoint, Point: []float64{1, 2}},
+			}},
+		},
+		{name: "missing type", in: map[string]any{"coordinates": []any{1.0, 2.0}}},
+		{name: "type is not a string", in: map[string]any{"type": 1, "coordinates": []any{1.0, 2.0}}},
+		{name: "unknown type", in: map[string]any{"type": "Circle", "coordinates": []any{1.0, 2.0}}},
+		{name: "missing coordinates", in: map[string]any{"type": "Point"}},
+		{name: "coordinate is not a number", in: map[string]any{"type": "Point", "coordinates": []any{"1", 2.0}}},
+		{name: "missing geometries", in: map[string]any{"type": "GeometryCollection"}},
+		{name: "geometry collection member is not an object", in: map[string]any{"type": "GeometryCollection", "geometries": []any{[]any{1.0, 2.0}}}},
+		{name: "invalid geometry collection member", in: map[string]any{"type": "GeometryCollection", "geometries": []any{map[string]any{"type": "Point"}}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := toGeoJSONGeometry(tt.in)
+			assert.Equal(t, tt.want != nil, ok)
+			assert.Equal(t, tt.want, got)
+		})
 	}
 }

@@ -173,12 +173,33 @@ func validateGeometry(g value.Json) error {
 }
 
 // toGeoJSONGeometry converts g, whose members are already validated, to a geojson.Geometry.
-// It returns false if any coordinate is not a number or a list is not nested as the type requires.
+// It returns false if the type is missing or unknown, a member is missing,
+// any coordinate is not a number, or a list is not nested as the type requires.
 func toGeoJSONGeometry(g map[string]any) (*geojson.Geometry, bool) {
-	t, _ := g["type"].(string)
+	t, ok := g["type"].(string)
+	if !ok {
+		return nil, false
+	}
 	gg := &geojson.Geometry{Type: geojson.GeometryType(t)}
-	c := g["coordinates"]
-	ok := true
+
+	if gg.Type == geojson.GeometryCollection {
+		gg.Geometries, ok = toList(g["geometries"], func(m any) (*geojson.Geometry, bool) {
+			mg, ok := m.(map[string]any)
+			if !ok {
+				return nil, false
+			}
+			return toGeoJSONGeometry(mg)
+		})
+		if !ok {
+			return nil, false
+		}
+		return gg, true
+	}
+
+	c, ok := g["coordinates"]
+	if !ok {
+		return nil, false
+	}
 	switch gg.Type {
 	case geojson.GeometryPoint:
 		gg.Point, ok = toPosition(c)
@@ -192,13 +213,13 @@ func toGeoJSONGeometry(g map[string]any) (*geojson.Geometry, bool) {
 		gg.Polygon, ok = toList(c, toPositions)
 	case geojson.GeometryMultiPolygon:
 		gg.MultiPolygon, ok = toList(c, toRings)
-	case geojson.GeometryCollection:
-		gg.Geometries, ok = toList(g["geometries"], func(m any) (*geojson.Geometry, bool) {
-			mg, _ := m.(map[string]any)
-			return toGeoJSONGeometry(mg)
-		})
+	default:
+		return nil, false
 	}
-	return gg, ok
+	if !ok {
+		return nil, false
+	}
+	return gg, true
 }
 
 func toPosition(v any) ([]float64, bool) {
@@ -366,7 +387,10 @@ func validateGeometryBBoxes(g map[string]any) error {
 	}
 	members, _ := g["geometries"].([]any)
 	for _, m := range members {
-		mg, _ := m.(map[string]any)
+		mg, ok := m.(map[string]any)
+		if !ok {
+			return ErrGeometryInvalidType
+		}
 		if err := validateGeometryBBoxes(mg); err != nil {
 			return err
 		}
