@@ -269,11 +269,14 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemUpdate404Response{}, err
+		}
 		return nil, err
 	}
 
 	if i.Value().Model() != wp.Model.ID() {
-		return nil, rerror.ErrNotFound
+		return ItemUpdate404Response{}, rerror.ErrNotFound
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
@@ -310,7 +313,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 			metaItem, err = uc.Item.Update(ctx, upMeta, op)
 			if err != nil {
 				if errors.Is(err, rerror.ErrNotFound) {
-					return nil, err
+					return ItemUpdate404Response{}, err
 				}
 				return nil, err
 			}
@@ -327,7 +330,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 		i, err = uc.Item.Update(ctx, input, op)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
-				return nil, err
+				return ItemUpdate404Response{}, err
 			}
 			return nil, err
 		}
@@ -464,13 +467,13 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 	vl, err := uc.Item.Publish(ctx, id.ItemIDList{request.ItemId}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
-			return ItemPublish404Response{}, nil
+			return ItemPublish404Response{}, rerror.ErrNotFound
 		}
 		return ItemPublish400Response{}, err
 	}
 
 	if len(vl) == 0 {
-		return ItemPublish404Response{}, nil
+		return ItemPublish404Response{}, rerror.ErrNotFound
 	}
 
 	i = vl[0]
@@ -532,13 +535,13 @@ func (s *Server) ItemUnpublish(ctx context.Context, request ItemUnpublishRequest
 	vl, err := uc.Item.Unpublish(ctx, id.ItemIDList{request.ItemId}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
-			return ItemUnpublish404Response{}, nil
+			return ItemUnpublish404Response{}, rerror.ErrNotFound
 		}
 		return ItemUnpublish400Response{}, err
 	}
 
 	if len(vl) == 0 {
-		return ItemUnpublish404Response{}, nil
+		return ItemUnpublish404Response{}, rerror.ErrNotFound
 	}
 
 	i = vl[0]
