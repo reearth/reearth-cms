@@ -438,7 +438,7 @@ func TestGQLImportItems_GeometryRules(t *testing.T) {
 		return `{"type":"FeatureCollection","features":[{"type":"Feature","geometry":` + geometry + `,"properties":{"name":"Tokyo"}}]}`
 	}
 
-	// bbox is accepted and removed before saving
+	// a valid bbox is accepted and stored
 	res := importItems(e, mId, "bbox.geojson", featureCollection(`{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}`), nil)
 	res.Path("$.data.importItems.insertedCount").Number().IsEqual(1)
 
@@ -450,7 +450,7 @@ func TestGQLImportItems_GeometryRules(t *testing.T) {
 			geometry = f.Object().Value("value").Raw()
 		}
 	}
-	assert.Equal(t, map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}}, geometry)
+	assert.Equal(t, map[string]any{"type": "Point", "bbox": []any{139.7, 35.6, 139.7, 35.6}, "coordinates": []any{139.7, 35.6}}, geometry)
 
 	tests := []struct {
 		name     string
@@ -464,7 +464,7 @@ func TestGQLImportItems_GeometryRules(t *testing.T) {
 		},
 		{
 			name:     "the same geometry with another key order is a duplicate",
-			geometry: `{"coordinates":[139.70,35.6],"type":"Point"}`,
+			geometry: `{"coordinates":[139.70,35.6],"type":"Point","bbox":[139.7,35.6,139.7,35.60]}`,
 			wantErr:  "UNIQUE_VIOLATION",
 		},
 	}
@@ -492,7 +492,7 @@ func TestGQLImportItems_GeometryFormats(t *testing.T) {
 			name:        "JSON with a GeoJSON object",
 			fileName:    "items.json",
 			fileContent: `[{"name":"Tokyo","location":{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}}]`,
-			want:        map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}},
+			want:        map[string]any{"type": "Point", "bbox": []any{139.7, 35.6, 139.7, 35.6}, "coordinates": []any{139.7, 35.6}},
 		},
 		{
 			name:        "JSON with a GeoJSON string",
