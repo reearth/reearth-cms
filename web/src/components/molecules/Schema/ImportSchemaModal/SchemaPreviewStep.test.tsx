@@ -6,6 +6,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
+import { fieldTypes } from "../fieldTypes";
 import type { ImportFieldInput } from "../types";
 
 import SchemaPreviewStep from "./SchemaPreviewStep";
@@ -147,10 +148,8 @@ describe("SchemaPreviewStep", () => {
     );
     expect(headerCheckbox).toBeInTheDocument();
 
-    if (headerCheckbox) {
-      await user.click(headerCheckbox);
-      expect(props.onToggleAllFieldsHide).toHaveBeenCalled();
-    }
+    await user.click(headerCheckbox);
+    expect(props.onToggleAllFieldsHide).toHaveBeenCalled();
   });
 
   test("shows all checkboxes as checked when no fields are hidden", () => {
@@ -240,5 +239,51 @@ describe("SchemaPreviewStep", () => {
 
     expect(screen.getByText("Unknown Type Field")).toBeInTheDocument();
     expect(screen.queryByTestId("field-type-UnknownType")).not.toBeInTheDocument();
+  });
+
+  test.each([SchemaFieldType.GeometryObject, SchemaFieldType.GeometryEditor])(
+    "shows the deprecated fields alert for a %s field",
+    type => {
+      const props = buildProps({
+        fields: [createMockField({ key: "legacy-field", type })],
+      });
+      render(<SchemaPreviewStep {...props} />);
+
+      const alert = screen.getByTestId(DATA_TEST_ID.SchemaPreviewStep__DeprecatedFieldsAlert);
+
+      expect(
+        within(alert).getByText(t(fieldTypes[type].title), { selector: "strong" }),
+      ).toBeInTheDocument();
+      expect(
+        within(alert).getByText(t(fieldTypes.Geometry.title), { selector: "strong" }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  test.each([
+    {
+      name: "only non-deprecated fields",
+      fields: [
+        createMockField({ key: "text-field", type: SchemaFieldType.Text }),
+        createMockField({ key: "geometry-field", type: SchemaFieldType.Geometry }),
+      ],
+    },
+    {
+      name: "the legacy field is hidden",
+      fields: [
+        createMockField({ key: "text-field", type: SchemaFieldType.Text }),
+        createMockField({
+          key: "legacy-field",
+          type: SchemaFieldType.GeometryObject,
+          hidden: true,
+        }),
+      ],
+    },
+  ])("hides the deprecated fields alert when $name", ({ fields }) => {
+    render(<SchemaPreviewStep {...buildProps({ fields })} />);
+
+    expect(
+      screen.queryByTestId(DATA_TEST_ID.SchemaPreviewStep__DeprecatedFieldsAlert),
+    ).not.toBeInTheDocument();
   });
 });

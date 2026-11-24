@@ -889,6 +889,7 @@ export default {
   "You can also download file templates: JSON": "ファイルテンプレートをダウンロードすることもできます: <l1>JSON</l1>",
   "You can preview errors here or download the error log": "ここでエラーをプレビューしたり、エラーログをダウンロードしたりできます。",
   "You can write some here to describe this record.": "このレコードの説明をここに記入できます。",
+  "You're importing legacy fields ({{fields}}). They are deprecated; consider using {{replacement}} instead.": "非推奨のフィールド（<strong>{{fields}}</strong>）をインポートしようとしています。代わりに<strong>{{replacement}}</strong>の使用をおすすめします。",
   "Your alias must be between {{min}} and {{max}} characters long.": "エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください。",
   "Your edits have not been applied to the item yet.": "編集内容はまだアイテムに適用されていません。",
   "Your Email": "メールアドレス",

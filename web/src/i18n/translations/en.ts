@@ -906,6 +906,7 @@ export default {
   "You can also download file templates: JSON": "You can also download file templates: <l1>JSON</l1>",
   "You can preview errors here or download the error log": "",
   "You can write some here to describe this record.": "",
+  "You're importing legacy fields ({{fields}}). They are deprecated; consider using {{replacement}} instead.": "You're importing legacy fields (<strong>{{fields}}</strong>). They are deprecated; consider using <strong>{{replacement}}</strong> instead.",
   "Your alias must be between {{min}} and {{max}} characters long.": "",
   "Your edits have not been applied to the item yet.": "",
   "Your Email": "",

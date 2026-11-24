@@ -253,6 +253,7 @@ export enum DATA_TEST_ID {
 
   // SchemaPreviewStep
   SchemaPreviewStep__Wrapper = "SchemaPreviewStep__Wrapper",
+  SchemaPreviewStep__DeprecatedFieldsAlert = "SchemaPreviewStep__DeprecatedFieldsAlert",
   SchemaPreviewStep__PreviewFieldList = "SchemaPreviewStep__PreviewFieldList",
   SchemaPreviewStep__PreviewSkipCheckbox = "SchemaPreviewStep__PreviewSkipCheckbox",
   SchemaPreviewStep__PreviewSkipAllCheckbox = "SchemaPreviewStep__PreviewSkipAllCheckbox",
