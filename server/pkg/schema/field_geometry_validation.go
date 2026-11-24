@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 
 	// go.geojson rejects non-numeric and null coordinates, which pkg/types would decode as 0
 	geojson "github.com/paulmach/go.geojson"
@@ -33,6 +34,9 @@ var (
 	ErrGeometryRingNotClosed       = rerror.WrapE(i18n.T("the first and last positions of a polygon ring must be equal"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryNestedCollection    = rerror.WrapE(i18n.T("a GeometryCollection must not contain another GeometryCollection"), ErrGeoFieldInvalidGeoStructure)
 	ErrGeometryEmpty               = rerror.WrapE(i18n.T("a geometry must not be empty"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryInvalidBBox         = rerror.WrapE(i18n.T("a bbox must be 4 numbers, or 6 when the coordinates have an altitude"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryBBoxOutOfRange      = rerror.WrapE(i18n.T("a bbox must have longitudes between -180 and 180, latitudes between -90 and 90, and south and minimum altitude not greater than north and maximum altitude"), ErrGeoFieldInvalidGeoStructure)
+	ErrGeometryBBoxNotContaining   = rerror.WrapE(i18n.T("a bbox must contain every position of its geometry"), ErrGeoFieldInvalidGeoStructure)
 )
 
 const maxGeoFieldBytes = 10 * 1024
@@ -156,7 +160,10 @@ func validateGeometry(g value.Json) error {
 	if !ok {
 		return ErrGeometryInvalidCoordinates
 	}
-	return validateGeometryCoordinates(gg)
+	if err := validateGeometryCoordinates(gg); err != nil {
+		return err
+	}
+	return validateGeometryBBoxes(g, gg)
 }
 
 // toGeoJSONGeometry converts g, whose members are already validated, to a geojson.Geometry.
@@ -219,7 +226,7 @@ func toList[T any](v any, convert func(any) (T, bool)) ([]T, bool) {
 	return res, true
 }
 
-// validateGeometryMembers checks the type and the members of g: "type" and either "coordinates" or "geometries".
+// validateGeometryMembers checks the type and the members of g: "type", either "coordinates" or "geometries", and an optional "bbox".
 func validateGeometryMembers(g map[string]any, inCollection bool) error {
 	t, _ := g["type"].(string)
 	member := "coordinates"
@@ -237,7 +244,7 @@ func validateGeometryMembers(g map[string]any, inCollection bool) error {
 	}
 
 	for k := range g {
-		if k != "type" && k != member {
+		if k != "type" && k != member && k != "bbox" {
 			return ErrGeometryUnknownProperty
 		}
 	}
@@ -339,6 +346,90 @@ func validateAll[T any](l []T, validate func(T) error) error {
 		if err := validate(e); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// validateGeometryBBoxes validates the bbox of g, and those of the members of a GeometryCollection, against their positions (RFC 7946 §5).
+// g has valid coordinates, and gg is its converted form.
+func validateGeometryBBoxes(g map[string]any, gg *geojson.Geometry) error {
+	if b, ok := g["bbox"]; ok {
+		if err := validateBBox(b, geometryPositions(gg)); err != nil {
+			return err
+		}
+	}
+	members, _ := g["geometries"].([]any)
+	for i, m := range members {
+		mg, _ := m.(map[string]any)
+		if err := validateGeometryBBoxes(mg, gg.Geometries[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// validateBBox validates a bbox: [west, south, east, north], or [west, south, min altitude, east, north, max altitude].
+// It has 4 numbers when no position has an altitude, 6 when every position has one, and either when only some have one.
+// West may be greater than east when the bbox crosses the antimeridian (RFC 7946 §5.2).
+func validateBBox(raw any, positions [][]float64) error {
+	bbox, ok := toPosition(raw)
+	if !ok {
+		return ErrGeometryInvalidBBox
+	}
+	withAltitude := lo.CountBy(positions, func(p []float64) bool { return len(p) == 3 })
+	switch {
+	case len(bbox) == 4 && withAltitude < len(positions):
+	case len(bbox) == 6 && withAltitude > 0:
+	default:
+		return ErrGeometryInvalidBBox
+	}
+
+	n := len(bbox) / 2
+	west, south, east, north := bbox[0], bbox[1], bbox[n], bbox[n+1]
+	if math.Abs(west) > 180 || math.Abs(east) > 180 || math.Abs(south) > 90 || math.Abs(north) > 90 ||
+		south > north || n == 3 && bbox[2] > bbox[5] {
+		return ErrGeometryBBoxOutOfRange
+	}
+
+	crossesAntimeridian := west > east
+	for _, p := range positions {
+		lng, lat := p[0], p[1]
+		inLng := lng >= west && lng <= east
+		if crossesAntimeridian {
+			inLng = lng >= west || lng <= east
+		}
+		if !inLng || lat < south || lat > north || n == 3 && len(p) == 3 && (p[2] < bbox[2] || p[2] > bbox[5]) {
+			return ErrGeometryBBoxNotContaining
+		}
+	}
+	return nil
+}
+
+// geometryPositions returns every position of g, including those of the members of a GeometryCollection.
+func geometryPositions(g *geojson.Geometry) [][]float64 {
+	switch g.Type {
+	case geojson.GeometryPoint:
+		return [][]float64{g.Point}
+	case geojson.GeometryMultiPoint:
+		return g.MultiPoint
+	case geojson.GeometryLineString:
+		return g.LineString
+	case geojson.GeometryMultiLineString:
+		return slices.Concat(g.MultiLineString...)
+	case geojson.GeometryPolygon:
+		return slices.Concat(g.Polygon...)
+	case geojson.GeometryMultiPolygon:
+		var res [][]float64
+		for _, p := range g.MultiPolygon {
+			res = append(res, slices.Concat(p...)...)
+		}
+		return res
+	case geojson.GeometryCollection:
+		var res [][]float64
+		for _, m := range g.Geometries {
+			res = append(res, geometryPositions(m)...)
+		}
+		return res
 	}
 	return nil
 }

@@ -70,11 +70,28 @@ func TestIntegrationItemGeometryField(t *testing.T) {
 		},
 	})
 
+	// a valid bbox is accepted and stored
+	pointWithBBox := map[string]any{"type": "Point", "bbox": []any{139.7, 35.6, 139.7, 35.6}, "coordinates": []any{139.7, 35.6}}
+	iAPIItemCreate(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{
+			"fields": []any{
+				map[string]any{"key": "geo", "value": []any{pointWithBBox}},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").Array().Value(0).Object().
+		Value("value").IsEqual([]any{pointWithBBox})
+
 	// invalid geometries are rejected
 	for _, v := range []any{
 		map[string]any{"type": "Point", "coordinates": []any{35.6, 139.7}},
 		map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}, "name": "x"},
 		map[string]any{"type": "MultiPoint", "coordinates": []any{}},
+		map[string]any{"type": "Point", "bbox": []any{0, 0, 0, 0}, "coordinates": []any{139.7, 35.6}},
 		map[string]any{"type": "GeometryCollection", "geometries": []any{map[string]any{"type": "GeometryCollection", "geometries": []any{}}}},
 		map[string]any{"type": "LineString", "coordinates": []any{[]any{139.7, 35.6}}},
 		`{"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]]}`,

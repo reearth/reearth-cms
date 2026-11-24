@@ -8,6 +8,9 @@ URL field max length exceeded: URLフィールドの最大文字数を超えて�
 a GeometryCollection must have a list of geometries: GeometryCollectionにはジオメトリのリストが必要です。
 a GeometryCollection must not contain another GeometryCollection: GeometryCollectionの中に別のGeometryCollectionを含めることはできません。
 a LineString must have at least 2 positions: LineStringには少なくとも2つの座標が必要です。
+a bbox must be 4 numbers, or 6 when the coordinates have an altitude: bboxは4つの数値（座標に高度がある場合は6つ）である必要があります。
+a bbox must contain every position of its geometry: bboxはジオメトリのすべての座標を含む必要があります。
+a bbox must have longitudes between -180 and 180, latitudes between -90 and 90, and south and minimum altitude not greater than north and maximum altitude: bboxの経度は-180から180、緯度は-90から90の範囲である必要があり、南端と最小高度は北端と最大高度以下である必要があります。
 a geometry must not be empty: 空のジオメトリは指定できません。
 a polygon ring must have at least 4 positions: ポリゴンのリングには少なくとも4つの座標が必要です。
 "a position must be 2 or 3 finite numbers: longitude, latitude and optional altitude": 座標は経度、緯度、任意の高度からなる2つまたは3つの有限の数値である必要があります。
