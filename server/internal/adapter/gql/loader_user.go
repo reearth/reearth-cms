@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
