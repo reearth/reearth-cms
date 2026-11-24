@@ -109,7 +109,7 @@ func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdat
 
 	thId := i.Value().Thread()
 	if thId == nil {
-		return ItemCommentUpdate400Response{}, nil
+		return ItemCommentUpdate400Response{}, rerror.ErrInvalidParams
 	}
 	_, comment, err := uc.Thread.UpdateComment(ctx, *thId, request.CommentId, *request.Body.Content, op)
 	if err != nil {
@@ -141,7 +141,7 @@ func (s *Server) ItemCommentDelete(ctx context.Context, request ItemCommentDelet
 
 	thId := i.Value().Thread()
 	if thId == nil {
-		return ItemCommentDelete400Response{}, nil
+		return ItemCommentDelete400Response{}, rerror.ErrInvalidParams
 	}
 	_, err = uc.Thread.DeleteComment(ctx, *thId, request.CommentId, op)
 	if err != nil {

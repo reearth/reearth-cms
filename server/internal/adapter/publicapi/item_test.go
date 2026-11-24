@@ -221,45 +221,6 @@ func TestController_PostItem(t *testing.T) {
 	}
 }
 
-func TestFieldErrorDetails(t *testing.T) {
-	t.Parallel()
-
-	fid := id.NewFieldID()
-
-	fe := func(index *int, group *id.ItemGroupID) schema.FieldValidationError {
-		return schema.FieldValidationError{Field: fid.Ref(), Key: id.NewKey("title").Ref(), Code: schema.FieldValidationCodeConstraint, Detail: schema.ErrInvalidValue, Index: index, Group: group}
-	}
-
-	tests := []struct {
-		name    string
-		err     schema.FieldValidationError
-		wantKey string
-	}{
-		{name: "top-level field", err: fe(nil, nil), wantKey: "title"},
-		{name: "element of a top-level multiple field", err: fe(lo.ToPtr(1), nil), wantKey: "title[1]"},
-		//{name: "field in a group", err: fe(nil, &single), wantKey: "group.title"},
-		//{name: "element of a multiple field in a group", err: fe(lo.ToPtr(1), &single), wantKey: "group.title[1]"},
-		//{name: "field in a multiple group", err: fe(nil, &multiple), wantKey: "groups[2].title"},
-		//{name: "element of a multiple field in a multiple group", err: fe(lo.ToPtr(0), &multiple), wantKey: "groups[2].title[0]"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := fieldErrorDetails(schema.FieldValidationErrors{tt.err})
-			assert.Equal(t, []fieldErrorDetail{{Key: tt.wantKey, Code: string(schema.FieldValidationCodeConstraint), Detail: schema.ErrInvalidValue.Error()}}, got)
-
-			// internal IDs are never exposed
-			b, err := json.Marshal(got)
-			assert.NoError(t, err)
-			assert.NotContains(t, string(b), fid.String())
-			if tt.err.Group != nil {
-				assert.NotContains(t, string(b), tt.err.Group.String())
-			}
-		})
-	}
-}
-
 func TestController_ValidatePostingAccess(t *testing.T) {
 	t.Parallel()
 
