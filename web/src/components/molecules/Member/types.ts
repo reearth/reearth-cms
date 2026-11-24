@@ -3,7 +3,6 @@ import { t } from "@reearth-cms/i18n";
 export type User = {
   id: string;
   name: string;
-  email: string;
 };
 
 export type Role = "READER" | "WRITER" | "MAINTAINER" | "OWNER";

@@ -104,7 +104,6 @@ export const requestFragment = gql`
     createdBy {
       id
       name
-      email
     }
     workspaceId
     projectId
@@ -127,7 +126,6 @@ export const requestFragment = gql`
     reviewers {
       id
       name
-      email
     }
   }
   ${threadFragment}

@@ -17,15 +17,15 @@ import (
 
 // GRPC List Assets in Project
 func TestInternalListAssetsInProjectAPI(t *testing.T) {
-	StartServer(t, &app.Config{
+	cfg := &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "52050",
 			Token:  "TestToken",
 		},
-	}, true, baseSeeder)
+	}
+	StartServer(t, cfg, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050",
+	clientConn, err := grpc.NewClient("127.0.0.1:"+cfg.InternalApi.Port,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
@@ -142,15 +142,15 @@ func TestInternalListAssetsInProjectAPI(t *testing.T) {
 
 // GRPC Get Asset
 func TestInternalGetAssetAPI(t *testing.T) {
-	StartServer(t, &app.Config{
+	cfg := &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "52050",
 			Token:  "TestToken",
 		},
-	}, true, baseSeeder)
+	}
+	StartServer(t, cfg, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050",
+	clientConn, err := grpc.NewClient("127.0.0.1:"+cfg.InternalApi.Port,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)

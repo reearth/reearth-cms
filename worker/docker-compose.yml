@@ -2,7 +2,8 @@ version: '3'
 services:
   reearth-cms-worker:
     build:
-      context: .
+      context: ..
+      dockerfile: worker/Dockerfile
     ports:
       - '8080:8080'
     # env_file:

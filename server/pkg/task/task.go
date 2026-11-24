@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	sharedtask "github.com/reearth/reearth-cms/shared/task"
 )
 
 type Payload struct {
@@ -64,17 +65,15 @@ func (p *CopyPayload) Validate() bool {
 	return p != nil && p.Changes != "" && p.Collection != "" && p.Filter != ""
 }
 
-type Changes map[string]Change
-type Change struct {
-	Type  ChangeType
-	Value any
-}
-type ChangeType string
+// The copy changes are shared with the worker; see the shared/task package.
+type Changes = sharedtask.Changes
+type Change = sharedtask.Change
+type ChangeType = sharedtask.ChangeType
 
 const (
-	ChangeTypeSet  ChangeType = "set"
-	ChangeTypeNew  ChangeType = "new"
-	ChangeTypeULID ChangeType = "ulid"
+	ChangeTypeSet  = sharedtask.ChangeTypeSet
+	ChangeTypeNew  = sharedtask.ChangeTypeNew
+	ChangeTypeULID = sharedtask.ChangeTypeULID
 )
 
 type ImportPayload struct {

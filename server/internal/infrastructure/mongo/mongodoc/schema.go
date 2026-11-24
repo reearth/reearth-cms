@@ -183,7 +183,8 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 					Group: fp.Group().String(),
 				}
 			},
-			URL: func(fp *schema.FieldURL) {},
+			URL:      func(fp *schema.FieldURL) {},
+			Geometry: func(fp *schema.FieldGeometry) {},
 			GeometryObject: func(fp *schema.FieldGeometryObject) {
 				fd.TypeProperty.GeometryObject = &FieldGeometryObjectPropertyDocument{
 					SupportedTypes: lo.Map(fp.SupportedTypes(), func(item schema.GeometryObjectSupportedType, _ int) string {
@@ -326,7 +327,8 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = schema.NewGeometryEditor(lo.Map(tpd.GeometryEditor.SupportedTypes, func(item string, _ int) schema.GeometryEditorSupportedType {
 				return schema.GeometryEditorSupportedTypeFrom(item)
 			})).TypeProperty()
-
+		case value.TypeGeometry:
+			tp = schema.NewGeometry().TypeProperty()
 		}
 
 		fid, err := id.FieldIDFrom(fd.ID)

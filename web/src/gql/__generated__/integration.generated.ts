@@ -13,12 +13,12 @@ export type IntegrationFragmentFragment = {
   id: string;
   name: string;
   description: string | null;
-  logoUrl: string;
+  logoUrl: string | null;
   iType: Types.IntegrationType;
   developerId: string;
   createdAt: Date;
   updatedAt: Date;
-  developer: { __typename: "User"; id: string; name: string; email: string };
+  developer: { __typename: "User"; id: string; name: string };
   config: {
     __typename: "IntegrationConfig";
     token: string;
@@ -49,7 +49,7 @@ export type IntegrationFragmentFragment = {
 export type CreateIntegrationMutationVariables = Exact<{
   name: string;
   description?: string | null | undefined;
-  logoUrl: string;
+  logoUrl?: string | null | undefined;
   type: Types.IntegrationType;
 }>;
 
@@ -61,7 +61,7 @@ export type CreateIntegrationMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -71,7 +71,7 @@ export type UpdateIntegrationMutationVariables = Exact<{
   integrationId: string;
   name: string;
   description?: string | null | undefined;
-  logoUrl: string;
+  logoUrl?: string | null | undefined;
 }>;
 
 export type UpdateIntegrationMutation = {
@@ -82,7 +82,7 @@ export type UpdateIntegrationMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -108,7 +108,7 @@ export type RegenerateIntegrationTokenMutation = {
       id: string;
       name: string;
       description: string | null;
-      logoUrl: string;
+      logoUrl: string | null;
       iType: Types.IntegrationType;
     };
   } | null;
@@ -138,7 +138,6 @@ export const IntegrationFragmentFragmentDoc = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "email" } },
               ],
             },
           },
@@ -216,10 +215,7 @@ export const CreateIntegrationDocument = {
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "logoUrl" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
-          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
         },
         {
           kind: "VariableDefinition",
@@ -324,10 +320,7 @@ export const UpdateIntegrationDocument = {
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "logoUrl" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
-          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "URL" } },
         },
       ],
       selectionSet: {

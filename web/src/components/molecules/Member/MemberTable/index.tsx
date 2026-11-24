@@ -72,7 +72,6 @@ const MemberTable: React.FC<Props> = ({
                 <RemoveUser key={user.id}>
                   <UserInfoWrapper>
                     <UserInfo>{user.name}</UserInfo>
-                    <Email>{user.email}</Email>
                   </UserInfoWrapper>
                 </RemoveUser>
               ))}
@@ -118,13 +117,6 @@ const MemberTable: React.FC<Props> = ({
         minWidth: 256,
       },
       {
-        title: t("Email"),
-        dataIndex: "email",
-        key: "email",
-        width: 256,
-        minWidth: 256,
-      },
-      {
         title: t("Role"),
         dataIndex: "role",
         key: "role",
@@ -147,7 +139,6 @@ const MemberTable: React.FC<Props> = ({
       workspaceUserMembers?.map(member => ({
         id: member.userId,
         name: member.user.name,
-        email: member.user.email,
         role: t(member.role),
         action: (
           <>
@@ -311,10 +302,6 @@ const UserInfo = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-`;
-
-const Email = styled(UserInfo)`
-  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const PaddedContent = styled(Content)`

@@ -183,7 +183,6 @@ export default {
   "each defaultValue item should be less than maximum": "",
   "each defaultValue item should be less than maxLength": "",
   "Edit": "",
-  "Email": "",
   "Email address or user name": "",
   "Empty content cannot be exported": "Empty content cannot be exported",
   "Empty Schema design.": "",

@@ -28,7 +28,6 @@ export const GET_REQUESTS = gql`
         createdBy {
           id
           name
-          email
         }
         workspaceId
         projectId
@@ -37,7 +36,6 @@ export const GET_REQUESTS = gql`
         reviewers {
           id
           name
-          email
         }
         state
         createdAt
