@@ -98,7 +98,14 @@ describe("General form", () => {
   });
 
   test("Update event is called successfully", async () => {
-    const onProjectUpdateMock = vi.fn(onProjectUpdate);
+    // Resolved manually so the transient loading state can't slip between polls on a slow runner
+    let resolveUpdate: () => void = () => {};
+    const onProjectUpdateMock = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveUpdate = resolve;
+        }),
+    );
 
     render(
       <GeneralForm
@@ -123,6 +130,7 @@ describe("General form", () => {
       `${alias}new`,
       `${description}new`,
     );
+    resolveUpdate();
     await expect.poll(() => screen.queryByLabelText("loading")).not.toBeInTheDocument();
     expect(saveButton).toBeDisabled();
   });
