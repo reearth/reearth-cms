@@ -55,27 +55,22 @@ func TestFieldGeometry_Validate(t *testing.T) {
 		{name: "bbox crossing the antimeridian", input: `{"type":"LineString","bbox":[177,-20,-178,-16],"coordinates":[[177,-20],[-178,-16]]}`},
 		{name: "bbox containing a pole", input: `{"type":"Polygon","bbox":[-180,80,180,90],"coordinates":[[[-180,80],[0,80],[180,80],[-180,80]]]}`},
 		{name: "bbox of a geometry collection and its members", input: `{"type":"GeometryCollection","bbox":[100,0,102,1],"geometries":[{"type":"Point","bbox":[100,0,100,0],"coordinates":[100,0]},{"type":"LineString","coordinates":[[101,0],[102,1]]}]}`},
-		{name: "bbox off only by rounding", input: `{"type":"LineString","bbox":[139.69170004,35.6812,139.7673,35.6895],"coordinates":[[139.6917,35.6895],[139.7673,35.6812]]}`},
-		{name: "bbox altitude off only by rounding", input: `{"type":"Point","bbox":[1,1,5.00000004,1,1,6],"coordinates":[1,1,5]}`},
+		// like the web editor, a bbox is not checked against the coordinates
+		{name: "bbox not containing its geometry", input: `{"type":"LineString","bbox":[1,1,2,2],"coordinates":[[1,1],[3,3]]}`},
+		{name: "bbox with altitude around positions without one", input: `{"type":"Point","bbox":[1,1,0,1,1,0],"coordinates":[1,1]}`},
 		{name: "bbox of a multi polygon", input: `{"type":"MultiPolygon","bbox":[0,0,11,11],"coordinates":[[[[0,0],[1,0],[1,1],[0,0]]],[[[10,10],[11,10],[11,11],[10,10]]]]}`},
 
 		// invalid bbox
 		{name: "bbox is not a list", input: `{"type":"Point","bbox":"1,1,1,1","coordinates":[1,1]}`, want: ErrGeometryInvalidBBox},
 		{name: "bbox with a string", input: `{"type":"Point","bbox":[1,1,1,"1"],"coordinates":[1,1]}`, want: ErrGeometryInvalidBBox},
 		{name: "bbox with too few numbers", input: `{"type":"Point","bbox":[1,1],"coordinates":[1,1]}`, want: ErrGeometryInvalidBBox},
-		{name: "bbox with 6 numbers without altitude", input: `{"type":"Point","bbox":[1,1,0,1,1,0],"coordinates":[1,1]}`, want: ErrGeometryInvalidBBox},
-		{name: "bbox with 4 numbers with altitude", input: `{"type":"Point","bbox":[1,1,1,1],"coordinates":[1,1,5]}`, want: ErrGeometryInvalidBBox},
+		{name: "bbox with 5 numbers", input: `{"type":"Point","bbox":[1,1,1,1,1],"coordinates":[1,1]}`, want: ErrGeometryInvalidBBox},
+		{name: "bbox is null", input: `{"type":"Point","bbox":null,"coordinates":[1,1]}`, want: ErrGeometryInvalidBBox},
+		{name: "invalid bbox of a geometry collection member", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","bbox":[0,0,200,1],"coordinates":[1,1]}]}`, want: ErrGeometryBBoxOutOfRange},
 		{name: "bbox longitude out of range", input: `{"type":"Point","bbox":[-181,1,1,1],"coordinates":[1,1]}`, want: ErrGeometryBBoxOutOfRange},
 		{name: "bbox latitude out of range", input: `{"type":"Point","bbox":[1,1,1,91],"coordinates":[1,1]}`, want: ErrGeometryBBoxOutOfRange},
 		{name: "bbox south greater than north", input: `{"type":"Point","bbox":[0,2,2,0],"coordinates":[1,1]}`, want: ErrGeometryBBoxOutOfRange},
 		{name: "bbox minimum altitude greater than maximum", input: `{"type":"Point","bbox":[1,1,10,1,1,0],"coordinates":[1,1,5]}`, want: ErrGeometryBBoxOutOfRange},
-		{name: "bbox not containing a position", input: `{"type":"LineString","bbox":[1,1,2,2],"coordinates":[[1,1],[3,3]]}`, want: ErrGeometryBBoxNotContaining},
-		{name: "bbox off by more than rounding", input: `{"type":"LineString","bbox":[139.6918,35.6812,139.7673,35.6895],"coordinates":[[139.6917,35.6895],[139.7673,35.6812]]}`, want: ErrGeometryBBoxNotContaining},
-		{name: "bbox not containing an altitude", input: `{"type":"Point","bbox":[1,1,0,1,1,4],"coordinates":[1,1,5]}`, want: ErrGeometryBBoxNotContaining},
-		{name: "bbox crossing the antimeridian not containing a position", input: `{"type":"LineString","bbox":[177,-20,-178,-16],"coordinates":[[177,-20],[0,-16]]}`, want: ErrGeometryBBoxNotContaining},
-		{name: "bbox not containing a hole position", input: `{"type":"Polygon","bbox":[0,0,10,10],"coordinates":[[[0,0],[10,0],[10,10],[0,0]],[[1,1],[20,1],[2,2],[1,1]]]}`, want: ErrGeometryBBoxNotContaining},
-		{name: "bbox of a geometry collection not containing a member", input: `{"type":"GeometryCollection","bbox":[100,0,101,1],"geometries":[{"type":"Point","coordinates":[100,0]},{"type":"Point","coordinates":[102,1]}]}`, want: ErrGeometryBBoxNotContaining},
-		{name: "bbox of a geometry collection member not containing it", input: `{"type":"GeometryCollection","geometries":[{"type":"Point","bbox":[0,0,0,0],"coordinates":[1,1]}]}`, want: ErrGeometryBBoxNotContaining},
 		{name: "coordinates are reported before the bbox", input: `{"type":"Point","bbox":[0,0,0,0],"coordinates":[200,0]}`, want: ErrGeometryLongitudeOutOfRange},
 
 		// types and properties
@@ -190,7 +185,7 @@ func TestGeometryErrors_InvalidGeoStructure(t *testing.T) {
 		ErrGeometryInvalidType, ErrGeometryUnknownProperty, ErrGeometryEmpty, ErrGeometryInvalidCoordinates, ErrGeometryInvalidGeometries,
 		ErrGeometryInvalidPosition, ErrGeometryLongitudeOutOfRange, ErrGeometryLatitudeOutOfRange, ErrGeometryReversedCoordinates,
 		ErrGeometryLineStringTooShort, ErrGeometryRingTooShort, ErrGeometryRingNotClosed, ErrGeometryNestedCollection,
-		ErrGeometryInvalidBBox, ErrGeometryBBoxOutOfRange, ErrGeometryBBoxNotContaining,
+		ErrGeometryInvalidBBox, ErrGeometryBBoxOutOfRange,
 	} {
 		assert.Equal(t, FieldValidationCodeInvalidGeoStructure, f.ValidationError(err, FieldValidationCodeConstraint).Code, err.Error())
 	}
@@ -212,9 +207,9 @@ func TestField_Geometry_BBoxIsStored(t *testing.T) {
 	t.Run("parsed values with an invalid bbox are rejected", func(t *testing.T) {
 		t.Parallel()
 		f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-		_, errs := f.ParseValue(`{"type":"Point","bbox":[0,0,0,0],"coordinates":[1,1]}`)
+		_, errs := f.ParseValue(`{"type":"Point","bbox":[0,0,200,1],"coordinates":[1,1]}`)
 		if assert.Len(t, errs, 1) {
-			assert.ErrorIs(t, errs[0], ErrGeometryBBoxNotContaining)
+			assert.ErrorIs(t, errs[0], ErrGeometryBBoxOutOfRange)
 		}
 	})
 
@@ -228,8 +223,8 @@ func TestField_Geometry_BBoxIsStored(t *testing.T) {
 	t.Run("default values with an invalid bbox are rejected", func(t *testing.T) {
 		t.Parallel()
 		f := NewField(NewGeometry().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-		err := f.SetDefaultValue(value.NewMultiple(value.TypeGeometry, []any{`{"type":"Point","bbox":[0,0,0,0],"coordinates":[1,1]}`}))
-		assert.ErrorIs(t, err, ErrGeometryBBoxNotContaining)
+		err := f.SetDefaultValue(value.NewMultiple(value.TypeGeometry, []any{`{"type":"Point","bbox":[0,0,200,1],"coordinates":[1,1]}`}))
+		assert.ErrorIs(t, err, ErrGeometryBBoxOutOfRange)
 		assert.Nil(t, f.DefaultValue())
 	})
 }
