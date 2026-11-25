@@ -143,6 +143,15 @@ func TestExtractGeometry(t *testing.T) {
 	geometry3, ok3 := extractGeometry(fi3)
 	assert.True(t, ok3)
 	assert.Equal(t, types.GeometryTypePoint, *geometry3.Type)
+	actual, err := geometry3.Coordinates.AsPoint()
+	assert.NoError(t, err)
+	assert.Equal(t, []float64{139.7, 35.6}, actual)
+
+	// Test with an invalid GeoJSON string
+	fi4 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("InvalidGeometry").AsMultiple(), nil)
+	geometry4, ok4 := extractGeometry(fi4)
+	assert.False(t, ok4)
+	assert.Nil(t, geometry4)
 }
 
 func TestExtractProperties(t *testing.T) {
@@ -217,28 +226,6 @@ func TestExtractProperties(t *testing.T) {
 	// Test with nil schema
 	properties5 := extractProperties(i1, nil, nil)
 	assert.Nil(t, properties5)
-}
-
-func TestStringToGeometry(t *testing.T) {
-	validGeoStringPoint := `
-	{
-		"type": "Point",
-		"coordinates": [139.7112596, 35.6424892]
-	}`
-	geo, err := stringToGeometry(validGeoStringPoint)
-	assert.NoError(t, err)
-	assert.NotNil(t, geo)
-	assert.Equal(t, types.GeometryTypePoint, *geo.Type)
-	expected := []float64{139.7112596, 35.6424892}
-	actual, err := geo.Coordinates.AsPoint()
-	assert.NoError(t, err)
-	assert.Equal(t, expected, actual)
-
-	// Invalid Geometry string
-	invalidGeometryString := "InvalidGeometry"
-	geo, err = stringToGeometry(invalidGeometryString)
-	assert.Error(t, err)
-	assert.Nil(t, geo)
 }
 
 func TestToGeoJSONProp(t *testing.T) {

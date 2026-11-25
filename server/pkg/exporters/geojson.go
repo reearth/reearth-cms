@@ -179,28 +179,24 @@ func extractSingleGroupProperties(gId value.Group, itm *item.Item, gf schema.Fie
 
 func extractGeometry(field *item.Field) (*types.Geometry, bool) {
 	v := field.Value().First()
-	geoStr, ok := v.ValueString()
-	// Geometry field values are stored as objects instead of GeoJSON strings
-	if g, isObject := v.ValueJson(); isObject {
-		b, err := json.Marshal(g)
-		geoStr, ok = string(b), err == nil
-	}
-	if !ok {
+	var b []byte
+	if g, ok := v.ValueJson(); ok {
+		// Geometry field values are stored as objects
+		var err error
+		if b, err = json.Marshal(g); err != nil {
+			return nil, false
+		}
+	} else if s, ok := v.ValueString(); ok {
+		// Geometry Object and Geometry Editor values are stored as GeoJSON strings
+		b = []byte(s)
+	} else {
 		return nil, false
 	}
-	geometry, err := stringToGeometry(geoStr)
-	if err != nil {
-		return nil, false
-	}
-	return geometry, true
-}
-
-func stringToGeometry(geoString string) (*types.Geometry, error) {
 	var geometry types.Geometry
-	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
-		return nil, err
+	if err := json.Unmarshal(b, &geometry); err != nil {
+		return nil, false
 	}
-	return &geometry, nil
+	return &geometry, true
 }
 
 func toGeoJSONProp(f *item.Field) (any, bool) {
