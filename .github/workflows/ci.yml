@@ -7,6 +7,9 @@ permissions:
   contents: read
 # Cancel superseded runs on PRs only. Pushes to main/release get a unique group
 # (run_id) so every commit still builds and deploys.
+# Known trade-off: a new push can cancel deploy-web-pr mid-deploy. GitHub cannot
+# exempt a single job from run cancellation; the next run redeploys the same
+# pr-<number> preview tag, so the preview recovers on its own.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -85,13 +88,26 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Every job whose failure would otherwise skip downstream work must be listed
+    # here, or that failure turns into "skipped" and the check passes silently.
+    # PR preview jobs (build-web-pr, deploy-web-pr) are left out on purpose so
+    # the required check does not wait for the preview Docker build.
     needs:
+      - prepare
+      - build-prepare
       - ci-web
       - ci-server
       - ci-worker
-    # Always run so this required check never silently passes: skipped is OK
-    # (component unchanged), failure or cancelled is not.
-    if: always()
+      - build-web
+      - build-server
+      - build-worker
+      - deploy-web
+      - deploy-server
+      - deploy-worker
+    # Skipped is OK (component unchanged); failure or cancelled is not.
+    # !cancelled() keeps a superseded run from posting a stale failure, while a
+    # job that hits its timeout still fails this check via "Check results".
+    if: ${{ !cancelled() }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4

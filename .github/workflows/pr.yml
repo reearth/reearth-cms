@@ -20,6 +20,8 @@ jobs:
     name: labeler
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Fork PRs get a read-only token, so labeling would fail with a 403.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -60,7 +62,10 @@ jobs:
     needs:
       - labeler
       - title_check
-    if: always()
+    # Skipped is OK (e.g. labeler on fork PRs); failure or cancelled is not.
+    # !cancelled() keeps a superseded run (edited/labeled events reuse the same
+    # commit) from posting a stale failure for this check.
+    if: ${{ !cancelled() }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -77,6 +82,8 @@ jobs:
   assign-author:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Same as labeler: needs a writable token, which fork PRs don't get.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
