@@ -20,7 +20,7 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     if: inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-worker
@@ -78,7 +78,7 @@ jobs:
 
   docker_decompressor:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     if: inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-decompressor
@@ -136,7 +136,7 @@ jobs:
 
   docker_copier:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     if: inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-copier

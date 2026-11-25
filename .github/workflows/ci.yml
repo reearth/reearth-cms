@@ -8,8 +8,9 @@ permissions:
 # Cancel superseded runs on PRs only. Pushes to main/release get a unique group
 # (run_id) so every commit still builds and deploys.
 # Known trade-off: a new push can cancel deploy-web-pr mid-deploy. GitHub cannot
-# exempt a single job from run cancellation; the next run redeploys the same
-# pr-<number> preview tag, so the preview recovers on its own.
+# exempt a single job from run cancellation. If the newer run comes from a push
+# (synchronize), it redeploys the same pr-<number> preview tag; other events
+# (e.g. reopened) do not, and the preview stays stale until the next push.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -90,8 +91,13 @@ jobs:
     timeout-minutes: 5
     # Every job whose failure would otherwise skip downstream work must be listed
     # here, or that failure turns into "skipped" and the check passes silently.
-    # PR preview jobs (build-web-pr, deploy-web-pr) are left out on purpose so
-    # the required check does not wait for the preview Docker build.
+    # Left out on purpose:
+    # - build-web-pr / deploy-web-pr: the required check should not wait for the
+    #   PR preview Docker build.
+    # - deploy-*: deploy-web runs the E2E smoke suite, which shares a
+    #   non-cancelling concurrency group with the nightly E2E run. Gating on it
+    #   would leave `ci` pending for hours or failing for a good commit.
+    #   Deploy failures still mark the workflow run as failed.
     needs:
       - prepare
       - build-prepare
@@ -101,9 +107,6 @@ jobs:
       - build-web
       - build-server
       - build-worker
-      - deploy-web
-      - deploy-server
-      - deploy-worker
     # Skipped is OK (component unchanged); failure or cancelled is not.
     # !cancelled() keeps a superseded run from posting a stale failure, while a
     # job that hits its timeout still fails this check via "Check results".
