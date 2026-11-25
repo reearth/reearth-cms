@@ -517,7 +517,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, err
 	}
 
-	// In AWS, extraction is done in very short time when a zip file is small, so it often results in an error because an asset is not saved yet in MongoDB. So an event should be created after commtting the transaction.
+	// The event is created after committing the transaction: extraction of a small archive can finish very quickly, and the worker would fail if the asset were not saved in MongoDB yet.
 	if err := i.event(ctx, Event{
 		Project:   prj,
 		Workspace: prj.Workspace(),

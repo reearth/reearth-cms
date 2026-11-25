@@ -20,7 +20,6 @@ server/
 │   │   ├── mongo/        # MongoDB repositories
 │   │   ├── fs/           # File system operations
 │   │   ├── gcs/          # Google Cloud Storage
-│   │   ├── s3/           # AWS S3
 │   │   └── memory/       # In-memory implementations (testing)
 │   └── usecase/          # Business logic layer
 │       ├── gateway/      # External service interfaces
@@ -57,7 +56,7 @@ This project follows **Clean Architecture** principles, organizing code into dis
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Frameworks & Drivers                  │
-│  (GraphQL, HTTP, MongoDB, S3, GCS)                      │
+│  (GraphQL, HTTP, MongoDB, GCS)                          │
 │                  internal/adapter/                       │
 │                  internal/infrastructure/                │
 └─────────────────────────────────────────────────────────┘
@@ -244,7 +243,7 @@ func (r *Item) FindByID(ctx context.Context, id item.ID) (*item.Item, error) {
 }
 ```
 
-#### **File Storage** (`internal/infrastructure/fs/`, `gcs/`, `s3/`)
+#### **File Storage** (`internal/infrastructure/fs/`, `gcs/`)
 
 Implements file upload/download for different storage backends.
 
@@ -773,7 +772,7 @@ if item == nil {
 - **HTTP Framework:** [Echo](https://echo.labstack.com/)
 - **OpenAPI:** [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
 - **Testing:** [testify](https://github.com/stretchr/testify), [gomock](https://github.com/uber-go/mock)
-- **Storage:** AWS S3, Google Cloud Storage
+- **Storage:** Google Cloud Storage
 - **Observability:** OpenTelemetry
 
 ## 🔄 Code Generation
@@ -808,7 +807,7 @@ make oapi    # For OpenAPI code generation
 - **Use Case Interactors:** ~15 (in `internal/usecase/interactor/`)
 - **GraphQL Resolvers:** ~30 (in `internal/adapter/gql/`)
 - **Repository Implementations:** MongoDB, In-Memory
-- **Storage Backends:** S3, GCS, Local Filesystem
+- **Storage Backends:** GCS, Local Filesystem
 
 ## 🔍 Common Patterns
 
