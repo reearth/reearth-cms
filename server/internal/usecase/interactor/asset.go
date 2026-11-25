@@ -517,7 +517,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, err
 	}
 
-	// The event is created after committing the transaction: extraction of a small archive can finish very quickly, and the worker would fail if the asset were not saved in MongoDB yet.
+	// Emit AssetCreate only after the transaction commits, so webhook subscribers never receive an asset that is not saved yet.
 	if err := i.event(ctx, Event{
 		Project:   prj,
 		Workspace: prj.Workspace(),
