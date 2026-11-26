@@ -3,14 +3,12 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
 	"github.com/reearth/reearth-cms/worker/pkg/webhook"
 	"github.com/reearth/reearthx/log"
-	sns "github.com/robbiet480/go.sns"
 )
 
 type Handler struct {
@@ -24,17 +22,11 @@ func NewHandler(c *rhttp.Controller, pubSubAuth *PubSubAuthenticator) *Handler {
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		var input rhttp.DecompressInput
-		var err error
-
-		if h.isAWS(c.Request()) {
-			input, err = parseSNSDecompressMessage(c.Request().Body)
-		} else if err = h.PubSubAuth.Authenticate(c.Request()); err != nil {
+		if err := h.PubSubAuth.Authenticate(c.Request()); err != nil {
 			return err
-		} else {
-			input, err = parsePubSubDecompressMessage(c, c.Request().Body)
 		}
 
+		input, err := parsePubSubDecompressMessage(c)
 		if err != nil {
 			log.Errorf("failed to parse request body: %s", err.Error())
 			return err
@@ -51,17 +43,11 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c *echo.Context) error {
-		var webhook webhook.Webhook
-		var err error
-
-		if h.isAWS(c.Request()) {
-			webhook, err = parseSNSWebhookMessage(c.Request().Body)
-		} else if err = h.PubSubAuth.Authenticate(c.Request()); err != nil {
+		if err := h.PubSubAuth.Authenticate(c.Request()); err != nil {
 			return err
-		} else {
-			webhook, err = parsePubSubWebhookMessage(c, c.Request().Body)
 		}
 
+		webhook, err := parsePubSubWebhookMessage(c)
 		if err != nil {
 			log.Errorf("failed to parse request body: %s", err.Error())
 			return err
@@ -77,31 +63,7 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 	}
 }
 
-func (h Handler) isAWS(r *http.Request) bool {
-	return r.Header.Get("X-Amz-Sns-Message-Type") == "Notification"
-}
-
-func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
-	var payload sns.Payload
-	var input rhttp.DecompressInput
-
-	if err := json.NewDecoder(body).Decode(&payload); err != nil {
-		return input, err
-	}
-
-	if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
-		return input, err
-	}
-
-	// Validates payload's signature
-	if err := payload.VerifyPayload(); err != nil {
-		return input, err
-	}
-
-	return input, nil
-}
-
-func parsePubSubDecompressMessage(c *echo.Context, body io.Reader) (rhttp.DecompressInput, error) {
+func parsePubSubDecompressMessage(c *echo.Context) (rhttp.DecompressInput, error) {
 	var input rhttp.DecompressInput
 
 	if err := c.Bind(&input); err != nil {
@@ -112,27 +74,7 @@ func parsePubSubDecompressMessage(c *echo.Context, body io.Reader) (rhttp.Decomp
 	return input, nil
 }
 
-func parseSNSWebhookMessage(body io.Reader) (webhook.Webhook, error) {
-	var payload sns.Payload
-	var w webhook.Webhook
-
-	if err := json.NewDecoder(body).Decode(&payload); err != nil {
-		return w, err
-	}
-
-	if err := json.Unmarshal([]byte(payload.Message), &w); err != nil {
-		return w, err
-	}
-
-	// Validates payload's signature
-	if err := payload.VerifyPayload(); err != nil {
-		return w, err
-	}
-
-	return w, nil
-}
-
-func parsePubSubWebhookMessage(c *echo.Context, body io.Reader) (webhook.Webhook, error) {
+func parsePubSubWebhookMessage(c *echo.Context) (webhook.Webhook, error) {
 	var msg msgBody
 	var w webhook.Webhook
 
