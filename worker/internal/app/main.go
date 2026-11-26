@@ -55,7 +55,7 @@ func Start(debug bool, version string) {
 	gateways := initReposAndGateways(ctx, conf, debug)
 
 	// usecase
-	uc := interactor.NewUsecase(gateways, repos)
+	uc := interactor.NewUsecase(gateways, repos, interactor.WithMaxDecompressAttempts(conf.Decompress.MaxAttempts))
 	ctrl := rhttp.NewController(uc)
 	handler := NewHandler(ctrl, NewPubSubAuthenticator(conf.PubSub, conf.Dev))
 

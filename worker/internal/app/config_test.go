@@ -23,3 +23,21 @@ func TestReadConfig_DBCMS(t *testing.T) {
 		assert.Equal(t, "custom_db", c.DB_CMS)
 	})
 }
+
+func TestReadConfig_Decompress(t *testing.T) {
+	t.Run("default", func(t *testing.T) {
+		c, err := ReadConfig(false)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(10*1024*1024*1024), c.Decompress.MaxArchiveSize)
+		assert.Equal(t, 3, c.Decompress.MaxAttempts)
+	})
+
+	t.Run("override", func(t *testing.T) {
+		t.Setenv("REEARTH_CMS_WORKER_DECOMPRESS_MAX_ARCHIVE_SIZE", "1024")
+		t.Setenv("REEARTH_CMS_WORKER_DECOMPRESS_MAX_ATTEMPTS", "5")
+		c, err := ReadConfig(false)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1024), c.Decompress.MaxArchiveSize)
+		assert.Equal(t, 5, c.Decompress.MaxAttempts)
+	})
+}

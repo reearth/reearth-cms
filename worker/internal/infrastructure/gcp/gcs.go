@@ -1,7 +1,6 @@
 package gcp
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -11,12 +10,16 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/worker/pkg/rangereader"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 )
 
 const (
 	gcsAssetBasePath string = "assets"
+
+	metadataProceeded = "proceeded"
+	metadataAttempts  = "attempts"
 )
 
 type contextKey string
@@ -24,28 +27,46 @@ type contextKey string
 const workspaceContextKey contextKey = "workspace"
 
 type fileRepo struct {
-	bucketName   string
-	cacheControl string
-	bucket       *storage.BucketHandle
+	bucketName     string
+	cacheControl   string
+	maxArchiveSize int64
+	bucket         *storage.BucketHandle
 }
 
-func NewFile(bucketName string, cacheControl string) (gateway.File, error) {
+type FileOption func(*fileRepo)
+
+// WithMaxArchiveSize makes Read reject archives larger than n bytes with
+// gateway.ErrFileTooLarge. n <= 0 disables the check.
+func WithMaxArchiveSize(n int64) FileOption {
+	return func(f *fileRepo) {
+		f.maxArchiveSize = n
+	}
+}
+
+func NewFile(bucketName string, cacheControl string, opts ...FileOption) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
 
-	return &fileRepo{
+	f := &fileRepo{
 		bucketName:   bucketName,
 		cacheControl: cacheControl,
-	}, nil
+	}
+	for _, o := range opts {
+		o(f)
+	}
+	return f, nil
 }
 
+// Read returns a bounded-memory io.ReaderAt over the archive object. The
+// object is read with ranged requests (see rangereader), so memory use does
+// not depend on the archive size, and every ranged reader is closed after use.
 func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, int64, error) {
 	if path == "" {
 		return nil, 0, 0, rerror.ErrNotFound
 	}
 	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
-	return f.readAll(ctx, objectName)
+	return f.openRangeReader(ctx, objectName)
 }
 
 func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, error) {
@@ -76,57 +97,90 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 }
 
 func (f *fileRepo) WriteProceeded(ctx context.Context, path string, proceeded int64) error {
+	return f.updateMetadata(ctx, path, map[string]string{
+		metadataProceeded: strconv.FormatInt(proceeded, 10),
+		// progress was made, so the previous attempts were not stuck
+		metadataAttempts: "0",
+	})
+}
+
+func (f *fileRepo) StartAttempt(ctx context.Context, path string) (int, error) {
+	obj, attrs, err := f.objectAttrs(ctx, getGCSObjectNameFromURL(gcsAssetBasePath, path))
+	if err != nil {
+		return 0, err
+	}
+	attempts, _ := strconv.Atoi(attrs.Metadata[metadataAttempts])
+	attempts++
+	// Writing a fixed value is idempotent, so it is safe to retry (e.g. on 429
+	// when the object metadata was updated less than a second ago).
+	if _, err := obj.Retryer(storage.WithPolicy(storage.RetryAlways)).Update(ctx, storage.ObjectAttrsToUpdate{
+		Metadata: map[string]string{metadataAttempts: strconv.Itoa(attempts)},
+	}); err != nil {
+		return 0, fmt.Errorf("update attr: %w", err)
+	}
+	return attempts, nil
+}
+
+func (f *fileRepo) ResetAttempts(ctx context.Context, path string) error {
+	return f.updateMetadata(ctx, path, map[string]string{metadataAttempts: "0"})
+}
+
+func (f *fileRepo) updateMetadata(ctx context.Context, path string, md map[string]string) error {
 	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
 	bucket, err := f.getBucket(ctx)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
-	obj := bucket.Object(objectName)
-	_, err = obj.Update(ctx, storage.ObjectAttrsToUpdate{
-		Metadata: map[string]string{
-			"proceeded": strconv.FormatInt(proceeded, 10),
-		},
-	})
-	if err != nil {
+	// Writing fixed values is idempotent, so it is safe to retry.
+	obj := bucket.Object(objectName).Retryer(storage.WithPolicy(storage.RetryAlways))
+	if _, err := obj.Update(ctx, storage.ObjectAttrsToUpdate{Metadata: md}); err != nil {
 		return fmt.Errorf("update attr: %w", err)
 	}
 	return nil
 }
 
-func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, int64, error) {
+func (f *fileRepo) objectAttrs(ctx context.Context, objectName string) (*storage.ObjectHandle, *storage.ObjectAttrs, error) {
 	if objectName == "" {
-		return nil, 0, 0, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
 	}
 
 	bucket, err := f.getBucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: read bucket err: %+v\n", err)
-		return nil, 0, 0, rerror.ErrInternalBy(err)
+		return nil, nil, rerror.ErrInternalBy(err)
 	}
 
 	obj := bucket.Object(objectName)
-	r, err := obj.NewReader(ctx)
-	if err != nil {
-		return nil, 0, 0, err
-	}
 	attrs, err := obj.Attrs(ctx)
 	if err != nil {
-		return nil, 0, 0, err
+		if errors.Is(err, storage.ErrObjectNotExist) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, err
 	}
-	proceeded, _ := strconv.ParseInt(attrs.Metadata["proceeded"], 10, 64)
+	return obj, attrs, nil
+}
 
-	// read all data on memory
-	objectData, err := io.ReadAll(r)
+func (f *fileRepo) openRangeReader(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, int64, error) {
+	obj, attrs, err := f.objectAttrs(ctx, objectName)
 	if err != nil {
 		return nil, 0, 0, err
 	}
 
-	reader := bytes.NewReader(objectData)
-	bufReader := buffer{
-		*reader,
+	if f.maxArchiveSize > 0 && attrs.Size > f.maxArchiveSize {
+		return nil, 0, 0, fmt.Errorf("%w: size=%d limit=%d", gateway.ErrFileTooLarge, attrs.Size, f.maxArchiveSize)
 	}
 
-	return &bufReader, int64(len(objectData)), proceeded, nil
+	proceeded, _ := strconv.ParseInt(attrs.Metadata[metadataProceeded], 10, 64)
+
+	// Pin the generation so that every ranged read sees the same content,
+	// even if the object is overwritten while it is being extracted.
+	obj = obj.Generation(attrs.Generation)
+	open := func(ctx context.Context, off, length int64) (io.ReadCloser, error) {
+		return obj.NewRangeReader(ctx, off, length)
+	}
+
+	return rangereader.New(ctx, open, attrs.Size), attrs.Size, proceeded, nil
 }
 
 func (f *fileRepo) getBucket(ctx context.Context) (*storage.BucketHandle, error) {
@@ -145,18 +199,6 @@ func getGCSObjectNameFromURL(assetBasePath string, assetPath string) string {
 		return ""
 	}
 	return path.Join(assetBasePath, assetPath)
-}
-
-type buffer struct {
-	b bytes.Reader
-}
-
-func (b *buffer) Close() error {
-	return nil
-}
-
-func (b *buffer) ReadAt(b2 []byte, off int64) (n int, err error) {
-	return b.b.ReadAt(b2, off)
 }
 
 func getWorkspaceFromContext(ctx context.Context) string {

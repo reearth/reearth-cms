@@ -58,3 +58,12 @@ func Test_fileRepo_Upload(t *testing.T) {
 	c, _ := io.ReadAll(f2)
 	assert.Equal(t, string(byte), string(c))
 }
+
+func Test_fileRepo_Attempts(t *testing.T) {
+	f, _ := NewFile(mockFs(), "")
+
+	n, err := f.StartAttempt(context.Background(), "assets/aaa.txt")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, n)
+	assert.NoError(t, f.ResetAttempts(context.Background(), "assets/aaa.txt"))
+}

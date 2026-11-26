@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"path"
 	"strings"
@@ -13,29 +14,57 @@ import (
 	"github.com/samber/lo"
 )
 
+// ErrTooManyAttempts is returned when the same archive was attempted
+// maxDecompressAttempts times without progress (for example because the
+// worker was killed while extracting it). The message is then acknowledged
+// and the asset marked as failed, so Pub/Sub stops redelivering it.
+var ErrTooManyAttempts = errors.New("too many decompress attempts without progress")
+
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	err := u.decompress(ctx, assetID, assetPath)
 	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+		// Returning the error makes Pub/Sub redeliver the message. The attempt
+		// counter is kept, so a stuck archive is given up after a few tries.
 		log.Errorf("timeout decompress asset, Asset=%s, Path=%s", assetID, assetPath)
 		return err
 	}
+
+	status := asset.ArchiveExtractionStatusDone
 	if err != nil {
 		log.Errorf("failed to decompress asset, Asset=%s, Path=%s, Error=%s", assetID, assetPath, err)
-		return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusFailed))
+		status = asset.ArchiveExtractionStatusFailed
 	}
-	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusDone))
+	// Extraction has finished (either way), so a later run starts from zero.
+	if rerr := u.gateways.File.ResetAttempts(ctx, assetPath); rerr != nil {
+		log.Warnf("failed to reset decompress attempts, Asset=%s, Path=%s, Error=%s", assetID, assetPath, rerr)
+	}
+	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(status))
 }
 
 func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) error {
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
 	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 
+	attempt, err := u.gateways.File.StartAttempt(ctx, assetPath)
+	if err != nil {
+		log.Errorf("failed to record decompress attempt, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
+		return err
+	}
+	if attempt > u.maxDecompressAttempts {
+		return fmt.Errorf("%w: attempt=%d max=%d", ErrTooManyAttempts, attempt, u.maxDecompressAttempts)
+	}
+
 	compressedFile, size, proceeded, err := u.gateways.File.Read(ctx, assetPath)
 	if err != nil {
 		log.Errorf("failed to load archive file from storage, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
 		return err
 	}
-	log.Infof("archive file downloaded from storage, Size=%d", size)
+	defer func() {
+		if cerr := compressedFile.Close(); cerr != nil {
+			log.Warnf("failed to close archive file, Asset=%s, Path=%s, Err=%s", assetID, assetPath, cerr)
+		}
+	}()
+	log.Infof("archive file opened from storage, Size=%d, Attempt=%d", size, attempt)
 
 	uploadFunc := func(name string) (io.WriteCloser, error) {
 		w, err := u.gateways.File.Upload(ctx, smartJoinPath(base, name))

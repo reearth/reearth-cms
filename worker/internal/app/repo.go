@@ -14,7 +14,7 @@ func initReposAndGateways(_ context.Context, conf *Config, debug bool) *gateway.
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)
 		gateways.CMS = gcp.NewPubSub(conf.PubSub.Topic, conf.GCP.Project)
-		fileRepo, err := gcp.NewFile(conf.GCS.BucketName, conf.GCS.PublicationCacheControl)
+		fileRepo, err := gcp.NewFile(conf.GCS.BucketName, conf.GCS.PublicationCacheControl, gcp.WithMaxArchiveSize(conf.Decompress.MaxArchiveSize))
 		if err != nil {
 			if debug {
 				log.Warnf("file: failed to init GCS storage: %s\n", err.Error())

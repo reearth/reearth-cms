@@ -21,6 +21,16 @@ type Config struct {
 	DB          string
 	DB_CMS      string `default:"reearth_cms"`
 	HealthCheck HealthCheckConfig
+	Decompress  DecompressConfig
+}
+
+type DecompressConfig struct {
+	// MaxArchiveSize is the largest archive (in bytes) the worker extracts.
+	// Larger archives are marked as failed. 0 disables the check.
+	MaxArchiveSize int64 `default:"10737418240" split_words:"true"` // 10 GiB, same as the upload limit
+	// MaxAttempts is how many deliveries of the same archive are allowed
+	// without progress before it is marked as failed.
+	MaxAttempts int `default:"3" split_words:"true"`
 }
 
 type HealthCheckConfig struct {

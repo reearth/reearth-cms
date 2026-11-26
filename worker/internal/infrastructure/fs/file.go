@@ -76,3 +76,13 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 func (f *fileRepo) WriteProceeded(ctx context.Context, path string, proceeded int64) error {
 	return nil
 }
+
+// StartAttempt implements gateway.File. Local storage does not track attempts.
+func (f *fileRepo) StartAttempt(ctx context.Context, path string) (int, error) {
+	return 1, nil
+}
+
+// ResetAttempts implements gateway.File.
+func (f *fileRepo) ResetAttempts(ctx context.Context, path string) error {
+	return nil
+}
