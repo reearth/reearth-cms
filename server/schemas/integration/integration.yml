@@ -2309,7 +2309,7 @@ components:
           type: string
           enum:
             - user
-            - integrtaion
+            - integration
         content:
           type: string
         createdAt:

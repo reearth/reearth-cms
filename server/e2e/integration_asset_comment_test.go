@@ -101,7 +101,7 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 		Object()
 
 	c.Value("authorId").IsEqual(iId)
-	c.Value("authorType").IsEqual(integrationapi.Integrtaion)
+	c.Value("authorType").IsEqual(integrationapi.Integration)
 	c.Value("content").IsEqual("test")
 
 	// asset with no thread

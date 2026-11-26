@@ -44,7 +44,7 @@ func TestNewComment(t *testing.T) {
 				Content:    new("test"),
 				CreatedAt:  new(cIntegration.CreatedAt()),
 				Id:         cIntegration.ID().Ref(),
-				AuthorType: new(Integrtaion),
+				AuthorType: new(Integration),
 				AuthorId:   new(iid.String()),
 			},
 		},

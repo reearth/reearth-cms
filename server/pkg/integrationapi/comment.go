@@ -16,7 +16,7 @@ func NewComment(c *thread.Comment) *Comment {
 	if u := c.Author().User(); u != nil {
 		authorID, authorType = new(u.String()), new(User)
 	} else if i := c.Author().Integration(); i != nil {
-		authorID, authorType = new(i.String()), new(Integrtaion)
+		authorID, authorType = new(i.String()), new(Integration)
 	}
 	return &Comment{
 		Id:         c.ID().Ref(),
