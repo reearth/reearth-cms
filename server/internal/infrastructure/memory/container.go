@@ -21,7 +21,6 @@ func New() *repo.Container {
 		Schema:            NewSchema(),
 		Integration:       NewIntegration(),
 		Thread:            NewThread(),
-		Event:             NewEvent(),
 		Group:             NewGroup(),
 		WorkspaceSettings: NewWorkspaceSettings(),
 		Job:               NewJob(),

@@ -26,7 +26,6 @@ type Container struct {
 	View              View
 	Integration       Integration
 	Thread            Thread
-	Event             Event
 	Request           Request
 	Group             Group
 	WorkspaceSettings WorkspaceSettings
@@ -60,7 +59,6 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Thread:            c.Thread.Filtered(workspace),
 		Integration:       c.Integration,
 		WorkspaceSettings: c.WorkspaceSettings,
-		Event:             c.Event,
 		Job:               c.Job,
 	}
 }
