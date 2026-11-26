@@ -28,3 +28,14 @@ go build ./cmd/db-migrations
 ```bash
 ./db-migrations --cmd=text-normalization --wet-run
 ```
+
+### metadata-item-threads
+
+Deletes comment threads attached to metadata items and unsets the `thread` reference on every version of those metadata items. Metadata items are not meant to have threads, and item deletion does not remove them.
+
+The dry run logs, per metadata item, each thread with its workspace and comment count (comment contents are never logged). Threads that a non-metadata item, an asset, or a request also points to are skipped.
+
+```bash
+./db-migrations --cmd=metadata-item-threads           # dry run
+./db-migrations --cmd=metadata-item-threads --wet-run # apply
+```

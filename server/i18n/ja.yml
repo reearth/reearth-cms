@@ -3,6 +3,7 @@ Comment already exist in this thread: コメントはすでにこのスレッド
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
 File is missing: ファイルがありません
 Geo field max size exceeded: ジオメトリフィールドの最大サイズを超えています。
+Metadata items cannot have comments: メタデータアイテムにはコメントできません。
 Options could not be empty!: 選択フィールドは空にできません
 URL field max length exceeded: URLフィールドの最大文字数を超えています。
 a Geometry field can have at most 1,000 geometries: Geometryフィールドに入れられるジオメトリは最大1,000個です。
