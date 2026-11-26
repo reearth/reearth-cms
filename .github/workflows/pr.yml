@@ -11,14 +11,20 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   labeler:
     name: labeler
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Fork PRs get a read-only token, so labeling would fail with a 403.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -29,9 +35,10 @@ jobs:
   title_check:
     name: title check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -51,23 +58,35 @@ jobs:
             doesn't start with an uppercase character.
   pr_title:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs:
       - labeler
       - title_check
-    if: '!failure()'
+    # Skipped is OK (e.g. labeler on fork PRs); failure or cancelled is not.
+    # !cancelled() keeps a superseded run (edited/labeled events reuse the same
+    # commit) from posting a stale failure for this check.
+    if: ${{ !cancelled() }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+      - name: Check results
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One or more PR checks failed or were cancelled: ${{ join(needs.*.result, ', ') }}"
+          exit 1
       - run: echo OK
   assign-author:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Same as labeler: needs a writable token, which fork PRs don't get.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: block
           allowed-endpoints: >

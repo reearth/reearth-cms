@@ -8,9 +8,10 @@ jobs:
   ci-server-lint:
     name: lint
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - name: checkout
@@ -59,6 +60,7 @@ jobs:
   ci-server-test:
     name: test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       mongo:
         image: mongo:6-focal
@@ -66,7 +68,7 @@ jobs:
           - 27017:27017
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
       - name: checkout
