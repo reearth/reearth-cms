@@ -106,7 +106,7 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 
 	// c.Value("id").Equal(icId.String())
 	c.Value("authorId").IsEqual(iId)
-	c.Value("authorType").IsEqual(integrationapi.Integrtaion)
+	c.Value("authorType").IsEqual(integrationapi.Integration)
 	c.Value("content").IsEqual("test")
 
 	// item with no thread

@@ -107,7 +107,7 @@ func TestCommon_webhook(t *testing.T) {
 	assert.Error(t, err)
 
 	lo.Must0(db.Workspace.Save(ctx, ws))
-	// no webhook call since no integrtaion
+	// no webhook call since no integration
 	mRunner.EXPECT().Run(ctx, task.WebhookPayload{
 		Webhook: wh,
 		Event:   ev,

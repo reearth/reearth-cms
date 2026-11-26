@@ -111,14 +111,14 @@ func (e AssetEmbedding) Valid() bool {
 
 // Defines values for CommentAuthorType.
 const (
-	Integrtaion CommentAuthorType = "integrtaion"
+	Integration CommentAuthorType = "integration"
 	User        CommentAuthorType = "user"
 )
 
 // Valid indicates whether the value is a known member of the CommentAuthorType enum.
 func (e CommentAuthorType) Valid() bool {
 	switch e {
-	case Integrtaion:
+	case Integration:
 		return true
 	case User:
 		return true
