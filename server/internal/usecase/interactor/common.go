@@ -83,10 +83,6 @@ func createEvents(ctx context.Context, r *repo.Container, g *gateway.Container, 
 		evl = append(evl, ev)
 	}
 
-	if err := r.Event.SaveAll(ctx, evl); err != nil {
-		return nil, err
-	}
-
 	if err := webhooks(ctx, r, g, el, evl); err != nil {
 		return nil, err
 	}

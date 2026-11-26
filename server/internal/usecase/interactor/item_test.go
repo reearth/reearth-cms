@@ -3,21 +3,25 @@ package interactor
 import (
 	"context"
 	"errors"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -2059,19 +2063,18 @@ func TestWorkFlow(t *testing.T) {
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }
 
-// recordingEventRepo records the events saved through it, and fails the save when err is set.
-type recordingEventRepo struct {
-	repo.Event
+// recordingTaskRunner records the webhook events dispatched through it, and fails the dispatch when err is set.
+type recordingTaskRunner struct {
+	gateway.TaskRunner
 	saved event.List
 	err   error
 }
 
-func (r *recordingEventRepo) SaveAll(ctx context.Context, evs event.List) error {
-	r.saved = append(r.saved, evs...)
-	if r.err != nil {
-		return r.err
+func (r *recordingTaskRunner) Run(_ context.Context, p task.Payload) error {
+	if p.Webhook != nil {
+		r.saved = append(r.saved, p.Webhook.Event)
 	}
-	return r.Event.SaveAll(ctx, evs)
+	return r.err
 }
 
 type publishState int
@@ -2084,7 +2087,7 @@ const (
 
 // setupPublishItems saves one item per state in a fresh workspace and returns the ids in order.
 // nil states return a nil id list, empty states an empty one.
-func setupPublishItems(t *testing.T, states []publishState) (*repo.Container, *recordingEventRepo, id.ItemIDList, *usecase.Operator) {
+func setupPublishItems(t *testing.T, states []publishState) (*repo.Container, *gateway.Container, *recordingTaskRunner, id.ItemIDList, *usecase.Operator) {
 	t.Helper()
 
 	wid := accountdomain.NewWorkspaceID()
@@ -2093,10 +2096,20 @@ func setupPublishItems(t *testing.T, states []publishState) (*repo.Container, *r
 	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
+	// an integration subscribed to publish and unpublish, so every event is dispatched as a webhook
+	wh := integration.NewWebhookBuilder().NewID().Name("wh").
+		Url(lo.Must(url.Parse("https://example.com"))).Active(true).
+		Trigger(integration.WebhookTrigger{event.ItemPublish: true, event.ItemUnpublish: true}).MustBuild()
+	in := integration.New().NewID().Developer(u.ID()).Name("in").Webhook([]*integration.Webhook{wh}).MustBuild()
+	ws := workspace.New().ID(wid).MustBuild()
+	require.NoError(t, ws.Members().AddIntegration(lo.Must(accountdomain.IntegrationIDFrom(in.ID().String())), workspace.RoleOwner, u.ID()))
+
 	ctx := context.Background()
 	db := memory.New()
-	events := &recordingEventRepo{Event: db.Event}
-	db.Event = events
+	events := &recordingTaskRunner{}
+	gw := &gateway.Container{TaskRunner: events}
+	require.NoError(t, db.Workspace.Save(ctx, ws))
+	require.NoError(t, db.Integration.Save(ctx, in))
 	require.NoError(t, db.Project.Save(ctx, prj))
 	require.NoError(t, db.Schema.Save(ctx, s))
 	require.NoError(t, db.Model.Save(ctx, m))
@@ -2124,7 +2137,7 @@ func setupPublishItems(t *testing.T, states []publishState) (*repo.Container, *r
 			OwningWorkspaces: id.WorkspaceIDList{wid},
 		},
 	}
-	return db, events, ids, op
+	return db, gw, events, ids, op
 }
 
 func TestItem_Publish(t *testing.T) {
@@ -2153,11 +2166,11 @@ func TestItem_Publish(t *testing.T) {
 
 			// Arrange
 			ctx := context.Background()
-			db, events, ids, op := setupPublishItems(t, tt.states)
+			db, gw, events, ids, op := setupPublishItems(t, tt.states)
 			if tt.setDispatchErr {
 				events.err = errors.New("dispatch failed")
 			}
-			itemUC := NewItem(db, nil)
+			itemUC := NewItem(db, gw)
 
 			// Act
 			res, err := itemUC.Publish(ctx, ids, op)
@@ -2212,11 +2225,11 @@ func TestItem_Unpublish(t *testing.T) {
 
 			// Arrange
 			ctx := context.Background()
-			db, events, ids, op := setupPublishItems(t, tt.states)
+			db, gw, events, ids, op := setupPublishItems(t, tt.states)
 			if tt.setDispatchErr {
 				events.err = errors.New("dispatch failed")
 			}
-			itemUC := NewItem(db, nil)
+			itemUC := NewItem(db, gw)
 
 			// Act
 			res, err := itemUC.Unpublish(ctx, ids, op)
