@@ -659,9 +659,10 @@ func (f *fileRepo) deleteByPrefix(ctx context.Context, bucket *storage.BucketHan
 			break
 		}
 		if err != nil {
+			// The iterator's error is sticky: every later Next call returns it again.
 			log.Errorf("gcs: failed to iterate objects: %+v", err)
 			errs = append(errs, err)
-			continue
+			break
 		}
 
 		if p != nil {
