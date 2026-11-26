@@ -1420,17 +1420,22 @@
   dependencies:
     css-tree "^3.0.0"
 
-"@cesium/core@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@cesium/core/-/core-0.1.0.tgz#9b2435c09c6d2905294386a047c6ed1050e81205"
-  integrity sha512-SD5H3dnWMIiJs04YQnV71ziFzAKcigPEwUFUv9mCX7Y0X7wZXgxGvNz4NCqmoVqHqfSQgdTDzP52fRHl7Jthpg==
-
-"@cesium/engine@^26.4.0":
-  version "26.4.0"
-  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-26.4.0.tgz#672ceeae12232b29b648211ea35a73c77cea218d"
-  integrity sha512-OQkL54hPRBkOto0NmArLkEpbWZzTaWAhsx/mGNw85jXdr/nl/OvTqLC8QZv5wKSv4imuzHq/kT6IIy8/B3QLFQ==
+"@cesium/core@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@cesium/core/-/core-0.1.1.tgz#06bc6fb54daf7a40de81e37af3e9915b5ce76aee"
+  integrity sha512-2twC6bAYWdrJ4YVS2UPCpgkE7EZWHl+GVuh5n9IT6gVL9W9OYPas29Vh+wrUVI/9Hs8TeiNtis+Du2U9b+ce6A==
   dependencies:
-    "@cesium/core" "^0.1.0"
+    earcut "3.0.2"
+    mersenne-twister "^1.1.0"
+    urijs "^1.19.7"
+
+"@cesium/engine@^26.5.0":
+  version "26.5.0"
+  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-26.5.0.tgz#f27cbb5335999e300f7b8e79b0f8370cbae725b5"
+  integrity sha512-vpMuIOQ7QXNVrVTCCPWQ9y0zyfR+lhKLUOWt8XRCrDibtsASVpXGRFKQEdONf2D2EznIAQZ09sGOC8LwhvOeIQ==
+  dependencies:
+    "@cesium/core" "^0.1.1"
+    "@cesium/gltf" "^0.1.1"
     "@cesium/wasm-splats" "^0.1.0-alpha.2"
     "@spz-loader/core" "0.3.1"
     "@tweenjs/tween.js" "^25.0.0"
@@ -1438,8 +1443,7 @@
     autolinker "^4.0.0"
     bitmap-sdf "^1.0.3"
     dompurify "^3.4.14"
-    draco3d "^1.5.1"
-    earcut "3.0.2"
+    draco3d "1.5.7"
     grapheme-splitter "^1.0.4"
     jsep "^1.3.8"
     kdbush "^4.1.0"
@@ -1453,18 +1457,25 @@
     topojson-client "^3.1.0"
     urijs "^1.19.7"
 
+"@cesium/gltf@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@cesium/gltf/-/gltf-0.1.1.tgz#a658bc6c4fef7ffbd6a732e5ab486b97fbdc54ad"
+  integrity sha512-tACM+dBXm+hXU4iyMynEK11ymce6GqUaB8TjF7jbtqBfxVYh45C2zBjNnv3ElpwhlwjLjwbc25zKZrO8oGYegw==
+  dependencies:
+    "@cesium/core" "^0.1.1"
+
 "@cesium/wasm-splats@^0.1.0-alpha.2":
   version "0.1.0-alpha.2"
   resolved "https://registry.yarnpkg.com/@cesium/wasm-splats/-/wasm-splats-0.1.0-alpha.2.tgz#f2d0d717d46f5f3d6d923549e90fb5ab4d429cab"
   integrity sha512-t9pMkknv31hhIbLpMa8yPvmqfpvs5UkUjgqlQv9SeO8VerCXOYnyP8/486BDaFrztM0A7FMbRjsXtNeKvqQghA==
 
-"@cesium/widgets@^16.3.0":
-  version "16.3.0"
-  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-16.3.0.tgz#7be8db693bc69a6f49acc8da4488dfc168948be3"
-  integrity sha512-ui0Rp2FR9H8QKsoR9iID/JZZbC7V8Kc6djewuFn7zXPlWa/cb4/vZ8ogIrRneZHFxh0vBrieYDaLeNn346bcEw==
+"@cesium/widgets@^16.3.1":
+  version "16.3.1"
+  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-16.3.1.tgz#c7fb455a848eb2e66ce88dcdcd34281a9ccb88db"
+  integrity sha512-eyAGPYYL4v/WeLasmphRwxFcCl/qeTcRhncbBlOzMTSTLjgjZSea0IcEDCKC2ip/mHPeGe887X84xi1SV8mcEQ==
   dependencies:
-    "@cesium/core" "^0.1.0"
-    "@cesium/engine" "^26.4.0"
+    "@cesium/core" "^0.1.1"
+    "@cesium/engine" "^26.5.0"
     nosleep.js "^0.12.0"
 
 "@chenshuai2144/sketch-color@^1.0.7", "@chenshuai2144/sketch-color@^1.0.8":
@@ -7689,14 +7700,15 @@ cesium-mvt-imagery-provider@1.4.2:
     "@mapbox/vector-tile" "1.3.1"
     pbf "3.2.1"
 
-cesium@1.146.0:
-  version "1.146.0"
-  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.146.0.tgz#8a9b9201f0f86e3c43bbfa036363d0602a409c63"
-  integrity sha512-hvKkURnmc8OZ8qKNrwawl/YijwAItaWLbpAdIVNAUXODCLMjpod4PbdLuwo8Ab6ETL915MUGV2NocHFCRCeqqA==
+cesium@1.147.0:
+  version "1.147.0"
+  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.147.0.tgz#819adce91de78110e30621d4d9c1d6b8f3d43007"
+  integrity sha512-gY5TF0rSyIMtnSIFHUuiHnrCuhdKaHUzLWFcjxytsdheKfKtYYOWicIWMypGjwYfnmJrgPgNF7HNjO9SK/JIkw==
   dependencies:
-    "@cesium/core" "^0.1.0"
-    "@cesium/engine" "^26.4.0"
-    "@cesium/widgets" "^16.3.0"
+    "@cesium/core" "^0.1.1"
+    "@cesium/engine" "^26.5.0"
+    "@cesium/gltf" "^0.1.1"
+    "@cesium/widgets" "^16.3.1"
     protobufjs "^8.8.0"
 
 chai@^5.2.0:
@@ -8623,7 +8635,7 @@ dpop@^2.1.1:
   resolved "https://registry.yarnpkg.com/dpop/-/dpop-2.1.1.tgz#f132df2bdf97b8fd5f13afe14ef659d072d8d051"
   integrity sha512-J0Of2JTiM4h5si0tlbPQ/lkqfZ5wAEVkKYBhkwyyANnPJfWH4VsR5uIkZ+T+OSPIwDYUg1fbd5Mmodd25HjY1w==
 
-draco3d@^1.5.1:
+draco3d@1.5.7:
   version "1.5.7"
   resolved "https://registry.yarnpkg.com/draco3d/-/draco3d-1.5.7.tgz#94f9bce293eb8920c159dc91a4ce9124a9e899e0"
   integrity sha512-m6WCKt/erDXcw+70IJXnG7M3awwQPAsZvJGX5zY7beBqpELw6RDGkYVU0W43AFxye4pDZ5i2Lbyc/NNGqwjUVQ==
