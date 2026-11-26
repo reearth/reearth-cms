@@ -16,7 +16,7 @@ require (
 	github.com/labstack/echo/v5 v5.4.6
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/reearth/reearth-cms/shared v0.0.0
-	github.com/reearth/reearthx v0.0.0-20261019070039-3b14d79ab14b
+	github.com/reearth/reearthx v0.0.0-20261126113950-961ea2e2b719
 	github.com/samber/lo v1.53.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1

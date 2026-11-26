@@ -171,8 +171,8 @@ github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25 h1:S1hI5J
 github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25/go.mod h1:ZQntvDG8TkPgljxtA0R9frDoND4QORU1VXz015N5Ks4=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
-github.com/reearth/reearthx v0.0.0-20261019070039-3b14d79ab14b h1:PG0GVQwJT8SxpaPWt4YmyuUM2ctQXFhw17EutIE2mdY=
-github.com/reearth/reearthx v0.0.0-20261019070039-3b14d79ab14b/go.mod h1:07PEJHT6sD9+dzHVOAmcJ+/sFprJu4MkOtEfL+kwhfM=
+github.com/reearth/reearthx v0.0.0-20261126113950-961ea2e2b719 h1:DeBYsucqAiv80kIFiz5az2FT2srbIBYT70wzb/mICqA=
+github.com/reearth/reearthx v0.0.0-20261126113950-961ea2e2b719/go.mod h1:+1kl0xxNuQ9zV6qtS/7J2WFXh9wQTauHwfH6+jvRJQU=
 github.com/samber/lo v1.53.0 h1:t975lj2py4kJPQ6haz1QMgtId2gtmfktACxIXArw3HM=
 github.com/samber/lo v1.53.0/go.mod h1:4+MXEGsJzbKGaUEQFKBq2xtfuznW9oz/WrgyzMzRoM0=
 github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
