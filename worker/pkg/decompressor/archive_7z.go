@@ -13,7 +13,7 @@ type sevenZipFile struct {
 }
 
 func (f sevenZipFile) Name() string {
-	return f.f.Name
+	return NormalizeEntryName(f.f.Name)
 }
 
 func (f sevenZipFile) Open() (io.ReadCloser, error) {

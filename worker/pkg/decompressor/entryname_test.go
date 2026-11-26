@@ -25,6 +25,8 @@ func TestValidateEntryName(t *testing.T) {
 		"dir/..hidden",
 		"日本語/ファイル.txt",
 		"ab:c.txt",
+		`dir\a.txt`,
+		`dir\sub\`,
 	}
 	for _, n := range valid {
 		assert.NoError(t, ValidateEntryName(n), n)
@@ -43,7 +45,9 @@ func TestValidateEntryName(t *testing.T) {
 		"/etc/passwd",
 		"/abs/dir/",
 		`..\..\a.txt`,
-		`dir\a.txt`,
+		`dir\..\..\a.txt`,
+		`\abs\a.txt`,
+		`C:\Windows\a.txt`,
 		"C:/Windows/a.txt",
 		"c:a.txt",
 		"a\x00.txt",
@@ -123,7 +127,7 @@ func TestDecompress_RejectsMalicious7z(t *testing.T) {
 }
 
 func TestDecompress_NestedZipUnchanged(t *testing.T) {
-	names := []string{"root.txt", "dir/", "dir/a.txt", "dir/sub/", "dir/sub/b.txt", "./dot.txt", "a..b.txt"}
+	names := []string{"root.txt", "dir/", "dir/a.txt", "dir/sub/", "dir/sub/b.txt", "./dot.txt", "a..b.txt", `win\`, `win\c.txt`}
 	written, err := decompressAll(t, buildZip(t, names...), "zip")
 	require.NoError(t, err)
 	assert.Equal(t, map[string]string{
@@ -132,5 +136,7 @@ func TestDecompress_NestedZipUnchanged(t *testing.T) {
 		"dir/sub/b.txt": "content of dir/sub/b.txt",
 		"./dot.txt":     "content of ./dot.txt",
 		"a..b.txt":      "content of a..b.txt",
+		// backslash separators (older PowerShell) become directories
+		"win/c.txt": `content of win\c.txt`,
 	}, written)
 }
