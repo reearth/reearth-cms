@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
-	sns "github.com/robbiet480/go.sns"
 )
 
 func initEcho(_ context.Context, cfg *ServerConfig, handler *Handler) *echo.Echo {
@@ -30,8 +28,6 @@ func initEcho(_ context.Context, cfg *ServerConfig, handler *Handler) *echo.Echo
 		echootel.NewMiddleware("reearth-cms/worker"),
 	)
 
-	awsSNSSubscriptionConfirmationMiddleware := awsSNSSubscriptionConfirmationMiddleware()
-
 	api := e.Group("/api")
 
 	api.GET("/ping", func(c *echo.Context) error { return c.JSON(http.StatusOK, "pong") })
@@ -39,10 +35,10 @@ func initEcho(_ context.Context, cfg *ServerConfig, handler *Handler) *echo.Echo
 	e.GET("/health", HealthCheck(cfg.Config, cfg.Version))
 
 	t := handler.DecompressHandler()
-	api.POST("/decompress", t, awsSNSSubscriptionConfirmationMiddleware)
+	api.POST("/decompress", t)
 
 	wh := handler.WebhookHandler()
-	api.POST("/webhook", wh, awsSNSSubscriptionConfirmationMiddleware)
+	api.POST("/webhook", wh)
 
 	return e
 }
@@ -88,39 +84,6 @@ func errorHandler(next echo.HTTPErrorHandler) echo.HTTPErrorHandler {
 			"error": msg,
 		}); err != nil {
 			next(c, err)
-		}
-	}
-}
-
-func handleSubscriptionConfirmation(c *echo.Context) error {
-	var payload sns.Payload
-	if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
-		log.Errorf("failed to decode request body: %s", err.Error())
-		return err
-	}
-
-	// Verify the signature before following SubscribeURL, so a forged confirmation cannot make the worker fetch arbitrary URLs.
-	if err := payload.VerifyPayload(); err != nil {
-		log.Errorf("failed to verify subscription confirmation: %s", err.Error())
-		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-	}
-
-	_, err := payload.Subscribe()
-	if err != nil {
-		log.Errorf("failed to subscribe confirmation: %s", err.Error())
-		return err
-	}
-
-	return c.JSON(http.StatusOK, "OK")
-}
-
-func awsSNSSubscriptionConfirmationMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c *echo.Context) error {
-			if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "SubscriptionConfirmation" {
-				return handleSubscriptionConfirmation(c)
-			}
-			return next(c)
 		}
 	}
 }
