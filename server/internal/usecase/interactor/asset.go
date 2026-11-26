@@ -517,7 +517,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, err
 	}
 
-	// In AWS, extraction is done in very short time when a zip file is small, so it often results in an error because an asset is not saved yet in MongoDB. So an event should be created after commtting the transaction.
+	// Emit AssetCreate only after the transaction commits, so webhook subscribers never receive an asset that is not saved yet.
 	if err := i.event(ctx, Event{
 		Project:   prj,
 		Workspace: prj.Workspace(),
@@ -1081,6 +1081,12 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			return aId, err
 		}
 
+		if th := a.Thread(); th != nil {
+			if err := i.repos.Thread.RemoveByIDs(ctx, id.ThreadIDList{*th}); err != nil {
+				return aId, err
+			}
+		}
+
 		p, err := i.repos.Project.FindByID(ctx, a.Project())
 		if err != nil {
 			return aId, err
@@ -1141,6 +1147,12 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 			return assetIDs, err
 		}
 
+		for _, a := range assets {
+			if a != nil && !operator.CanUpdate(a) {
+				return assetIDs, interfaces.ErrOperationDenied
+			}
+		}
+
 		uuids = lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
 			if a == nil || a.UUID() == "" || a.FileName() == "" {
 				return "", false
@@ -1149,6 +1161,10 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		})
 
 		if err := i.repos.Asset.BatchDelete(ctx, assetIDs); err != nil {
+			return assetIDs, err
+		}
+
+		if err := i.repos.Thread.RemoveByIDs(ctx, assets.Threads()); err != nil {
 			return assetIDs, err
 		}
 

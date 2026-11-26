@@ -154,13 +154,13 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 	return fileUUID, size, nil
 }
 
+// DeleteAsset deletes the whole asset folder, including files extracted from an archive.
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
-	p := getGCSObjectPath(u, fn)
-	if p == "" {
+	if getGCSObjectPath(u, fn) == "" {
 		return gateway.ErrInvalidFile
 	}
 
-	return f.Delete(ctx, p)
+	return f.DeleteAssets(ctx, []string{u})
 }
 
 func (f *fileRepo) DeleteAssets(ctx context.Context, UUIDs []string) error {
