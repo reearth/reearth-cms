@@ -129,6 +129,25 @@ func TestStream(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("failed write to the client does not panic or log", func(t *testing.T) {
+		t.Parallel()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		c := echo.New().NewContext(req, &brokenResponseWriter{h: http.Header{}})
+
+		var exportErr error
+		assert.NotPanics(t, func() {
+			err := stream(c, echo.MIMEApplicationJSON, func(w io.Writer) error {
+				_, exportErr = w.Write(chunk)
+				if exportErr == nil {
+					_, exportErr = w.Write(chunk)
+				}
+				return exportErr
+			})
+			assert.NoError(t, err)
+		})
+		assert.ErrorIs(t, exportErr, errBrokenPipe, "the export sees the write error and stops")
+	})
+
 	t.Run("empty body still sends status and content type", func(t *testing.T) {
 		t.Parallel()
 		c, rec := newStreamContext(context.Background())
@@ -213,6 +232,16 @@ func TestStream_OverHTTP(t *testing.T) {
 		})
 	}
 }
+
+var errBrokenPipe = errors.New("write: broken pipe")
+
+// brokenResponseWriter fails every write, like a client that closed the
+// connection before its request context was canceled.
+type brokenResponseWriter struct{ h http.Header }
+
+func (w *brokenResponseWriter) Header() http.Header       { return w.h }
+func (w *brokenResponseWriter) Write([]byte) (int, error) { return 0, errBrokenPipe }
+func (w *brokenResponseWriter) WriteHeader(int)           {}
 
 // --- handler tests on a large model ---
 

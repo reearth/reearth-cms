@@ -140,11 +140,11 @@ func publicAPIStreamSeeder(ctx context.Context, r *repo.Container, _ *gateway.Co
 func assertSameIDs(t *testing.T, want, got []string) {
 	t.Helper()
 	seen := make(map[string]int, len(got))
-	for _, id := range got {
-		seen[id]++
+	for _, itemID := range got {
+		seen[itemID]++
 	}
-	for id, n := range seen {
-		assert.Equal(t, 1, n, "id %s returned %d times", id, n)
+	for itemID, n := range seen {
+		assert.Equal(t, 1, n, "id %s returned %d times", itemID, n)
 	}
 	assert.Len(t, got, len(want))
 	assert.ElementsMatch(t, want, got)

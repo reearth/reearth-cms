@@ -23,6 +23,9 @@ type streamResponseWriter struct {
 	c           *echo.Context
 	contentType string
 	committed   bool
+	// writeErr is the first error from writing to the client, e.g. when it
+	// closed the connection.
+	writeErr error
 }
 
 func (w *streamResponseWriter) commit() {
@@ -39,7 +42,11 @@ func (w *streamResponseWriter) commit() {
 
 func (w *streamResponseWriter) Write(p []byte) (int, error) {
 	w.commit()
-	return w.c.Response().Write(p)
+	n, err := w.c.Response().Write(p)
+	if err != nil && w.writeErr == nil {
+		w.writeErr = err
+	}
+	return n, err
 }
 
 // stream runs export and streams its output to the client as a 200 response
@@ -71,8 +78,10 @@ func stream(c *echo.Context, contentType string, export func(io.Writer) error) e
 	}
 
 	ctx := c.Request().Context()
-	if errors.Is(err, context.Canceled) || ctx.Err() != nil {
-		// the client went away; there is nobody to tell
+	if sw.writeErr != nil || errors.Is(err, context.Canceled) || ctx.Err() != nil {
+		// writing to the client failed or the client went away (the request
+		// context is not always canceled yet when a write fails); there is
+		// nobody to tell
 		return nil
 	}
 
