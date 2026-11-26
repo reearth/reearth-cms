@@ -44,7 +44,7 @@ type UploadAssetLink struct {
 type IssueUploadAssetParam struct {
 	UUID     string
 	Filename string
-	// ContentLength is the size of the file in bytes. It is required when S3 is used.
+	// ContentLength is the size of the file in bytes.
 	ContentLength   int64
 	ContentType     string
 	ContentEncoding string

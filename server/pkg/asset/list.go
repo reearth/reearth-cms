@@ -54,6 +54,16 @@ func (l List) Projects() id.ProjectIDList {
 	}))
 }
 
+// Threads returns the IDs of the assets' comment threads, skipping nil assets and assets without a thread.
+func (l List) Threads() id.ThreadIDList {
+	return lo.FilterMap(l, func(a *Asset, _ int) (id.ThreadID, bool) {
+		if a == nil || a.Thread() == nil {
+			return id.ThreadID{}, false
+		}
+		return *a.Thread(), true
+	})
+}
+
 func (l List) FindByID(id ID) *Asset {
 	for _, a := range l {
 		if a != nil && a.ID() == id {

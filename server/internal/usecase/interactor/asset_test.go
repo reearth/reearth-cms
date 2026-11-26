@@ -22,6 +22,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -1323,18 +1324,22 @@ func TestAsset_UpdateFiles(t *testing.T) {
 }
 
 func TestAsset_Delete(t *testing.T) {
+	t.Parallel()
+
 	uid := accountdomain.NewUserID()
 
 	ws := workspace.New().NewID().MustBuild()
 	proj1 := project.New().NewID().Workspace(ws.ID()).MustBuild()
+	th1 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
 	aid1 := id.NewAssetID()
 	a1 := asset.New().ID(aid1).Project(proj1.ID()).NewUUID().
-		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(th1.ID().Ref()).MustBuild()
 
 	proj2 := project.New().NewID().MustBuild()
+	th2 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).NewUUID().
-		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(th2.ID().Ref()).MustBuild()
 
 	acop := &accountusecase.Operator{
 		User:             &uid,
@@ -1349,41 +1354,50 @@ func TestAsset_Delete(t *testing.T) {
 		operator *usecase.Operator
 	}
 	tests := []struct {
-		name         string
-		seedsAsset   asset.List
-		seedsProject []*project.Project
-		args         args
-		want         asset.List
-		mockAssetErr bool
-		wantErr      error
+		name               string
+		seedsAsset         asset.List
+		seedsProject       []*project.Project
+		seedsThread        thread.List
+		args               args
+		wantErr            error
+		wantThreadsRemoved id.ThreadIDList
+		wantThreadsKept    id.ThreadIDList
 	}{
 		{
-			name:         "delete",
-			seedsAsset:   asset.List{a1, a2},
-			seedsProject: []*project.Project{proj1, proj2},
-			args: args{
-				id:       aid1,
-				operator: op,
-			},
-			want:    nil,
-			wantErr: nil,
+			name:               "delete",
+			seedsAsset:         asset.List{a1, a2},
+			seedsProject:       []*project.Project{proj1, proj2},
+			seedsThread:        thread.List{th1, th2},
+			args:               args{id: aid1, operator: op},
+			wantThreadsRemoved: id.ThreadIDList{th1.ID()},
+			wantThreadsKept:    id.ThreadIDList{th2.ID()},
 		},
 		{
-			name:       "invalid operator",
-			seedsAsset: asset.List{a1, a2},
+			name:            "delete when the asset's thread does not exist",
+			seedsAsset:      asset.List{a1, a2},
+			seedsProject:    []*project.Project{proj1, proj2},
+			seedsThread:     thread.List{th2},
+			args:            args{id: aid1, operator: op},
+			wantThreadsKept: id.ThreadIDList{th2.ID()},
+		},
+		{
+			name:        "invalid operator",
+			seedsAsset:  asset.List{a1, a2},
+			seedsThread: thread.List{th1, th2},
 			args: args{
 				id: id.NewAssetID(),
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{},
 				},
 			},
-			want:    nil,
-			wantErr: interfaces.ErrInvalidOperator,
+			wantErr:         interfaces.ErrInvalidOperator,
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th2.ID()},
 		},
 		{
 			name:         "operation denied",
 			seedsAsset:   asset.List{a1, a2},
 			seedsProject: []*project.Project{proj1, proj2},
+			seedsThread:  thread.List{th1, th2},
 			args: args{
 				id: aid1,
 				operator: &usecase.Operator{
@@ -1393,28 +1407,22 @@ func TestAsset_Delete(t *testing.T) {
 					},
 				},
 			},
-			want:    nil,
-			wantErr: interfaces.ErrOperationDenied,
+			wantErr:         interfaces.ErrOperationDenied,
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th2.ID()},
 		},
 		{
-			name:       "delete not found",
-			seedsAsset: asset.List{a1, a2},
-			args: args{
-				id:       id.NewAssetID(),
-				operator: op,
-			},
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			name:            "delete not found",
+			seedsAsset:      asset.List{a1, a2},
+			seedsThread:     thread.List{th1, th2},
+			args:            args{id: id.NewAssetID(), operator: op},
+			wantErr:         rerror.ErrNotFound,
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th2.ID()},
 		},
 		{
 			name:       "delete od",
 			seedsAsset: asset.List{},
-			args: args{
-				id:       aid2,
-				operator: op,
-			},
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			args:       args{id: aid2, operator: op},
+			wantErr:    rerror.ErrNotFound,
 		},
 	}
 
@@ -1433,6 +1441,8 @@ func TestAsset_Delete(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
+			assert.NoError(t, db.Thread.SaveAll(ctx, tc.seedsThread.Clone()))
+
 			assetUC := Asset{
 				repos:       db,
 				gateways:    &gateway.Container{},
@@ -1441,13 +1451,233 @@ func TestAsset_Delete(t *testing.T) {
 			id, err := assetUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
-				return
-			}
-			assert.Equal(t, tc.args.id, id)
-			assert.NoError(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.args.id, id)
 
-			_, err = db.Asset.FindByID(ctx, tc.args.id)
-			assert.Equal(t, rerror.ErrNotFound, err)
+				_, err = db.Asset.FindByID(ctx, tc.args.id)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
+
+			for _, thid := range tc.wantThreadsRemoved {
+				_, err := db.Thread.FindByID(ctx, thid)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
+			for _, thid := range tc.wantThreadsKept {
+				_, err := db.Thread.FindByID(ctx, thid)
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestAsset_BatchDelete(t *testing.T) {
+	t.Parallel()
+
+	uid := accountdomain.NewUserID()
+	ws := workspace.New().NewID().MustBuild()
+	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
+
+	th1 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
+	th2 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
+	th3 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
+	a1 := asset.New().NewID().Project(proj.ID()).NewUUID().
+		CreatedByUser(uid).Size(1000).Thread(th1.ID().Ref()).MustBuild()
+	a2 := asset.New().NewID().Project(proj.ID()).NewUUID().
+		CreatedByUser(uid).Size(1000).Thread(th2.ID().Ref()).MustBuild()
+	a3 := asset.New().NewID().Project(proj.ID()).NewUUID().
+		CreatedByUser(uid).Size(1000).Thread(th3.ID().Ref()).MustBuild()
+	// an asset whose thread is not set
+	a4 := asset.New().NewID().Project(proj.ID()).NewUUID().
+		CreatedByUser(uid).Size(1000).MustBuild()
+
+	otherUID := accountdomain.NewUserID()
+	th5 := thread.New().NewID().Workspace(ws.ID()).MustBuild()
+	// an asset created by another user
+	a5 := asset.New().NewID().Project(proj.ID()).NewUUID().
+		CreatedByUser(otherUID).Size(1000).Thread(th5.ID().Ref()).MustBuild()
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:             &uid,
+			OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		OwningProjects: []id.ProjectID{proj.ID()},
+	}
+	readerOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		ReadableProjects: []id.ProjectID{proj.ID()},
+	}
+	writerOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		WritableProjects: []id.ProjectID{proj.ID()},
+	}
+	maintainerOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:                   &uid,
+			MaintainableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+		},
+		MaintainableProjects: []id.ProjectID{proj.ID()},
+	}
+
+	tests := []struct {
+		name               string
+		seedsAsset         asset.List
+		seedsThread        thread.List
+		ids                id.AssetIDList
+		operator           *usecase.Operator
+		wantErr            error
+		wantAssetsRemoved  id.AssetIDList
+		wantAssetsKept     id.AssetIDList
+		wantThreadsRemoved id.ThreadIDList
+		wantThreadsKept    id.ThreadIDList
+	}{
+		{
+			name:               "delete assets and their threads",
+			seedsAsset:         asset.List{a1, a2, a3, a4},
+			seedsThread:        thread.List{th1, th2, th3},
+			ids:                id.AssetIDList{a1.ID(), a2.ID(), a4.ID()},
+			operator:           op,
+			wantAssetsRemoved:  id.AssetIDList{a1.ID(), a2.ID(), a4.ID()},
+			wantAssetsKept:     id.AssetIDList{a3.ID()},
+			wantThreadsRemoved: id.ThreadIDList{th1.ID(), th2.ID()},
+			wantThreadsKept:    id.ThreadIDList{th3.ID()},
+		},
+		{
+			name:               "delete when an asset's thread does not exist",
+			seedsAsset:         asset.List{a1, a2, a3},
+			seedsThread:        thread.List{th2, th3},
+			ids:                id.AssetIDList{a1.ID(), a2.ID()},
+			operator:           op,
+			wantAssetsRemoved:  id.AssetIDList{a1.ID(), a2.ID()},
+			wantAssetsKept:     id.AssetIDList{a3.ID()},
+			wantThreadsRemoved: id.ThreadIDList{th2.ID()},
+			wantThreadsKept:    id.ThreadIDList{th3.ID()},
+		},
+		{
+			name:               "writer deletes own assets",
+			seedsAsset:         asset.List{a1, a2},
+			seedsThread:        thread.List{th1, th2},
+			ids:                id.AssetIDList{a1.ID()},
+			operator:           writerOp,
+			wantAssetsRemoved:  id.AssetIDList{a1.ID()},
+			wantAssetsKept:     id.AssetIDList{a2.ID()},
+			wantThreadsRemoved: id.ThreadIDList{th1.ID()},
+			wantThreadsKept:    id.ThreadIDList{th2.ID()},
+		},
+		{
+			name:               "maintainer deletes another user's assets",
+			seedsAsset:         asset.List{a1, a5},
+			seedsThread:        thread.List{th1, th5},
+			ids:                id.AssetIDList{a5.ID()},
+			operator:           maintainerOp,
+			wantAssetsRemoved:  id.AssetIDList{a5.ID()},
+			wantAssetsKept:     id.AssetIDList{a1.ID()},
+			wantThreadsRemoved: id.ThreadIDList{th5.ID()},
+			wantThreadsKept:    id.ThreadIDList{th1.ID()},
+		},
+		{
+			name:            "reader cannot delete",
+			seedsAsset:      asset.List{a1, a2},
+			seedsThread:     thread.List{th1, th2},
+			ids:             id.AssetIDList{a1.ID(), a2.ID()},
+			operator:        readerOp,
+			wantErr:         interfaces.ErrOperationDenied,
+			wantAssetsKept:  id.AssetIDList{a1.ID(), a2.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th2.ID()},
+		},
+		{
+			name:            "writer cannot delete another user's assets",
+			seedsAsset:      asset.List{a1, a5},
+			seedsThread:     thread.List{th1, th5},
+			ids:             id.AssetIDList{a1.ID(), a5.ID()},
+			operator:        writerOp,
+			wantErr:         interfaces.ErrOperationDenied,
+			wantAssetsKept:  id.AssetIDList{a1.ID(), a5.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th5.ID()},
+		},
+		{
+			name:        "invalid operator",
+			seedsAsset:  asset.List{a1, a2},
+			seedsThread: thread.List{th1, th2},
+			ids:         id.AssetIDList{a1.ID(), a2.ID()},
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			wantErr:         interfaces.ErrInvalidOperator,
+			wantAssetsKept:  id.AssetIDList{a1.ID(), a2.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID(), th2.ID()},
+		},
+		{
+			name:            "empty ids",
+			seedsAsset:      asset.List{a1},
+			seedsThread:     thread.List{th1},
+			ids:             id.AssetIDList{},
+			operator:        op,
+			wantErr:         interfaces.ErrEmptyIDsList,
+			wantAssetsKept:  id.AssetIDList{a1.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID()},
+		},
+		{
+			name:            "partial not found",
+			seedsAsset:      asset.List{a1},
+			seedsThread:     thread.List{th1},
+			ids:             id.AssetIDList{a1.ID(), id.NewAssetID()},
+			operator:        op,
+			wantErr:         interfaces.ErrPartialNotFound,
+			wantAssetsKept:  id.AssetIDList{a1.ID()},
+			wantThreadsKept: id.ThreadIDList{th1.ID()},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			assert.NoError(t, db.Project.Save(ctx, proj.Clone()))
+			for _, a := range tc.seedsAsset {
+				assert.NoError(t, db.Asset.Save(ctx, a.Clone()))
+			}
+			assert.NoError(t, db.Thread.SaveAll(ctx, tc.seedsThread.Clone()))
+
+			assetUC := Asset{
+				repos:       db,
+				gateways:    &gateway.Container{},
+				ignoreEvent: true,
+			}
+			got, err := assetUC.BatchDelete(ctx, tc.ids, tc.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, []id.AssetID(tc.ids), got)
+			}
+
+			for _, aid := range tc.wantAssetsRemoved {
+				_, err := db.Asset.FindByID(ctx, aid)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
+			for _, aid := range tc.wantAssetsKept {
+				_, err := db.Asset.FindByID(ctx, aid)
+				assert.NoError(t, err)
+			}
+			for _, thid := range tc.wantThreadsRemoved {
+				_, err := db.Thread.FindByID(ctx, thid)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
+			for _, thid := range tc.wantThreadsKept {
+				_, err := db.Thread.FindByID(ctx, thid)
+				assert.NoError(t, err)
+			}
 		})
 	}
 }
