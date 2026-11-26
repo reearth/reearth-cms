@@ -1,0 +1,26 @@
+# Fails when .github/workflows/actions.lock is out of sync with the workflows,
+# or when a locked pin no longer verifies upstream (e.g. a tag was repointed).
+# Regenerate locally with `gh actions-lock`. Docs: https://gh.io/actions-lockfile
+name: actions-lock
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install gh-actions-lock
+        run: gh extension install github/gh-actions-lock --pin v0.5.0
+      - name: Verify lockfile
+        run: gh actions-lock --verify

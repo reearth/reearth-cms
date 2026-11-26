@@ -5,6 +5,13 @@
   ],
   "packageRules": [
     {
+      "description": "Actions are pinned by .github/workflows/actions.lock, which Renovate regenerates; keep readable version tags in workflows",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "pinDigests": false
+    },
+    {
       "matchPackageNames": [
         "go.mongodb.org/mongo-driver"
       ],
