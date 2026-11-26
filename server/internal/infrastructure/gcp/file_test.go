@@ -2,13 +2,19 @@ package gcp
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"path"
 	"strings"
 	"testing"
+	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/api/option"
 )
 
 func TestFile_GetFSObjectPath(t *testing.T) {
@@ -408,5 +414,36 @@ func TestFileRepo_ValidateContentEncoding(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
+	}
+}
+
+func TestFileRepo_DeleteByPrefix_ListError(t *testing.T) {
+	// The fake GCS server refuses every object listing. A 403 is not retried,
+	// so the object iterator fails on its first page.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
+	}))
+	t.Cleanup(srv.Close)
+
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx,
+		option.WithEndpoint(srv.URL+"/storage/v1/"),
+		option.WithoutAuthentication(),
+	)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = client.Close() })
+
+	f := &fileRepo{bucketName: "test-bucket", client: client}
+
+	done := make(chan error, 1)
+	go func() { done <- f.DeleteByPrefix(ctx, "assets/", nil) }()
+
+	select {
+	case err := <-done:
+		assert.Error(t, err)
+	case <-time.After(5 * time.Second):
+		t.Fatal("DeleteByPrefix did not return after the object listing failed")
 	}
 }
