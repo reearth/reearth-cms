@@ -14,9 +14,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var errDBFailed = errors.New("db failed")
+
+func writeChunks(w io.Writer, chunk []byte, n int) error {
+	for range n {
+		if _, err := w.Write(chunk); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func TestStreamExport(t *testing.T) {
 	t.Parallel()
 
+	// three chunks are more than streamBufferSize
 	chunk := bytes.Repeat([]byte("a"), 16*1024)
 
 	t.Run("error before any output is returned to the handler", func(t *testing.T) {
@@ -34,12 +46,7 @@ func TestStreamExport(t *testing.T) {
 		t.Parallel()
 
 		body, err := streamExport(context.Background(), func(w io.Writer) error {
-			for range 3 {
-				if _, err := w.Write(chunk); err != nil {
-					return err
-				}
-			}
-			return nil
+			return writeChunks(w, chunk, 3)
 		})
 		require.NoError(t, err)
 		defer func() { _ = body.Close() }()
@@ -61,14 +68,30 @@ func TestStreamExport(t *testing.T) {
 		assert.Empty(t, got)
 	})
 
+	t.Run("error after a small opening write is still returned to the handler", func(t *testing.T) {
+		t.Parallel()
+
+		// like the GeoJSON exporter: it writes the start of the document,
+		// then the first database query fails
+		body, err := streamExport(context.Background(), func(w io.Writer) error {
+			if _, err := w.Write([]byte(`{"type":"FeatureCollection","features":[`)); err != nil {
+				return err
+			}
+			return errDBFailed
+		})
+
+		assert.ErrorIs(t, err, errDBFailed)
+		assert.Nil(t, body)
+	})
+
 	t.Run("error after output has started aborts the response", func(t *testing.T) {
 		t.Parallel()
 
 		body, err := streamExport(context.Background(), func(w io.Writer) error {
-			if _, err := w.Write(chunk); err != nil {
+			if err := writeChunks(w, chunk, 3); err != nil {
 				return err
 			}
-			return errors.New("db failed")
+			return errDBFailed
 		})
 		require.NoError(t, err)
 		defer func() { _ = body.Close() }()
@@ -83,7 +106,7 @@ func TestStreamExport(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 
 		body, err := streamExport(ctx, func(w io.Writer) error {
-			if _, err := w.Write(chunk); err != nil {
+			if err := writeChunks(w, chunk, 3); err != nil {
 				return err
 			}
 			cancel()

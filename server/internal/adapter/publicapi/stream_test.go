@@ -251,6 +251,7 @@ const largeModelSize = 2500
 type exportFixture struct {
 	ctx                  context.Context
 	ctrl                 *Controller
+	repos                *repo.Container
 	wAlias, pAlias, mKey string
 }
 
@@ -313,7 +314,7 @@ func setupExportTest(t testing.TB, items, assets int) exportFixture {
 	ctrl := NewController(wsRepo, db.Project, &uc)
 	ctx = AttachController(ctx, ctrl)
 
-	return exportFixture{ctx: ctx, ctrl: ctrl, wAlias: wid.String(), pAlias: pid.String(), mKey: mk.String()}
+	return exportFixture{ctx: ctx, ctrl: ctrl, repos: db, wAlias: wid.String(), pAlias: pid.String(), mKey: mk.String()}
 }
 
 // paginatingAssetRepo adds pagination to the memory asset repo, whose Search
@@ -484,6 +485,26 @@ func TestItems_BatchBoundaries(t *testing.T) {
 			assert.Len(t, res.Results, n)
 			assert.Equal(t, n, res.TotalCount)
 		})
+	}
+}
+
+// TestItems_QueryErrorBeforeOutput checks that a failing first database query
+// still gets a normal error response: the exporter's opening bytes stay in
+// the buffer, so nothing has been sent yet.
+func TestItems_QueryErrorBeforeOutput(t *testing.T) {
+	t.Parallel()
+	f := setupExportTest(t, 10, 0)
+	errDB := errors.New("db failed")
+	memory.SetItemError(f.repos.Item, errDB)
+
+	for _, ext := range []string{"json", "csv", "geojson"} {
+		rec, err := serve(f.ctx, "/", func(c *echo.Context) error {
+			return Items(c, f.wAlias, f.pAlias, f.mKey, ext)
+		})
+
+		assert.ErrorIs(t, err, errDB, ext)
+		assert.Zero(t, rec.Body.Len(), ext)
+		assert.Zero(t, rec.writes, ext)
 	}
 }
 
