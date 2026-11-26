@@ -14,6 +14,7 @@ import (
 var (
 	ErrCommentAlreadyExist = rerror.NewE(i18n.T("Comment already exist in this thread"))
 	ErrCommentDoesNotExist = rerror.NewE(i18n.T("Comment does not exist in this thread"))
+	ErrMetadataItemThread  = rerror.NewE(i18n.T("Metadata items cannot have comments"))
 )
 
 type ResourceType string

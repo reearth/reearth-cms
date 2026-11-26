@@ -103,6 +103,9 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if itm != nil {
+			if itm.Value().IsMetadata() {
+				return interfaces.ErrMetadataItemThread
+			}
 			itm.Value().SetThread(thID)
 			return i.repos.Item.Save(ctx, itm.Value())
 		}

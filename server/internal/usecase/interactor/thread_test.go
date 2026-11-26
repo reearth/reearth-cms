@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestThread_FindByID(t *testing.T) {
@@ -210,6 +211,7 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 	pid := id.NewProjectID()
 	uid := accountdomain.NewUserID()
 	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Anonymous(true).MustBuild()
+	mi := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).IsMetadata(true).Anonymous(true).MustBuild()
 	rt := interfaces.ResourceTypeItem
 	content := "content"
 	op := &usecase.Operator{
@@ -223,19 +225,22 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 
 	tests := []struct {
 		name     string
+		seeds    item.List
 		arg      interfaces.CreateThreadWithCommentInput
 		operator *usecase.Operator
 		wantErr  error
 	}{
 		{
 			name:     "Save succeed",
+			seeds:    item.List{i},
 			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
 			operator: op,
 			wantErr:  nil,
 		},
 		{
-			name: "Save error: invalid workspace id",
-			arg:  interfaces.CreateThreadWithCommentInput{WorkspaceID: wid2, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
+			name:  "Save error: invalid workspace id",
+			seeds: item.List{i},
+			arg:   interfaces.CreateThreadWithCommentInput{WorkspaceID: wid2, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
 					User:               &uid,
@@ -246,15 +251,24 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 			wantErr: thread.ErrNoWorkspaceID,
 		},
 		{
-			name: "operator error",
-			arg:  interfaces.CreateThreadWithCommentInput{},
+			name:  "operator error",
+			seeds: item.List{i},
+			arg:   interfaces.CreateThreadWithCommentInput{},
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{},
 			},
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
+			name:     "metadata item",
+			seeds:    item.List{mi},
+			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: mi.ID().String(), ResourceType: rt, Content: content},
+			operator: op,
+			wantErr:  interfaces.ErrMetadataItemThread,
+		},
+		{
 			name:     "operator succeed",
+			seeds:    item.List{i},
 			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
 			operator: op,
 			wantErr:  nil,
@@ -266,9 +280,9 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			itemUC := NewItem(db, nil)
-			err := itemUC.repos.Item.Save(ctx, i)
-			assert.NoError(t, err)
+			for _, s := range tc.seeds {
+				require.NoError(t, db.Item.Save(ctx, s.Clone()))
+			}
 
 			threadUC := NewThread(db, nil)
 			th, _, err := threadUC.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
@@ -279,6 +293,13 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 			}, tc.operator)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
+				assert.Nil(t, th)
+
+				for _, s := range tc.seeds {
+					got, err := db.Item.FindByID(ctx, s.ID(), nil)
+					require.NoError(t, err)
+					assert.Nil(t, got.Value().Thread())
+				}
 				return
 			} else {
 				assert.NoError(t, err)
