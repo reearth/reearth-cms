@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"path"
 	"strings"
@@ -38,7 +39,11 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 	log.Infof("archive file downloaded from storage, Size=%d", size)
 
 	uploadFunc := func(name string) (io.WriteCloser, error) {
-		w, err := u.gateways.File.Upload(ctx, smartJoinPath(base, name))
+		p, err := assetEntryPath(base, name)
+		if err != nil {
+			return nil, err
+		}
+		w, err := u.gateways.File.Upload(ctx, p)
 		if err != nil {
 			return nil, err
 		}
@@ -78,4 +83,25 @@ func smartJoinPath(firstPath, secondPath string) string {
 	}
 
 	return path.Join(firstPath, secondPath)
+}
+
+// assetEntryPath returns where an archive entry is stored, and fails if that
+// is outside the asset's own directory (the directory of the archive). This is
+// a second line of defense after decompressor.ValidateEntryName.
+func assetEntryPath(base, name string) (string, error) {
+	p := smartJoinPath(base, name)
+	if dir := path.Dir(base); !isWithinDir(dir, p) {
+		return "", fmt.Errorf("%w: %q resolves to %q, outside %q", decompressor.ErrUnsafeEntryName, name, p, dir)
+	}
+	return p, nil
+}
+
+func isWithinDir(dir, p string) bool {
+	if strings.HasPrefix(p, "/") {
+		return false
+	}
+	if dir == "." {
+		return p != "." && p != ".." && !strings.HasPrefix(p, "../")
+	}
+	return strings.HasPrefix(p, dir+"/")
 }

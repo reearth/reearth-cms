@@ -51,7 +51,15 @@ func (uz *Decompressor) Decompress(ctx context.Context, proceeded int64, progres
 	if uz == nil {
 		return nil
 	}
-	archiveFiles := lo.Filter(uz.ar.Files(), func(f File, _ int) bool {
+	files := uz.ar.Files()
+	// Validate every entry before writing anything, so a malicious archive
+	// leaves no partial output behind.
+	for _, f := range files {
+		if err := ValidateEntryName(f.Name()); err != nil {
+			return err
+		}
+	}
+	archiveFiles := lo.Filter(files, func(f File, _ int) bool {
 		return !f.Skip()
 	})
 	log.Infof("archive total entries=%d,proceeded=%d", len(archiveFiles), proceeded)

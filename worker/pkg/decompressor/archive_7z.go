@@ -21,8 +21,9 @@ func (f sevenZipFile) Open() (io.ReadCloser, error) {
 }
 
 func (f sevenZipFile) Skip() bool {
-	fn := f.Name()
-	return strings.HasPrefix(fn, "/") || strings.HasSuffix(fn, "/")
+	// Directory entries are not written. Unsafe names (including absolute
+	// paths) are rejected by ValidateEntryName before extraction.
+	return strings.HasSuffix(f.Name(), "/")
 }
 
 func (f sevenZipFile) Size() uint64 {
