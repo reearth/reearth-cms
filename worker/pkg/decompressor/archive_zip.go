@@ -3,7 +3,6 @@ package decompressor
 import (
 	"archive/zip"
 	"io"
-	"strings"
 
 	"github.com/samber/lo"
 )
@@ -13,7 +12,7 @@ type zipFile struct {
 }
 
 func (f zipFile) Name() string {
-	return NormalizeEntryName(f.f.Name)
+	return f.f.Name
 }
 
 func (f zipFile) Open() (io.ReadCloser, error) {
@@ -21,9 +20,9 @@ func (f zipFile) Open() (io.ReadCloser, error) {
 }
 
 func (f zipFile) Skip() bool {
-	// Directory entries are not written. Unsafe names (including absolute
-	// paths) are rejected by ValidateEntryName before extraction.
-	return strings.HasSuffix(f.Name(), "/") // || f.f.NonUTF8
+	// Directory entries are not written. Names are normalized and validated
+	// by Decompress before extraction.
+	return isDirEntry(f.Name()) // || f.f.NonUTF8
 }
 
 func (f zipFile) Size() uint64 {

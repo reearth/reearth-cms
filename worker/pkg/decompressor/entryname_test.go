@@ -27,6 +27,13 @@ func TestValidateEntryName(t *testing.T) {
 		"ab:c.txt",
 		`dir\a.txt`,
 		`dir\sub\`,
+		// absolute paths are made relative (like unzip / 7-Zip)
+		"/etc/passwd",
+		"/abs/dir/",
+		`\abs\a.txt`,
+		"C:/Windows/a.txt",
+		`C:\Windows\a.txt`,
+		"c:a.txt",
 	}
 	for _, n := range valid {
 		assert.NoError(t, ValidateEntryName(n), n)
@@ -42,15 +49,11 @@ func TestValidateEntryName(t *testing.T) {
 		"dir/../../a.txt",
 		"dir/../a.txt", // stays inside, but no legitimate archive needs ".."
 		"data/../../../../top.txt",
-		"/etc/passwd",
-		"/abs/dir/",
 		`..\..\a.txt`,
 		`dir\..\..\a.txt`,
-		`\abs\a.txt`,
-		`C:\Windows\a.txt`,
-		"C:/Windows/a.txt",
-		"c:a.txt",
 		"a\x00.txt",
+		"C:/../a.txt",
+		"/../../a.txt",
 		".",
 	}
 	for _, n := range invalid {
@@ -95,8 +98,9 @@ func TestDecompress_RejectsMaliciousZip(t *testing.T) {
 	for _, evil := range []string{
 		"../../../XY/ZZZZ/evil.txt",
 		"data/../../../../evil.txt",
-		"/etc/evil.txt",
+		"/../../evil.txt",
 		`..\..\evil.txt`,
+		`C:\..\evil.txt`,
 	} {
 		t.Run(evil, func(t *testing.T) {
 			// the safe entry comes first: nothing at all may be written
@@ -113,7 +117,6 @@ func TestDecompress_RejectsMalicious7z(t *testing.T) {
 	// own path check: each has "test1.txt" followed by one unsafe entry.
 	for _, fixture := range []string{
 		"testdata/malicious_traversal.7z", // ../../../XY/ZZZZ/evil.txt
-		"testdata/malicious_absolute.7z",  // /etc/evil.txt
 		"testdata/malicious_backslash.7z", // ..\..\evil.txt
 	} {
 		t.Run(fixture, func(t *testing.T) {
@@ -124,6 +127,32 @@ func TestDecompress_RejectsMalicious7z(t *testing.T) {
 			assert.Empty(t, written, "no entry may be written when the archive is rejected")
 		})
 	}
+}
+
+func TestDecompress_AbsolutePathsExtractInside(t *testing.T) {
+	t.Run("zip", func(t *testing.T) {
+		data := buildZip(t, "ok.txt", "/etc/a.txt", `C:\Users\b.txt`, "//c.txt", "/")
+		written, err := decompressAll(t, data, "zip")
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{
+			"ok.txt":      "content of ok.txt",
+			"etc/a.txt":   "content of /etc/a.txt",
+			"Users/b.txt": `content of C:\Users\b.txt`,
+			"c.txt":       "content of //c.txt",
+		}, written)
+	})
+
+	t.Run("7z", func(t *testing.T) {
+		// test1.txt followed by /etc/evil.txt
+		data, err := os.ReadFile("testdata/absolute_path.7z")
+		require.NoError(t, err)
+		written, err := decompressAll(t, data, "7z")
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{
+			"test1.txt":    "hello1",
+			"etc/evil.txt": "evil",
+		}, written)
+	})
 }
 
 func TestDecompress_NestedZipUnchanged(t *testing.T) {

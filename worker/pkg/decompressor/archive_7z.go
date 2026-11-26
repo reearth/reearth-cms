@@ -2,7 +2,6 @@ package decompressor
 
 import (
 	"io"
-	"strings"
 
 	"github.com/bodgit/sevenzip"
 	"github.com/samber/lo"
@@ -13,7 +12,7 @@ type sevenZipFile struct {
 }
 
 func (f sevenZipFile) Name() string {
-	return NormalizeEntryName(f.f.Name)
+	return f.f.Name
 }
 
 func (f sevenZipFile) Open() (io.ReadCloser, error) {
@@ -21,9 +20,9 @@ func (f sevenZipFile) Open() (io.ReadCloser, error) {
 }
 
 func (f sevenZipFile) Skip() bool {
-	// Directory entries are not written. Unsafe names (including absolute
-	// paths) are rejected by ValidateEntryName before extraction.
-	return strings.HasSuffix(f.Name(), "/")
+	// Directory entries are not written. Names are normalized and validated
+	// by Decompress before extraction.
+	return isDirEntry(f.Name())
 }
 
 func (f sevenZipFile) Size() uint64 {

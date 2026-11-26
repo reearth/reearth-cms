@@ -10,19 +10,31 @@ import (
 // extracted file land outside the asset's own directory (Zip Slip).
 var ErrUnsafeEntryName = errors.New("unsafe archive entry name")
 
-// NormalizeEntryName turns backslashes into "/". Some Windows tools (e.g.
-// older PowerShell Compress-Archive) write "\" as the path separator, which
-// the zip format does not allow; treating it as a separator extracts those
-// archives into the intended directories, and lets ValidateEntryName see
-// "..\" traversal as "../".
-func NormalizeEntryName(name string) string {
-	return strings.ReplaceAll(name, `\`, "/")
+// NormalizeEntryName turns an archive entry name into a relative path, the
+// way unzip and 7-Zip do when extracting:
+//   - backslashes become "/" (older Windows tools, e.g. PowerShell
+//     Compress-Archive, use "\" as the separator), so "..\" is seen as "../";
+//   - a leading drive letter ("C:") and leading "/" are removed, so an entry
+//     stored with an absolute path is extracted inside the asset.
+//
+// It reports whether an absolute prefix was removed. ".." is not resolved
+// here: ValidateEntryName rejects it.
+func NormalizeEntryName(name string) (string, bool) {
+	n := strings.ReplaceAll(name, `\`, "/")
+	stripped := false
+	if hasDriveLetter(n) {
+		n = n[2:]
+		stripped = true
+	}
+	if t := strings.TrimLeft(n, "/"); t != n {
+		n = t
+		stripped = true
+	}
+	return n, stripped
 }
 
-// ValidateEntryName rejects archive entry names that are not plain relative
-// paths: empty names, absolute paths (including Windows drive letters), NUL
-// bytes, and any ".." segment. Backslashes are treated as "/" first.
-// Directory entries (with a trailing "/") are validated the same way.
+// ValidateEntryName normalizes name (see NormalizeEntryName) and rejects it
+// if it is empty, contains a NUL byte, or has any ".." segment.
 func ValidateEntryName(name string) error {
 	if reason := unsafeEntryReason(name); reason != "" {
 		return fmt.Errorf("%w: %q: %s", ErrUnsafeEntryName, name, reason)
@@ -31,18 +43,14 @@ func ValidateEntryName(name string) error {
 }
 
 func unsafeEntryReason(name string) string {
-	name = NormalizeEntryName(name)
-	isDir := strings.HasSuffix(name, "/")
-	n := strings.TrimSuffix(name, "/")
+	norm, _ := NormalizeEntryName(name)
+	isDir := strings.HasSuffix(norm, "/")
+	n := strings.TrimSuffix(norm, "/")
 	switch {
 	case n == "":
 		return "empty name"
 	case strings.ContainsRune(n, 0):
 		return "contains a NUL byte"
-	case strings.HasPrefix(n, "/"):
-		return "absolute path"
-	case hasDriveLetter(n):
-		return "absolute Windows path"
 	}
 	for _, seg := range strings.Split(n, "/") {
 		if seg == ".." {
@@ -62,3 +70,17 @@ func hasDriveLetter(n string) bool {
 	c := n[0]
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 }
+
+// isDirEntry reports whether an entry is a directory (trailing "/" or "\").
+// Directory entries are never written.
+func isDirEntry(name string) bool {
+	return strings.HasSuffix(name, "/") || strings.HasSuffix(name, `\`)
+}
+
+// normalizedFile is an archive entry whose name has been normalized.
+type normalizedFile struct {
+	File
+	name string
+}
+
+func (f normalizedFile) Name() string { return f.name }

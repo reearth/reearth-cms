@@ -7,7 +7,6 @@ import (
 	"io"
 
 	"github.com/reearth/reearthx/log"
-	"github.com/samber/lo"
 )
 
 var (
@@ -51,17 +50,29 @@ func (uz *Decompressor) Decompress(ctx context.Context, proceeded int64, progres
 	if uz == nil {
 		return nil
 	}
-	files := uz.ar.Files()
-	// Validate every entry before writing anything, so a malicious archive
-	// leaves no partial output behind.
-	for _, f := range files {
+	// Normalize and validate every entry before writing anything, so a
+	// malicious archive leaves no partial output behind.
+	var archiveFiles []File
+	stripped, example := 0, ""
+	for _, f := range uz.ar.Files() {
+		if f.Skip() {
+			continue
+		}
 		if err := ValidateEntryName(f.Name()); err != nil {
 			return err
 		}
+		name, abs := NormalizeEntryName(f.Name())
+		if abs {
+			if stripped == 0 {
+				example = fmt.Sprintf("%q -> %q", f.Name(), name)
+			}
+			stripped++
+		}
+		archiveFiles = append(archiveFiles, normalizedFile{File: f, name: name})
 	}
-	archiveFiles := lo.Filter(files, func(f File, _ int) bool {
-		return !f.Skip()
-	})
+	if stripped > 0 {
+		log.Warnf("archive has %d entries with absolute paths, extracting them inside the asset (e.g. %s)", stripped, example)
+	}
 	log.Infof("archive total entries=%d,proceeded=%d", len(archiveFiles), proceeded)
 	return uz.read(ctx, archiveFiles, proceeded, progressFunc)
 }
