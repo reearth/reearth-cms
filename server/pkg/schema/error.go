@@ -113,6 +113,31 @@ func (e FieldValidationErrors) Unwrap() []error {
 	return lo.Map(e, func(fe FieldValidationError, _ int) error { return fe })
 }
 
+// FieldValidationErrorDetail describes a field validation error to API clients. It has no internal IDs.
+type FieldValidationErrorDetail struct {
+	// Field is the key of the field, with the index of the value for a multiple field, for example "title[1]".
+	Field  string `json:"field,omitempty"`
+	Code   string `json:"code"`
+	Detail string `json:"detail,omitempty"`
+}
+
+// Details returns the errors in the form returned by the APIs.
+func (e FieldValidationErrors) Details() []FieldValidationErrorDetail {
+	return lo.Map(e, func(fe FieldValidationError, _ int) FieldValidationErrorDetail {
+		d := FieldValidationErrorDetail{Code: string(fe.Code)}
+		if fe.Key != nil {
+			d.Field = fe.Key.String()
+		}
+		if fe.Index != nil {
+			d.Field += "[" + strconv.Itoa(*fe.Index) + "]"
+		}
+		if fe.Detail != nil {
+			d.Detail = fe.Detail.Error()
+		}
+		return d
+	})
+}
+
 func (e FieldValidationErrors) StatusCode() int {
 	return http.StatusBadRequest
 }

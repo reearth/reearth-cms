@@ -129,7 +129,7 @@ func (s *Server) AssetCommentUpdate(ctx context.Context, req AssetCommentUpdateR
 
 	threadID := a.Thread()
 	if threadID == nil {
-		return AssetCommentUpdate400Response{}, nil
+		return AssetCommentUpdate400Response{}, rerror.ErrInvalidParams
 	}
 	_, comment, err := uc.Thread.UpdateComment(ctx, *threadID, req.CommentId, *req.Body.Content, op)
 	if err != nil {
@@ -161,7 +161,7 @@ func (s *Server) AssetCommentDelete(ctx context.Context, req AssetCommentDeleteR
 
 	threadID := a.Thread()
 	if threadID == nil {
-		return AssetCommentDelete400Response{}, nil
+		return AssetCommentDelete400Response{}, rerror.ErrInvalidParams
 	}
 	_, err = uc.Thread.DeleteComment(ctx, *threadID, req.CommentId, op)
 	if err != nil {
