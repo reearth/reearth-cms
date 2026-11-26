@@ -452,12 +452,8 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 				return 0, nil
 			}
 
-			var threadIDs id.ThreadIDList
 			events := make([]Event, 0, len(items))
 			for idx, itm := range items {
-				if itm.Thread() != nil {
-					threadIDs = append(threadIDs, *itm.Thread())
-				}
 				events = append(events, Event{
 					Project:   prj,
 					Workspace: prj.Workspace(),
@@ -483,7 +479,7 @@ func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *
 			}
 
 			// delete threads that belonged to the deleted items
-			if len(threadIDs) > 0 {
+			if threadIDs := items.ThreadIDs(); len(threadIDs) > 0 {
 				if err := i.repos.Thread.RemoveByIDs(ctx, threadIDs); err != nil {
 					return 0, err
 				}
