@@ -28,7 +28,7 @@ require (
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/reearth/reearth-accounts/server v0.0.0-20261013054957-a545c2083d8b
 	github.com/reearth/reearth-cms/shared v0.0.0
-	github.com/reearth/reearthx v0.0.0-20261119142936-0baa1cf111f9
+	github.com/reearth/reearthx v0.0.0-20261126113950-961ea2e2b719
 	github.com/samber/lo v1.53.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
 	github.com/spf13/afero v1.15.0
