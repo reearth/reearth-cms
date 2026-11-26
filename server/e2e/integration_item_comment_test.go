@@ -159,6 +159,15 @@ func TestIntegrationUpdateItemCommentAPI(t *testing.T) {
 	r.Value("authorId").IsEqual(uId)
 	r.Value("authorType").IsEqual(integrationapi.User)
 	r.Value("content").IsEqual("updated content")
+
+	// item with no thread: there is no comment to update
+	iAPIItemCommentUpdate(e, wId0, pid, mId1, itmId7, id.NewCommentID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"content": "updated content"}).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().
+		IsEqual(map[string]any{"error": "invalid params"})
 }
 
 // Delete|/items/{itemId}/comments/{commentId}
@@ -183,4 +192,12 @@ func TestIntegrationDeleteItemCommentAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object().Value("comments").Array().IsEmpty()
+
+	// item with no thread: there is no comment to delete
+	iAPIItemCommentDelete(e, wId0, pid, mId1, itmId7, id.NewCommentID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().
+		IsEqual(map[string]any{"error": "invalid params"})
 }
