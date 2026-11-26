@@ -267,6 +267,13 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 			wantErr:  interfaces.ErrMetadataItemThread,
 		},
 		{
+			name:     "unknown resource type",
+			seeds:    item.List{i},
+			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: i.ID().String(), ResourceType: interfaces.ResourceType("unknown"), Content: content},
+			operator: op,
+			wantErr:  rerror.ErrInvalidParams,
+		},
+		{
 			name:     "operator succeed",
 			seeds:    item.List{i},
 			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: i.ID().String(), ResourceType: rt, Content: content},

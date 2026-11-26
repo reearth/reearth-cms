@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -137,6 +138,9 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			req.SetThread(thID)
 			return i.repos.Request.Save(ctx, req)
 		}
+
+	default:
+		return rerror.ErrInvalidParams
 	}
 
 	return nil
