@@ -18,7 +18,7 @@ var defaultTypes = typeRegistry{
 	TypeURL:            &propertyURL{},
 	TypeGeometryObject: &propertyJsonString{},
 	TypeGeometryEditor: &propertyJsonString{},
-	TypeGeometry:       &propertyGeometry{},
+	TypeGeometry:       &propertyJson{},
 }
 
 type typeRegistry map[Type]TypeProperty

@@ -4,7 +4,7 @@ export type Integration = {
   id: string;
   name: string;
   description?: string | null;
-  logoUrl: string;
+  logoUrl?: string | null;
   developerId: string;
   developer: User;
   iType: IntegrationType;

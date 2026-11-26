@@ -517,7 +517,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/schemaField'
         '400':
-          description: Invalid request parameter value
+          $ref: '#/components/responses/FieldValidationError'
         '404':
           description: Not found
         '401':
@@ -925,7 +925,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/versionedItem'
         '400':
-          description: Invalid request parameter value
+          $ref: '#/components/responses/FieldValidationError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -1121,7 +1121,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/versionedItem'
         '400':
-          description: Invalid request parameter value
+          $ref: '#/components/responses/FieldValidationError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -2474,7 +2474,38 @@ components:
             - fieldId
             - operator
             - value
+    fieldValidationErrorDetail:
+      type: object
+      required:
+        - code
+      properties:
+        field:
+          type: string
+          description: 'The key of the field, with the index of the value for a multiple field, for example "title[1]"'
+        code:
+          type: string
+          description: The validation error code, for example INVALID_GEO_STRUCTURE or UNIQUE_VIOLATION
+        detail:
+          type: string
+          description: Why the value is invalid
   responses:
+    FieldValidationError:
+      description: Invalid request parameter value. When fields fail validation, details tells which fields failed and why.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - error
+            properties:
+              error:
+                type: string
+                description: The error message
+              details:
+                type: array
+                description: The fields that failed validation
+                items:
+                  $ref: '#/components/schemas/fieldValidationErrorDetail'
     UnauthorizedError:
       description: Access token is missing or invalid
     NotFoundError:

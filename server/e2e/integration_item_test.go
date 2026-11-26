@@ -2295,7 +2295,9 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusNotFound)
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{"error": "not found"})
 
 	iAPIItemPublish(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
@@ -2340,13 +2342,17 @@ func TestIntegrationUnpublishItemAPI(t *testing.T) {
 	iAPIItemUnpublish(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusNotFound)
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{"error": "not found"})
 
 	// item of another model
 	iAPIItemUnpublish(e, wId0, pid, mId0, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusNotFound)
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{"error": "not found"})
 
 	// an item that was never published is returned as is
 	iAPIItemUnpublish(e, wId0, pid, mId1, itmId1).

@@ -199,6 +199,9 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectDelete404Response{}, err
 		}
+		if errors.Is(err, interfaces.ErrProjectHasModels) || errors.Is(err, interfaces.ErrProjectHasGroups) {
+			return ProjectDelete400Response{}, err
+		}
 		return ProjectDelete500Response{}, rerror.ErrInternalBy(err)
 	}
 

@@ -56,3 +56,40 @@ func TestField_ValidationError(t *testing.T) {
 		assert.ErrorIs(t, got, boom)
 	})
 }
+
+func TestFieldValidationErrors_Details(t *testing.T) {
+	t.Parallel()
+
+	fid := NewFieldID()
+
+	fe := func(index *int, group *id.ItemGroupID) FieldValidationError {
+		return FieldValidationError{Field: fid.Ref(), Key: id.NewKey("title").Ref(), Code: FieldValidationCodeConstraint, Detail: ErrInvalidValue, Index: index, Group: group}
+	}
+
+	tests := []struct {
+		name    string
+		err     FieldValidationError
+		wantKey string
+	}{
+		{name: "top-level field", err: fe(nil, nil), wantKey: "title"},
+		{name: "element of a top-level multiple field", err: fe(lo.ToPtr(1), nil), wantKey: "title[1]"},
+		// the group is not in the key, but its ID must not be exposed either
+		{name: "field in a group", err: fe(nil, id.NewItemGroupID().Ref()), wantKey: "title"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := FieldValidationErrors{tt.err}.Details()
+			assert.Equal(t, []FieldValidationErrorDetail{{Field: tt.wantKey, Code: string(FieldValidationCodeConstraint), Detail: ErrInvalidValue.Error()}}, got)
+
+			// internal IDs are never exposed
+			b, err := json.Marshal(got)
+			assert.NoError(t, err)
+			assert.NotContains(t, string(b), fid.String())
+			if tt.err.Group != nil {
+				assert.NotContains(t, string(b), tt.err.Group.String())
+			}
+		})
+	}
+}

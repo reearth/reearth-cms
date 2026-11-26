@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +10,9 @@ import (
 	"github.com/gavv/httpexpect/v2"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/stretchr/testify/assert"
@@ -585,13 +589,32 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 
 // GRPC Delete Project
 func TestInternalDeleteProjectAPI(t *testing.T) {
+	emptyPid := id.NewProjectID()
+	groupOnlyPid := id.NewProjectID()
+	seeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+		if err := baseSeeder(ctx, r, g); err != nil {
+			return err
+		}
+		// a project without models and groups, which is allowed to be deleted
+		p := project.New().ID(emptyPid).Name("empty").Workspace(wId0).Alias("empty-project").MustBuild()
+		if err := r.Project.Save(ctx, p); err != nil {
+			return err
+		}
+		// a project with only a group, which is not allowed to be deleted
+		gp := project.New().ID(groupOnlyPid).Name("group only").Workspace(wId0).Alias("group-only-project").MustBuild()
+		if err := r.Project.Save(ctx, gp); err != nil {
+			return err
+		}
+		return r.Group.Save(ctx, group.New().NewID().Name("g").Project(groupOnlyPid).Key(id.RandomKey()).Schema(id.NewSchemaID()).MustBuild())
+	}
+
 	cfg := &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
 			Token:  "TestToken",
 		},
 	}
-	StartServer(t, cfg, true, baseSeeder)
+	StartServer(t, cfg, true, seeder)
 	clientConn, err := grpc.NewClient("127.0.0.1:"+cfg.InternalApi.Port,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithMaxCallAttempts(5))
@@ -624,9 +647,21 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 			wantErr:   errors.New("not found"),
 		},
 		{
-			name:      "workspace member with write permission can delete project",
+			name:      "project with models cannot be deleted",
 			user:      uId.String(),
 			projectId: pid.String(),
+			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has models"),
+		},
+		{
+			name:      "project with only groups cannot be deleted",
+			user:      uId.String(),
+			projectId: groupOnlyPid.String(),
+			wantErr:   status.Error(codes.FailedPrecondition, "can't delete a project as it still has groups"),
+		},
+		{
+			name:      "workspace member with write permission can delete project",
+			user:      uId.String(),
+			projectId: emptyPid.String(),
 		},
 	}
 

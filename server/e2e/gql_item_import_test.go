@@ -8,6 +8,7 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/stretchr/testify/assert"
 )
 
 // importItems executes the importItems GraphQL mutation with file upload
@@ -290,6 +291,28 @@ func TestGQLImportItems(t *testing.T) {
 			expectedIgnore: 0,
 		},
 		{
+			name: "GeoJSON FeatureCollection import into a field that is not a geometry field",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+			},
+			fileName: "locations.geojson",
+			fileContent: func() string {
+				return `{
+					"type": "FeatureCollection",
+					"features": [
+						{
+							"type": "Feature",
+							"geometry": {"type": "Point", "coordinates": [139.6917, 35.6895]},
+							"properties": {}
+						}
+					]
+				}`
+			},
+			geoField:      new("name"),
+			expectError:   true,
+			errorContains: "invalid params",
+		},
+		{
 			name: "GeoJSON FeatureCollection import with auto-detected geoField",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
@@ -399,6 +422,113 @@ func TestGQLImportItems(t *testing.T) {
 				)
 				searchRes.Path("$.data.searchItem.totalCount").Number().IsEqual(tt.expectedTotal)
 			}
+		})
+	}
+}
+
+func TestGQLImportItems_GeometryRules(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "e2e-alias")
+	mId, _ := createModel(e, pId, "test", "test", "e2e-alias")
+	createField(e, mId, "name", "name", "name", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+	geoId, _ := createField(e, mId, "location", "location", "location", false, true, false, false, "Geometry", map[string]any{"geometry": map[string]any{}})
+
+	featureCollection := func(geometry string) string {
+		return `{"type":"FeatureCollection","features":[{"type":"Feature","geometry":` + geometry + `,"properties":{"name":"Tokyo"}}]}`
+	}
+
+	// a valid bbox is accepted and stored
+	res := importItems(e, mId, "bbox.geojson", featureCollection(`{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}`), nil)
+	res.Path("$.data.importItems.insertedCount").Number().IsEqual(1)
+
+	fields := SearchItem(e, map[string]any{"project": pId, "model": mId}, nil, nil, map[string]any{"first": 1}).
+		Path("$.data.searchItem.nodes[0].fields").Array()
+	var geometry any
+	for _, f := range fields.Iter() {
+		if f.Object().Value("schemaFieldId").String().Raw() == geoId {
+			geometry = f.Object().Value("value").Raw()
+		}
+	}
+	assert.Equal(t, map[string]any{"type": "Point", "bbox": []any{139.7, 35.6, 139.7, 35.6}, "coordinates": []any{139.7, 35.6}}, geometry)
+
+	tests := []struct {
+		name     string
+		geometry string
+		wantErr  string
+	}{
+		{
+			name:     "an invalid geometry is rejected",
+			geometry: `{"type":"Point","coordinates":[35.6,139.7]}`,
+			wantErr:  "INVALID_GEO_STRUCTURE",
+		},
+		{
+			name:     "the same geometry with another key order is a duplicate",
+			geometry: `{"coordinates":[139.70,35.6],"type":"Point","bbox":[139.7,35.6,139.7,35.60]}`,
+			wantErr:  "UNIQUE_VIOLATION",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := importItems(e, mId, "items.geojson", featureCollection(tt.geometry), nil)
+			res.Path("$.errors").Array().Value(0).Object().Value("message").String().Contains(tt.wantErr)
+		})
+	}
+
+	// failed imports do not save anything
+	SearchItem(e, map[string]any{"project": pId, "model": mId}, nil, nil, map[string]any{"first": 1}).
+		Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+}
+
+func TestGQLImportItems_GeometryFormats(t *testing.T) {
+	tests := []struct {
+		name        string
+		fileName    string
+		fileContent string
+		want        map[string]any
+	}{
+		{
+			name:        "JSON with a GeoJSON object",
+			fileName:    "items.json",
+			fileContent: `[{"name":"Tokyo","location":{"type":"Point","bbox":[139.7,35.6,139.7,35.6],"coordinates":[139.7,35.6]}}]`,
+			want:        map[string]any{"type": "Point", "bbox": []any{139.7, 35.6, 139.7, 35.6}, "coordinates": []any{139.7, 35.6}},
+		},
+		{
+			name:        "JSON with a GeoJSON string",
+			fileName:    "items.json",
+			fileContent: `[{"name":"Tokyo","location":"{\"type\":\"LineString\",\"coordinates\":[[139.7,35.6],[139.8,35.7]]}"}]`,
+			want:        map[string]any{"type": "LineString", "coordinates": []any{[]any{139.7, 35.6}, []any{139.8, 35.7}}},
+		},
+		{
+			name:        "CSV with a GeoJSON string",
+			fileName:    "items.csv",
+			fileContent: "name,location\nTokyo,\"{\"\"type\"\":\"\"Point\"\",\"\"coordinates\"\":[139.7,35.6]}\"\n",
+			want:        map[string]any{"type": "Point", "coordinates": []any{139.7, 35.6}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+			pId, _ := createProject(e, wId.String(), "test", "test", "e2e-alias")
+			mId, _ := createModel(e, pId, "test", "test", "e2e-alias")
+			createField(e, mId, "name", "name", "name", false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+			geoId, _ := createField(e, mId, "location", "location", "location", false, false, false, false, "Geometry", map[string]any{"geometry": map[string]any{}})
+
+			res := importItems(e, mId, tt.fileName, tt.fileContent, nil)
+			res.Path("$.data.importItems.insertedCount").Number().IsEqual(1)
+
+			fields := SearchItem(e, map[string]any{"project": pId, "model": mId}, nil, nil, map[string]any{"first": 1}).
+				Path("$.data.searchItem.nodes[0].fields").Array()
+			var geometry any
+			for _, f := range fields.Iter() {
+				if f.Object().Value("schemaFieldId").String().Raw() == geoId {
+					geometry = f.Object().Value("value").Raw()
+				}
+			}
+			assert.Equal(t, tt.want, geometry)
 		})
 	}
 }

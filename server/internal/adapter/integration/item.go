@@ -245,12 +245,12 @@ func (s *Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemCreate404Response{}, err
 		}
-		return ItemCreate400Response{}, err
+		return nil, err
 	}
 
 	res, err := createItem(ctx, uc, wp.Model, request.Body.Fields, request.Body.MetadataFields, op)
 	if err != nil {
-		return ItemCreate400Response{}, err
+		return nil, err
 	}
 	return ItemCreate200JSONResponse(*res), nil
 }
@@ -264,21 +264,24 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemUpdate404Response{}, err
 		}
-		return ItemUpdate400Response{}, err
+		return nil, err
 	}
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, nil, op)
 	if err != nil {
-		return ItemUpdate400Response{}, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemUpdate404Response{}, err
+		}
+		return nil, err
 	}
 
 	if i.Value().Model() != wp.Model.ID() {
-		return ItemUpdate400Response{}, rerror.ErrNotFound
+		return ItemUpdate404Response{}, rerror.ErrNotFound
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
 	if err != nil {
-		return ItemUpdate400Response{}, err
+		return nil, err
 	}
 
 	var metaItem item.Versioned
@@ -295,12 +298,12 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 
 			metaItem, err = uc.Item.Create(ctx, cpMeta, op)
 			if err != nil {
-				return ItemUpdate400Response{}, err
+				return nil, err
 			}
 		} else {
 			metaItem, err = uc.Item.FindByID(ctx, *i.Value().MetadataItem(), nil, op)
 			if err != nil {
-				return ItemUpdate400Response{}, err
+				return nil, err
 			}
 
 			upMeta := interfaces.UpdateItemParam{
@@ -310,9 +313,9 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 			metaItem, err = uc.Item.Update(ctx, upMeta, op)
 			if err != nil {
 				if errors.Is(err, rerror.ErrNotFound) {
-					return ItemUpdate400Response{}, err
+					return ItemUpdate404Response{}, err
 				}
-				return ItemUpdate400Response{}, err
+				return nil, err
 			}
 		}
 		metaItemID = metaItem.Value().ID().Ref()
@@ -327,9 +330,9 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 		i, err = uc.Item.Update(ctx, input, op)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
-				return ItemUpdate400Response{}, err
+				return ItemUpdate404Response{}, err
 			}
-			return ItemUpdate400Response{}, err
+			return nil, err
 		}
 	}
 
@@ -464,13 +467,13 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 	vl, err := uc.Item.Publish(ctx, id.ItemIDList{request.ItemId}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
-			return ItemPublish404Response{}, nil
+			return ItemPublish404Response{}, rerror.ErrNotFound
 		}
 		return ItemPublish400Response{}, err
 	}
 
 	if len(vl) == 0 {
-		return ItemPublish404Response{}, nil
+		return ItemPublish404Response{}, rerror.ErrNotFound
 	}
 
 	i = vl[0]
@@ -532,13 +535,13 @@ func (s *Server) ItemUnpublish(ctx context.Context, request ItemUnpublishRequest
 	vl, err := uc.Item.Unpublish(ctx, id.ItemIDList{request.ItemId}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
-			return ItemUnpublish404Response{}, nil
+			return ItemUnpublish404Response{}, rerror.ErrNotFound
 		}
 		return ItemUnpublish400Response{}, err
 	}
 
 	if len(vl) == 0 {
-		return ItemUnpublish404Response{}, nil
+		return ItemUnpublish404Response{}, rerror.ErrNotFound
 	}
 
 	i = vl[0]

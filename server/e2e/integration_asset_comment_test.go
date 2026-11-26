@@ -157,6 +157,14 @@ func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
 	r.Value("authorType").IsEqual(integrationapi.User)
 	r.Value("content").IsEqual("updated content")
 
+	// asset with no thread: there is no comment to update
+	iAPIAssetCommentUpdate(e, wId0, pid, aid3, id.NewCommentID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"content": "updated content"}).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().
+		IsEqual(map[string]any{"error": "invalid params"})
 }
 
 // DELETE|/assets/{assetId}/comments/{commentId}
@@ -181,4 +189,12 @@ func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object().Value("comments").Array().IsEmpty()
+
+	// asset with no thread: there is no comment to delete
+	iAPIAssetCommentDelete(e, wId0, pid, aid3, id.NewCommentID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().
+		IsEqual(map[string]any{"error": "invalid params"})
 }
