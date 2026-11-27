@@ -3,6 +3,7 @@ package internalapi
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/url"
 
@@ -38,6 +39,30 @@ func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
 	}
 }
 
+type errCode struct {
+	err  error
+	code codes.Code
+}
+
+// withCode returns err with the gRPC code of the first entry it matches, and
+// err unchanged when it matches none.
+func withCode(err error, mapping ...errCode) error {
+	for _, c := range mapping {
+		if errors.Is(err, c.err) {
+			return status.Error(c.code, err.Error())
+		}
+	}
+	return err
+}
+
+// projectWriteErrCodes are shared by CreateProject and UpdateProject.
+var projectWriteErrCodes = []errCode{
+	{interfaces.ErrProjectAliasAlreadyUsed, codes.AlreadyExists},
+	{project.ErrInvalidAlias, codes.InvalidArgument},
+	{interfaces.ErrOperationDenied, codes.PermissionDenied},
+	{interfaces.ErrProjectCreationLimitExceeded, codes.FailedPrecondition},
+}
+
 func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
@@ -67,7 +92,7 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(&req.Visibility),
 	}, op)
 	if err != nil {
-		return nil, err
+		return nil, withCode(err, projectWriteErrCodes...)
 	}
 	return &pb.ProjectResponse{
 		Project: internalapimodel.ToProject(p),
@@ -111,7 +136,7 @@ func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest)
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
 	}, op)
 	if err != nil {
-		return nil, err
+		return nil, withCode(err, projectWriteErrCodes...)
 	}
 	return &pb.ProjectResponse{
 		Project: internalapimodel.ToProject(p),
@@ -139,7 +164,11 @@ func (s server) DeleteProject(ctx context.Context, req *pb.DeleteProjectRequest)
 
 	err = uc.Project.Delete(ctx, pId, op)
 	if err != nil {
-		return nil, err
+		return nil, withCode(err,
+			errCode{interfaces.ErrProjectHasModels, codes.FailedPrecondition},
+			errCode{interfaces.ErrProjectHasGroups, codes.FailedPrecondition},
+			errCode{interfaces.ErrOperationDenied, codes.PermissionDenied},
+		)
 	}
 
 	return &pb.DeleteProjectResponse{
@@ -161,7 +190,7 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 
 	ok, err := uc.Project.CheckAlias(ctx, wId, req.Alias)
 	if err != nil {
-		return nil, err
+		return nil, withCode(err, errCode{project.ErrInvalidAlias, codes.InvalidArgument})
 	}
 
 	return &pb.AliasAvailabilityResponse{
@@ -504,7 +533,7 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 		},
 	}, w, op)
 	if err != nil {
-		return nil, err
+		return nil, withCode(err, errCode{exporters.ErrNoGeometryField, codes.FailedPrecondition})
 	}
 
 	// upload result as file
@@ -565,7 +594,7 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportReques
 		},
 	}, w, op)
 	if err != nil {
-		return nil, err
+		return nil, withCode(err, errCode{exporters.ErrNoGeometryField, codes.FailedPrecondition})
 	}
 
 	ext := ".json"

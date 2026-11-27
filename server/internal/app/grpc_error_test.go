@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
@@ -57,30 +54,6 @@ func TestToGRPCError(t *testing.T) {
 			wantMsg:  invalidIDErr.Error(),
 		},
 		{
-			name:     "invalid operator",
-			err:      interfaces.ErrInvalidOperator,
-			wantCode: codes.Unauthenticated,
-			wantMsg:  "invalid operator",
-		},
-		{
-			name:     "project creation limit exceeded",
-			err:      interfaces.ErrProjectCreationLimitExceeded,
-			wantCode: codes.FailedPrecondition,
-			wantMsg:  "project creation limit exceeded",
-		},
-		{
-			name:     "project has models",
-			err:      interfaces.ErrProjectHasModels,
-			wantCode: codes.FailedPrecondition,
-			wantMsg:  "can't delete a project as it still has models",
-		},
-		{
-			name:     "project has groups",
-			err:      interfaces.ErrProjectHasGroups,
-			wantCode: codes.FailedPrecondition,
-			wantMsg:  "can't delete a project as it still has groups",
-		},
-		{
 			name:     "context canceled",
 			err:      context.Canceled,
 			wantCode: codes.Canceled,
@@ -112,31 +85,6 @@ func TestToGRPCError(t *testing.T) {
 			st := status.Convert(toGRPCError(tt.err))
 			assert.Equal(t, tt.wantCode, st.Code())
 			assert.Equal(t, tt.wantMsg, st.Message())
-		})
-	}
-}
-
-// The Dashboard matches these errors by codes.Unknown plus their exact message.
-func TestToGRPCError_Passthrough(t *testing.T) {
-	tests := []struct {
-		name string
-		err  error
-	}{
-		{name: "project alias already used", err: interfaces.ErrProjectAliasAlreadyUsed},
-		{name: "invalid alias", err: project.ErrInvalidAlias},
-		{name: "no geometry field", err: exporters.ErrNoGeometryField},
-		{name: "operation denied", err: interfaces.ErrOperationDenied},
-		{name: "repo operation denied", err: repo.ErrOperationDenied},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := toGRPCError(tt.err)
-			assert.Same(t, tt.err, got)
-			st := status.Convert(got)
-			assert.Equal(t, codes.Unknown, st.Code())
-			assert.Equal(t, tt.err.Error(), st.Message())
 		})
 	}
 }

@@ -333,6 +333,10 @@ func TestInternalCheckAliasAPI(t *testing.T) {
 	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{WorkspaceId: wId0.String(), Alias: "new_alias"})
 	assert.NoError(t, err)
 	assert.True(t, p.Available)
+
+	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{WorkspaceId: wId0.String(), Alias: "bad!"})
+	assertGrpcError(t, status.Error(codes.InvalidArgument, "invalid alias"), err)
+	assert.Nil(t, p)
 }
 
 // GRPC Create Project
@@ -411,6 +415,26 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 				WorkspaceId: wId0.String(),
 			},
 			wantError: status.Error(codes.PermissionDenied, "no permission to create project in this workspace"),
+		},
+		{
+			name: "alias already used",
+			user: uId.String(),
+			request: &pb.CreateProjectRequest{
+				Name:        "Project 1",
+				Alias:       palias,
+				WorkspaceId: wId0.String(),
+			},
+			wantError: status.Error(codes.AlreadyExists, "project alias is already used by another project"),
+		},
+		{
+			name: "invalid alias",
+			user: uId.String(),
+			request: &pb.CreateProjectRequest{
+				Name:        "Project 1",
+				Alias:       "bad!",
+				WorkspaceId: wId0.String(),
+			},
+			wantError: status.Error(codes.InvalidArgument, "invalid alias"),
 		},
 	}
 
