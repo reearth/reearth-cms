@@ -1,10 +1,6 @@
 import type { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import type { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import type { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import type {
-  ObjectSupportedType,
-  EditorSupportedType,
-} from "@reearth-cms/components/molecules/Schema/types";
 
 import type { SchemaFieldType } from "../../types";
 
@@ -12,7 +8,6 @@ import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
 import CheckboxField from "./CheckboxField";
 import DateField from "./DateField";
-import GeometryField from "./GeometryField";
 import GroupField from "./GroupField";
 import MarkdownField from "./Markdown";
 import NumberField from "./NumberField";
@@ -26,7 +21,6 @@ type Props = {
   selectedType: SchemaFieldType;
   selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
-  selectedSupportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   maxLength?: number;
   min?: number;
   max?: number;
@@ -59,7 +53,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
   selectedTags,
-  selectedSupportedTypes,
   maxLength,
   min,
   max,
@@ -137,15 +130,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
       return <URLField multiple={multiple} />;
     case "Group":
       return <GroupField />;
-    case "GeometryObject":
-    case "GeometryEditor":
-      return (
-        <GeometryField
-          supportedTypes={selectedSupportedTypes}
-          isEditor={selectedType === "GeometryEditor"}
-          multiple={multiple}
-        />
-      );
     case "Text":
     default:
       return <TextField multiple={multiple} maxLength={maxLength} />;

@@ -76,8 +76,6 @@ export const SchemaFieldType = {
   Checkbox: "Checkbox",
   URL: "URL",
   Group: "Group",
-  GeometryObject: "GeometryObject",
-  GeometryEditor: "GeometryEditor",
 } as const;
 
 export type SchemaFieldType = (typeof SchemaFieldType)[keyof typeof SchemaFieldType];
@@ -93,8 +91,6 @@ export enum ExportSchemaFieldType {
   Integer = "integer",
   Number = "number",
   URL = "url",
-  GeometryObject = "geometryObject",
-  GeometryEditor = "geometryEditor",
 }
 
 export type Tag = {
@@ -102,17 +98,6 @@ export type Tag = {
   name: string;
   color: string;
 };
-
-export type ObjectSupportedType =
-  | "POINT"
-  | "MULTIPOINT"
-  | "LINESTRING"
-  | "MULTILINESTRING"
-  | "POLYGON"
-  | "MULTIPOLYGON"
-  | "GEOMETRYCOLLECTION";
-
-export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
 
 export type CorrespondingField = {
   id: string;
@@ -143,8 +128,6 @@ export type TypeProperty = {
   tags?: Tag[];
   values?: string[];
   schema?: { id: string; titleFieldId: string | null };
-  objectSupportedTypes?: ObjectSupportedType[];
-  editorSupportedTypes?: EditorSupportedType[];
 };
 
 export type FieldTypePropertyInput = {
@@ -221,7 +204,6 @@ export type FormTypes = FormValues & {
   max?: number;
   tags?: Tag[];
   group: string;
-  supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
 };
 
 export type Tab = "fields" | "meta-data";

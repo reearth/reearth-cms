@@ -354,11 +354,7 @@ func TestGQLImportItemsAsync(t *testing.T) {
 			name: "async import with GeoJSON",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
-				{title: "location", key: "location", fType: "GeometryObject", typeProp: map[string]any{
-					"geometryObject": map[string]any{
-						"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
-					},
-				}},
+				{title: "location", key: "location", fType: "Geometry", typeProp: map[string]any{"geometry": map[string]any{}}},
 			},
 			fileName: "locations.geojson",
 			fileContent: func() string {

@@ -133,16 +133,6 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 					}
 				}
 			},
-			GeometryEditor: func(f *schema.FieldGeometryEditor) {
-				if st := f.SupportedTypes(); len(st) > 0 {
-					fieldSchema.GeoSupportedType = new(st.First().String())
-				}
-			},
-			GeometryObject: func(f *schema.FieldGeometryObject) {
-				if st := f.SupportedTypes(); len(st) > 0 {
-					fieldSchema.GeoSupportedTypes = new(st.Strings())
-				}
-			},
 		})
 
 		properties[field.Key().String()] = fieldSchema
@@ -182,7 +172,7 @@ func determineFTypeAndTypeAndFormat(t value.Type) (string, string, string) {
 		return string(t), "string", "binary"
 	case value.TypeGroup:
 		return string(t), "array", ""
-	case value.TypeGeometryObject, value.TypeGeometryEditor, value.TypeGeometry:
+	case value.TypeGeometry:
 		return string(t), "object", ""
 	default:
 		return "", "string", ""

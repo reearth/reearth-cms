@@ -20,8 +20,8 @@ const mockErrorLogMeta: ErrorLogMeta = {
       detail: "Invalid enum value",
     },
     {
-      path: ["properties", "geo", "x-geoSupportedTypes"],
-      detail: "Invalid input: expected POINT, LINE",
+      path: ["properties", "color", "x-options"],
+      detail: "Invalid input: expected array, received string",
     },
   ],
 };
@@ -55,11 +55,11 @@ describe("SchemaErrorLogStep", () => {
     // formatSchemaPath converts ["properties", "age", "x-defaultValue"] → 'Field "age" > Default value'
     expect(screen.getByText(/Field "age" > Default value/)).toBeInTheDocument();
     expect(screen.getByText(/Field "name" > Field Type/)).toBeInTheDocument();
-    expect(screen.getByText(/Field "geo" > Supported types/)).toBeInTheDocument();
+    expect(screen.getByText(/Field "color" > Options/)).toBeInTheDocument();
 
     expect(screen.getByText("Expected number, received string")).toBeInTheDocument();
     expect(screen.getByText("Invalid enum value")).toBeInTheDocument();
-    expect(screen.getByText("Invalid input: expected POINT, LINE")).toBeInTheDocument();
+    expect(screen.getByText("Invalid input: expected array, received string")).toBeInTheDocument();
   });
 
   test("does not render table when errorLogMeta is null", () => {

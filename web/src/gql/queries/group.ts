@@ -67,14 +67,6 @@ export const GET_GROUP = gql`
               ... on SchemaFieldDate {
                 defaultValue
               }
-              ... on SchemaFieldGeometryObject {
-                defaultValue
-                objectSupportedTypes: supportedTypes
-              }
-              ... on SchemaFieldGeometryEditor {
-                defaultValue
-                editorSupportedTypes: supportedTypes
-              }
             }
           }
         }

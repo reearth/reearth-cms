@@ -87,10 +87,6 @@ func ToSchemaFieldType(t value.Type) pb.SchemaField_Type {
 		return pb.SchemaField_Tag
 	case value.TypeCheckbox:
 		return pb.SchemaField_Checkbox
-	case value.TypeGeometryObject:
-		return pb.SchemaField_GeometryObject
-	case value.TypeGeometryEditor:
-		return pb.SchemaField_GeometryEditor
 	case value.TypeGeometry:
 		return pb.SchemaField_Geometry
 	default:

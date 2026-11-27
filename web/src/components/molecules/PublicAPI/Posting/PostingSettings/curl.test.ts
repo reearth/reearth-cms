@@ -102,13 +102,11 @@ describe("buildPostItemCurl", () => {
       field("Reference", { key: "author" }),
       field("Tag", { key: "labels" }),
       field("Group", { key: "meta" }),
-      field("GeometryObject", { key: "shape" }),
-      field("GeometryEditor", { key: "geo" }),
     ];
 
     const curl = buildPostItemCurl(endpoint, fields);
     expect(curl).toContain('"title": "<Text>"');
-    for (const key of ["cover", "author", "labels", "meta", "shape", "geo"]) {
+    for (const key of ["cover", "author", "labels", "meta"]) {
       expect(curl).not.toContain(`"${key}"`);
     }
   });

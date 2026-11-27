@@ -417,12 +417,12 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	})
 	// endregion
 
-	// region GeoObject
+	// region Geometry
 	res = iAPIFieldCreate(e, wId0, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"key":      "fKey3",
-			"type":     "geometryObject",
+			"type":     "geometry",
 			"multiple": false,
 			"required": false,
 		}).

@@ -137,9 +137,7 @@ const GroupItem: React.FC<Props> = ({
             } else {
               const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
               return (
-                <StyledFormItemWrapper
-                  key={field.id}
-                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
+                <StyledFormItemWrapper key={field.id}>
                   <FieldComponent
                     field={field}
                     itemGroupId={itemGroupId}

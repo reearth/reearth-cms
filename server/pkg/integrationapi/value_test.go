@@ -92,16 +92,6 @@ func TestFromValueType(t *testing.T) {
 			expected: value.TypeGroup,
 		},
 		{
-			name:     "Valid ValueTypeGeometryObject",
-			input:    new(ValueTypeGeometryObject),
-			expected: value.TypeGeometryObject,
-		},
-		{
-			name:     "Valid ValueTypeGeometryEditor",
-			input:    new(ValueTypeGeometryEditor),
-			expected: value.TypeGeometryEditor,
-		},
-		{
 			name:     "Valid ValueTypeGeometry",
 			input:    new(ValueTypeGeometry),
 			expected: value.TypeGeometry,
@@ -200,16 +190,6 @@ func TestToValueType(t *testing.T) {
 			name:     "TypeCheckbox",
 			input:    value.TypeCheckbox,
 			expected: ValueTypeCheckbox,
-		},
-		{
-			name:     "TypeGeometryObject",
-			input:    value.TypeGeometryObject,
-			expected: ValueTypeGeometryObject,
-		},
-		{
-			name:     "TypeGeometryEditor",
-			input:    value.TypeGeometryEditor,
-			expected: ValueTypeGeometryEditor,
 		},
 		{
 			name:     "TypeGeometry",

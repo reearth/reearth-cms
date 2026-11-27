@@ -1,7 +1,6 @@
 package exporters
 
 import (
-	"encoding/json"
 	"reflect"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -122,37 +121,6 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 					val = res
 				} else if len(res) == 1 {
 					val = res[0]
-				}
-			} else if sf.Type() == value.TypeGeometryObject || sf.Type() == value.TypeGeometryEditor {
-				// Parse geometry JSON strings into actual JSON objects
-				if sf.Multiple() {
-					var geoValues []any
-					for _, v := range f.Value().Values() {
-						if geoStr, ok := v.Value().(string); ok && geoStr != "" {
-							var geoJSON any
-							if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
-								geoValues = append(geoValues, geoJSON)
-							} else {
-								geoValues = append(geoValues, geoStr) // fallback to string if parsing fails
-							}
-						} else {
-							geoValues = append(geoValues, nil) // explicitly handle non-string values
-						}
-					}
-					val = geoValues
-				} else {
-					if first := f.Value().First(); first != nil {
-						if geoStr, ok := first.Value().(string); ok && geoStr != "" {
-							var geoJSON any
-							if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
-								val = geoJSON
-							} else {
-								val = geoStr // fallback to string if parsing fails
-							}
-						} else {
-							val = first.Value() // fallback to the original value if not a non-empty string
-						}
-					}
 				}
 			} else if sf.Multiple() {
 				val = f.Value().Interface()

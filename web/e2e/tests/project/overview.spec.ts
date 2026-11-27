@@ -1,4 +1,3 @@
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -192,100 +191,6 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.noGeometryFieldText).toBeVisible();
       // Notification is persistent (duration: 0) - close it manually
       await projectPage.closeNotification(false);
-      await page.waitForLoadState("networkidle");
-    });
-  });
-
-  test("Model Export as GeoJSON with single geometry field succeeds", async ({
-    schemaPage,
-    projectPage,
-    fieldEditorPage,
-    contentPage,
-    page,
-  }) => {
-    await test.step("Create model with geometry field and content", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
-      await projectPage.clickAndExpectSuccess(schemaPage.okButton);
-
-      // Navigate to schema to add geometry field
-      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-      await projectPage.modelMenuItemByName("model name").click();
-
-      // Add a Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.fill("location");
-      await fieldEditorPage.settingsDescriptionInput.fill("location field");
-      await fieldEditorPage.supportTypePointCheckbox.check();
-      await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-
-      // Create a content item
-      await contentPage.createItem();
-      await page.waitForLoadState("networkidle");
-    });
-
-    await test.step("Export as GeoJSON successfully", async () => {
-      // Navigate back to overview
-      await projectPage.modelsMenuItem.click();
-      await projectPage.clickExportContentGeoJSON();
-      await projectPage.closeNotification();
-      await page.waitForLoadState("networkidle");
-    });
-  });
-
-  test("Model Export as GeoJSON with multiple geometry fields shows warning", async ({
-    schemaPage,
-    projectPage,
-    fieldEditorPage,
-    page,
-  }) => {
-    await test.step("Create model and add two geometry fields", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
-      await projectPage.clickAndExpectSuccess(schemaPage.okButton);
-
-      // Navigate to schema to add geometry fields
-      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-      await projectPage.modelMenuItemByName("model name").click();
-
-      // Add first Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.fill("location1");
-      await fieldEditorPage.settingsDescriptionInput.fill("first location field");
-      await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
-      await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-
-      // Add second Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.fill("location2");
-      await fieldEditorPage.settingsDescriptionInput.fill("second location field");
-      await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
-      await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
-      await page.waitForLoadState("networkidle");
-    });
-
-    await test.step("Attempt GeoJSON export and verify warning modal", async () => {
-      // Navigate back to overview
-      await projectPage.modelsMenuItem.click();
-      await projectPage.clickExportContentGeoJSON();
-
-      // Verify warning modal appears
-      await expect(projectPage.multipleGeometryFieldsText).toBeVisible();
-      await expect(projectPage.multipleGeometryWarningText).toBeVisible();
-      await expect(projectPage.geoJSONSingleFieldWarningText).toBeVisible();
-
-      // Click cancel
-      await projectPage.cancelButton.click();
-      // Verify modal closed
-      await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
       await page.waitForLoadState("networkidle");
     });
   });

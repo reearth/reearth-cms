@@ -17,8 +17,6 @@ func TestToSchemaFieldType(t *testing.T) {
 		want pb.SchemaField_Type
 	}{
 		{name: "text", t: value.TypeText, want: pb.SchemaField_Text},
-		{name: "geometry object", t: value.TypeGeometryObject, want: pb.SchemaField_GeometryObject},
-		{name: "geometry editor", t: value.TypeGeometryEditor, want: pb.SchemaField_GeometryEditor},
 		{name: "geometry", t: value.TypeGeometry, want: pb.SchemaField_Geometry},
 		{name: "unknown", t: value.Type("unknown"), want: pb.SchemaField_Text},
 	}

@@ -1,30 +1,8 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import type { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
-import type {
-  GeoJSONGeometryCollection,
-  GeoJSONLineString,
-  GeoJSONMultiLineString,
-  GeoJSONMultiPoint,
-  GeoJSONMultiPolygon,
-  GeoJSONPolygon,
-} from "zod-geojson";
-import {
-  GeoJSONGeometryCollectionSchema,
-  GeoJSONLineStringSchema,
-  GeoJSONMultiLineStringSchema,
-  GeoJSONMultiPointSchema,
-  GeoJSONMultiPolygonSchema,
-  GeoJSONPointSchema,
-  GeoJSONPolygonSchema,
-} from "zod-geojson";
 
 import type { TooltipProps } from "@reearth-cms/components/atoms/Tooltip";
-import type {
-  ObjectSupportedType,
-  EditorSupportedType,
-} from "@reearth-cms/components/molecules/Schema/types";
 import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { t } from "@reearth-cms/i18n";
 
@@ -66,37 +44,6 @@ interface FieldNumberBaseMulti extends FieldBase {
   "x-multiple"?: true;
   "x-defaultValue"?: number[];
 }
-
-// geo editor common
-interface FieldGeoEditorBase extends FieldBase {
-  "x-fieldType": ExportSchemaFieldType.GeometryEditor;
-  "x-multiple"?: false;
-  "x-geoSupportedType": EditorSupportedType;
-}
-
-interface FieldGeoEditorBaseMulti extends FieldBase {
-  "x-fieldType": ExportSchemaFieldType.GeometryEditor;
-  "x-multiple"?: true;
-  "x-geoSupportedType": EditorSupportedType;
-}
-
-// Mapping from ObjectSupportedType to GeoJSON geometry types
-type GeoJSONTypeMap = {
-  POINT: GeoJSONPoint;
-  MULTIPOINT: GeoJSONMultiPoint;
-  LINESTRING: GeoJSONLineString;
-  MULTILINESTRING: GeoJSONMultiLineString;
-  POLYGON: GeoJSONPolygon;
-  MULTIPOLYGON: GeoJSONMultiPolygon;
-  GEOMETRYCOLLECTION: GeoJSONGeometryCollection;
-};
-
-// Helper type to convert array of types to union of corresponding GeoJSON types
-type SupportTypeToGeoJSON<T extends readonly ObjectSupportedType[]> = T[number] extends infer U
-  ? U extends ObjectSupportedType
-    ? GeoJSONTypeMap[U]
-    : never
-  : never;
 
 // fields
 export interface FieldText extends FieldTextBase {
@@ -201,67 +148,6 @@ export interface FieldSelectMulti extends FieldBase {
   "x-options": string[];
 }
 
-export interface FieldGeoObject<
-  S extends readonly ObjectSupportedType[] = ObjectSupportedType[],
-> extends FieldBase {
-  "x-fieldType": ExportSchemaFieldType.GeometryObject;
-  "x-multiple"?: false;
-  "x-geoSupportedTypes": S;
-  "x-defaultValue"?: SupportTypeToGeoJSON<S>;
-}
-
-export interface FieldGeoObjectMulti<
-  S extends ObjectSupportedType[] = ObjectSupportedType[],
-> extends FieldBase {
-  "x-fieldType": ExportSchemaFieldType.GeometryObject;
-  "x-multiple"?: true;
-  "x-geoSupportedTypes": S;
-  "x-defaultValue"?: SupportTypeToGeoJSON<S>[];
-}
-
-interface FieldGeoEditorPoint extends FieldGeoEditorBase {
-  "x-defaultValue"?: GeoJSONPoint;
-}
-
-interface FieldGeoEditorLineString extends FieldGeoEditorBase {
-  "x-defaultValue"?: GeoJSONLineString;
-}
-
-interface FieldGeoEditorPolygon extends FieldGeoEditorBase {
-  "x-defaultValue"?: GeoJSONPolygon;
-}
-
-interface FieldGeoEditorAny extends FieldGeoEditorBase {
-  "x-defaultValue"?: GeoJSONPoint | GeoJSONLineString | GeoJSONPolygon;
-}
-
-interface FieldGeoEditorPointMulti extends FieldGeoEditorBaseMulti {
-  "x-defaultValue"?: GeoJSONPoint[];
-}
-
-interface FieldGeoEditorLineStringMulti extends FieldGeoEditorBaseMulti {
-  "x-defaultValue"?: GeoJSONLineString[];
-}
-
-interface FieldGeoEditorPolygonMulti extends FieldGeoEditorBaseMulti {
-  "x-defaultValue"?: GeoJSONPolygon[];
-}
-
-interface FieldGeoEditorAnyMulti extends FieldGeoEditorBaseMulti {
-  "x-defaultValue"?: (GeoJSONPoint | GeoJSONLineString | GeoJSONPolygon)[];
-}
-
-// geo editor single
-export type FieldGeoEditor =
-  FieldGeoEditorPoint | FieldGeoEditorLineString | FieldGeoEditorPolygon | FieldGeoEditorAny;
-
-// geo editor multiple
-export type FieldGeoEditorMulti =
-  | FieldGeoEditorPointMulti
-  | FieldGeoEditorLineStringMulti
-  | FieldGeoEditorPolygonMulti
-  | FieldGeoEditorAnyMulti;
-
 export type ImportSchemaFieldSingle =
   | FieldText
   | FieldTextArea
@@ -272,9 +158,7 @@ export type ImportSchemaFieldSingle =
   | FieldInteger
   | FieldNumber
   | FieldBoolean
-  | FieldDate
-  | FieldGeoObject
-  | FieldGeoEditor;
+  | FieldDate;
 
 export type ImportSchemaFieldMulti =
   | FieldTextMulti
@@ -286,9 +170,7 @@ export type ImportSchemaFieldMulti =
   | FieldIntegerMulti
   | FieldNumberMulti
   | FieldBooleanMulti
-  | FieldDateMulti
-  | FieldGeoObjectMulti
-  | FieldGeoEditorMulti;
+  | FieldDateMulti;
 
 export type ImportSchemaField = ImportSchemaFieldSingle | ImportSchemaFieldMulti;
 
@@ -375,183 +257,6 @@ export abstract class ImportSchemaUtils {
       }
     })
     .and(this.FIELD_BASE_VALIDATOR);
-
-  private static readonly FIELD_GEO_OBJECT_VALIDATOR: z.ZodType<FieldGeoObject> = z
-    .object({
-      "x-fieldType": z.literal(ExportSchemaFieldType.GeometryObject),
-      "x-multiple": z.literal(false).default(false).optional(),
-      "x-geoSupportedTypes": z
-        .union([
-          z.literal("POINT"),
-          z.literal("MULTIPOINT"),
-          z.literal("LINESTRING"),
-          z.literal("MULTILINESTRING"),
-          z.literal("POLYGON"),
-          z.literal("MULTIPOLYGON"),
-          z.literal("GEOMETRYCOLLECTION"),
-        ])
-        .array(),
-      "x-defaultValue": z
-        .union([
-          GeoJSONPointSchema,
-          GeoJSONMultiPointSchema,
-          GeoJSONLineStringSchema,
-          GeoJSONMultiLineStringSchema,
-          GeoJSONPolygonSchema,
-          GeoJSONMultiPolygonSchema,
-          GeoJSONGeometryCollectionSchema,
-        ])
-        .optional(),
-    })
-    .superRefine((values, context) => {
-      const { "x-geoSupportedTypes": geoSupportedTypes, "x-defaultValue": defaultValue } = values;
-
-      if (!defaultValue) return;
-
-      const geoSupportTypeSet = new Set<Lowercase<ObjectSupportedType>>(
-        geoSupportedTypes.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
-      );
-
-      const defaultValueType = defaultValue.type.toLowerCase() as Lowercase<ObjectSupportedType>;
-
-      if (!geoSupportTypeSet.has(defaultValueType)) {
-        context.addIssue({
-          code: "custom",
-          expected:
-            "Legal support types: POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, GEOMETRYCOLLECTION",
-          message: t("defaultValue type is invalid"),
-        });
-      }
-    })
-    .and(this.FIELD_BASE_VALIDATOR);
-
-  private static readonly FIELD_GEO_OBJECT_MULTI_VALIDATOR: z.ZodType<FieldGeoObjectMulti> = z
-    .object({
-      "x-fieldType": z.literal(ExportSchemaFieldType.GeometryObject),
-      "x-multiple": z.literal(true).default(true).optional(),
-      "x-geoSupportedTypes": z
-        .union([
-          z.literal("POINT"),
-          z.literal("MULTIPOINT"),
-          z.literal("LINESTRING"),
-          z.literal("MULTILINESTRING"),
-          z.literal("POLYGON"),
-          z.literal("MULTIPOLYGON"),
-          z.literal("GEOMETRYCOLLECTION"),
-        ])
-        .array(),
-      "x-defaultValue": z
-        .union([
-          GeoJSONPointSchema,
-          GeoJSONMultiPointSchema,
-          GeoJSONLineStringSchema,
-          GeoJSONMultiLineStringSchema,
-          GeoJSONPolygonSchema,
-          GeoJSONMultiPolygonSchema,
-          GeoJSONGeometryCollectionSchema,
-        ])
-        .array()
-        .optional(),
-    })
-    .superRefine((values, context) => {
-      const { "x-geoSupportedTypes": geoSupportedTypes, "x-defaultValue": defaultValue } = values;
-
-      if (!defaultValue) return;
-
-      const supportTypeSet = new Set<Lowercase<ObjectSupportedType>>(
-        geoSupportedTypes.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
-      );
-
-      const defaultValueTypes = defaultValue.map(_defaultValue =>
-        _defaultValue.type.toLowerCase(),
-      ) as Lowercase<ObjectSupportedType>[];
-
-      if (defaultValueTypes.some(defaultValueType => !supportTypeSet.has(defaultValueType))) {
-        context.addIssue({
-          code: "custom",
-          expected:
-            "Legal support types: POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, GEOMETRYCOLLECTION",
-          message: t("defaultValue type is invalid"),
-        });
-      }
-    })
-    .and(this.FIELD_BASE_VALIDATOR);
-
-  private static readonly FILED_GEO_EDITOR_VALIDATOR: z.ZodType<FieldGeoEditor> = z.union([
-    z
-      .object({
-        "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-        "x-multiple": z.literal(false).default(false).optional(),
-        "x-geoSupportedType": z.literal("POINT"),
-        "x-defaultValue": GeoJSONPointSchema.optional(),
-      })
-      .and(this.FIELD_BASE_VALIDATOR),
-    z
-      .object({
-        "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-        "x-multiple": z.literal(false).default(false).optional(),
-        "x-geoSupportedType": z.literal("LINESTRING"),
-        "x-defaultValue": GeoJSONLineStringSchema.optional(),
-      })
-      .and(this.FIELD_BASE_VALIDATOR),
-    z
-      .object({
-        "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-        "x-multiple": z.literal(false).default(false).optional(),
-        "x-geoSupportedType": z.literal("POLYGON"),
-        "x-defaultValue": GeoJSONPolygonSchema.optional(),
-      })
-      .and(this.FIELD_BASE_VALIDATOR),
-    z
-      .object({
-        "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-        "x-multiple": z.literal(false).default(false).optional(),
-        "x-geoSupportedType": z.literal("ANY"),
-        "x-defaultValue": z
-          .union([GeoJSONPointSchema, GeoJSONLineStringSchema, GeoJSONPolygonSchema])
-          .optional(),
-      })
-      .and(this.FIELD_BASE_VALIDATOR),
-  ]);
-
-  private static readonly FILED_GEO_EDITOR_MULTI_VALIDATOR: z.ZodType<FieldGeoEditorMulti> =
-    z.union([
-      z
-        .object({
-          "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-          "x-multiple": z.literal(true).default(true).optional(),
-          "x-geoSupportedType": z.literal("POINT"),
-          "x-defaultValue": GeoJSONPointSchema.array().optional(),
-        })
-        .and(this.FIELD_BASE_VALIDATOR),
-      z
-        .object({
-          "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-          "x-multiple": z.literal(true).default(true).optional(),
-          "x-geoSupportedType": z.literal("LINESTRING"),
-          "x-defaultValue": GeoJSONLineStringSchema.array().optional(),
-        })
-        .and(this.FIELD_BASE_VALIDATOR),
-      z
-        .object({
-          "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-          "x-multiple": z.literal(true).default(true).optional(),
-          "x-geoSupportedType": z.literal("POLYGON"),
-          "x-defaultValue": GeoJSONPolygonSchema.array().optional(),
-        })
-        .and(this.FIELD_BASE_VALIDATOR),
-      z
-        .object({
-          "x-fieldType": z.literal(ExportSchemaFieldType.GeometryEditor),
-          "x-multiple": z.literal(true).default(true).optional(),
-          "x-geoSupportedType": z.literal("ANY"),
-          "x-defaultValue": z
-            .union([GeoJSONPointSchema, GeoJSONLineStringSchema, GeoJSONPolygonSchema])
-            .array()
-            .optional(),
-        })
-        .and(this.FIELD_BASE_VALIDATOR),
-    ]);
 
   private static readonly IMPORT_SCHEMA_VALIDATOR: z.ZodType<ImportSchema> = z.object({
     properties: z.record(
@@ -827,10 +532,6 @@ export abstract class ImportSchemaUtils {
             "x-multiple": z.literal(true).default(true).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
-        this.FIELD_GEO_OBJECT_VALIDATOR,
-        this.FIELD_GEO_OBJECT_MULTI_VALIDATOR,
-        this.FILED_GEO_EDITOR_VALIDATOR,
-        this.FILED_GEO_EDITOR_MULTI_VALIDATOR,
       ]),
     ),
   });

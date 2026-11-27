@@ -7,7 +7,6 @@ const IGNORE_FIELD_TYPES_COMMON = new Set<SchemaFieldType>([
   SchemaFieldType.Asset,
   SchemaFieldType.Group,
   SchemaFieldType.Reference,
-  SchemaFieldType.GeometryEditor,
 ]);
 
 /* eslint-disable @typescript-eslint/no-extraneous-class */
@@ -30,14 +29,8 @@ export abstract class Constant {
     // import ignore field types by file format
     IGNORE_FIELD_TYPES_COMMON,
     IGNORE_FIELD_TYPES_JSON: IGNORE_FIELD_TYPES_COMMON,
-    IGNORE_FIELD_TYPES_GEO_JSON: new Set<SchemaFieldType>([
-      ...Array.from(IGNORE_FIELD_TYPES_COMMON),
-      SchemaFieldType.GeometryObject,
-    ]),
-    IGNORE_FIELD_TYPES_GEO_CSV: new Set<SchemaFieldType>([
-      ...Array.from(IGNORE_FIELD_TYPES_COMMON),
-      SchemaFieldType.GeometryObject,
-    ]),
+    IGNORE_FIELD_TYPES_GEO_JSON: IGNORE_FIELD_TYPES_COMMON,
+    IGNORE_FIELD_TYPES_GEO_CSV: IGNORE_FIELD_TYPES_COMMON,
 
     FIELD_TYPE_MAPPING: {
       [ExportSchemaFieldType.Text]: SchemaFieldType.Text,
@@ -50,8 +43,6 @@ export abstract class Constant {
       [ExportSchemaFieldType.Integer]: SchemaFieldType.Integer,
       [ExportSchemaFieldType.Number]: SchemaFieldType.Number,
       [ExportSchemaFieldType.URL]: SchemaFieldType.URL,
-      [ExportSchemaFieldType.GeometryObject]: SchemaFieldType.GeometryObject,
-      [ExportSchemaFieldType.GeometryEditor]: SchemaFieldType.GeometryEditor,
     },
   };
 

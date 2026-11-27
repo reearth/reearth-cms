@@ -6,7 +6,6 @@ import {
   CheckboxField,
   URLField,
 } from "./FieldComponents";
-import GeometryField from "./FieldComponents/GeometryField";
 import MarkdownField from "./FieldComponents/MarkdownField";
 import NumberField from "./FieldComponents/NumberField";
 import SelectField from "./FieldComponents/SelectField";
@@ -24,6 +23,4 @@ export const FIELD_TYPE_COMPONENT_MAP = {
   Integer: NumberField,
   Number: NumberField,
   Select: SelectField,
-  GeometryObject: GeometryField,
-  GeometryEditor: GeometryField,
 };

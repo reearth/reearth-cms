@@ -4,14 +4,7 @@ import type { Field, SchemaFieldType } from "@reearth-cms/components/molecules/S
 // Keep in sync with the server's `unsupportedTypes`
 // (server/internal/adapter/publicapi/item.go:22-29).
 export const UNSUPPORTED_POSTING_FIELD_TYPES: ReadonlySet<SchemaFieldType> =
-  new Set<SchemaFieldType>([
-    "Asset",
-    "Reference",
-    "Tag",
-    "Group",
-    "GeometryObject",
-    "GeometryEditor",
-  ]);
+  new Set<SchemaFieldType>(["Asset", "Reference", "Tag", "Group"]);
 
 // The server caps URL fields at 2048 chars regardless of the schema.
 const URL_MAX_LENGTH = 2048;

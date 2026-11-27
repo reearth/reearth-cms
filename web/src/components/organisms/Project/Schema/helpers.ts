@@ -1,17 +1,11 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import type {
-  EditorSupportedType,
   SchemaFieldType,
-  ObjectSupportedType,
   TypeProperty,
   ImportFieldInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import type {
-  GeometryEditorSupportedType,
-  GeometryObjectSupportedType,
-  SchemaFieldTypePropertyInput,
-} from "@reearth-cms/gql/__generated__/graphql.generated";
+import type { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { Constant } from "@reearth-cms/utils/constant";
 import type { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
 
@@ -46,22 +40,13 @@ export abstract class SchemaHelpers {
         return "URL";
       case "group":
         return "Group";
-      case "geometryObject":
-        return "GeometryObject";
-      case "geometryEditor":
-        return "GeometryEditor";
       case "text":
       default:
         return "Text";
     }
   }
 
-  public static defaultTypePropertyGet(
-    type: string,
-  ): Record<
-    string,
-    TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
-  > {
+  public static defaultTypePropertyGet(type: string): Record<string, TypeProperty> {
     switch (type.toLowerCase()) {
       case "textarea":
         return {
@@ -132,20 +117,6 @@ export abstract class SchemaHelpers {
         return {
           group: { groupId: undefined },
         };
-      case "geometryobject":
-        return {
-          geometryObject: {
-            defaultValue: "",
-            supportedTypes: [],
-          },
-        };
-      case "geometryeditor":
-        return {
-          geometryEditor: {
-            defaultValue: "",
-            supportedTypes: [],
-          },
-        };
       case "text":
       default:
         return {
@@ -201,22 +172,6 @@ export abstract class SchemaHelpers {
       case ExportSchemaFieldType.URL:
         return {
           url: { defaultValue: field["x-defaultValue"] },
-        };
-      case ExportSchemaFieldType.GeometryObject:
-        return {
-          geometryObject: {
-            defaultValue: field["x-defaultValue"],
-            supportedTypes: (field["x-geoSupportedTypes"] ?? []) as GeometryObjectSupportedType[],
-          },
-        };
-      case ExportSchemaFieldType.GeometryEditor:
-        return {
-          geometryEditor: {
-            defaultValue: field["x-defaultValue"],
-            supportedTypes: (field["x-geoSupportedType"]
-              ? [field["x-geoSupportedType"]]
-              : []) as GeometryEditorSupportedType[],
-          },
         };
       default:
         return {

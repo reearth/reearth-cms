@@ -129,8 +129,6 @@ export type SchemaFieldType =
   | "Checkbox"
   | "Date"
   | "Geometry"
-  | "GeometryEditor"
-  | "GeometryObject"
   | "Group"
   | "Integer"
   | "MarkdownText"

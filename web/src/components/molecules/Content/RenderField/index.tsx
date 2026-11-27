@@ -60,13 +60,7 @@ export const renderField = (
         ))}
       </>
     );
-  } else if (
-    items.length > 1 ||
-    field.type === "TextArea" ||
-    field.type === "MarkdownText" ||
-    field.type === "GeometryObject" ||
-    field.type === "GeometryEditor"
-  ) {
+  } else if (items.length > 1 || field.type === "TextArea" || field.type === "MarkdownText") {
     const content = (
       <>
         {items.map((item, index) => {

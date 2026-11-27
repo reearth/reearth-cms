@@ -204,8 +204,6 @@ func TestSchema_Field(t *testing.T) {
 func TestSchema_FirstGeometryField(t *testing.T) {
 	tp := func(tp *TypeProperty) *TypeProperty { return tp }
 	boolTP := tp(NewBool().TypeProperty())
-	geoObjTP := tp(NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty())
-	geoEdtTP := tp(NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty())
 	geoTP := tp(NewGeometry().TypeProperty())
 
 	fid1 := NewFieldID()
@@ -233,22 +231,6 @@ func TestSchema_FirstGeometryField(t *testing.T) {
 			want: nil,
 		},
 		{
-			name: "geometry object field",
-			s: &Schema{fields: FieldList{
-				{id: fid1, name: "f1", typeProperty: boolTP},
-				{id: fid2, name: "f2", typeProperty: geoObjTP},
-			}},
-			want: &Field{id: fid2, name: "f2", typeProperty: geoObjTP},
-		},
-		{
-			name: "geometry editor field",
-			s: &Schema{fields: FieldList{
-				{id: fid1, name: "f1", typeProperty: boolTP},
-				{id: fid2, name: "f2", typeProperty: geoEdtTP},
-			}},
-			want: &Field{id: fid2, name: "f2", typeProperty: geoEdtTP},
-		},
-		{
 			name: "geometry field",
 			s: &Schema{fields: FieldList{
 				{id: fid1, name: "f1", typeProperty: boolTP},
@@ -259,11 +241,11 @@ func TestSchema_FirstGeometryField(t *testing.T) {
 		{
 			name: "returns first geometry field by order",
 			s: &Schema{fields: FieldList{
-				{id: fid1, name: "f1", typeProperty: geoObjTP, order: 2},
+				{id: fid1, name: "f1", typeProperty: geoTP, order: 2},
 				{id: fid2, name: "f2", typeProperty: boolTP, order: 1},
-				{id: fid3, name: "f3", typeProperty: geoEdtTP, order: 0},
+				{id: fid3, name: "f3", typeProperty: geoTP, order: 0},
 			}},
-			want: &Field{id: fid3, name: "f3", typeProperty: geoEdtTP, order: 0},
+			want: &Field{id: fid3, name: "f3", typeProperty: geoTP, order: 0},
 		},
 	}
 
@@ -280,8 +262,6 @@ func TestSchema_HasGeometryFields(t *testing.T) {
 	t.Parallel()
 
 	boolF := &Field{id: NewFieldID(), typeProperty: NewBool().TypeProperty()}
-	geoObjF := &Field{id: NewFieldID(), typeProperty: NewGeometryObject(GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint}).TypeProperty()}
-	geoEdtF := &Field{id: NewFieldID(), typeProperty: NewGeometryEditor(GeometryEditorSupportedTypeList{GeometryEditorSupportedTypePoint}).TypeProperty()}
 	geoF := &Field{id: NewFieldID(), typeProperty: NewGeometry().TypeProperty()}
 
 	tests := []struct {
@@ -291,8 +271,6 @@ func TestSchema_HasGeometryFields(t *testing.T) {
 	}{
 		{name: "nil schema", s: nil},
 		{name: "no geometry field", s: &Schema{fields: FieldList{boolF}}},
-		{name: "geometry object field", s: &Schema{fields: FieldList{boolF, geoObjF}}, want: true},
-		{name: "geometry editor field", s: &Schema{fields: FieldList{boolF, geoEdtF}}, want: true},
 		{name: "geometry field", s: &Schema{fields: FieldList{boolF, geoF}}, want: true},
 	}
 

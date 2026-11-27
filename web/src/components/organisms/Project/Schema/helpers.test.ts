@@ -106,8 +106,6 @@ describe("convertImportSchemaData", () => {
       [ExportSchemaFieldType.Integer, "Integer"],
       [ExportSchemaFieldType.Number, "Number"],
       [ExportSchemaFieldType.URL, "URL"],
-      [ExportSchemaFieldType.GeometryObject, "GeometryObject"],
-      [ExportSchemaFieldType.GeometryEditor, "GeometryEditor"],
     ];
 
     for (const [exportType, expectedType] of typeMapping) {
@@ -242,53 +240,6 @@ describe("convertImportSchemaData", () => {
 
     expect(result[0].typeProperty).toEqual({
       select: { defaultValue: ["opt1", "opt2"], values: ["opt1", "opt2", "opt3"] },
-    });
-  });
-
-  test("typeProperty for geometryObject with supportedTypes", () => {
-    const properties: ImportSchema["properties"] = {
-      field: {
-        title: "Title",
-        "x-fieldType": ExportSchemaFieldType.GeometryObject,
-        "x-geoSupportedTypes": ["POINT", "POLYGON"],
-      },
-    };
-
-    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
-
-    expect(result[0].typeProperty).toEqual({
-      geometryObject: { defaultValue: undefined, supportedTypes: ["POINT", "POLYGON"] },
-    });
-  });
-
-  test("typeProperty for geometryEditor with supportedType", () => {
-    const properties: ImportSchema["properties"] = {
-      field: {
-        title: "Title",
-        "x-fieldType": ExportSchemaFieldType.GeometryEditor,
-        "x-geoSupportedType": "POINT",
-      },
-    };
-
-    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
-
-    expect(result[0].typeProperty).toEqual({
-      geometryEditor: { defaultValue: undefined, supportedTypes: ["POINT"] },
-    });
-  });
-
-  test("typeProperty for geometryEditor without supportedType", () => {
-    const properties: ImportSchema["properties"] = {
-      field: {
-        title: "Title",
-        "x-fieldType": ExportSchemaFieldType.GeometryEditor,
-      } as ImportSchemaField,
-    };
-
-    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
-
-    expect(result[0].typeProperty).toEqual({
-      geometryEditor: { defaultValue: undefined, supportedTypes: [] },
     });
   });
 

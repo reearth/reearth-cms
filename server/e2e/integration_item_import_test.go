@@ -60,7 +60,7 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 
 	// strategy="insert" and mutateSchema=false
 	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	res1 := IntegrationModelImportMultiPart(e, wId.String(), pId, mId, "geoJson", "insert", false, fids.geometryObjectFid, fileContent1)
+	res1 := IntegrationModelImportMultiPart(e, wId.String(), pId, mId, "geoJson", "insert", false, fids.geometryFid, fileContent1)
 	res1.Object().Value("modelId").String().IsEqual(mId)
 	res1.Object().Value("itemsCount").Number().IsEqual(1)
 	res1.Object().Value("insertedCount").Number().IsEqual(1)
@@ -69,29 +69,29 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 	//newFields1 := res1.Object().Value("newFields").Array()
 	//newFields1.Length().IsEqual(1)
 	//field1 := newFields1.Value(0).Object()
-	//field1.Value("key").String().IsEqual(fids.geometryObjectFid)
+	//field1.Value("key").String().IsEqual(fids.geometryFid)
 	items1 := IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 10, "", "", "", nil)
 	items1.Object().Value("items").Array().Length().IsEqual(1)
 
 	// 	// strategy="insert" and mutateSchema=true
 	// fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res2 := IntegrationModelImport(e, mId, "geoJson", "insert", true, fids.geometryObjectFid, fileContent2)
+	// res2 := IntegrationModelImport(e, mId, "geoJson", "insert", true, fids.geometryFid, fileContent2)
 
 	// // strategy="update" and mutateSchema=false
 	// fileContent3 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res3 := IntegrationModelImport(e, mId, "geoJson", "update", false, fids.geometryObjectFid, fileContent3)
+	// res3 := IntegrationModelImport(e, mId, "geoJson", "update", false, fids.geometryFid, fileContent3)
 
 	// // strategy="update" and mutateSchema=true
 	// fileContent4 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res4 := IntegrationModelImport(e, mId, "geoJson", "update", true, fids.geometryObjectFid, fileContent4)
+	// res4 := IntegrationModelImport(e, mId, "geoJson", "update", true, fids.geometryFid, fileContent4)
 
 	// // strategy="upsert" and mutateSchema=false
 	// fileContent5 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res5 := IntegrationModelImport(e, mId, "geoJson", "upsert", false, fids.geometryObjectFid, fileContent5)
+	// res5 := IntegrationModelImport(e, mId, "geoJson", "upsert", false, fids.geometryFid, fileContent5)
 
 	// // strategy="upsert" and mutateSchema=true
 	// fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res6 := IntegrationModelImport(e, mId, "geoJson", "upsert", true, fids.geometryObjectFid, fileContent6)
+	// res6 := IntegrationModelImport(e, mId, "geoJson", "upsert", true, fids.geometryFid, fileContent6)
 }
 
 // POST /models/{modelId}/import //body: json, content: geoJson
@@ -106,7 +106,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 
 	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2", "bool": true}}]}`
 	aId := uploadAsset(e, wId.String(), pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
-	res := IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "geoJson", "insert", false, &fids.geometryObjectFid)
+	res := IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "geoJson", "insert", false, &fids.geometryFid)
 	res.Object().Value("modelId").String().IsEqual(mId)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
@@ -139,16 +139,15 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 	// endregion
 
 	mId, _ = createModel(e, pId, "test", "test", "test-2")
-	geometryObjectFId, _ := createField(e, mId, "geometryObject", "geometryObject", "geometryObject",
-		false, false, false, false, "GeometryObject",
+	geometryFId, _ := createField(e, mId, "geometry", "geometry", "geometry",
+		false, false, false, false, "Geometry",
 		map[string]any{
-			"geometryObject": map[string]any{
-				"defaultValue":   nil,
-				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
+			"geometry": map[string]any{
+				"defaultValue": nil,
 			},
 		})
 
-	res = IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "geoJson", "insert", true, &geometryObjectFId)
+	res = IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "geoJson", "insert", true, &geometryFId)
 	res.Object().Value("modelId").String().IsEqual(mId)
 	res.Object().ContainsSubset(map[string]any{
 		"modelId":       mId,
@@ -184,27 +183,27 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 	//// strategy="insert" and mutateSchema=true
 	//fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [239.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	//id2 := uploadAsset(e, pId, "./test2.geojson", fileContent2).Object().Value("id").String().Raw()
-	//res2 := IntegrationModelImportJSON(e, mId, id2, "geoJson", "insert", true, &fids.geometryObjectFid)
+	//res2 := IntegrationModelImportJSON(e, mId, id2, "geoJson", "insert", true, &fids.geometryFid)
 	//
 	//// strategy="update" and mutateSchema=false
 	//fileContent3 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	//id3 := uploadAsset(e, pId, "./test3.geojson", fileContent3).Object().Value("id").String().Raw()
-	//res3 := IntegrationModelImportJSON(e, mId, id3, "geoJson", "update", false, fids.geometryObjectFid)
+	//res3 := IntegrationModelImportJSON(e, mId, id3, "geoJson", "update", false, fids.geometryFid)
 	//
 	//// strategy="update" and mutateSchema=true
 	//fileContent4 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	//id4 := uploadAsset(e, pId, "./test4.geojson", fileContent4).Object().Value("id").String().Raw()
-	//res4 := IntegrationModelImportJSON(e, mId, id4, "geoJson", "update", true, fids.geometryObjectFid)
+	//res4 := IntegrationModelImportJSON(e, mId, id4, "geoJson", "update", true, fids.geometryFid)
 	//
 	//// strategy="upsert" and mutateSchema=false
 	//fileContent5 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	//id5 := uploadAsset(e, pId, "./test5.geojson", fileContent5).Object().Value("id").String().Raw()
-	//res5 := IntegrationModelImportJSON(e, mId, id5, "geoJson", "upsert", false, fids.geometryObjectFid)
+	//res5 := IntegrationModelImportJSON(e, mId, id5, "geoJson", "upsert", false, fids.geometryFid)
 	//
 	//// strategy="upsert" and mutateSchema=true
 	//fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	//id6 := uploadAsset(e, pId, "./test6.geojson", fileContent6).Object().Value("id").String().Raw()
-	//res6 := IntegrationModelImportJSON(e, mId, id6, "geoJson", "upsert", true, fids.geometryObjectFid)
+	//res6 := IntegrationModelImportJSON(e, mId, id6, "geoJson", "upsert", true, fids.geometryFid)
 }
 
 // POST /models/{modelId}/import //body: json, content: json, strategy="insert"

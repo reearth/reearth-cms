@@ -79,10 +79,6 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("Description");
   }
 
-  get supportTypePointCheckbox(): Locator {
-    return this.getByLabel("Point", { exact: true });
-  }
-
   // Default value specific
   get plusNewButton(): Locator {
     return this.getByRole("button", { name: "plus New" });
@@ -377,11 +373,6 @@ export class FieldEditorPage extends BasePage {
   // Select date placeholder
   get selectDatePlaceholder(): Locator {
     return this.getByPlaceholder("Select date");
-  }
-
-  // Geometry field specific
-  get pointCheckbox(): Locator {
-    return this.getByLabel("Point", { exact: true });
   }
 
   // Code editor elements

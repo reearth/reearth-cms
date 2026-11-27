@@ -7,7 +7,6 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -126,7 +125,6 @@ const FieldModal: React.FC<Props> = ({
     activeTab,
     selectedValues,
     selectedTags,
-    selectedSupportedTypes,
     maxLength,
     min,
     max,
@@ -142,8 +140,6 @@ const FieldModal: React.FC<Props> = ({
     isUniqueDisabled,
     keyValidate,
     isTitleDisabled,
-    ObjectSupportType,
-    EditorSupportType,
     emptyValidator,
     duplicatedValidator,
     errorIndexes,
@@ -293,32 +289,6 @@ const FieldModal: React.FC<Props> = ({
                 </Select>
               </Form.Item>
             )}
-            {selectedType === "GeometryObject" && (
-              <Form.Item
-                name="supportedTypes"
-                label={t("Supported types")}
-                extra={t("Please select what type of Geometry this field will support")}
-                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
-                <StyledCheckboxGroup>
-                  {ObjectSupportType.map(item => (
-                    <Checkbox value={item.value}>{item.label}</Checkbox>
-                  ))}
-                </StyledCheckboxGroup>
-              </Form.Item>
-            )}
-            {selectedType === "GeometryEditor" && (
-              <Form.Item
-                name="supportedTypes"
-                label={t("Supported type")}
-                extra={t("Please select what type of Geometry this field will support")}
-                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
-                <Radio.Group>
-                  {EditorSupportType.map(item => (
-                    <Radio value={item.value}>{item.label}</Radio>
-                  ))}
-                </Radio.Group>
-              </Form.Item>
-            )}
             <OptionTitle>{t("Options")}</OptionTitle>
             <Form.Item
               name="multiple"
@@ -356,7 +326,6 @@ const FieldModal: React.FC<Props> = ({
               multiple={multipleValue}
               selectedValues={selectedValues}
               selectedTags={selectedTags}
-              selectedSupportedTypes={selectedSupportedTypes}
               maxLength={maxLength}
               min={min}
               max={max}
@@ -432,13 +401,6 @@ const StyledTitle = styled.p`
 const StyledGroupKey = styled.span`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin-left: ${AntdToken.SPACING.XXS}px;
-`;
-
-const StyledCheckboxGroup = styled(Checkbox.Group)`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  overflow-x: auto;
 `;
 
 export default FieldModal;

@@ -204,7 +204,7 @@ func TestSchema_GuessSchemaFieldFromJson(t *testing.T) {
             }`,
 			isGeoJSON: true,
 			want: []GuessFieldData{
-				{Type: value.TypeGeometryObject, Name: "geometry", Key: "geometry"},
+				{Type: value.TypeGeometry, Name: "geometry", Key: "geometry"},
 				{Type: value.TypeText, Name: "name", Key: "name"},
 				{Type: value.TypeText, Name: "category", Key: "category"},
 				{Type: value.TypeInteger, Name: "visitors", Key: "visitors"},

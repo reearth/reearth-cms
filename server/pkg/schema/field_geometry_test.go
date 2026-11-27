@@ -23,7 +23,6 @@ func TestNewGeometry(t *testing.T) {
 
 	sf := NewField(f.TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	assert.True(t, sf.IsGeometryField())
-	assert.True(t, sf.SupportsPointField())
 }
 
 func TestFieldGeometry_Validate(t *testing.T) {
@@ -154,7 +153,7 @@ func TestFieldGeometry_Validate_WrongType(t *testing.T) {
 		v    *value.Value
 	}{
 		{name: "text", v: value.TypeText.Value("a")},
-		{name: "geometry editor", v: value.TypeGeometryEditor.Value(`{"type":"Point","coordinates":[1,1]}`)},
+		{name: "number", v: value.TypeNumber.Value(1)},
 	}
 
 	for _, tt := range tests {

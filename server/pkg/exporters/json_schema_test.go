@@ -134,8 +134,6 @@ func TestDetermineTypeAndFormat(t *testing.T) {
 		{value.TypeURL, "url", "string", "uri"},
 		{value.TypeAsset, "asset", "string", "binary"},
 		{value.TypeGroup, "group", "array", ""},
-		{value.TypeGeometryObject, "geometryObject", "object", ""},
-		{value.TypeGeometryEditor, "geometryEditor", "object", ""},
 		{value.TypeGeometry, "geometry", "object", ""},
 		{"unknown", "", "string", ""},
 	}
@@ -199,45 +197,12 @@ func TestBuildPropertiesExtended(t *testing.T) {
 		expected types.JSONSchema
 	}{
 		{
-			name: "geometry editor with supported types",
-			field: schema.NewField(schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{
-				schema.GeometryEditorSupportedTypePoint,
-				schema.GeometryEditorSupportedTypeLineString,
-			}).TypeProperty()).ID(id.NewFieldID()).Key(id.NewKey("geo-editor")).MustBuild(),
-			expected: types.JSONSchema{
-				Type:             "object",
-				FieldType:        "geometryEditor",
-				GeoSupportedType: new("POINT"),
-			},
-		},
-		{
-			name: "geometry editor with empty supported types",
-			field: schema.NewField(schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{}).TypeProperty()).
-				ID(id.NewFieldID()).Key(id.NewKey("geo-editor-empty")).MustBuild(),
+			name: "geometry",
+			field: schema.NewField(schema.NewGeometry().TypeProperty()).
+				ID(id.NewFieldID()).Key(id.NewKey("geo")).MustBuild(),
 			expected: types.JSONSchema{
 				Type:      "object",
-				FieldType: "geometryEditor",
-			},
-		},
-		{
-			name: "geometry object with supported types",
-			field: schema.NewField(schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{
-				schema.GeometryObjectSupportedTypePoint,
-				schema.GeometryObjectSupportedTypePolygon,
-			}).TypeProperty()).ID(id.NewFieldID()).Key(id.NewKey("geo-object")).MustBuild(),
-			expected: types.JSONSchema{
-				Type:              "object",
-				FieldType:         "geometryObject",
-				GeoSupportedTypes: new([]string{"POINT", "POLYGON"}),
-			},
-		},
-		{
-			name: "geometry object with empty supported types",
-			field: schema.NewField(schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{}).TypeProperty()).
-				ID(id.NewFieldID()).Key(id.NewKey("geo-object-empty")).MustBuild(),
-			expected: types.JSONSchema{
-				Type:      "object",
-				FieldType: "geometryObject",
+				FieldType: "geometry",
 			},
 		},
 		{

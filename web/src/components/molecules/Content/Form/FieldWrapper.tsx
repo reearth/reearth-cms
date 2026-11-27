@@ -30,11 +30,7 @@ const FieldWrapper: React.FC<Props> = ({
   referenceProps,
   groupProps,
 }) => {
-  const isFullWidth = useMemo(
-    () =>
-      field.type === "Group" || field.type === "GeometryObject" || field.type === "GeometryEditor",
-    [field.type],
-  );
+  const isFullWidth = useMemo(() => field.type === "Group", [field.type]);
 
   return (
     <Wrapper key={field.id} isFullWidth={isFullWidth}>

@@ -157,10 +157,6 @@ export abstract class Test {
         return DATA_TEST_ID.FieldList__URL;
       case SchemaFieldType.Group:
         return DATA_TEST_ID.FieldList__Group;
-      case SchemaFieldType.GeometryObject:
-        return DATA_TEST_ID.FieldList__GeometryObject;
-      case SchemaFieldType.GeometryEditor:
-        return DATA_TEST_ID.FieldList__GeometryEditor;
     }
   }
 }
@@ -291,8 +287,6 @@ export enum DATA_TEST_ID {
   FieldList__Checkbox = "FieldList__Checkbox",
   FieldList__URL = "FieldList__URL",
   FieldList__Group = "FieldList__Group",
-  FieldList__GeometryObject = "FieldList__GeometryObject",
-  FieldList__GeometryEditor = "FieldList__GeometryEditor",
 
   // Content list page
   Content__List__ImportContentButton = "Content__List__ImportContentButton",

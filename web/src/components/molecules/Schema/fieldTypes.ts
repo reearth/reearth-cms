@@ -97,16 +97,4 @@ export const fieldTypes: Record<
     description: t("Customize a group of fields"),
     color: AntdColor.CYAN.CYAN_4,
   },
-  GeometryObject: {
-    icon: "curlyBrackets",
-    title: t("Geometry Object"),
-    description: t("Input GeoJSON and preview"),
-    color: AntdColor.GREEN.GREEN_4,
-  },
-  GeometryEditor: {
-    icon: "pencil",
-    title: t("Geometry Editor"),
-    description: t("Draw the geometry on map"),
-    color: AntdColor.GREEN.GREEN_4,
-  },
 };

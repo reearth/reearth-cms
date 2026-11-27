@@ -9,7 +9,6 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ExportContentUtils } from "@reearth-cms/utils/exportContent";
@@ -60,16 +59,6 @@ const ModelCard: React.FC<Props> = ({
   const hasModelFields = useMemo<boolean>(
     () => model.schema.fields.length > 0,
     [model.schema.fields],
-  );
-
-  const getGeometryFieldsCount = useMemo(
-    () =>
-      model.schema?.fields?.filter(
-        field =>
-          field.type === SchemaFieldType.GeometryEditor ||
-          field.type === SchemaFieldType.GeometryObject,
-      ).length ?? 0,
-    [model.schema?.fields],
   );
 
   const getImportSchemaUIMetadata = useMemo(
@@ -165,7 +154,7 @@ const ModelCard: React.FC<Props> = ({
           {
             key: t("GeoJSON"),
             label: t("GeoJSON"),
-            onClick: () => onModelExport(model.id, ExportFormat.Geojson, getGeometryFieldsCount),
+            onClick: () => onModelExport(model.id, ExportFormat.Geojson),
             "data-testid": DATA_TEST_ID.ModelCard__FileOperationExportContentGeoJSON,
           },
         ],
@@ -180,7 +169,6 @@ const ModelCard: React.FC<Props> = ({
       getExportContentUIMetadata.shouldDisable,
       onModelExport,
       model.id,
-      getGeometryFieldsCount,
     ],
   );
 
