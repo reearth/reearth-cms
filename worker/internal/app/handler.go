@@ -20,27 +20,6 @@ func NewHandler(c *rhttp.Controller, pubSubAuth *PubSubAuthenticator) *Handler {
 	return &Handler{Controller: c, PubSubAuth: pubSubAuth}
 }
 
-func (h Handler) DecompressHandler() echo.HandlerFunc {
-	return func(c *echo.Context) error {
-		if err := h.PubSubAuth.Authenticate(c.Request()); err != nil {
-			return err
-		}
-
-		input, err := parsePubSubDecompressMessage(c)
-		if err != nil {
-			log.Errorf("failed to parse request body: %s", err.Error())
-			return err
-		}
-
-		if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
-			log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
-			return err
-		}
-		log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
-		return c.NoContent(http.StatusOK)
-	}
-}
-
 func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		if err := h.PubSubAuth.Authenticate(c.Request()); err != nil {
@@ -61,17 +40,6 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 		log.Infof("webhook has been sent: %#v", webhook)
 		return c.NoContent(http.StatusOK)
 	}
-}
-
-func parsePubSubDecompressMessage(c *echo.Context) (rhttp.DecompressInput, error) {
-	var input rhttp.DecompressInput
-
-	if err := c.Bind(&input); err != nil {
-		log.Errorf("failed to decompress: err=%s", err.Error())
-		return input, err
-	}
-
-	return input, nil
 }
 
 func parsePubSubWebhookMessage(c *echo.Context) (webhook.Webhook, error) {

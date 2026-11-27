@@ -103,8 +103,7 @@ func TestHandler_RejectsUnauthenticatedPubSub(t *testing.T) {
 	e := echo.New()
 
 	for name, hf := range map[string]echo.HandlerFunc{
-		"webhook":    h.WebhookHandler(),
-		"decompress": h.DecompressHandler(),
+		"webhook": h.WebhookHandler(),
 	} {
 		t.Run(name, func(t *testing.T) {
 			body := `{"url":"http://169.254.169.254/","assetId":"x","path":"../../etc"}`

@@ -15,9 +15,7 @@ type Config struct {
 	Port        string `default:"8080" envconfig:"PORT"`
 	ServerHost  string
 	Dev         bool
-	GCS         GCSConfig
 	PubSub      PubSubConfig
-	GCP         GCPConfig `envconfig:"GCP"`
 	DB          string
 	DB_CMS      string `default:"reearth_cms"`
 	HealthCheck HealthCheckConfig
@@ -28,18 +26,7 @@ type HealthCheckConfig struct {
 	Password string
 }
 
-type GCSConfig struct {
-	BucketName              string `envconfig:"GCS_BUCKET_NAME"`
-	AssetBaseURL            string `envconfig:"GCS_ASSET_BASE_URL"`
-	PublicationCacheControl string
-}
-
-type GCPConfig struct {
-	Project string
-}
-
 type PubSubConfig struct {
-	Topic string `default:"decompress"`
 	// Audience is the expected "aud" claim of the OIDC token attached to Pub/Sub push requests.
 	Audience string
 	// ServiceAccount is the email of the service account that the push subscription uses to sign tokens.

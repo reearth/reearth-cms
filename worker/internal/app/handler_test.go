@@ -26,7 +26,7 @@ func TestRoutes_RequireOIDC(t *testing.T) {
 		{name: "forged token with old SNS header", authHeader: "Bearer forged", snsHeader: "SubscriptionConfirmation"},
 	}
 
-	for _, endpoint := range []string{"/api/webhook", "/api/decompress"} {
+	for _, endpoint := range []string{"/api/webhook"} {
 		for _, tt := range tests {
 			t.Run(endpoint+"/"+tt.name, func(t *testing.T) {
 				var oidcCalls atomic.Int32
