@@ -7386,17 +7386,7 @@ aws-amplify@6.18.0:
     "@aws-amplify/storage" "6.16.0"
     tslib "^2.5.0"
 
-axios@1.18.1:
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.18.1.tgz#d63f9863bcd8938815c86f9e2abd380189d96dfe"
-  integrity sha512-3nTvFlvpn9Zu/RkHUqtc7/+al4UpRW5az71ap5zccp6e8RAYEzhMTecX8Dz1wWDYrPpUoB1HAQEGEAEvUr7S9g==
-  dependencies:
-    follow-redirects "^1.16.0"
-    form-data "^4.0.5"
-    https-proxy-agent "^5.0.1"
-    proxy-from-env "^2.1.0"
-
-axios@^1.13.5:
+axios@1.20.0, axios@^1.13.5:
   version "1.20.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.20.0.tgz#515513445aa60e71d04b6521ca6210829ccb4786"
   integrity sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg==
