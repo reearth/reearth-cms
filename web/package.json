@@ -95,7 +95,7 @@
     "vite": "8.1.5",
     "vite-plugin-cesium": "1.2.23",
     "vite-tsconfig-paths": "6.1.1",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "yaml": "2.9.0",
     "zod": "4.4.3"
   },
