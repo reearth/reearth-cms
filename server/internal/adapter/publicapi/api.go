@@ -162,16 +162,6 @@ func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 
 	p := paginationFrom(c)
 
-	w := bytes.NewBuffer(nil)
-
-	err := ctrl.GetPublicItems(ctx, wsAlias, pAlias, mKey, ext, p, w)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-		}
-		return err
-	}
-
 	contentType := "application/json"
 	switch ext {
 	case "json":
@@ -182,7 +172,17 @@ func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {
 		contentType = "text/csv"
 	}
 
-	return c.Blob(http.StatusOK, contentType, w.Bytes())
+	err := stream(c, contentType, func(w io.Writer) error {
+		return ctrl.GetPublicItems(ctx, wsAlias, pAlias, mKey, ext, p, w)
+	})
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+		}
+		return err
+	}
+
+	return nil
 }
 
 func ItemOrAsset() echo.HandlerFunc {
