@@ -209,7 +209,7 @@ export type GetModelQuery = {
               | { __typename: "SchemaFieldBool"; defaultValue: unknown }
               | { __typename: "SchemaFieldCheckbox" }
               | { __typename: "SchemaFieldDate"; defaultValue: unknown }
-              | { __typename: "SchemaFieldGeometry" }
+              | { __typename: "SchemaFieldGeometry"; defaultValue: unknown }
               | {
                   __typename: "SchemaFieldGeometryEditor";
                   defaultValue: unknown;
@@ -1198,6 +1198,22 @@ export const GetModelDocument = {
                                                   value: "editorSupportedTypes",
                                                 },
                                                 name: { kind: "Name", value: "supportedTypes" },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: "InlineFragment",
+                                          typeCondition: {
+                                            kind: "NamedType",
+                                            name: { kind: "Name", value: "SchemaFieldGeometry" },
+                                          },
+                                          selectionSet: {
+                                            kind: "SelectionSet",
+                                            selections: [
+                                              {
+                                                kind: "Field",
+                                                name: { kind: "Name", value: "defaultValue" },
                                               },
                                             ],
                                           },

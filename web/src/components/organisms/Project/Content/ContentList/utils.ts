@@ -1,3 +1,4 @@
+import type { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 import type { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
 import type { AndCondition as GQLAndCondition } from "@reearth-cms/gql/__generated__/graphql.generated";
 
@@ -10,6 +11,12 @@ export function fileName(url: string | undefined): string {
     files = url.split("/");
   }
   return files.length ? files[files.length - 1] : "";
+}
+
+/** Geometry values are objects; cells show them as GeoJSON text, like legacy geometry fields. */
+export function geometryCellValue(value: ItemValue | null): string | string[] | null {
+  if (Array.isArray(value)) return value.length > 0 ? value.map(v => JSON.stringify(v)) : null;
+  return value === null ? null : JSON.stringify(value);
 }
 
 export function filterConvert(filter: GQLAndCondition): AndConditionInput | undefined {

@@ -78,6 +78,7 @@ export const SchemaFieldType = {
   Group: "Group",
   GeometryObject: "GeometryObject",
   GeometryEditor: "GeometryEditor",
+  Geometry: "Geometry",
 } as const;
 
 export type SchemaFieldType = (typeof SchemaFieldType)[keyof typeof SchemaFieldType];
@@ -95,6 +96,7 @@ export enum ExportSchemaFieldType {
   URL = "url",
   GeometryObject = "geometryObject",
   GeometryEditor = "geometryEditor",
+  Geometry = "geometry",
 }
 
 export type Tag = {

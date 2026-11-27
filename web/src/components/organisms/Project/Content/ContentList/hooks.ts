@@ -59,7 +59,7 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 import type { ErrorLogMeta } from "@reearth-cms/utils/importErrorLog";
 
-import { fileName } from "./utils";
+import { fileName, geometryCellValue } from "./utils";
 
 const defaultViewSort: ItemSort = {
   direction: "DESC",
@@ -391,6 +391,8 @@ export default () => {
     } else {
       if (field.type === "Reference") {
         return item.referencedItems?.find(ref => ref.id === field.value)?.title ?? field.value;
+      } else if (field.type === "Geometry") {
+        return geometryCellValue(field.value);
       } else {
         if (Array.isArray(field.value) && field.value.length > 0) {
           return field.value.map(v => "" + v);

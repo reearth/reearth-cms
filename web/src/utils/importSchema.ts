@@ -3,6 +3,7 @@
 import type { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
 import type {
+  GeoJSONGeometry,
   GeoJSONGeometryCollection,
   GeoJSONLineString,
   GeoJSONMultiLineString,
@@ -12,6 +13,7 @@ import type {
 } from "zod-geojson";
 import {
   GeoJSONGeometryCollectionSchema,
+  GeoJSONGeometrySchema,
   GeoJSONLineStringSchema,
   GeoJSONMultiLineStringSchema,
   GeoJSONMultiPointSchema,
@@ -219,6 +221,18 @@ export interface FieldGeoObjectMulti<
   "x-defaultValue"?: SupportTypeToGeoJSON<S>[];
 }
 
+export interface FieldGeometry extends FieldBase {
+  "x-fieldType": ExportSchemaFieldType.Geometry;
+  "x-multiple"?: false;
+  "x-defaultValue"?: GeoJSONGeometry;
+}
+
+export interface FieldGeometryMulti extends FieldBase {
+  "x-fieldType": ExportSchemaFieldType.Geometry;
+  "x-multiple"?: true;
+  "x-defaultValue"?: GeoJSONGeometry[];
+}
+
 interface FieldGeoEditorPoint extends FieldGeoEditorBase {
   "x-defaultValue"?: GeoJSONPoint;
 }
@@ -274,7 +288,8 @@ export type ImportSchemaFieldSingle =
   | FieldBoolean
   | FieldDate
   | FieldGeoObject
-  | FieldGeoEditor;
+  | FieldGeoEditor
+  | FieldGeometry;
 
 export type ImportSchemaFieldMulti =
   | FieldTextMulti
@@ -288,7 +303,8 @@ export type ImportSchemaFieldMulti =
   | FieldBooleanMulti
   | FieldDateMulti
   | FieldGeoObjectMulti
-  | FieldGeoEditorMulti;
+  | FieldGeoEditorMulti
+  | FieldGeometryMulti;
 
 export type ImportSchemaField = ImportSchemaFieldSingle | ImportSchemaFieldMulti;
 
@@ -552,6 +568,22 @@ export abstract class ImportSchemaUtils {
         })
         .and(this.FIELD_BASE_VALIDATOR),
     ]);
+
+  private static readonly FIELD_GEOMETRY_VALIDATOR: z.ZodType<FieldGeometry> = z
+    .object({
+      "x-fieldType": z.literal(ExportSchemaFieldType.Geometry),
+      "x-multiple": z.literal(false).default(false).optional(),
+      "x-defaultValue": GeoJSONGeometrySchema.optional(),
+    })
+    .and(this.FIELD_BASE_VALIDATOR);
+
+  private static readonly FIELD_GEOMETRY_MULTI_VALIDATOR: z.ZodType<FieldGeometryMulti> = z
+    .object({
+      "x-fieldType": z.literal(ExportSchemaFieldType.Geometry),
+      "x-multiple": z.literal(true).default(true).optional(),
+      "x-defaultValue": GeoJSONGeometrySchema.array().optional(),
+    })
+    .and(this.FIELD_BASE_VALIDATOR);
 
   private static readonly IMPORT_SCHEMA_VALIDATOR: z.ZodType<ImportSchema> = z.object({
     properties: z.record(
@@ -831,6 +863,8 @@ export abstract class ImportSchemaUtils {
         this.FIELD_GEO_OBJECT_MULTI_VALIDATOR,
         this.FILED_GEO_EDITOR_VALIDATOR,
         this.FILED_GEO_EDITOR_MULTI_VALIDATOR,
+        this.FIELD_GEOMETRY_VALIDATOR,
+        this.FIELD_GEOMETRY_MULTI_VALIDATOR,
       ]),
     ),
   });

@@ -139,7 +139,11 @@ const GroupItem: React.FC<Props> = ({
               return (
                 <StyledFormItemWrapper
                   key={field.id}
-                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
+                  isFullWidth={
+                    field.type === "Geometry" ||
+                    field.type === "GeometryObject" ||
+                    field.type === "GeometryEditor"
+                  }>
                   <FieldComponent
                     field={field}
                     itemGroupId={itemGroupId}

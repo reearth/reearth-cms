@@ -45,6 +45,11 @@ vi.mock("@reearth-cms/utils/file", () => ({
 vi.mock("@reearth-cms/utils/object", () => ({
   ObjectUtils: {
     parseJSON: (...args: unknown[]) => mockParseJSON(...args),
+  },
+}));
+
+vi.mock("@reearth-cms/utils/geoUtils", () => ({
+  GeoUtils: {
     validateGeoJson: (...args: unknown[]) => mockValidateGeoJson(...args),
   },
 }));

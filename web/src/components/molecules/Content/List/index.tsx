@@ -160,6 +160,7 @@ const ContentListMolecule: React.FC<Props> = ({
     () =>
       model?.schema?.fields?.filter(
         field =>
+          field.type === SchemaFieldType.Geometry ||
           field.type === SchemaFieldType.GeometryEditor ||
           field.type === SchemaFieldType.GeometryObject,
       ).length ?? 0,

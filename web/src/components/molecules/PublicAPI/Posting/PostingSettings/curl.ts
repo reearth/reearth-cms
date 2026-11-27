@@ -2,13 +2,14 @@ import type { Field, SchemaFieldType } from "@reearth-cms/components/molecules/S
 
 // Field types the public posting API silently drops (and rejects when required).
 // Keep in sync with the server's `unsupportedTypes`
-// (server/internal/adapter/publicapi/item.go:22-29).
+// (server/internal/adapter/publicapi/item.go:23-31).
 export const UNSUPPORTED_POSTING_FIELD_TYPES: ReadonlySet<SchemaFieldType> =
   new Set<SchemaFieldType>([
     "Asset",
     "Reference",
     "Tag",
     "Group",
+    "Geometry",
     "GeometryObject",
     "GeometryEditor",
   ]);

@@ -94,6 +94,10 @@ export class ContentPage extends BasePage {
   cellEditButtonByIndex(index: number): Locator {
     return this.getByRole("cell").getByLabel("edit").locator("svg").nth(index);
   }
+  /** The edit button of the list row that contains `content`, whatever the row order. */
+  editButtonOfRowWith(content: Locator): Locator {
+    return this.tableBodyRows.filter({ has: content }).getByLabel("edit").locator("svg");
+  }
 
   // Link elements
   linkByName(name: string): Locator {
@@ -472,6 +476,17 @@ export class ContentPage extends BasePage {
     return this.locator(".ant-row").getByRole("button").nth(index);
   }
 
+  /**
+   * Empties the legacy geometry editor with its trash button. Clicked at full speed, the old
+   * editor can write its previous value straight back, so retry until it stays empty.
+   */
+  async clearLegacyGeometryEditor(): Promise<void> {
+    await expect(async () => {
+      await this.antRowButton(1).click({ timeout: 1_000 });
+      await expect(this.viewLinesEditor).toHaveText("", { timeout: 1_000 });
+    }).toPass();
+  }
+
   // Unique field label
   uniqueFieldLabel(fieldName: string): Locator {
     return this.getByText(`${fieldName}(unique)`);
@@ -742,6 +757,11 @@ export class ContentPage extends BasePage {
 
   get tableContentFieldPopoverContent(): Locator {
     return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverContent);
+  }
+
+  /** A geometry field's popover shows a mini map, or the raw value when it can't be read. */
+  get geometryMiniMap(): Locator {
+    return this.tableContentFieldPopoverContent.getByTestId(DATA_TEST_ID.GeometryMiniMap__Map);
   }
 
   // ========== Import Content Actions ==========

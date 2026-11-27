@@ -11,6 +11,10 @@ export const fieldTypes: Record<
     title: string;
     description: string;
     color: string;
+    /** Shown as a "New" tag in the Add Field list. */
+    isNew?: boolean;
+    /** Shown as a "Deprecated" tag; adding it asks the user to use this type instead. */
+    replacedBy?: SchemaFieldType;
   }
 > = {
   Text: {
@@ -97,16 +101,25 @@ export const fieldTypes: Record<
     description: t("Customize a group of fields"),
     color: AntdColor.CYAN.CYAN_4,
   },
+  Geometry: {
+    icon: "polygon",
+    title: t("Geometry"),
+    description: t("Draw points, lines or areas on a map, or enter them as coordinates or GeoJSON"),
+    color: AntdColor.GREEN.GREEN_6,
+    isNew: true,
+  },
   GeometryObject: {
     icon: "curlyBrackets",
     title: t("Geometry Object"),
     description: t("Input GeoJSON and preview"),
     color: AntdColor.GREEN.GREEN_4,
+    replacedBy: "Geometry",
   },
   GeometryEditor: {
     icon: "pencil",
     title: t("Geometry Editor"),
     description: t("Draw the geometry on map"),
     color: AntdColor.GREEN.GREEN_4,
+    replacedBy: "Geometry",
   },
 };

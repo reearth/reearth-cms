@@ -108,6 +108,7 @@ describe("convertImportSchemaData", () => {
       [ExportSchemaFieldType.URL, "URL"],
       [ExportSchemaFieldType.GeometryObject, "GeometryObject"],
       [ExportSchemaFieldType.GeometryEditor, "GeometryEditor"],
+      [ExportSchemaFieldType.Geometry, "Geometry"],
     ];
 
     for (const [exportType, expectedType] of typeMapping) {
@@ -289,6 +290,23 @@ describe("convertImportSchemaData", () => {
 
     expect(result[0].typeProperty).toEqual({
       geometryEditor: { defaultValue: undefined, supportedTypes: [] },
+    });
+  });
+
+  test("typeProperty for geometry with defaultValue", () => {
+    const defaultValue = { type: "Point" as const, coordinates: [139.7, 35.6] };
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Geometry,
+        "x-defaultValue": defaultValue,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      geometry: { defaultValue },
     });
   });
 

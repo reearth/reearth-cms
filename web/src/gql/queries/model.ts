@@ -182,6 +182,9 @@ export const GET_MODEL_NODE = gql`
                 defaultValue
                 editorSupportedTypes: supportedTypes
               }
+              ... on SchemaFieldGeometry {
+                defaultValue
+              }
             }
           }
         }
