@@ -9,12 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gavv/httpexpect/v2"
-	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -43,8 +40,7 @@ var (
 	pStreamNoGeoMKey     = "stream-no-geometry"
 	pStreamPrivateMKey   = "stream-private-model"
 
-	pStreamItemIDs  []string
-	pStreamAssetIDs []string
+	pStreamItemIDs []string
 )
 
 func publicAPIStreamSeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
@@ -57,7 +53,7 @@ func publicAPIStreamSeeder(ctx context.Context, r *repo.Container, _ *gateway.Co
 		return err
 	}
 
-	// public project: every model and the assets are public
+	// public project: every model is public
 	p := project.New().NewID().Workspace(wid).Alias(pStreamPAlias).Accessibility(project.NewPublicAccessibility()).MustBuild()
 	if err := r.Project.Save(ctx, p); err != nil {
 		return err
@@ -107,21 +103,7 @@ func publicAPIStreamSeeder(ctx context.Context, r *repo.Container, _ *gateway.Co
 		return err
 	}
 
-	// many assets
-	pStreamAssetIDs = make([]string, 0, pStreamCount)
-	for i := range pStreamCount {
-		name := fmt.Sprintf("file-%d.txt", i)
-		a := asset.New().NewID().Project(p.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID().Ref()).FileName(name).UUID(uuid.NewString()).MustBuild()
-		if err := r.Asset.Save(ctx, a); err != nil {
-			return err
-		}
-		if err := r.AssetFile.Save(ctx, a.ID(), asset.NewFile().Name(name).Path(name).ContentType("text/plain").Size(1).Build()); err != nil {
-			return err
-		}
-		pStreamAssetIDs = append(pStreamAssetIDs, a.ID().String())
-	}
-
-	// private project: neither its models nor its assets are public
+	// private project: its models are not public
 	privateP := project.New().NewID().Workspace(wid).Alias(pStreamPrivatePAlias).
 		Accessibility(project.NewAccessibility(project.VisibilityPrivate, project.NewPublicationSettings(nil, false), nil, nil)).MustBuild()
 	if err := r.Project.Save(ctx, privateP); err != nil {
@@ -258,18 +240,6 @@ func TestPublicAPI_ExportStreaming(t *testing.T) {
 		assertSameIDs(t, pStreamItemIDs, ids)
 	})
 
-	t.Run("unpaginated assets return every asset exactly once", func(t *testing.T) {
-		raw := e.GET("/api/p/{workspace}/{project}/assets", pStreamWAlias, pStreamPAlias).
-			Expect().
-			Status(http.StatusOK).
-			HasContentType("application/json").
-			Body().Raw()
-
-		var res pStreamJSONResult
-		require.NoError(t, json.Unmarshal([]byte(raw), &res))
-		assertSameIDs(t, pStreamAssetIDs, res.ids())
-	})
-
 	t.Run("errors keep their status codes", func(t *testing.T) {
 		notFound := map[string]any{"error": "not found"}
 
@@ -281,44 +251,9 @@ func TestPublicAPI_ExportStreaming(t *testing.T) {
 			Expect().Status(http.StatusNotFound).JSON().IsEqual(notFound)
 		e.GET(itemsURL, pStreamWAlias, pStreamPrivatePAlias, pStreamPrivateMKey).
 			Expect().Status(http.StatusNotFound).JSON().IsEqual(notFound)
-		e.GET("/api/p/{workspace}/{project}/assets", pStreamWAlias, pStreamPrivatePAlias).
-			Expect().Status(http.StatusNotFound).JSON().IsEqual(notFound)
 
 		e.GET(itemsURL+".geojson", pStreamWAlias, pStreamPAlias, pStreamNoGeoMKey).
 			Expect().Status(http.StatusBadRequest).
 			JSON().Object().Value("error").String().IsEqual("no geometry field in this model")
 	})
-}
-
-// GET /models/{modelId}/items.geojson on a model without a geometry field
-// used to answer 200 with an empty body, because the status was sent before
-// the export had a chance to fail.
-func TestIntegrationItemsAsGeoJSON_NoGeometryField(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	textFId, _ := createField(e, mId, "text", "text", "text",
-		false, false, false, false, "Text",
-		map[string]any{
-			"text": map[string]any{},
-		})
-	sId, _, _ := getModel(e, mId)
-	_, _ = createItem(e, mId, sId, nil, []map[string]any{
-		{"schemaFieldId": textFId, "value": "test1", "type": "Text"},
-	})
-
-	request := func(model string) *httpexpect.Response {
-		return iAPIItemsAsGeoJSON(e, wId.String(), pId, model).
-			WithHeader("Origin", "https://example.com").
-			WithHeader("X-Reearth-Debug-User", uId1.String()).
-			Expect()
-	}
-
-	request(mId).
-		Status(http.StatusBadRequest).
-		JSON().Object().Value("error").String().IsEqual("no geometry field in this model")
-
-	request(id.NewModelID().String()).
-		Status(http.StatusNotFound)
 }

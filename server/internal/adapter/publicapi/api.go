@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -142,9 +143,9 @@ func Assets(c *echo.Context, wsAlias, pAlias, model, ext string) error {
 
 	p := paginationFrom(c)
 
-	err := stream(c, echo.MIMEApplicationJSON, func(w io.Writer) error {
-		return ctrl.GetAssets(ctx, wsAlias, pAlias, p, w)
-	})
+	w := bytes.NewBuffer(nil)
+
+	err := ctrl.GetAssets(ctx, wsAlias, pAlias, p, w)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
@@ -152,7 +153,7 @@ func Assets(c *echo.Context, wsAlias, pAlias, model, ext string) error {
 		return err
 	}
 
-	return nil
+	return c.JSONBlob(http.StatusOK, w.Bytes())
 }
 
 func Items(c *echo.Context, wsAlias, pAlias, mKey, ext string) error {

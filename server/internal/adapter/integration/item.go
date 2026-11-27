@@ -186,18 +186,14 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		SchemaPackage: *sp,
 	}
 
-	body, err := streamExport(ctx, func(w io.Writer) error {
-		return uc.Item.Export(ctx, req, w, op)
-	})
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemsAsGeoJSON404Response{}, err
-		}
-		return ItemsAsGeoJSON400Response{}, err
-	}
+	r, w := io.Pipe()
+	go func() {
+		err = uc.Item.Export(ctx, req, w, op)
+		_ = w.CloseWithError(err)
+	}()
 
 	return ItemsAsGeoJSON200ApplicationoctetStreamResponse{
-		Body:          body,
+		Body:          r,
 		ContentLength: 0,
 	}, nil
 }
