@@ -97,7 +97,7 @@
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "4.1.10",
     "yaml": "2.9.0",
-    "zod": "4.4.3"
+    "zod": "4.6.6"
   },
   "dependencies": {
     "@ant-design/colors": "8.0.1",
