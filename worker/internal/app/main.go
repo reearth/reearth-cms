@@ -12,7 +12,6 @@ import (
 	"github.com/labstack/echo/v5"
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
 	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
-	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
@@ -51,21 +50,17 @@ func Start(debug bool, version string) {
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	// gateways
-	gateways := initReposAndGateways(ctx, conf, debug)
-
 	// usecase
-	uc := interactor.NewUsecase(gateways, repos)
+	uc := interactor.NewUsecase(repos)
 	ctrl := rhttp.NewController(uc)
 	handler := NewHandler(ctrl, NewPubSubAuthenticator(conf.PubSub, conf.Dev))
 
 	// start web server
 	NewServer(ctx, &ServerConfig{
-		Config:   conf,
-		Debug:    debug,
-		Gateways: gateways,
-		Repos:    repos,
-		Version:  version,
+		Config:  conf,
+		Debug:   debug,
+		Repos:   repos,
+		Version: version,
 	}, handler).Run(ctx)
 }
 
@@ -75,11 +70,10 @@ type WebServer struct {
 }
 
 type ServerConfig struct {
-	Config   *Config
-	Debug    bool
-	Gateways *gateway.Container
-	Repos    *repo.Container
-	Version  string
+	Config  *Config
+	Debug   bool
+	Repos   *repo.Container
+	Version string
 }
 
 func NewServer(ctx context.Context, cfg *ServerConfig, handler *Handler) *WebServer {

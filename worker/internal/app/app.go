@@ -34,9 +34,6 @@ func initEcho(_ context.Context, cfg *ServerConfig, handler *Handler) *echo.Echo
 
 	e.GET("/health", HealthCheck(cfg.Config, cfg.Version))
 
-	t := handler.DecompressHandler()
-	api.POST("/decompress", t)
-
 	wh := handler.WebhookHandler()
 	api.POST("/webhook", wh)
 

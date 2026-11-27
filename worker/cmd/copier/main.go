@@ -38,7 +38,7 @@ func main() {
 		log.Fatalf("failed to initialize repositories with DB URI %s: %v", dbURI, err)
 	}
 
-	uc := interactor.NewUsecase(nil, repos)
+	uc := interactor.NewUsecase(repos)
 	ctrl := http.NewCopyController(uc)
 	if err := ctrl.Copy(ctx, http.CopyInput{Filter: filter, Changes: changes}); err != nil {
 		log.Fatalf("copy operation failed: %v", err)
