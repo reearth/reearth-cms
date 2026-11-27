@@ -52,7 +52,7 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 			name:            "non-existent project returns not found",
 			user:            uId.String(),
 			projectId:       id.NewProjectID().String(),
-			wantErrCode:     codes.Unknown,
+			wantErrCode:     codes.NotFound,
 			wantErrContains: "not found",
 		},
 		{
@@ -190,7 +190,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 			name:    "non-existent model returns not found",
 			userID:  uId.String(),
 			req:     &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias, ModelIdOrAlias: id.NewModelID().String()},
-			wantErr: status.Error(codes.Unknown, "not found"),
+			wantErr: status.Error(codes.NotFound, "not found"),
 		},
 	}
 
@@ -261,7 +261,7 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 			name:            "non-existent model returns not found",
 			user:            uId.String(),
 			request:         &pb.ListItemsRequest{ProjectId: pid.String(), ModelId: id.NewModelID().String()},
-			wantErrCode:     codes.Unknown,
+			wantErrCode:     codes.NotFound,
 			wantErrContains: "not found",
 		},
 		// Sequential success cases — each setup builds on the previous state
