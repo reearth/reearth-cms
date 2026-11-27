@@ -731,7 +731,7 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			user:            uId.String(),
 			workspaceAlias:  wId0.String(),
 			projectAlias:    "non-existent-project",
-			wantErrCode:     codes.Unknown,
+			wantErrCode:     codes.NotFound,
 			wantErrContains: "not found",
 		},
 		{
@@ -746,7 +746,7 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			name:            "missing user ID in metadata returns user not found",
 			workspaceAlias:  wId0.String(),
 			projectAlias:    palias,
-			wantErrCode:     codes.Unknown,
+			wantErrCode:     codes.Unauthenticated,
 			wantErrContains: "user not found",
 		},
 		{
@@ -754,7 +754,7 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			user:           "invalid-user-id",
 			workspaceAlias: wId0.String(),
 			projectAlias:   palias,
-			wantErrCode:    codes.Unknown,
+			wantErrCode:    codes.Unauthenticated,
 		},
 		// Sequential star/unstar operations — each row builds on the previous state
 		{

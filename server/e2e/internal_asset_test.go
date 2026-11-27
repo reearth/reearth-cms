@@ -53,7 +53,7 @@ func TestInternalListAssetsInProjectAPI(t *testing.T) {
 			name:            "non-existent project returns not found",
 			user:            uId.String(),
 			request:         &pb.ListAssetsRequest{ProjectId: id.NewProjectID().String()},
-			wantErrCode:     codes.Unknown,
+			wantErrCode:     codes.NotFound,
 			wantErrContains: "not found",
 		},
 		{
@@ -170,7 +170,7 @@ func TestInternalGetAssetAPI(t *testing.T) {
 			name:            "non-existent asset returns not found",
 			user:            uId.String(),
 			assetId:         id.NewAssetID().String(),
-			wantErrCode:     codes.Unknown,
+			wantErrCode:     codes.NotFound,
 			wantErrContains: "not found",
 		},
 		{

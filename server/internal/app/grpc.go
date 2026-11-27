@@ -18,8 +18,12 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/text/language"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
+
+var errUnauthorized = status.Error(codes.Unauthenticated, "unauthorized")
 
 func initGrpc(appCtx *ApplicationContext) *grpc.Server {
 	if appCtx == nil || appCtx.Config == nil {
@@ -27,6 +31,7 @@ func initGrpc(appCtx *ApplicationContext) *grpc.Server {
 	}
 
 	ui := grpc.ChainUnaryInterceptor(
+		unaryErrorInterceptor(),
 		unaryLogInterceptor(appCtx),
 		unaryAuthInterceptor(appCtx),
 		unaryAttachOperatorInterceptor(appCtx),
@@ -71,18 +76,18 @@ func unaryAuthInterceptor(appCtx *ApplicationContext) grpc.UnaryServerIntercepto
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			log.Errorf("unaryAuthInterceptor: no metadata found")
-			return nil, errors.New("unauthorized")
+			return nil, errUnauthorized
 		}
 
 		token := tokenFromGrpcMetadata(md)
 		if token == "" {
 			log.Errorf("unaryAuthInterceptor: no token found")
-			return nil, errors.New("unauthorized")
+			return nil, errUnauthorized
 		}
 
 		if token != appCtx.Config.InternalApi.Token {
 			log.Errorf("unaryAuthInterceptor: invalid token")
-			return nil, errors.New("unauthorized")
+			return nil, errUnauthorized
 		}
 
 		return handler(ctx, req)
@@ -94,7 +99,7 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			log.Errorf("unaryAttachOperatorInterceptor: no metadata found")
-			return nil, errors.New("unauthorized")
+			return nil, errUnauthorized
 		}
 
 		userID := userIdFromGrpcMetadata(md)
@@ -123,7 +128,7 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		if appCtx == nil || appCtx.Repos == nil || appCtx.AcRepos == nil || appCtx.Gateways == nil || appCtx.AcGateways == nil {
-			return nil, errors.New("internal error")
+			return nil, status.Error(codes.Internal, "internal error")
 		}
 
 		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways

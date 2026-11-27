@@ -3,7 +3,6 @@ package internalapi
 import (
 	"bytes"
 	"context"
-	"errors"
 	"io"
 	"net/url"
 
@@ -140,9 +139,6 @@ func (s server) DeleteProject(ctx context.Context, req *pb.DeleteProjectRequest)
 
 	err = uc.Project.Delete(ctx, pId, op)
 	if err != nil {
-		if errors.Is(err, interfaces.ErrProjectHasModels) || errors.Is(err, interfaces.ErrProjectHasGroups) {
-			return nil, status.Error(codes.FailedPrecondition, err.Error())
-		}
 		return nil, err
 	}
 
@@ -601,7 +597,7 @@ func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarR
 	usr := adapter.User(ctx)
 
 	if usr == nil {
-		return nil, errors.New("user not found in context")
+		return nil, status.Error(codes.Unauthenticated, "user not found in context")
 	}
 
 	if req.ProjectAlias == "" {
